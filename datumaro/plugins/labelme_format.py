@@ -16,9 +16,10 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, LabelCategories, Mask, Polygon,
 )
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import Image
+from datumaro.components.media import ByteImage, Image
 from datumaro.util import cast, escape, unescape
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask
@@ -358,6 +359,8 @@ class LabelMeConverter(Converter):
         image_filename = self._make_image_filename(item)
         if self._save_media:
             if item.media and item.media.has_data:
+                if not isinstance(item.media, (ByteImage, Image)):
+                    raise MediaTypeError("Media type is not an image")
                 self._save_image(item, osp.join(subset_dir, image_filename))
             else:
                 log.debug("Item '%s' has no image", item.id)

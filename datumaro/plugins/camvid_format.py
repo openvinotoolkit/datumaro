@@ -17,9 +17,10 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import Image
+from datumaro.components.media import ByteImage, Image
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
@@ -294,7 +295,9 @@ class CamvidConverter(Converter):
             segm_list = {}
             for item in subset:
                 image_path = self._make_image_filename(item, subdir=subset_name)
-                if self._save_media:
+                if self._save_media and item.media:
+                    if not isinstance(item.media, (ByteImage, Image)):
+                        raise MediaTypeError("Media type is not an image")
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
                 masks = [a for a in item.annotations

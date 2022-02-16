@@ -12,7 +12,9 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import PointCloud
 from datumaro.util import cast
 from datumaro.util.image import find_images
 
@@ -415,16 +417,17 @@ class KittiRawConverter(Converter):
             index = cast(item.attributes.get('frame'), int, index)
 
         if self._save_media and item.media:
-            if item.media:
-                self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
+            if not isinstance(item.media, PointCloud):
+                raise MediaTypeError("Media type is not a point cloud")
 
-            if item.media:
-                images = sorted(item.media.extra_images, key=lambda img: img.path)
-                for i, image in enumerate(images):
-                    if image.has_data:
-                        image.save(osp.join(self._save_dir,
-                            KittiRawPath.IMG_DIR_PREFIX + ('%02d' % i), 'data',
-                            item.id + self._find_image_ext(image)))
+            self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
+
+            images = sorted(item.media.extra_images, key=lambda img: img.path)
+            for i, image in enumerate(images):
+                if image.has_data:
+                    image.save(osp.join(self._save_dir,
+                        KittiRawPath.IMG_DIR_PREFIX + ('%02d' % i), 'data',
+                        item.id + self._find_image_ext(image)))
 
         elif self._save_media and not item.media:
             log.debug("Item '%s' has no image info", item.id)

@@ -8,8 +8,9 @@ import os.path as osp
 import re
 
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
-from datumaro.components.media import Image
+from datumaro.components.media import ByteImage, Image
 from datumaro.util.image import find_images
 
 
@@ -141,6 +142,8 @@ class Market1501Converter(Converter):
                 image_path = self._make_image_filename(item,
                     name=image_name, subdir=dirname)
                 if self._save_media and item.media:
+                    if not isinstance(item.media, (ByteImage, Image)):
+                        raise MediaTypeError("Media type is not an image")
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
                 attrs = Market1501Path.PATTERN.search(image_name)

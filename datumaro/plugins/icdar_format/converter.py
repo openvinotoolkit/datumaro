@@ -7,7 +7,8 @@ import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, CompiledMask
 from datumaro.components.converter import Converter
-from datumaro.components.errors import DatumaroError
+from datumaro.components.errors import DatumaroError, MediaTypeError
+from datumaro.components.media import ByteImage, Image
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
 
@@ -23,6 +24,8 @@ class IcdarWordRecognitionConverter(Converter):
             for item in subset:
                 image_filename = self._make_image_filename(item)
                 if self._save_media and item.media:
+                    if not isinstance(item.media, (ByteImage, Image)):
+                        raise MediaTypeError("Media type is not an image")
                     self._save_image(item, osp.join(self._save_dir,
                         subset_name, IcdarPath.IMAGES_DIR, image_filename))
 

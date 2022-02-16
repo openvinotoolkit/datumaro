@@ -10,8 +10,9 @@ from datumaro.components.annotation import (
     AnnotationType, Label, LabelCategories,
 )
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
-from datumaro.components.media import Image
+from datumaro.components.media import ByteImage, Image
 from datumaro.util.image import find_images
 
 
@@ -89,9 +90,13 @@ class ImagenetConverter(Converter):
 
             for label in labels:
                 label_name = extractor.categories()[AnnotationType.label][label].name
+                if not isinstance(item.media, (ByteImage, Image)):
+                    raise MediaTypeError("Media type is not an image")
                 self._save_image(item, subdir=osp.join(subset_dir,
                     _get_dir_name(id_parts, label_name)))
 
             if not labels:
+                if not isinstance(item.media, (ByteImage, Image)):
+                    raise MediaTypeError("Media type is not an image")
                 self._save_image(item, subdir=osp.join(subset_dir,
                      _get_dir_name(id_parts, ImagenetPath.IMAGE_DIR_NO_LABEL)))

@@ -17,7 +17,9 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import ByteImage, Image
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
@@ -181,6 +183,8 @@ class VocConverter(Converter):
                 image_filename = self._make_image_filename(item)
                 if self._save_media:
                     if item.media:
+                        if not isinstance(item.media, (ByteImage, Image)):
+                            raise MediaTypeError("Media type is not an image")
                         self._save_image(item,
                             osp.join(self._images_dir, image_filename))
                     else:

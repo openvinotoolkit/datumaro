@@ -10,7 +10,9 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.media import ByteImage, Image
 
 from .format import YoloPath
 
@@ -71,6 +73,8 @@ class YoloConverter(Converter):
                 image_name = self._make_image_filename(item)
                 if self._save_media:
                     if item.media:
+                        if not isinstance(item.media, (ByteImage, Image)):
+                            raise MediaTypeError("Media type is not an image")
                         self._save_image(item, osp.join(subset_dir, image_name))
                     else:
                         log.warning("Item '%s' has no image" % item.id)

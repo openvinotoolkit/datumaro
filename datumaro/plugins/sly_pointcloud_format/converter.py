@@ -17,7 +17,9 @@ import uuid
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, IExtractor
+from datumaro.components.media import PointCloud
 from datumaro.util import cast, dump_json_file
 
 from .format import PointCloudPath
@@ -347,6 +349,8 @@ class _SuperviselyPointCloudDumper:
 
         for item in self._context._extractor:
             if self._context._save_media:
+                if item.media and not isinstance(item.media, PointCloud):
+                    raise MediaTypeError("Media type is not a point cloud")
                 if item.media:
                     self._write_pcd(item)
                 else:

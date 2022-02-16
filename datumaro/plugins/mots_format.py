@@ -14,8 +14,9 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
-from datumaro.components.media import Image
+from datumaro.components.media import ByteImage, Image
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import merge_masks
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -146,6 +147,8 @@ class MotsPngConverter(Converter):
 
                 if self._save_media:
                     if item.media and item.media.has_data:
+                        if not isinstance(item.media, (ByteImage, Image)):
+                            raise MediaTypeError("Media type is not an image")
                         self._save_image(item, subdir=image_dir)
                     else:
                         log.debug("Item '%s' has no image", item.id)
