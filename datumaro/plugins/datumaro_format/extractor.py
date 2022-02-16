@@ -8,6 +8,7 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Caption, Cuboid3d, Label, LabelCategories,
     MaskCategories, Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image, MediaElement, PointCloud
@@ -102,7 +103,9 @@ class DatumaroExtractor(SourceExtractor):
                 self._media_type = Image
 
             pcd_info = item_desc.get('point_cloud')
-            if not media and pcd_info:
+            if media and pcd_info:
+                raise DatasetImportError("Dataset cannot contain multiple media types")
+            if pcd_info:
                 pcd_path = pcd_info.get('path')
                 point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
 
@@ -121,8 +124,7 @@ class DatumaroExtractor(SourceExtractor):
                 self._media_type = PointCloud
 
             media_desc = item_desc.get('media')
-            if not media and media_desc and \
-                    media_desc.get('path'):
+            if not media and media_desc and media_desc.get('path'):
                 media = MediaElement(path=media_desc.get('path'))
                 self._media_type = MediaElement
 
