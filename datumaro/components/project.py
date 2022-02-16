@@ -1627,7 +1627,8 @@ class Project:
                 osp.join(self._aux_dir, ProjectLayout.working_tree_dir),
             ])
             self._git.repo.index.remove(
-                osp.join(self._root_dir, '.dvc', 'plots'), r=True)
+                osp.join(self._root_dir, '.dvc', 'plots'), r=True,
+                    ignore_unmatch=True)
         self.commit('Initial commit', allow_empty=True)
 
     @classmethod
