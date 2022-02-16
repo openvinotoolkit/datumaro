@@ -50,7 +50,7 @@ class YoloConverter(Converter):
         subset_lists = OrderedDict()
 
         subsets = self._extractor.subsets()
-        pbars = scope_add_many(*self._ctx.progress_reporter.split(len(subsets)))
+        pbars = scope_add_many(self._ctx.progress_reporter.split(len(subsets)))
         for (subset_name, subset), pbar in zip(subsets.items(), pbars):
             if not subset_name or subset_name == DEFAULT_SUBSET_NAME:
                 subset_name = YoloPath.DEFAULT_SUBSET_NAME

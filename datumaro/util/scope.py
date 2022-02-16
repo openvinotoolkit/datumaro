@@ -6,7 +6,9 @@ from __future__ import annotations
 
 from contextlib import ExitStack, contextmanager
 from functools import partial, wraps
-from typing import Any, Callable, ContextManager, Dict, Optional, Tuple, TypeVar
+from typing import (
+    Any, Callable, ContextManager, Dict, Iterable, Optional, Tuple, TypeVar,
+)
 import threading
 
 from attrs import frozen
@@ -88,9 +90,9 @@ class Scope:
 
         return self._stack.enter_context(cm)
 
-    def add_many(self, *cms: ContextManager[T]) -> Tuple[T, ...]:
+    def add_many(self, cms: Iterable[ContextManager[T]]) -> Tuple[T, ...]:
         """
-        Enters few context managers and adds them to the exit stack.
+        Enters several context managers and adds them to the exit stack.
 
         Returns: cm.__enter__() result
         """
@@ -161,5 +163,5 @@ def on_exit_do(callback, *args, ignore_errors=False, kwargs=None):
 def scope_add(cm: ContextManager[T]) -> T:
     return Scope.current().add(cm)
 
-def scope_add_many(*cms: ContextManager[T]) -> Tuple[T, ...]:
-    return Scope.current().add_many(*cms)
+def scope_add_many(cms: Iterable[ContextManager[T]]) -> Tuple[T, ...]:
+    return Scope.current().add_many(cms)

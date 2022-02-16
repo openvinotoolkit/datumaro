@@ -654,7 +654,7 @@ class CocoConverter(Converter):
             self._save_meta_file(self._save_dir)
 
         subsets = self._extractor.subsets()
-        pbars = scope_add_many(*self._ctx.progress_reporter.split(len(subsets)))
+        pbars = scope_add_many(self._ctx.progress_reporter.split(len(subsets)))
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():

@@ -64,7 +64,7 @@ class ScopeTest(TestCase):
         cm2.__exit__ = mock.MagicMock()
 
         with Scope() as scope:
-            retval = scope.add_many(cm1, cm2)
+            retval = scope.add_many((cm1, cm2))
 
         cm1.__enter__.assert_called_once()
         cm1.__exit__.assert_called_once()

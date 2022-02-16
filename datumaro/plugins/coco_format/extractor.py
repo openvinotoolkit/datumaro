@@ -127,7 +127,7 @@ class _CocoExtractor(SourceExtractor):
 
     @scoped
     def _load_items(self, json_data):
-        pbars = scope_add_many(*self._ctx.progress_reporter.split(2))
+        pbars = scope_add_many(self._ctx.progress_reporter.split(2))
         items = {}
         img_infos = {}
         for img_info in pbars[0].iter(json_data['images'],

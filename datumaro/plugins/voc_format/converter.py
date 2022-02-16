@@ -181,7 +181,7 @@ class VocConverter(Converter):
     @scoped
     def save_subsets(self):
         subsets = self._extractor.subsets()
-        pbars = scope_add_many(*self._ctx.progress_reporter.split(len(subsets)))
+        pbars = scope_add_many(self._ctx.progress_reporter.split(len(subsets)))
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             lists = _SubsetLists()
 

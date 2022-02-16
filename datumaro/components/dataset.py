@@ -1040,7 +1040,7 @@ class Dataset(IDataset):
 
         if not progress_reporter:
             progress_reporter = NullProgressReporter()
-        pbars = scope_add_many(*progress_reporter.split(len(detected_sources)))
+        pbars = scope_add_many(progress_reporter.split(len(detected_sources)))
 
         try:
             extractors = []

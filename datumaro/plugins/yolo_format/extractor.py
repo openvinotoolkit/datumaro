@@ -191,7 +191,7 @@ class YoloExtractor(SourceExtractor):
     @scoped(arg_name='scope') # pylint: disable=no-value-for-parameter
     def __iter__(self, *, scope: Scope = None):
         subsets = self._subsets
-        pbars = scope.add_many(*self._ctx.progress_reporter.split(len(subsets)))
+        pbars = scope.add_many(self._ctx.progress_reporter.split(len(subsets)))
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             for item in pbar.iter(subset, desc=f"Parsing '{subset_name}'"):
                 yield item
