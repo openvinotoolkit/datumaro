@@ -91,6 +91,7 @@ class KittiConverter(Converter):
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
 
+        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             if KittiTask.segmentation in self._tasks:
                 os.makedirs(osp.join(self._save_dir, subset_name,
@@ -98,8 +99,11 @@ class KittiConverter(Converter):
 
             for item in subset:
                 if self._save_media:
-                    if not isinstance(item.media, Image):
-                        raise MediaTypeError("Item %s: media type is not an image")
+                    if not media_type_match:
+                        if not isinstance(item.media, Image):
+                            raise MediaTypeError("Media type is not an image")
+                        media_type_match = True
+
                     self._save_image(item,
                         subdir=osp.join(subset_name, KittiPath.IMAGES_DIR))
 

@@ -229,6 +229,7 @@ class MotSeqGtConverter(Converter):
             writer = csv.DictWriter(csv_file, fieldnames=MotPath.FIELDS)
 
             track_id_mapping = {-1: -1}
+            media_type_match = False
             for idx, item in enumerate(extractor):
                 log.debug("Converting item '%s'", item.id)
 
@@ -263,8 +264,11 @@ class MotSeqGtConverter(Converter):
 
                 if self._save_media:
                     if item.media and item.media.has_data:
-                        if not isinstance(item.media, Image):
-                            raise MediaTypeError("Item %s: media type is not an image")
+                        if not media_type_match:
+                            if not isinstance(item.media, Image):
+                                raise MediaTypeError("Media type is not an image")
+                            media_type_match = True
+
                         self._save_image(item, subdir=image_dir,
                             name='%06d' % frame_id)
                     else:

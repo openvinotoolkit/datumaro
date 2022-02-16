@@ -332,6 +332,7 @@ class CityscapesConverter(Converter):
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
 
+        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             for item in subset:
                 image_path = osp.join(CityscapesPath.IMGS_FINE_DIR,
@@ -339,8 +340,11 @@ class CityscapesConverter(Converter):
                     item.id + CityscapesPath.ORIGINAL_IMAGE + \
                         self._find_image_ext(item))
                 if self._save_media:
-                    if not isinstance(item.media, Image):
-                        raise MediaTypeError("Item %s: media type is not an image")
+                    if not media_type_match:
+                        if not isinstance(item.media, Image):
+                            raise MediaTypeError("Media type is not an image")
+                        media_type_match = True
+
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
                 masks = [a for a in item.annotations

@@ -110,10 +110,9 @@ class LfwExtractor(SourceExtractor):
                         annotations = []
                         annotations.append(Label(label))
 
-                        image = None
-                        image_path = images.get(image1)
-                        if image_path:
-                            image = Image(path=image_path)
+                        image = images.get(image1)
+                        if image:
+                            image = Image(path=image)
 
                         items[id1] = DatasetItem(id=id1, subset=self._subset,
                             media=image, annotations=annotations)
@@ -121,10 +120,9 @@ class LfwExtractor(SourceExtractor):
                         annotations = []
                         annotations.append(Label(label))
 
-                        image = None
-                        image_path = images.get(image2)
-                        if image_path:
-                            image = Image(path=image_path)
+                        image = images.get(image2)
+                        if image:
+                            image = Image(path=image)
 
                         items[id2] = DatasetItem(id=id2, subset=self._subset,
                             media=image, annotations=annotations)
@@ -146,10 +144,9 @@ class LfwExtractor(SourceExtractor):
                         label = get_label_id(pair[0])
                         annotations.append(Label(label))
 
-                        image = None
-                        image_path = images.get(image1)
-                        if image_path:
-                            image = Image(path=image_path)
+                        image = images.get(image1)
+                        if image:
+                            image = Image(path=image)
 
                         items[id1] = DatasetItem(id=id1, subset=self._subset,
                             media=image, annotations=annotations)
@@ -159,10 +156,9 @@ class LfwExtractor(SourceExtractor):
                             label = get_label_id(pair[2])
                             annotations.append(Label(label))
 
-                        image = None
-                        image_path = images.get(image2)
-                        if image_path:
-                            image = Image(path=image_path)
+                        image = images.get(image2)
+                        if image:
+                            image = Image(path=image)
 
                         items[id2] = DatasetItem(id=id2, subset=self._subset,
                             media=image, annotations=annotations)
@@ -227,6 +223,7 @@ class LfwConverter(Converter):
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
 
+        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             label_categories = self._extractor.categories()[AnnotationType.label]
             labels = {label.name: 0 for label in label_categories}
@@ -247,8 +244,11 @@ class LfwConverter(Converter):
                     labels[label_name] += 1
 
                 if self._save_media and item.media:
-                    if not isinstance(item.media, Image):
-                        raise MediaTypeError("Item %s: media type is not an image")
+                    if not media_type_match:
+                        if not isinstance(item.media, Image):
+                            raise MediaTypeError("Media type is not an image")
+                        media_type_match = True
+
                     subdir=osp.join(subset_name, LfwPath.IMAGES_DIR)
                     if label_name:
                         subdir=osp.join(subdir, label_name)

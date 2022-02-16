@@ -129,8 +129,12 @@ class AlignCelebaExtractor(SourceExtractor):
                         for name, ann in zip(attr_names, item_ann)}
 
                     if item_id not in items:
+                        image = images.get(item_id)
+                        if image:
+                            image = Image(path=image)
+
                         items[item_id] = DatasetItem(id=item_id,
-                            image=images.get(item_id))
+                            media=image)
 
                     items[item_id].attributes = attrs
 
@@ -148,8 +152,11 @@ class AlignCelebaExtractor(SourceExtractor):
                     subset = AlignCelebaPath.SUBSETS[subset_id]
 
                     if item_id not in items:
+                        image = images.get(item_id)
+                        if image:
+                            image = Image(path=image)
                         items[item_id] = DatasetItem(id=item_id,
-                            image=images.get(item_id))
+                            media=image)
 
                     items[item_id].subset = subset
 

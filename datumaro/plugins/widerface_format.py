@@ -172,6 +172,7 @@ class WiderFaceConverter(Converter):
             with open(labels_path, 'w', encoding='utf-8') as f:
                 f.write('\n'.join(label.name for label in label_categories))
 
+        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(save_dir,
                 WiderFacePath.SUBSET_DIR + subset_name)
@@ -189,8 +190,11 @@ class WiderFaceConverter(Converter):
                         subdir=WiderFacePath.IMAGES_DIR_NO_LABEL)
                 wider_annotation += image_path + '\n'
                 if item.media and self._save_media:
-                    if not isinstance(item.media, Image):
-                        raise MediaTypeError("Item %s: media type is not an image")
+                    if not media_type_match:
+                        if not isinstance(item.media, Image):
+                            raise MediaTypeError("Media type is not an image")
+                        media_type_match = True
+
                     self._save_image(item, osp.join(save_dir, subset_dir,
                         WiderFacePath.IMAGES_DIR, image_path))
 

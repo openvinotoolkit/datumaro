@@ -347,11 +347,14 @@ class _SuperviselyPointCloudDumper:
 
         self._init_meta()
 
+        media_type_match = False
         for item in self._context._extractor:
             if self._context._save_media:
-                if item.media and not isinstance(item.media, PointCloud):
-                    raise MediaTypeError("Item %s: media type is not a point cloud")
                 if item.media:
+                    if not media_type_match:
+                        if not isinstance(item.media, PointCloud):
+                            raise MediaTypeError("Media type is not a point cloud")
+                        media_type_match = True
                     self._write_pcd(item)
                 else:
                     log.debug("Item '%s' has no point cloud info", item.id)

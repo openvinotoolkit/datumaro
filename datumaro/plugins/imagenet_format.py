@@ -83,20 +83,22 @@ class ImagenetConverter(Converter):
         subset_dir = self._save_dir
         extractor = self._extractor
         labels = {}
+        media_type_match = False
         for item in self._extractor:
             id_parts = item.id.split('/')
             labels = set(p.label for p in item.annotations
                 if p.type == AnnotationType.label)
 
+            if not media_type_match:
+                if not isinstance(item.media, Image):
+                    raise MediaTypeError("Media type is not an image")
+                media_type_match = True
+
             for label in labels:
                 label_name = extractor.categories()[AnnotationType.label][label].name
-                if not isinstance(item.media, Image):
-                    raise MediaTypeError("Item %s: media type is not an image")
                 self._save_image(item, subdir=osp.join(subset_dir,
                     _get_dir_name(id_parts, label_name)))
 
             if not labels:
-                if not isinstance(item.media, Image):
-                    raise MediaTypeError("Item %s: media type is not an image")
                 self._save_image(item, subdir=osp.join(subset_dir,
                      _get_dir_name(id_parts, ImagenetPath.IMAGE_DIR_NO_LABEL)))

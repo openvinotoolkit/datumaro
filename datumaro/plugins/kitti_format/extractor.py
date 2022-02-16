@@ -127,10 +127,9 @@ class _KittiExtractor(SourceExtractor):
                             attributes=attributes, label=label_id,
                         ))
 
-                image = None
-                image_path = image_path_by_id.pop(item_id, None)
-                if image_path:
-                    image = Image(path=image_path)
+                image = image_path_by_id.pop(item_id, None)
+                if image:
+                    image = Image(path=image)
 
                 items[item_id] = DatasetItem(id=item_id, annotations=anns,
                     media=image, subset=self._subset)

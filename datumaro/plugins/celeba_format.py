@@ -158,10 +158,9 @@ class CelebaExtractor(SourceExtractor):
                         for name, ann in zip(attr_names, item_ann)}
 
                     if item_id not in items:
-                        image = None
-                        image_path = images.get(item_id)
-                        if image_path:
-                            image = Image(path=image_path)
+                        image = images.get(item_id)
+                        if image:
+                            image = Image(path=image)
 
                         items[item_id] = DatasetItem(id=item_id,
                             media=image)
@@ -182,10 +181,9 @@ class CelebaExtractor(SourceExtractor):
                     subset = CelebaPath.SUBSETS[subset_id]
 
                     if item_id not in items:
-                        image = None
-                        image_path = images.get(item_id)
-                        if image_path:
-                            image = Image(path=image_path)
+                        image = images.get(item_id)
+                        if image:
+                            image = Image(path=image)
 
                         items[item_id] = DatasetItem(id=item_id,
                             media=image)

@@ -161,7 +161,13 @@ class _SubsetWriter:
         self._writer.open_root()
         self._write_meta()
 
+        media_type_match = False
         for index, item in enumerate(self._extractor):
+            if not media_type_match:
+                if self._context._save_media and item.media and \
+                        not isinstance(item.media, Image):
+                    raise MediaTypeError("Media type is not an image")
+                media_type_match = True
             self._write_item(item, index)
 
         self._writer.close_root()
@@ -180,8 +186,6 @@ class _SubsetWriter:
                 image_info["height"] = str(h)
 
             if self._context._save_media:
-                if not isinstance(item.media, Image):
-                    raise MediaTypeError("Item %s: media type is not an image")
                 self._context._save_image(item,
                     osp.join(self._context._images_dir, filename))
         else:

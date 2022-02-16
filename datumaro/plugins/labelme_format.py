@@ -344,11 +344,17 @@ class LabelMeConverter(Converter):
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
 
+        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             os.makedirs(subset_dir, exist_ok=True)
 
             for item in subset:
+                if not media_type_match:
+                    if self._save_media and item.media and \
+                            not isinstance(item.media, Image):
+                        raise MediaTypeError("Media type is not an image")
+                    media_type_match = True
                 self._save_item(item, subset_dir)
 
     def _get_label(self, label_id):
@@ -367,8 +373,6 @@ class LabelMeConverter(Converter):
         image_filename = self._make_image_filename(item)
         if self._save_media:
             if item.media and item.media.has_data:
-                if not isinstance(item.media, Image):
-                    raise MediaTypeError("Item %s: media type is not an image")
                 self._save_image(item, osp.join(subset_dir, image_filename))
             else:
                 log.debug("Item '%s' has no image", item.id)

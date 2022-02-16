@@ -227,14 +227,18 @@ class VggFace2Converter(Converter):
 
         label_categories = self._extractor.categories()[AnnotationType.label]
 
+        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             bboxes_table = []
             landmarks_table = []
             for item in subset:
                 item_parts = item.id.split('/')
                 if item.media and self._save_media:
-                    if not isinstance(item.media, Image):
-                        raise MediaTypeError("Item %s: media type is not an image")
+                    if not media_type_match:
+                        if not isinstance(item.media, Image):
+                            raise MediaTypeError("Media type is not an image")
+                        media_type_match = True
+
                     labels = set(p.label for p in item.annotations
                         if getattr(p, 'label') is not None)
                     if labels:
