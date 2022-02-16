@@ -96,6 +96,9 @@ Basic dataset item manipulations:
 - [`label_random_sampler`](#label_random_sampler-transform) - Leaves at least
   k images with annotations per class
 - [`resize`](#resize-transform) - Resizes images and annotations in the dataset
+- [`remove_images`](#remove_images-transform) - Removes specific images
+- [`remove_annotations`](#remove_annotations-transform) - Removes annotations
+- [`remove_attributes`](#remove_attributes-transform) - Removes attributes
 
 Subset manipulations:
 - [`random_split`](#random_split-transform) - Splits dataset into subsets
@@ -398,6 +401,80 @@ Examples:
 Resize all images to 256x256 size
 ```
 datum transform -t resize -- -dw 256 -dh 256
+```
+
+##### `remove_images` <a id="remove_images-transform"></a>
+
+Removes specific dataset items by their ids.
+
+Usage:
+```bash
+remove_images [-h] [--id IDs]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `--id` (str) - Item id to remove. Id is '<name>:<subset>' pair (repeatable)
+
+Examples:
+
+Remove specific images from the dataset
+```bash
+datum transform -t remove_images -- --id 'image1:train' --id 'image2:test'
+```
+
+##### `remove_annotations` <a id="remove_annotations-transform"></a>
+
+Allows to remove annotations on specific dataset items.
+
+Can be useful to clean the dataset from broken or unnecessary annotations.
+
+Usage:
+```bash
+remove_annotations [-h] [--id IDs]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `--id` (str) - Item id to clean from annotations. Id is '<name>:<subset>' pair.
+  If not specified, removes all annotations (repeatable)
+
+Examples:
+Remove annotations from specific items in the dataset
+```bash
+datum transform -t remove_annotations -- --id 'image1:train' --id 'image2:test'
+```
+
+##### `remove_attributes` <a id="remove_attributes-transform"></a>
+
+Allows to remove item and annotation attributes in a dataset.
+
+Can be useful to clean the dataset from broken or unnecessary attributes.
+
+Usage:
+```bash
+remove_attributes [-h] [--id IDs] [--attr ATTRIBUTE_NAME]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `--id` (str) - Image id to clean from annotations. Id is '<name>:<subset>' pair.
+  If not specified, affects all items and annotations (repeatable)
+- `-a`, `--attr` (flag) - Attribute name to be removed. If not specified,
+  removes all attributes (repeatable)
+
+Examples:
+Remove the `is_crowd` attribute from dataset
+```bash
+datum transform -t remove_attributes -- \
+  --attr 'is_crowd'
+```
+
+Remove the `occluded` attribute from annotations of
+the `2010_001705` item in the `train` subset
+```bash
+datum transform -t remove_attributes -- \
+  --id '2010_001705:train' --attr 'occluded'
 ```
 
 ##### `random_split` <a id="random_split-transform"></a>
