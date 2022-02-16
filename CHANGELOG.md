@@ -30,8 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for downloading the ImageNetV2 and COCO datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/653>,
    <https://github.com/openvinotoolkit/datumaro/pull/659>)
-- Corrector: Delete fix transforms (`delete_image`, `delete_annotation`, `delete_attribute`)
-  to delete dataset items/annoations/attributes with annotation errors
+- Delete transforms (`delete_image`, `delete_annotation`, `delete_attribute`)
+  to delete specific images/annoations/attributes from dataset by their ids.
   (https://github.com/openvinotoolkit/datumaro/pull/666)
 
 ### Changed

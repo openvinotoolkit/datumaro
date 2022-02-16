@@ -407,59 +407,63 @@ datum transform -t resize -- -dw 256 -dh 256
 
 ##### `delete_image` <a id="delete_image-transform"></a>
 
-Deletes images with annotation errors in the dataset
+Deletes specific images from dataset by their ids.
 
 Usage:
 ```bash
-delete_image [-h] [-i IDs]
+delete_image [-h] [--id IDs]
 ```
 
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
-- `-i`, `--ids` (str) - Datasetitem ids to run trasform
+- `--id` (str) - Image id to remove. Id is '<name>:<subset>' pair (repeatable)
 
 Examples:
-Delete an image, which has '2010_001705' as id.
+Delete an image from dataset by '2010_001705:train' id.
 ```
-datum transform -t delete_image -- -i '2010_001705'
+datum transform -t delete_image -- --id '2010_001705:train'
 ```
 
 ##### `delete_annotation` <a id="delete_annotation-transform"></a>
 
-Deletes annotations with annotation errors in the dataset
+Deletes annotations on specific images from dataset.
 
 Usage:
 ```bash
-delete_image [-h] [-i IDs]
+delete_annotation [-h] [--id IDs]
 ```
 
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
-- `-i`, `--ids` (str) - Datasetitem ids to run trasform
+- `--id` (str) - Image id to clean from annotations. Id is '<name>:<subset>' pair. 
+  If not specified, removes all annotations (repeatable)
 
 Examples:
-Delete annotations, which have '2010_001705' as id.
+Delete annotations from dataset by '2010_001705:train' id.
 ```
-datum transform -t delete_annotation -- -i '2010_001705'
+datum transform -t delete_annotation -- --id '2010_001705:train'
 ```
 
 ##### `delete_attribute` <a id="delete_attribute-transform"></a>
 
-Deletes attributes with annotation errors in the dataset
+Deletes attributes on specific images from dataset.
 
 Usage:
 ```bash
-delete_image [-h] [-i IDs]
+delete_attribute [-h] [--id IDs] [--attr ATTRIBUTE_NAME]
 ```
 
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
-- `-i`, `--ids` (str) - Datasetitem ids to run trasform
+- `--id` (str) - Image id to clean from annotations. Id is '<name>:<subset>' pair. 
+  If not specified, affects all images and annotations (repeatable)
+- `-a`, `--attr` (flag) - Attribute name to be removed. If not specified,
+  removes all attributes (repeatable)
 
 Examples:
-Delete attributes, which have '2010_001705' as id.
+Delete 'person' attributes from dataset by '2010_001705:train' id.
 ```
-datum transform -t delete_attribute -- -i '2010_001705'
+datum transform -t delete_attribute -- --id '2010_001705:train --attr 'person'
 ```
 
 ##### `random_split` <a id="random_split-transform"></a>
