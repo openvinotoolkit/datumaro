@@ -29,8 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    <https://github.com/openvinotoolkit/datumaro/pull/640>)
 - Corrector: Delete fix transforms (`delete_image`, `delete_annotation`, `delete_attribute`)
   to delete dataset items/annoations/attributes with annotation errors
-  (<https://github.com/openvinotoolkit/datumaro/pull/636>,
-   <https://github.com/openvinotoolkit/datumaro/pull/640>)
+  (https://github.com/openvinotoolkit/datumaro/pull/666)
 - Support for downloading the ImageNetV2 dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/653>)
 
