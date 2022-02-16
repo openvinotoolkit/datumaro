@@ -71,7 +71,7 @@ class MergeTest(TestCase):
                 dataset1_url + ':coco')
 
             compare_datasets(self, expected, Dataset.load(result_dir),
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_multimerge(self):
@@ -123,7 +123,7 @@ class MergeTest(TestCase):
                 dataset2_url + ':voc', dataset1_url + ':coco')
 
             compare_datasets(self, expected, Dataset.load(result_dir),
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_542)
     def test_can_save_in_another_format(self):
@@ -168,4 +168,4 @@ class MergeTest(TestCase):
 
             compare_datasets(self, expected,
                 Dataset.import_from(result_dir, 'yolo'),
-                require_images=True)
+                require_media=True)

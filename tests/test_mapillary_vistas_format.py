@@ -60,7 +60,7 @@ class MapillaryVistasImporterTest(TestCase):
             'mapillary_vistas')
 
         compare_datasets(self, expected_dataset, imported_dataset,
-            require_images=True)
+            require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_with_original_config(self):
@@ -79,7 +79,7 @@ class MapillaryVistasImporterTest(TestCase):
         )
 
         compare_datasets(self, exptected_dataset, imported_dataset,
-            require_images=True)
+            require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_v1_2_wo_images(self):
@@ -101,7 +101,7 @@ class MapillaryVistasImporterTest(TestCase):
                 'mapillary_vistas', use_original_config=True)
 
             compare_datasets(self, exptected_dataset, imported_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_v2_0_instances(self):
@@ -150,7 +150,7 @@ class MapillaryVistasImporterTest(TestCase):
             'mapillary_vistas_instances')
 
         compare_datasets(self, expected_dataset, imported_dataset,
-            require_images=True)
+            require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_v2_0_panoptic(self):
@@ -212,7 +212,7 @@ class MapillaryVistasImporterTest(TestCase):
             'mapillary_vistas_panoptic')
 
         compare_datasets(self, expected_dataset, imported_dataset,
-            require_images=True)
+            require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_v2_0_panoptic_with_keeping_category_ids(self):
@@ -274,7 +274,7 @@ class MapillaryVistasImporterTest(TestCase):
             'mapillary_vistas_panoptic', keep_original_category_ids=True)
 
         compare_datasets(self, expected_dataset, imported_dataset,
-            require_images=True)
+            require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_v2_0_panoptic_wo_images(self):
@@ -322,7 +322,7 @@ class MapillaryVistasImporterTest(TestCase):
                 'mapillary_vistas_panoptic')
 
             compare_datasets(self, expected_dataset, imported_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_with_meta_file(self):
@@ -354,4 +354,4 @@ class MapillaryVistasImporterTest(TestCase):
             'mapillary_vistas')
 
         compare_datasets(self, expected_dataset, imported_dataset,
-            require_images=True)
+            require_media=True)

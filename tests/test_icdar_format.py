@@ -290,7 +290,7 @@ class IcdarConverterTest(TestCase):
             with self.subTest(subformat=converter), TestDir() as test_dir:
                 self._test_save_and_load(expected_dataset,
                     partial(converter.convert, save_media=True),
-                    test_dir, importer, require_images=True)
+                    test_dir, importer, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
@@ -309,7 +309,7 @@ class IcdarConverterTest(TestCase):
             with self.subTest(subformat=converter), TestDir() as test_dir:
                 self._test_save_and_load(expected,
                     partial(converter.convert, save_media=True),
-                    test_dir, importer, require_images=True)
+                    test_dir, importer, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_captions_with_quotes(self):

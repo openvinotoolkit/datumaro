@@ -80,7 +80,7 @@ class Market1501FormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'market1501')
 
             compare_datasets(self, expected_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_save_media(self):
@@ -118,7 +118,7 @@ class Market1501FormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'market1501')
 
             compare_datasets(self, expected, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_attributes(self):

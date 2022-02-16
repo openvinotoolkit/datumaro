@@ -1297,7 +1297,7 @@ class DatasetTest(TestCase):
 
         actual = dataset.run_model(model, batch_size=batch_size)
 
-        compare_datasets(self, expected, actual, require_images=True)
+        compare_datasets(self, expected, actual, require_media=True)
         self.assertEqual(2, calls)
 
     @mark_requirement(Requirements.DATUM_BUG_259)

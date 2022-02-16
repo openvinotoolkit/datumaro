@@ -300,7 +300,7 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_media=True), test_dir,
-                target_dataset=target_dataset, require_images=True)
+                target_dataset=target_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
@@ -334,7 +334,7 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_media=True), test_dir,
-                target_dataset=target_dataset, require_images=True)
+                target_dataset=target_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
@@ -348,7 +348,7 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected,
                 partial(CvatConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
             self.assertTrue(osp.isfile(
                 osp.join(test_dir, 'images', 'q', '1.JPEG')))
             self.assertTrue(osp.isfile(
@@ -415,4 +415,4 @@ class CvatConverterTest(TestCase):
             self.assertEqual({'2.jpg'},
                 set(os.listdir(osp.join(path, 'images'))))
             compare_datasets(self, expected, Dataset.import_from(path, 'cvat'),
-                require_images=True, ignored_attrs={'frame'})
+                require_media=True, ignored_attrs={'frame'})

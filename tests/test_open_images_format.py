@@ -97,7 +97,7 @@ class OpenImagesFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
             compare_datasets(self, expected_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_save_and_load_with_no_subsets(self):
@@ -129,7 +129,7 @@ class OpenImagesFormatTest(TestCase):
 
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
-            compare_datasets(self, dataset, parsed_dataset, require_images=True)
+            compare_datasets(self, dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_inplace_save_writes_only_updated_data(self):
@@ -187,7 +187,7 @@ class OpenImagesFormatTest(TestCase):
             self.assertEqual(actual_images, expected_images)
 
             dataset_reloaded = Dataset.import_from(path, 'open_images')
-            compare_datasets(self, dataset, dataset_reloaded, require_images=True)
+            compare_datasets(self, dataset, dataset_reloaded, require_media=True)
 
     @mark_requirement(Requirements.DATUM_BUG_466)
     def test_can_save_and_load_without_saving_images(self):
@@ -228,7 +228,7 @@ class OpenImagesFormatTest(TestCase):
 
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
             compare_datasets(self, dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
 
 ASSETS_DIR = osp.join(osp.dirname(__file__), 'assets')
@@ -288,7 +288,7 @@ class OpenImagesImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_V6, 'open_images')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_import_v5(self):
@@ -301,7 +301,7 @@ class OpenImagesImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_V5, 'open_images')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_import_without_image_ids_file(self):
@@ -351,7 +351,7 @@ class OpenImagesImporterTest(TestCase):
 
             dataset = Dataset.import_from(dataset_path, 'open_images')
 
-            compare_datasets(self, expected_dataset, dataset, require_images=True)
+            compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_detect(self):

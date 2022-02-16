@@ -81,7 +81,7 @@ class PatchTest(TestCase):
 
             compare_datasets(self, expected,
                 Dataset.import_from(dataset_url, format='coco'),
-                require_images=True, ignored_attrs='*')
+                require_media=True, ignored_attrs='*')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_patch_fails_on_inplace_update_without_overwrite(self):

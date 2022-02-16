@@ -90,7 +90,7 @@ class LabelMeConverterTest(TestCase):
             self._test_save_and_load(
                 source_dataset,
                 partial(LabelMeConverter.convert, save_media=True),
-                test_dir, target_dataset=target_dataset, require_images=True)
+                test_dir, target_dataset=target_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
@@ -104,7 +104,7 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(LabelMeConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
@@ -130,7 +130,7 @@ class LabelMeConverterTest(TestCase):
             self._test_save_and_load(
                 source_dataset,
                 partial(LabelMeConverter.convert, save_media=True),
-                test_dir, target_dataset=target_dataset, require_images=True)
+                test_dir, target_dataset=target_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
@@ -166,7 +166,7 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(LabelMeConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_to_correct_dir_with_correct_filename(self):
@@ -178,7 +178,7 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(LabelMeConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
             xml_dirpath = osp.join(test_dir, 'default/dir')
             self.assertEqual(os.listdir(osp.join(test_dir, 'default')), ['dir'])
@@ -212,7 +212,7 @@ class LabelMeConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(LabelMeConverter.convert, save_media=True,
                     save_dataset_meta=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
@@ -318,4 +318,4 @@ class LabelMeImporterTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'label_me')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)

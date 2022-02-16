@@ -37,7 +37,7 @@ class VocIntegrationScenarios(TestCase):
         result_path = osp.join(result_dir, result_path)
         parsed_dataset = Dataset.import_from(result_path, dataset_format)
         compare_datasets(self, expected_dataset, parsed_dataset,
-            require_images=True)
+            require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preparing_dataset_for_train_model(self):
@@ -147,7 +147,7 @@ class VocIntegrationScenarios(TestCase):
 
             parsed_dataset = Dataset.import_from(voc_export, format='voc')
             compare_datasets(self, expected_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_283)
     def test_convert_to_voc_format(self):
@@ -196,7 +196,7 @@ class VocIntegrationScenarios(TestCase):
 
             target_dataset = Dataset.import_from(voc_dir, format='voc')
             compare_datasets(self, expected_dataset, target_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_283)
     def test_convert_from_voc_format(self):
@@ -233,7 +233,7 @@ class VocIntegrationScenarios(TestCase):
 
             target_dataset = Dataset.import_from(imagenet_dir, format='imagenet')
             compare_datasets(self, expected_dataset, target_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_dataset(self):

@@ -12,6 +12,7 @@ import os.path as osp
 import tempfile
 import unittest
 import unittest.mock
+import warnings
 
 from typing_extensions import Literal
 
@@ -132,7 +133,7 @@ def _compare_annotations(expected, actual, ignored_attrs=None):
 
 def compare_datasets(test, expected: IDataset, actual: IDataset,
         ignored_attrs: Union[None, Literal['*'], Collection[str]] = None,
-        require_images: bool = False):
+        require_media: bool = False, require_images: bool = False):
     compare_categories(test, expected.categories(), actual.categories())
 
     test.assertEqual(sorted(expected.subsets()), sorted(actual.subsets()))
@@ -149,7 +150,13 @@ def compare_datasets(test, expected: IDataset, actual: IDataset,
         elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
-        if require_images and item_a.media and item_b.media:
+        if require_images:
+            warnings.warn("'require_images' is deprecated and will be "
+                "removed in future. Use 'require_media' instead.",
+                DeprecationWarning, stacklevel=2)
+        require_media = require_media or require_images
+
+        if require_media and item_a.media and item_b.media:
             if isinstance(item_a.media, Image):
                 test.assertEqual(item_a.media, item_b.media, item_a.id)
             elif isinstance(item_a.media, PointCloud):

@@ -449,7 +449,7 @@ class CityscapesConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(CityscapesConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
@@ -522,7 +522,7 @@ class CityscapesConverterTest(TestCase):
                 set(os.listdir(osp.join(path, 'imgsFine', 'leftImg8bit', 'b'))))
             compare_datasets(self, expected,
                 Dataset.import_from(path, 'cityscapes'),
-                require_images=True, ignored_attrs=IGNORE_ALL)
+                require_media=True, ignored_attrs=IGNORE_ALL)
 
     @mark_requirement(Requirements.DATUM_BUG_470)
     def test_can_save_and_load_without_image_saving(self):

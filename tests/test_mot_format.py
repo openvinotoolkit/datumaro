@@ -101,7 +101,7 @@ class MotConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(MotSeqGtConverter.convert, save_media=True),
-                test_dir, target_dataset=target_dataset, require_images=True)
+                test_dir, target_dataset=target_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_no_save_media(self):
@@ -155,7 +155,7 @@ class MotConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected,
                 partial(MotSeqGtConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_meta_file(self):
@@ -187,7 +187,7 @@ class MotConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(MotSeqGtConverter.convert, save_media=True,
                     save_dataset_meta=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',

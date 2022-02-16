@@ -54,7 +54,7 @@ class VottJsonImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'vott_json')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_475)
     def test_can_import_with_meta_file(self):
@@ -89,7 +89,7 @@ class VottJsonImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_WITH_META_FILE, 'vott_json')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_475)
     def test_can_detect(self):

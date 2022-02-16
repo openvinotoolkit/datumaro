@@ -69,7 +69,7 @@ class TfdsExtractorTest(TestCase):
             actual_dataset = Dataset(extractor)
 
             compare_datasets(self, expected_dataset, actual_dataset,
-                require_images=True)
+                require_media=True)
 
     def _test_can_extract_cifar(self, name):
         with mock_tfds_data():
@@ -90,7 +90,7 @@ class TfdsExtractorTest(TestCase):
             actual_dataset = Dataset(extractor)
 
             compare_datasets(self, expected_dataset, actual_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_extract_cifar10(self):
@@ -133,7 +133,7 @@ class TfdsExtractorTest(TestCase):
             actual_dataset = Dataset(extractor)
 
             compare_datasets(self, expected_dataset, actual_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_extract_imagenet_v2(self):
@@ -165,7 +165,7 @@ class TfdsExtractorTest(TestCase):
             actual_dataset = Dataset(extractor)
 
             compare_datasets(self, expected_dataset, actual_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_extract_voc(self):
@@ -198,4 +198,4 @@ class TfdsExtractorTest(TestCase):
             actual_dataset = Dataset(extractor)
 
             compare_datasets(self, expected_dataset, actual_dataset,
-                require_images=True)
+                require_media=True)

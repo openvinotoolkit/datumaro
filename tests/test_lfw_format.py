@@ -54,7 +54,7 @@ class LfwFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_no_save_media(self):
@@ -180,7 +180,7 @@ class LfwFormatTest(TestCase):
             LfwConverter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
-            compare_datasets(self, dataset, parsed_dataset, require_images=True)
+            compare_datasets(self, dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
@@ -199,7 +199,7 @@ class LfwFormatTest(TestCase):
             LfwConverter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
-            compare_datasets(self, dataset, parsed_dataset, require_images=True)
+            compare_datasets(self, dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_meta_file(self):
@@ -239,7 +239,7 @@ class LfwFormatTest(TestCase):
 
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'lfw_dataset')
 

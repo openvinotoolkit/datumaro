@@ -187,7 +187,7 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 partial(TfDetectionApiConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
@@ -203,7 +203,7 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(TfDetectionApiConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):

@@ -192,7 +192,7 @@ class ProjectTest(TestCase):
         compare_dirs(self, source_url, project.source_data_dir('s1'))
         read_dataset = project.working_tree.make_dataset('s1')
         compare_datasets(self, expected_dataset, read_dataset,
-            require_images=True)
+            require_media=True)
 
         with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
             self.assertTrue('/s1' in [line.strip() for line in f])

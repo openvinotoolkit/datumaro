@@ -95,7 +95,7 @@ class SynthiaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_LABELS_SEGM_DATASET_DIR, 'synthia')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
 
     @mark_requirement(Requirements.DATUM_497)
@@ -122,7 +122,7 @@ class SynthiaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_COLOR_SEGM_DATASET_DIR, 'synthia')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_497)
     def test_can_import_with_custom_labelmap(self):
@@ -151,7 +151,7 @@ class SynthiaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_CUSTOM_LABELMAP, 'synthia')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_497)
     def test_can_import_with_meta_file(self):
@@ -180,4 +180,4 @@ class SynthiaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_META_FILE, 'synthia')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)

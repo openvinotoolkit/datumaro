@@ -21,7 +21,7 @@ class ImageDirFormatTest(TestCase):
 
         with TestDir() as test_dir:
             check_save_and_load(self, dataset, ImageDirConverter.convert,
-                test_dir, importer='image_dir', require_images=True)
+                test_dir, importer='image_dir', require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
@@ -56,4 +56,4 @@ class ImageDirFormatTest(TestCase):
 
         with TestDir() as test_dir:
             check_save_and_load(self, dataset, ImageDirConverter.convert,
-                test_dir, importer='image_dir', require_images=True)
+                test_dir, importer='image_dir', require_media=True)

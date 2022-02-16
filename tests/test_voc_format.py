@@ -185,7 +185,7 @@ class VocImportTest(TestCase):
                 actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path),
                     format)
 
-                compare_datasets(self, expected, actual, require_images=True)
+                compare_datasets(self, expected, actual, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_voc_layout_dataset(self):
@@ -227,7 +227,7 @@ class VocImportTest(TestCase):
                 actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path),
                     format)
 
-                compare_datasets(self, expected, actual, require_images=True)
+                compare_datasets(self, expected, actual, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_voc_detection_dataset(self):
@@ -275,7 +275,7 @@ class VocImportTest(TestCase):
                 actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path),
                     format)
 
-                compare_datasets(self, expected, actual, require_images=True)
+                compare_datasets(self, expected, actual, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_voc_segmentation_dataset(self):
@@ -306,7 +306,7 @@ class VocImportTest(TestCase):
                 actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path),
                     format)
 
-                compare_datasets(self, expected, actual, require_images=True)
+                compare_datasets(self, expected, actual, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_voc_action_dataset(self):
@@ -347,7 +347,7 @@ class VocImportTest(TestCase):
                 actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path),
                     format)
 
-                compare_datasets(self, expected, actual, require_images=True)
+                compare_datasets(self, expected, actual, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_voc(self):
@@ -390,7 +390,7 @@ class VocImportTest(TestCase):
                 actual = Dataset.import_from(osp.join(DUMMY_DATASET3_DIR, path),
                     format)
 
-                compare_datasets(self, expected, actual, require_images=True)
+                compare_datasets(self, expected, actual, require_media=True)
 
 
 class VocConverterTest(TestCase):
@@ -697,7 +697,7 @@ class VocConverterTest(TestCase):
                 self._test_save_and_load(TestExtractor(),
                     partial(VocConverter.convert, label_map='voc', tasks=task,
                         save_media=True),
-                    test_dir, require_images=True)
+                    test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_images(self):
@@ -718,7 +718,7 @@ class VocConverterTest(TestCase):
                 self._test_save_and_load(TestExtractor(),
                     partial(VocConverter.convert, label_map='voc',
                         save_media=True, tasks=task),
-                    test_dir, require_images=True)
+                    test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_dataset_with_voc_labelmap(self):
@@ -999,7 +999,7 @@ class VocConverterTest(TestCase):
                 self._test_save_and_load(TestExtractor(),
                     partial(VocConverter.convert, label_map='voc', tasks=task,
                         save_media=True),
-                    test_dir, require_images=True)
+                    test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
@@ -1018,7 +1018,7 @@ class VocConverterTest(TestCase):
                 self._test_save_and_load(TestExtractor(),
                     partial(VocConverter.convert,
                         label_map='voc', save_media=True, tasks=task),
-                    test_dir, require_images=True)
+                    test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_attributes(self):
@@ -1110,7 +1110,7 @@ class VocConverterTest(TestCase):
             self.assertEqual({'a.txt', 'b.txt'},
                 set(os.listdir(osp.join(path, 'ImageSets', 'Main'))))
             compare_datasets(self, expected, Dataset.import_from(path, 'voc'),
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data_with_transforms(self):
@@ -1177,7 +1177,7 @@ class VocConverterTest(TestCase):
             self.assertEqual({'train.txt'},
                 set(os.listdir(osp.join(path, 'ImageSets', 'Segmentation'))))
             compare_datasets(self, expected, Dataset.import_from(path, 'voc'),
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_data_images(self):

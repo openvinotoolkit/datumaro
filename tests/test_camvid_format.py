@@ -352,7 +352,7 @@ class CamvidConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(SrcExtractor(),
                 partial(CamvidConverter.convert, save_media=True),
-                test_dir, require_images=True,
+                test_dir, require_media=True,
                 target_dataset=DstExtractor())
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -406,7 +406,7 @@ class CamvidConverterTest(TestCase):
             self.assertEqual({'1.jpg', '2.jpg'},
                 set(os.listdir(osp.join(path, 'a'))))
             compare_datasets(self, expected, Dataset.import_from(path, 'camvid'),
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_dataset_with_meta_file(self):

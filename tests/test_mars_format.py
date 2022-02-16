@@ -44,7 +44,7 @@ class MarsImporterTest(TestCase):
         ], categories=['00-1', '0000', '0001'])
 
         imported_dataset = Dataset.import_from(DUMMY_MARS_DATASET, 'mars')
-        compare_datasets(self, expected_dataset, imported_dataset, require_images=True)
+        compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):

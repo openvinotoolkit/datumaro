@@ -110,7 +110,7 @@ class DatumaroConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(self.test_dataset,
                 partial(DatumaroConverter.convert, save_media=True), test_dir,
-                compare=None, require_images=False)
+                compare=None, require_media=False)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):

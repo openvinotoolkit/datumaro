@@ -455,7 +455,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
             self.assertTrue(osp.isfile(osp.join(test_dir, 'default',
                 KittiPath.IMAGES_DIR, 'a/b/c/2.bmp')))

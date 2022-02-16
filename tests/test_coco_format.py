@@ -71,7 +71,7 @@ class CocoImporterTest(TestCase):
 
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_images=True)
+                compare_datasets(self, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_instances_with_any_annotation_filename(self):
@@ -96,7 +96,7 @@ class CocoImporterTest(TestCase):
 
             imported_dataset = Dataset.import_from(dataset_dir, format)
             compare_datasets(self, expected_dataset, imported_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_instances_with_original_cat_ids(self):
@@ -117,7 +117,7 @@ class CocoImporterTest(TestCase):
             'coco_instances',
             keep_original_category_ids=True)
         compare_datasets(self, expected_dataset, actual_dataset,
-            require_images=True)
+            require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_captions(self):
@@ -154,7 +154,7 @@ class CocoImporterTest(TestCase):
 
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_images=True)
+                compare_datasets(self, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_captions_with_any_annotation_filename(self):
@@ -176,7 +176,7 @@ class CocoImporterTest(TestCase):
 
             imported_dataset = Dataset.import_from(dataset_dir, format)
             compare_datasets(self, expected_dataset, imported_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_labels(self):
@@ -213,7 +213,7 @@ class CocoImporterTest(TestCase):
 
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_images=True)
+                compare_datasets(self, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_labels_with_any_annotation_filename(self):
@@ -235,7 +235,7 @@ class CocoImporterTest(TestCase):
 
             imported_dataset = Dataset.import_from(dataset_dir, format)
             compare_datasets(self, expected_dataset, imported_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_keypoints(self):
@@ -289,7 +289,7 @@ class CocoImporterTest(TestCase):
 
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_images=True)
+                compare_datasets(self, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_keypoints_with_any_annotation_filename(self):
@@ -321,7 +321,7 @@ class CocoImporterTest(TestCase):
 
             imported_dataset = Dataset.import_from(dataset_dir, format)
             compare_datasets(self, expected_dataset, imported_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_keypoints_with_original_cat_ids(self):
@@ -351,7 +351,7 @@ class CocoImporterTest(TestCase):
             keep_original_category_ids=True)
 
         compare_datasets(self, expected_dataset, actual_dataset,
-            require_images=True)
+            require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_image_info(self):
@@ -380,7 +380,7 @@ class CocoImporterTest(TestCase):
 
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_images=True)
+                compare_datasets(self, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_image_info_with_any_annotation_filename(self):
@@ -399,7 +399,7 @@ class CocoImporterTest(TestCase):
 
             imported_dataset = Dataset.import_from(dataset_dir, format)
             compare_datasets(self, expected_dataset, imported_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_panoptic(self):
@@ -439,7 +439,7 @@ class CocoImporterTest(TestCase):
 
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_images=True)
+                compare_datasets(self, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_panoptic_with_any_annotation_filename(self):
@@ -464,7 +464,7 @@ class CocoImporterTest(TestCase):
 
             imported_dataset = Dataset.import_from(dataset_dir, format)
             compare_datasets(self, expected_dataset, imported_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_panoptic_with_original_cat_ids(self):
@@ -484,7 +484,7 @@ class CocoImporterTest(TestCase):
             'coco_panoptic',
             keep_original_category_ids=True)
         compare_datasets(self, expected_dataset, actual_dataset,
-            require_images=True)
+            require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_stuff(self):
@@ -524,7 +524,7 @@ class CocoImporterTest(TestCase):
 
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_images=True)
+                compare_datasets(self, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_stuff_with_any_annotation_filename(self):
@@ -549,7 +549,7 @@ class CocoImporterTest(TestCase):
 
             imported_dataset = Dataset.import_from(dataset_dir, format)
             compare_datasets(self, expected_dataset, imported_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
@@ -733,7 +733,7 @@ class CocoConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(CocoPanopticConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_stuff(self):
@@ -1134,7 +1134,7 @@ class CocoConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(CocoImageInfoConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
@@ -1148,7 +1148,7 @@ class CocoConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected,
                 partial(CocoImageInfoConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_coco_ids(self):
@@ -1160,7 +1160,7 @@ class CocoConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(CocoImageInfoConverter.convert, save_media=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_annotation_attributes(self):
@@ -1251,7 +1251,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(dataset,
                 partial(CocoImageInfoConverter.convert, save_media=True,
                     merge_images=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
             self.assertTrue(osp.isfile(osp.join(test_dir, 'images', '1.jpg')))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1266,7 +1266,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(dataset,
                 partial(CocoImageInfoConverter.convert, save_media=True,
                     merge_images=False),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
             self.assertTrue(osp.isfile(osp.join(
                 test_dir, 'images', 'train', '1.jpg')))
 
@@ -1298,7 +1298,7 @@ class CocoConverterTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(path, 'images', 'a', '2.jpg')))
             self.assertFalse(osp.isfile(osp.join(path, 'images', 'c', '3.jpg')))
             compare_datasets(self, expected, Dataset.import_from(path, 'coco'),
-                require_images=True, ignored_attrs={'id'})
+                require_media=True, ignored_attrs={'id'})
 
     @mark_requirement(Requirements. DATUM_BUG_425)
     def test_can_save_and_load_grouped_masks_and_polygons(self):
@@ -1375,7 +1375,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(dataset,
                 partial(CocoPanopticConverter.convert, save_media=True,
                     save_dataset_meta=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1412,5 +1412,5 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(dataset,
                 partial(CocoPanopticConverter.convert, save_media=True,
                     save_dataset_meta=True),
-                test_dir, require_images=True)
+                test_dir, require_media=True)
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))

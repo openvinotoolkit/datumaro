@@ -38,7 +38,7 @@ class CifarFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_without_saving_images(self):
@@ -56,7 +56,7 @@ class CifarFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_different_image_size(self):
@@ -76,7 +76,7 @@ class CifarFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
@@ -92,7 +92,7 @@ class CifarFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
@@ -108,7 +108,7 @@ class CifarFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_empty_image(self):
@@ -122,7 +122,7 @@ class CifarFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
@@ -165,7 +165,7 @@ class CifarFormatTest(TestCase):
             self.assertEqual({'a', 'b', 'batches.meta'},
                 set(os.listdir(path)))
             compare_datasets(self, expected, Dataset.import_from(path, 'cifar'),
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_cifar100(self):
@@ -191,7 +191,7 @@ class CifarFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_cifar100_without_saving_images(self):
@@ -212,7 +212,7 @@ class CifarFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_catch_pickle_exception(self):
@@ -246,7 +246,7 @@ class CifarFormatTest(TestCase):
 
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
 DUMMY_10_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
     'cifar10_dataset')
@@ -283,7 +283,7 @@ class CifarImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_10_DATASET_DIR, 'cifar')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_10(self):
@@ -330,7 +330,7 @@ class CifarImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_100_DATASET_DIR, 'cifar')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_100(self):

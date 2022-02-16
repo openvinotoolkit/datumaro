@@ -62,7 +62,7 @@ class Ade20k2017ImporterTest(TestCase):
 
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'ade20k2017')
         compare_datasets(self, expected_dataset, imported_dataset,
-            require_images=True)
+            require_media=True)
 
     @mark_requirement(Requirements.DATUM_399)
     def test_can_import_with_meta_file(self):
@@ -86,4 +86,4 @@ class Ade20k2017ImporterTest(TestCase):
 
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR_META_FILE, 'ade20k2017')
         compare_datasets(self, expected_dataset, imported_dataset,
-            require_images=True)
+            require_media=True)

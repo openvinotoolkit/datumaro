@@ -81,7 +81,7 @@ class AlignCelebaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_ALIGN_DATASET_DIR, 'align_celeba')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_475)
     def test_can_import_with_meta_file(self):
@@ -111,7 +111,7 @@ class AlignCelebaImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_ALIGN_DATASET_DIR_WITH_META_FILE,
             'align_celeba')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_475)
     def test_can_detect_align_dataset(self):

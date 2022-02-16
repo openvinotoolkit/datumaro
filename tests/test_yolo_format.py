@@ -118,7 +118,7 @@ class YoloFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
@@ -153,7 +153,7 @@ class YoloFormatTest(TestCase):
             YoloConverter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
-            compare_datasets(self, dataset, parsed_dataset, require_images=True)
+            compare_datasets(self, dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
@@ -180,7 +180,7 @@ class YoloFormatTest(TestCase):
             self.assertEqual(set(),
                 set(os.listdir(osp.join(path, 'obj_valid_data'))))
             compare_datasets(self, expected, Dataset.import_from(path, 'yolo'),
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_meta_file(self):

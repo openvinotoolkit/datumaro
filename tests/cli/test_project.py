@@ -123,7 +123,7 @@ class ProjectIntegrationScenarios(TestCase):
                         Bbox(2, 2, 2, 2, label=1,
                             group=1, id=1, attributes={'is_crowd': False}),
                 ], attributes={ 'id': 1 })
-            ], categories=['a', 'cat']), parsed, require_images=True)
+            ], categories=['a', 'cat']), parsed, require_media=True)
 
             shutil.rmtree(result_dir, ignore_errors=True)
             run(self, 'checkout', '-p', project_dir, 'HEAD~1')
@@ -137,7 +137,7 @@ class ProjectIntegrationScenarios(TestCase):
                     Bbox(2, 2, 2, 2, label=1,
                         group=2, id=2, attributes={'is_crowd': False}),
                 ], attributes={ 'id': 1 })
-            ], categories=['a', 'cat']), parsed, require_images=True)
+            ], categories=['a', 'cat']), parsed, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped

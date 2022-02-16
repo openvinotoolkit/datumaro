@@ -80,7 +80,7 @@ class MpiiImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'mpii')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_580)
     def test_can_detect(self):
