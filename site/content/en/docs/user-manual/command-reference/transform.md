@@ -438,7 +438,7 @@ Optional arguments:
 - `-i`, `--ids` (str) - Datasetitem ids to run trasform
 
 Examples:
-Delete annotations, which has '2010_001705' as id.
+Delete annotations, which have '2010_001705' as id.
 ```
 datum transform -t delete_annotation -- -i '2010_001705'
 ```
@@ -457,7 +457,7 @@ Optional arguments:
 - `-i`, `--ids` (str) - Datasetitem ids to run trasform
 
 Examples:
-Delete attributes, which has '2010_001705' as id.
+Delete attributes, which have '2010_001705' as id.
 ```
 datum transform -t delete_attribute -- -i '2010_001705'
 ```
