@@ -405,6 +405,63 @@ Resize all images to 256x256 size
 datum transform -t resize -- -dw 256 -dh 256
 ```
 
+##### `delete_image` <a id="delete_image-transform"></a>
+
+Deletes images with annotation errors in the dataset
+
+Usage:
+```bash
+delete_image [-h] [-i IDs]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `-i`, `--ids` (str) - Datasetitem ids to run trasform
+
+Examples:
+Delete an image, which has '2010_001705' as id.
+```
+datum transform -t delete_image -- -i '2010_001705'
+```
+
+##### `delete_annotation` <a id="delete_annotation-transform"></a>
+
+Deletes annotations with annotation errors in the dataset
+
+Usage:
+```bash
+delete_image [-h] [-i IDs]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `-i`, `--ids` (str) - Datasetitem ids to run trasform
+
+Examples:
+Delete annotations, which has '2010_001705' as id.
+```
+datum transform -t delete_annotation -- -i '2010_001705'
+```
+
+##### `delete_attribute` <a id="delete_attribute-transform"></a>
+
+Deletes attributes with annotation errors in the dataset
+
+Usage:
+```bash
+delete_image [-h] [-i IDs]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `-i`, `--ids` (str) - Datasetitem ids to run trasform
+
+Examples:
+Delete attributes, which has '2010_001705' as id.
+```
+datum transform -t delete_attribute -- -i '2010_001705'
+```
+
 ##### `random_split` <a id="random_split-transform"></a>
 
 Joins all subsets into one and splits the result into few parts.
