@@ -8,7 +8,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
-from datumaro.components.media import PointCloud
+from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
 from datumaro.plugins.kitti_raw_format.converter import KittiRawConverter
 from datumaro.plugins.kitti_raw_format.extractor import KittiRawImporter
@@ -37,12 +37,12 @@ class KittiRawImporterTest(TestCase):
         pcd3 = osp.join(DUMMY_DATASET_DIR,
             'velodyne_points', 'data', '0000000002.pcd')
 
-        image1 = osp.join(DUMMY_DATASET_DIR,
-            'IMAGE_00', 'data', '0000000000.png')
-        image2 = osp.join(DUMMY_DATASET_DIR,
-            'IMAGE_00', 'data', '0000000001.png')
-        image3 = osp.join(DUMMY_DATASET_DIR,
-            'IMAGE_00', 'data', '0000000002.png')
+        image1 = Image(path=osp.join(DUMMY_DATASET_DIR,
+            'IMAGE_00', 'data', '0000000000.png'))
+        image2 = Image(path=osp.join(DUMMY_DATASET_DIR,
+            'IMAGE_00', 'data', '0000000001.png'))
+        image3 = Image(path=osp.join(DUMMY_DATASET_DIR,
+            'IMAGE_00', 'data', '0000000002.png'))
 
         expected_label_cat = LabelCategories(attributes={'occluded'})
         expected_label_cat.add('bus')
@@ -92,12 +92,12 @@ class KittiRawConverterTest(TestCase):
     pcd3 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
         'velodyne_points', 'data', '0000000002.pcd'))
 
-    image1 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
-        'IMAGE_00', 'data', '0000000000.png'))
-    image2 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
-        'IMAGE_00', 'data', '0000000001.png'))
-    image3 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
-        'IMAGE_00', 'data', '0000000002.png'))
+    image1 = Image(path=osp.abspath(osp.join(DUMMY_DATASET_DIR,
+        'IMAGE_00', 'data', '0000000000.png')))
+    image2 = Image(path=osp.abspath(osp.join(DUMMY_DATASET_DIR,
+        'IMAGE_00', 'data', '0000000001.png')))
+    image3 = Image(path=osp.abspath(osp.join(DUMMY_DATASET_DIR,
+        'IMAGE_00', 'data', '0000000002.png')))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def _test_save_and_load(self, source_dataset, converter, test_dir,
@@ -160,8 +160,8 @@ class KittiRawConverterTest(TestCase):
                     ],
                     media=PointCloud(osp.join(test_dir,
                             'velodyne_points', 'data', '0000000000.pcd'),
-                        extra_images=[osp.join(test_dir,
-                            'image_00', 'data', '0000000000.png')
+                        extra_images=[Image(path=osp.join(test_dir,
+                            'image_00', 'data', '0000000000.png'))
                     ]),
                     attributes={'frame': 0}
                 ),
@@ -353,7 +353,7 @@ class KittiRawConverterTest(TestCase):
                     media=PointCloud(osp.join(test_dir,
                             'velodyne_points', 'data', 'a', 'd.pcd'),
                         extra_images=[
-                            osp.join(test_dir, 'image_00', 'data', 'a', 'd.png'),
+                            Image(path=osp.join(test_dir, 'image_00', 'data', 'a', 'd.png')),
                     ]),
                     attributes={'frame': 3}
                 ),
@@ -392,9 +392,9 @@ class KittiRawConverterTest(TestCase):
                     media=PointCloud(osp.join(test_dir,
                             'velodyne_points', 'data', 'a', 'd.pcd'),
                         extra_images=[
-                            osp.join(test_dir, 'image_00', 'data', 'a', 'd.png'),
-                            osp.join(test_dir, 'image_01', 'data', 'a', 'd.png'),
-                            osp.join(test_dir, 'image_02', 'data', 'a', 'd.png'),
+                            Image(path=osp.join(test_dir, 'image_00', 'data', 'a', 'd.png')),
+                            Image(path=osp.join(test_dir, 'image_01', 'data', 'a', 'd.png')),
+                            Image(path=osp.join(test_dir, 'image_02', 'data', 'a', 'd.png')),
                     ]),
                     attributes={'frame': 3}
                 ),
@@ -476,8 +476,8 @@ class KittiRawConverterTest(TestCase):
                     ],
                     media=PointCloud(osp.join(test_dir,
                             'velodyne_points', 'data', '0000000000.pcd'),
-                        extra_images=[osp.join(test_dir,
-                            'image_00', 'data', '0000000000.png')
+                        extra_images=[Image(path=osp.join(test_dir,
+                            'image_00', 'data', '0000000000.png'))
                     ]),
                     attributes={'frame': 0}
                 ),

@@ -294,8 +294,6 @@ class DatasetStorage(IDataset):
 
     def init_cache(self):
         if not self.is_cache_initialized():
-            if self.media_type():
-                self._check_media_type()
             for _ in self._iter_init_cache(): pass
 
     def _iter_init_cache(self) -> Iterable[DatasetItem]:
@@ -383,6 +381,11 @@ class DatasetStorage(IDataset):
 
         i = -1
         for i, item in enumerate(source):
+            if self.media_type():
+                if item.media and not isinstance(item.media, self.media_type()):
+                    raise MediaTypeError("Dataset elements must have a '%s' " \
+                        "media type" % self.media_type())
+
             if transform and transform.is_local:
                 old_id = (item.id, item.subset)
                 item = transform.transform_item(item)
@@ -608,12 +611,6 @@ class DatasetStorage(IDataset):
         else:
             for item in source:
                 self.put(item)
-
-    def _check_media_type(self):
-        for item in self._source:
-            if item.media and not isinstance(item.media, self.media_type()):
-                raise MediaTypeError("Dataset elements must have a '%s' " \
-                    "media type" % self.media_type())
 
 class Dataset(IDataset):
     _global_eager: bool = False
@@ -964,10 +961,9 @@ class Dataset(IDataset):
         for src_conf in detected_sources:
             if not isinstance(src_conf, Source):
                 src_conf = Source(src_conf)
-            extractor = env.make_extractor(
+            extractors.append(env.make_extractor(
                 src_conf.format, src_conf.url, **src_conf.options
-            )
-            extractors.append(extractor)
+            ))
 
         dataset = cls.from_extractors(*extractors, env=env)
         dataset._source_path = path

@@ -237,13 +237,23 @@ class MismatchingImageInfoError(DatasetMergeError):
             (self.item_id, self.a, self.b)
 
 @define(auto_exc=False)
-class MismatchingImagePathError(DatasetMergeError):
+class MismatchingMediaPathError(DatasetMergeError):
     item_id: Tuple[str, str]
     a: str
     b: str
 
     def __str__(self):
-        return "Item %s: mismatching image path info: %s vs %s" % \
+        return "Item %s: mismatching media path info: %s vs %s" % \
+            (self.item_id, self.a, self.b)
+
+@define(auto_exc=False)
+class MismatchingMediaError(DatasetMergeError):
+    item_id: Tuple[str, str]
+    a: Any
+    b: Any
+
+    def __str__(self):
+        return "Item %s: mismatching media info: %s vs %s" % \
             (self.item_id, self.a, self.b)
 
 @define(auto_exc=False)

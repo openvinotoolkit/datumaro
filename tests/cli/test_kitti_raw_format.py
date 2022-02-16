@@ -6,7 +6,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
-from datumaro.components.media import PointCloud
+from datumaro.components.media import Image, PointCloud
 from datumaro.util.test_utils import TestDir, compare_datasets_3d
 from datumaro.util.test_utils import run_datum as run
 
@@ -38,8 +38,8 @@ class KittiRawIntegrationScenarios(TestCase):
                     ],
                     media=PointCloud(osp.join(export_dir, 'ds0', 'pointcloud',
                             '0000000000.pcd'),
-                        extra_images=[osp.join(export_dir, 'ds0',
-                            'related_images', '0000000000_pcd', '0000000000.png')
+                        extra_images=[Image(path=osp.join(export_dir, 'ds0',
+                            'related_images', '0000000000_pcd', '0000000000.png'))
                     ]),
                     attributes={'frame': 0, 'description': ''}
                 ),
@@ -54,8 +54,8 @@ class KittiRawIntegrationScenarios(TestCase):
                     ],
                     media=PointCloud(osp.join(export_dir, 'ds0', 'pointcloud',
                             '0000000001.pcd'),
-                        extra_images=[osp.join(export_dir, 'ds0',
-                            'related_images', '0000000001_pcd', '0000000001.png')
+                        extra_images=[Image(path=osp.join(export_dir, 'ds0',
+                            'related_images', '0000000001_pcd', '0000000001.png'))
                     ]),
                     attributes={'frame': 1, 'description': ''}
                 ),
@@ -69,8 +69,8 @@ class KittiRawIntegrationScenarios(TestCase):
                     ],
                     media=PointCloud(osp.join(export_dir, 'ds0', 'pointcloud',
                             '0000000002.pcd'),
-                        extra_images=[osp.join(export_dir, 'ds0',
-                        'related_images', '0000000002_pcd', '0000000002.png')
+                        extra_images=[Image(path=osp.join(export_dir, 'ds0',
+                        'related_images', '0000000002_pcd', '0000000002.png'))
                     ]),
                     attributes={'frame': 2, 'description': ''}
                 ),

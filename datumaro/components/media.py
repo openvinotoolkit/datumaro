@@ -487,11 +487,4 @@ class PointCloud(MediaElement):
     def __init__(self, path: str, extra_images: Optional[List[Image]] = None):
         self._path = path
 
-        self.extra_images: List[Image] = []
-        for image in extra_images or []:
-            assert isinstance(image, (str, Image, np.ndarray)) or callable(image)
-            if isinstance(image, str):
-                image = Image(path=image)
-            elif isinstance(image, np.ndarray) or callable(image):
-                image = Image(data=image)
-            self.extra_images.append(image)
+        self.extra_images: List[Image] = extra_images or []

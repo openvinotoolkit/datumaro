@@ -32,7 +32,7 @@ DEFAULT_SUBSET_NAME = 'default'
 
 T = TypeVar('T', bound=MediaElement)
 
-@attrs(order=False, init=False)
+@attrs(order=False, init=False, slots=True)
 class DatasetItem:
     id: str = field(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)

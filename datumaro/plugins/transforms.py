@@ -21,7 +21,7 @@ from datumaro.components.annotation import (
     Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.errors import DatumaroError
+from datumaro.components.errors import DatumaroError, MediaTypeError
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, Transform,
 )
@@ -52,6 +52,8 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
 
         if not item.media:
             raise Exception("Image info is required for this transform")
+        if not isinstance(item.media, Image):
+            raise MediaTypeError("Item %s: media type is not an image")
         h, w = item.media.size
         segments = self.crop_segments(segments, w, h)
 
@@ -134,6 +136,8 @@ class MergeInstanceSegments(ItemTransform, CliPlugin):
 
         if not item.media:
             raise Exception("Image info is required for this transform")
+        if not isinstance(item.media, Image):
+            raise MediaTypeError("Item %s: media type is not an image")
         h, w = item.media.size
         instances = self.find_instances(segments)
         segments = [self.merge_segments(i, w, h, self._include_polygons)
@@ -195,6 +199,8 @@ class PolygonsToMasks(ItemTransform, CliPlugin):
             if ann.type == AnnotationType.polygon:
                 if not item.media:
                     raise Exception("Image info is required for this transform")
+                if not isinstance(item.media, Image):
+                    raise MediaTypeError("Item %s: media type is not an image")
                 h, w = item.media.size
                 annotations.append(self.convert_polygon(ann, h, w))
             else:
@@ -216,6 +222,8 @@ class BoxesToMasks(ItemTransform, CliPlugin):
             if ann.type == AnnotationType.bbox:
                 if not item.media:
                     raise Exception("Image info is required for this transform")
+                if not isinstance(item.media, Image):
+                    raise MediaTypeError("Item %s: media type is not an image")
                 h, w = item.media.size
                 annotations.append(self.convert_bbox(ann, h, w))
             else:
@@ -420,7 +428,7 @@ class IdFromImageName(ItemTransform, CliPlugin):
     """
 
     def transform_item(self, item):
-        if item.media and item.media.path:
+        if item.media and item.media.path and isinstance(item.media, Image):
             name = osp.splitext(osp.basename(item.media.path))[0]
             return self.wrap_item(item, id=name)
         else:
@@ -823,6 +831,8 @@ class ResizeTransform(ItemTransform):
         if not item.media:
             raise DatumaroError("Item %s: image info is required for this "
                 "transform" % (item.id, ))
+        if not isinstance(item.media, Image):
+            raise MediaTypeError("Item %s: media type is not an image")
 
         h, w = item.media.size
         xscale = self._width / float(w)

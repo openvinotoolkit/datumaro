@@ -418,7 +418,7 @@ class KittiRawConverter(Converter):
 
         if self._save_media and item.media:
             if not isinstance(item.media, PointCloud):
-                raise MediaTypeError("Media type is not a point cloud")
+                raise MediaTypeError("Item %s: media type is not a point cloud")
 
             self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
 

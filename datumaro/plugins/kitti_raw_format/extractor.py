@@ -12,7 +12,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import PointCloud
+from datumaro.components.media import Image, PointCloud
 from datumaro.util import cast
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -248,7 +248,7 @@ class KittiRawExtractor(SourceExtractor):
             items[frame_id] = DatasetItem(id=name, subset=self._subset,
                 media=PointCloud(
                     osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + '.pcd'),
-                    extra_images=sorted(images.get(name, []))),
+                    extra_images=[Image(path=image) for image in sorted(images.get(name, []))]),
                 annotations=item_desc.get('annotations'),
                 attributes={'frame': int(frame_id)})
 
@@ -259,7 +259,7 @@ class KittiRawExtractor(SourceExtractor):
             items[frame_id] = DatasetItem(id=name, subset=self._subset,
                 media=PointCloud(
                     osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + '.pcd'),
-                    extra_images=sorted(images.get(name, []))),
+                    extra_images=[Image(path=image) for image in sorted(images.get(name, []))]),
                 attributes={'frame': int(frame_id)})
 
         return items

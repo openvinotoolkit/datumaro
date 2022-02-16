@@ -15,7 +15,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.media import ByteImage, Image
+from datumaro.components.media import Image
 from datumaro.util import cast, parse_str_enum_value, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
@@ -98,8 +98,8 @@ class KittiConverter(Converter):
 
             for item in subset:
                 if self._save_media:
-                    if not isinstance(item.media, (ByteImage, Image)):
-                        raise MediaTypeError("Media type is not an image")
+                    if not isinstance(item.media, Image):
+                        raise MediaTypeError("Item %s: media type is not an image")
                     self._save_image(item,
                         subdir=osp.join(subset_name, KittiPath.IMAGES_DIR))
 

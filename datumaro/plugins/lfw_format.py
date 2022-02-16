@@ -13,7 +13,7 @@ from datumaro.components.converter import Converter
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import ByteImage, Image
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -247,8 +247,8 @@ class LfwConverter(Converter):
                     labels[label_name] += 1
 
                 if self._save_media and item.media:
-                    if not isinstance(item.media, (ByteImage, Image)):
-                        raise MediaTypeError("Media type is not an image")
+                    if not isinstance(item.media, Image):
+                        raise MediaTypeError("Item %s: media type is not an image")
                     subdir=osp.join(subset_name, LfwPath.IMAGES_DIR)
                     if label_name:
                         subdir=osp.join(subdir, label_name)

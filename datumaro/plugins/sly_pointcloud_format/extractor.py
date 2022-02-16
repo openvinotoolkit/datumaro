@@ -9,7 +9,7 @@ from datumaro.components.annotation import (
     AnnotationType, Cuboid3d, LabelCategories,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
-from datumaro.components.media import PointCloud
+from datumaro.components.media import Image, PointCloud
 from datumaro.util import parse_json_file
 from datumaro.util.image import find_images
 
@@ -161,7 +161,8 @@ class SuperviselyPointCloudExtractor(SourceExtractor):
                 PointCloudPath.RELATED_IMAGES_DIR, name + '_pcd')
             related_images = None
             if osp.isdir(related_images_dir):
-                related_images = find_images(related_images_dir)
+                related_images = [Image(path=image)
+                    for image in find_images(related_images_dir)]
 
             parsed[frame_id] = DatasetItem(id=name, subset=self._subset,
                 media=PointCloud(pcd_path, extra_images=related_images),

@@ -19,7 +19,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     ConflictingCategoriesError, DatasetNotFoundError,
     MismatchingAttributesError, MismatchingImageInfoError,
-    MismatchingImagePathError, MultipleFormatsMatchError,
+    MismatchingMediaPathError, MultipleFormatsMatchError,
     NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
@@ -444,7 +444,7 @@ class DatasetTest(TestCase):
             DatasetItem(1, media=Image(path='2.png'))
         ])
 
-        with self.assertRaises(MismatchingImagePathError):
+        with self.assertRaises(MismatchingMediaPathError):
             Dataset.from_extractors(s1, s2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

@@ -29,7 +29,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import ByteImage, Image
+from datumaro.components.media import Image
 from datumaro.components.validator import Severity
 from datumaro.util import parse_json_file
 from datumaro.util.annotation_util import find_instances
@@ -798,8 +798,8 @@ class OpenImagesConverter(Converter):
 
                     if self._save_media:
                         if item.media:
-                            if not isinstance(item.media, (ByteImage, Image)):
-                                raise MediaTypeError("Media type is not an image")
+                            if not isinstance(item.media, Image):
+                                raise MediaTypeError("Item %s: media type is not an image")
                             self._save_image(item, subdir=osp.join(
                                 OpenImagesPath.IMAGES_DIR, subset_name))
                         else:

@@ -240,8 +240,7 @@ class DatumaroConverterTest(TestCase):
                     media=PointCloud(osp.join(path, 'point_clouds', 'test', '5.pcd'),
                         extra_images=[
                             Image(data=np.ones((3, 4, 3)),
-                                path=osp.join(path, 'test', '5', 'image_0.jpg')),
-                            osp.join(path, 'test', '5', 'a', '5.png'),
+                                path=osp.join(path, 'test', '5', 'image_0.jpg'))
                         ]
                     ),
                 ),
@@ -253,8 +252,7 @@ class DatumaroConverterTest(TestCase):
                 DatasetItem(4, subset='d', media=Image(data=np.ones((2, 3, 3)))),
                 DatasetItem(5, subset='e',
                     media=PointCloud('5.pcd', extra_images=[
-                        np.ones((3, 4, 3)),
-                        'a/5.png',
+                        Image(data=np.ones((3, 4, 3))),
                     ])
                 ),
             ])
@@ -290,8 +288,7 @@ class DatumaroConverterTest(TestCase):
                 media=PointCloud('1.pcd', extra_images=[
                     Image(data=np.ones((5, 5, 3)), path='1/a.jpg'),
                     Image(data=np.ones((5, 4, 3)), path='1/b.jpg'),
-                    Image(size=(5, 3), path='1/c.jpg'),
-                    '1/d.jpg',
+                    Image(size=(5, 3), path='1/c.jpg')
                 ]),
                 annotations=[
                     Cuboid3d([2, 2, 2], [1, 1, 1], [3, 3, 1],
@@ -314,9 +311,7 @@ class DatumaroConverterTest(TestCase):
                                 '1', 'image_1.jpg')),
                             Image(size=(5, 3), path=osp.join(
                                 test_dir, 'related_images', 'test',
-                                '1', 'image_2.jpg')),
-                            osp.join(test_dir, 'related_images', 'test',
-                                '1', 'image_3.jpg'),
+                                '1', 'image_2.jpg'))
                     ]),
                     annotations=[
                         Cuboid3d([2, 2, 2], [1, 1, 1], [3, 3, 1],

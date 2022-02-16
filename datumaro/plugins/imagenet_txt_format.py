@@ -10,13 +10,12 @@ import os.path as osp
 from datumaro.components.annotation import (
     AnnotationType, Label, LabelCategories,
 )
-from datumaro.components.errors import MediaTypeError
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.converter import Converter
-from datumaro.components.errors import DatasetImportError
+from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import ByteImage, Image
+from datumaro.components.media import Image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
@@ -197,8 +196,8 @@ class ImagenetTxtConverter(Converter):
                     if p.type == AnnotationType.label)
 
                 if self._save_media and item.media:
-                    if not isinstance(item.media, (ByteImage, Image)):
-                        raise MediaTypeError("Media type is not an image")
+                    if not isinstance(item.media, Image):
+                        raise MediaTypeError("Item %s: media type is not an image")
                     self._save_image(item, subdir=ImagenetTxtPath.IMAGE_DIR)
 
             annotation = ''

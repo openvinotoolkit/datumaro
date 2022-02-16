@@ -15,7 +15,7 @@ from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem
-from datumaro.components.media import ByteImage, Image
+from datumaro.components.media import Image
 from datumaro.util import cast, pairs
 
 from .format import CvatPath
@@ -180,8 +180,8 @@ class _SubsetWriter:
                 image_info["height"] = str(h)
 
             if self._context._save_media:
-                if not isinstance(item.media, (ByteImage, Image)):
-                    raise MediaTypeError("Media type is not an image")
+                if not isinstance(item.media, Image):
+                    raise MediaTypeError("Item %s: media type is not an image")
                 self._context._save_image(item,
                     osp.join(self._context._images_dir, filename))
         else:
