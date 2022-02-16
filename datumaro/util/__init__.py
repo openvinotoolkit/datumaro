@@ -6,13 +6,13 @@ from functools import wraps
 from inspect import isclass
 from itertools import islice
 from typing import Any, Iterable, Optional, Tuple, Union
-import distutils.util
 
+import attrs
 import orjson
 
 NOTSET = object()
 
-str_to_bool = distutils.util.strtobool
+str_to_bool = attrs.converters.to_bool
 
 def find(iterable, pred=lambda x: True, default=None):
     return next((x for x in iterable if pred(x)), default)
