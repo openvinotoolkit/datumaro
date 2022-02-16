@@ -49,7 +49,7 @@ class ExportErrorPolicy:
             item_id: Tuple[str, str]):
         """
         Allows to report a problem with a dataset item annotation.
-        If this function returns, the converter must skip the item.
+        If this function returns, the converter must skip the annotation.
         """
 
         if not isinstance(error, _ExportFail):
@@ -61,21 +61,17 @@ class ExportErrorPolicy:
 
     def _handle_item_error(self, error: ItemExportError):
         """This function must either call fail() or return."""
-        raise NotImplementedError("Must be defined in the subclass")
+        self.fail(error)
 
     def _handle_annotation_error(self, error: AnnotationExportError):
         """This function must either call fail() or return."""
-        raise NotImplementedError("Must be defined in the subclass")
+        self.fail(error)
 
     def fail(self, error: Exception) -> NoReturn:
         raise _ExportFail from error
 
 class FailingExportErrorPolicy(ExportErrorPolicy):
-    def _handle_item_error(self, error: ItemExportError):
-        self.fail(error)
-
-    def _handle_annotation_error(self, error: AnnotationExportError):
-        self.fail(error)
+    pass
 
 @define(eq=False)
 class ExportContext:
@@ -167,9 +163,7 @@ class Converter(CliPlugin):
         else:
             self._patch = None
 
-        if ctx is None:
-            ctx = NullExportContext()
-        self._ctx: ExportContext = ctx
+        self._ctx: ExportContext = ctx or NullExportContext()
 
     def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None

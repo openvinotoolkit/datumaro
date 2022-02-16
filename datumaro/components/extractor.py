@@ -202,7 +202,7 @@ class ImportErrorPolicy:
             item_id: Tuple[str, str]):
         """
         Allows to report a problem with a dataset item annotation.
-        If this function returns, the extractor must skip the item.
+        If this function returns, the extractor must skip the annotation.
         """
 
         if not isinstance(error, _ImportFail):
@@ -214,21 +214,17 @@ class ImportErrorPolicy:
 
     def _handle_item_error(self, error: ItemImportError):
         """This function must either call fail() or return."""
-        raise NotImplementedError("Must be defined in the subclass")
+        self.fail(error)
 
     def _handle_annotation_error(self, error: AnnotationImportError):
         """This function must either call fail() or return."""
-        raise NotImplementedError("Must be defined in the subclass")
+        self.fail(error)
 
     def fail(self, error: Exception) -> NoReturn:
         raise _ImportFail from error
 
 class FailingImportErrorPolicy(ImportErrorPolicy):
-    def _handle_item_error(self, error: ItemImportError):
-        self.fail(error)
-
-    def _handle_annotation_error(self, error: AnnotationImportError):
-        self.fail(error)
+    pass
 
 @define(eq=False)
 class ImportContext:
@@ -253,9 +249,7 @@ class Extractor(_ExtractorBase, CliPlugin):
             ctx: Optional[ImportContext] = None):
         super().__init__(length=length, subsets=subsets)
 
-        if ctx is None:
-            ctx = NullImportContext()
-        self._ctx: ImportContext = ctx
+        self._ctx: ImportContext = ctx or NullImportContext()
 
 class SourceExtractor(Extractor):
     """
