@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -285,31 +285,39 @@ class LabelMeExtractor(Extractor):
 class LabelMeImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        annot_file = context.require_file('**/*.xml')
+        annot_paths = context.require_files('**/*.xml')
 
-        with context.probe_text_file(
-            annot_file, "must be a LabelMe annotation file",
-        ) as f:
-            elem_parents = []
+        for annot_path in annot_paths:
+            with context.probe_text_file(
+                annot_path, "must be a LabelMe annotation file",
+            ) as f:
+                elem_parents = []
 
-            for event, elem in ElementTree.iterparse(f, events=('start', 'end')):
-                if event == 'start':
-                    if elem_parents == [] and elem.tag != 'annotation':
-                        raise Exception
+                for event, elem in ElementTree.iterparse(f, events=('start', 'end')):
+                    if event == 'start':
+                        if elem_parents == [] and elem.tag != 'annotation':
+                            raise Exception
 
-                    if elem_parents == ['annotation', 'object'] \
-                            and elem.tag in {'polygon', 'segm'}:
-                        return
+                        if elem_parents == ['annotation', 'object'] \
+                                and elem.tag in {'polygon', 'segm'}:
+                            return
 
-                    elem_parents.append(elem.tag)
-                elif event == 'end':
-                    elem_parents.pop()
+                        elem_parents.append(elem.tag)
+                    elif event == 'end':
+                        elem_parents.pop()
 
-                    if elem_parents == ['annotation'] and elem.tag == 'object':
-                        # If we got here, then we found an object with no
-                        # polygon and no mask, so it's probably the wrong
-                        # format.
-                        raise Exception
+                        if elem_parents == ['annotation'] and elem.tag == 'object':
+                            # If we got here, then we found an object with no
+                            # polygon and no mask, so it's probably the wrong
+                            # format.
+                            raise Exception
+
+            # If we got here, then the current file has no objects and is thus
+            # ambiguous - it could be ours or it could be from the VOC format.
+            # We'll proceed to test the next one.
+
+        # If we got here, then every file was ambiguous. We'll have to
+        # (implicitly) return a match.
 
     @classmethod
     def find_sources(cls, path):
