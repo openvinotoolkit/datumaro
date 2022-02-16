@@ -160,8 +160,8 @@ class IExtractor:
     def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
-    def media_type(self) -> Type:
-        raise NotImplementedError()
+    def media_type(self):
+        return None
 
 class _ExtractorBase(IExtractor):
     def __init__(self, length=None, subsets=None, media_type=Image):

@@ -293,8 +293,9 @@ class DatasetStorage(IDataset):
             not self._transforms
 
     def init_cache(self):
-        self._check_media_type()
         if not self.is_cache_initialized():
+            if self.media_type():
+                self._check_media_type()
             for _ in self._iter_init_cache(): pass
 
     def _iter_init_cache(self) -> Iterable[DatasetItem]:
@@ -609,11 +610,10 @@ class DatasetStorage(IDataset):
                 self.put(item)
 
     def _check_media_type(self):
-        source = self._source
-        for item in source:
-            if item.media and not isinstance(item.media, source.media_type()):
+        for item in self._source:
+            if item.media and not isinstance(item.media, self.media_type()):
                 raise MediaTypeError("Dataset elements must have a '%s' " \
-                    "media type" % source.media_type())
+                    "media type" % self.media_type())
 
 class Dataset(IDataset):
     _global_eager: bool = False
