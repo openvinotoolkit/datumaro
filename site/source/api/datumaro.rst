@@ -14,7 +14,7 @@ Once you can use the components:
     * :class:`dm.Annotation <datumaro.components.annotation.Annotation>`
     * :class:`dm.AnnotationType <datumaro.components.annotation.AnnotationType>`
     * :class:`dm.Bbox <datumaro.components.annotation.Bbox>`
-    * :class:`dm.BinaryMaskImage  <datumaro.components.annotation.BinaryMaskImage>`
+    * :class:`dm.BinaryMaskImage <datumaro.components.annotation.BinaryMaskImage>`
     * :class:`dm.Caption <datumaro.components.annotation.Caption>`
     * :class:`dm.Categories <datumaro.components.annotation.Categories>`
     * :class:`dm.Colormap <datumaro.components.annotation.Colormap>`

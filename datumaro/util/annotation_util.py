@@ -214,7 +214,7 @@ def approximate_line(points: Sequence[float], segments: int) -> np.ndarray:
       segments (int): the required numebr of segments in the resulting line.
 
     Returns:
-      new_points (ndarray): an array of new line point coordinates.
+        new_points (numpy.ndarray): an array of new line point coordinates.
         The size is [(segments + 1) * 2], the layout is [x0, y0, x1, y1, ...].
     """
 

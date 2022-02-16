@@ -441,14 +441,19 @@ class Rename(ItemTransform, CliPlugin):
     |n
     Examples:|n
     |s|s- Replace 'pattern' with 'replacement':|n
+
     |s|s.. code-block::
 
     |s|s|s|srename -e '|pattern|replacement|'|n
+
     |s|s- Remove 'frame_' from item ids:|n
+
     |s|s.. code-block::
 
     |s|s|s|srename -e '|^frame_||'|n
+
     |s|s- Rename by regex:|n
+
     |s|s.. code-block::
 
     |s|s|s|srename -e '|frame_(\d+)_extra|{item.subset}_id_\1|'
@@ -482,23 +487,31 @@ class RemapLabels(ItemTransform, CliPlugin):
     A label can be:|n
     |s|s- renamed (and joined with existing) -|n
     |s|s|s|swhen '--label <old_name>:<new_name>' is specified|n
+
     |s|s- deleted - when '--label <name>:' is specified, or default action |n
     |s|s|s|sis 'delete' and the label is not mentioned in the list. |n
     |s|s|s|sWhen a label is deleted, all the associated annotations are removed|n
+
     |s|s- kept unchanged - when specified '--label <name>:<name>'|n
-    |s|s|s|sor default action is 'keep' and the label is not mentioned in the list|n
+    |s|s|s|sor default action is 'keep' and the label is not mentioned in the list.|n
+
     Annotations with no label are managed by the default action policy.|n
     |n
     Examples:|n
     |s|s- Remove the 'person' label (and corresponding annotations):|n
+
     |s|s.. code-block::
 
     |s|s|s|s%(prog)s -l person: --default keep|n
+
     |s|s- Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
+
     |s|s.. code-block::
 
     |s|s|s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
+
     |s|s- Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
+
     |s|s.. code-block::
 
     |s|s|s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
@@ -640,6 +653,7 @@ class ProjectLabels(ItemTransform):
     |n
     Examples:|n
     |s|s- Align the source dataset labels to [person, cat, dog]:|n
+
     |s|s.. code-block::
 
     |s|s|s|s%(prog)s -l person -l cat -l dog
@@ -789,6 +803,7 @@ class ResizeTransform(ItemTransform):
     |n
     Examples:|n
         - Resize all images to 256x256 size|n
+
         .. code-block::
 
         |s|s%(prog)s -dw 256 -dh 256

@@ -1167,10 +1167,10 @@ class _MeanStdCounter:
         does O(log(N)) calls.
 
         Args:
-            stats (float array of shape N, 2 * d, d = dimensions of values)
-            count (integer array of shape N)
-            mean_accessor (function(idx, stats)) to retrieve element mean
-            variance_accessor (function(idx, stats)) to retrieve element variance
+            stats: (float array of shape N, 2 * d, d = dimensions of values)
+            count: (integer array of shape N)
+            mean_accessor: (function(idx, stats)) to retrieve element mean
+            variance_accessor: (function(idx, stats)) to retrieve element variance
 
         Returns:
             A tuple (total count, mean, variance)

@@ -102,6 +102,7 @@ class SampleEntropy(InferenceResultAnalyzer):
     def _get_sample_mixed(self, method: str, k: int, n: int = 3) -> pd.DataFrame:
         """
         A function that extracts sample data and returns it.
+
         Args:
             method:
                 - 'mixk': Return top-k and low-k halves based on uncertainty.

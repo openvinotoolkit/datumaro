@@ -61,14 +61,7 @@ annotation module
 
          .. py:data:: items: List[str]
 
-      .. autoclass:: Category
-         :members:
-         :undoc-members:
-         :private-members:
-         :special-members:
-         :show-inheritance:
-
-         test
+      .. py:class:: Category
 
          .. py:data:: name: str
                       parent: str
@@ -98,8 +91,8 @@ annotation module
          .. py:data:: colormap: Colormap
 
 
-   .. autodata:: BinaryMaskImage = np.ndarray
-   .. autodata:: IndexMaskImage = np.ndarray
+   .. autoclass:: BinaryMaskImage
+   .. autoclass:: IndexMaskImage
 
    .. autoclass:: Mask
       :members: image, as_class_mask, as_instance_mask, get_area, get_bbox, paint, __eq__, __init__
@@ -122,11 +115,18 @@ annotation module
 
          uses pycocotools RLE representation
 
-   .. py:data:: CompiledMaskImage = np.ndarray
+   .. autoclass:: CompiledMaskImage
 
       2d of integers (of different precision)
 
    .. autoclass:: CompiledMask
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: _Shape
       :members:
       :undoc-members:
       :private-members:
@@ -181,8 +181,6 @@ annotation module
       :private-members:
       :special-members:
       :show-inheritance:
-
-      .. py:data::  items: Dict[int, Category]
 
       .. autoclass:: Category
          :members:

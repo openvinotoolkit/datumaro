@@ -26,31 +26,32 @@ class SplitTask(Enum):
 class Split(Transform, CliPlugin):
     """
     - classification split |n
-    Splits dataset into subsets(train/val/test) in class-wise manner. |n
-    Splits dataset images in the specified ratio, keeping the initial class
-    distribution.|n
+        Splits dataset into subsets(train/val/test) in class-wise manner. |n
+        Splits dataset images in the specified ratio, keeping the initial class
+        distribution.|n
     |n
     - detection & segmentation split |n
-    Each image can have multiple object annotations -
-    (bbox, mask, polygon). Since an image shouldn't be included
-    in multiple subsets at the same time, and image annotations
-    shouldn't be split, in general, dataset annotations are unlikely
-    to be split exactly in the specified ratio. |n
-    This split tries to split dataset images as close as possible
-    to the specified ratio, keeping the initial class distribution.|n
+        Each image can have multiple object annotations -
+        (bbox, mask, polygon). Since an image shouldn't be included
+        in multiple subsets at the same time, and image annotations
+        shouldn't be split, in general, dataset annotations are unlikely
+        to be split exactly in the specified ratio. |n
+        This split tries to split dataset images as close as possible
+        to the specified ratio, keeping the initial class distribution.|n
     |n
     - reidentification split |n
-    In this task, the test set should consist of images of unseen
-    people or objects during the training phase. |n
-    This function splits a dataset in the following way:|n
-    |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
-    |s|sbased on person or object ID.|n
+        In this task, the test set should consist of images of unseen
+        people or objects during the training phase. |n
+        This function splits a dataset in the following way:|n
 
-    |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
-    |s|sin class-wise manner.|n
+        |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
+        |s|sbased on person or object ID.|n
 
-    |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
-    |s|sin the same way.|n
+        |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
+        |s|sin class-wise manner.|n
+
+        |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
+        |s|sin the same way.|n
 
     The final subsets would be
     'train', 'val', 'test-gallery' and 'test-query'. |n
@@ -74,6 +75,7 @@ class Split(Transform, CliPlugin):
     |s|s%(prog)s -t detection --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t segmentation --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t reid --subset train:.5 --subset val:.2 --subset test:.3 --query .5 |n
+
     Example: use 'person_id' attribute for splitting|n
 
     .. code-block::
@@ -482,6 +484,7 @@ class _ReidentificationSplit(_TaskSpecificSplit):
     In this task, the test set should consist of images of unseen
     people or objects during the training phase. |n
     This function splits a dataset in the following way:|n
+
     |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
     |s|sbased on person or object ID.|n
 
@@ -507,6 +510,7 @@ class _ReidentificationSplit(_TaskSpecificSplit):
     .. code-block::
 
     |s|s%(prog)s -t reidentification --subset train:.5 --subset val:.2 --subset test:.3 --query .5|n
+
     Example: use 'person_id' attribute for splitting|n
 
     .. code-block::

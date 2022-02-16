@@ -3,7 +3,7 @@ dataset module
 
 .. automodule:: datumaro.components.dataset
 
-   .. autodata:: IDataset
+   .. autoclass:: IDataset
 
    .. autoclass:: DatasetItemStorage
       :members:

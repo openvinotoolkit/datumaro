@@ -39,8 +39,8 @@ class NDR(Transform, CliPlugin):
     |n
     Available undersampling policies (the `-u` parameter):|n
     - `uniform` - sample data with uniform distribution|n
-    - `inverse` - sample data with reciprocal of the number of number of|n
-    |s|sitems with the same similarity|n
+    - `inverse` - sample data with reciprocal of the number of number of \
+    items with the same similarity|n
     |n
     Example: apply NDR, return no more than 100 images|n
     |s|s%(prog)s|n
@@ -86,7 +86,7 @@ class NDR(Transform, CliPlugin):
         Near-duplicated image removal
 
         Arguments
-        ---------------
+        ---------
         working_subset: str
             name of the subset to operate
             if None, use DEFAULT_SUBSET_NAME

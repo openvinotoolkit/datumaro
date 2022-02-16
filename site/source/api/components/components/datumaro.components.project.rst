@@ -62,7 +62,7 @@ project module
       :undoc-members:
       :show-inheritance:
 
-   .. autodata:: Revision
+   .. autoclass:: Revision
 
       a commit hash or a named reference
 

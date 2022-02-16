@@ -224,6 +224,7 @@ def crop_covered_segments(segments, width, height,
                 mask1, # input segment #1 mask (if source segment is mask)
                 [], # when source segment is too small
                 ...
+
             ]
     """
     from pycocotools import mask as mask_utils
