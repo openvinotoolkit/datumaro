@@ -3,24 +3,18 @@
 # SPDX-License-Identifier: MIT
 
 from typing import Dict, List
-import argparse
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import DatasetItem, IExtractor, Transform
+from datumaro.components.extractor import IExtractor, Transform
 from datumaro.components.dataset import Dataset
 from datumaro.components.annotation import Label
 
 
-class Corrector(Transform, CliPlugin):
+class Corrector(CliPlugin):
     """
     Corrector is a post-process component of Datumaro's Validator that,|n
     fixes annotation problems in datasets.
     """
-
-    def __init__(self, extractor: IExtractor, ids: str):
-        super().__init__(extractor)
-
-        self._ids = ids
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -30,6 +24,13 @@ class Corrector(Transform, CliPlugin):
         return parser
 
     @staticmethod
+    def _get_valid_ids(dataset: Dataset) -> List:
+        valid_ids = []
+        for item in dataset:
+            valid_ids.append(item.id)
+        return valid_ids
+
+    @staticmethod
     def _get_item_subset(dataset: Dataset) -> Dict:
         id_subset = {}
         for item in dataset:
@@ -37,10 +38,14 @@ class Corrector(Transform, CliPlugin):
         return id_subset
 
 
-class DeleteImage(Corrector):
+class DeleteImage(Transform, Corrector):
     """
     DeleteImage that supports deleting images with annotation errors in items.
     """
+
+    def __init__(self, extractor: IExtractor, ids: str):
+        super().__init__(extractor)
+        self._ids = [id.strip() for id in ids.split(',')]
 
     @staticmethod
     def delete_dataset_items(
@@ -53,17 +58,29 @@ class DeleteImage(Corrector):
         :param item_ids: a list with datasetitem ids to be deleted
         :return Dataset from which items to be deleted have been removed
         """
-        if len(item_ids) > 0:
-            id_subset = _get_item_subset(dataset)
+        if dataset is not None and len(item_ids) > 0:
+            valid_ids = Corrector._get_valid_ids(dataset)
+            id_subset = Corrector._get_item_subset(dataset)
             for id in item_ids:
-                dataset.remove(id, id_subset[id])
+                if id in valid_ids:
+                    dataset.remove(id, id_subset[id])
         return dataset
 
+    def __iter__(self):
+        dataset = Dataset.from_iterable(self._extractor)
+        dataset_fixed = self.delete_dataset_items(dataset, self._ids)
+        for item in dataset_fixed:
+            yield self.wrap_item(item, subset=item.subset)
 
-class DeleteAnnotation(Transform, CliPlugin):
+
+class DeleteAnnotation(Transform, Corrector):
     """
-    DeleteAnnotation that supports deleting annotations with errors in items.
+    DeleteAnnotation that supports deleting annotations with annotation errors in items.
     """
+
+    def __init__(self, extractor: IExtractor, ids: str):
+        super().__init__(extractor)
+        self._ids = [id.strip() for id in ids.split(',')]
 
     @staticmethod
     def delete_dataset_annotations(
@@ -76,18 +93,30 @@ class DeleteAnnotation(Transform, CliPlugin):
         :param item_ids: a list with datasetitem ids to delete annotations
         :return Dataset with the annotations removed in the datasetitems
         """
-        if len(item_ids) > 0:
-            id_subset = _get_item_subset(dataset)
+        if dataset is not None and len(item_ids) > 0:
+            valid_ids = Corrector._get_valid_ids(dataset)
+            id_subset = Corrector._get_item_subset(dataset)
             for id in item_ids:
-                item = dataset.get(id, id_subset[id])
-                item.annotations = []
+                if id in valid_ids:
+                    item = dataset.get(id, id_subset[id])
+                    item.annotations = []
         return dataset
 
+    def __iter__(self):
+        dataset = Dataset.from_iterable(self._extractor)
+        dataset_fixed = self.delete_dataset_annotations(dataset, self._ids)
+        for item in dataset_fixed:
+            yield self.wrap_item(item, subset=item.subset)
 
-class DeleteAttribute(Transform, CliPlugin):
+
+class DeleteAttribute(Transform, Corrector):
     """
-    DeleteAttribute that supports deleting attributes with errors in items.
+    DeleteAttribute that supports deleting attributes with annotation errors in items.
     """
+
+    def __init__(self, extractor: IExtractor, ids: str):
+        super().__init__(extractor)
+        self._ids = [id.strip() for id in ids.split(',')]
 
     @staticmethod
     def delete_dataset_attributes(
@@ -100,13 +129,21 @@ class DeleteAttribute(Transform, CliPlugin):
         :param item_ids: a list with datasetitem ids to delete attributes
         :return Dataset with the attributes removed in the datasetitems
         """
-        if len(item_ids) > 0:
-            id_subset = _get_item_subset(dataset)
+        if dataset is not None and len(item_ids) > 0:
+            valid_ids = Corrector._get_valid_ids(dataset)
+            id_subset = Corrector._get_item_subset(dataset)
             for id in item_ids:
-                item = dataset.get(id, id_subset[id])
-                item.attributes = {}
+                if id in valid_ids:
+                    item = dataset.get(id, id_subset[id])
+                    item.attributes = {}
 
-                for anno in item.annotations:
-                    if isinstance(anno, Label):
-                        anno.attributes = {}
+                    for anno in item.annotations:
+                        if isinstance(anno, Label):
+                            anno.attributes = {}
         return dataset
+
+    def __iter__(self):
+        dataset = Dataset.from_iterable(self._extractor)
+        dataset_fixed = self.delete_dataset_attributes(dataset, self._ids)
+        for item in dataset_fixed:
+            yield self.wrap_item(item, subset=item.subset)
