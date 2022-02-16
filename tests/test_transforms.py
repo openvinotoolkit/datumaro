@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 import logging as log
 
@@ -7,9 +9,9 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, Mask, MaskCategories, Points,
     PointsCategories, Polygon, PolyLine,
 )
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.components.project import Dataset
 from datumaro.util.test_utils import compare_datasets
 import datumaro.plugins.transforms as transforms
 import datumaro.util.mask_tools as mask_tools
@@ -628,3 +630,108 @@ class TransformsTest(TestCase):
         actual = dataset.get('1').image
         self.assertEqual(actual.ext, expected.ext)
         self.assertTrue(np.array_equal(actual.data, expected.data))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_remove_items_by_ids(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='1', subset='train')
+        ])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='train'),
+            DatasetItem(id='2', subset='train')
+        ])
+
+        actual = transforms.RemoveItems(dataset, ids=[('2', 'train')])
+
+        compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_remove_annotations_by_item_id(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='1', subset='test'),
+            DatasetItem(id='2', subset='test', annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='test', annotations=[Label(0)]),
+            DatasetItem(id='2', subset='test', annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+
+        actual = transforms.RemoveAnnotations(dataset, ids=[('1', 'test')])
+
+        compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_remove_annotations_in_dataset(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='1', subset='test'),
+            DatasetItem(id='2', subset='test'),
+        ], categories=['a', 'b'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='test', annotations=[Label(0)]),
+            DatasetItem(id='2', subset='test', annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+
+        actual = transforms.RemoveAnnotations(dataset)
+
+        compare_datasets(self, expected, actual)
+
+class RemoveAttributesTest(TestCase):
+    def setUp(self):
+        self.source = Dataset.from_iterable([
+            DatasetItem(id='1', subset='val',
+                attributes={'qq': 1, 'x': 2},
+                annotations=[ Label(0, attributes={ 'x': 1, 'y': 2 }) ]),
+
+            DatasetItem(id='2', subset='val',
+                attributes={'qq': 2},
+                annotations=[ Label(0, attributes={ 'x': 1, 'y': 2 }) ]),
+        ], categories=['a'])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_remove_all_attrs_by_item_id(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='1', subset='val',
+                annotations=[ Label(0) ]),
+
+            DatasetItem(id='2', subset='val',
+                attributes={'qq': 2},
+                annotations=[ Label(0, attributes={ 'x': 1, 'y': 2 }) ]),
+        ], categories=['a'])
+
+        actual = transforms.RemoveAttributes(self.source, ids=[('1', 'val')])
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_remove_attrs_by_name_from_all_items(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='1', subset='val',
+                attributes={'qq': 1},
+                annotations=[ Label(0, attributes={ 'y': 2 }) ]),
+
+            DatasetItem(id='2', subset='val',
+                attributes={'qq': 2},
+                annotations=[ Label(0, attributes={ 'y': 2 }) ]),
+        ], categories=['a'])
+
+        actual = transforms.RemoveAttributes(self.source, attributes=['x'])
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_remove_attrs_by_name_from_specific_items(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='1', subset='val',
+                attributes={'qq': 1},
+                annotations=[ Label(0, attributes={ 'y': 2 }) ]),
+
+            DatasetItem(id='2', subset='val',
+                attributes={'qq': 2},
+                annotations=[ Label(0, attributes={ 'x': 1, 'y': 2 }) ]),
+        ], categories=['a'])
+
+        actual = transforms.RemoveAttributes(self.source,
+            ids=[('1', 'val')], attributes=['x'])
+
+        compare_datasets(self, expected, actual)
