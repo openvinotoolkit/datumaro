@@ -442,7 +442,8 @@ class _ClassificationSplit(_TaskSpecificSplit):
         splits : list
             A list of (subset(str), ratio(float))
             The sum of ratios is expected to be 1.
-        seed : int, optional
+        seed : int
+            optional
         """
         super().__init__(dataset, splits, seed)
 
@@ -535,7 +536,8 @@ class _ReidentificationSplit(_TaskSpecificSplit):
         attr_for_id: str
             attribute name representing the person/object id.
             if this is not specified, label would be used.
-        seed : int, optional
+        seed : int
+            optional
         """
         super().__init__(dataset, splits, seed, restrict=True)
 
@@ -739,7 +741,8 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
         splits : list
             A list of (subset(str), ratio(float))
             The sum of ratios is expected to be 1.
-        seed : int, optional
+        seed : int
+            optional
         """
         super().__init__(dataset, splits, seed)
 

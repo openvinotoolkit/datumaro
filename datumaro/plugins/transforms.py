@@ -347,7 +347,7 @@ class RandomSplit(Transform, CliPlugin):
     |n
     Example:|n
 
-        .. code-block::
+    .. code-block::
 
     |s|s|s|s%(prog)s --subset train:.67 --subset test:.33
     """
@@ -906,6 +906,9 @@ class RemoveItems(ItemTransform):
     |n
     Examples:|n
     - Remove specific items from the dataset|n
+
+    .. code-block::
+
     |s|s%(prog)s --id 'image1:train' --id 'image2:test'
     """
 
@@ -943,6 +946,9 @@ class RemoveAnnotations(ItemTransform):
     |n
     Examples:|n
     - Remove annotations from specific items in the dataset|n
+
+    .. code-block::
+
     |s|s%(prog)s --id 'image1:train' --id 'image2:test'
     """
 
@@ -983,10 +989,16 @@ class RemoveAttributes(ItemTransform):
     |n
     Examples:|n
     - Remove the `is_crowd` attribute from dataset|n
+
+    .. code-block::
+
     |s|s%(prog)s --attr 'is_crowd'|n
     |n
     - Remove the `occluded` attribute from annotations of|n
     |s|sthe `2010_001705` item in the `train` subset|n
+
+    .. code-block::
+
     |s|s%(prog)s --id '2010_001705:train' --attr 'occluded'
     """
 

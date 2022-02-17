@@ -83,6 +83,7 @@ intersphinx_mapping = {
 
 nitpick_ignore_regex = [
     ('py:class', r"^(.*[\s\"(\._)]+.*)+$"), # Hiding warnings contain ' ', '"' or '._'
+    ('py:class', ''),
 ]
 
 # Members to be included.

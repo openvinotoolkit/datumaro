@@ -670,7 +670,7 @@ class PointsCategories(Categories):
         Create PointsCategories from an iterable.
 
         Args:
-            - iterable: An Iterable with the following elements:
+            iterable: An Iterable with the following elements:
 
                 - a label id
                 - a list of positional arguments for Categories

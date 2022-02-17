@@ -34,9 +34,9 @@ class RelevancySampler(Transform, CliPlugin):
     |n
     Notes:|n
     |s|s- Each image's inference result must contain the probability for \
-    all classes.|n
+        all classes.|n
     |s|s- Requesting a sample larger than the number of all images will \
-    return all images.|n
+        return all images.|n
     |n
     Example: select the most relevant data subset of 20 images |n
     |s|sbased on model certainty, put the result into 'sample' subset
