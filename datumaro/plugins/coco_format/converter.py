@@ -18,6 +18,7 @@ from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DatasetItem
 from datumaro.util import cast, dump_json_file, find, str_to_bool
 from datumaro.util.image import save_image
+from datumaro.util.scope import scope_add_many, scoped
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
 
@@ -645,21 +646,23 @@ class CocoConverter(Converter):
             self._image_ids[item.id] = image_id
         return image_id
 
+    @scoped
     def apply(self):
         self._make_dirs()
 
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
 
-        for subset_name, subset in self._extractor.subsets().items():
+        subsets = self._extractor.subsets()
+        pbars = scope_add_many(self._ctx.progress_reporter.split(len(subsets)))
+        for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():
                 task_conv.save_categories(subset)
             if CocoTask.panoptic in task_converters:
                 self._make_segmentation_dir(subset_name)
 
-            for item in self._with_progress(subset,
-                    desc=f'Exporting {subset_name}'):
+            for item in pbar.iter(subset, desc=f'Exporting {subset_name}'):
                 try:
                     if self._save_images:
                         if item.has_image:

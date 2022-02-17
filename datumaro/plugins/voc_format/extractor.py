@@ -100,7 +100,7 @@ class VocClassificationExtractor(_VocExtractor):
         else:
             images = {}
 
-        for item_id in self._with_progress(self._items,
+        for item_id in self._ctx.progress_reporter.iter(self._items,
                 desc=f"Parsing labels in '{self._subset}'"):
             log.debug("Reading item '%s'" % item_id)
             yield DatasetItem(id=item_id, subset=self._subset,
@@ -139,7 +139,7 @@ class _VocXmlExtractor(_VocExtractor):
 
         anno_dir = osp.join(self._dataset_dir, VocPath.ANNOTATIONS_DIR)
 
-        for item_id in self._with_progress(self._items,
+        for item_id in self._ctx.progress_reporter.iter(self._items,
                 desc=f"Parsing boxes in '{self._subset}'"):
             log.debug("Reading item '%s'" % item_id)
             size = None
@@ -288,7 +288,7 @@ class VocSegmentationExtractor(_VocExtractor):
         else:
             images = {}
 
-        for item_id in self._with_progress(self._items,
+        for item_id in self._ctx.progress_reporter.iter(self._items,
                 desc=f"Parsing segmentation in '{self._subset}'"):
             log.debug("Reading item '%s'" % item_id)
 

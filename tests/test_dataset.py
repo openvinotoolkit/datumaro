@@ -23,11 +23,14 @@ from datumaro.components.errors import (
     NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, DatasetItem, Extractor, ImportErrorPolicy,
-    ItemTransform, ProgressReporter, SourceExtractor, Transform,
+    DEFAULT_SUBSET_NAME, DatasetItem, Extractor, FailingImportErrorPolicy,
+    ImportErrorPolicy, ItemTransform, ProgressReporter, SourceExtractor,
+    Transform,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
+from datumaro.components.progress_reporting import NullProgressReporter
+from datumaro.util.scope import Scope, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets
 import datumaro.components.hl_ops as hl_ops
 
@@ -1496,35 +1499,113 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, dataset, ignored_attrs='*')
 
     @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
-    def test_can_report_progress_from_extractor(self):
+    def test_progress_reporter_implies_eager_mode(self):
         class TestExtractor(SourceExtractor):
             def __init__(self, url, **kwargs):
                 super().__init__(**kwargs)
 
             def __iter__(self):
-                list(self._with_progress([None] * 5, desc='loading images'))
-                yield from []
-
-        class TestProgressReporter(ProgressReporter):
-            pass
-        progress_reporter = TestProgressReporter()
-        progress_reporter.get_frequency = mock.MagicMock(return_value=0.1)
-        progress_reporter.start = mock.MagicMock()
-        progress_reporter.report_status = mock.MagicMock()
-        progress_reporter.finish = mock.MagicMock()
+                yield DatasetItem('1')
 
         env = Environment()
         env.importers.items.clear()
         env.extractors.items['test'] = TestExtractor
 
         dataset = Dataset.import_from('', 'test', env=env,
-            progress_reporter=progress_reporter)
-        dataset.init_cache()
+            progress_reporter=NullProgressReporter())
 
-        progress_reporter.get_frequency.assert_called()
-        progress_reporter.start.assert_called()
+        self.assertTrue(dataset.is_cache_initialized)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_error_reporter_implies_eager_mode(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url, **kwargs):
+                super().__init__(**kwargs)
+
+            def __iter__(self):
+                yield DatasetItem('1')
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        dataset = Dataset.import_from('', 'test', env=env,
+            error_policy=FailingImportErrorPolicy())
+
+        self.assertTrue(dataset.is_cache_initialized)
+
+    @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
+    def test_can_report_progress_from_extractor(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url, **kwargs):
+                super().__init__(**kwargs)
+
+            def __iter__(self):
+                list(self._ctx.progress_reporter.iter(
+                    [None] * 5, desc='loading images'))
+                yield from []
+
+        class TestProgressReporter(ProgressReporter):
+            def split(self, count):
+                return (self, ) * count
+
+        progress_reporter = TestProgressReporter()
+        period_mock = mock.PropertyMock(return_value=0.1)
+        type(progress_reporter).period = period_mock
+        progress_reporter.init = mock.MagicMock()
+        progress_reporter.report_status = mock.MagicMock()
+        progress_reporter.close = mock.MagicMock()
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        Dataset.import_from('', 'test', env=env,
+            progress_reporter=progress_reporter)
+
+        period_mock.assert_called_once()
+        progress_reporter.init.assert_called_once()
         progress_reporter.report_status.assert_called()
-        progress_reporter.finish.assert_called()
+        progress_reporter.close.assert_called_once()
+
+    @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
+    def test_can_report_progress_from_extractor_multiple_pbars(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url, **kwargs):
+                super().__init__(**kwargs)
+
+            # must use arg to bind to a generator
+            @scoped(arg_name='scope') # pylint: disable=no-value-for-parameter
+            def __iter__(self, *, scope: Scope = None):
+                pbars = scope.add_many(*self._ctx.progress_reporter.split(2))
+                list(pbars[0].iter([None] * 5))
+                list(pbars[1].iter([None] * 5))
+
+                yield from []
+
+        class TestProgressReporter(ProgressReporter):
+            def init(self, *args, **kwargs):
+                pass
+
+            def close(self):
+                pass
+
+            def split(self, count):
+                return tuple(TestProgressReporter() for _ in range(count))
+
+            iter = mock.MagicMock()
+
+        progress_reporter = TestProgressReporter()
+        progress_reporter.split = mock.MagicMock(TestProgressReporter.split)
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        Dataset.import_from('', 'test', env=env,
+            progress_reporter=progress_reporter)
+
+        progress_reporter.split.assert_called_once()
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_errors_from_extractor(self):
@@ -1535,8 +1616,10 @@ class DatasetTest(TestCase):
             def __iter__(self):
                 class TestError(Exception):
                     pass
-                self._report_annotation_error(TestError(), item_id=('0', 'a'))
-                self._report_item_error(TestError(), item_id=('0', 'a'))
+                self._ctx.error_policy.report_item_error(TestError(),
+                    item_id=('0', 'a'))
+                self._ctx.error_policy.report_annotation_error(TestError(),
+                    item_id=('0', 'a'))
                 yield from []
 
         env = Environment()
@@ -1549,9 +1632,8 @@ class DatasetTest(TestCase):
         error_policy.report_item_error = mock.MagicMock()
         error_policy.report_annotation_error = mock.MagicMock()
 
-        dataset = Dataset.import_from('', 'test', env=env,
+        Dataset.import_from('', 'test', env=env,
             error_policy=error_policy)
-        dataset.init_cache()
 
         error_policy.report_item_error.assert_called()
         error_policy.report_annotation_error.assert_called()
@@ -1562,24 +1644,26 @@ class DatasetTest(TestCase):
             DEFAULT_IMAGE_EXT = '.jpg'
 
             def apply(self):
-                list(self._with_progress([None] * 5, desc='loading images'))
+                list(self._ctx.progress_reporter.iter(
+                    [None] * 5, desc='loading images'))
 
         class TestProgressReporter(ProgressReporter):
             pass
         progress_reporter = TestProgressReporter()
-        progress_reporter.get_frequency = mock.MagicMock(return_value=0.1)
-        progress_reporter.start = mock.MagicMock()
+        period_mock = mock.PropertyMock(return_value=0.1)
+        type(progress_reporter).period = period_mock
+        progress_reporter.init = mock.MagicMock()
         progress_reporter.report_status = mock.MagicMock()
-        progress_reporter.finish = mock.MagicMock()
+        progress_reporter.close = mock.MagicMock()
 
         with TestDir() as test_dir:
             Dataset().export(test_dir, TestConverter,
                 progress_reporter=progress_reporter)
 
-        progress_reporter.get_frequency.assert_called()
-        progress_reporter.start.assert_called()
+        period_mock.assert_called_once()
+        progress_reporter.init.assert_called_once()
         progress_reporter.report_status.assert_called()
-        progress_reporter.finish.assert_called()
+        progress_reporter.close.assert_called_once()
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_errors_from_converter(self):
@@ -1589,8 +1673,10 @@ class DatasetTest(TestCase):
             def apply(self):
                 class TestError(Exception):
                     pass
-                self._report_annotation_error(TestError(), item_id=('0', 'a'))
-                self._report_item_error(TestError(), item_id=('0', 'a'))
+                self._ctx.error_policy.report_item_error(TestError(),
+                    item_id=('0', 'a'))
+                self._ctx.error_policy.report_annotation_error(TestError(),
+                    item_id=('0', 'a'))
 
         class TestErrorPolicy(ImportErrorPolicy):
             pass

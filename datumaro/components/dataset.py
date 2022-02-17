@@ -15,10 +15,12 @@ import inspect
 import logging as log
 import os
 import os.path as osp
+import warnings
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.config_model import Source
 from datumaro.components.converter import (
-    Converter, ExportContext, ExportErrorPolicy,
+    Converter, ExportContext, ExportErrorPolicy, _ExportFail,
 )
 from datumaro.components.dataset_filter import (
     XPathAnnotationsFilter, XPathDatasetFilter,
@@ -31,15 +33,17 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
-    ImportContext, ImportErrorPolicy, ItemTransform, Transform,
+    ImportContext, ImportErrorPolicy, ItemTransform, Transform, _ImportFail,
 )
 from datumaro.components.launcher import Launcher, ModelTransform
-from datumaro.components.progress_reporting import ProgressReporter
+from datumaro.components.progress_reporting import (
+    NullProgressReporter, ProgressReporter,
+)
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
 from datumaro.util.os_util import rmtree
-from datumaro.util.scope import on_error_do, scoped
+from datumaro.util.scope import on_error_do, scope_add_many, scoped
 
 DEFAULT_FORMAT = 'datumaro'
 
@@ -917,42 +921,61 @@ class Dataset(IDataset):
             inplace = False
         os.makedirs(save_dir, exist_ok=True)
 
-        if error_policy is not None or progress_reporter is not None:
-            assert 'ctx' not in kwargs
-            kwargs['ctx'] = ExportContext(progress_reporter=progress_reporter,
-                error_policy=error_policy)
+        has_ctx_args = progress_reporter is not None or error_policy is not None
 
-        if not inplace:
-            try:
-                converter.convert(self, save_dir=save_dir, **kwargs)
-            except TypeError as e:
-                if "unexpected keyword argument 'ctx'" in str(e):
-                    log.debug("It seems that '%s' converter "
-                        "does not support progress and error reporting, "
-                        "it will be disabled", format)
-                    kwargs.pop('ctx')
-                    converter.convert(self, self.get_patch(), save_dir=save_dir,
-                        **kwargs)
-                else:
-                    raise
+        if not progress_reporter:
+            progress_reporter = NullProgressReporter()
 
-            if not self.is_bound:
-                self.bind(save_dir, format, options=copy(kwargs))
-                self.flush_changes()
-        else:
-            try:
-                converter.patch(self, self.get_patch(), save_dir=save_dir,
-                    **kwargs)
-            except TypeError as e:
-                if "unexpected keyword argument 'ctx'" in str(e):
-                    log.debug("It seems that '%s' converter "
-                        "does not support progress and error reporting, "
-                        "it will be disabled", format)
-                    kwargs.pop('ctx')
+        assert 'ctx' not in kwargs
+        converter_kwargs = copy(kwargs)
+        converter_kwargs['ctx'] = ExportContext(
+            progress_reporter=progress_reporter,
+            error_policy=error_policy)
+
+        try:
+            if not inplace:
+                try:
+                    converter.convert(self, save_dir=save_dir,
+                        **converter_kwargs)
+                except TypeError as e:
+                    # TODO: for backward compatibility. To be removed after 0.3
+                    if "unexpected keyword argument 'ctx'" not in str(e):
+                        raise
+
+                    if has_ctx_args:
+                        warnings.warn("It seems that '%s' converter "
+                            "does not support progress and error reporting, "
+                            "it will be disabled" % format,
+                            DeprecationWarning)
+                    converter_kwargs.pop('ctx')
+
+                    converter.convert(self, save_dir=save_dir,
+                        **converter_kwargs)
+            else:
+                try:
                     converter.patch(self, self.get_patch(), save_dir=save_dir,
-                        **kwargs)
-                else:
-                    raise
+                        **converter_kwargs)
+                except TypeError as e:
+                    # TODO: for backward compatibility. To be removed after 0.3
+                    if "unexpected keyword argument 'ctx'" not in str(e):
+                        raise
+
+                    if has_ctx_args:
+                        warnings.warn("It seems that '%s' converter "
+                            "does not support progress and error reporting, "
+                            "it will be disabled" % format,
+                            DeprecationWarning)
+                    converter_kwargs.pop('ctx')
+
+                    converter.patch(self, self.get_patch(), save_dir=save_dir,
+                        **converter_kwargs)
+        except _ExportFail as e:
+            raise e.__cause__
+
+        self.bind(save_dir, format, options=copy(kwargs))
+        self.flush_changes()
+
+        progress_reporter.close()
 
     def save(self, save_dir: Optional[str] = None, **kwargs) -> None:
         options = dict(self._options)
@@ -966,6 +989,7 @@ class Dataset(IDataset):
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
+    @scoped
     def import_from(cls, path: str, format: Optional[str] = None, *,
             env: Optional[Environment] = None,
             progress_reporter: Optional[ProgressReporter] = None,
@@ -982,11 +1006,12 @@ class Dataset(IDataset):
                 If not set, will try to detect automatically,
                 using the `env` plugin context.
             env - A plugin collection. If not set, the built-in plugins are used
-            progress_reporter - An object to report progress
-            error_policy - An object to report format-related errors
+            progress_reporter - An object to report progress.
+                Implies earger loading.
+            error_policy - An object to report format-related errors.
+                Implies earger loading.
             **kwargs - Parameters for the format
         """
-        from datumaro.components.config_model import Source
 
         if env is None:
             env = Environment()
@@ -1006,40 +1031,59 @@ class Dataset(IDataset):
         else:
             raise UnknownFormatError(format)
 
-        ctx = None
-        if error_policy is not None or progress_reporter is not None:
-            ctx = ImportContext(progress_reporter=progress_reporter,
-                error_policy=error_policy)
+        # TODO: probably, should not be available in lazy mode, because it
+        # becomes unreliable and error-prone. For progress reporting it
+        # makes little sense, because loading stage is spread over other
+        # operations. Error reporting is going to be unreliable.
+        has_ctx_args = progress_reporter is not None or error_policy is not None
+        eager = has_ctx_args
 
-        extractors = []
-        for src_conf in detected_sources:
-            if not isinstance(src_conf, Source):
-                src_conf = Source(src_conf)
+        if not progress_reporter:
+            progress_reporter = NullProgressReporter()
+        pbars = scope_add_many(progress_reporter.split(len(detected_sources)))
 
-            extractor_kwargs = dict(src_conf.options)
-            if ctx:
+        try:
+            extractors = []
+            for src_conf, pbar in zip(detected_sources, pbars):
+                if not isinstance(src_conf, Source):
+                    src_conf = Source(src_conf)
+
+                extractor_kwargs = dict(src_conf.options)
+
                 assert 'ctx' not in extractor_kwargs
-                extractor_kwargs['ctx'] = ctx
+                extractor_kwargs['ctx'] = ImportContext(
+                    progress_reporter=pbar,
+                    error_policy=error_policy)
 
-            try:
-                extractors.append(env.make_extractor(
-                    src_conf.format, src_conf.url, **extractor_kwargs
-                ))
-            except TypeError as e:
-                if "unexpected keyword argument 'ctx'" in str(e):
-                    log.debug("It seems that '%s' extractor "
-                        "does not support progress and error reporting, "
-                        "it will be disabled", src_conf.format)
-                    extractor_kwargs.pop('ctx')
+                try:
                     extractors.append(env.make_extractor(
                         src_conf.format, src_conf.url, **extractor_kwargs
                     ))
-                else:
-                    raise
+                except TypeError as e:
+                    # TODO: for backward compatibility. To be removed after 0.3
+                    if "unexpected keyword argument 'ctx'" not in str(e):
+                        raise
 
-        dataset = cls.from_extractors(*extractors, env=env)
+                    if has_ctx_args:
+                        warnings.warn("It seems that '%s' extractor "
+                            "does not support progress and error reporting, "
+                            "it will be disabled" % src_conf.format,
+                            DeprecationWarning)
+                    extractor_kwargs.pop('ctx')
+
+                    extractors.append(env.make_extractor(
+                        src_conf.format, src_conf.url, **extractor_kwargs
+                    ))
+
+            dataset = cls.from_extractors(*extractors, env=env)
+            if eager:
+                dataset.init_cache()
+        except _ImportFail as e:
+            raise e.__cause__
+
         dataset._source_path = path
         dataset._format = format
+
         return dataset
 
     @staticmethod

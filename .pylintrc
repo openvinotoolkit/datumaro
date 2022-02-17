@@ -276,7 +276,6 @@ no-docstring-rgx=^_
 # ones are exempt.
 docstring-min-length=-1
 
-
 [ELIF]
 
 # Maximum number of nested blocks for function / method body
@@ -381,6 +380,8 @@ generated-members=
 # produce valid context managers.
 contextmanager-decorators=contextlib.contextmanager
 
+# List of decorators that change the signature of a decorated function.
+signature-mutators=datumaro.util.scope.scoped
 
 [VARIABLES]
 

@@ -3,13 +3,14 @@
 # SPDX-License-Identifier: MIT
 
 from tempfile import mkdtemp
-from typing import Iterable, NoReturn, Optional, Tuple, TypeVar, Union
+from typing import NoReturn, Optional, Tuple, TypeVar, Union
 import logging as log
 import os
 import os.path as osp
 import shutil
 
-from attrs import define
+from attrs import define, field
+import attr
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
@@ -17,7 +18,9 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import DatasetItem, IExtractor
 from datumaro.components.media import Image
-from datumaro.components.progress_reporting import ProgressReporter
+from datumaro.components.progress_reporting import (
+    NullProgressReporter, ProgressReporter,
+)
 from datumaro.util.meta_file_util import save_meta_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
@@ -28,32 +31,57 @@ class _ExportFail(DatumaroError):
     pass
 
 class ExportErrorPolicy:
-    def report_item_error(self, error: ItemExportError) -> Optional[NoReturn]:
+    def report_item_error(self, error: Exception, *,
+            item_id: Tuple[str, str]):
         """
         Allows to report a problem with a dataset item.
-
-        This function must either call fail() or return. If this function
-        returns, the converter must skip the item.
+        If this function returns, the converter must skip the item.
         """
-        raise NotImplementedError
 
-    def report_annotation_error(self,
-            error: AnnotationExportError) -> Optional[NoReturn]:
+        if not isinstance(error, _ExportFail):
+            ie = ItemExportError(item_id)
+            ie.__cause__ = error
+            return self._handle_item_error(ie)
+        else:
+            raise error
+
+    def report_annotation_error(self, error: Exception, *,
+            item_id: Tuple[str, str]):
         """
         Allows to report a problem with a dataset item annotation.
-
-        This function must either call fail() or return. If this function
-        returns, the converter must skip the annotation.
+        If this function returns, the converter must skip the annotation.
         """
-        raise NotImplementedError
+
+        if not isinstance(error, _ExportFail):
+            ie = AnnotationExportError(item_id)
+            ie.__cause__ = error
+            return self._handle_annotation_error(ie)
+        else:
+            raise error
+
+    def _handle_item_error(self, error: ItemExportError):
+        """This function must either call fail() or return."""
+        self.fail(error)
+
+    def _handle_annotation_error(self, error: AnnotationExportError):
+        """This function must either call fail() or return."""
+        self.fail(error)
 
     def fail(self, error: Exception) -> NoReturn:
         raise _ExportFail from error
 
+class FailingExportErrorPolicy(ExportErrorPolicy):
+    pass
+
 @define(eq=False)
 class ExportContext:
-    progress_reporter: Optional[ProgressReporter] = None
-    error_policy: Optional[ExportErrorPolicy] = None
+    progress_reporter: ProgressReporter = field(default=None,
+        converter=attr.converters.default_if_none(factory=NullProgressReporter))
+    error_policy: ExportErrorPolicy = field(default=None,
+        converter=attr.converters.default_if_none(factory=FailingExportErrorPolicy))
+
+class NullExportContext(ExportContext):
+    pass
 
 class Converter(CliPlugin):
     DEFAULT_IMAGE_EXT = None
@@ -135,7 +163,7 @@ class Converter(CliPlugin):
         else:
             self._patch = None
 
-        self._ctx = ctx
+        self._ctx: ExportContext = ctx or NullExportContext()
 
     def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None
@@ -196,31 +224,3 @@ class Converter(CliPlugin):
 
     def _save_meta_file(self, path):
         save_meta_file(path, self._extractor.categories())
-
-    def _with_progress(self, iterable: Iterable[T], *,
-            total: Optional[int] = None,
-            desc: Optional[str] = None
-    ) -> Iterable[T]:
-        if self._ctx and self._ctx.progress_reporter:
-            yield from self._ctx.progress_reporter.iter(iterable,
-                total=total, desc=desc)
-        else:
-            yield from iterable
-
-    def _report_item_error(self, error: Exception, *,
-            item_id: Tuple[str, str]) -> Optional[NoReturn]:
-        if self._ctx and self._ctx.error_policy and \
-                not isinstance(error, _ExportFail):
-            ie = ItemExportError(item_id)
-            ie.__cause__ = error
-            return self._ctx.error_policy.report_item_error(ie)
-        raise _ExportFail from error
-
-    def _report_annotation_error(self, error: Exception, *,
-            item_id: Tuple[str, str]) -> Optional[NoReturn]:
-        if self._ctx and self._ctx.error_policy and \
-                not isinstance(error, _ExportFail):
-            ie = AnnotationExportError(item_id)
-            ie.__cause__ = error
-            return self._ctx.error_policy.report_annotation_error(ie)
-        raise _ExportFail from error

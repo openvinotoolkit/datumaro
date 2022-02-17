@@ -148,8 +148,16 @@ class SourceExistsError(DatumaroError):
 class DatasetExportError(DatumaroError):
     pass
 
+@define(auto_exc=False)
 class ItemExportError(DatasetExportError):
-    pass
+    """
+    Represents additional item error info. The error itself is supposed to be
+    in the `__cause__` member.
+    """
+    item_id: Tuple[str, str]
+
+    def __str__(self):
+        return "Failed to export item %s" % (self.item_id, )
 
 class AnnotationExportError(ItemExportError):
     pass
@@ -158,8 +166,17 @@ class AnnotationExportError(ItemExportError):
 class DatasetImportError(DatumaroError):
     pass
 
+@define(auto_exc=False)
 class ItemImportError(DatasetImportError):
-    pass
+    """
+    Represents additional item error info. The error itself is supposed to be
+    in the `__cause__` member.
+    """
+
+    item_id: Tuple[str, str]
+
+    def __str__(self):
+        return "Failed to import item %s" % (self.item_id, )
 
 class AnnotationImportError(ItemImportError):
     pass

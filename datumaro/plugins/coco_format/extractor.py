@@ -20,6 +20,7 @@ from datumaro.util import parse_json_file, take_by
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
+from datumaro.util.scope import scope_add_many, scoped
 
 from .format import CocoPath, CocoTask
 
@@ -123,14 +124,18 @@ class _CocoExtractor(SourceExtractor):
 
         self._categories[AnnotationType.points] = categories
 
+    @scoped
     def _load_items(self, json_data):
+        pbars = scope_add_many(self._ctx.progress_reporter.split(2))
         items = {}
-
         img_infos = {}
-        for img_info in self._with_progress(json_data['images'],
+        for img_info in pbars[0].iter(json_data['images'],
                 desc="Parsing image info"):
             try:
-                img_id = img_info['id']
+                img_id = img_info.get('id')
+                if not isinstance(img_id, int):
+                    raise ValueError("Invalid image id value '%s'" % img_id)
+
                 img_infos[img_id] = img_info
 
                 if img_info.get('height') and img_info.get('width'):
@@ -147,28 +152,33 @@ class _CocoExtractor(SourceExtractor):
                     annotations=[],
                     attributes={'id': img_id})
             except Exception as e:
-                self._report_item_error(e, item_id=(img_id, self._subset))
+                self._ctx.error_policy.report_item_error(e,
+                    item_id=(img_id, self._subset))
 
         if self._task is not CocoTask.panoptic:
-            for ann in self._with_progress(json_data['annotations'],
+            for ann in pbars[1].iter(json_data['annotations'],
                     desc="Parsing annotations"):
-                img_id = None
                 try:
-                    img_id = ann['image_id']
+                    img_id = ann.get('image_id')
+                    if not isinstance(img_id, int):
+                        raise ValueError("Invalid image id value '%s'" % img_id)
+
                     self._load_annotations(ann, img_infos[img_id],
                         parsed_annotations=items[img_id].annotations)
                 except Exception as e:
-                    self._report_annotation_error(e,
+                    self._ctx.error_policy.report_annotation_error(e,
                         item_id=(img_id, self._subset))
         else:
-            for ann in self._with_progress(json_data['annotations'],
+            for ann in pbars[1].iter(json_data['annotations'],
                     desc='Parsing annotations'):
-                img_id = None
                 try:
-                    img_id = ann['image_id']
+                    img_id = ann.get('image_id')
+                    if not isinstance(img_id, int):
+                        raise ValueError("Invalid image id value '%s'" % img_id)
+
                     self._load_panoptic_ann(ann, items[img_id].annotations)
                 except Exception as e:
-                    self._report_annotation_error(e,
+                    self._ctx.error_policy.report_annotation_error(e,
                         item_id=(img_id, self._subset))
 
         return items

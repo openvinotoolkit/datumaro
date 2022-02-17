@@ -54,6 +54,25 @@ class ScopeTest(TestCase):
         self.assertEqual(42, retval)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_adds_many_cms(self):
+        cm1 = mock.Mock()
+        cm1.__enter__ = mock.MagicMock(return_value=4)
+        cm1.__exit__ = mock.MagicMock()
+
+        cm2 = mock.Mock()
+        cm2.__enter__ = mock.MagicMock(return_value=2)
+        cm2.__exit__ = mock.MagicMock()
+
+        with Scope() as scope:
+            retval = scope.add_many((cm1, cm2))
+
+        cm1.__enter__.assert_called_once()
+        cm1.__exit__.assert_called_once()
+        cm2.__enter__.assert_called_once()
+        cm2.__exit__.assert_called_once()
+        self.assertEqual((4, 2), retval)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_calls_cm_on_error(self):
         cm = mock.Mock()
         cm.__enter__ = mock.MagicMock()
