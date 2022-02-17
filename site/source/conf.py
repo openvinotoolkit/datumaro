@@ -109,10 +109,10 @@ def replace(app, what, name, obj, options, lines):
         if line:
             prog = str('%(prog)s')
             lines[i] = lines[i].replace(prog, prog_name)
-            lines[i] = lines[i].replace("frame_", "frame\_") # fix unwanted link
+            lines[i] = lines[i].replace("'frame_'", r"'frame\_'") # fix unwanted link
             if not "'|n'" in lines[i]:
                 if not "'|s'" in lines[i]:
-                    lines[i] = lines[i].replace("|n", "\n").replace("|s", "\s")
+                    lines[i] = lines[i].replace("|n", "\n").replace("|s", " ")
 
 def setup(app):
     app.connect('autodoc-skip-member', skip_member)

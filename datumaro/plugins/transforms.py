@@ -345,7 +345,7 @@ class RandomSplit(Transform, CliPlugin):
     |n
     Example:|n
 
-    .. code-block::
+        .. code-block::
 
     |s|s|s|s%(prog)s --subset train:.67 --subset test:.33
     """
