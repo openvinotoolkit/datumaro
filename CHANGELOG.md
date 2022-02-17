@@ -27,6 +27,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to create smaller datasets from bigger ones
   (<https://github.com/openvinotoolkit/datumaro/pull/636>,
    <https://github.com/openvinotoolkit/datumaro/pull/640>)
+- Support for downloading the ImageNetV2 and COCO datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/653>,
+   <https://github.com/openvinotoolkit/datumaro/pull/659>)
+- A way for formats to signal that they don't support detection
+  (<https://github.com/openvinotoolkit/datumaro/pull/665>)
+- Removal transforms to remove items/annoations/attributes from dataset
+  (`remove_items`, `remove_annotations`, `remove_attributes`)
+  (<https://github.com/openvinotoolkit/datumaro/pull/670>)
 
 ### Changed
 - Allowed direct file paths in `datum import`. Such sources are imported like
@@ -73,6 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/621>)
 - Added missing item attribute merging in simple merge
   (<https://github.com/openvinotoolkit/datumaro/pull/634>)
+- Inability to disambiguate VOC from LabelMe in some cases
+  (<https://github.com/openvinotoolkit/datumaro/issues/658>)
 
 ### Security
 - TBD

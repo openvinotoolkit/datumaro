@@ -35,7 +35,7 @@ Once you can use the components:
 
 * :mod:`dm.errors <datumaro.components.errors>`
 
-* :mod:`dm.operations <datumaro.components.operations>`
+* :mod:`dm.ops <datumaro.components.operations>`
 
 * :mod:`dm.project <datumaro.components.project>`
 

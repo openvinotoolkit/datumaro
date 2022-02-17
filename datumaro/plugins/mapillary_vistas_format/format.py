@@ -1,23 +1,22 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
 from enum import Enum, auto
-import json
 
 from datumaro.components.annotation import (
     AnnotationType, LabelCategories, MaskCategories,
 )
+from datumaro.util import parse_json_file
 from datumaro.util.mask_tools import generate_colormap
 
 
 def parse_config_file(config_path):
-    label_map = OrderedDict([])
-    with open(config_path, 'r', encoding='utf-8') as f:
-        config = json.load(f)
-        for label in config['labels']:
-            label_map[label['name']] = tuple(map(int, label['color']))
+    label_map = OrderedDict()
+    config = parse_json_file(config_path)
+    for label in config['labels']:
+        label_map[label['name']] = tuple(map(int, label['color']))
     return label_map
 
 def make_mapillary_instance_categories(label_map):

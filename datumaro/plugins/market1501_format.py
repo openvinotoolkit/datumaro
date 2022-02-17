@@ -1,14 +1,14 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-from distutils.util import strtobool
 import os
 import os.path as osp
 import re
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.util import str_to_bool
 from datumaro.util.image import find_images
 
 
@@ -112,7 +112,7 @@ class Market1501Converter(Converter):
         dirname = Market1501Path.BBOX_DIR + item.subset
         query = item.attributes.get('query')
         if query is not None and isinstance(query, str):
-            query = strtobool(query)
+            query = str_to_bool(query)
         if query:
             dirname = Market1501Path.QUERY_DIR
         return dirname
