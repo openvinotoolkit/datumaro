@@ -132,9 +132,11 @@ class _CocoExtractor(SourceExtractor):
         img_infos = {}
         for img_info in pbars[0].iter(json_data['images'],
                 desc="Parsing image info"):
-            img_id = None
             try:
-                img_id = img_info['id']
+                img_id = img_info.get('id')
+                if not isinstance(img_id, int):
+                    raise ValueError("Invalid image id value '%s'" % img_id)
+
                 img_infos[img_id] = img_info
 
                 if img_info.get('height') and img_info.get('width'):
@@ -157,9 +159,11 @@ class _CocoExtractor(SourceExtractor):
         if self._task is not CocoTask.panoptic:
             for ann in pbars[1].iter(json_data['annotations'],
                     desc="Parsing annotations"):
-                img_id = None
                 try:
-                    img_id = ann['image_id']
+                    img_id = ann.get('image_id')
+                    if not isinstance(img_id, int):
+                        raise ValueError("Invalid image id value '%s'" % img_id)
+
                     self._load_annotations(ann, img_infos[img_id],
                         parsed_annotations=items[img_id].annotations)
                 except Exception as e:
@@ -168,9 +172,11 @@ class _CocoExtractor(SourceExtractor):
         else:
             for ann in pbars[1].iter(json_data['annotations'],
                     desc='Parsing annotations'):
-                img_id = None
                 try:
-                    img_id = ann['image_id']
+                    img_id = ann.get('image_id')
+                    if not isinstance(img_id, int):
+                        raise ValueError("Invalid image id value '%s'" % img_id)
+
                     self._load_panoptic_ann(ann, items[img_id].annotations)
                 except Exception as e:
                     self._ctx.error_policy.report_annotation_error(e,
