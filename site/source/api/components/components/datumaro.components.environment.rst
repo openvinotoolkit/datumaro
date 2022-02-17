@@ -8,4 +8,4 @@ environment module
    :special-members:
    :show-inheritance:
 
-   .. autodata:: T
+   .. autodata:: T = TypeVar('T')

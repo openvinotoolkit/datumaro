@@ -117,8 +117,6 @@ annotation module
 
    .. autoclass:: CompiledMaskImage
 
-      2d of integers (of different precision)
-
    .. autoclass:: CompiledMask
       :members:
       :undoc-members:

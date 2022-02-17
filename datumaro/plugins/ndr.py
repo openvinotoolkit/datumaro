@@ -43,6 +43,9 @@ class NDR(Transform, CliPlugin):
     items with the same similarity|n
     |n
     Example: apply NDR, return no more than 100 images|n
+
+    .. code-block::
+
     |s|s%(prog)s|n
     |s|s|s|s--working_subset train|n
     |s|s|s|s--algorithm gradient|n

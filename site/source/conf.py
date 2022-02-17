@@ -104,8 +104,12 @@ def replace(app, what, name, obj, options, lines):
     names = re.sub(r'([A-Z])', r' \1', name.replace('_', '').split('.')[-1]).split()
     for n, a in enumerate(names):
         if a.lower() in name.split('.')[-2]:
-            names.pop(n)
-    prog_name = '_'.join(names).lower()
+            if n != 0:
+                names.pop(n)
+    if all(1 == len(a) for a in names):
+        prog_name = ''.join(names).lower()
+    else:
+        prog_name = '_'.join(names).lower()
     for i, line in enumerate(lines):
         if line:
             prog = str('%(prog)s')
