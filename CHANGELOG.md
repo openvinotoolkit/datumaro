@@ -55,6 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/634>)
 - Supported saving box attributes when downloading the TFDS version of VOC
   (<https://github.com/openvinotoolkit/datumaro/pull/668>)
+- Switched to a `pyproject.toml`-based build
+  (<https://github.com/openvinotoolkit/datumaro/pull/671>)
 
 ### Deprecated
 - TBD
