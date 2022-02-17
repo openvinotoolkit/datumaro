@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from typing import Any
-import logging as log
 import os.path as osp
 
 from attrs import define
@@ -268,16 +267,11 @@ class _CocoExtractor(SourceExtractor):
                     img_h = image_info['height']
                     img_w = image_info['width']
                     mask_h, mask_w = segmentation['size']
-                    if img_h == mask_h and img_w == mask_w:
-                        rle = self._lazy_merged_mask(
-                            [segmentation], mask_h, mask_w)
-                    else:
-                        log.warning("item #%s: mask #%s "
-                            "does not match image size: %s vs. %s. "
-                            "Skipping this annotation.",
-                            image_info['id'], ann_id,
-                            (mask_h, mask_w), (img_h, img_w)
-                        )
+                    if not (img_h == mask_h) and (img_w == mask_w):
+                        raise ValueError(
+                            "Mask #%s does not match image size: %s vs. %s" % \
+                            (ann_id, (mask_h, mask_w), (img_h, img_w)))
+                    rle = self._lazy_merged_mask([segmentation], mask_h, mask_w)
                 else:
                     # compressed RLE
                     rle = segmentation
