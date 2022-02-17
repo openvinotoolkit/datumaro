@@ -103,9 +103,10 @@ def skip_member(app, what, name, obj, skip, options):
 def replace(app, what, name, obj, options, lines):
     names = re.sub(r'([A-Z])', r' \1', name.replace('_', '').split('.')[-1]).split()
     for n, a in enumerate(names):
-        if a.lower() in name.split('.')[-2]:
-            if n != 0:
-                names.pop(n)
+        if len(a) != 1:
+            if a.lower() in name.split('.')[-2]:
+                if n != 0:
+                    names.pop(n)
     if all(1 == len(a) for a in names):
         prog_name = ''.join(names).lower()
     else:
