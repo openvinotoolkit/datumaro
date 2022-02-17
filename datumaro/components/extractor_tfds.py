@@ -99,23 +99,6 @@ class _SetLabelCategoriesFromClassLabelFeature:
         categories[AnnotationType.label] = LabelCategories.from_iterable(
             feature_connector.names)
 
-
-@frozen
-class _SaveFeatureClassList:
-    feature_path: _FeaturePath
-    state_key: str
-
-    def __call__(self,
-        tfds_builder: tfds.core.DatasetBuilder, categories: CategoriesInfo,
-        state: namespace,
-    ) -> None:
-        feature_connector = _resolve_feature_path(
-            self.feature_path, tfds_builder.info.features)
-
-        assert isinstance(feature_connector, tfds.features.ClassLabel)
-        setattr(state, self.state_key, feature_connector.names)
-
-
 @frozen
 class _SetImageFromImageFeature:
     feature_name: str
@@ -275,11 +258,25 @@ _IMAGENET_ADAPTER = _TfdsAdapter(
     metadata=TfdsDatasetMetadata(default_converter_name='imagenet_txt'),
 )
 
+def _voc_save_pose_names(
+    tfds_builder: tfds.core.DatasetBuilder, categories: CategoriesInfo,
+    state: namespace,
+) -> None:
+    # TFDS represents poses as indexes, but Datumaro represents them as strings.
+    # To convert between representations, save the pose names at the start and
+    # use them when we're converting boxes.
+    # TFDS also provides the pose names in lower case, even though they're title
+    # case in the original dataset. Fix them back to title case so that the
+    # output dataset better resembles the original dataset.
+
+    state.pose_names = [name.title()
+        for name in tfds_builder.info.features['objects'].feature['pose'].names]
+
 _VOC_ADAPTER = _TfdsAdapter(
     category_transformers=[
         _SetLabelCategoriesFromClassLabelFeature(
             ('objects', 'feature', 'label')),
-        _SaveFeatureClassList(('objects', 'feature', 'pose'), 'pose_names'),
+        _voc_save_pose_names,
     ],
     data_transformers=[
         _SetImageFromImageFeature('image',

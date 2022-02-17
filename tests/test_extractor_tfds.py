@@ -196,7 +196,7 @@ class TfdsExtractorTest(TestCase):
                     annotations=[
                         Bbox(2, 2, 2, 4, label=5, attributes={
                             'difficult': True, 'truncated': False,
-                            'pose': pose_names[0],
+                            'pose': pose_names[0].title(),
                         }),
                     ],
                 ),
