@@ -5,7 +5,7 @@
 from functools import partial
 from inspect import isclass
 from typing import (
-    Callable, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar,
+    Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar,
 )
 import glob
 import importlib
