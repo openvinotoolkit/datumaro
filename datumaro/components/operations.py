@@ -24,15 +24,12 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
     AnnotationsTooCloseError, ConflictingCategoriesError, DatasetMergeError,
-    FailedAttrVotingError, FailedLabelVotingError, MediaTypeError,
-    MismatchingAttributesError, MismatchingImageInfoError,
-    MismatchingMediaError, MismatchingMediaPathError, NoMatchingAnnError,
-    NoMatchingItemError, VideoMergeError, WrongGroupError,
+    FailedAttrVotingError, FailedLabelVotingError, MismatchingAttributesError,
+    MismatchingImageInfoError, MismatchingMediaError, MismatchingMediaPathError,
+    NoMatchingAnnError, NoMatchingItemError, VideoMergeError, WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
-from datumaro.components.media import (
-    ByteImage, Image, MediaElement, PointCloud, Video, VideoFrame,
-)
+from datumaro.components.media import Image, MediaElement, PointCloud, Video
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
