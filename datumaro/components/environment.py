@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 from functools import partial
+from inspect import isclass
 from typing import (
-    Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar,
+    Callable, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar,
 )
 import glob
 import importlib
-import inspect
 import logging as log
 import os.path as osp
 
@@ -46,11 +46,11 @@ class PluginRegistry(Registry[Type[CliPlugin]]):
     def __init__(self, filter: Callable[[Type[CliPlugin]], bool] = None): \
             #pylint: disable=redefined-builtin
         super().__init__()
-        self.filter = filter
+        self._filter = filter
 
     def batch_register(self, values: Iterable[CliPlugin]):
         for v in values:
-            if self.filter and not self.filter(v):
+            if self._filter and not self._filter(v):
                 continue
 
             self.register(v.NAME, v)
@@ -58,19 +58,25 @@ class PluginRegistry(Registry[Type[CliPlugin]]):
 class Environment:
     _builtin_plugins = None
 
-    def __init__(self):
-        def _filter(accept, skip=None):
-            accept = (accept, ) if inspect.isclass(accept) else tuple(accept)
-            skip = {skip} if inspect.isclass(skip) else set(skip or [])
-            skip = tuple(skip | set(accept))
-            return lambda t: issubclass(t, accept) and t not in skip
+    @classmethod
+    def _make_filter(cls, accept, skip=None):
+        accept = (accept, ) if isclass(accept) else tuple(accept)
+        skip = {skip} if isclass(skip) else set(skip or [])
+        skip = tuple(skip | set(accept))
+        return partial(cls._check_type, accept=accept, skip=skip)
 
+    @staticmethod
+    def _check_type(t, *, accept, skip):
+        return issubclass(t, accept) and t not in skip
+
+    def __init__(self):
         from datumaro.components.converter import Converter
         from datumaro.components.extractor import (
             Extractor, Importer, ItemTransform, SourceExtractor, Transform,
         )
         from datumaro.components.launcher import Launcher
         from datumaro.components.validator import Validator
+        _filter = self._make_filter
         self._extractors = PluginRegistry(_filter(Extractor,
             skip=SourceExtractor))
         self._importers = PluginRegistry(_filter(Importer))
@@ -147,7 +153,7 @@ class Environment:
                 exports.append(getattr(module, symbol))
 
         exports = [s for s in exports
-            if inspect.isclass(s) and issubclass(s, types) and not s in types]
+            if isclass(s) and issubclass(s, types) and not s in types]
 
         return exports
 
@@ -219,7 +225,7 @@ class Environment:
 
     def make_converter(self, name, *args, **kwargs):
         result = self.converters.get(name)
-        if inspect.isclass(result):
+        if isclass(result):
             result = result.convert
         return partial(result, *args, **kwargs)
 
