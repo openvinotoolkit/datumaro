@@ -1,12 +1,13 @@
 from unittest import TestCase
 import os
 import os.path as osp
+import pickle
 
 import numpy as np
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, Points,
-    Polygon, PolyLine,
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, MaskCategories,
+    Points, Polygon, PolyLine,
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import (
@@ -1494,6 +1495,31 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, dataset, ignored_attrs='*')
 
+    @mark_requirement(Requirements.DATUM_673)
+    def test_can_pickle(self):
+        source = Dataset.from_iterable([
+            DatasetItem(id=1, subset='subset',
+                image=np.ones((5, 4, 3)),
+                annotations=[
+                    Label(0, attributes={'a1': 1, 'a2': '2'}, id=1, group=2),
+                    Caption('hello', id=1, group=5),
+                    Label(2, id=3, group=2, attributes={ 'x': 1, 'y': '2' }),
+                    Bbox(1, 2, 3, 4, label=4, id=4, attributes={ 'a': 1.0 }),
+                    Points([1, 2, 2, 0, 1, 1], label=0, id=5, group=6),
+                    Mask(label=3, id=5, image=np.ones((2, 3))),
+                    PolyLine([1, 2, 3, 4, 5, 6, 7, 8], id=11),
+                    Polygon([1, 2, 3, 4, 5, 6, 7, 8]),
+                ])
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['a', 'b']),
+            AnnotationType.mask: MaskCategories.generate(2),
+        })
+        source.init_cache()
+
+        dump = pickle.dumps(source)
+        parsed = pickle.loads(dump)
+
+        compare_datasets(self, source, parsed, require_images=True)
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
