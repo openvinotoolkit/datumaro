@@ -19,6 +19,8 @@ class Requirements:
     DATUM_GENERAL_REQ = "Datumaro general requirement"
     DATUM_TELEMETRY = "Datumaro telemetry requirement"
     DATUM_API = "Datumaro API"
+    DATUM_PROGRESS_REPORTING = "Datumaro progress reporting requirement"
+    DATUM_ERROR_REPORTING = "Datumaro error reporting requirement"
 
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
