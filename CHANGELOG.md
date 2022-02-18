@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to create smaller datasets from bigger ones
   (<https://github.com/openvinotoolkit/datumaro/pull/636>,
    <https://github.com/openvinotoolkit/datumaro/pull/640>)
+- API to report dataset import and export progress;
+  API to report dataset import and export errors and take action (skip, fail)
+  (supported in COCO, VOC and YOLO formats)
+  (<https://github.com/openvinotoolkit/datumaro/pull/650>)
 - Support for downloading the ImageNetV2 and COCO datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/653>,
    <https://github.com/openvinotoolkit/datumaro/pull/659>)
@@ -45,8 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   image stats (`unique`, `repeated`) moved to the `dataset` section,
   removed `mean` and `std` from the `dataset` section
   (<https://github.com/openvinotoolkit/datumaro/pull/621>)
-- OpenVINO telemetry library 2022.1.0 from PyPI.
-  (<https://github.com/openvinotoolkit/datumaro/pull/625>)
 - Allowed `Image` creation from just `size` info
   (<https://github.com/openvinotoolkit/datumaro/pull/634>)
 - Added image search in VOC XML-based subformats
