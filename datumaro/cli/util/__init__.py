@@ -12,6 +12,10 @@ from attrs import define
 from tqdm import tqdm
 
 from datumaro.components.converter import ExportErrorPolicy
+from datumaro.components.errors import (
+    AnnotationExportError, AnnotationImportError, ItemExportError,
+    ItemImportError,
+)
 from datumaro.components.extractor import ImportErrorPolicy
 from datumaro.components.progress_reporting import ProgressReporter
 
@@ -95,6 +99,12 @@ class CliProgressReporter(ProgressReporter):
         self._tqdm = tqdm(total=total, desc=desc, leave=False)
 
     def finish(self):
+        if self._tqdm.total:
+            diff = self._tqdm.total - self._tqdm.n
+            if diff:
+                self._tqdm.update(diff)
+
+    def close(self):
         if self._tqdm is not None:
             self._tqdm.close()
 
@@ -103,22 +113,26 @@ class CliProgressReporter(ProgressReporter):
         if diff:
             self._tqdm.update(diff)
 
-    def get_frequency(self) -> float:
+    def split(self, count: int):
+        return tuple(CliProgressReporter() for _ in range(count))
+
+    @property
+    def period(self) -> float:
         return 0.001
 
 class RelaxedImportErrorPolicy(ImportErrorPolicy):
-    def report_item_error(self, error):
-        log.warning('Failed to import item: %s', error)
+    def _handle_item_error(self, error: ItemImportError):
+        log.warning('%s: %s', error, error.__cause__)
 
-    def report_annotation_error(self, error):
-        log.warning('Failed to import annotation: %s', error)
+    def _handle_annotation_error(self, error: AnnotationImportError):
+        log.warning('%s: %s', error, error.__cause__)
 
 class RelaxedExportErrorPolicy(ExportErrorPolicy):
-    def report_item_error(self, error):
-        log.warning('Failed to export item: %s', error)
+    def _handle_item_error(self, error: ItemExportError):
+        log.warning('%s: %s', error, error.__cause__)
 
-    def report_annotation_error(self, error):
-        log.warning('Failed to export annotation: %s', error)
+    def _handle_annotation_error(self, error: AnnotationExportError):
+        log.warning('%s: %s', error, error.__cause__)
 
 class ErrorPolicy(Enum):
     # primary
