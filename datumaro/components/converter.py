@@ -32,7 +32,7 @@ class _ExportFail(DatumaroError):
 
 class ExportErrorPolicy:
     def report_item_error(self, error: Exception, *,
-            item_id: Tuple[str, str]):
+            item_id: Tuple[str, str]) -> None:
         """
         Allows to report a problem with a dataset item.
         If this function returns, the converter must skip the item.
@@ -46,7 +46,7 @@ class ExportErrorPolicy:
             raise error
 
     def report_annotation_error(self, error: Exception, *,
-            item_id: Tuple[str, str]):
+            item_id: Tuple[str, str]) -> None:
         """
         Allows to report a problem with a dataset item annotation.
         If this function returns, the converter must skip the annotation.
@@ -59,11 +59,11 @@ class ExportErrorPolicy:
         else:
             raise error
 
-    def _handle_item_error(self, error: ItemExportError):
+    def _handle_item_error(self, error: ItemExportError) -> None:
         """This function must either call fail() or return."""
         self.fail(error)
 
-    def _handle_annotation_error(self, error: AnnotationExportError):
+    def _handle_annotation_error(self, error: AnnotationExportError) -> None:
         """This function must either call fail() or return."""
         self.fail(error)
 

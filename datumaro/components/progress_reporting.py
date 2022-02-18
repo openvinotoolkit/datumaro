@@ -12,7 +12,7 @@ T = TypeVar('T')
 class ProgressReporter(ContextManager['ProgressReporter']):
     """
     Only one set of methods must be called:
-    - init - report_status - close
+    - start - report_status - finish / close
     - iter - close
     - split
 
@@ -39,13 +39,17 @@ class ProgressReporter(ContextManager['ProgressReporter']):
         """
         raise NotImplementedError
 
-    def init(self, total: int, *, desc: Optional[str] = None):
+    def start(self, total: int, *, desc: Optional[str] = None):
         """Initializes the progress bar"""
         raise NotImplementedError
 
     def report_status(self, progress: int):
         """Updates the progress bar"""
         raise NotImplementedError
+
+    def finish(self):
+        """Finishes the progress bar"""
+        self.close()
 
     def iter(self, iterable: Iterable[T], *,
             total: Optional[int] = None,
@@ -54,7 +58,7 @@ class ProgressReporter(ContextManager['ProgressReporter']):
         """
         Traverses the iterable and reports progress simultaneously.
 
-        Starts the progress bar automatically.
+        Starts and finishes the progress bar automatically.
 
         Args:
             iterable: An iterable to be traversed
@@ -69,7 +73,7 @@ class ProgressReporter(ContextManager['ProgressReporter']):
         if total is None and hasattr(iterable, '__len__'):
             total = len(iterable)
 
-        self.init(total, desc=desc)
+        self.start(total, desc=desc)
 
         if total:
             display_step = math.ceil(total * self.period)
@@ -79,6 +83,8 @@ class ProgressReporter(ContextManager['ProgressReporter']):
                 self.report_status(i)
 
             yield elem
+
+        self.finish()
 
     def split(self, count: int) -> Tuple[ProgressReporter, ...]:
         """
