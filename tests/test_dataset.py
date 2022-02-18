@@ -30,7 +30,6 @@ from datumaro.components.extractor import (
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.components.progress_reporting import NullProgressReporter
-from datumaro.util.scope import Scope, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets
 import datumaro.components.hl_ops as hl_ops
 
