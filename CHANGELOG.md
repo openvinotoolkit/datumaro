@@ -45,8 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   image stats (`unique`, `repeated`) moved to the `dataset` section,
   removed `mean` and `std` from the `dataset` section
   (<https://github.com/openvinotoolkit/datumaro/pull/621>)
-- OpenVINO telemetry library 2022.1.0 from PyPI.
-  (<https://github.com/openvinotoolkit/datumaro/pull/625>)
 - Allowed `Image` creation from just `size` info
   (<https://github.com/openvinotoolkit/datumaro/pull/634>)
 - Added image search in VOC XML-based subformats
