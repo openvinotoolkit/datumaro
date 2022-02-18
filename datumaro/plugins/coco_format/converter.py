@@ -18,7 +18,6 @@ from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DatasetItem
 from datumaro.util import cast, dump_json_file, find, str_to_bool
 from datumaro.util.image import save_image
-from datumaro.util.scope import scope_add_many, scoped
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
 
@@ -646,7 +645,6 @@ class CocoConverter(Converter):
             self._image_ids[item.id] = image_id
         return image_id
 
-    @scoped
     def apply(self):
         self._make_dirs()
 
@@ -654,7 +652,7 @@ class CocoConverter(Converter):
             self._save_meta_file(self._save_dir)
 
         subsets = self._extractor.subsets()
-        pbars = scope_add_many(self._ctx.progress_reporter.split(len(subsets)))
+        pbars = self._ctx.progress_reporter.split(len(subsets))
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():

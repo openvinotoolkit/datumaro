@@ -1554,7 +1554,7 @@ class DatasetTest(TestCase):
         type(progress_reporter).period = period_mock
         progress_reporter.start = mock.MagicMock()
         progress_reporter.report_status = mock.MagicMock()
-        progress_reporter.close = mock.MagicMock()
+        progress_reporter.finish = mock.MagicMock()
 
         env = Environment()
         env.importers.items.clear()
@@ -1566,7 +1566,7 @@ class DatasetTest(TestCase):
         period_mock.assert_called_once()
         progress_reporter.start.assert_called_once()
         progress_reporter.report_status.assert_called()
-        progress_reporter.close.assert_called_once()
+        progress_reporter.finish.assert_called_once()
 
     @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
     def test_can_report_progress_from_extractor_multiple_pbars(self):
@@ -1574,10 +1574,8 @@ class DatasetTest(TestCase):
             def __init__(self, url, **kwargs):
                 super().__init__(**kwargs)
 
-            # must use arg to bind to a generator
-            @scoped(arg_name='scope') # pylint: disable=no-value-for-parameter
-            def __iter__(self, *, scope: Scope = None):
-                pbars = scope.add_many(*self._ctx.progress_reporter.split(2))
+            def __iter__(self):
+                pbars = self._ctx.progress_reporter.split(2)
                 list(pbars[0].iter([None] * 5))
                 list(pbars[1].iter([None] * 5))
 
@@ -1585,9 +1583,6 @@ class DatasetTest(TestCase):
 
         class TestProgressReporter(ProgressReporter):
             def init(self, *args, **kwargs):
-                pass
-
-            def close(self):
                 pass
 
             def split(self, count):
@@ -1654,7 +1649,7 @@ class DatasetTest(TestCase):
         type(progress_reporter).period = period_mock
         progress_reporter.start = mock.MagicMock()
         progress_reporter.report_status = mock.MagicMock()
-        progress_reporter.close = mock.MagicMock()
+        progress_reporter.finish = mock.MagicMock()
 
         with TestDir() as test_dir:
             Dataset().export(test_dir, TestConverter,
@@ -1663,7 +1658,7 @@ class DatasetTest(TestCase):
         period_mock.assert_called_once()
         progress_reporter.start.assert_called_once()
         progress_reporter.report_status.assert_called()
-        progress_reporter.close.assert_called()
+        progress_reporter.finish.assert_called()
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_errors_from_converter(self):

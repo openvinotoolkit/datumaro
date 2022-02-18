@@ -4,31 +4,21 @@
 
 from __future__ import annotations
 
-from typing import ContextManager, Iterable, Optional, Tuple, TypeVar
+from typing import Iterable, Optional, Tuple, TypeVar
 import math
 
 T = TypeVar('T')
 
-class ProgressReporter(ContextManager['ProgressReporter']):
+class ProgressReporter:
     """
     Only one set of methods must be called:
-    - start - report_status - finish / close
-    - iter - close
+    - start - report_status - finish
+    - iter
     - split
 
-    Must be close()-d after use, can be used as a context manager.
-    Must not be reused after closing.
+    This class is supposed to manage the state of children progress bars
+    and release of their resources, if necessary.
     """
-
-    def close(self):
-        """Closes the progress bar"""
-        raise NotImplementedError
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type=None, exc_value=None, traceback=None):
-        self.close()
 
     @property
     def period(self) -> float:
@@ -49,7 +39,7 @@ class ProgressReporter(ContextManager['ProgressReporter']):
 
     def finish(self):
         """Finishes the progress bar"""
-        self.close()
+        pass # pylint: disable=unnecessary-pass
 
     def iter(self, iterable: Iterable[T], *,
             total: Optional[int] = None,
@@ -88,8 +78,11 @@ class ProgressReporter(ContextManager['ProgressReporter']):
 
     def split(self, count: int) -> Tuple[ProgressReporter, ...]:
         """
-        Splits the progress bar into few independent parts
+        Splits the progress bar into few independent parts.
         In case of 0 must return an empty tuple.
+
+        This class is supposed to manage the state of children progress bars
+        and release of their resources, if necessary.
         """
         raise NotImplementedError
 
@@ -98,13 +91,10 @@ class NullProgressReporter(ProgressReporter):
     def period(self) -> float:
         return 0
 
-    def init(self, total: int, *, desc: Optional[str] = None):
+    def start(self, total: int, *, desc: Optional[str] = None):
         pass
 
     def report_status(self, progress: int):
-        pass
-
-    def close(self):
         pass
 
     def iter(self, iterable: Iterable[T], *,
