@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from enum import Enum, auto
+from functools import partial
 from itertools import zip_longest
 from typing import (
     Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union,
@@ -462,7 +463,7 @@ class CompiledMask:
             + self.instance_mask.astype(np.uint32)
         keys = np.unique(m)
         instance_labels = {
-            k & ((1 << class_shift) - 1): k >> class_shift
+            int(k & ((1 << class_shift) - 1)): int(k >> class_shift)
             for k in keys
             if k & ((1 << class_shift) - 1) != 0
         }
@@ -476,7 +477,7 @@ class CompiledMask:
         return self.instance_mask == instance_id
 
     def lazy_extract(self, instance_id: int) -> Callable[[], IndexMaskImage]:
-        return lambda: self.extract(instance_id)
+        return partial(self.extract, instance_id)
 
 @attrs(slots=True, order=False)
 class _Shape(Annotation):
