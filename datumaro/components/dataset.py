@@ -266,11 +266,11 @@ class DatasetSubset(IDataset): # non-owning view
 
 
 class DatasetStorage(IDataset):
-    def __init__(self, source: IDataset = None,
+    def __init__(self, source: Union[IDataset, DatasetItemStorage] = None,
             categories: CategoriesInfo = None):
         if source is None and categories is None:
             categories = {}
-        elif source is not None and categories is not None:
+        elif isinstance(source, IDataset) and categories is not None:
             raise ValueError("Can't use both source and categories")
         self._categories = categories
 
@@ -280,8 +280,12 @@ class DatasetStorage(IDataset):
         # 2. no source + storage
         #      - a dataset created from scratch
         #      - a dataset from a source or transform, which was cached
-        self._source = source
-        self._storage = DatasetItemStorage() # patch or cache
+        if isinstance(source, DatasetItemStorage):
+            self._source = None
+            self._storage = source
+        else:
+            self._source = source
+            self._storage = DatasetItemStorage() # patch or cache
         self._transforms = [] # A stack of postponed transforms
 
         # Describes changes in the dataset since initialization
@@ -289,7 +293,7 @@ class DatasetStorage(IDataset):
 
         self._flush_changes = False # Deferred flush indicator
 
-        self._length = 0 if source is None else None
+        self._length = len(self._storage) if self._source is None else None
 
     def is_cache_initialized(self) -> bool:
         return self._source is None and not self._transforms
@@ -647,14 +651,14 @@ class Dataset(IDataset):
             env: Optional[Environment] = None) -> Dataset:
         if len(sources) == 1:
             source = sources[0]
+            dataset = Dataset(source=source, env=env)
         else:
             from datumaro.components.operations import ExactMerge
             source = ExactMerge.merge(*sources)
             categories = ExactMerge.merge_categories(
                 s.categories() for s in sources)
-            source = DatasetItemStorageDatasetView(source, categories)
-
-        return Dataset(source=source, env=env)
+            dataset = Dataset(source=source, categories=categories, env=env)
+        return dataset
 
     def __init__(self, source: Optional[IDataset] = None, *,
             categories: Optional[CategoriesInfo] = None,

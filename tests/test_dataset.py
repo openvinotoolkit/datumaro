@@ -1,12 +1,13 @@
 from unittest import TestCase, mock
 import os
 import os.path as osp
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, Points,
-    Polygon, PolyLine,
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, MaskCategories,
+    Points, Polygon, PolyLine,
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import (
@@ -30,7 +31,9 @@ from datumaro.components.extractor import (
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.components.progress_reporting import NullProgressReporter
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, compare_datasets_strict,
+)
 import datumaro.components.hl_ops as hl_ops
 
 from .requirements import Requirements, mark_requirement
@@ -1684,6 +1687,31 @@ class DatasetTest(TestCase):
 
         error_policy.report_item_error.assert_called()
         error_policy.report_annotation_error.assert_called()
+
+    @mark_requirement(Requirements.DATUM_673)
+    def test_can_pickle(self):
+        source = Dataset.from_iterable([
+            DatasetItem(id=1, subset='subset',
+                image=np.ones((5, 4, 3)),
+                annotations=[
+                    Label(0, attributes={'a1': 1, 'a2': '2'}, id=1, group=2),
+                    Caption('hello', id=1, group=5),
+                    Label(2, id=3, group=2, attributes={ 'x': 1, 'y': '2' }),
+                    Bbox(1, 2, 3, 4, label=4, id=4, attributes={ 'a': 1.0 }),
+                    Points([1, 2, 2, 0, 1, 1], label=0, id=5, group=6),
+                    Mask(label=3, id=5, image=np.ones((2, 3))),
+                    PolyLine([1, 2, 3, 4, 5, 6, 7, 8], id=11),
+                    Polygon([1, 2, 3, 4, 5, 6, 7, 8]),
+                ])
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['a', 'b']),
+            AnnotationType.mask: MaskCategories.generate(2),
+        })
+        source.init_cache()
+
+        parsed = pickle.loads(pickle.dumps(source)) # nosec
+
+        compare_datasets_strict(self, source, parsed)
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

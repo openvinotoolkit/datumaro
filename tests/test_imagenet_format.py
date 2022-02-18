@@ -1,5 +1,6 @@
 from unittest import TestCase
 import os.path as osp
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
 
@@ -11,7 +12,9 @@ from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.imagenet_format import ImagenetConverter, ImagenetImporter
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, compare_datasets_strict,
+)
 
 from .requirements import Requirements, mark_requirement
 
@@ -143,3 +146,11 @@ class ImagenetImporterTest(TestCase):
     def test_can_detect_imagenet(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
         self.assertIn(ImagenetImporter.NAME, detected_formats)
+
+    @mark_requirement(Requirements.DATUM_673)
+    def test_can_pickle(self):
+        source = Dataset.import_from(DUMMY_DATASET_DIR, format='imagenet')
+
+        parsed = pickle.loads(pickle.dumps(source)) # nosec
+
+        compare_datasets_strict(self, source, parsed)
