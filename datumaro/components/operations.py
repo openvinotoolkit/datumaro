@@ -24,7 +24,7 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
     AnnotationsTooCloseError, ConflictingCategoriesError, DatasetMergeError,
-    FailedAttrVotingError, FailedLabelVotingError, MismatchingAttributesError,
+    FailedAttrVotingError, FailedLabelVotingError, MediaTypeError, MismatchingAttributesError,
     MismatchingImageInfoError, MismatchingMediaError, MismatchingMediaPathError,
     NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
 )
@@ -151,14 +151,18 @@ class ExactMerge:
 
     @classmethod
     def _merge_media(cls, item_a: DatasetItem, item_b: DatasetItem) \
-            -> Union[ByteImage, Image, PointCloud, Video, VideoFrame]:
-        if isinstance(item_a.media, Image) or isinstance(item_b.media, Image):
+            -> Union[Image, PointCloud, Video]:
+        if (not item_a.media or isinstance(item_a.media, Image)) and \
+                (not item_b.media or isinstance(item_b.media, Image)):
             media = cls._merge_images(item_a, item_b)
-        elif isinstance(item_a.media, PointCloud) and isinstance(item_b.media, PointCloud):
+        elif (not item_a.media or isinstance(item_a.media, PointCloud)) and \
+                (not item_b.media or isinstance(item_b.media, PointCloud)):
             media = cls._merge_point_clouds(item_a, item_b)
-        elif isinstance(item_a.media, Video) and isinstance(item_b.media, Video):
+        elif (not item_a.media or isinstance(item_a.media, Video)) and \
+                (not item_b.media or isinstance(item_b.media, Video)):
             media = cls._merge_videos(item_a, item_b)
-        else:
+        elif (not item_a.media or isinstance(item_a.media, MediaElement)) and \
+                (not item_b.media or isinstance(item_b.media, MediaElement)):
             if isinstance(item_a.media, MediaElement) and isinstance(item_b.media, MediaElement):
                 if item_a.media.path and item_b.media.path and \
                         item_a.media.path != item_b.media.path:
@@ -175,7 +179,10 @@ class ExactMerge:
                 media = item_a.media
             else:
                 media = item_b.media
-
+        else:
+            raise MismatchingMediaError(
+                (item_a.id, item_a.subset),
+                item_a.media, item_b.media)
         return media
 
     @staticmethod

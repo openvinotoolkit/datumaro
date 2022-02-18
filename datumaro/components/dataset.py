@@ -32,6 +32,7 @@ from datumaro.components.extractor import (
     ItemTransform, Transform,
 )
 from datumaro.components.launcher import Launcher, ModelTransform
+from datumaro.components.media import Image
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
@@ -381,10 +382,10 @@ class DatasetStorage(IDataset):
 
         i = -1
         for i, item in enumerate(source):
-            if self.media_type():
-                if item.media and not isinstance(item.media, self.media_type()):
+            if source.media_type():
+                if item.media and not isinstance(item.media, source.media_type()):
                     raise MediaTypeError("Dataset elements must have a '%s' " \
-                        "media type" % self.media_type())
+                        "media type" % source.media_type())
 
             if transform and transform.is_local:
                 old_id = (item.id, item.subset)
@@ -618,7 +619,8 @@ class Dataset(IDataset):
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
             categories: Union[CategoriesInfo, List[str], None] = None,
-            env: Optional[Environment] = None) -> Dataset:
+            env: Optional[Environment] = None,
+            media_type: Type = Image) -> Dataset:
         if isinstance(categories, list):
             categories = { AnnotationType.label:
                 LabelCategories.from_iterable(categories)
@@ -630,7 +632,8 @@ class Dataset(IDataset):
         class _extractor(Extractor):
             def __init__(self):
                 super().__init__(length=len(iterable) \
-                    if hasattr(iterable, '__len__') else None)
+                    if hasattr(iterable, '__len__') else None,
+                    media_type=media_type)
 
             def __iter__(self):
                 return iter(iterable)

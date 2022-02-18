@@ -216,7 +216,7 @@ class _ExtractorBase(IExtractor):
             def categories(_):
                 return self.categories()
 
-        return _DatasetFilter()
+        return _DatasetFilter(media_type=self.media_type())
 
     def categories(self):
         return {}
@@ -362,7 +362,7 @@ class Transform(_ExtractorBase, CliPlugin):
         return item.wrap(**kwargs)
 
     def __init__(self, extractor: IExtractor):
-        super().__init__()
+        super().__init__(media_type=extractor.media_type())
 
         self._extractor = extractor
 

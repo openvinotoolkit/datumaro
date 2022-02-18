@@ -76,7 +76,7 @@ class KittiRawImporterTest(TestCase):
                 media=PointCloud(pcd3, extra_images=[image3]),
                 attributes={'frame': 2})
 
-        ], categories={AnnotationType.label: expected_label_cat})
+        ], categories={AnnotationType.label: expected_label_cat}, media_type=PointCloud)
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'kitti_raw')
 
@@ -140,7 +140,7 @@ class KittiRawConverterTest(TestCase):
                 media=PointCloud(self.pcd3),
                 attributes={'frame': 2}
             ),
-        ], categories=['cat', 'dog'])
+        ], categories=['cat', 'dog'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             target_label_cat = LabelCategories(attributes={'occluded'})
@@ -188,7 +188,7 @@ class KittiRawConverterTest(TestCase):
                         'velodyne_points', 'data', '0000000002.pcd')),
                     attributes={'frame': 2}
                 ),
-            ], categories={AnnotationType.label: target_label_cat})
+            ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
             self._test_save_and_load(source_dataset,
                 partial(KittiRawConverter.convert, save_media=True),
@@ -339,7 +339,7 @@ class KittiRawConverterTest(TestCase):
                 media=PointCloud(self.pcd1, extra_images=[self.image1]),
                 attributes={'frame': 3}
             ),
-        ], categories=['cat'])
+        ], categories=['cat'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             target_label_cat = LabelCategories(attributes={'occluded'})
@@ -357,7 +357,7 @@ class KittiRawConverterTest(TestCase):
                     ]),
                     attributes={'frame': 3}
                 ),
-            ], categories={AnnotationType.label: target_label_cat})
+            ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
             self._test_save_and_load(source_dataset,
                 partial(KittiRawConverter.convert, save_media=True),
@@ -378,7 +378,7 @@ class KittiRawConverterTest(TestCase):
                     extra_images=[self.image1, self.image2, self.image3]),
                 attributes={'frame': 3}
             ),
-        ], categories=['cat'])
+        ], categories=['cat'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             target_label_cat = LabelCategories(attributes={'occluded'})
@@ -398,7 +398,7 @@ class KittiRawConverterTest(TestCase):
                     ]),
                     attributes={'frame': 3}
                 ),
-            ], categories={AnnotationType.label: target_label_cat})
+            ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
             self._test_save_and_load(source_dataset,
                 partial(KittiRawConverter.convert, save_media=True),
@@ -423,7 +423,7 @@ class KittiRawConverterTest(TestCase):
                     media=PointCloud(self.pcd1, extra_images=[self.image1]),
                     attributes={'frame': 0}
                 )
-            ], categories=['car', 'bus'])
+            ], categories=['car', 'bus'], media_type=PointCloud)
             dataset.export(path, 'kitti_raw', save_media=True)
 
             dataset.put(DatasetItem('frame2',
@@ -460,7 +460,7 @@ class KittiRawConverterTest(TestCase):
                         attributes={'track_id': 2})
                 ],
             )
-        ], categories=['cat', 'dog'])
+        ], categories=['cat', 'dog'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             target_label_cat = LabelCategories(attributes={'occluded'})
@@ -489,7 +489,7 @@ class KittiRawConverterTest(TestCase):
                     ],
                     attributes={'frame': 1}
                 )
-            ], categories={AnnotationType.label: target_label_cat})
+            ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
             self._test_save_and_load(source_dataset,
                 partial(KittiRawConverter.convert, save_media=True,

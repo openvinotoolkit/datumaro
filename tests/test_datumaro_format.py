@@ -234,28 +234,15 @@ class DatumaroConverterTest(TestCase):
                 DatasetItem(2, subset='test'),
                 DatasetItem(3, subset='train',
                     media=Image(data=np.ones((2, 2, 3)))),
-                DatasetItem(4, subset='train',
+                DatasetItem(4, subset='test',
                     media=Image(data=np.ones((2, 3, 3)))),
-                DatasetItem(5, subset='test',
-                    media=PointCloud(osp.join(path, 'point_clouds', 'test', '5.pcd'),
-                        extra_images=[
-                            Image(data=np.ones((3, 4, 3)),
-                                path=osp.join(path, 'test', '5', 'image_0.jpg'))
-                        ]
-                    ),
-                ),
-            ])
+            ], media_type=Image)
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a'),
                 DatasetItem(2, subset='b'),
                 DatasetItem(3, subset='c', media=Image(data=np.ones((2, 2, 3)))),
                 DatasetItem(4, subset='d', media=Image(data=np.ones((2, 3, 3)))),
-                DatasetItem(5, subset='e',
-                    media=PointCloud('5.pcd', extra_images=[
-                        Image(data=np.ones((3, 4, 3))),
-                    ])
-                ),
-            ])
+            ], media_type=Image)
 
             dataset.save(path, save_media=True)
 
@@ -264,21 +251,20 @@ class DatumaroConverterTest(TestCase):
                 splits=(('train', 0.5), ('test', 0.5)), seed=42)
             dataset.save(save_media=True)
 
-            self.assertEqual(
-                {'images', 'annotations', 'point_clouds', 'related_images'},
+            self.assertEqual({'images', 'annotations'},
                 set(os.listdir(path)))
             self.assertEqual({'train.json', 'test.json'},
                 set(os.listdir(osp.join(path, 'annotations'))))
-            self.assertEqual({'3.jpg', '4.jpg'},
+            self.assertEqual({'3.jpg'},
                 set(os.listdir(osp.join(path, 'images', 'train'))))
-            self.assertEqual({'train', 'c', 'd'},
+            self.assertEqual({'4.jpg'},
+                set(os.listdir(osp.join(path, 'images', 'test'))))
+            self.assertEqual({'train', 'c', 'd', 'test'},
                 set(os.listdir(osp.join(path, 'images'))))
             self.assertEqual(set(),
                 set(os.listdir(osp.join(path, 'images', 'c'))))
             self.assertEqual(set(),
                 set(os.listdir(osp.join(path, 'images', 'd'))))
-            self.assertEqual({'image_0.jpg'},
-                set(os.listdir(osp.join(path, 'related_images', 'test', '5'))))
             compare_datasets(self, expected, Dataset.load(path))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -295,7 +281,7 @@ class DatumaroConverterTest(TestCase):
                         id=1, group=1, label=0, attributes={'x': True}
                     )
                 ]),
-        ], categories=['label'])
+        ], categories=['label'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             target_dataset = Dataset.from_iterable([
@@ -318,7 +304,7 @@ class DatumaroConverterTest(TestCase):
                             id=1, group=1, label=0, attributes={'x': True}
                         )
                     ]),
-            ], categories=['label'])
+            ], categories=['label'], media_type=PointCloud)
             self._test_save_and_load(source_dataset,
                 partial(DatumaroConverter.convert, save_media=True), test_dir,
                 target_dataset, compare=None, dimension=Dimensions.dim_3d)

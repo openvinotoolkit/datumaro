@@ -74,7 +74,7 @@ class KittiRawIntegrationScenarios(TestCase):
                     ]),
                     attributes={'frame': 2, 'description': ''}
                 ),
-            ], categories={AnnotationType.label: expected_label_cat})
+            ], categories={AnnotationType.label: expected_label_cat}, media_type=PointCloud)
 
             run(self, 'convert',
                 '-if', 'kitti_raw', '-i', DUMMY_DATASET_DIR,

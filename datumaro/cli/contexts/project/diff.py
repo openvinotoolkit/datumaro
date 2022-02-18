@@ -245,7 +245,7 @@ class DiffVisualizer:
         _, mispred, a_unmatched, b_unmatched = diff
 
         if 0 < len(a_unmatched) + len(b_unmatched) + len(mispred):
-            if not item_a.media or not isinstance(item_a.media, Image):
+            if not isinstance(item_a.media, Image) or not item_a.media.has_data:
                 log.warning("Item %s: item has no image data, "
                     "it will be skipped" % (item_a.id))
                 return

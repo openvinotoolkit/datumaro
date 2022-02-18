@@ -60,7 +60,7 @@ class SlyPointCloudIntegrationScenarios(TestCase):
                     ]),
                     attributes={'frame': 1}
                 ),
-            ], categories={AnnotationType.label: expected_label_cat})
+            ], categories={AnnotationType.label: expected_label_cat}, media_type=PointCloud)
 
             run(self, 'convert',
                 '-if', 'sly_pointcloud', '-i', DUMMY_DATASET_DIR,
