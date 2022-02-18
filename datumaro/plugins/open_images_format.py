@@ -674,6 +674,10 @@ class OpenImagesConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         self._save(_AnnotationWriter(self._save_dir))
 
     @classmethod
@@ -767,7 +771,6 @@ class OpenImagesConverter(Converter):
 
         image_meta = {}
 
-        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             if _RE_INVALID_PATH_COMPONENT.fullmatch(subset_name):
                 raise UnsupportedSubsetNameError(
@@ -799,11 +802,6 @@ class OpenImagesConverter(Converter):
 
                     if self._save_media:
                         if item.media:
-                            if not media_type_match:
-                                if not isinstance(item.media, Image):
-                                    raise MediaTypeError("Media type is not an image")
-                                media_type_match = True
-
                             self._save_image(item, subdir=osp.join(
                                 OpenImagesPath.IMAGES_DIR, subset_name))
                         else:

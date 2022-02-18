@@ -347,14 +347,9 @@ class _SuperviselyPointCloudDumper:
 
         self._init_meta()
 
-        media_type_match = False
         for item in self._context._extractor:
             if self._context._save_media:
                 if item.media:
-                    if not media_type_match:
-                        if not isinstance(item.media, PointCloud):
-                            raise MediaTypeError("Media type is not a point cloud")
-                        media_type_match = True
                     self._write_pcd(item)
                 else:
                     log.debug("Item '%s' has no point cloud info", item.id)
@@ -392,6 +387,10 @@ class SuperviselyPointCloudConverter(Converter):
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not PointCloud:
+            raise MediaTypeError("Media type is not an image")
+
         if 1 < len(self._extractor.subsets()):
             log.warning("Supervisely pointcloud format supports only a single "
                 "subset. Subset information will be ignored on export.")

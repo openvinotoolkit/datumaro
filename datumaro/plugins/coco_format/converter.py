@@ -648,6 +648,10 @@ class CocoConverter(Converter):
         return image_id
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         self._make_dirs()
 
         if self._save_dataset_meta:
@@ -664,11 +668,6 @@ class CocoConverter(Converter):
             for item in subset:
                 if self._save_media:
                     if item.media:
-                        if not media_type_match:
-                            if not isinstance(item.media, Image):
-                                raise MediaTypeError("Media type is not an image")
-                            media_type_match = True
-
                         self._save_image(item, subdir=osp.join(self._images_dir,
                             '' if self._merge_images else subset_name))
                     else:

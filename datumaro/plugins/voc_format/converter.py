@@ -126,6 +126,10 @@ class VocConverter(Converter):
         self._patch = None
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         self.make_dirs()
         self.save_subsets()
         self.save_label_map()
@@ -170,7 +174,6 @@ class VocConverter(Converter):
             categories()[AnnotationType.label].items[label_id].name
 
     def save_subsets(self):
-        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             class_lists = OrderedDict()
             clsdet_list = OrderedDict()
@@ -184,11 +187,6 @@ class VocConverter(Converter):
                 image_filename = self._make_image_filename(item)
                 if self._save_media:
                     if item.media:
-                        if not media_type_match:
-                            if not isinstance(item.media, Image):
-                                raise MediaTypeError("Media type is not an image")
-                            media_type_match = True
-
                         self._save_image(item,
                             osp.join(self._images_dir, image_filename))
                     else:

@@ -19,17 +19,15 @@ class IcdarWordRecognitionConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
-        media_type_match = False
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         for subset_name, subset in self._extractor.subsets().items():
             annotation = ''
             for item in subset:
                 image_filename = self._make_image_filename(item)
                 if self._save_media and item.media:
-                    if not media_type_match:
-                        if not isinstance(item.media, Image):
-                            raise MediaTypeError("Media type is not an image")
-                        media_type_match = True
-
                     self._save_image(item, osp.join(self._save_dir,
                         subset_name, IcdarPath.IMAGES_DIR, image_filename))
 
@@ -50,6 +48,10 @@ class IcdarTextLocalizationConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         for subset_name, subset in self._extractor.subsets().items():
             for item in subset:
                 if self._save_media and item.media:
@@ -78,6 +80,10 @@ class IcdarTextSegmentationConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         for subset_name, subset in self._extractor.subsets().items():
             for item in subset:
                 self._save_item(subset_name, subset, item)

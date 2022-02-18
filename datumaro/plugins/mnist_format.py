@@ -125,11 +125,14 @@ class MnistConverter(Converter):
     DEFAULT_IMAGE_EXT = '.png'
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
 
-        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             labels = []
             images = np.array([])
@@ -147,11 +150,6 @@ class MnistConverter(Converter):
                     item_ids[len(labels) - 1] = item.id
 
                 if item.media and self._save_media:
-                    if not media_type_match:
-                        if not isinstance(item.media, Image):
-                            raise MediaTypeError("Media type is not an image")
-                        media_type_match = True
-
                     image = item.media
                     if not image.has_data:
                         image_sizes[len(images) - 1] = [0, 0]

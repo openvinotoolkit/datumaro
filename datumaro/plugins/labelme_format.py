@@ -339,6 +339,10 @@ class LabelMeConverter(Converter):
     DEFAULT_IMAGE_EXT = LabelMePath.IMAGE_EXT
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
         if self._save_dataset_meta:
@@ -350,11 +354,6 @@ class LabelMeConverter(Converter):
             os.makedirs(subset_dir, exist_ok=True)
 
             for item in subset:
-                if not media_type_match:
-                    if self._save_media and item.media and \
-                            not isinstance(item.media, Image):
-                        raise MediaTypeError("Media type is not an image")
-                    media_type_match = True
                 self._save_item(item, subset_dir)
 
     def _get_label(self, label_id):

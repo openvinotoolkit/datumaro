@@ -161,13 +161,7 @@ class _SubsetWriter:
         self._writer.open_root()
         self._write_meta()
 
-        media_type_match = False
         for index, item in enumerate(self._extractor):
-            if not media_type_match:
-                if self._context._save_media and item.media and \
-                        not isinstance(item.media, Image):
-                    raise MediaTypeError("Media type is not an image")
-                media_type_match = True
             self._write_item(item, index)
 
         self._writer.close_root()
@@ -380,6 +374,10 @@ class CvatConverter(Converter):
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         self._images_dir = osp.join(self._save_dir, CvatPath.IMAGES_DIR)
         os.makedirs(self._images_dir, exist_ok=True)
 

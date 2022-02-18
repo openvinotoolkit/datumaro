@@ -120,7 +120,10 @@ class Market1501Converter(Converter):
         return dirname
 
     def apply(self):
-        media_type_match = False
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         for subset_name, subset in self._extractor.subsets().items():
             annotation = ''
             used_frames = {}
@@ -143,11 +146,6 @@ class Market1501Converter(Converter):
                 image_path = self._make_image_filename(item,
                     name=image_name, subdir=dirname)
                 if self._save_media and item.media:
-                    if not media_type_match:
-                        if not isinstance(item.media, Image):
-                            raise MediaTypeError("Media type is not an image")
-                        media_type_match = True
-
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
                 attrs = Market1501Path.PATTERN.search(image_name)

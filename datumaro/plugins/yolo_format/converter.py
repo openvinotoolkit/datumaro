@@ -35,6 +35,10 @@ class YoloConverter(Converter):
         extractor = self._extractor
         save_dir = self._save_dir
 
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(save_dir, exist_ok=True)
 
         if self._save_dataset_meta:
@@ -49,7 +53,6 @@ class YoloConverter(Converter):
 
         subset_lists = OrderedDict()
 
-        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             if not subset_name or subset_name == DEFAULT_SUBSET_NAME:
                 subset_name = YoloPath.DEFAULT_SUBSET_NAME
@@ -74,11 +77,6 @@ class YoloConverter(Converter):
                 image_name = self._make_image_filename(item)
                 if self._save_media:
                     if item.media:
-                        if not media_type_match:
-                            if not isinstance(item.media, Image):
-                                raise MediaTypeError("Media type is not an image")
-                            media_type_match = True
-
                         self._save_image(item, osp.join(subset_dir, image_name))
                     else:
                         log.warning("Item '%s' has no image" % item.id)

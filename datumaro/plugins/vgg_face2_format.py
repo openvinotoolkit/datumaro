@@ -209,6 +209,10 @@ class VggFace2Converter(Converter):
             else:
                 return '/'.join([label_name, *item_parts])
 
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         save_dir = self._save_dir
         os.makedirs(save_dir, exist_ok=True)
 
@@ -227,18 +231,12 @@ class VggFace2Converter(Converter):
 
         label_categories = self._extractor.categories()[AnnotationType.label]
 
-        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             bboxes_table = []
             landmarks_table = []
             for item in subset:
                 item_parts = item.id.split('/')
                 if item.media and self._save_media:
-                    if not media_type_match:
-                        if not isinstance(item.media, Image):
-                            raise MediaTypeError("Media type is not an image")
-                        media_type_match = True
-
                     labels = set(p.label for p in item.annotations
                         if getattr(p, 'label') is not None)
                     if labels:

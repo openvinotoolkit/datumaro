@@ -281,14 +281,7 @@ class KittiRawConverter(Converter):
         tracks = {} # track_id -> track
         name_mapping = {} # frame_id -> name
 
-        media_type_match = False
         for frame_id, item in enumerate(subset):
-            if not media_type_match:
-                if self._save_media and item.media and \
-                        not isinstance(item.media, PointCloud):
-                    raise MediaTypeError("Media type is not a point cloud")
-                media_type_match = True
-
             frame_id = self._write_item(item, frame_id)
 
             if frame_id in name_mapping:
@@ -439,6 +432,10 @@ class KittiRawConverter(Converter):
         return index
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not PointCloud:
+            raise MediaTypeError("Media type is not a point cloud")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
         if self._save_dataset_meta:

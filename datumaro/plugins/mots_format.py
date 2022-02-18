@@ -131,12 +131,15 @@ class MotsPngConverter(Converter):
     DEFAULT_IMAGE_EXT = MotsPath.IMAGE_EXT
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
 
-        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             image_dir = osp.join(subset_dir, MotsPath.IMAGE_DIR)
@@ -148,11 +151,6 @@ class MotsPngConverter(Converter):
 
                 if self._save_media:
                     if item.media and item.media.has_data:
-                        if not media_type_match:
-                            if not isinstance(item.media, Image):
-                                raise MediaTypeError("Media type is not an image")
-                            media_type_match = True
-
                         self._save_image(item, subdir=image_dir)
                     else:
                         log.debug("Item '%s' has no image", item.id)

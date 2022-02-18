@@ -76,6 +76,10 @@ class ImagenetConverter(Converter):
             else:
                 return label_name
 
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         if 1 < len(self._extractor.subsets()):
             log.warning("ImageNet format only supports exporting a single "
                 "subset, subset information will not be used.")
@@ -83,16 +87,10 @@ class ImagenetConverter(Converter):
         subset_dir = self._save_dir
         extractor = self._extractor
         labels = {}
-        media_type_match = False
         for item in self._extractor:
             id_parts = item.id.split('/')
             labels = set(p.label for p in item.annotations
                 if p.type == AnnotationType.label)
-
-            if not media_type_match:
-                if not isinstance(item.media, Image):
-                    raise MediaTypeError("Media type is not an image")
-                media_type_match = True
 
             for label in labels:
                 label_name = extractor.categories()[AnnotationType.label][label].name

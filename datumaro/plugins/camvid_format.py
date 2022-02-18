@@ -289,19 +289,17 @@ class CamvidConverter(Converter):
         self._load_categories(label_map)
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
-        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             segm_list = {}
             for item in subset:
                 image_path = self._make_image_filename(item, subdir=subset_name)
                 if self._save_media and item.media:
-                    if not media_type_match:
-                        if not isinstance(item.media, Image):
-                            raise MediaTypeError("Media type is not an image")
-                        media_type_match = True
-
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
                 masks = [a for a in item.annotations

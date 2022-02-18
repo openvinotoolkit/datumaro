@@ -179,10 +179,13 @@ class ImagenetTxtConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not Image:
+            raise MediaTypeError("Media type is not an image")
+
         subset_dir = self._save_dir
         os.makedirs(subset_dir, exist_ok=True)
 
-        media_type_match = False
         extractor = self._extractor
         for subset_name, subset in self._extractor.subsets().items():
             annotation_file = osp.join(subset_dir, '%s.txt' % subset_name)
@@ -197,10 +200,6 @@ class ImagenetTxtConverter(Converter):
                     if p.type == AnnotationType.label)
 
                 if self._save_media and item.media:
-                    if not media_type_match:
-                        if not isinstance(item.media, Image):
-                            raise MediaTypeError("Media type is not an image")
-                        media_type_match = True
                     self._save_image(item, subdir=ImagenetTxtPath.IMAGE_DIR)
 
             annotation = ''
