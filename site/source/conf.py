@@ -37,6 +37,7 @@ extensions = [
     'sphinx.ext.autodoc',  # Core library for html generation from docstrings
     'sphinx.ext.viewcode', # Find the source files
     'sphinx_copybutton', # Copy buttons for code blocks
+    'sphinx.ext.autosectionlabel', # Refer sections its title
     'sphinx.ext.intersphinx', # Generate links to the documentation
                               # of objects in external projects
 ]
@@ -101,10 +102,12 @@ def skip_member(app, what, name, obj, skip, options):
         return name.startswith('_')
 
 def replace(app, what, name, obj, options, lines):
+    exclude_plugins_name = ['transform', 'extractor', 'converter', 'launcher',
+    'importer', 'validator']
     names = re.sub(r'([A-Z])', r' \1', name.replace('_', '').split('.')[-1]).split()
     for n, a in enumerate(names):
         if len(a) != 1:
-            if a.lower() in name.split('.')[-2]:
+            if all(a.lower() == b for b in exclude_plugins_name):
                 if n != 0:
                     names.pop(n)
     if all(1 == len(a) for a in names):
