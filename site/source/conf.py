@@ -107,8 +107,8 @@ def replace(app, what, name, obj, options, lines):
     names = re.sub(r'([A-Z])', r' \1', name.replace('_', '').split('.')[-1]).split()
     for n, a in enumerate(names):
         if len(a) != 1:
-            if all(a.lower() == b for b in exclude_plugins_name):
-                if n != 0:
+            for b in exclude_plugins_name:
+                if a.lower() == b:
                     names.pop(n)
     if all(1 == len(a) for a in names):
         prog_name = ''.join(names).lower()
