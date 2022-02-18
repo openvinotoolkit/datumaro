@@ -657,7 +657,6 @@ class CocoConverter(Converter):
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
 
-        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():

@@ -348,7 +348,6 @@ class LabelMeConverter(Converter):
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
 
-        media_type_match = False
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             os.makedirs(subset_dir, exist_ok=True)
