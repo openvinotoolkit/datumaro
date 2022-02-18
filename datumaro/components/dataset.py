@@ -975,8 +975,6 @@ class Dataset(IDataset):
         self.bind(save_dir, format, options=copy(kwargs))
         self.flush_changes()
 
-        progress_reporter.close()
-
     def save(self, save_dir: Optional[str] = None, **kwargs) -> None:
         options = dict(self._options)
         options.update(kwargs)
