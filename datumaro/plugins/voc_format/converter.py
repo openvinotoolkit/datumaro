@@ -25,7 +25,6 @@ from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
 from datumaro.util.meta_file_util import has_meta_file
-from datumaro.util.scope import scope_add_many, scoped
 
 from .format import (
     VocInstColormap, VocPath, VocTask, make_voc_categories, make_voc_label_map,
@@ -178,10 +177,9 @@ class VocConverter(Converter):
         return self._extractor. \
             categories()[AnnotationType.label].items[label_id].name
 
-    @scoped
     def save_subsets(self):
         subsets = self._extractor.subsets()
-        pbars = scope_add_many(self._ctx.progress_reporter.split(len(subsets)))
+        pbars = self._ctx.progress_reporter.split(len(subsets))
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             lists = _SubsetLists()
 
