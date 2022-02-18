@@ -53,6 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/634>)
 - Added image path equality checks in simple merge, when applicable
   (<https://github.com/openvinotoolkit/datumaro/pull/634>)
+- Supported saving box attributes when downloading the TFDS version of VOC
+  (<https://github.com/openvinotoolkit/datumaro/pull/668>)
 
 ### Deprecated
 - TBD

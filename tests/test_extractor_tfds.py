@@ -177,11 +177,16 @@ class TfdsExtractorTest(TestCase):
             'objects': {
                 'bbox': [[0.1, 0.2, 0.3, 0.4]],
                 'label': [5],
+                'is_difficult': [True],
+                'is_truncated': [False],
+                'pose': [0],
             }
         }
 
         with mock_tfds_data(example=tfds_example):
             tfds_info = tfds.builder('voc/2012').info
+
+            pose_names = tfds_info.features['objects'].feature['pose'].names
 
             expected_dataset = Dataset.from_iterable([
                 DatasetItem(
@@ -189,7 +194,10 @@ class TfdsExtractorTest(TestCase):
                     subset='train',
                     image=np.ones((20, 10)),
                     annotations=[
-                        Bbox(2, 2, 2, 4, label=5),
+                        Bbox(2, 2, 2, 4, label=5, attributes={
+                            'difficult': True, 'truncated': False,
+                            'pose': pose_names[0].title(),
+                        }),
                     ],
                 ),
             ], categories=tfds_info.features['objects'].feature['label'].names)
