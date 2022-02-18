@@ -94,27 +94,29 @@ def show_video_import_warning():
 class CliProgressReporter(ProgressReporter):
     def __init__(self):
         self._tqdm = None
+        self._children: List[CliProgressReporter] = []
 
     def start(self, total: int, *, desc: Optional[str] = None):
         self._tqdm = tqdm(total=total, desc=desc, leave=False)
 
     def finish(self):
-        if self._tqdm.total:
-            diff = self._tqdm.total - self._tqdm.n
-            if diff:
-                self._tqdm.update(diff)
-
-    def close(self):
-        if self._tqdm is not None:
-            self._tqdm.close()
+        self._tqdm.close()
 
     def report_status(self, progress: int):
         diff = progress - self._tqdm.n
         if diff:
             self._tqdm.update(diff)
 
+    def close(self):
+        if self._tqdm:
+            self._tqdm.close()
+        for ch in self._children:
+            ch.close()
+
     def split(self, count: int):
-        return tuple(CliProgressReporter() for _ in range(count))
+        children = tuple(CliProgressReporter() for _ in range(count))
+        self._children.extend(children)
+        return children
 
     @property
     def period(self) -> float:
