@@ -75,7 +75,7 @@ class _VocExtractor(SourceExtractor):
                         if len(objects) == 3:
                             line = objects[1]
                         else:
-                            raise Exception("Line %s: unexpected number "
+                            raise ValueError("Line %s: unexpected number "
                                 "of quotes in filename" % line)
                     else:
                         line = line.split()[0]
