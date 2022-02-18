@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from functools import partial
+import pickle
 from unittest import TestCase
 import os
 import os.path as osp
@@ -20,7 +21,7 @@ from datumaro.plugins.voc_format.converter import (
 from datumaro.plugins.voc_format.importer import VocImporter
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (
-    TestDir, check_save_and_load, compare_datasets,
+    TestDir, check_save_and_load, compare_datasets, compare_datasets_strict,
 )
 import datumaro.plugins.voc_format.format as VOC
 
@@ -392,6 +393,24 @@ class VocImportTest(TestCase):
 
                 compare_datasets(self, expected, actual, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_673)
+    def test_can_pickle(self):
+        formats = [
+            'voc',
+            'voc_classification',
+            'voc_detection',
+            'voc_action',
+            'voc_layout',
+            'voc_segmentation'
+        ]
+
+        for fmt in formats:
+            with self.subTest(fmt=fmt):
+                source = Dataset.import_from(DUMMY_DATASET_DIR, format=fmt)
+
+                parsed = pickle.loads(pickle.dumps(source))
+
+                compare_datasets_strict(self, source, parsed)
 
 class VocConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
