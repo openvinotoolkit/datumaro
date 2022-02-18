@@ -27,7 +27,7 @@ from datumaro.components.errors import (
     FailedAttrVotingError, FailedLabelVotingError, MediaTypeError,
     MismatchingAttributesError, MismatchingImageInfoError,
     MismatchingMediaError, MismatchingMediaPathError, NoMatchingAnnError,
-    NoMatchingItemError, WrongGroupError,
+    NoMatchingItemError, VideoMergeError, WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
 from datumaro.components.media import (
@@ -255,16 +255,20 @@ class ExactMerge:
                     (item_a.id, item_a.subset),
                     item_a.media.path, item_b.media.path)
 
-            if item_a.media.extra_images and item_b.media.extra_images and \
-                    item_a.media.extra_images != item_b.media.extra_images:
-                raise MismatchingMediaError(
-                    (item_a.id, item_a.subset),
-                    item_a.media.extra_images, item_b.media.extra_images)
-
-            if item_a.media.path:
+            if item_a.media.path or item_a.media.extra_images:
                 media = item_a.media
+
+                if item_b.media.extra_images:
+                    for image in item_b.media.extra_images:
+                        if image not in media.extra_images:
+                            media.extra_images.append(image)
             else:
                 media = item_b.media
+
+                if item_a.media.extra_images:
+                    for image in item_a.media.extra_images:
+                        if image not in media.extra_images:
+                            media.extra_images.append(image)
 
         elif isinstance(item_a.media, PointCloud):
             media = item_a.media
@@ -278,24 +282,7 @@ class ExactMerge:
         media = None
 
         if isinstance(item_a.media, Video) and isinstance(item_b.media, Video):
-            if item_a.media.path and item_b.media.path and \
-                    item_a.media.path != item_b.media.path:
-                raise MismatchingMediaPathError(
-                    (item_a.id, item_a.subset),
-                    item_a.media.path, item_b.media.path)
-
-            if item_a.media._start_frame != item_b.media._start_frame or \
-                    item_a.media._end_frame != item_b.media._end_frame:
-                raise MismatchingMediaError(
-                    (item_a.id, item_a.subset),
-                    (item_a.media._start_frame, item_a.media._end_frame),
-                    (item_b.media._start_frame, item_b.media._end_frame))
-
-            if item_a.media.path:
-                media = item_a.media
-            else:
-                media = item_b.media
-
+            raise VideoMergeError(item_a.id)
         elif isinstance(item_a.media, Video):
             media = item_a.media
         else:
