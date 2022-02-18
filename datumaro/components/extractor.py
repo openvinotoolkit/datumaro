@@ -185,7 +185,7 @@ class _ImportFail(DatumaroError):
 
 class ImportErrorPolicy:
     def report_item_error(self, error: Exception, *,
-            item_id: Tuple[str, str]):
+            item_id: Tuple[str, str]) -> None:
         """
         Allows to report a problem with a dataset item.
         If this function returns, the extractor must skip the item.
@@ -199,7 +199,7 @@ class ImportErrorPolicy:
             raise error
 
     def report_annotation_error(self, error: Exception, *,
-            item_id: Tuple[str, str]):
+            item_id: Tuple[str, str]) -> None:
         """
         Allows to report a problem with a dataset item annotation.
         If this function returns, the extractor must skip the annotation.
@@ -212,11 +212,11 @@ class ImportErrorPolicy:
         else:
             raise error
 
-    def _handle_item_error(self, error: ItemImportError):
+    def _handle_item_error(self, error: ItemImportError) -> None:
         """This function must either call fail() or return."""
         self.fail(error)
 
-    def _handle_annotation_error(self, error: AnnotationImportError):
+    def _handle_annotation_error(self, error: AnnotationImportError) -> None:
         """This function must either call fail() or return."""
         self.fail(error)
 

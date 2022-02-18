@@ -1552,7 +1552,7 @@ class DatasetTest(TestCase):
         progress_reporter = TestProgressReporter()
         period_mock = mock.PropertyMock(return_value=0.1)
         type(progress_reporter).period = period_mock
-        progress_reporter.init = mock.MagicMock()
+        progress_reporter.start = mock.MagicMock()
         progress_reporter.report_status = mock.MagicMock()
         progress_reporter.close = mock.MagicMock()
 
@@ -1564,7 +1564,7 @@ class DatasetTest(TestCase):
             progress_reporter=progress_reporter)
 
         period_mock.assert_called_once()
-        progress_reporter.init.assert_called_once()
+        progress_reporter.start.assert_called_once()
         progress_reporter.report_status.assert_called()
         progress_reporter.close.assert_called_once()
 
@@ -1652,7 +1652,7 @@ class DatasetTest(TestCase):
         progress_reporter = TestProgressReporter()
         period_mock = mock.PropertyMock(return_value=0.1)
         type(progress_reporter).period = period_mock
-        progress_reporter.init = mock.MagicMock()
+        progress_reporter.start = mock.MagicMock()
         progress_reporter.report_status = mock.MagicMock()
         progress_reporter.close = mock.MagicMock()
 
@@ -1661,9 +1661,9 @@ class DatasetTest(TestCase):
                 progress_reporter=progress_reporter)
 
         period_mock.assert_called_once()
-        progress_reporter.init.assert_called_once()
+        progress_reporter.start.assert_called_once()
         progress_reporter.report_status.assert_called()
-        progress_reporter.close.assert_called_once()
+        progress_reporter.close.assert_called()
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_errors_from_converter(self):
