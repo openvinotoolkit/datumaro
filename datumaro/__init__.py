@@ -12,14 +12,17 @@ from .components.annotation import (
     PointsCategories, Polygon, PolyLine, RgbColor, RleMask,
 )
 from .components.cli_plugin import CliPlugin
-from .components.converter import Converter
+from .components.converter import (
+    Converter, ExportErrorPolicy, FailingExportErrorPolicy,
+)
 from .components.dataset import (
     Dataset, DatasetPatch, DatasetSubset, IDataset, ItemStatus, eager_mode,
 )
 from .components.environment import Environment, PluginRegistry
 from .components.extractor import (
-    DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
-    Importer, ItemTransform, SourceExtractor, Transform,
+    DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor,
+    FailingImportErrorPolicy, IExtractor, Importer, ImportErrorPolicy,
+    ItemTransform, SourceExtractor, Transform,
 )
 from .components.hl_ops import (  # pylint: disable=redefined-builtin
     export, filter, merge, run_model, transform, validate,
@@ -27,5 +30,8 @@ from .components.hl_ops import (  # pylint: disable=redefined-builtin
 from .components.launcher import Launcher, ModelTransform
 from .components.media import ByteImage, Image, MediaElement, Video, VideoFrame
 from .components.media_manager import MediaManager
+from .components.progress_reporting import (
+    NullProgressReporter, ProgressReporter,
+)
 from .components.validator import Validator
 from .version import VERSION

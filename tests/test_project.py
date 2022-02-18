@@ -983,6 +983,9 @@ class ProjectTest(TestCase):
                     DatasetItem)
 
                 class MyExtractor(SourceExtractor):
+                    def __init__(self, *args, **kwargs):
+                        super().__init__()
+
                     def __iter__(self):
                         yield from [
                             DatasetItem('1'),
@@ -1003,6 +1006,9 @@ class ProjectTest(TestCase):
     @scoped
     def test_can_transform_by_name(self):
         class CustomExtractor(Extractor):
+            def __init__(self, *args, **kwargs):
+                pass
+
             def __iter__(self):
                 return iter([
                     DatasetItem('a'),
@@ -1186,8 +1192,6 @@ class BackwardCompatibilityTests_v0_1(TestCase):
             DatasetItem(0, subset='train', annotations=[Label(0)]),
             DatasetItem(1, subset='test', annotations=[Label(1)]),
             DatasetItem(2, subset='train', annotations=[Label(0)]),
-            DatasetItem(1),
-            DatasetItem(2),
         ], categories=['a', 'b'])
 
         test_dir = scope_add(TestDir())
@@ -1197,7 +1201,12 @@ class BackwardCompatibilityTests_v0_1(TestCase):
                 'assets', 'compat', 'v0.1', 'project'),
             old_proj_dir)
 
-        Project.migrate_from_v1_to_v2(old_proj_dir, new_proj_dir)
+        with self.assertLogs(None) as logs:
+            Project.migrate_from_v1_to_v2(old_proj_dir, new_proj_dir,
+                skip_import_errors=True)
+
+            self.assertIn("Failed to migrate the source 'source3'",
+                '\n'.join(logs.output))
 
         project = scope_add(Project(new_proj_dir))
         loaded_dataset = project.working_tree.make_dataset()
