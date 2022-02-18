@@ -1,9 +1,9 @@
 from collections import OrderedDict
 from functools import partial
-import pickle
 from unittest import TestCase
 import os
 import os.path as osp
+import pickle
 
 import numpy as np
 
