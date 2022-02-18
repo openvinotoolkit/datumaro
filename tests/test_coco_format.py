@@ -3,7 +3,7 @@ from itertools import product
 from unittest import TestCase
 import os
 import os.path as osp
-import pickle
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
 
@@ -568,7 +568,7 @@ class CocoImporterTest(TestCase):
                 dataset_dir = osp.join(DUMMY_DATASET_DIR, subdir)
                 source = Dataset.import_from(dataset_dir, format=subdir)
 
-                parsed = pickle.loads(pickle.dumps(source))
+                parsed = pickle.loads(pickle.dumps(source)) # nosec
 
                 compare_datasets_strict(self, source, parsed)
 

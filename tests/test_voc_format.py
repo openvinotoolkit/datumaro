@@ -3,7 +3,7 @@ from functools import partial
 from unittest import TestCase
 import os
 import os.path as osp
-import pickle
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
 
@@ -408,7 +408,7 @@ class VocImportTest(TestCase):
             with self.subTest(fmt=fmt):
                 source = Dataset.import_from(DUMMY_DATASET_DIR, format=fmt)
 
-                parsed = pickle.loads(pickle.dumps(source))
+                parsed = pickle.loads(pickle.dumps(source)) # nosec
 
                 compare_datasets_strict(self, source, parsed)
 

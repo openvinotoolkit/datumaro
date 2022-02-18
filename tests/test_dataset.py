@@ -1,7 +1,7 @@
 from unittest import TestCase, mock
 import os
 import os.path as osp
-import pickle
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
 
@@ -1709,7 +1709,7 @@ class DatasetTest(TestCase):
         })
         source.init_cache()
 
-        parsed = pickle.loads(pickle.dumps(source))
+        parsed = pickle.loads(pickle.dumps(source)) # nosec
 
         compare_datasets_strict(self, source, parsed)
 
