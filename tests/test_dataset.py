@@ -28,7 +28,9 @@ from datumaro.components.extractor import (
 )
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, compare_datasets_strict,
+)
 import datumaro.components.hl_ops as hl_ops
 
 from .requirements import Requirements, mark_requirement
@@ -1516,10 +1518,9 @@ class DatasetTest(TestCase):
         })
         source.init_cache()
 
-        dump = pickle.dumps(source)
-        parsed = pickle.loads(dump)
+        parsed = pickle.loads(pickle.dumps(source))
 
-        compare_datasets(self, source, parsed, require_images=True)
+        compare_datasets_strict(self, source, parsed)
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

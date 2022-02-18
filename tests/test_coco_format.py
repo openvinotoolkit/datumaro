@@ -3,6 +3,7 @@ from itertools import product
 from unittest import TestCase
 import os
 import os.path as osp
+import pickle
 
 import numpy as np
 
@@ -21,7 +22,7 @@ from datumaro.plugins.coco_format.converter import (
 )
 from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.test_utils import (
-    TestDir, check_save_and_load, compare_datasets,
+    TestDir, check_save_and_load, compare_datasets, compare_datasets_strict,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -548,6 +549,28 @@ class CocoImporterTest(TestCase):
 
                 detected_formats = env.detect_dataset(dataset_dir)
                 self.assertEqual([CocoImporter.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_673)
+    def test_can_pickle(self):
+        subdirs = [
+            'coco',
+            'coco_captions',
+            'coco_image_info',
+            'coco_instances',
+            'coco_labels',
+            'coco_panoptic',
+            'coco_person_keypoints',
+            'coco_stuff',
+        ]
+
+        for subdir in subdirs:
+            with self.subTest(fmt=subdir, subdir=subdir):
+                dataset_dir = osp.join(DUMMY_DATASET_DIR, subdir)
+                source = Dataset.import_from(dataset_dir, format=subdir)
+
+                parsed = pickle.loads(pickle.dumps(source))
+
+                compare_datasets_strict(self, source, parsed)
 
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
