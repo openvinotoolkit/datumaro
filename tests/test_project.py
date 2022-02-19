@@ -1020,7 +1020,6 @@ class ProjectTest(TestCase):
         class CustomExtractor(Extractor):
             def __init__(self, *args, **kwargs):
                 super().__init__()
-                pass
 
             def __iter__(self):
                 return iter([

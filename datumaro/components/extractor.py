@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import annotations
-from distutils.fancy_getopt import OptionDummy
 
 from glob import iglob
 from typing import (
