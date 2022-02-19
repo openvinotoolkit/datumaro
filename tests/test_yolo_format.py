@@ -1,6 +1,7 @@
 from unittest import TestCase
 import os
 import os.path as osp
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
 
@@ -12,7 +13,9 @@ from datumaro.components.media import Image
 from datumaro.plugins.yolo_format.converter import YoloConverter
 from datumaro.plugins.yolo_format.extractor import YoloImporter
 from datumaro.util.image import save_image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, compare_datasets_strict,
+)
 
 from .requirements import Requirements, mark_requirement
 
@@ -245,3 +248,11 @@ class YoloImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'yolo')
 
         compare_datasets(self, expected_dataset, dataset)
+
+    @mark_requirement(Requirements.DATUM_673)
+    def test_can_pickle(self):
+        source = Dataset.import_from(DUMMY_DATASET_DIR, format='yolo')
+
+        parsed = pickle.loads(pickle.dumps(source)) # nosec
+
+        compare_datasets_strict(self, source, parsed)

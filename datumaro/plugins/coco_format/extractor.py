@@ -35,6 +35,7 @@ class _CocoExtractor(SourceExtractor):
         merge_instance_polygons=False,
         subset=None,
         keep_original_category_ids=False,
+        **kwargs
     ):
         assert osp.isfile(path), path
 
@@ -42,7 +43,7 @@ class _CocoExtractor(SourceExtractor):
             parts = osp.splitext(osp.basename(path))[0].split(task.name + '_',
                 maxsplit=1)
             subset = parts[1] if len(parts) == 2 else None
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, **kwargs)
 
         rootpath = ''
         if path.endswith(osp.join(CocoPath.ANNOTATIONS_DIR, osp.basename(path))):
@@ -65,10 +66,8 @@ class _CocoExtractor(SourceExtractor):
         )
 
         if self._task == CocoTask.panoptic:
-            self._items = self._load_panoptic_items(json_data,
-                mask_dir=osp.splitext(path)[0])
-        else:
-            self._items = self._load_items(json_data)
+            self._mask_dir = osp.splitext(path)[0]
+        self._items = self._load_items(json_data)
 
     def __iter__(self):
         yield from self._items.values()
@@ -126,71 +125,81 @@ class _CocoExtractor(SourceExtractor):
         self._categories[AnnotationType.points] = categories
 
     def _load_items(self, json_data):
+        pbars = self._ctx.progress_reporter.split(2)
         items = {}
-
         img_infos = {}
-        for img_info in json_data['images']:
-            img_id = img_info['id']
-            img_infos[img_id] = img_info
+        for img_info in pbars[0].iter(json_data['images'],
+                desc="Parsing image info"):
+            try:
+                img_id = img_info.get('id')
+                if not isinstance(img_id, int):
+                    raise ValueError("Invalid image id value '%s'" % img_id)
 
-            if img_info.get('height') and img_info.get('width'):
-                image_size = (img_info['height'], img_info['width'])
-            else:
-                image_size = None
+                img_infos[img_id] = img_info
 
-            items[img_id] = DatasetItem(
-                id=osp.splitext(img_info['file_name'])[0],
-                subset=self._subset,
-                media=Image(
-                    path=osp.join(self._images_dir, img_info['file_name']),
-                    size=image_size),
-                annotations=[],
-                attributes={'id': img_id})
+                if img_info.get('height') and img_info.get('width'):
+                    image_size = (img_info['height'], img_info['width'])
+                else:
+                    image_size = None
 
-        for ann in json_data['annotations']:
-            items[ann['image_id']].annotations += \
-                self._load_annotations(ann, img_infos[ann['image_id']])
+                items[img_id] = DatasetItem(
+                    id=osp.splitext(img_info['file_name'])[0],
+                    subset=self._subset,
+                    media=Image(
+                        path=osp.join(self._images_dir, img_info['file_name']),
+                        size=image_size),
+                    annotations=[],
+                    attributes={'id': img_id})
+            except Exception as e:
+                self._ctx.error_policy.report_item_error(e,
+                    item_id=(img_id, self._subset))
+
+        if self._task is not CocoTask.panoptic:
+            for ann in pbars[1].iter(json_data['annotations'],
+                    desc="Parsing annotations"):
+                try:
+                    img_id = ann.get('image_id')
+                    if not isinstance(img_id, int):
+                        raise ValueError("Invalid image id value '%s'" % img_id)
+
+                    self._load_annotations(ann, img_infos[img_id],
+                        parsed_annotations=items[img_id].annotations)
+                except Exception as e:
+                    self._ctx.error_policy.report_annotation_error(e,
+                        item_id=(img_id, self._subset))
+        else:
+            for ann in pbars[1].iter(json_data['annotations'],
+                    desc='Parsing annotations'):
+                try:
+                    img_id = ann.get('image_id')
+                    if not isinstance(img_id, int):
+                        raise ValueError("Invalid image id value '%s'" % img_id)
+
+                    self._load_panoptic_ann(ann, items[img_id].annotations)
+                except Exception as e:
+                    self._ctx.error_policy.report_annotation_error(e,
+                        item_id=(img_id, self._subset))
 
         return items
 
-    def _load_panoptic_items(self, json_data, mask_dir):
-        items = {}
+    def _load_panoptic_ann(self, ann, parsed_annotations=None):
+        if parsed_annotations is None:
+            parsed_annotations = []
 
-        img_infos = {}
-        for img_info in json_data['images']:
-            img_id = img_info['id']
-            img_infos[img_id] = img_info
+        # For the panoptic task, each annotation struct is a per-image
+        # annotation rather than a per-object annotation.
+        mask_path = osp.join(self._mask_dir, ann['file_name'])
+        mask = lazy_image(mask_path, loader=self._load_pan_mask)
+        mask = CompiledMask(instance_mask=mask)
+        for segm_info in ann['segments_info']:
+            cat_id = self._get_label_id(segm_info)
+            segm_id = segm_info['id']
+            attributes = { 'is_crowd': bool(segm_info['iscrowd']) }
+            parsed_annotations.append(Mask(image=mask.lazy_extract(segm_id),
+                label=cat_id, id=segm_id,
+                group=segm_id, attributes=attributes))
 
-            if img_info.get('height') and img_info.get('width'):
-                image_size = (img_info['height'], img_info['width'])
-            else:
-                image_size = None
-
-            items[img_id] = DatasetItem(
-                id=osp.splitext(img_info['file_name'])[0],
-                subset=self._subset,
-                media=Image(
-                    path=osp.join(self._images_dir, img_info['file_name']),
-                    size=image_size),
-                annotations=[],
-                attributes={'id': img_id})
-
-        for ann in json_data['annotations']:
-            # For the panoptic task, each annotation struct is a per-image
-            # annotation rather than a per-object annotation.
-            anns = items[ann['image_id']].annotations
-            mask_path = osp.join(mask_dir, ann['file_name'])
-            mask = lazy_image(mask_path, loader=self._load_pan_mask)
-            mask = CompiledMask(instance_mask=mask)
-            for segm_info in ann['segments_info']:
-                cat_id = self._get_label_id(segm_info)
-                segm_id = segm_info['id']
-                attributes = { 'is_crowd': bool(segm_info['iscrowd']) }
-                anns.append(Mask(image=mask.lazy_extract(segm_id),
-                    label=cat_id, id=segm_id,
-                    group=segm_id, attributes=attributes))
-
-        return items
+        return parsed_annotations
 
     @staticmethod
     def _load_pan_mask(path):
@@ -213,8 +222,9 @@ class _CocoExtractor(SourceExtractor):
             return None
         return self._label_map[ann['category_id']]
 
-    def _load_annotations(self, ann, image_info=None):
-        parsed_annotations = []
+    def _load_annotations(self, ann, image_info=None, parsed_annotations=None):
+        if parsed_annotations is None:
+            parsed_annotations = []
 
         ann_id = ann['id']
 

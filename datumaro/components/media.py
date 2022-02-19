@@ -65,9 +65,9 @@ class Image(MediaElement):
             size - A pair (H, W), which represents image size.
         """
 
-        assert size is None or len(size) == 2, size
         if size is not None:
-            assert len(size) == 2 and 0 < size[0] and 0 < size[1], size
+            assert len(size) == 2 and 0 < size[0] and 0 < size[1], \
+                f"Invalid image size info '{size}'"
             size = tuple(map(int, size))
         self._size = size # (H, W)
 
@@ -89,7 +89,8 @@ class Image(MediaElement):
 
         if not isinstance(data, np.ndarray):
             assert path or callable(data) or size, "Image can not be empty"
-            assert data is None or callable(data)
+            assert data is None or callable(data), \
+                f"Image data has unexpected type '{type(data)}'"
             if data or path and osp.isfile(path):
                 data = lazy_image(path, loader=data)
         self._data = data

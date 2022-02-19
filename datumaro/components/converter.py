@@ -1,22 +1,88 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from tempfile import mkdtemp
-from typing import Union
+from typing import NoReturn, Optional, Tuple, TypeVar, Union
 import logging as log
 import os
 import os.path as osp
 import shutil
 import warnings
 
+from attrs import define, field
+import attr
+
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.errors import (
+    AnnotationExportError, DatumaroError, ItemExportError,
+)
+from datumaro.components.extractor import DatasetItem, IExtractor
 from datumaro.components.media import Image
+from datumaro.components.progress_reporting import (
+    NullProgressReporter, ProgressReporter,
+)
 from datumaro.util.meta_file_util import save_meta_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
+T = TypeVar('T')
+
+class _ExportFail(DatumaroError):
+    pass
+
+class ExportErrorPolicy:
+    def report_item_error(self, error: Exception, *,
+            item_id: Tuple[str, str]) -> None:
+        """
+        Allows to report a problem with a dataset item.
+        If this function returns, the converter must skip the item.
+        """
+
+        if not isinstance(error, _ExportFail):
+            ie = ItemExportError(item_id)
+            ie.__cause__ = error
+            return self._handle_item_error(ie)
+        else:
+            raise error
+
+    def report_annotation_error(self, error: Exception, *,
+            item_id: Tuple[str, str]) -> None:
+        """
+        Allows to report a problem with a dataset item annotation.
+        If this function returns, the converter must skip the annotation.
+        """
+
+        if not isinstance(error, _ExportFail):
+            ie = AnnotationExportError(item_id)
+            ie.__cause__ = error
+            return self._handle_annotation_error(ie)
+        else:
+            raise error
+
+    def _handle_item_error(self, error: ItemExportError) -> None:
+        """This function must either call fail() or return."""
+        self.fail(error)
+
+    def _handle_annotation_error(self, error: AnnotationExportError) -> None:
+        """This function must either call fail() or return."""
+        self.fail(error)
+
+    def fail(self, error: Exception) -> NoReturn:
+        raise _ExportFail from error
+
+class FailingExportErrorPolicy(ExportErrorPolicy):
+    pass
+
+@define(eq=False)
+class ExportContext:
+    progress_reporter: ProgressReporter = field(default=None,
+        converter=attr.converters.default_if_none(factory=NullProgressReporter))
+    error_policy: ExportErrorPolicy = field(default=None,
+        converter=attr.converters.default_if_none(factory=FailingExportErrorPolicy))
+
+class NullExportContext(ExportContext):
+    pass
 
 class Converter(CliPlugin):
     DEFAULT_IMAGE_EXT = None
@@ -74,8 +140,13 @@ class Converter(CliPlugin):
     def apply(self):
         raise NotImplementedError("Should be implemented in a subclass")
 
-    def __init__(self, extractor, save_dir, save_images=False, save_media=False,
-            image_ext=None, default_image_ext=None, save_dataset_meta=False):
+    def __init__(self, extractor: IExtractor, save_dir: str, *,
+            save_images: bool = False,
+            save_media: bool = False,
+            image_ext: Optional[str] = None,
+            default_image_ext: Optional[str] = None,
+            save_dataset_meta: bool = False,
+            ctx: Optional[ExportContext] = None):
         default_image_ext = default_image_ext or self.DEFAULT_IMAGE_EXT
         assert default_image_ext
         self._default_image_ext = default_image_ext
@@ -100,6 +171,8 @@ class Converter(CliPlugin):
             self._patch = extractor.patch
         else:
             self._patch = None
+
+        self._ctx: ExportContext = ctx or NullExportContext()
 
     def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None

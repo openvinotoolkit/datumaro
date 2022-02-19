@@ -19,6 +19,8 @@ class Requirements:
     DATUM_GENERAL_REQ = "Datumaro general requirement"
     DATUM_TELEMETRY = "Datumaro telemetry requirement"
     DATUM_API = "Datumaro API"
+    DATUM_PROGRESS_REPORTING = "Datumaro progress reporting requirement"
+    DATUM_ERROR_REPORTING = "Datumaro error reporting requirement"
 
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
@@ -33,6 +35,7 @@ class Requirements:
     DATUM_497 = "Support import for SYNTHIA dataset"
     DATUM_542 = "Images missing after merging two datasets"
     DATUM_580 = "Import for MPII Human Pose Dataset"
+    DATUM_673 = "Pickling for Dataset and Annotations"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
