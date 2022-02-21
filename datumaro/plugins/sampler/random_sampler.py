@@ -20,7 +20,7 @@ class RandomSampler(Transform, CliPlugin):
     Notes:|n
     |s|s- Items are selected uniformly|n
     |s|s- Requesting a sample larger than the number of all images will \
-    |s|sreturn all images|n
+    return all images|n
     |n
     Example: select subset of 20 images randomly|n
 

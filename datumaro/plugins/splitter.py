@@ -44,28 +44,28 @@ class Split(Transform, CliPlugin):
         people or objects during the training phase. |n
         This function splits a dataset in the following way:|n
 
-        |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
-        |s|sbased on person or object ID.|n
+        |s|s1. Splits the dataset into 'train + val' and 'test' sets \
+            based on person or object ID.|n
 
-        |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
-        |s|sin class-wise manner.|n
+        |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets \
+            in class-wise manner.|n
 
-        |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
-        |s|sin the same way.|n
+        |s|s3. Splits the 'train + val' set into 'train' and 'val' sets \
+            in the same way.|n
 
     The final subsets would be
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
     Notes:|n
-    |s|s- Each image is expected to have only one Annotation. Unlabeled or
-    |s|s|s|smulti-labeled images will be split into subsets randomly. |n
+    |s|s- Each image is expected to have only one Annotation. Unlabeled or \
+          multi-labeled images will be split into subsets randomly. |n
     |s|s- If Labels also have attributes, also splits by attribute values.|n
     |s|s- If there is not enough images in some class or attributes group,
-    |s|s|s|sthe split ratio can't be guaranteed.|n
-    |s|s|s|sIn reidentification task, |n
+          the split ratio can't be guaranteed. \
+          In reidentification task, |n
     |s|s- Object ID can be described by Label, or by attribute (--attr parameter)|n
-    |s|s- The splits of the test set are controlled by '--query' parameter |n
-    |s|s|s|sGallery ratio would be 1.0 - query.|n
+    |s|s- The splits of the test set are controlled by '--query' parameter \
+          Gallery ratio would be 1.0 - query.|n
     |n
     Example:|n
 
@@ -75,7 +75,7 @@ class Split(Transform, CliPlugin):
     |s|s%(prog)s -t detection --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t segmentation --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t reid --subset train:.5 --subset val:.2 --subset test:.3 --query .5 |n
-
+    |n
     Example: use 'person_id' attribute for splitting|n
 
     .. code-block::
@@ -511,7 +511,7 @@ class _ReidentificationSplit(_TaskSpecificSplit):
     .. code-block::
 
     |s|s%(prog)s -t reidentification --subset train:.5 --subset val:.2 --subset test:.3 --query .5|n
-
+    |n
     Example: use 'person_id' attribute for splitting|n
 
     .. code-block::

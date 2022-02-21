@@ -39,7 +39,7 @@ class RelevancySampler(Transform, CliPlugin):
         return all images.|n
     |n
     Example: select the most relevant data subset of 20 images |n
-    |s|sbased on model certainty, put the result into 'sample' subset
+    |s|sbased on model certainty, put the result into 'sample' subset |n
     |s|sand put all the rest into 'unsampled' subset, use 'train' subset |n
     |s|sas input. |n
 
@@ -50,7 +50,8 @@ class RelevancySampler(Transform, CliPlugin):
     |s|s|s|s--subset_name train \ |n
     |s|s|s|s--sample_name sample \ |n
     |s|s|s|s--unsampled_name unsampled \ |n
-    |s|s|s|s--sampling_method topk -k 20
+    |s|s|s|s--sampling_method topk -k 20 |n
+    |n
     """
 
     @classmethod

@@ -446,13 +446,13 @@ class Rename(ItemTransform, CliPlugin):
     |s|s.. code-block::
 
     |s|s|s|srename -e '|pattern|replacement|'|n
-
+    |n
     |s|s- Remove 'frame_' from item ids:|n
 
     |s|s.. code-block::
 
     |s|s|s|srename -e '|^frame_||'|n
-
+    |n
     |s|s- Rename by regex:|n
 
     |s|s.. code-block::
@@ -504,13 +504,13 @@ class RemapLabels(ItemTransform, CliPlugin):
     |s|s.. code-block::
 
     |s|s|s|s%(prog)s -l person: --default keep|n
-
+    |n
     |s|s- Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
 
     |s|s.. code-block::
 
     |s|s|s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
-
+    |n
     |s|s- Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
 
     |s|s.. code-block::

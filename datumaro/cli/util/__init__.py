@@ -24,7 +24,7 @@ class MultilineFormatter(argparse.HelpFormatter):
 
     def _fill_text(self, text, width, indent):
         text = self._whitespace_matcher.sub(' ', text).strip()
-        text = text.replace('|s', ' ').replace('.. code-block::', '\n ')
+        text = text.replace('|s', ' ').replace('.. code-block::', '|n')
 
         paragraphs = text.split('|n ')
         if self._keep_natural:
