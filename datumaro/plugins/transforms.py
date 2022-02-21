@@ -488,17 +488,16 @@ class RemapLabels(ItemTransform, CliPlugin):
     A label can be:|n
     |s|s- renamed (and joined with existing) -|n
     |s|s|s|swhen '--label <old_name>:<new_name>' is specified|n
-
     |s|s- deleted - when '--label <name>:' is specified, or default action |n
     |s|s|s|sis 'delete' and the label is not mentioned in the list. |n
     |s|s|s|sWhen a label is deleted, all the associated annotations are removed|n
-
     |s|s- kept unchanged - when specified '--label <name>:<name>'|n
     |s|s|s|sor default action is 'keep' and the label is not mentioned in the list.|n
-
+    |n
     Annotations with no label are managed by the default action policy.|n
     |n
     Examples:|n
+    |n
     |s|s- Remove the 'person' label (and corresponding annotations):|n
 
     |s|s.. code-block::
@@ -905,11 +904,11 @@ class RemoveItems(ItemTransform):
     Can be useful to clean the dataset from broken or unnecessary samples.|n
     |n
     Examples:|n
-    - Remove specific items from the dataset|n
+        - Remove specific items from the dataset|n
 
-    .. code-block::
+        .. code-block::
 
-    |s|s%(prog)s --id 'image1:train' --id 'image2:test'
+        |s|s%(prog)s --id 'image1:train' --id 'image2:test'
     """
 
     @staticmethod
@@ -945,11 +944,11 @@ class RemoveAnnotations(ItemTransform):
     Can be useful to clean the dataset from broken or unnecessary annotations.|n
     |n
     Examples:|n
-    - Remove annotations from specific items in the dataset|n
+        - Remove annotations from specific items in the dataset|n
 
-    .. code-block::
+        .. code-block::
 
-    |s|s%(prog)s --id 'image1:train' --id 'image2:test'
+        |s|s%(prog)s --id 'image1:train' --id 'image2:test'
     """
 
     @staticmethod
@@ -988,18 +987,18 @@ class RemoveAttributes(ItemTransform):
     Can be useful to clean the dataset from broken or unnecessary attributes.|n
     |n
     Examples:|n
-    - Remove the `is_crowd` attribute from dataset|n
+        - Remove the `is_crowd` attribute from dataset|n
 
-    .. code-block::
+        .. code-block::
 
-    |s|s%(prog)s --attr 'is_crowd'|n
-    |n
-    - Remove the `occluded` attribute from annotations of|n
-    |s|sthe `2010_001705` item in the `train` subset|n
+        |s|s%(prog)s --attr 'is_crowd'|n
+        |n
+        - Remove the `occluded` attribute from annotations of|n
+        |s|sthe `2010_001705` item in the `train` subset|n
 
-    .. code-block::
+        .. code-block::
 
-    |s|s%(prog)s --id '2010_001705:train' --attr 'occluded'
+        |s|s%(prog)s --id '2010_001705:train' --attr 'occluded'
     """
 
     @staticmethod

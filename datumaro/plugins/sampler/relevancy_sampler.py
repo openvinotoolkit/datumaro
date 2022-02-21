@@ -33,10 +33,10 @@ class RelevancySampler(Transform, CliPlugin):
     |s|s- `randtopk` - Select 3*k items randomly, and return the topk among them|n
     |n
     Notes:|n
-    |s|s- Each image's inference result must contain the probability for \
-        all classes.|n
-    |s|s- Requesting a sample larger than the number of all images will \
-        return all images.|n
+    |s|s- Each image's inference result must contain the probability for|n
+    |s|s|s|sall classes.|n
+    |s|s- Requesting a sample larger than the number of all images will|n
+    |s|s|s|sreturn all images.|n
     |n
     Example: select the most relevant data subset of 20 images |n
     |s|sbased on model certainty, put the result into 'sample' subset |n
@@ -51,7 +51,6 @@ class RelevancySampler(Transform, CliPlugin):
     |s|s|s|s--sample_name sample \ |n
     |s|s|s|s--unsampled_name unsampled \ |n
     |s|s|s|s--sampling_method topk -k 20 |n
-    |n
     """
 
     @classmethod
