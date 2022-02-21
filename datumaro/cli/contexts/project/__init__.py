@@ -437,17 +437,17 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         saved if '--apply' is enabled.|n
         |n
         Examples:|n
-        - Convert instance polygons to masks:|n
+        - Convert instance polygons to masks:|n |n
         |s|s%(prog)s -t polygons_to_masks|n
         |n
         - Rename dataset items by a regular expression|n
-        |s|s- Replace 'pattern' with 'replacement'|n|n
-        |s|s%(prog)s -t rename -- -e '|pattern|replacement|'|n
+        |s|s- Replace 'pattern' with 'replacement'|n |n
+        |s|s|s|s%(prog)s -t rename -- -e '|pattern|replacement|'|n
         |n
-        |s|s- Remove 'frame_' from item ids|n
-        |s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'|n
+        |s|s- Remove 'frame_' from item ids|n |n
+        |s|s|s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'|n
         |n
-        - Split a dataset randomly:|n
+        - Split a dataset randomly:|n |n
         |s|s%(prog)s -t random_split --overwrite path/to/dataset:voc
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
@@ -661,10 +661,10 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
         sources, build tree, models and revisions.|n
         |n
         Examples:|n
-        - Print project info for the current working tree:|n
+        - Print project info for the current working tree:|n |n
         |s|s%(prog)s|n
         |n
-        - Print project info for the previous revision:|n
+        - Print project info for the previous revision:|n |n
         |s|s%(prog)s HEAD~1
         """,
         formatter_class=MultilineFormatter)
@@ -742,7 +742,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         project's working tree is used.|n
         |n
         Examples:|n
-        - Validate a project's subset as a classification dataset:|n
+        - Validate a project's subset as a classification dataset:|n |n
         |s|s%(prog)s -t classification -s train
         """,
         formatter_class=MultilineFormatter)
