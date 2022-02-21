@@ -12,9 +12,9 @@ T = TypeVar('T')
 class ProgressReporter:
     """
     Only one set of methods must be called:
-    - start - report_status - finish
-    - iter
-    - split
+        - start - report_status - finish
+        - iter
+        - split
 
     This class is supposed to manage the state of children progress bars
     and release of their resources, if necessary.
