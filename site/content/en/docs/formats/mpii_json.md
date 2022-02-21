@@ -32,9 +32,9 @@ datum import --format mpii_json <path/to/dataset>
 It is also possible to import the dataset using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-mpii_dataset = Dataset.import_from('<path/to/dataset>', 'mpii_json')
+mpii_dataset = dm.Dataset.import_from('<path/to/dataset>', 'mpii_json')
 ```
 
 MPII Human Pose Dataset (JSON) directory should have the following structure:
@@ -66,7 +66,9 @@ to other dataset formats using CLI:
 datum create
 datum import -f mpii_json <path/to/dataset>
 datum export -f voc -o ./save_dir -- --save-images
-# or
+```
+or
+``` bash
 datum convert -if mpii_json -i <path/to/dataset> \
     -f voc -o <output/dir> -- --save-images
 ```
@@ -74,9 +76,9 @@ datum convert -if mpii_json -i <path/to/dataset> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'mpii_json')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'mpii_json')
 dataset.export('save_dir', 'voc')
 ```
 

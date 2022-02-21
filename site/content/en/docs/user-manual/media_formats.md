@@ -22,7 +22,7 @@ or, if you work with Datumaro API:
 - for using with a project:
 
   ```python
-  from datumaro.components.project import Project
+  from datumaro.project import Project
 
   project = Project.init()
   project.import_source('source1', format='image_dir', url='directory/path/')
@@ -32,7 +32,7 @@ or, if you work with Datumaro API:
 - for using as a dataset:
 
   ```python
-  from datumaro.components.dataset import Dataset
+  from datumaro import Dataset
 
   dataset = Dataset.import_from('directory/path/', 'image_dir')
   ```
@@ -48,5 +48,32 @@ The list of formats matches the list of supported image formats in OpenCV:
 Once there is a `Dataset` instance, its items can be split into subsets,
 renamed, filtered, joined with annotations, exported in various formats etc.
 
-To use a video as an input, one should either create a [plugin](/docs/user-manual/extending),
-which splits a video into frames, or split the video manually and import images.
+To import frames from a video, you can split the video into frames with
+the [`split_video` command](/docs/user-manual/command-reference/util#split-video)
+and then use the `image_dir` format described above. In more complex cases,
+consider using [FFmpeg](https://ffmpeg.org/) and other tools for
+video processing.
+
+Alternatively, you can use the `video_frames` format directly:
+
+> Note, however, that it can produce different results if the system
+> environment changes. If you want to obtain reproducible results, consider
+> splitting the video into frames by any method.
+
+``` bash
+datum create -o <project/dir>
+datum import -p <project/dir> -f video_frames <video/path.avi>
+```
+
+```python
+from datumaro import Dataset
+
+dataset = Dataset.import_from('video.mp4', 'video_frames')
+```
+
+Datumaro supports the following video formats:
+```
+.3gp, .3g2, .asf, .wmv, .avi, .divx, .evo, .f4v, .flv, .mkv, .mk3d,
+.mp4, .mpg, .mpeg, .m2p, .ps, .ts, .m2ts, .mxf, .ogg, .ogv, .ogx,
+.mov, .qt, .rmvb, .vob, .webm
+```

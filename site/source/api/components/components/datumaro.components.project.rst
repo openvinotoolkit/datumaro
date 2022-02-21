@@ -62,11 +62,11 @@ project module
       :undoc-members:
       :show-inheritance:
 
-   .. autoattribute:: Revision = NewType('Revision', str)
+   .. autodata:: Revision
 
       a commit hash or a named reference
 
-   .. py:data:: ObjectId = NewType('ObjectId', str)
+   .. autodata:: ObjectId
 
       a commit or an object hash
 

@@ -68,7 +68,7 @@ Annotated files description:
   is the instance ID. If a certain annotation describes multiple instances,
   then the pixels have the regular ID of that class
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
 and `label_colors.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `label_colors.txt` will be imported if possible.
@@ -97,7 +97,9 @@ formats using CLI:
 datum create
 datum import -f cityscapes <path/to/cityscapes>
 datum export -f voc -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if cityscapes -i <path/to/cityscapes> \
     -f voc -o <output/dir> -- --save-images
 ```
@@ -105,9 +107,9 @@ datum convert -if cityscapes -i <path/to/cityscapes> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'cityscapes')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'cityscapes')
 dataset.export('save_dir', 'voc', save_images=True)
 ```
 
@@ -119,6 +121,8 @@ There are several ways to convert a dataset to Cityscapes format:
 # export dataset into Cityscapes format from existing project
 datum export -p <path/to/project> -f cityscapes -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to Cityscapes format from other format
 datum convert -if voc -i <path/to/dataset> \
     -f cityscapes -o <output/dir> -- --save-images
@@ -139,8 +143,9 @@ Extra options for exporting to Cityscapes format:
 # 255 0 0 person
 #...
 datum export -f cityscapes -- --label-map mycolormap.txt
-
-# or you can use original cityscapes colomap:
+```
+or you can use original cityscapes colomap:
+``` bash
 datum export -f cityscapes -- --label-map cityscapes
 ```
 
@@ -166,11 +171,10 @@ datum export -p project -o dataset/ -f voc -- --save-images
 ### Example 2. Create a custom Cityscapes-like dataset
 
 ```python
-import numpy as np
-from datumaro.components.annotation import Mask
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from collections import OrderedDict
 
+import numpy as np
+import datumaro as dm
 import datumaro.plugins.cityscapes_format as Cityscapes
 
 label_map = OrderedDict()
@@ -179,15 +183,15 @@ label_map['label_1'] = (1, 2, 3)
 label_map['label_2'] = (3, 2, 1)
 categories = Cityscapes.make_cityscapes_categories(label_map)
 
-dataset = Dataset.from_iterable([
-  DatasetItem(id=1,
-    image=np.ones((1, 5, 3)),
-    annotations=[
-      Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1),
-      Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
-        attributes={'is_crowd': False}),
-    ]
-  ),
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id=1,
+        image=np.ones((1, 5, 3)),
+        annotations=[
+            dm.Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1),
+            dm.Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
+                attributes={'is_crowd': False}),
+        ]
+    ),
 ], categories=categories)
 
 dataset.export('./dataset', format='cityscapes')

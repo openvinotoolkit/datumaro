@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -56,17 +56,18 @@ def _make_subcommands_help(commands, help_line_start=0):
 
 def _get_known_contexts():
     return [
+        ('model', contexts.model, "Actions with models"),
         ('project', contexts.project, "Actions with projects"),
         ('source', contexts.source, "Actions with data sources"),
-        ('model', contexts.model, "Actions with models"),
+        ('util', contexts.util, "Auxillary tools and utilities"),
     ]
 
 def _get_known_commands():
     return [
         ("Project modification:", None, ''),
+        ('add', commands.add, "Add dataset"),
         ('create', commands.create, "Create empty project"),
         ('import', commands.import_, "Import dataset"),
-        ('add', commands.add, "Add dataset"),
         ('remove', commands.remove, "Remove dataset"),
 
         ("", None, ''),
@@ -78,17 +79,19 @@ def _get_known_commands():
 
         ("", None, ''),
         ("Dataset operations:", None, ''),
+        ('convert', commands.convert, "Convert dataset between formats"),
+        ('detect-format', commands.detect_format,
+            "Detect the format of a dataset"),
+        ('diff', commands.diff, "Compare datasets"),
         ('download', commands.download, "Download a publicly available dataset"),
+        ('explain', commands.explain, "Run Explainable AI algorithm for model"),
         ('export', commands.export, "Export dataset in some format"),
         ('filter', commands.filter, "Filter dataset items"),
-        ('transform', commands.transform, "Modify dataset items"),
+        ('info', commands.info, "Print dataset info"),
         ('merge', commands.merge, "Merge datasets"),
         ('patch', commands.patch, "Update dataset from another one"),
-        ('convert', commands.convert, "Convert dataset between formats"),
-        ('diff', commands.diff, "Compare datasets"),
         ('stats', commands.stats, "Compute dataset statistics"),
-        ('info', commands.info, "Print dataset info"),
-        ('explain', commands.explain, "Run Explainable AI algorithm for model"),
+        ('transform', commands.transform, "Modify dataset items"),
         ('validate', commands.validate, "Validate dataset")
     ]
 

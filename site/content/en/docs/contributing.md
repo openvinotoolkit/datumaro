@@ -14,7 +14,7 @@ weight: 50
 
 ### Prerequisites
 
-- Python (3.6+)
+- Python (3.7+)
 
 ``` bash
 git clone https://github.com/openvinotoolkit/datumaro
@@ -131,7 +131,9 @@ To run tests use:
 
 ``` bash
 pytest -v
-# or
+```
+or
+``` bash
 python -m pytest -v
 ```
 
@@ -161,7 +163,8 @@ They can be overridden for a specific test:
 ```python
 import pytest
 
-    @pytest.mark.proirity_low
+class MyTests(TestCase):
+    @pytest.mark.priority_low
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_my_requirement(self):
         ... do stuff ...

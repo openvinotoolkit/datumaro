@@ -1,10 +1,10 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import typing
 
-from attr import attrs
+from attrs import frozen
 import pytest
 
 
@@ -13,9 +13,14 @@ class DatumaroComponent:
 
 
 class Requirements:
+    # Please, maintain the ordering when adding new lines
+
     # Exact requirements
     DATUM_GENERAL_REQ = "Datumaro general requirement"
     DATUM_TELEMETRY = "Datumaro telemetry requirement"
+    DATUM_API = "Datumaro API"
+    DATUM_PROGRESS_REPORTING = "Datumaro progress reporting requirement"
+    DATUM_ERROR_REPORTING = "Datumaro error reporting requirement"
 
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
@@ -30,6 +35,7 @@ class Requirements:
     DATUM_497 = "Support import for SYNTHIA dataset"
     DATUM_542 = "Images missing after merging two datasets"
     DATUM_580 = "Import for MPII Human Pose Dataset"
+    DATUM_673 = "Pickling for Dataset and Annotations"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
@@ -45,13 +51,16 @@ class Requirements:
     DATUM_BUG_470 = "Cannot to import Cityscapes dataset without images"
     DATUM_BUG_560 = "Reading MOT dataset with seqinfo produces 0-based indexing in frames"
     DATUM_BUG_583 = "Empty lines in VOC subset lists are not ignored"
+    DATUM_BUG_602 = "Patch command example error"
+    DATUM_BUG_606 = "transform with resize also changed the image extension from .jpg to .png"
+    DATUM_BUG_618 = "ResizeTransform returns broken image pixels"
 
 
 class SkipMessages:
     NOT_IMPLEMENTED = "NOT IMPLEMENTED"
 
 
-@attrs(auto_attribs=True)
+@frozen
 class _CombinedDecorator:
     decorators: typing.List[typing.Callable]
 

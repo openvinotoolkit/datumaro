@@ -120,12 +120,12 @@ def parse_full_revpath(s: str, ctx_project: Optional[Project] = None) \
 
     errors = []
     try:
-        return parse_dataset_pathspec(s, env=env), None
+        return parse_revspec(s, ctx_project=ctx_project)
     except (DatumaroError, OSError) as e:
         errors.append(e)
 
     try:
-        return parse_revspec(s, ctx_project=ctx_project)
+        return parse_dataset_pathspec(s, env=env), None
     except (DatumaroError, OSError) as e:
         errors.append(e)
 

@@ -15,7 +15,7 @@ Supported tasks / formats:
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_object.zip).
 - [Segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) - `kitti_segmentation`
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
-- Raw 3D / Velodyne Points - described [here](/formats/kitti_raw)
+- Raw 3D / Velodyne Points - described [here](/docs/formats/kitti_raw)
 
 Supported annotation types:
 - `Bbox` (object detection)
@@ -100,7 +100,7 @@ KITTI segmentation dataset directory should have the following structure:
             └── ...
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
 and `label_colors.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `label_colors.txt` will be imported if possible.
@@ -131,16 +131,18 @@ There are several ways to convert a KITTI dataset to other dataset formats:
 datum create
 datum import -f kitti <path/to/kitti>
 datum export -f cityscapes -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if kitti -i <path/to/kitti> -f cityscapes -o <output/dir>
 ```
 
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'kitti')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'kitti')
 dataset.export('save_dir', 'cityscapes', save_images=True)
 ```
 
@@ -152,6 +154,8 @@ There are several ways to convert a dataset to KITTI format:
 # export dataset into KITTI format from existing project
 datum export -p <path/to/project> -f kitti -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to KITTI format from other format
 datum convert -if cityscapes -i <path/to/dataset> \
     -f kitti -o <output/dir> -- --save-images
@@ -175,7 +179,9 @@ Extra options for exporting to KITTI format:
 #...
 datum export -f kitti -- --label-map mycolormap.txt
 
-# or you can use original kitti colomap:
+```
+or you can use original kitti colomap:
+``` bash
 datum export -f kitti -- --label-map kitti
 ```
 - `--tasks TASKS` allow to specify tasks for export dataset,
@@ -210,9 +216,7 @@ datum export -p project -f cityscapes -- --save-images
 
 ```python
 import numpy as np
-from datumaro.components.annotation import Mask
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+import datumaro as dm
 
 import datumaro.plugins.kitti_format as KITTI
 
@@ -222,13 +226,13 @@ label_map['label_1'] = (1, 2, 3)
 label_map['label_2'] = (3, 2, 1)
 categories = KITTI.make_kitti_categories(label_map)
 
-dataset = Dataset.from_iterable([
-  DatasetItem(id=1,
+dataset = dm.Dataset.from_iterable([
+  dm.DatasetItem(id=1,
     image=np.ones((1, 5, 3)),
     annotations=[
-      Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=0,
+      dm.Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=0,
         attributes={'is_crowd': False}),
-      Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=0,
+      dm.Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=0,
         attributes={'is_crowd': False}),
     ]
   ),

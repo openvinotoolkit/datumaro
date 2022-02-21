@@ -38,9 +38,9 @@ datum import --format celeba <path/to/dataset>
 It is also possible to import the dataset using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-celeba_dataset = Dataset.import_from('<path/to/dataset>', 'celeba')
+celeba_dataset = dm.Dataset.import_from('<path/to/dataset>', 'celeba')
 ```
 
 CelebA dataset directory should have the following structure:
@@ -72,7 +72,7 @@ attributes, bounding boxes, landmarks and subsets respectively
 The original CelebA dataset stores images in a .7z archive. The archive
 needs to be unpacked before importing.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 
@@ -87,7 +87,9 @@ formats using CLI:
 datum create
 datum import -f celeba <path/to/dataset>
 datum export -f imagenet_txt -o ./save_dir -- --save-images
-# or
+```
+or
+``` bash
 datum convert -if celeba -i <path/to/dataset> \
     -f imagenet_txt -o <output/dir> -- --save-images
 ```
@@ -95,9 +97,9 @@ datum convert -if celeba -i <path/to/dataset> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'celeba')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'celeba')
 dataset.export('save_dir', 'voc')
 ```
 

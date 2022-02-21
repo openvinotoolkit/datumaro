@@ -1,8 +1,7 @@
 ---
 title: 'Commit'
-linkTitle: 'Commit'
+linkTitle: 'commit'
 description: ''
-weight: 18
 ---
 
 This command allows to fix the current state of a project and

@@ -31,6 +31,7 @@ from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 from datumaro.components.validator import Severity
+from datumaro.util import parse_json_file
 from datumaro.util.annotation_util import find_instances
 from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME, find_images, lazy_image, load_image,
@@ -252,12 +253,11 @@ class OpenImagesExtractor(Extractor):
     def _load_label_category_parents(self):
         label_categories = self._categories[AnnotationType.label]
 
-        hierarchy_path = osp.join(
-            self._dataset_dir, OpenImagesPath.ANNOTATIONS_DIR, OpenImagesPath.HIERARCHY_FILE_NAME)
+        hierarchy_path = osp.join(self._dataset_dir,
+            OpenImagesPath.ANNOTATIONS_DIR, OpenImagesPath.HIERARCHY_FILE_NAME)
 
         try:
-            with open(hierarchy_path, 'rb') as hierarchy_file:
-                root_node = json.load(hierarchy_file)
+            root_node = parse_json_file(hierarchy_path)
         except FileNotFoundError:
             return
 

@@ -1,8 +1,7 @@
 ---
 title: 'Create project'
-linkTitle: 'Create'
+linkTitle: 'create'
 description: ''
-weight: 8
 ---
 
 The command creates an empty project. A project is required for the most of

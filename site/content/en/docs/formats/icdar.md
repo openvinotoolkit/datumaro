@@ -42,7 +42,7 @@ Supported attributes:
 
 There is few ways to import ICDAR dataset with Datumaro:
 - Through the Datumaro project
-```
+``` bash
 datum create
 datum import -f icdar_text_localization <text_localization_dataset>
 datum import -f icdar_text_segmentation <text_segmentation_dataset>
@@ -50,10 +50,10 @@ datum import -f icdar_word_recognition <word_recognition_dataset>
 ```
 - With Python API
 ```python
-from datumaro.components.dataset import Dataset
-data1 = Dataset.import_from('text_localization_path', 'icdar_text_localization')
-data2 = Dataset.import_from('text_segmentation_path', 'icdar_text_segmentation')
-data3 = Dataset.import_from('word_recognition_path', 'icdar_word_recognition')
+import datumaro as dm
+data1 = dm.Dataset.import_from('text_localization_path', 'icdar_text_localization')
+data2 = dm.Dataset.import_from('text_segmentation_path', 'icdar_text_segmentation')
+data3 = dm.Dataset.import_from('word_recognition_path', 'icdar_word_recognition')
 ```
 Dataset with ICDAR dataset should have the following structure:
 
@@ -107,11 +107,12 @@ See more information about adding datasets to the project in the
 ## Export to other formats
 Datumaro can convert ICDAR dataset into any other format
 [Datumaro supports](/docs/user-manual/supported_formats/). Examples:
-```
+``` bash
 # converting ICDAR text segmentation dataset into the VOC with `convert` command
 datum convert -if icdar_text_segmentation -i source_dataset \
     -f voc -o export_dir -- --save-images
-
+```
+``` bash
 # converting ICDAR text localization into the LabelMe through Datumaro project
 datum create
 datum import -f icdar_text_localization source_dataset

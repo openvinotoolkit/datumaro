@@ -3,9 +3,9 @@
 
 opencv-python-headless>=4.1.0.25
 
-# Move to the core list once released on pip
-# OpenVINO telemetry library
-openvino-telemetry @ git+https://github.com/openvinotoolkit/telemetry.git@master#egg=openvino-telemetry
+# TODO: move to requirements-default
+# A library to send the telemetry data from the OpenVINO toolkit components.
+openvino-telemetry>=2022.1.0
 
 # testing
 pytest>=5.3.5

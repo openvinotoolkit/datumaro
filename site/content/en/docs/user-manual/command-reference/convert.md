@@ -1,8 +1,7 @@
 ---
 title: 'Convert datasets'
-linkTitle: 'Convert'
+linkTitle: 'convert'
 description: ''
-weight: 7
 ---
 
 This command allows to convert a dataset from one format to another.

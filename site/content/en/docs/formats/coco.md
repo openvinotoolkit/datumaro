@@ -132,7 +132,7 @@ task-specific formats instead of plain `coco`: `coco_captions`,
 `coco_person_keypoints`, `coco_stuff`. In this case all items of the
 dataset will be added to the `default` subset.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 You can import a dataset for one or several tasks
 instead of the whole dataset. This option also allows to import annotation
@@ -164,16 +164,18 @@ using CLI:
 datum create
 datum import -f coco <path/to/coco>
 datum export -f voc -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if coco -i <path/to/coco> -f voc -o <output/dir>
 ```
 
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'coco')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'coco')
 dataset.export('save_dir', 'voc', save_images=True)
 ```
 
@@ -185,6 +187,8 @@ There are several ways to convert a dataset to COCO format:
 # export dataset into COCO format from existing project
 datum export -p <path/to/project> -f coco -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to COCO format from other format
 datum convert -if voc -i <path/to/dataset> \
     -f coco -o <output/dir> -- --save-images
@@ -253,19 +257,17 @@ datum export -p project -f voc -- --save-images
 
 ```python
 import numpy as np
-from datumaro.components.annotation import Mask
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-  DatasetItem(id='000000000001',
+dataset = dm.Dataset.from_iterable([
+  dm.DatasetItem(id='000000000001',
     image=np.ones((1, 5, 3)),
     subset='val',
     attributes={'id': 40},
     annotations=[
-      Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
+      dm.Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
         id=7, group=7, attributes={'is_crowd': False}),
-      Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
+      dm.Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
         id=20, group=20, attributes={'is_crowd': True}),
     ]
   ),

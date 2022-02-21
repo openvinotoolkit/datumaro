@@ -1,12 +1,13 @@
-from unittest import TestCase
+from unittest import TestCase, mock
 import os
 import os.path as osp
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, Points,
-    Polygon, PolyLine,
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, MaskCategories,
+    Points, Polygon, PolyLine,
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import (
@@ -17,15 +18,23 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    ConflictingCategoriesError, DatasetNotFoundError, MultipleFormatsMatchError,
+    ConflictingCategoriesError, DatasetNotFoundError,
+    MismatchingAttributesError, MismatchingImageInfoError,
+    MismatchingImagePathError, MultipleFormatsMatchError,
     NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, DatasetItem, Extractor, ItemTransform, Transform,
+    DEFAULT_SUBSET_NAME, DatasetItem, Extractor, FailingImportErrorPolicy,
+    ImportErrorPolicy, ItemTransform, ProgressReporter, SourceExtractor,
+    Transform,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.components.progress_reporting import NullProgressReporter
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, compare_datasets_strict,
+)
+import datumaro.components.hl_ops as hl_ops
 
 from .requirements import Requirements, mark_requirement
 
@@ -156,6 +165,47 @@ class DatasetTest(TestCase):
             detected_format = Dataset.detect(test_dir, env=env)
 
             self.assertEqual(DEFAULT_FORMAT, detected_format)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect_with_nested_folder(self):
+        env = Environment()
+        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'a')
+            dataset.save(dataset_path)
+
+            detected_format = Dataset.detect(test_dir, env=env)
+
+            self.assertEqual(DEFAULT_FORMAT, detected_format)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect_with_nested_folder_and_multiply_matches(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.ones((3, 3, 3)),
+                annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'a', 'b')
+            dataset.export(dataset_path, 'coco', save_images=True)
+
+            detected_format = Dataset.detect(test_dir, depth=2)
+
+            self.assertEqual('coco', detected_format)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cannot_detect_for_non_existent_path(self):
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'a')
+
+            with self.assertRaises(FileNotFoundError):
+                Dataset.detect(dataset_path)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_and_import(self):
@@ -349,14 +399,14 @@ class DatasetTest(TestCase):
             DatasetItem(id=1, subset='train', annotations=[
                 Label(1, id=3),
                 Label(2, attributes={ 'x': 1 }),
-            ])
+            ], attributes={'x': 1, 'y': 2})
         ], categories=['a', 'b', 'c', 'd'])
 
         b = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', annotations=[
                 Label(2, attributes={ 'x': 1 }),
                 Label(3, id=4),
-            ])
+            ], attributes={'z': 3, 'y': 2})
         ], categories=['a', 'b', 'c', 'd'])
 
         expected = Dataset.from_iterable([
@@ -364,7 +414,7 @@ class DatasetTest(TestCase):
                 Label(1, id=3),
                 Label(2, attributes={ 'x': 1 }),
                 Label(3, id=4),
-            ])
+            ], attributes={'x': 1, 'y': 2, 'z': 3})
         ], categories=['a', 'b', 'c', 'd'])
 
         merged = Dataset.from_extractors(a, b)
@@ -377,6 +427,42 @@ class DatasetTest(TestCase):
         s2 = Dataset.from_iterable([], categories=['b', 'a'])
 
         with self.assertRaises(ConflictingCategoriesError):
+            Dataset.from_extractors(s1, s2)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_join_different_image_info(self):
+        s1 = Dataset.from_iterable([
+            DatasetItem(1, image=Image(path='1.png', size=(2, 4)))
+        ])
+        s2 = Dataset.from_iterable([
+            DatasetItem(1, image=Image(path='1.png', size=(4, 2)))
+        ])
+
+        with self.assertRaises(MismatchingImageInfoError):
+            Dataset.from_extractors(s1, s2)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_join_different_images(self):
+        s1 = Dataset.from_iterable([
+            DatasetItem(1, image=Image(path='1.png'))
+        ])
+        s2 = Dataset.from_iterable([
+            DatasetItem(1, image=Image(path='2.png'))
+        ])
+
+        with self.assertRaises(MismatchingImagePathError):
+            Dataset.from_extractors(s1, s2)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_join_different_attrs(self):
+        s1 = Dataset.from_iterable([
+            DatasetItem(1, attributes={'x': 1})
+        ])
+        s2 = Dataset.from_iterable([
+            DatasetItem(1, attributes={'x': 2})
+        ])
+
+        with self.assertRaises(MismatchingAttributesError):
             Dataset.from_extractors(s1, s2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1183,7 +1269,7 @@ class DatasetTest(TestCase):
         expected = Dataset.from_iterable([], categories=['c', 'b'])
         dataset = Dataset.from_iterable([], categories=['a', 'b'])
 
-        actual = dataset.transform('remap_labels', {'a': 'c'})
+        actual = dataset.transform('remap_labels', mapping={'a': 'c'})
 
         compare_datasets(self, expected, actual)
 
@@ -1414,6 +1500,218 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, dataset, ignored_attrs='*')
 
+    @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
+    def test_progress_reporter_implies_eager_mode(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url, **kwargs):
+                super().__init__(**kwargs)
+
+            def __iter__(self):
+                yield DatasetItem('1')
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        dataset = Dataset.import_from('', 'test', env=env,
+            progress_reporter=NullProgressReporter())
+
+        self.assertTrue(dataset.is_cache_initialized)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_error_reporter_implies_eager_mode(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url, **kwargs):
+                super().__init__(**kwargs)
+
+            def __iter__(self):
+                yield DatasetItem('1')
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        dataset = Dataset.import_from('', 'test', env=env,
+            error_policy=FailingImportErrorPolicy())
+
+        self.assertTrue(dataset.is_cache_initialized)
+
+    @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
+    def test_can_report_progress_from_extractor(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url, **kwargs):
+                super().__init__(**kwargs)
+
+            def __iter__(self):
+                list(self._ctx.progress_reporter.iter(
+                    [None] * 5, desc='loading images'))
+                yield from []
+
+        class TestProgressReporter(ProgressReporter):
+            def split(self, count):
+                return (self, ) * count
+
+        progress_reporter = TestProgressReporter()
+        period_mock = mock.PropertyMock(return_value=0.1)
+        type(progress_reporter).period = period_mock
+        progress_reporter.start = mock.MagicMock()
+        progress_reporter.report_status = mock.MagicMock()
+        progress_reporter.finish = mock.MagicMock()
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        Dataset.import_from('', 'test', env=env,
+            progress_reporter=progress_reporter)
+
+        period_mock.assert_called_once()
+        progress_reporter.start.assert_called_once()
+        progress_reporter.report_status.assert_called()
+        progress_reporter.finish.assert_called_once()
+
+    @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
+    def test_can_report_progress_from_extractor_multiple_pbars(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url, **kwargs):
+                super().__init__(**kwargs)
+
+            def __iter__(self):
+                pbars = self._ctx.progress_reporter.split(2)
+                list(pbars[0].iter([None] * 5))
+                list(pbars[1].iter([None] * 5))
+
+                yield from []
+
+        class TestProgressReporter(ProgressReporter):
+            def init(self, *args, **kwargs):
+                pass
+
+            def split(self, count):
+                return tuple(TestProgressReporter() for _ in range(count))
+
+            iter = mock.MagicMock()
+
+        progress_reporter = TestProgressReporter()
+        progress_reporter.split = mock.MagicMock(TestProgressReporter.split)
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        Dataset.import_from('', 'test', env=env,
+            progress_reporter=progress_reporter)
+
+        progress_reporter.split.assert_called_once()
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_errors_from_extractor(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url, **kwargs):
+                super().__init__(**kwargs)
+
+            def __iter__(self):
+                class TestError(Exception):
+                    pass
+                self._ctx.error_policy.report_item_error(TestError(),
+                    item_id=('0', 'a'))
+                self._ctx.error_policy.report_annotation_error(TestError(),
+                    item_id=('0', 'a'))
+                yield from []
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        class TestErrorPolicy(ImportErrorPolicy):
+            pass
+        error_policy = TestErrorPolicy()
+        error_policy.report_item_error = mock.MagicMock()
+        error_policy.report_annotation_error = mock.MagicMock()
+
+        Dataset.import_from('', 'test', env=env,
+            error_policy=error_policy)
+
+        error_policy.report_item_error.assert_called()
+        error_policy.report_annotation_error.assert_called()
+
+    @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
+    def test_can_report_progress_from_converter(self):
+        class TestConverter(Converter):
+            DEFAULT_IMAGE_EXT = '.jpg'
+
+            def apply(self):
+                list(self._ctx.progress_reporter.iter(
+                    [None] * 5, desc='loading images'))
+
+        class TestProgressReporter(ProgressReporter):
+            pass
+        progress_reporter = TestProgressReporter()
+        period_mock = mock.PropertyMock(return_value=0.1)
+        type(progress_reporter).period = period_mock
+        progress_reporter.start = mock.MagicMock()
+        progress_reporter.report_status = mock.MagicMock()
+        progress_reporter.finish = mock.MagicMock()
+
+        with TestDir() as test_dir:
+            Dataset().export(test_dir, TestConverter,
+                progress_reporter=progress_reporter)
+
+        period_mock.assert_called_once()
+        progress_reporter.start.assert_called_once()
+        progress_reporter.report_status.assert_called()
+        progress_reporter.finish.assert_called()
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_errors_from_converter(self):
+        class TestConverter(Converter):
+            DEFAULT_IMAGE_EXT = '.jpg'
+
+            def apply(self):
+                class TestError(Exception):
+                    pass
+                self._ctx.error_policy.report_item_error(TestError(),
+                    item_id=('0', 'a'))
+                self._ctx.error_policy.report_annotation_error(TestError(),
+                    item_id=('0', 'a'))
+
+        class TestErrorPolicy(ImportErrorPolicy):
+            pass
+        error_policy = TestErrorPolicy()
+        error_policy.report_item_error = mock.MagicMock()
+        error_policy.report_annotation_error = mock.MagicMock()
+
+        with TestDir() as test_dir:
+            Dataset().export(test_dir, TestConverter,
+                error_policy=error_policy)
+
+        error_policy.report_item_error.assert_called()
+        error_policy.report_annotation_error.assert_called()
+
+    @mark_requirement(Requirements.DATUM_673)
+    def test_can_pickle(self):
+        source = Dataset.from_iterable([
+            DatasetItem(id=1, subset='subset',
+                image=np.ones((5, 4, 3)),
+                annotations=[
+                    Label(0, attributes={'a1': 1, 'a2': '2'}, id=1, group=2),
+                    Caption('hello', id=1, group=5),
+                    Label(2, id=3, group=2, attributes={ 'x': 1, 'y': '2' }),
+                    Bbox(1, 2, 3, 4, label=4, id=4, attributes={ 'a': 1.0 }),
+                    Points([1, 2, 2, 0, 1, 1], label=0, id=5, group=6),
+                    Mask(label=3, id=5, image=np.ones((2, 3))),
+                    PolyLine([1, 2, 3, 4, 5, 6, 7, 8], id=11),
+                    Polygon([1, 2, 3, 4, 5, 6, 7, 8]),
+                ])
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['a', 'b']),
+            AnnotationType.mask: MaskCategories.generate(2),
+        })
+        source.init_cache()
+
+        parsed = pickle.loads(pickle.dumps(source)) # nosec
+
+        compare_datasets_strict(self, source, parsed)
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1530,3 +1828,87 @@ class DatasetFilterTest(TestCase):
             '/item/annotation[label_id = 2]', remove_empty=True)
 
         compare_datasets(self, expected, filtered)
+
+
+class TestHLOps(TestCase):
+    def test_can_transform(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(10, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = hl_ops.transform(dataset, 'reindex', start=0)
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_filter_items(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = hl_ops.filter(dataset, '/item[id=0]')
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_filter_annotations(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train', annotations=[
+                Label(0, id=1)
+            ])
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train', annotations=[
+                Label(0, id=0),
+                Label(0, id=1),
+            ]),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = hl_ops.filter(dataset, '/item/annotation[id=1]',
+            filter_annotations=True, remove_empty=True)
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_merge(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset_a = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+        ], categories=['cat', 'dog'])
+
+        dataset_b = Dataset.from_iterable([
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = hl_ops.merge(dataset_a, dataset_b)
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_export(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        with TestDir() as test_dir:
+            hl_ops.export(dataset, test_dir, 'datumaro')
+            actual = Dataset.load(test_dir)
+
+            compare_datasets(self, expected, actual)

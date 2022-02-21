@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -48,7 +48,7 @@ class CocoImporter(Importer):
         # to use autodetection with the COCO dataset), disable autodetection
         # for the single-task formats.
         if len(cls._TASKS) == 1:
-            context.fail('this format cannot be autodetected')
+            context.raise_unsupported()
 
         with context.require_any():
             for task in cls._TASKS.keys():

@@ -1,8 +1,7 @@
 ---
 title: 'Run model inference explanation (explain)'
-linkTitle: 'Explain'
+linkTitle: 'explain'
 description: ''
-weight: 22
 ---
 
 Runs an explainable AI algorithm for a model.
@@ -92,7 +91,7 @@ For OpenVINO models the output processing script would look like this:
 Classification scenario:
 
 ``` python
-from datumaro.components.extractor import *
+import datumaro as dm
 from datumaro.util.annotation_util import softmax
 
 def process_outputs(inputs, outputs):
@@ -100,11 +99,10 @@ def process_outputs(inputs, outputs):
     # outputs = model output, logits, shape = (N, n_classes)
     # results = conversion result, [ [ Annotation, ... ], ... ]
     results = []
-    for input, output in zip(inputs, outputs):
-        input_height, input_width = input.shape[:2]
+    for output in outputs:
         confs = softmax(output[0])
         for label, conf in enumerate(confs):
-            results.append(Label(int(label)), attributes={'score': float(conf)})
+            results.append(dm.Label(int(label)), attributes={'score': float(conf)})
 
     return results
 ```
@@ -113,7 +111,7 @@ def process_outputs(inputs, outputs):
 Object Detection scenario:
 
 ``` python
-from datumaro.components.extractor import *
+import datumaro as dm
 
 # return a significant number of output boxes to make multiple runs
 # statistically correct and meaningful
@@ -128,14 +126,14 @@ def process_outputs(inputs, outputs):
         input_height, input_width = input.shape[:2]
         detections = output[0]
         image_results = []
-        for i, det in enumerate(detections):
+        for det in detections:
             label = int(det[1])
             conf = float(det[2])
             x = max(int(det[3] * input_width), 0)
             y = max(int(det[4] * input_height), 0)
             w = min(int(det[5] * input_width - x), input_width)
             h = min(int(det[6] * input_height - y), input_height)
-            image_results.append(Bbox(x, y, w, h,
+            image_results.append(dm.Bbox(x, y, w, h,
                 label=label, attributes={'score': conf} ))
 
             results.append(image_results[:max_det])

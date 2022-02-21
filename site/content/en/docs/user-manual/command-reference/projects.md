@@ -1,8 +1,7 @@
 ---
 title: 'Projects'
-linkTitle: 'Projects'
+linkTitle: 'project (context)'
 description: ''
-weight: 29
 ---
 
 ### Migrate project <a id="project-migrate"></a>

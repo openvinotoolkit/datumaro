@@ -1,11 +1,14 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from typing import Callable, Iterable, Iterator, Optional, Tuple, Union
 import os
 import os.path as osp
 import shutil
+import weakref
 
 import cv2
 import numpy as np
@@ -26,7 +29,7 @@ class MediaElement:
 
     @property
     def ext(self) -> str:
-        """Media file extension"""
+        """Media file extension (with the leading dot)"""
         return osp.splitext(osp.basename(self.path))[1]
 
     def __eq__(self, other: object) -> bool:
@@ -40,26 +43,54 @@ class Image(MediaElement):
             data: Union[np.ndarray, Callable[[str], np.ndarray], None] = None,
             *,
             path: Optional[str] = None,
-            size: Optional[Tuple[int, int]] = None):
-        assert size is None or len(size) == 2, size
+            ext: Optional[str] = None,
+            size: Optional[Tuple[int, int]] = None) -> None:
+        """
+        Creates an image.
+
+        Any combination of the `data`, `path` and `size` is possible,
+        but at least one of these arguments must be provided.
+        The `ext` parameter cannot be used as a single argument for
+        construction.
+
+        Args:
+            data - Image pixels or a function to retrieve them. The expected
+                image shape is (H, W [, C]). If a function is provided,
+                it must accept image path as the first argument.
+            path - Image path
+            ext - Image extension. Cannot be used together with `path`. It can
+                be used for saving with a custom extension - in that case,
+                the image need to have the `data` and `ext` fields defined.
+            size - A pair (H, W), which represents image size.
+        """
+
         if size is not None:
-            assert len(size) == 2 and 0 < size[0] and 0 < size[1], size
+            assert len(size) == 2 and 0 < size[0] and 0 < size[1], \
+                f"Invalid image size info '{size}'"
             size = tuple(map(int, size))
         self._size = size # (H, W)
-        if not self._size and isinstance(data, np.ndarray):
-            self._size = data.shape[:2]
 
-        assert path is None or isinstance(path, str), path
         if path is None:
             path = ''
         elif path:
-            path = osp.abspath(path).replace('\\', '/')
+            path = path.replace('\\', '/')
         self._path = path
 
+        if ext:
+            assert not path, "Can't specify both 'path' and 'ext' for image"
+
+            if not ext.startswith('.'):
+                ext = '.' + ext
+            ext = ext.lower()
+        else:
+            ext = None
+        self._ext = ext
+
         if not isinstance(data, np.ndarray):
-            assert path or callable(data), "Image can not be empty"
-            assert data is None or callable(data)
-            if path and osp.isfile(path) or data:
+            assert path or callable(data) or size, "Image can not be empty"
+            assert data is None or callable(data), \
+                f"Image data has unexpected type '{type(data)}'"
+            if data or path and osp.isfile(path):
                 data = lazy_image(path, loader=data)
         self._data = data
 
@@ -73,7 +104,7 @@ class Image(MediaElement):
             data = self._data
 
         if self._size is None and data is not None:
-            self._size =  tuple(map(int, data.shape[:2]))
+            self._size = tuple(map(int, data.shape[:2]))
         return data
 
     @property
@@ -82,6 +113,7 @@ class Image(MediaElement):
 
     @property
     def has_size(self) -> bool:
+        """Indicates that size info is cached and won't require image loading"""
         return self._size is not None or isinstance(self._data, np.ndarray)
 
     @property
@@ -96,6 +128,14 @@ class Image(MediaElement):
             if data is not None:
                 self._size = tuple(map(int, data.shape[:2]))
         return self._size
+
+    @property
+    def ext(self) -> str:
+        """Media file extension"""
+        if self._ext is not None:
+            return self._ext
+        else:
+            return osp.splitext(osp.basename(self.path))[1]
 
     def __eq__(self, other):
         if not isinstance(other, __class__):
@@ -139,7 +179,12 @@ class ByteImage(Image):
             if path and osp.isfile(path) or data:
                 data = lazy_image(path, loader=data)
 
-        super().__init__(path=path, size=size,
+        self._bytes_data = data
+
+        if ext is None and path is None and isinstance(data, bytes):
+            ext = self._guess_ext(data)
+
+        super().__init__(path=path, ext=ext, size=size,
             data=lambda _: decode_image(self.get_bytes()))
         if data is None:
             # We don't expect decoder to produce images from nothing,
@@ -147,15 +192,6 @@ class ByteImage(Image):
             # data to avoid using default image loader for loading binaries
             # from the path, when no data is provided.
             self._data = None
-
-        self._bytes_data = data
-        if ext:
-            ext = ext.lower()
-            if not ext.startswith('.'):
-                ext = '.' + ext
-        elif path is None and isinstance(data, bytes):
-            ext = self._guess_ext(data)
-        self._ext = ext
 
     @classmethod
     def _guess_ext(cls, data: bytes) -> Optional[str]:
@@ -169,12 +205,6 @@ class ByteImage(Image):
         if callable(self._bytes_data):
             return self._bytes_data()
         return self._bytes_data
-
-    @property
-    def ext(self):
-        if self._ext:
-            return self._ext
-        return super().ext
 
     def save(self, path):
         cur_path = osp.abspath(self.path)
@@ -194,7 +224,7 @@ class ByteImage(Image):
             save_image(path, self.data)
 
 class VideoFrame(Image):
-    def __init__(self, video: 'Video', index: int):
+    def __init__(self, video: Video, index: int):
         self._video = video
         self._index = index
 
@@ -209,19 +239,19 @@ class VideoFrame(Image):
         return self._index
 
     @property
-    def video(self) -> 'Video':
+    def video(self) -> Video:
         return self._video
 
 class _VideoFrameIterator(Iterator[VideoFrame]):
     """
     Provides sequential access to the video frames.
     """
-    _video: 'Video'
+    _video: Video
     _iterator: Iterator[VideoFrame]
     _pos: int
     _current_frame_data: Optional[np.ndarray]
 
-    def __init__(self, video: 'Video'):
+    def __init__(self, video: Video):
         self._video = video
         self._reset()
 
@@ -319,6 +349,9 @@ class Video(MediaElement, Iterable[VideoFrame]):
         # https://stackoverflow.com/a/47796468
         self._frame_count = None
         self._length = None
+
+        from .media_manager import MediaManager
+        MediaManager.get_instance().push(weakref.ref(self), self)
 
     def close(self):
         self._iterator = None
@@ -445,3 +478,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
             self._start_frame == other._start_frame and \
             self._step == other._step and \
             self._end_frame == other._end_frame
+
+    def __hash__(self):
+        # Required for caching
+        return hash((self._path, self._step, self._start_frame, self._end_frame))

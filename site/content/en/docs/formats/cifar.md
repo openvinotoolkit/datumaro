@@ -102,7 +102,7 @@ CIFAR-100:
     'coarse_labels': list of integers
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 
@@ -117,7 +117,9 @@ formats using CLI:
 datum create
 datum import -f cifar <path/to/cifar>
 datum export -f imagenet -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if cifar -i <path/to/dataset> \
     -f imagenet -o <output/dir> -- --save-images
 ```
@@ -125,9 +127,9 @@ datum convert -if cifar -i <path/to/dataset> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'cifar')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'cifar')
 dataset.export('save_dir', 'imagenet', save_images=True)
 ```
 
@@ -139,7 +141,8 @@ There are several ways to convert a dataset to CIFAR format:
 # export dataset into CIFAR format from existing project
 datum export -p <path/to/project> -f cifar -o <output/dir> \
     -- --save-images
-
+```
+``` bash
 # converting to CIFAR format from other format
 datum convert -if imagenet -i <path/to/dataset> \
     -f cifar -o <output/dir> -- --save-images
@@ -169,16 +172,15 @@ particular problems with CIFAR dataset:
 ### Example 1. How to create a custom CIFAR-like dataset
 
 ```python
-from datumaro.components.annotation import Label
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+import numpy as np
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-    DatasetItem(id=0, image=np.ones((32, 32, 3)),
-        annotations=[Label(3)]
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id=0, image=np.ones((32, 32, 3)),
+        annotations=[dm.Label(3)]
     ),
-    DatasetItem(id=1, image=np.ones((32, 32, 3)),
-        annotations=[Label(8)]
+    dm.DatasetItem(id=1, image=np.ones((32, 32, 3)),
+        annotations=[dm.Label(8)]
     )
 ], categories=['airplane', 'automobile', 'bird', 'cat', 'deer',
                'dog', 'frog', 'horse', 'ship', 'truck'])

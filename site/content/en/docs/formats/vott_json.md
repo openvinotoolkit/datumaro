@@ -27,9 +27,9 @@ datum import --format vott_json <path/to/dataset>
 It is also possible to import the dataset using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-vott_json_dataset = Dataset.import_from('<path/to/dataset>', 'vott_json')
+vott_json_dataset = dm.Dataset.import_from('<path/to/dataset>', 'vott_json')
 ```
 
 VoTT JSON dataset directory should have the following structure:
@@ -48,7 +48,7 @@ dataset/
 └── ...
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 
@@ -63,7 +63,9 @@ formats using CLI:
 datum create
 datum import -f vott_json <path/to/dataset>
 datum export -f voc -o ./save_dir -- --save-images
-# or
+```
+or
+``` bash
 datum convert -if vott_json -i <path/to/dataset> \
     -f voc -o <output/dir> -- --save-images
 ```
@@ -71,9 +73,9 @@ datum convert -if vott_json -i <path/to/dataset> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'vott_json')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'vott_json')
 dataset.export('save_dir', 'voc')
 ```
 

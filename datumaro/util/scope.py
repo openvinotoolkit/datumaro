@@ -1,13 +1,15 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from contextlib import ExitStack, contextmanager
 from functools import partial, wraps
 from typing import Any, Callable, ContextManager, Dict, Optional, Tuple, TypeVar
 import threading
 
-from attr import attrs
+from attrs import frozen
 
 from datumaro.util import optional_arg_decorator
 
@@ -20,8 +22,8 @@ class Scope:
 
     _thread_locals = threading.local()
 
-    @attrs(auto_attribs=True)
-    class ExitHandler:
+    @frozen
+    class _ExitHandler:
         callback: Callable[[], Any]
         ignore_errors: bool = True
 
@@ -32,8 +34,8 @@ class Scope:
                 if not self.ignore_errors:
                     raise
 
-    @attrs
-    class ErrorHandler(ExitHandler):
+    @frozen
+    class _ErrorHandler(_ExitHandler):
         def __exit__(self, exc_type, exc_value, exc_traceback):
             if exc_type:
                 return super().__exit__(exc_type=exc_type, exc_value=exc_value,
@@ -54,7 +56,7 @@ class Scope:
         will be ignored.
         """
 
-        self._register_callback(self.ErrorHandler,
+        self._register_callback(self._ErrorHandler,
             ignore_errors=ignore_errors,
             callback=callback, args=args, kwargs=kwargs)
 
@@ -65,7 +67,7 @@ class Scope:
         Registers a function to be called on scope exit.
         """
 
-        self._register_callback(self.ExitHandler,
+        self._register_callback(self._ExitHandler,
             ignore_errors=ignore_errors,
             callback=callback, args=args, kwargs=kwargs)
 
@@ -95,7 +97,7 @@ class Scope:
     def close(self):
         self.__exit__(None, None, None)
 
-    def __enter__(self) -> 'Scope':
+    def __enter__(self) -> Scope:
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
@@ -106,7 +108,7 @@ class Scope:
         self._stack.pop_all() # prevent issues on repetitive calls
 
     @classmethod
-    def current(cls) -> 'Scope':
+    def current(cls) -> Scope:
         return cls._thread_locals.current
 
     @contextmanager

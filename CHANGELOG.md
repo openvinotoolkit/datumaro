@@ -6,6 +6,91 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## 21/02/2022 - Release v0.3
+### Added
+- Ability to import a video as frames with the `video_frames` format and
+  to split a video into frames with the `datum util split_video` command
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- `--subset` parameter in the `image_dir` format
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- `MediaManager` API to control loaded media resources at runtime
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- Command to detect the format of a dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/576>)
+- More comfortable access to library API via `import datumaro`
+  (<https://github.com/openvinotoolkit/datumaro/pull/630>)
+- CLI command-like free functions (`export`, `transform`, ...)
+  (<https://github.com/openvinotoolkit/datumaro/pull/630>)
+- Reading specific annotation files for train dataset in Cityscapes
+  (<https://github.com/openvinotoolkit/datumaro/pull/632>)
+- Random sampling transforms (`random_sampler`, `label_random_sampler`)
+  to create smaller datasets from bigger ones
+  (<https://github.com/openvinotoolkit/datumaro/pull/636>,
+   <https://github.com/openvinotoolkit/datumaro/pull/640>)
+- API to report dataset import and export progress;
+  API to report dataset import and export errors and take action (skip, fail)
+  (supported in COCO, VOC and YOLO formats)
+  (<https://github.com/openvinotoolkit/datumaro/pull/650>)
+- Support for downloading the ImageNetV2 and COCO datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/653>,
+   <https://github.com/openvinotoolkit/datumaro/pull/659>)
+- A way for formats to signal that they don't support detection
+  (<https://github.com/openvinotoolkit/datumaro/pull/665>)
+- Removal transforms to remove items/annoations/attributes from dataset
+  (`remove_items`, `remove_annotations`, `remove_attributes`)
+  (<https://github.com/openvinotoolkit/datumaro/pull/670>)
+
+### Changed
+- Allowed direct file paths in `datum import`. Such sources are imported like
+  when the `rpath` parameter is specified, however, only the selected path
+  is copied into the project
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- Improved `stats` performance, added new filtering parameters,
+  image stats (`unique`, `repeated`) moved to the `dataset` section,
+  removed `mean` and `std` from the `dataset` section
+  (<https://github.com/openvinotoolkit/datumaro/pull/621>)
+- Allowed `Image` creation from just `size` info
+  (<https://github.com/openvinotoolkit/datumaro/pull/634>)
+- Added image search in VOC XML-based subformats
+  (<https://github.com/openvinotoolkit/datumaro/pull/634>)
+- Added image path equality checks in simple merge, when applicable
+  (<https://github.com/openvinotoolkit/datumaro/pull/634>)
+- Supported saving box attributes when downloading the TFDS version of VOC
+  (<https://github.com/openvinotoolkit/datumaro/pull/668>)
+
+### Deprecated
+- TBD
+
+### Removed
+- Official support of Python 3.6 (due to it's EOL)
+  (<https://github.com/openvinotoolkit/datumaro/pull/617>)
+- Backward compatibility annotation symbols in `components.extractor`
+  (<https://github.com/openvinotoolkit/datumaro/pull/630>)
+
+### Fixed
+- Prohibited calling `add`, `import` and `export` commands without a project
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- Calling `make_dataset` on empty project tree now produces the error properly
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- Saving (overwriting) a dataset in a project when rpath is used
+  (<https://github.com/openvinotoolkit/datumaro/pull/613>)
+- Output image extension preserving in the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/606>)
+- Memory overuse in the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/607>)
+- Invalid image pixels produced by the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/618>)
+- Numeric warnings that sometimes occurred in `stats` command
+  (e.g. <https://github.com/openvinotoolkit/datumaro/issues/607>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/621>)
+- Added missing item attribute merging in simple merge
+  (<https://github.com/openvinotoolkit/datumaro/pull/634>)
+- Inability to disambiguate VOC from LabelMe in some cases
+  (<https://github.com/openvinotoolkit/datumaro/issues/658>)
+
+### Security
+- TBD
+
 ## 28/01/2022 - Release v0.2.3
 ### Added
 - Command to download public datasets
@@ -18,11 +103,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/585>)
 
 ### Changed
+- The `pycocotools` dependency lower bound is raised to `2.0.4`.
+  (<https://github.com/openvinotoolkit/datumaro/pull/449>)
 - `smooth_line` from `datumaro.util.annotation_util` - the function
   is renamed to `approximate_line` and has updated interface
   (<https://github.com/openvinotoolkit/datumaro/pull/592>)
-- The `pycocotools` dependency lower bound is raised to `2.0.4`.
-  (<https://github.com/openvinotoolkit/datumaro/pull/449>)
 
 ### Deprecated
 - Python 3.6 support

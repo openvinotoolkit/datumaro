@@ -40,7 +40,7 @@ These item attributes decodes into the image name with such convention:
 ## Import Market-1501 dataset
 
 Importing of Market-1501 dataset into the Datumaro project:
-```
+```bash
 datum create
 datum import -f market1501 <path_to_market1501>
 ```
@@ -50,10 +50,9 @@ See more information about adding datasets to the project in the
 Or you can import Market-1501 using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
-dataset = Dataset.import_from('<path_to_dataset>', 'market1501')
+import datumaro as dm
+dataset = dm.Dataset.import_from('<path_to_dataset>', 'market1501')
 ```
-
 
 For successful importing the Market-1501 dataset, the directory with it
 should has the following structure:
@@ -81,11 +80,12 @@ market1501_dataset/
 With Datumaro you can export dataset, that has `person_id` item attribute,
 to the Market-1501 format, example:
 
-```
+```bash
 # Converting MARS dataset into the Market-1501
 datum convert -if mars -i ./mars_dataset \
     -f market1501 -o ./output_dir
-
+```
+``` bash
 # Export dataaset to the Market-1501 format through the Datumaro project:
 datum create
 datum add -f mars ../mars

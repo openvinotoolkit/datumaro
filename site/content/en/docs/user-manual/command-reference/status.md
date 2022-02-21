@@ -1,8 +1,7 @@
 ---
 title: 'Status'
-linkTitle: 'Status'
+linkTitle: 'status'
 description: ''
-weight: 20
 ---
 
 This command prints the summary of the source changes between

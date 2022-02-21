@@ -1,7 +1,7 @@
-sampler module
+relevancy sampler module
 --------------
 
-.. automodule:: datumaro.plugins.sampler.sampler
+.. automodule:: datumaro.plugins.sampler.relevancy_sampler
    :members:
    :undoc-members:
    :show-inheritance:

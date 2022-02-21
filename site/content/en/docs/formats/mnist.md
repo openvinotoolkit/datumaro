@@ -87,7 +87,7 @@ MNIST in CSV dataset directory should have the following structure:
     └── mnist_train.csv
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
 and `labels.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `labels.txt` will be imported if possible.
@@ -121,16 +121,18 @@ There are several ways to convert a MNIST dataset to other dataset formats:
 datum create
 datum import -f mnist <path/to/mnist>
 datum export -f imagenet -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if mnist -i <path/to/mnist> -f imagenet -o <output/dir>
 ```
 
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'mnist')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'mnist')
 dataset.export('save_dir', 'imagenet', save_images=True)
 ```
 
@@ -145,6 +147,8 @@ There are several ways to convert a dataset to MNIST format:
 # export dataset into MNIST format from existing project
 datum export -p <path/to/project> -f mnist -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to MNIST format from other format
 datum convert -if imagenet -i <path/to/dataset> \
     -f mnist -o <output/dir> -- --save-images
@@ -172,17 +176,16 @@ particular problems with MNIST dataset:
 ### Example 1. How to create a custom MNIST-like dataset
 
 ```python
-from datumaro.components.annotation import Label
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+import numpy as np
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-  DatasetItem(id=0, image=np.ones((28, 28)),
-    annotations=[Label(2)]
-  ),
-  DatasetItem(id=1, image=np.ones((28, 28)),
-    annotations=[Label(7)]
-  )
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id=0, image=np.ones((28, 28)),
+        annotations=[dm.Label(2)]
+    ),
+    dm.DatasetItem(id=1, image=np.ones((28, 28)),
+        annotations=[dm.Label(7)]
+    )
 ], categories=[str(label) for label in range(10)])
 
 dataset.export('./dataset', format='mnist')

@@ -1,15 +1,12 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from enum import Enum
 import argparse
-import json
 import logging as log
 import os
 import os.path as osp
-
-import numpy as np
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
@@ -19,7 +16,7 @@ from datumaro.components.operations import (
 )
 from datumaro.components.project import Project, ProjectBuildTargets
 from datumaro.components.validator import TaskType
-from datumaro.util import str_to_bool
+from datumaro.util import dump_json_file, str_to_bool
 from datumaro.util.os_util import make_file_name
 from datumaro.util.scope import scope_add, scoped
 
@@ -162,7 +159,7 @@ def export_command(args):
     try:
         project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
-        if not show_plugin_help and args.project_dir:
+        if not show_plugin_help:
             raise
 
     if project is not None:
@@ -614,6 +611,12 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('target', default='project', nargs='?',
         help="Target dataset revpath (default: project)")
+    parser.add_argument('-s', '--subset',
+        help="Compute stats only for a specific subset")
+    parser.add_argument('--image-stats', type=str_to_bool, default=True,
+        help="Compute image mean and std (default: %(default)s)")
+    parser.add_argument('--ann-stats', type=str_to_bool, default=True,
+        help="Compute annotation statistics (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=stats_command)
@@ -638,14 +641,18 @@ def stats_command(args):
     if target_project:
         scope_add(target_project)
 
+    if args.subset:
+        dataset = dataset.get_subset(args.subset)
+
     stats = {}
-    stats.update(compute_image_statistics(dataset))
-    stats.update(compute_ann_statistics(dataset))
+    if args.image_stats:
+        stats.update(compute_image_statistics(dataset))
+    if args.ann_stats:
+        stats.update(compute_ann_statistics(dataset))
 
     dst_file = generate_next_file_name('statistics', ext='.json')
     log.info("Writing project statistics to '%s'" % dst_file)
-    with open(dst_file, 'w', encoding='utf-8') as f:
-        json.dump(stats, f, indent=4, sort_keys=True)
+    dump_json_file(dst_file, stats, indent=True)
 
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Get project info",
@@ -816,10 +823,6 @@ def validate_command(args):
     validator = validator_type(**extra_args)
     report = validator.validate(dataset)
 
-    def numpy_encoder(obj):
-        if isinstance(obj, np.generic):
-            return obj.item()
-
     def _make_serializable(d):
         for key, val in list(d.items()):
             # tuple key to str
@@ -833,9 +836,7 @@ def validate_command(args):
 
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
-    with open(dst_file, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=4, sort_keys=True,
-                  default=numpy_encoder)
+    dump_json_file(dst_file, report, indent=True, allow_numpy=True)
 
 def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Migrate project",

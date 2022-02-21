@@ -62,14 +62,12 @@ class ImageCacheTest(TestCase):
 
 class ImageTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_lazy_image_shape(self):
+    def test_can_report_cached_size(self):
         data = np.ones((5, 6, 3))
 
-        image_lazy = Image(data=data, size=(2, 4))
-        image_eager = Image(data=data)
+        image = Image(data=lambda _: data, size=(2, 4))
 
-        self.assertEqual((2, 4), image_lazy.size)
-        self.assertEqual((5, 6), image_eager.size)
+        self.assertEqual((2, 4), image.size)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ctors(self):
@@ -82,8 +80,11 @@ class ImageTest(TestCase):
                 { 'data': image },
                 { 'data': image, 'path': path },
                 { 'data': image, 'path': path, 'size': (2, 4) },
+                { 'data': image, 'ext': 'png' },
+                { 'data': image, 'ext': 'png', 'size': (2, 4) },
                 { 'data': lambda p: image },
                 { 'data': lambda p: image, 'path': 'somepath' },
+                { 'data': lambda p: image, 'ext': 'jpg' },
                 { 'path': path },
                 { 'path': path, 'data': load_image },
                 { 'path': path, 'data': load_image, 'size': (2, 4) },
@@ -94,6 +95,20 @@ class ImageTest(TestCase):
                     self.assertTrue(img.has_data)
                     np.testing.assert_array_equal(img.data, image)
                     self.assertEqual(img.size, tuple(image.shape[:2]))
+
+            with self.subTest():
+                img = Image(size=(2, 4))
+                self.assertEqual(img.size, (2, 4))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ctor_errors(self):
+        with self.subTest('no data specified'):
+            with self.assertRaisesRegex(Exception, "can not be empty"):
+                Image(ext='jpg')
+
+        with self.subTest('either path or ext'):
+            with self.assertRaisesRegex(Exception, "both 'path' and 'ext'"):
+                Image(path='somepath', ext='someext')
 
 class BytesImageTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

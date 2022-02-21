@@ -27,9 +27,9 @@ datum import --format vott_csv <path/to/dataset>
 It is also possible to import the dataset using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-vott_csv_dataset = Dataset.import_from('<path/to/dataset>', 'vott_csv')
+vott_csv_dataset = dm.Dataset.import_from('<path/to/dataset>', 'vott_csv')
 ```
 
 VoTT CSV dataset directory should have the following structure:
@@ -48,7 +48,7 @@ dataset/
 └── ...
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 
@@ -63,7 +63,9 @@ formats using CLI:
 datum create
 datum import -f vott_csv <path/to/dataset>
 datum export -f voc -o ./save_dir -- --save-images
-# or
+```
+or
+``` bash
 datum convert -if vott_csv -i <path/to/dataset> \
     -f voc -o <output/dir> -- --save-images
 ```
@@ -71,9 +73,9 @@ datum convert -if vott_csv -i <path/to/dataset> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'vott_csv')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'vott_csv')
 dataset.export('save_dir', 'voc')
 ```
 

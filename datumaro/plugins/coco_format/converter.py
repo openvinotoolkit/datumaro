@@ -1,10 +1,9 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
 from itertools import chain, groupby
-import json
 import logging as log
 import os
 import os.path as osp
@@ -17,7 +16,7 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DatasetItem
-from datumaro.util import cast, find, str_to_bool
+from datumaro.util import cast, dump_json_file, find, str_to_bool
 from datumaro.util.image import save_image
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
@@ -95,8 +94,7 @@ class _TaskConverter:
                 ann['id'] = next_id
                 next_id += 1
 
-        with open(path, 'w', encoding='utf-8') as outfile:
-            json.dump(self._data, outfile, ensure_ascii=False)
+        dump_json_file(path, self._data)
 
     @property
     def annotations(self):
@@ -456,8 +454,7 @@ class _StuffConverter(_InstancesConverter):
 
 class _PanopticConverter(_TaskConverter):
     def write(self, path):
-        with open(path, 'w', encoding='utf-8') as outfile:
-            json.dump(self._data, outfile, ensure_ascii=False)
+        dump_json_file(path, self._data)
 
     def save_categories(self, dataset):
         label_categories = dataset.categories().get(AnnotationType.label)
@@ -654,24 +651,35 @@ class CocoConverter(Converter):
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
 
-        for subset_name, subset in self._extractor.subsets().items():
+        subsets = self._extractor.subsets()
+        pbars = self._ctx.progress_reporter.split(len(subsets))
+        for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():
                 task_conv.save_categories(subset)
             if CocoTask.panoptic in task_converters:
                 self._make_segmentation_dir(subset_name)
 
-            for item in subset:
-                if self._save_images:
-                    if item.has_image:
-                        self._save_image(item, subdir=osp.join(self._images_dir,
-                            '' if self._merge_images else subset_name))
-                    else:
-                        log.debug("Item '%s' has no image info", item.id)
-                for task_conv in task_converters.values():
-                    task_conv.save_image_info(item,
-                        self._make_image_filename(item))
-                    task_conv.save_annotations(item)
+            for item in pbar.iter(subset, desc=f'Exporting {subset_name}'):
+                try:
+                    if self._save_images:
+                        if item.has_image:
+                            self._save_image(item, subdir=osp.join(
+                                self._images_dir,
+                                '' if self._merge_images else subset_name))
+                        else:
+                            log.debug("Item '%s' has no image info", item.id)
+
+                    for task_conv in task_converters.values():
+                        try:
+                            task_conv.save_image_info(item,
+                                self._make_image_filename(item))
+                            task_conv.save_annotations(item)
+                        except Exception as e:
+                            self._report_annotation_error(e,
+                                item_id=(item.id, item.subset))
+                except Exception as e:
+                    self._report_item_error(e, item_id=(item.id, item.subset))
 
             for task, task_conv in task_converters.items():
                 ann_file = osp.join(self._ann_dir,

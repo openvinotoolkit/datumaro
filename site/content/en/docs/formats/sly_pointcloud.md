@@ -67,7 +67,9 @@ There are two ways to import a Supervisely Point Cloud dataset:
 ```bash
 datum create
 datum import --format sly_pointcloud --input-path <path/to/dataset>
-# or
+```
+or
+``` bash
 datum create
 datum import -f sly_pointcloud <path/to/dataset>
 ```
@@ -93,16 +95,18 @@ to other dataset formats:
 datum create
 datum import -f sly_pointcloud <path/to/sly_pcd/>
 datum export -f kitti_raw -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if sly_pointcloud -i <path/to/sly_pcd/> -f kitti_raw
 ```
 
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'sly_pointcloud')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'sly_pointcloud')
 dataset.export('save_dir', 'kitti_raw', save_images=True)
 ```
 
@@ -114,6 +118,8 @@ There are several ways to convert a dataset to Supervisely Point Cloud format:
 # export dataset into Supervisely Point Cloud format from existing project
 datum export -p <path/to/project> -f sly_pointcloud -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to Supervisely Point Cloud format from other format
 datum convert -if kitti_raw -i <path/to/dataset> \
     -f sly_pointcloud -o <output/dir> -- --save-images
@@ -149,18 +155,16 @@ datum convert -if sly_pointcloud -i ../sly_pcd/ \
 ### Example 3. Create a custom dataset
 
 ``` python
-from datumaro.components.annotation import Cuboid3d
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-    DatasetItem(id='frame_1',
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id='frame_1',
         annotations=[
-            Cuboid3d(id=206, label=0,
+            dm.Cuboid3d(id=206, label=0,
                 position=[320.86, 979.18, 1.04],
                 attributes={'occluded': False, 'track_id': 1, 'x': 1}),
 
-            Cuboid3d(id=207, label=1,
+            dm.Cuboid3d(id=207, label=1,
                 position=[318.19, 974.65, 1.29],
                 attributes={'occluded': True, 'track_id': 2}),
         ],
@@ -168,9 +172,9 @@ dataset = Dataset.from_iterable([
         attributes={'frame': 0, 'description': 'zzz'}
     ),
 
-    DatasetItem(id='frm2',
+    dm.DatasetItem(id='frm2',
         annotations=[
-            Cuboid3d(id=208, label=1,
+            dm.Cuboid3d(id=208, label=1,
                 position=[23.04, 8.75, -0.78],
                 attributes={'occluded': False, 'track_id': 2})
         ],

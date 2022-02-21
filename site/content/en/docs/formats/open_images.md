@@ -192,7 +192,7 @@ The mask images must be extracted from the ZIP archives linked above.
 To use per-subset image description files instead of `image_ids_and_rotation.csv`,
 place them in the `annotations` subdirectory.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 ### Creating an image metadata file
 
@@ -209,7 +209,7 @@ and record it in an image metadata file.
 This file must be placed at `annotations/images.meta`,
 and must contain one line per image, with the following structure:
 
-```
+``` bash
 <ID> <height> <width>
 ```
 
@@ -241,16 +241,18 @@ There are several ways to convert OID to other dataset formats:
 datum create
 datum import -f open_images <path/to/open_images>
 datum export -f cvat -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if open_images -i <path/to/open_images> -f cvat -o <output/dir>
 ```
 
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'open_images')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'open_images')
 dataset.export('save_dir', 'cvat', save_images=True)
 ```
 
@@ -262,7 +264,8 @@ There are several ways to convert an existing dataset to the Open Images format:
 # export dataset into Open Images format from existing project
 datum export -p <path/to/project> -f open_images -o <output/dir> \
   -- --save_images
-
+```
+``` bash
 # convert a dataset in another format to the Open Images format
 datum convert -if imagenet -i <path/to/dataset> \
     -f open_images -o <output/dir> \
@@ -301,22 +304,18 @@ datum export -p project -f cvat -- --save-images
 
 ```python
 import numpy as np
-from datumaro.components.dataset import Dataset
-from datumaro.components.annotation import (
-    AnnotationType, Label, LabelCategories,
-)
-from datumaro.components.extractor import DatasetItem
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-  DatasetItem(
-    id='0000000000000001',
-    image=np.ones((1, 5, 3)),
-    subset='validation',
-    annotations=[
-      Label(0, attributes={'score': 1}),
-      Label(1, attributes={'score': 0}),
-    ],
-  ),
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(
+        id='0000000000000001',
+        image=np.ones((1, 5, 3)),
+        subset='validation',
+        annotations=[
+            dm.Label(0, attributes={'score': 1}),
+            dm.Label(1, attributes={'score': 0}),
+        ],
+    ),
 ], categories=['/m/0', '/m/1'])
 
 dataset.export('./dataset', format='open_images')

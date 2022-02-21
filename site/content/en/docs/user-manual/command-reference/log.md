@@ -1,8 +1,7 @@
 ---
 title: 'Log'
-linkTitle: 'Log'
+linkTitle: 'log'
 description: ''
-weight: 21
 ---
 
 This command prints the history of the current project revision.

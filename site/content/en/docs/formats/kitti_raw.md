@@ -71,7 +71,7 @@ provides an option to use a special index file to allow this.
 ...
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 A Datumaro project with a KITTI source can be created in the following way:
 
@@ -100,16 +100,18 @@ There are several ways to convert a KITTI Raw dataset to other dataset formats:
 datum create
 datum import -f kitti_raw <path/to/kitti_raw>
 datum export -f sly_pointcloud -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if kitti_raw -i <path/to/kitti_raw> -f sly_pointcloud
 ```
 
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'kitti_raw')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'kitti_raw')
 dataset.export('save_dir', 'sly_pointcloud', save_images=True)
 ```
 
@@ -121,6 +123,8 @@ There are several ways to convert a dataset to KITTI Raw format:
 # export dataset into KITTI Raw format from existing project
 datum export -p <path/to/project> -f kitti_raw -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to KITTI Raw format from other format
 datum convert -if sly_pointcloud -i <path/to/dataset> \
     -f kitti_raw -o <output/dir> -- --save-images --reindex
@@ -157,23 +161,22 @@ datum convert -if sly_pointcloud -i ../sly_pcd/ \
 ### Example 3. Create a custom dataset
 
 ``` python
-from datumaro.components.annotation import Cuboid3d
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+import numpy as np
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-  DatasetItem(id='some/name/qq',
-    annotations=[
-      Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
-        attributes={'occluded': False, 'track_id': 1}),
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id='some/name/qq',
+        annotations=[
+            dm.Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                attributes={'occluded': False, 'track_id': 1}),
 
-      Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
-        attributes={'occluded': True, 'track_id': 2})
-    ],
-    pcd='path/to/pcd1.pcd',
-    related_images=[np.ones((10, 10)), 'path/to/image2.png', 'image3.jpg'],
-    attributes={'frame': 0}
-  ),
+            dm.Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
+                attributes={'occluded': True, 'track_id': 2})
+        ],
+        pcd='path/to/pcd1.pcd',
+        related_images=[np.ones((10, 10)), 'path/to/image2.png', 'image3.jpg'],
+        attributes={'frame': 0}
+    ),
 ], categories=['cat', 'dog'])
 
 dataset.export('my_dataset/', format='kitti_raw', save_images=True)

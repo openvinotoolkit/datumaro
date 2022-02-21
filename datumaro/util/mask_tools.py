@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from functools import partial
 from itertools import chain
 from typing import Tuple
 
@@ -136,7 +137,8 @@ def load_mask(path, inverse_colormap=None):
     return mask
 
 def lazy_mask(path, inverse_colormap=None):
-    return lazy_image(path, lambda path: load_mask(path, inverse_colormap))
+    return lazy_image(path,
+        partial(load_mask, inverse_colormap=inverse_colormap))
 
 def mask_to_rle(binary_mask):
     # walk in row-major order as COCO format specifies

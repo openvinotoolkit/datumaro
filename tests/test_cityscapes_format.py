@@ -14,7 +14,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.media import Image
 from datumaro.plugins.cityscapes_format import (
-    CityscapesConverter, CityscapesImporter,
+    TRAIN_CITYSCAPES_LABEL_MAP, CityscapesConverter, CityscapesImporter,
 )
 from datumaro.util.meta_file_util import parse_meta_file
 from datumaro.util.test_utils import (
@@ -25,12 +25,14 @@ import datumaro.plugins.cityscapes_format as Cityscapes
 from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
-    'cityscapes_dataset')
+    'cityscapes_dataset', 'dataset')
+DUMMY_TRAIN_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
+    'cityscapes_dataset', 'train_dataset')
 
 class CityscapesFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_267)
     def test_can_write_and_parse_labelmap(self):
-        src_label_map = Cityscapes.CityscapesLabelMap
+        src_label_map = Cityscapes.CITYSCAPES_LABEL_MAP
 
         with TestDir() as test_dir:
             file_path = osp.join(test_dir, 'label_colors.txt')
@@ -42,7 +44,7 @@ class CityscapesFormatTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_267)
     def test_can_write_and_parse_dataset_meta_file(self):
-        src_label_map = Cityscapes.CityscapesLabelMap
+        src_label_map = Cityscapes.CITYSCAPES_LABEL_MAP
 
         with TestDir() as test_dir:
             source_dataset = Dataset.from_iterable([],
@@ -106,6 +108,56 @@ class CityscapesImportTest(TestCase):
         ], categories=Cityscapes.make_cityscapes_categories())
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'cityscapes')
+
+        compare_datasets(self, source_dataset, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_267)
+    def test_can_import_with_train_label_map(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='defaultcity/defaultcity_000001_000031',
+                subset='test',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(np.array([[1, 1, 0, 0, 0]]), label=19,
+                        attributes={'is_crowd': True}),
+                    Mask(np.array([[0, 0, 1, 1, 1]]), label=14,
+                        attributes={'is_crowd': True}),
+                ]
+            ),
+            DatasetItem(id='defaultcity/defaultcity_000001_000032',
+                subset='test',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(np.array([[1, 1, 0, 0, 0]]), label=16,
+                        attributes={'is_crowd': True}),
+                    Mask(np.array([[0, 0, 1, 0, 0]]), label=3,
+                        attributes={'is_crowd': True}),
+                    Mask(np.array([[0, 0, 0, 1, 1]]), label=19,
+                        attributes={'is_crowd': True}),
+                ]
+            ),
+            DatasetItem(id='defaultcity/defaultcity_000002_000045',
+                subset='train',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(np.array([[1, 1, 0, 1, 1]]), label=19,
+                        attributes={'is_crowd': True}),
+                    Mask(np.array([[0, 0, 1, 0, 0]]), label=11,
+                        attributes={'is_crowd': True}),
+                ]
+            ),
+            DatasetItem(id='defaultcity/defaultcity_000001_000019',
+                subset = 'val',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(np.array([[1, 1, 1, 1, 1]]), label=19,
+                        attributes={'is_crowd': True}),
+                ]
+            ),
+        ], categories=Cityscapes.make_cityscapes_categories(
+            label_map=TRAIN_CITYSCAPES_LABEL_MAP))
+
+        parsed_dataset = Dataset.import_from(DUMMY_TRAIN_DATASET_DIR, 'cityscapes')
 
         compare_datasets(self, source_dataset, parsed_dataset)
 
