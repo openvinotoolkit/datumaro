@@ -6,6 +6,8 @@ List of plugins available through the CLI
 transform module
 ================
 
+Applies a batch operation to a dataset and produces a new dataset.
+
 Learn more about :mod:`transform <datumaro.plugins.transforms>`
 
 To get help, run:
@@ -14,7 +16,7 @@ To get help, run:
 
         datum transform -h
 
-To get help by class, run:
+To get help by class and modules, run:
 
 - :mod:`Rename <datumaro.plugins.transforms.Rename>`
     Renames items in the dataset
@@ -67,7 +69,7 @@ To get help by class, run:
 
         datum transform -t remove_attributes -- -h
 
-- :mod:`ndr <datumaro.plugins.ndr>`
+- :mod:`NDR <datumaro.plugins.ndr>`
     Removes near-duplicated images in subset.
     Remove duplicated images from a dataset.
 
@@ -75,8 +77,7 @@ To get help by class, run:
 
         datum transform -t ndr -- -h
 
-- :mod:`splitter <datumaro.plugins.splitter>`
-
+- :mod:`Splitter <datumaro.plugins.splitter>`
 
     .. code-block::
 
@@ -84,7 +85,7 @@ To get help by class, run:
 
 - :ref:`sampler package`
 
-    - :mod:`RandomSampler <datumaro.plugins.sampler.RandomSampler>`
+    - :mod:`RandomSampler <datumaro.plugins.sampler.random_sampler.RandomSampler>`
         Sampler that keeps no more than required number of items
         in the dataset.
 
@@ -92,7 +93,7 @@ To get help by class, run:
 
             datum transform -t random_sampler -- -h
 
-    - :mod:`LabelRandomSampler <datumaro.plugins.sampler.LabelRandomSampler>`
+    - :mod:`LabelRandomSampler <datumaro.plugins.sampler.random_sampler.LabelRandomSampler>`
         Sampler that keeps at least the required number of annotations
         of each class in the dataset for each subset separately.
 
