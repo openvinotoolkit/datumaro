@@ -166,11 +166,11 @@ class IExtractor:
     def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
-    def media_type(self):
-        return None
+    def media_type(self) -> Optional[Type[MediaElement]]:
+        raise NotImplementedError()
 
 class _ExtractorBase(IExtractor):
-    def __init__(self, *, length=None, subsets=None, media_type=Image):
+    def __init__(self, *, length=None, subsets=None, media_type=None):
         self._length = length
         self._subsets = subsets
         self._media_type = media_type
@@ -221,8 +221,10 @@ class _ExtractorBase(IExtractor):
                 return filter(pred, iter(self))
             def categories(_):
                 return self.categories()
+            def media_type(_):
+                return self.media_type()
 
-        return _DatasetFilter(media_type=self.media_type())
+        return _DatasetFilter()
 
     def categories(self):
         return {}
@@ -305,7 +307,7 @@ class Extractor(_ExtractorBase, CliPlugin):
     def __init__(self, *,
             length: Optional[int] = None,
             subsets: Optional[Sequence[str]] = None,
-            media_type: Optional[Type] = Image,
+            media_type: Optional[Type[MediaElement]] = Image,
             ctx: Optional[ImportContext] = None):
         super().__init__(length=length, subsets=subsets,
             media_type=media_type)
@@ -439,7 +441,7 @@ class Transform(_ExtractorBase, CliPlugin):
         return item.wrap(**kwargs)
 
     def __init__(self, extractor: IExtractor):
-        super().__init__(media_type=extractor.media_type())
+        super().__init__()
 
         self._extractor = extractor
 

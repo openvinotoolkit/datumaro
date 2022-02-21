@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace as namespace
 from typing import (
-    Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Union,
+    Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Type, Union,
 )
 import itertools
 import logging as log
@@ -20,7 +20,7 @@ from datumaro.components.annotation import (
 from datumaro.components.extractor import (
     CategoriesInfo, DatasetItem, IExtractor,
 )
-from datumaro.components.media import ByteImage
+from datumaro.components.media import ByteImage, Image, MediaElement
 from datumaro.util.tf_util import import_tf
 
 try:
@@ -348,6 +348,9 @@ class _TfdsSplitExtractor(IExtractor):
 
         return None
 
+    def media_type(self) -> Optional[Type[MediaElement]]:
+        return self._parent._media_type
+
 class _TfdsExtractor(IExtractor):
     _categories: CategoriesInfo
 
@@ -360,6 +363,7 @@ class _TfdsExtractor(IExtractor):
         self._state = namespace()
         self._adapter.transform_categories(
             tfds_builder, self._categories, self._state)
+        self._media_type = None
 
         tfds_decoders = {}
         for tfds_feature_name, tfds_fc in tfds_ds_info.features.items():
@@ -403,6 +407,9 @@ class _TfdsExtractor(IExtractor):
         if subset not in self._split_extractors:
             return None
         return self._split_extractors[subset].get(id)
+
+    def media_type(self) -> Optional[Type[MediaElement]]:
+        return self._media_type
 
 AVAILABLE_TFDS_DATASETS: Mapping[str, TfdsDatasetMetadata] = {
     name: adapter.metadata for name, adapter in _TFDS_ADAPTERS.items()

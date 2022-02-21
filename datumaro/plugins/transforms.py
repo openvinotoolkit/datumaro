@@ -53,10 +53,8 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
         if not segments:
             return item
 
-        if not item.media:
-            raise Exception("Image info is required for this transform")
         if not isinstance(item.media, Image):
-            raise MediaTypeError("Item %s: media type is not an image")
+            raise Exception("Image info is required for this transform")
         h, w = item.media.size
         segments = self.crop_segments(segments, w, h)
 
@@ -137,10 +135,8 @@ class MergeInstanceSegments(ItemTransform, CliPlugin):
         if not segments:
             return item
 
-        if not item.media:
-            raise Exception("Image info is required for this transform")
         if not isinstance(item.media, Image):
-            raise MediaTypeError("Item %s: media type is not an image")
+            raise Exception("Image info is required for this transform")
         h, w = item.media.size
         instances = self.find_instances(segments)
         segments = [self.merge_segments(i, w, h, self._include_polygons)
@@ -200,10 +196,8 @@ class PolygonsToMasks(ItemTransform, CliPlugin):
         annotations = []
         for ann in item.annotations:
             if ann.type == AnnotationType.polygon:
-                if not item.media:
-                    raise Exception("Image info is required for this transform")
                 if not isinstance(item.media, Image):
-                    raise MediaTypeError("Item %s: media type is not an image")
+                    raise Exception("Image info is required for this transform")
                 h, w = item.media.size
                 annotations.append(self.convert_polygon(ann, h, w))
             else:
@@ -223,10 +217,8 @@ class BoxesToMasks(ItemTransform, CliPlugin):
         annotations = []
         for ann in item.annotations:
             if ann.type == AnnotationType.bbox:
-                if not item.media:
-                    raise Exception("Image info is required for this transform")
                 if not isinstance(item.media, Image):
-                    raise MediaTypeError("Item %s: media type is not an image")
+                    raise Exception("Image info is required for this transform")
                 h, w = item.media.size
                 annotations.append(self.convert_bbox(ann, h, w))
             else:
@@ -828,11 +820,9 @@ class ResizeTransform(ItemTransform):
         return _resize_image
 
     def transform_item(self, item):
-        if not item.media:
+        if not isinstance(item.media, Image):
             raise DatumaroError("Item %s: image info is required for this "
                 "transform" % (item.id, ))
-        if not isinstance(item.media, Image):
-            raise MediaTypeError("Item %s: media type is not an image")
 
         h, w = item.media.size
         xscale = self._width / float(w)

@@ -174,7 +174,7 @@ class PointCloudConverterTest(TestCase):
     def test_preserve_frame_ids(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='abc', attributes={'frame': 20}),
-        ], categories=[])
+        ], categories=[], media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(dataset,
@@ -185,11 +185,11 @@ class PointCloudConverterTest(TestCase):
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='somename', attributes={'frame': 1234})
-        ])
+        ], media_type=PointCloud)
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='somename', attributes={'frame': 1})
-        ], categories=[])
+        ], categories=[], media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -210,7 +210,7 @@ class PointCloudConverterTest(TestCase):
                             'a': 5, 'undeclared': 'y'}),
                 ],
                 attributes={'frame': 0}),
-        ], categories={AnnotationType.label: src_label_cat})
+        ], categories={AnnotationType.label: src_label_cat}, media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -231,7 +231,7 @@ class PointCloudConverterTest(TestCase):
                             'a': 5, 'undeclared': 'y'}),
                 ],
                 attributes={'frame': 0}),
-        ], categories={AnnotationType.label: src_label_cat})
+        ], categories={AnnotationType.label: src_label_cat}, media_type=PointCloud)
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
@@ -240,7 +240,7 @@ class PointCloudConverterTest(TestCase):
                         attributes={'track_id': 206, 'occluded': False, 'a': 5}),
                 ],
                 attributes={'frame': 0}),
-        ], categories={AnnotationType.label: src_label_cat})
+        ], categories={AnnotationType.label: src_label_cat}, media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,

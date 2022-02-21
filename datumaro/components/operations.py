@@ -279,7 +279,12 @@ class ExactMerge:
         media = None
 
         if isinstance(item_a.media, Video) and isinstance(item_b.media, Video):
-            raise VideoMergeError(item_a.id)
+            if item_a.media.path is not item_b.media.path or \
+                    item_a.media.length() is not item_b.media.length() or \
+                    item_a.media.frame_size() is not item_b.media.frame_size():
+                raise VideoMergeError(item_a.id)
+
+            media = item_a.media
         elif isinstance(item_a.media, Video):
             media = item_a.media
         else:

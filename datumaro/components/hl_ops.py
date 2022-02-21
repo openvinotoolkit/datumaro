@@ -16,6 +16,7 @@ from datumaro.components.dataset_filter import (
     XPathAnnotationsFilter, XPathDatasetFilter,
 )
 from datumaro.components.environment import Environment
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import Transform
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.operations import ExactMerge
@@ -99,8 +100,13 @@ def merge(*datasets: IDataset) -> IDataset:
     """
 
     categories = ExactMerge.merge_categories(d.categories() for d in datasets)
+    media_type = datasets[0].media_type()
+    for d in datasets:
+        if d.media_type() is not media_type:
+            raise MediaTypeError("Datasets have different media types")
+
     return DatasetItemStorageDatasetView(ExactMerge.merge(*datasets),
-        categories=categories)
+        categories=categories, media_type=media_type)
 
 def run_model(dataset: IDataset,
         model: Union[Launcher, Type[ModelTransform]], *,

@@ -392,7 +392,7 @@ class CamvidConverterTest(TestCase):
             ], categories={
                 AnnotationType.label: LabelCategories.from_iterable(['a', 'b']),
                 AnnotationType.mask: src_mask_cat
-            })
+            }, media_type=Image)
             dataset.export(path, 'camvid', save_media=True)
 
             dataset.put(DatasetItem(2, subset='a',

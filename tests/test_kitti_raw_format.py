@@ -199,7 +199,7 @@ class KittiRawConverterTest(TestCase):
     def test_preserve_frame_ids(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='abc', attributes={'frame': 40})
-        ], categories=[])
+        ], categories=[], media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -209,11 +209,11 @@ class KittiRawConverterTest(TestCase):
     def test_reindex_frames(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='abc')
-        ], categories=[])
+        ], categories=[], media_type=PointCloud)
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='abc', attributes={'frame': 0})
-        ], categories=[])
+        ], categories=[], media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -228,7 +228,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[0.4, -1, 2.24], label=0),
                 ]
             )
-        ], categories=['dog'])
+        ], categories=['dog'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             with self.assertRaisesRegex(Exception, 'track_id'):
@@ -242,7 +242,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[0.4, -1, 2.24], label=0),
                 ]
             )
-        ], categories=['dog'])
+        ], categories=['dog'], media_type=PointCloud)
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='abc',
@@ -251,7 +251,7 @@ class KittiRawConverterTest(TestCase):
                         attributes={'track_id': 1, 'occluded': False}),
                 ],
                 attributes={'frame': 0})
-        ], categories=['dog'])
+        ], categories=['dog'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -269,7 +269,7 @@ class KittiRawConverterTest(TestCase):
                 ],
                 attributes={'frame': 0}
             )
-        ], categories=['cat'])
+        ], categories=['cat'], media_type=PointCloud)
 
         target_label_cat = LabelCategories(attributes={'occluded'})
         target_label_cat.add('cat', attributes=['a', 'b'])
@@ -282,7 +282,7 @@ class KittiRawConverterTest(TestCase):
                 ],
                 attributes={'frame': 0}
             )
-        ], categories={AnnotationType.label: target_label_cat})
+        ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -299,7 +299,7 @@ class KittiRawConverterTest(TestCase):
                 ],
                 attributes={'frame': 0}
             )
-        ], categories=['cat'])
+        ], categories=['cat'], media_type=PointCloud)
 
         target_label_cat = LabelCategories(attributes={'occluded'})
         target_label_cat.add('cat')
@@ -311,7 +311,7 @@ class KittiRawConverterTest(TestCase):
                 ],
                 attributes={'frame': 0}
             )
-        ], categories={AnnotationType.label: target_label_cat})
+        ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -322,7 +322,7 @@ class KittiRawConverterTest(TestCase):
     def test_can_save_and_load_without_annotations(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0000000000', attributes={'frame': 0})
-        ], categories=[])
+        ], categories=[], media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,

@@ -351,7 +351,7 @@ class VideoMergeError(DatasetMergeError):
 
     def __str__(self):
         return "Item %s: video merging is not possible" % \
-            self.item_id
+            (self.item_id, )
 
 @define(auto_exc=False)
 class DatasetValidationError(DatumaroError):
