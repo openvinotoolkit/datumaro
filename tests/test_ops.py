@@ -645,4 +645,4 @@ class TestMultimerge(TestCase):
         merger = IntersectMerge()
         merged = merger([source0, source1])
 
-        compare_datasets(self, expected, merged, ignored_attrs={'score'})
+        compare_datasets(self, expected, merged)

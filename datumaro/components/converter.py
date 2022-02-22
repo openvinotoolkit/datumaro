@@ -177,7 +177,7 @@ class Converter(CliPlugin):
     def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None
 
-        if isinstance(item, DatasetItem) and item.media:
+        if isinstance(item, DatasetItem) and isinstance(item.media, Image):
             src_ext = item.media.ext
         elif isinstance(item, Image):
             src_ext = item.ext
@@ -201,7 +201,7 @@ class Converter(CliPlugin):
         assert not ((subdir or name or basedir) and path), \
             "Can't use both subdir or name or basedir and path arguments"
 
-        if not item.media or not item.media.has_data:
+        if not isinstance(item.media, Image) or not item.media.has_data:
             log.warning("Item '%s' has no image", item.id)
             return
 
