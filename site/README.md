@@ -72,7 +72,8 @@ For generation only latest version:
 
     sphinx-build -a -n site/source site/static/api
 
-For generation documentation with versioning, you must push the changes to your repository:
+For generation documentation with versioning,
+you must push the changes to your repository:
 
     git push -u origin <your branch>
 
