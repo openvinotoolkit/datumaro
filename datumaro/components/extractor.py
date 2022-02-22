@@ -236,7 +236,7 @@ class _ExtractorBase(IExtractor):
                 return item
         return None
 
-    def media_type(self):
+    def media_type(self) -> Optional[Type[MediaElement]]:
         return self._media_type
 
 T = TypeVar('T')
@@ -344,9 +344,6 @@ class SourceExtractor(Extractor):
     def get(self, id, subset=None):
         assert subset == self._subset, '%s != %s' % (subset, self._subset)
         return super().get(id, subset or self._subset)
-
-    def media_type(self):
-        return self._media_type
 
 class Importer(CliPlugin):
     @classmethod

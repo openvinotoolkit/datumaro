@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace as namespace
 from typing import (
-    Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Type, Union,
+    Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Type,
+    Union,
 )
 import itertools
 import logging as log
@@ -20,7 +21,7 @@ from datumaro.components.annotation import (
 from datumaro.components.extractor import (
     CategoriesInfo, DatasetItem, IExtractor,
 )
-from datumaro.components.media import ByteImage, Image, MediaElement
+from datumaro.components.media import ByteImage, MediaElement
 from datumaro.util.tf_util import import_tf
 
 try:

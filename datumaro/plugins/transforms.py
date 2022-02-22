@@ -24,7 +24,7 @@ from datumaro.components.annotation import (
     Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.errors import DatumaroError, MediaTypeError
+from datumaro.components.errors import DatumaroError
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, DatasetItem, IExtractor, ItemTransform, Transform,
 )
