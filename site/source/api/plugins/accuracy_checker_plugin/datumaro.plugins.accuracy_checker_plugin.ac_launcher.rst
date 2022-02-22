@@ -1,5 +1,5 @@
 ac_launcher module
----------------
+------------------
 
 .. automodule:: datumaro.plugins.accuracy_checker_plugin.ac_launcher
    :members:

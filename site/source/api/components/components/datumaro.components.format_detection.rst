@@ -1,5 +1,5 @@
-format_detection module
--------------------
+format detection module
+-----------------------
 
 .. automodule:: datumaro.components.format_detection
    :members:

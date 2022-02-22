@@ -50,7 +50,7 @@ class RelevancySampler(Transform, CliPlugin):
     |s|s|s|s--subset_name train \ |n
     |s|s|s|s--sample_name sample \ |n
     |s|s|s|s--unsampled_name unsampled \ |n
-    |s|s|s|s--sampling_method topk -k 20 |n
+    |s|s|s|s--sampling_method topk -k 20
     """
 
     @classmethod
