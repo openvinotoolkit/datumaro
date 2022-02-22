@@ -15,10 +15,10 @@ import attr
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
-    AnnotationExportError, DatumaroError, ItemExportError,
+    AnnotationExportError, DatasetExportError, DatumaroError, ItemExportError,
 )
 from datumaro.components.extractor import DatasetItem, IExtractor
-from datumaro.components.media import Image
+from datumaro.components.media import Image, PointCloud
 from datumaro.components.progress_reporting import (
     NullProgressReporter, ProgressReporter,
 )
@@ -156,6 +156,10 @@ class Converter(CliPlugin):
                 "removed in future. Use 'save-media' instead.",
                 DeprecationWarning, stacklevel=2)
 
+        if save_images and save_media:
+            raise DatasetExportError("Can't use 'save-media' and "
+                "save-images together")
+
         self._save_media = save_media or save_images
         self._image_ext = image_ext
 
@@ -217,7 +221,7 @@ class Converter(CliPlugin):
         assert not ((subdir or name or basedir) and path), \
             "Can't use both subdir or name or basedir and path arguments"
 
-        if not item.media:
+        if not item.media or not isinstance(item.media, PointCloud):
             log.warning("Item '%s' has no pcd", item.id)
             return
 

@@ -100,11 +100,7 @@ def merge(*datasets: IDataset) -> IDataset:
     """
 
     categories = ExactMerge.merge_categories(d.categories() for d in datasets)
-    media_type = datasets[0].media_type()
-    for d in datasets:
-        if d.media_type() is not media_type:
-            raise MediaTypeError("Datasets have different media types")
-
+    media_type = ExactMerge.merge_media_types(datasets)
     return DatasetItemStorageDatasetView(ExactMerge.merge(*datasets),
         categories=categories, media_type=media_type)
 

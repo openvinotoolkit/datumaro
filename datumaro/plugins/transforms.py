@@ -421,7 +421,7 @@ class IdFromImageName(ItemTransform, CliPlugin):
     """
 
     def transform_item(self, item):
-        if item.media and item.media.path and isinstance(item.media, Image):
+        if isinstance(item.media, Image) and item.media.path:
             name = osp.splitext(osp.basename(item.media.path))[0]
             return self.wrap_item(item, id=name)
         else:

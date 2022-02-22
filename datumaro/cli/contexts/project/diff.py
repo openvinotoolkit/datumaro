@@ -123,7 +123,9 @@ class DiffVisualizer:
             self.update_mask_confusion(mask_diff)
 
             self.save_item_label_diff(item_a, item_b, label_diff)
-            self.save_item_bbox_diff(item_a, item_b, bbox_diff)
+
+            if a.media_type() is Image and b.media_type() is Image:
+                self.save_item_bbox_diff(item_a, item_b, bbox_diff)
 
         if len(self.label_confusion_matrix) != 0:
             self.save_conf_matrix(self.label_confusion_matrix,

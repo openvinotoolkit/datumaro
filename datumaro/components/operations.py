@@ -5,7 +5,7 @@
 from collections import OrderedDict
 from copy import deepcopy
 from typing import (
-    Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union,
+    Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Type, Union,
 )
 from unittest import TestCase
 import hashlib
@@ -24,7 +24,7 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
     AnnotationsTooCloseError, ConflictingCategoriesError, DatasetMergeError,
-    FailedAttrVotingError, FailedLabelVotingError, MismatchingAttributesError,
+    FailedAttrVotingError, FailedLabelVotingError, MediaTypeError, MismatchingAttributesError,
     MismatchingImageInfoError, MismatchingMediaError, MismatchingMediaPathError,
     NoMatchingAnnError, NoMatchingItemError, VideoMergeError, WrongGroupError,
 )
@@ -280,8 +280,9 @@ class ExactMerge:
 
         if isinstance(item_a.media, Video) and isinstance(item_b.media, Video):
             if item_a.media.path is not item_b.media.path or \
-                    item_a.media.length() is not item_b.media.length() or \
-                    item_a.media.frame_size() is not item_b.media.frame_size():
+                    item_a.media._start_frame is not item_b.media._start_frame or \
+                    item_a.media._end_frame is not item_b.media._end_frame or \
+                    item_a.media._step is not item_b.media._step:
                 raise VideoMergeError(item_a.id)
 
             media = item_a.media
@@ -300,6 +301,17 @@ class ExactMerge:
     @staticmethod
     def merge_categories(sources: Iterable[IDataset]) -> CategoriesInfo:
         return merge_categories(sources)
+
+    @staticmethod
+    def merge_media_types(sources: Iterable[IDataset]) -> Optional[Type[MediaElement]]:
+        if sources:
+            media_type = sources[0].media_type()
+            for s in sources:
+                if s.media_type() is not media_type:
+                    raise MediaTypeError("Datasets have different media types")
+            return media_type
+
+        return None
 
 @attrs
 class IntersectMerge(MergingStrategy):

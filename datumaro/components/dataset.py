@@ -684,11 +684,14 @@ class Dataset(IDataset):
             source = ExactMerge.merge(*sources)
             categories = ExactMerge.merge_categories(
                 s.categories() for s in sources)
-            dataset = Dataset(source=source, categories=categories, env=env)
+            media_type=ExactMerge.merge_media_types(sources)
+            dataset = Dataset(source=source, categories=categories,
+                media_type=media_type, env=env)
         return dataset
 
     def __init__(self, source: Optional[IDataset] = None, *,
             categories: Optional[CategoriesInfo] = None,
+            media_type: Optional[Type[MediaElement]] = None,
             env: Optional[Environment] = None) -> None:
         super().__init__()
 
@@ -696,7 +699,8 @@ class Dataset(IDataset):
         self._env = env
 
         self.eager = None
-        self._data = DatasetStorage(source, categories=categories)
+        self._data = DatasetStorage(source, categories=categories,
+            media_type=media_type)
         if self.is_eager:
             self.init_cache()
 
