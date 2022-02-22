@@ -1,4 +1,5 @@
 from unittest import TestCase
+import os.path as osp
 
 import numpy as np
 
@@ -8,7 +9,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
-from datumaro.components.media import Image
+from datumaro.components.media import Image, PointCloud
 from datumaro.components.operations import (
     FailedAttrVotingError, IntersectMerge, NoMatchingAnnError,
     NoMatchingItemError, WrongGroupError, compute_ann_statistics,
@@ -599,6 +600,47 @@ class TestMultimerge(TestCase):
                 2: (0, 2, 4),
             }),
         })
+
+        merger = IntersectMerge()
+        merged = merger([source0, source1])
+
+        compare_datasets(self, expected, merged, ignored_attrs={'score'})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_merge_point_clouds(self):
+        dataset_dir = osp.join(osp.dirname(__file__),
+            'assets', 'sly_pointcloud_dataset')
+        pcd1 = osp.join(dataset_dir, 'ds0', 'pointcloud', 'frame1.pcd')
+        pcd2 = osp.join(dataset_dir, 'ds0', 'pointcloud', 'frame2.pcd')
+
+        image1 = Image(path=osp.join(dataset_dir,
+            'ds0', 'related_images', 'frame1_pcd', 'img2.png'))
+        image2 = Image(path=osp.join(dataset_dir,
+            'ds0', 'related_images', 'frame2_pcd', 'img1.png'))
+
+        source0 = Dataset.from_iterable([
+            DatasetItem(1, media=PointCloud(path=pcd1, extra_images=[image1])),
+            DatasetItem(2, media=PointCloud(path=pcd1, extra_images=[image1])),
+            DatasetItem(3, media=PointCloud(path=pcd2)),
+            DatasetItem(4),
+            DatasetItem(5, media=PointCloud(path=pcd2)),
+        ], categories=[], media_type=PointCloud)
+
+        source1 = Dataset.from_iterable([
+            DatasetItem(1, media=PointCloud(path=pcd1, extra_images=[image1])),
+            DatasetItem(2, media=PointCloud(path=pcd1, extra_images=[image2])),
+            DatasetItem(3),
+            DatasetItem(4, media=PointCloud(path=pcd2)),
+            DatasetItem(5, media=PointCloud(path=pcd2, extra_images=[image2])),
+        ], categories=[], media_type=PointCloud)
+
+        expected = Dataset.from_iterable([
+            DatasetItem(1, media=PointCloud(path=pcd1, extra_images=[image1])),
+            DatasetItem(2, media=PointCloud(path=pcd1, extra_images=[image1, image2])),
+            DatasetItem(3, media=PointCloud(path=pcd2)),
+            DatasetItem(4, media=PointCloud(path=pcd2)),
+            DatasetItem(5, media=PointCloud(path=pcd2, extra_images=[image2])),
+        ], categories=[], media_type=PointCloud)
 
         merger = IntersectMerge()
         merged = merger([source0, source1])
