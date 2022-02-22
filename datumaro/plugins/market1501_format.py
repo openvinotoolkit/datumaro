@@ -120,7 +120,8 @@ class Market1501Converter(Converter):
         return dirname
 
     def apply(self):
-        if not issubclass(self._extractor.media_type(), Image):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         for subset_name, subset in self._extractor.subsets().items():

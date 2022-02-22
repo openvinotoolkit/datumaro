@@ -674,7 +674,8 @@ class OpenImagesConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
 
     def apply(self):
-        if not issubclass(self._extractor.media_type(), Image):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         self._save(_AnnotationWriter(self._save_dir))

@@ -330,7 +330,8 @@ class CityscapesConverter(Converter):
         self._load_categories(label_map)
 
     def apply(self):
-        if not issubclass(self._extractor.media_type(), Image):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         os.makedirs(self._save_dir, exist_ok=True)

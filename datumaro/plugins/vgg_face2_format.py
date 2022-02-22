@@ -209,7 +209,8 @@ class VggFace2Converter(Converter):
             else:
                 return '/'.join([label_name, *item_parts])
 
-        if not issubclass(self._extractor.media_type(), Image):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         save_dir = self._save_dir

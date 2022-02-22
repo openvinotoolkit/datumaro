@@ -90,10 +90,10 @@ class Converter(CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('--save-images', action='store_true',
-            help="Save images (default: %(default)s)")
-        parser.add_argument('--save-media', action='store_true',
-            help="Save media (default: %(default)s)")
+        parser.add_argument('--save-images', action='store_true', default=None,
+            help="Save images (default: %s)" % (None))
+        parser.add_argument('--save-media', action='store_true', default=None,
+            help="Save media (default: %s)" % (None))
         parser.add_argument('--image-ext', default=None,
             help="Image extension (default: keep or use format default%s)" % \
                 (' ' + cls.DEFAULT_IMAGE_EXT if cls.DEFAULT_IMAGE_EXT else ''))
@@ -141,8 +141,8 @@ class Converter(CliPlugin):
         raise NotImplementedError("Should be implemented in a subclass")
 
     def __init__(self, extractor: IExtractor, save_dir: str, *,
-            save_images: bool = False,
-            save_media: bool = False,
+            save_images = None,
+            save_media: bool = None,
             image_ext: Optional[str] = None,
             default_image_ext: Optional[str] = None,
             save_dataset_meta: bool = False,
@@ -151,16 +151,20 @@ class Converter(CliPlugin):
         assert default_image_ext
         self._default_image_ext = default_image_ext
 
-        if save_images:
-            warnings.warn("'save-images' is deprecated and will be "
-                "removed in future. Use 'save-media' instead.",
-                DeprecationWarning, stacklevel=2)
-
-        if save_images and save_media:
+        if save_images is not None and save_media is not None:
             raise DatasetExportError("Can't use 'save-media' and "
                 "save-images together")
 
-        self._save_media = save_media or save_images
+        if save_media is not None:
+            self._save_media = save_media
+        elif save_images is not None:
+            self._save_media = save_images
+            warnings.warn("'save-images' is deprecated and will be "
+                "removed in future. Use 'save-media' instead.",
+                DeprecationWarning, stacklevel=2)
+        else:
+            self._save_media = False
+
         self._image_ext = image_ext
 
         self._extractor = extractor

@@ -47,7 +47,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Download the MNIST dataset:|n
-        |s|s%(prog)s -i tfds:mnist -- --save-images|n
+        |s|s%(prog)s -i tfds:mnist -- --save-media|n
         |n
         - Download the VOC 2012 dataset, saving only the annotations in the COCO
           format into a specific directory:|n

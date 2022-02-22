@@ -19,7 +19,8 @@ class IcdarWordRecognitionConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
-        if not issubclass(self._extractor.media_type(), Image):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         for subset_name, subset in self._extractor.subsets().items():
@@ -47,7 +48,8 @@ class IcdarTextLocalizationConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
-        if not issubclass(self._extractor.media_type(), Image):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         for subset_name, subset in self._extractor.subsets().items():
@@ -78,7 +80,8 @@ class IcdarTextSegmentationConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
-        if not issubclass(self._extractor.media_type(), Image):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         for subset_name, subset in self._extractor.subsets().items():
