@@ -339,8 +339,7 @@ class LabelMeConverter(Converter):
     DEFAULT_IMAGE_EXT = LabelMePath.IMAGE_EXT
 
     def apply(self):
-        if self._extractor.media_type() and \
-                self._extractor.media_type() is not Image:
+        if not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         os.makedirs(self._save_dir, exist_ok=True)

@@ -648,8 +648,7 @@ class CocoConverter(Converter):
         return image_id
 
     def apply(self):
-        if self._extractor.media_type() and \
-                self._extractor.media_type() is not Image:
+        if not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         self._make_dirs()

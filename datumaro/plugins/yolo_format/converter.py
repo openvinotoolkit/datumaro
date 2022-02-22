@@ -35,8 +35,7 @@ class YoloConverter(Converter):
         extractor = self._extractor
         save_dir = self._save_dir
 
-        if self._extractor.media_type() and \
-                self._extractor.media_type() is not Image:
+        if not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         os.makedirs(save_dir, exist_ok=True)

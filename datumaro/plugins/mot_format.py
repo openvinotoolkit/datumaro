@@ -219,8 +219,7 @@ class MotSeqGtConverter(Converter):
     def apply(self):
         extractor = self._extractor
 
-        if self._extractor.media_type() and \
-                self._extractor.media_type() is not Image:
+        if not issubclass(extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         image_dir = osp.join(self._save_dir, MotPath.IMAGE_DIR)

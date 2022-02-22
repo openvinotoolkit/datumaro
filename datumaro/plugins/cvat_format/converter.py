@@ -374,8 +374,7 @@ class CvatConverter(Converter):
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
-        if self._extractor.media_type() and \
-                self._extractor.media_type() is not Image:
+        if not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         self._images_dir = osp.join(self._save_dir, CvatPath.IMAGES_DIR)
