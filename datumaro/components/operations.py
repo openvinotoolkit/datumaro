@@ -87,15 +87,14 @@ class MergingStrategy(CliPlugin):
 class ExactMerge:
     """
     Merges several datasets using the "simple" algorithm:
+        - items are matched by (id, subset) pairs
+        - matching items share the media info available:
 
-    - items are matched by (id, subset) pairs
-    - matching items share the media info available:
-
-        - nothing + nothing = nothing
-        - nothing + something = something
-        - something A + something B = conflict
-    - annotations are matched by value and shared
-    - in case of conflicts, throws an error
+            - nothing + nothing = nothing
+            - nothing + something = something
+            - something A + something B = conflict
+        - annotations are matched by value and shared
+        - in case of conflicts, throws an error
     """
 
     @classmethod

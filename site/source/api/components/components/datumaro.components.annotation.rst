@@ -10,7 +10,7 @@ annotation module
       :special-members:
       :show-inheritance:
 
-   .. autodata:: NO_GROUP
+   .. py:data:: NO_GROUP
 
    .. autoclass:: Annotation
       :members: type, wrap, __eq__, __init__
@@ -76,8 +76,8 @@ annotation module
 
       .. py:data:: label: int
 
-   .. autodata:: RgbColor
-   .. autodata:: Colormap
+   .. py:data:: RgbColor
+   .. py:data:: Colormap
 
    .. autoclass:: MaskCategories
       :members: inverse_colormap, __contains__, __getitem__, __len__, __eq__, __init__

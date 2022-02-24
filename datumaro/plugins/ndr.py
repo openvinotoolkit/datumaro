@@ -39,7 +39,7 @@ class NDR(Transform, CliPlugin):
     |n
     Available undersampling policies (the `-u` parameter):|n
     - `uniform` - sample data with uniform distribution|n
-    - `inverse` - sample data with reciprocal of the number of number of \
+    - `inverse` - sample data with reciprocal of the number of number of
     items with the same similarity|n
     |n
     Example: apply NDR, return no more than 100 images|n
