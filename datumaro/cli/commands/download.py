@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -7,11 +7,7 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.extractor_tfds import (
-    AVAILABLE_TFDS_DATASETS,
-    TFDS_EXTRACTOR_AVAILABLE,
-    make_tfds_extractor,
-)
+from datumaro.components.extractor_tfds import AVAILABLE_TFDS_DATASETS, TFDS_EXTRACTOR_AVAILABLE
 from datumaro.components.project import Environment
 from datumaro.util.os_util import make_file_name
 
@@ -94,10 +90,10 @@ def download_command(args):
     if args.dataset_id.startswith("tfds:"):
         if TFDS_EXTRACTOR_AVAILABLE:
             tfds_ds_name = args.dataset_id[5:]
-            tfds_ds_metadata = AVAILABLE_TFDS_DATASETS.get(tfds_ds_name)
-            if tfds_ds_metadata:
-                default_converter_name = tfds_ds_metadata.default_converter_name
-                extractor_factory = lambda: make_tfds_extractor(tfds_ds_name)
+            tfds_ds = AVAILABLE_TFDS_DATASETS.get(tfds_ds_name)
+            if tfds_ds:
+                default_output_format = tfds_ds.metadata.default_output_format
+                extractor_factory = tfds_ds.make_extractor
             else:
                 raise CliException(f"Unsupported TFDS dataset '{tfds_ds_name}'")
         else:
@@ -109,7 +105,7 @@ def download_command(args):
     else:
         raise CliException(f"Unknown dataset ID '{args.dataset_id}'")
 
-    output_format = args.output_format or default_converter_name
+    output_format = args.output_format or default_output_format
 
     try:
         converter = env.converters[output_format]

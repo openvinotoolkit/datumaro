@@ -7,11 +7,7 @@ from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
-from datumaro.components.extractor_tfds import (
-    AVAILABLE_TFDS_DATASETS,
-    TFDS_EXTRACTOR_AVAILABLE,
-    make_tfds_extractor,
-)
+from datumaro.components.extractor_tfds import AVAILABLE_TFDS_DATASETS, TFDS_EXTRACTOR_AVAILABLE
 from datumaro.components.media import Image
 from datumaro.util.image import decode_image, encode_image
 from datumaro.util.test_utils import compare_datasets, mock_tfds_data
@@ -27,8 +23,8 @@ class TfdsDatasetsTest(TestCase):
     def test_metadata(self):
         env = Environment()
 
-        for metadata in AVAILABLE_TFDS_DATASETS.values():
-            assert metadata.default_converter_name in env.converters
+        for dataset in AVAILABLE_TFDS_DATASETS.values():
+            assert dataset.metadata.default_output_format in env.converters
 
 
 @skipIf(not TFDS_EXTRACTOR_AVAILABLE, reason="TFDS is not installed")
@@ -36,7 +32,7 @@ class TfdsExtractorTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_data_access(self):
         with mock_tfds_data():
-            extractor = make_tfds_extractor("mnist")
+            extractor = AVAILABLE_TFDS_DATASETS["mnist"].make_extractor()
             self.assertEqual(len(extractor), 1)
 
             train_subset = extractor.get_subset("train")
@@ -72,7 +68,7 @@ class TfdsExtractorTest(TestCase):
                 categories=tfds_info.features["label"].names,
             )
 
-            extractor = make_tfds_extractor("mnist")
+            extractor = AVAILABLE_TFDS_DATASETS["mnist"].make_extractor()
             actual_dataset = Dataset(extractor)
 
             compare_datasets(self, expected_dataset, actual_dataset, require_media=True)
@@ -94,7 +90,7 @@ class TfdsExtractorTest(TestCase):
                 categories=tfds_info.features["label"].names,
             )
 
-            extractor = make_tfds_extractor(name)
+            extractor = AVAILABLE_TFDS_DATASETS[name].make_extractor()
             actual_dataset = Dataset(extractor)
 
             compare_datasets(self, expected_dataset, actual_dataset, require_media=True)
@@ -138,7 +134,7 @@ class TfdsExtractorTest(TestCase):
                 categories=tfds_info.features["objects"].feature["label"].names,
             )
 
-            extractor = make_tfds_extractor("coco/2014")
+            extractor = AVAILABLE_TFDS_DATASETS["coco/2014"].make_extractor()
             actual_dataset = Dataset(extractor)
 
             compare_datasets(self, expected_dataset, actual_dataset, require_media=True)
@@ -177,7 +173,7 @@ class TfdsExtractorTest(TestCase):
                 categories=tfds_info.features["label"].names,
             )
 
-            extractor = make_tfds_extractor("imagenet_v2")
+            extractor = AVAILABLE_TFDS_DATASETS["imagenet_v2"].make_extractor()
             actual_dataset = Dataset(extractor)
 
             compare_datasets(self, expected_dataset, actual_dataset, require_media=True)
@@ -228,7 +224,7 @@ class TfdsExtractorTest(TestCase):
                 categories=tfds_info.features["objects"].feature["label"].names,
             )
 
-            extractor = make_tfds_extractor("voc/2012")
+            extractor = AVAILABLE_TFDS_DATASETS["voc/2012"].make_extractor()
             actual_dataset = Dataset(extractor)
 
             compare_datasets(self, expected_dataset, actual_dataset, require_media=True)
