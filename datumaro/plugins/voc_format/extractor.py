@@ -103,8 +103,11 @@ class VocClassificationExtractor(_VocExtractor):
         for item_id in self._ctx.progress_reporter.iter(self._items,
                 desc=f"Parsing labels in '{self._subset}'"):
             log.debug("Reading item '%s'" % item_id)
+            image = images.get(item_id)
+            if image:
+                image = Image(path=image)
             yield DatasetItem(id=item_id, subset=self._subset,
-                image=images.get(item_id), annotations=annotations.get(item_id))
+                media=image, annotations=annotations.get(item_id))
 
     def _load_annotations(self):
         annotations = {}
@@ -168,7 +171,7 @@ class _VocXmlExtractor(_VocExtractor):
                     image = Image(path=image, size=size)
 
                 yield DatasetItem(id=item_id, subset=self._subset,
-                    image=image, annotations=anns)
+                    media=image, annotations=anns)
             except Exception as e:
                 self._report_item_error(e, item_id=(item_id, self._subset))
 
@@ -292,9 +295,12 @@ class VocSegmentationExtractor(_VocExtractor):
                 desc=f"Parsing segmentation in '{self._subset}'"):
             log.debug("Reading item '%s'" % item_id)
 
+            image = images.get(item_id)
+            if image:
+                image = Image(path=image)
+
             try:
-                yield DatasetItem(id=item_id, subset=self._subset,
-                    image=images.get(item_id),
+                yield DatasetItem(id=item_id, subset=self._subset, media=image,
                     annotations=self._load_annotations(item_id))
             except Exception as e:
                 self._report_item_error(e, item_id=(item_id, self._subset))

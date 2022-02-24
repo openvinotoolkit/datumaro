@@ -10,8 +10,10 @@ from datumaro.components.annotation import (
     AnnotationType, Label, LabelCategories, Points,
 )
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -93,8 +95,12 @@ class LfwExtractor(SourceExtractor):
                             annotations.append(Label(label))
                             item_id = item_id[len(label_name) + 1:]
                     if item_id not in items:
+                        image = images.get(item_id)
+                        if image:
+                            image = Image(path=image)
+
                         items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                            image=images.get(image), annotations=annotations)
+                            media=image, annotations=annotations)
                 elif len(pair) == 3:
                     image1, id1 = self.get_image_name(pair[0], pair[1])
                     image2, id2 = self.get_image_name(pair[0], pair[2])
@@ -103,13 +109,23 @@ class LfwExtractor(SourceExtractor):
                     if id1 not in items:
                         annotations = []
                         annotations.append(Label(label))
+
+                        image = images.get(image1)
+                        if image:
+                            image = Image(path=image)
+
                         items[id1] = DatasetItem(id=id1, subset=self._subset,
-                            image=images.get(image1), annotations=annotations)
+                            media=image, annotations=annotations)
                     if id2 not in items:
                         annotations = []
                         annotations.append(Label(label))
+
+                        image = images.get(image2)
+                        if image:
+                            image = Image(path=image)
+
                         items[id2] = DatasetItem(id=id2, subset=self._subset,
-                            image=images.get(image2), annotations=annotations)
+                            media=image, annotations=annotations)
 
                     # pairs form a directed graph
                     if not items[id1].annotations[0].attributes.get('positive_pairs'):
@@ -127,15 +143,25 @@ class LfwExtractor(SourceExtractor):
                         annotations = []
                         label = get_label_id(pair[0])
                         annotations.append(Label(label))
+
+                        image = images.get(image1)
+                        if image:
+                            image = Image(path=image)
+
                         items[id1] = DatasetItem(id=id1, subset=self._subset,
-                            image=images.get(image1), annotations=annotations)
+                            media=image, annotations=annotations)
                     if id2 not in items:
                         annotations = []
                         if pair[2] != '-':
                             label = get_label_id(pair[2])
                             annotations.append(Label(label))
+
+                        image = images.get(image2)
+                        if image:
+                            image = Image(path=image)
+
                         items[id2] = DatasetItem(id=id2, subset=self._subset,
-                            image=images.get(image2), annotations=annotations)
+                            media=image, annotations=annotations)
 
                     # pairs form a directed graph
                     if not items[id1].annotations[0].attributes.get('negative_pairs'):
@@ -193,6 +219,10 @@ class LfwConverter(Converter):
     DEFAULT_IMAGE_EXT = LfwPath.IMAGE_EXT
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
@@ -216,7 +246,7 @@ class LfwConverter(Converter):
                     label_name = label_categories[anns[0].label].name
                     labels[label_name] += 1
 
-                if self._save_images and item.has_image:
+                if self._save_media and item.media:
                     subdir=osp.join(subset_name, LfwPath.IMAGES_DIR)
                     if label_name:
                         subdir=osp.join(subdir, label_name)

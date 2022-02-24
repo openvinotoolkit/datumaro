@@ -86,12 +86,12 @@ Few ways to export WIDER Face dataset using CLI:
 ```
 # Using `convert` command
 datum convert -if wider_face -i <path_to_wider_face> \
-    -f voc -o <output_dir> -- --save-images
+    -f voc -o <output_dir> -- --save-media
 
 # Through the Datumaro project
 datum create
 datum import -f wider_face <path_to_wider_face>
-datum export -f voc -o <output_dir> -- -save-images
+datum export -f voc -o <output_dir> -- -save-media
 ```
 
 Export WIDER Face dataset using Python API:
@@ -103,7 +103,7 @@ dataset = dm.Dataset.import_from('<path_to_wider_face', 'wider_face')
 # Here you can perform some transformation using dataset.transform or
 # dataset.filter
 
-dataset.export('output_dir', 'open_images', save_images=True)
+dataset.export('output_dir', 'open_images', save_media=True)
 ```
 
 > Note: some formats have extra export options. For particular format see the
@@ -120,11 +120,11 @@ into the WIDER Face format:
 ```
 datum create
 datum import -f voc_detection <path_to_voc>
-datum export -f wider_face -o <output_dir> -- --save-images --image-ext='.png'
+datum export -f wider_face -o <output_dir> -- --save-media --image-ext='.png'
 ```
 
 Available extra export options for WIDER Face dataset format:
-- `--save-images` allow to export dataset with saving images.
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original)

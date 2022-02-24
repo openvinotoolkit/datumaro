@@ -8,6 +8,7 @@ import os.path as osp
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
 
@@ -39,7 +40,7 @@ class ImageDirExtractor(SourceExtractor):
         for path in find_images(url, recursive=True):
             item_id = osp.relpath(osp.splitext(path)[0], url)
             self._items.append(DatasetItem(id=item_id, subset=self._subset,
-                image=path))
+                media=Image(path=path)))
 
 class ImageDirConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
@@ -48,7 +49,7 @@ class ImageDirConverter(Converter):
         os.makedirs(self._save_dir, exist_ok=True)
 
         for item in self._extractor:
-            if item.has_image:
+            if item.media:
                 self._save_image(item)
             else:
                 log.debug("Item '%s' has no image info", item.id)

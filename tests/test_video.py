@@ -7,7 +7,7 @@ import pytest
 
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
-from datumaro.components.media import Video
+from datumaro.components.media import Image, Video
 from datumaro.components.media_manager import MediaManager
 from datumaro.components.project import Project
 from datumaro.util.scope import Scope, on_exit_do, scope_add, scoped
@@ -135,7 +135,7 @@ class VideoExtractorTest:
 
         expected = Dataset.from_iterable([
             DatasetItem('frame_%03d' % i, subset='train',
-                image=np.ones((4, 6, 3)) * i)
+                media=Image(data=np.ones((4, 6, 3)) * i))
             for i in range(4)
         ])
 
@@ -151,7 +151,8 @@ class VideoExtractorTest:
         on_exit_do(MediaManager.get_instance().clear)
 
         expected = Dataset.from_iterable([
-            DatasetItem('frame_%06d' % i, image=np.ones((4, 6, 3)) * i)
+            DatasetItem('frame_%06d' % i,
+                media=Image(data=np.ones((4, 6, 3)) * i))
             for i in range(4)
         ])
 

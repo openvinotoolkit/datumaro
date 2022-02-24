@@ -126,7 +126,7 @@ Or, using Python API:
 import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path/to/dataset>', 'yolo')
-dataset.export('save_dir', 'coco_instances', save_images=True)
+dataset.export('save_dir', 'coco_instances', save_media=True)
 ```
 
 ## Export to YOLO format
@@ -139,11 +139,11 @@ Example:
 ```bash
 datum create
 datum import -f coco_instances <path/to/dataset>
-datum export -f yolo -o <path/to/dataset> -- --save-images
+datum export -f yolo -o <path/to/dataset> -- --save-media
 ```
 
 Extra options for exporting to YOLO format:
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (default: `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting dataset (default: use original or `.jpg`, if none)
@@ -157,7 +157,7 @@ datum create -o project
 datum import -p project -f voc ./VOC2012
 datum filter -p project -e '/item[subset="train" or subset="val"]'
 datum transform -p project -t map_subsets -- -s train:train -s val:valid
-datum export -p project -f yolo -- --save-images
+datum export -p project -f yolo -- --save-media
 ```
 
 ### Example 2. Remove a class from YOLO dataset
@@ -192,7 +192,7 @@ dataset = dm.Dataset.from_iterable([
     )
 ], categories=['house', 'bridge', 'crosswalk', 'traffic_light'])
 
-dataset.export('../yolo_dataset', format='yolo', save_images=True)
+dataset.export('../yolo_dataset', format='yolo', save_media=True)
 ```
 
 ### Example 4. Get information about objects on each image

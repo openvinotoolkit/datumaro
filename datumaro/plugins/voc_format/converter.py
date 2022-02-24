@@ -19,7 +19,9 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
@@ -134,6 +136,10 @@ class VocConverter(Converter):
         self._patch = None
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         self.make_dirs()
         self.save_subsets()
         self.save_label_map()
@@ -189,8 +195,8 @@ class VocConverter(Converter):
 
                 try:
                     image_filename = self._make_image_filename(item)
-                    if self._save_images:
-                        if item.has_image and item.image.has_data:
+                    if self._save_media:
+                        if item.media:
                             self._save_image(item,
                                 osp.join(self._images_dir, image_filename))
                         else:
@@ -241,8 +247,8 @@ class VocConverter(Converter):
             ET.SubElement(source_elem, 'annotation').text = 'Unknown'
             ET.SubElement(source_elem, 'image').text = 'Unknown'
 
-            if item.has_image and item.image.has_size:
-                h, w = item.image.size
+            if item.media and item.media.has_size:
+                h, w = item.media.size
                 size_elem = ET.SubElement(root_elem, 'size')
                 ET.SubElement(size_elem, 'width').text = str(w)
                 ET.SubElement(size_elem, 'height').text = str(h)
@@ -685,7 +691,7 @@ class VocConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.media):
                 ids_to_remove[item_id] = (item, False)
             else:
                 ids_to_remove.setdefault(item_id, (item, True))

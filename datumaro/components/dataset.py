@@ -27,7 +27,7 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    CategoriesRedefinedError, ConflictingCategoriesError,
+    CategoriesRedefinedError, ConflictingCategoriesError, MediaTypeError,
     MultipleFormatsMatchError, NoMatchingFormatsError, RepeatedItemError,
     UnknownFormatError,
 )
@@ -36,6 +36,7 @@ from datumaro.components.extractor import (
     ImportContext, ImportErrorPolicy, ItemTransform, Transform, _ImportFail,
 )
 from datumaro.components.launcher import Launcher, ModelTransform
+from datumaro.components.media import Image, MediaElement
 from datumaro.components.progress_reporting import (
     NullProgressReporter, ProgressReporter,
 )
@@ -159,9 +160,11 @@ class DatasetItemStorageDatasetView(IDataset):
             return self.parent.categories()
 
 
-    def __init__(self, parent: DatasetItemStorage, categories: CategoriesInfo):
+    def __init__(self, parent: DatasetItemStorage, categories: CategoriesInfo,
+            media_type: Optional[Type[MediaElement]]):
         self._parent = parent
         self._categories = categories
+        self._media_type = media_type
 
     def __iter__(self):
         yield from self._parent
@@ -184,6 +187,8 @@ class DatasetItemStorageDatasetView(IDataset):
     def get(self, id, subset=None):
         return self._parent.get(id, subset=subset)
 
+    def media_type(self):
+        return self._media_type
 
 class ItemStatus(Enum):
     added = auto()
@@ -195,7 +200,7 @@ class DatasetPatch:
         # The purpose of this class is to indicate that the input dataset is
         # a patch and autofill patch info in Converter
         def __init__(self, patch: DatasetPatch, parent: IDataset):
-            super().__init__(patch.data, parent.categories())
+            super().__init__(patch.data, parent.categories(), parent.media_type())
             self.patch = patch
 
         def subsets(self):
@@ -261,18 +266,24 @@ class DatasetSubset(IDataset): # non-owning view
     def categories(self):
         return self.parent.categories()
 
+    def media_type(self):
+        return self.parent.media_type()
+
     def as_dataset(self) -> Dataset:
         return Dataset.from_extractors(self, env=self.parent.env)
 
 
 class DatasetStorage(IDataset):
     def __init__(self, source: Union[IDataset, DatasetItemStorage] = None,
-            categories: CategoriesInfo = None):
+            categories: CategoriesInfo = None,
+            media_type: Optional[Type[MediaElement]] = None):
         if source is None and categories is None:
             categories = {}
         elif isinstance(source, IDataset) and categories is not None:
             raise ValueError("Can't use both source and categories")
         self._categories = categories
+
+        self._media_type = media_type
 
         # Possible combinations:
         # 1. source + storage
@@ -392,6 +403,11 @@ class DatasetStorage(IDataset):
 
         i = -1
         for i, item in enumerate(source):
+            if source.media_type():
+                if item.media and not isinstance(item.media, source.media_type()):
+                    raise MediaTypeError("Dataset elements must have a '%s' " \
+                        "media type" % source.media_type())
+
             if transform and transform.is_local:
                 old_id = (item.id, item.subset)
                 item = transform.transform_item(item)
@@ -478,7 +494,8 @@ class DatasetStorage(IDataset):
             return self._source
         elif self._source is not None:
             self.init_cache()
-        return DatasetItemStorageDatasetView(self._storage, self._categories)
+        return DatasetItemStorageDatasetView(self._storage,
+            self._categories, self._media_type)
 
     def __len__(self) -> int:
         if self._length is None:
@@ -501,6 +518,14 @@ class DatasetStorage(IDataset):
         if self._categories or self._source is not None:
             raise CategoriesRedefinedError()
         self._categories = categories
+
+    def media_type(self):
+        if self.is_cache_initialized():
+            return self._media_type
+        elif self._media_type is not None:
+            return self._media_type
+        else:
+            return self._source.media_type()
 
     def put(self, item):
         is_new = self._storage.put(item)
@@ -624,7 +649,8 @@ class Dataset(IDataset):
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
             categories: Union[CategoriesInfo, List[str], None] = None,
-            env: Optional[Environment] = None) -> Dataset:
+            env: Optional[Environment] = None,
+            media_type: Type = Image) -> Dataset:
         if isinstance(categories, list):
             categories = { AnnotationType.label:
                 LabelCategories.from_iterable(categories)
@@ -636,7 +662,8 @@ class Dataset(IDataset):
         class _extractor(Extractor):
             def __init__(self):
                 super().__init__(length=len(iterable) \
-                    if hasattr(iterable, '__len__') else None)
+                        if hasattr(iterable, '__len__') else None,
+                    media_type=media_type)
 
             def __iter__(self):
                 return iter(iterable)
@@ -657,11 +684,14 @@ class Dataset(IDataset):
             source = ExactMerge.merge(*sources)
             categories = ExactMerge.merge_categories(
                 s.categories() for s in sources)
-            dataset = Dataset(source=source, categories=categories, env=env)
+            media_type=ExactMerge.merge_media_types(sources)
+            dataset = Dataset(source=source, categories=categories,
+                media_type=media_type, env=env)
         return dataset
 
     def __init__(self, source: Optional[IDataset] = None, *,
             categories: Optional[CategoriesInfo] = None,
+            media_type: Optional[Type[MediaElement]] = None,
             env: Optional[Environment] = None) -> None:
         super().__init__()
 
@@ -669,7 +699,8 @@ class Dataset(IDataset):
         self._env = env
 
         self.eager = None
-        self._data = DatasetStorage(source, categories=categories)
+        self._data = DatasetStorage(source, categories=categories,
+            media_type=media_type)
         if self.is_eager:
             self.init_cache()
 
@@ -697,6 +728,9 @@ class Dataset(IDataset):
 
     def categories(self) -> CategoriesInfo:
         return self._data.categories()
+
+    def media_type(self) -> Optional[Type[MediaElement]]:
+        return self._data.media_type()
 
     def get(self, id: str, subset: Optional[str] = None) \
             -> Optional[DatasetItem]:
@@ -1124,7 +1158,6 @@ class Dataset(IDataset):
             raise NoMatchingFormatsError()
         if 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
-
 
 @contextmanager
 def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:

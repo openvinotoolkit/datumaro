@@ -42,7 +42,7 @@ class VottCsvExtractor(SourceExtractor):
 
                 if item_id not in items:
                     items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                        image=Image(path=osp.join(osp.dirname(path), row['image'])))
+                        media=Image(path=osp.join(osp.dirname(path), row['image'])))
 
                 annotations = items[item_id].annotations
 

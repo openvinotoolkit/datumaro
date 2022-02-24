@@ -27,7 +27,7 @@ from datumaro.components.errors import (
 from datumaro.components.format_detection import (
     FormatDetectionConfidence, FormatDetectionContext,
 )
-from datumaro.components.media import Image
+from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.components.progress_reporting import (
     NullProgressReporter, ProgressReporter,
 )
@@ -36,45 +36,22 @@ from datumaro.util.attrs_util import default_if_none, not_empty
 
 DEFAULT_SUBSET_NAME = 'default'
 
-@attrs(slots=True, order=False)
+T = TypeVar('T', bound=MediaElement)
+
+@attrs(order=False, init=False, slots=True)
 class DatasetItem:
     id: str = field(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)
-    annotations: List[Annotation] = field(
-        factory=list, validator=default_if_none(list))
+
     subset: str = field(converter=lambda v: v or DEFAULT_SUBSET_NAME,
         default=None)
 
-    # TODO: introduce "media" field with type info. Replace image and pcd.
-    image: Optional[Image] = field(default=None)
-    # TODO: introduce pcd type like Image
-    point_cloud: Optional[str] = field(
-        converter=lambda x: str(x).replace('\\', '/') if x else None,
-        default=None)
-    related_images: List[Image] = field(default=None)
+    media: Optional[MediaElement] = field(default=None,
+        validator=attr.validators.optional(
+            attr.validators.instance_of(MediaElement)))
 
-    def __attrs_post_init__(self):
-        if (self.has_image and self.has_point_cloud):
-            raise ValueError("Can't set both image and point cloud info")
-        if self.related_images and not self.has_point_cloud:
-            raise ValueError("Related images require point cloud")
-
-    def _image_converter(image):
-        if callable(image) or isinstance(image, np.ndarray):
-            image = Image(data=image)
-        elif isinstance(image, str):
-            image = Image(path=image)
-        assert image is None or isinstance(image, Image), type(image)
-        return image
-    image.converter = _image_converter
-
-    def _related_image_converter(images):
-        return list(map(__class__._image_converter, images or []))
-    related_images.converter = _related_image_converter
-
-    @point_cloud.validator
-    def _point_cloud_validator(self, attribute, pcd):
-        assert pcd is None or isinstance(pcd, str), type(pcd)
+    annotations: List[Annotation] = field(
+        factory=list, validator=default_if_none(list))
 
     attributes: Dict[str, Any] = field(
         factory=dict, validator=default_if_none(dict))
@@ -189,10 +166,14 @@ class IExtractor:
     def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
+    def media_type(self) -> Optional[Type[MediaElement]]:
+        raise NotImplementedError()
+
 class _ExtractorBase(IExtractor):
-    def __init__(self, *, length=None, subsets=None):
+    def __init__(self, *, length=None, subsets=None, media_type=None):
         self._length = length
         self._subsets = subsets
+        self._media_type = media_type
 
     def _init_cache(self):
         subsets = set()
@@ -240,6 +221,8 @@ class _ExtractorBase(IExtractor):
                 return filter(pred, iter(self))
             def categories(_):
                 return self.categories()
+            def media_type(_):
+                return self.media_type()
 
         return _DatasetFilter()
 
@@ -252,6 +235,9 @@ class _ExtractorBase(IExtractor):
             if item.id == id and item.subset == subset:
                 return item
         return None
+
+    def media_type(self) -> Optional[Type[MediaElement]]:
+        return self._media_type
 
 T = TypeVar('T')
 
@@ -321,8 +307,10 @@ class Extractor(_ExtractorBase, CliPlugin):
     def __init__(self, *,
             length: Optional[int] = None,
             subsets: Optional[Sequence[str]] = None,
+            media_type: Optional[Type[MediaElement]] = Image,
             ctx: Optional[ImportContext] = None):
-        super().__init__(length=length, subsets=subsets)
+        super().__init__(length=length, subsets=subsets,
+            media_type=media_type)
 
         self._ctx: ImportContext = ctx or NullImportContext()
 
@@ -335,9 +323,11 @@ class SourceExtractor(Extractor):
     def __init__(self, *,
             length: Optional[int] = None,
             subset: Optional[str] = None,
+            media_type: Optional[Type] = Image,
             ctx: Optional[ImportContext] = None):
         self._subset = subset or DEFAULT_SUBSET_NAME
-        super().__init__(length=length, subsets=[self._subset], ctx=ctx)
+        super().__init__(length=length, subsets=[self._subset],
+            media_type=media_type, ctx=ctx)
 
         self._categories = {}
         self._items = []

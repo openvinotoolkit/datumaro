@@ -6,6 +6,7 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 from datumaro.util.test_utils import run_datum as run
 import datumaro.plugins.voc_format.format as VOC
@@ -18,7 +19,7 @@ class YoloIntegrationScenarios(TestCase):
     def test_can_save_and_load_yolo_dataset(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
-                image=np.ones((10, 15, 3)),
+                media=Image(data=np.ones((10, 15, 3))),
                 annotations=[
                     Bbox(3.0, 3.0, 2.0, 3.0, label=4),
                     Bbox(0.0, 2.0, 4.0, 2.0, label=2)
@@ -68,7 +69,7 @@ class YoloIntegrationScenarios(TestCase):
     def test_can_convert_voc_to_yolo(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
-                image=np.ones((10, 20, 3)),
+                media=Image(data=np.ones((10, 20, 3))),
                 annotations=[
                     Bbox(1.0, 2.0, 2.0, 2.0, label=8),
                     Bbox(4.0, 5.0, 2.0, 2.0, label=15),
@@ -88,19 +89,19 @@ class YoloIntegrationScenarios(TestCase):
 
             parsed_dataset = Dataset.import_from(yolo_dir, format='yolo')
             compare_datasets(self, target_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_ignore_non_supported_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='img1', subset='test',
-                image=np.ones((10, 20, 3)),
+                media=Image(data=np.ones((10, 20, 3))),
                 annotations=[
                     Bbox(1.0, 2.0, 1.0, 1.0, label=0)
                 ]
             ),
             DatasetItem(id='img2', subset='train',
-                image=np.ones((10, 5, 3)),
+                media=Image(data=np.ones((10, 5, 3))),
                 annotations=[
                     Bbox(3.0, 1.0, 2.0, 1.0, label=1)
                 ]
@@ -109,7 +110,7 @@ class YoloIntegrationScenarios(TestCase):
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='img2', subset='train',
-                image=np.ones((10, 5, 3)),
+                media=Image(data=np.ones((10, 5, 3))),
                 annotations=[
                     Bbox(3.0, 1.0, 2.0, 1.0, label=1)
                 ]
@@ -118,7 +119,7 @@ class YoloIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             dataset_dir = osp.join(test_dir, 'dataset_dir')
-            source_dataset.save(dataset_dir, save_images=True)
+            source_dataset.save(dataset_dir, save_media=True)
 
             proj_dir = osp.join(test_dir, 'proj')
             run(self, 'create', '-o', proj_dir)
@@ -135,7 +136,7 @@ class YoloIntegrationScenarios(TestCase):
     def test_can_delete_labels_from_yolo_dataset(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
-                image=np.ones((10, 15, 3)),
+                media=Image(data=np.ones((10, 15, 3))),
                 annotations=[
                     Bbox(0.0, 2.0, 4.0, 2.0, label=0)
                 ]

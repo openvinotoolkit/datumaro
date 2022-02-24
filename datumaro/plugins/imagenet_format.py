@@ -10,7 +10,9 @@ from datumaro.components.annotation import (
     AnnotationType, Label, LabelCategories,
 )
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
 
@@ -44,7 +46,7 @@ class ImagenetExtractor(SourceExtractor):
             item = items.get(item_id)
             if item is None:
                 item = DatasetItem(id=item_id, subset=self._subset,
-                    image=image_path)
+                    media=Image(path=image_path))
                 items[item_id] = item
             annotations = item.annotations
 
@@ -73,6 +75,10 @@ class ImagenetConverter(Converter):
                 return ''
             else:
                 return label_name
+
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
 
         if 1 < len(self._extractor.subsets()):
             log.warning("ImageNet format only supports exporting a single "

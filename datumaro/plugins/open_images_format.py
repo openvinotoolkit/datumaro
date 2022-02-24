@@ -25,7 +25,7 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import (
-    DatasetError, RepeatedItemError, UndefinedLabel,
+    DatasetError, MediaTypeError, RepeatedItemError, UndefinedLabel,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
@@ -333,7 +333,7 @@ class OpenImagesExtractor(Extractor):
         else:
             image = Image(path=image_path, size=self._image_meta.get(item_id))
 
-        item = DatasetItem(id=item_id, image=image, subset=subset)
+        item = DatasetItem(id=item_id, media=image, subset=subset)
         self._items.append(item)
         return item
 
@@ -401,8 +401,8 @@ class OpenImagesExtractor(Extractor):
                             item_id=item.id, subset=item.subset,
                             label_name=label_name, severity=Severity.error)
 
-                    if item.has_image and item.image.size is not None:
-                        height, width = item.image.size
+                    if item.media and item.media.size is not None:
+                        height, width = item.media.size
                     elif self._image_meta.get(item.id):
                         height, width = self._image_meta[item.id]
                     else:
@@ -482,8 +482,8 @@ class OpenImagesExtractor(Extractor):
                             item_id=item.id, subset=item.subset,
                             label_name=label_name, severity=Severity.error)
 
-                    if item.has_image and item.image.has_size:
-                        image_size = item.image.size
+                    if item.media and item.media.has_size:
+                        image_size = item.media.size
                     elif self._image_meta.get(item.id):
                         image_size = self._image_meta.get(item.id)
                     else:
@@ -674,6 +674,10 @@ class OpenImagesConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         self._save(_AnnotationWriter(self._save_dir))
 
     @classmethod
@@ -796,8 +800,8 @@ class OpenImagesConverter(Converter):
                         'ImageID': item.id, 'Subset': subset_name,
                     })
 
-                    if self._save_images:
-                        if item.has_image:
+                    if self._save_media:
+                        if item.media:
                             self._save_image(item, subdir=osp.join(
                                 OpenImagesPath.IMAGES_DIR, subset_name))
                         else:
@@ -850,9 +854,9 @@ class OpenImagesConverter(Converter):
                         'Confidence': str(annotation.attributes.get('score', 1)),
                     })
                 elif annotation.type is AnnotationType.bbox:
-                    if item.has_image and item.image.size is not None:
-                        image_meta[item.id] = item.image.size
-                        height, width = item.image.size
+                    if item.media and item.media.size is not None:
+                        image_meta[item.id] = item.media.size
+                        height, width = item.media.size
                     else:
                         log.warning(
                             "Can't encode box for item '%s' due to missing image file",
@@ -897,9 +901,9 @@ class OpenImagesConverter(Converter):
                     box_coords = {}
 
                     if instance_box is not None:
-                        if item.has_image and item.image.size is not None:
-                            image_meta[item.id] = item.image.size
-                            height, width = item.image.size
+                        if item.media and item.media.size is not None:
+                            image_meta[item.id] = item.media.size
+                            height, width = item.media.size
 
                             box_coords = {
                                 'BoxXMin': instance_box.x / width,

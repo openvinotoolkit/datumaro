@@ -4,7 +4,9 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple
+from typing import (
+    Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Type, Union,
+)
 from unittest import TestCase
 import hashlib
 import logging as log
@@ -22,12 +24,13 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
     AnnotationsTooCloseError, ConflictingCategoriesError, DatasetMergeError,
-    FailedAttrVotingError, FailedLabelVotingError, MismatchingAttributesError,
-    MismatchingImageInfoError, MismatchingImagePathError, NoMatchingAnnError,
-    NoMatchingItemError, WrongGroupError,
+    FailedAttrVotingError, FailedLabelVotingError, MediaTypeError,
+    MismatchingAttributesError, MismatchingImageInfoError,
+    MismatchingMediaError, MismatchingMediaPathError, NoMatchingAnnError,
+    NoMatchingItemError, VideoMergeError, WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
-from datumaro.components.media import Image
+from datumaro.components.media import Image, MediaElement, PointCloud, Video
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
@@ -116,7 +119,7 @@ class ExactMerge:
     def _merge_items(cls, existing_item: DatasetItem,
             current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
-            image=cls._merge_images(existing_item, current_item),
+            media=cls._merge_media(existing_item, current_item),
             attributes=cls._merge_attrs(
                 existing_item.attributes, current_item.attributes,
                 item_id=(existing_item.id, existing_item.subset)),
@@ -145,14 +148,50 @@ class ExactMerge:
 
         return merged
 
+    @classmethod
+    def _merge_media(cls, item_a: DatasetItem, item_b: DatasetItem) \
+            -> Union[Image, PointCloud, Video]:
+        if (not item_a.media or isinstance(item_a.media, Image)) and \
+                (not item_b.media or isinstance(item_b.media, Image)):
+            media = cls._merge_images(item_a, item_b)
+        elif (not item_a.media or isinstance(item_a.media, PointCloud)) and \
+                (not item_b.media or isinstance(item_b.media, PointCloud)):
+            media = cls._merge_point_clouds(item_a, item_b)
+        elif (not item_a.media or isinstance(item_a.media, Video)) and \
+                (not item_b.media or isinstance(item_b.media, Video)):
+            media = cls._merge_videos(item_a, item_b)
+        elif (not item_a.media or isinstance(item_a.media, MediaElement)) and \
+                (not item_b.media or isinstance(item_b.media, MediaElement)):
+            if isinstance(item_a.media, MediaElement) and isinstance(item_b.media, MediaElement):
+                if item_a.media.path and item_b.media.path and \
+                        item_a.media.path != item_b.media.path:
+                    raise MismatchingMediaPathError(
+                        (item_a.id, item_a.subset),
+                        item_a.media.path, item_b.media.path)
+
+                if item_a.media.path:
+                    media = item_a.media
+                else:
+                    media = item_b.media
+
+            elif isinstance(item_a.media, MediaElement):
+                media = item_a.media
+            else:
+                media = item_b.media
+        else:
+            raise MismatchingMediaError(
+                (item_a.id, item_a.subset),
+                item_a.media, item_b.media)
+        return media
+
     @staticmethod
     def _merge_images(item_a: DatasetItem, item_b: DatasetItem) -> Image:
-        image = None
+        media = None
 
-        if item_a.has_image and item_b.has_image:
-            if item_a.image.path and item_b.image.path and \
-                    item_a.image.path != item_b.image.path and \
-                    item_a.image.has_data is item_b.image.has_data:
+        if isinstance(item_a.media, Image) and isinstance(item_b.media, Image):
+            if item_a.media.path and item_b.media.path and \
+                    item_a.media.path != item_b.media.path and \
+                    item_a.media.has_data is item_b.media.has_data:
                 # We use has_data as a replacement for path existence check
                 # - If only one image has data, we'll use it. The other
                 #   one is just a path metainfo, which is not significant
@@ -163,45 +202,97 @@ class ExactMerge:
                 # Different paths can aclually point to the same file,
                 # but it's not the case we'd like to allow here to be
                 # a "simple" merging strategy used for extractor joining
-                raise MismatchingImagePathError(
+                raise MismatchingMediaPathError(
                     (item_a.id, item_a.subset),
-                    item_a.image.path, item_b.image.path)
+                    item_a.media.path, item_b.media.path)
 
-            if item_a.image.has_size and item_b.image.has_size and \
-                    item_a.image.size != item_b.image.size:
+            if item_a.media.has_size and item_b.media.has_size and \
+                    item_a.media.size != item_b.media.size:
                 raise MismatchingImageInfoError(
                     (item_a.id, item_a.subset),
-                    item_a.image.size, item_b.image.size)
+                    item_a.media.size, item_b.media.size)
 
             # Avoid direct comparison here for better performance
             # If there are 2 "data-only" images, they won't be compared and
             # we just use the first one
-            if item_a.image.has_data:
-                image = item_a.image
-            elif item_b.image.has_data:
-                image = item_b.image
-            elif item_a.image.path:
-                image = item_a.image
-            elif item_b.image.path:
-                image = item_b.image
-            elif item_a.image.has_size:
-                image = item_a.image
-            elif item_b.image.has_size:
-                image = item_b.image
+            if item_a.media.has_data:
+                media = item_a.media
+            elif item_b.media.has_data:
+                media = item_b.media
+            elif item_a.media.path:
+                media = item_a.media
+            elif item_b.media.path:
+                media = item_b.media
+            elif item_a.media.has_size:
+                media = item_a.media
+            elif item_b.media.has_size:
+                media = item_b.media
             else:
                 assert False, "Unknown image field combination"
 
-            if not image.has_data or not image.has_size:
-                if item_a.image._size:
-                    image._size = item_a.image._size
-                elif item_b.image._size:
-                    image._size = item_b.image._size
-        elif item_a.has_image:
-            image = item_a.image
+            if not media.has_data or not media.has_size:
+                if item_a.media._size:
+                    media._size = item_a.media._size
+                elif item_b.media._size:
+                    media._size = item_b.media._size
+        elif isinstance(item_a.media, Image):
+            media = item_a.media
         else:
-            image = item_b.image
+            media = item_b.media
 
-        return image
+        return media
+
+    @staticmethod
+    def _merge_point_clouds(item_a: DatasetItem, item_b: DatasetItem) -> PointCloud:
+        media = None
+
+        if isinstance(item_a.media, PointCloud) and isinstance(item_b.media, PointCloud):
+            if item_a.media.path and item_b.media.path and \
+                    item_a.media.path != item_b.media.path:
+                raise MismatchingMediaPathError(
+                    (item_a.id, item_a.subset),
+                    item_a.media.path, item_b.media.path)
+
+            if item_a.media.path or item_a.media.extra_images:
+                media = item_a.media
+
+                if item_b.media.extra_images:
+                    for image in item_b.media.extra_images:
+                        if image not in media.extra_images:
+                            media.extra_images.append(image)
+            else:
+                media = item_b.media
+
+                if item_a.media.extra_images:
+                    for image in item_a.media.extra_images:
+                        if image not in media.extra_images:
+                            media.extra_images.append(image)
+
+        elif isinstance(item_a.media, PointCloud):
+            media = item_a.media
+        else:
+            media = item_b.media
+
+        return media
+
+    @staticmethod
+    def _merge_videos(item_a: DatasetItem, item_b: DatasetItem) -> Video:
+        media = None
+
+        if isinstance(item_a.media, Video) and isinstance(item_b.media, Video):
+            if item_a.media.path is not item_b.media.path or \
+                    item_a.media._start_frame is not item_b.media._start_frame or \
+                    item_a.media._end_frame is not item_b.media._end_frame or \
+                    item_a.media._step is not item_b.media._step:
+                raise VideoMergeError(item_a.id)
+
+            media = item_a.media
+        elif isinstance(item_a.media, Video):
+            media = item_a.media
+        else:
+            media = item_b.media
+
+        return media
 
     @staticmethod
     def _merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) \
@@ -211,6 +302,17 @@ class ExactMerge:
     @staticmethod
     def merge_categories(sources: Iterable[IDataset]) -> CategoriesInfo:
         return merge_categories(sources)
+
+    @staticmethod
+    def merge_media_types(sources: Iterable[IDataset]) -> Optional[Type[MediaElement]]:
+        if sources:
+            media_type = sources[0].media_type()
+            for s in sources:
+                if s.media_type() is not media_type:
+                    raise MediaTypeError("Datasets have different media types")
+            return media_type
+
+        return None
 
 @attrs
 class IntersectMerge(MergingStrategy):
@@ -1084,14 +1186,14 @@ class _MeanStdCounter:
         self._stats = {} # (id, subset) -> (pixel count, mean vec, std vec)
 
     def accumulate(self, item: DatasetItem):
-        size = item.image.size
+        size = item.media.size
         if size is None:
             log.warning("Item %s: can't detect image size, "
                 "the image will be skipped from pixel statistics", item.id)
             return
-        count = np.prod(item.image.size)
+        count = np.prod(item.media.size)
 
-        image = item.image.data
+        image = item.media.data
         if len(image.shape) == 2:
             image = image[:, :, np.newaxis]
         else:
@@ -1468,16 +1570,16 @@ def match_items_by_image_hash(a: IDataset, b: IDataset):
 class _ItemMatcher:
     @staticmethod
     def _default_item_hash(item: DatasetItem):
-        if not item.image or not item.image.has_data:
-            if item.image and item.image.path:
-                return hash(item.image.path)
+        if not item.media or not item.media.has_data:
+            if item.media and item.media.path:
+                return hash(item.media.path)
 
             log.warning("Item (%s, %s) has no image "
                 "info, counted as unique", item.id, item.subset)
             return None
 
         # Disable B303:md5, because the hash is not used in a security context
-        return hashlib.md5(item.image.data.tobytes()).hexdigest() # nosec
+        return hashlib.md5(item.media.data.tobytes()).hexdigest() # nosec
 
     def __init__(self, item_hash: Optional[Callable] = None):
         self._hash = item_hash or self._default_item_hash

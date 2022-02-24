@@ -9,6 +9,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import AnnotationType, DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.mpii_format.mpii_json import (
     MPII_POINTS_JOINTS, MPII_POINTS_LABELS, MpiiJsonImporter,
 )
@@ -25,7 +26,7 @@ class MpiiJsonImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_580)
     def test_can_import_dataset_witn_numpy_files(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='000000001', image=np.ones((5, 5, 3)),
+            DatasetItem(id='000000001', media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Points([620.0, 394.0, 616.0, 269.0, 573.0, 185.0, 647.0,
                             188.0, 661.0, 221.0, 656.0, 231.0, 610.0, 187.0,
@@ -38,7 +39,7 @@ class MpiiJsonImporterTest(TestCase):
                     Bbox(615, 218.65, 288.4, 286.95, label=0, group=1)
                 ]
             ),
-            DatasetItem(id='000000002', image=np.ones((5, 5, 3)),
+            DatasetItem(id='000000002', media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Points([650.0, 424.0, 646.0, 309.0, 603.0, 215.0, 677.0,
                             218.0, 691.0, 251.0, 686.0, 261.0, 640.0, 217.0,
@@ -51,7 +52,7 @@ class MpiiJsonImporterTest(TestCase):
                     Bbox(101.1, 33.3, 113.9, 81.4, label=0, group=1)
                 ]
             ),
-            DatasetItem(id='000000003', image=np.ones((5, 5, 3)),
+            DatasetItem(id='000000003', media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Points([590.0, 364.0, 586.0, 239.0, 533.0, 155.0, 617.0,
                             158.0, 631.0, 191.0, 626.0, 201.0, 580.0, 157.0,
@@ -90,12 +91,12 @@ class MpiiJsonImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_WITH_NUMPY_FILES, 'mpii_json')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_580)
     def test_can_import_dataset_wo_numpy_files(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='000000001', image=np.ones((5, 5, 3)),
+            DatasetItem(id='000000001', media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Points([620.0, 394.0, 616.0, 269.0, 573.0, 185.0, 647.0,
                             188.0, 661.0, 221.0, 656.0, 231.0, 610.0, 187.0,
@@ -107,7 +108,7 @@ class MpiiJsonImporterTest(TestCase):
                         label=0, group=1)
                 ]
             ),
-            DatasetItem(id='000000002', image=np.ones((5, 5, 3)),
+            DatasetItem(id='000000002', media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Points([650.0, 424.0, 646.0, 309.0, 603.0, 215.0, 677.0,
                             218.0, 691.0, 251.0, 686.0, 261.0, 640.0, 217.0,
@@ -119,7 +120,7 @@ class MpiiJsonImporterTest(TestCase):
                         label=0, group=1)
                 ]
             ),
-            DatasetItem(id='000000003', image=np.ones((5, 5, 3)),
+            DatasetItem(id='000000003', media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Points([590.0, 364.0, 586.0, 239.0, 533.0, 155.0, 617.0,
                             158.0, 631.0, 191.0, 626.0, 201.0, 580.0, 157.0,
@@ -139,7 +140,7 @@ class MpiiJsonImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_WO_NUMPY_FILES, 'mpii_json')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_580)
     def test_can_detect_dataset_with_numpy_files(self):

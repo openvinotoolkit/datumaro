@@ -27,7 +27,7 @@ class ImageZipPath:
 
 class ImageZipExtractor(SourceExtractor):
     def __init__(self, url, subset=None):
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, media_type=ByteImage)
 
         assert url.endswith('.zip'), url
 
@@ -38,7 +38,7 @@ class ImageZipExtractor(SourceExtractor):
                     continue
                 image = ByteImage(data=zf.read(path.filename))
                 self._items.append(DatasetItem(
-                    id=item_id, image=image, subset=self._subset
+                    id=item_id, media=image, subset=self._subset
                 ))
 
 class ImageZipImporter(Importer):
@@ -99,17 +99,17 @@ class ImageZipConverter(Converter):
 
         with ZipFile(archive_path, 'w', self._compression) as zf:
             for item in self._extractor:
-                if item.has_image:
+                if item.media:
                     self._archive_image(zf, item)
                 else:
                     log.debug("Item '%s' has no image info", item.id)
 
     def _archive_image(self, zipfile, item):
         image_name = self._make_image_filename(item)
-        if osp.isfile(item.image.path):
-            zipfile.write(item.image.path, arcname=image_name)
-        elif isinstance(item.image, ByteImage):
-            zipfile.writestr(image_name, item.image.get_bytes())
-        elif item.image.has_data:
+        if osp.isfile(item.media.path):
+            zipfile.write(item.media.path, arcname=image_name)
+        elif isinstance(item.media, ByteImage):
+            zipfile.writestr(image_name, item.media.get_bytes())
+        elif item.media.has_data:
             zipfile.writestr(image_name,
-                encode_image(item.image.data, osp.splitext(image_name)[1]))
+                encode_image(item.media.data, osp.splitext(image_name)[1]))

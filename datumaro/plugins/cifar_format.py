@@ -14,7 +14,9 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util import cast
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.pickle_util import PickleLoader
@@ -134,8 +136,11 @@ class CifarExtractor(SourceExtractor):
                         .reshape(3, CifarPath.IMAGE_SIZE, CifarPath.IMAGE_SIZE)
                     image = np.transpose(image, (1, 2, 0))
 
+            if image is not None:
+                image = Image(data=image)
+
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=image, annotations=annotations)
+                media=image, annotations=annotations)
 
         return items
 
@@ -158,6 +163,10 @@ class CifarConverter(Converter):
     DEFAULT_IMAGE_EXT = '.png'
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
         if self._save_dataset_meta:
@@ -204,8 +213,8 @@ class CifarConverter(Converter):
                     labels.append(None)
                     coarse_labels.append(None)
 
-                if self._save_images and item.has_image:
-                    image = item.image
+                if self._save_media and item.media:
+                    image = item.media
                     if not image.has_data:
                         data.append(None)
                     else:

@@ -371,10 +371,10 @@ def filter_command(args):
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory.
-                # We specify save_images here as a heuristic. It can probably
+                # We specify save_media here as a heuristic. It can probably
                 # be improved by checking if there are images in the dataset
                 # directory.
-                dataset.save(project.source_data_dir(target), save_images=True)
+                dataset.save(project.source_data_dir(target), save_media=True)
 
             log.info("Finished")
         else:
@@ -389,7 +389,7 @@ def filter_command(args):
             dst_dir = osp.abspath(dst_dir)
 
             dataset.filter(filter_expr, *filter_args)
-            dataset.save(dst_dir, save_images=True)
+            dataset.save(dst_dir, save_media=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -557,10 +557,10 @@ def transform_command(args):
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory
-                # We specify save_images here as a heuristic. It can probably
+                # We specify save_media here as a heuristic. It can probably
                 # be improved by checking if there are images in the dataset
                 # directory.
-                dataset.save(project.source_data_dir(target), save_images=True)
+                dataset.save(project.source_data_dir(target), save_media=True)
 
             log.info("Finished")
         else:
@@ -575,7 +575,7 @@ def transform_command(args):
             dst_dir = osp.abspath(dst_dir)
 
             dataset.transform(args.transform, **extra_args)
-            dataset.save(dst_dir, save_images=True)
+            dataset.save(dst_dir, save_media=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
 

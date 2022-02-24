@@ -121,7 +121,7 @@ datum export -f imagenet -o <output/dir>
 or
 ``` bash
 datum convert -if cifar -i <path/to/dataset> \
-    -f imagenet -o <output/dir> -- --save-images
+    -f imagenet -o <output/dir> -- --save-media
 ```
 
 Or, using Python API:
@@ -130,7 +130,7 @@ Or, using Python API:
 import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path/to/dataset>', 'cifar')
-dataset.export('save_dir', 'imagenet', save_images=True)
+dataset.export('save_dir', 'imagenet', save_media=True)
 ```
 
 ## Export to CIFAR
@@ -140,17 +140,17 @@ There are several ways to convert a dataset to CIFAR format:
 ``` bash
 # export dataset into CIFAR format from existing project
 datum export -p <path/to/project> -f cifar -o <output/dir> \
-    -- --save-images
+    -- --save-media
 ```
 ``` bash
 # converting to CIFAR format from other format
 datum convert -if imagenet -i <path/to/dataset> \
-    -f cifar -o <output/dir> -- --save-images
+    -f cifar -o <output/dir> -- --save-media
 ```
 
 Extra options for exporting to CIFAR format:
 
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting the dataset (by default `.png`)

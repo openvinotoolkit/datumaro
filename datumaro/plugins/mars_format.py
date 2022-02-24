@@ -13,6 +13,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import DatasetItem
 from datumaro.components.extractor import Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
 
@@ -76,7 +77,7 @@ class MarsExtractor(Extractor):
                         f'the directory name: {label}')
                     continue
 
-                items.append(DatasetItem(id=item_id, image=image_path,
+                items.append(DatasetItem(id=item_id, media=Image(path=image_path),
                     subset=subset, annotations=[Label(label=label_id)],
                     attributes={'person_id': pedestrian_id,
                         'camera_id': int(image_name[5]),

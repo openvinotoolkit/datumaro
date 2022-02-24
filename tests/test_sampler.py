@@ -85,7 +85,7 @@ class TestRelevancySampler(TestCase):
                                 attributes=attr,
                             )
                         ],
-                        image=img,
+                        media=img,
                     )
                 )
         categories = {AnnotationType.label: label_cat}
@@ -346,10 +346,10 @@ class TestRelevancySampler(TestCase):
                 infer_df = defaultdict(list)
 
                 for data in sub:
-                    width, height = data.image.size
+                    width, height = data.media.size
                     data_df["Width"].append(width)
                     data_df["Height"].append(height)
-                    data_df["ImagePath"].append(data.image.path)
+                    data_df["ImagePath"].append(data.media.path)
 
                     for annotation in data.annotations:
                         probs = annotation.attributes["scores"]
@@ -372,11 +372,11 @@ class TestRelevancySampler(TestCase):
                 infer_df = defaultdict(list)
 
                 for data in sub:
-                    width, height = data.image.size
+                    width, height = data.media.size
                     data_df["ImageID"].append(data.id)
                     data_df["Width"].append(width)
                     data_df["Height"].append(height)
-                    data_df["ImagePath"].append(data.image.path)
+                    data_df["ImagePath"].append(data.media.path)
 
                     for annotation in data.annotations:
                         probs = annotation.attributes["scores"]

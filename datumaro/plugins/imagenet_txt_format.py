@@ -12,9 +12,10 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.converter import Converter
-from datumaro.components.errors import DatasetImportError
+from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
@@ -120,7 +121,7 @@ class ImagenetTxtExtractor(SourceExtractor):
                     anno.append(Label(label))
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=osp.join(self.image_dir, image), annotations=anno)
+                    media=Image(path=osp.join(self.image_dir, image)), annotations=anno)
 
         return items
 
@@ -178,6 +179,10 @@ class ImagenetTxtConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         subset_dir = self._save_dir
         os.makedirs(subset_dir, exist_ok=True)
 
@@ -194,7 +199,7 @@ class ImagenetTxtConverter(Converter):
                 labels[item_id] = set(p.label for p in item.annotations
                     if p.type == AnnotationType.label)
 
-                if self._save_images and item.has_image:
+                if self._save_media and item.media:
                     self._save_image(item, subdir=ImagenetTxtPath.IMAGE_DIR)
 
             annotation = ''

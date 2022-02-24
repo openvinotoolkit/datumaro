@@ -64,7 +64,7 @@ class KittiImportTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='000030_10',
                 subset='training',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(image=np.array([[1, 1, 0, 0, 0]]), id=0, label=3,
                         attributes={'is_crowd': True}),
@@ -76,7 +76,7 @@ class KittiImportTest(TestCase):
             ),
             DatasetItem(id='000030_11',
                 subset='training',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(image=np.array([[1, 1, 0, 0, 0]]), id=1, label=31,
                         attributes={'is_crowd': False}),
@@ -98,7 +98,7 @@ class KittiImportTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='000030_10',
                 subset='training',
-                image=np.ones((10, 10, 3)),
+                media=Image(data=np.ones((10, 10, 3))),
                 annotations=[
                     Bbox(0, 1, 2, 2, label=0, id=0,
                         attributes={'truncated': True, 'occluded': False}),
@@ -107,7 +107,7 @@ class KittiImportTest(TestCase):
                 ]),
             DatasetItem(id='000030_11',
                 subset='training',
-                image=np.ones((10, 10, 3)), annotations=[
+                media=Image(data=np.ones((10, 10, 3))), annotations=[
                     Bbox(0, 0, 2, 2, label=1, id=0,
                         attributes={'truncated': True, 'occluded': True}),
                     Bbox(4, 4, 2, 2, label=1, id=1,
@@ -171,7 +171,7 @@ class KittiConverterTest(TestCase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='1_2', subset='test',
-                        image=np.ones((1, 5, 3)), annotations=[
+                        media=Image(data=np.ones((1, 5, 3))), annotations=[
                         Mask(image=np.array([[0, 0, 0, 1, 0]]), label=3, id=0,
                             attributes={'is_crowd': True}),
                         Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
@@ -180,7 +180,7 @@ class KittiConverterTest(TestCase):
                             attributes={'is_crowd': True}),
                     ]),
                     DatasetItem(id='3', subset='val',
-                        image=np.ones((1, 5, 3)), annotations=[
+                        media=Image(data=np.ones((1, 5, 3))), annotations=[
                         Mask(image=np.array([[1, 1, 0, 1, 1]]), label=3, id=0,
                             attributes={'is_crowd': True}),
                         Mask(image=np.array([[0, 0, 1, 0, 0]]), label=5, id=0,
@@ -190,19 +190,19 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, label_map='kitti',
-                save_images=True), test_dir)
+                save_media=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_detection(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1_2', subset='test',
-                image=np.ones((10, 10, 3)), annotations=[
+                media=Image(data=np.ones((10, 10, 3))), annotations=[
                 Bbox(0, 1, 2, 2, label=0, id=0,
                     attributes={'truncated': False, 'occluded': False,
                         'score': 1.0}),
             ]),
             DatasetItem(id='1_3', subset='test',
-                image=np.ones((10, 10, 3)), annotations=[
+                media=Image(data=np.ones((10, 10, 3))), annotations=[
                 Bbox(0, 0, 2, 2, label=1, id=0,
                     attributes={'truncated': True, 'occluded': False,
                         'score': 1.0}),
@@ -215,7 +215,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(KittiConverter.convert,
-                save_images=True, tasks=KittiTask.detection), test_dir)
+                save_media=True, tasks=KittiTask.detection), test_dir)
 
     @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_segm_unpainted(self):
@@ -223,7 +223,7 @@ class KittiConverterTest(TestCase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='1_2', subset='test',
-                        image=np.ones((1, 5, 3)), annotations=[
+                        media=Image(data=np.ones((1, 5, 3))), annotations=[
                         Mask(image=np.array([[0, 0, 0, 1, 0]]), label=3, id=0,
                             attributes={'is_crowd': True}),
                         Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
@@ -236,7 +236,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, label_map='kitti',
-                save_images=True, apply_colormap=False), test_dir)
+                save_media=True, apply_colormap=False), test_dir)
 
     @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_dataset_with_no_subsets(self):
@@ -244,7 +244,7 @@ class KittiConverterTest(TestCase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='1_2',
-                        image=np.ones((1, 5, 3)), annotations=[
+                        media=Image(data=np.ones((1, 5, 3))), annotations=[
                         Mask(image=np.array([[1, 0, 0, 1, 0]]), label=0, id=0,
                             attributes={'is_crowd': True}),
                         Mask(image=np.array([[0, 1, 1, 0, 1]]), label=3, id=0,
@@ -252,7 +252,7 @@ class KittiConverterTest(TestCase):
                     ]),
 
                     DatasetItem(id='1_3',
-                        image=np.ones((1, 5, 3)), annotations=[
+                        media=Image(data=np.ones((1, 5, 3))), annotations=[
                         Mask(image=np.array([[1, 1, 0, 1, 0]]), label=1, id=0,
                             attributes={'is_crowd': True}),
                         Mask(image=np.array([[0, 0, 1, 0, 1]]), label=2, id=0,
@@ -263,7 +263,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, label_map='kitti',
-                save_images=True), test_dir)
+                save_media=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_dataset_without_frame_and_sequence(self):
@@ -271,7 +271,7 @@ class KittiConverterTest(TestCase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='data', subset='test',
-                        image=np.ones((1, 5, 3)), annotations=[
+                        media=Image(data=np.ones((1, 5, 3))), annotations=[
                         Mask(image=np.array([[1, 0, 0, 1, 1]]), label=3, id=0,
                             attributes={'is_crowd': True}),
                         Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
@@ -281,7 +281,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, label_map='kitti',
-                save_images=True), test_dir)
+                save_media=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
@@ -289,7 +289,7 @@ class KittiConverterTest(TestCase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='кириллица с пробелом',
-                       image=np.ones((1, 5, 3)), annotations=[
+                       media=Image(data=np.ones((1, 5, 3))), annotations=[
                          Mask(image=np.array([[1, 0, 0, 1, 1]]), label=3, id=0,
                              attributes={'is_crowd': True}),
                          Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
@@ -300,7 +300,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, label_map='kitti',
-                save_images=True), test_dir)
+                save_media=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_dataset_with_complex_id(self):
@@ -308,7 +308,7 @@ class KittiConverterTest(TestCase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a/b/1', subset='test',
-                        image=np.ones((1, 5, 3)), annotations=[
+                        media=Image(data=np.ones((1, 5, 3))), annotations=[
                         Mask(image=np.array([[1, 0, 0, 1, 1]]), label=3, id=0,
                             attributes={'is_crowd': True}),
                         Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
@@ -319,7 +319,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, label_map='kitti',
-                save_images=True), test_dir)
+                save_media=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_280)
     def test_can_save_with_no_masks(self):
@@ -327,25 +327,27 @@ class KittiConverterTest(TestCase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='city_1_2', subset='test',
-                        image=np.ones((2, 5, 3)),
+                        media=Image(data=np.ones((2, 5, 3))),
                     ),
                 ])
 
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, label_map='kitti',
-                save_images=True), test_dir)
+                save_media=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_280)
     def test_dataset_with_source_labelmap_undefined(self):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
-                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
-                        attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
-                        attributes={'is_crowd': False}),
-                ])
+                yield DatasetItem(id=1, media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
+                            attributes={'is_crowd': False}),
+                        Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
+                            attributes={'is_crowd': False}),
+                    ]
+                )
 
             def categories(self):
                 label_cat = LabelCategories()
@@ -358,14 +360,16 @@ class KittiConverterTest(TestCase):
 
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
-                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]),
-                        attributes={'is_crowd': False}, id=1,
-                        label=self._label('Label_1')),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]),
-                        attributes={'is_crowd': False}, id=2,
-                        label=self._label('label_2')),
-                ])
+                yield DatasetItem(id=1, media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(image=np.array([[1, 0, 0, 1, 1]]),
+                            attributes={'is_crowd': False}, id=1,
+                            label=self._label('Label_1')),
+                        Mask(image=np.array([[0, 1, 1, 0, 0]]),
+                            attributes={'is_crowd': False}, id=2,
+                            label=self._label('label_2')),
+                    ]
+                )
 
             def categories(self):
                 label_map = OrderedDict()
@@ -377,18 +381,20 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(SrcExtractor(),
                 partial(KittiConverter.convert, label_map='source',
-                save_images=True), test_dir, target_dataset=DstExtractor())
+                save_media=True), test_dir, target_dataset=DstExtractor())
 
     @mark_requirement(Requirements.DATUM_280)
     def test_dataset_with_source_labelmap_defined(self):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
-                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
-                        attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
-                        attributes={'is_crowd': False}),
-                ])
+                yield DatasetItem(id=1, media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
+                            attributes={'is_crowd': False}),
+                        Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
+                            attributes={'is_crowd': False}),
+                    ]
+                )
 
             def categories(self):
                 label_map = OrderedDict()
@@ -399,14 +405,16 @@ class KittiConverterTest(TestCase):
 
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
-                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]),
-                        attributes={'is_crowd': False}, id=1,
-                        label=self._label('label_1')),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]),
-                        attributes={'is_crowd': False}, id=2,
-                        label=self._label('label_2')),
-                ])
+                yield DatasetItem(id=1, media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(image=np.array([[1, 0, 0, 1, 1]]),
+                            attributes={'is_crowd': False}, id=1,
+                            label=self._label('label_1')),
+                        Mask(image=np.array([[0, 1, 1, 0, 0]]),
+                            attributes={'is_crowd': False}, id=2,
+                            label=self._label('label_2')),
+                    ]
+                )
 
             def categories(self):
                 label_map = OrderedDict()
@@ -418,17 +426,17 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(SrcExtractor(),
                 partial(KittiConverter.convert, label_map='source',
-                save_images=True), test_dir, target_dataset=DstExtractor())
+                save_media=True), test_dir, target_dataset=DstExtractor())
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
-                    DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+                    DatasetItem(id='q/1', media=Image(path='q/1.JPEG',
                         data=np.zeros((4, 3, 3)))),
 
-                    DatasetItem(id='a/b/c/2', image=Image(
+                    DatasetItem(id='a/b/c/2', media=Image(
                              path='a/b/c/2.bmp', data=np.ones((1, 5, 3))
                          ), annotations=[
                         Mask(image=np.array([[1, 0, 0, 1, 0]]), label=0, id=0,
@@ -446,8 +454,8 @@ class KittiConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
-                partial(KittiConverter.convert, save_images=True),
-                test_dir, require_images=True)
+                partial(KittiConverter.convert, save_media=True),
+                test_dir, require_media=True)
 
             self.assertTrue(osp.isfile(osp.join(test_dir, 'default',
                 KittiPath.IMAGES_DIR, 'a/b/c/2.bmp')))
@@ -455,11 +463,11 @@ class KittiConverterTest(TestCase):
                 KittiPath.IMAGES_DIR, 'q/1.JPEG')))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_with_no_save_images_segmentation(self):
+    def test_can_save_and_load_with_no_save_media_segmentation(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
-                    DatasetItem(id='a', image=np.ones((5, 5, 3)),
+                    DatasetItem(id='a', media=Image(data=np.ones((5, 5, 3))),
                         annotations=[
                             Mask(image=np.array([[1, 0, 0, 0, 0]] * 5),
                                 label=0, attributes={'is_crowd': True}),
@@ -471,13 +479,14 @@ class KittiConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
-                partial(KittiConverter.convert, save_images=False,
+                partial(KittiConverter.convert, save_media=False,
                     label_map='kitti'), test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_with_no_save_images_detection(self):
+    def test_can_save_and_load_with_no_save_media_detection(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='b', subset='val', image=np.ones((5, 5, 3)),
+            DatasetItem(id='b', subset='val',
+                media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Bbox(0, 0, 3, 3, label=0, attributes={
                         'truncated': True, 'occluded': False,
@@ -489,7 +498,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(KittiConverter.convert, tasks=KittiTask.detection,
-                    save_images=False), test_dir)
+                    save_media=False), test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_segmentation_with_unordered_labels(self):
@@ -500,7 +509,7 @@ class KittiConverterTest(TestCase):
         }
 
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='a', image=np.ones((1, 5, 3)),
+            DatasetItem(id='a', media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(image=np.array([[1, 0, 0, 0, 0]]),
                         attributes={'is_crowd': False}, label=0, id=1),
@@ -519,7 +528,7 @@ class KittiConverterTest(TestCase):
         }
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='a', image=np.ones((1, 5, 3)),
+            DatasetItem(id='a', media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(image=np.array([[1, 0, 0, 0, 0]]),
                         attributes={'is_crowd': False}, label=0, id=1),
@@ -541,13 +550,13 @@ class KittiConverterTest(TestCase):
     def test_can_save_detection_with_score_attribute(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1_2', subset='test',
-                image=np.ones((10, 10, 3)), annotations=[
+                media=Image(data=np.ones((10, 10, 3))), annotations=[
                 Bbox(0, 1, 2, 2, label=0, id=0,
                     attributes={'truncated': False, 'occluded': False,
                         'score': 0.78}),
             ]),
             DatasetItem(id='1_3', subset='test',
-                image=np.ones((10, 10, 3)), annotations=[
+                media=Image(data=np.ones((10, 10, 3))), annotations=[
                 Bbox(0, 0, 2, 2, label=1, id=0,
                     attributes={'truncated': True, 'occluded': False,
                         'score': 0.8}),
@@ -560,19 +569,19 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(KittiConverter.convert,
-                save_images=True, tasks=KittiTask.detection), test_dir)
+                save_media=True, tasks=KittiTask.detection), test_dir)
 
     @mark_requirement(Requirements.DATUM_280)
     def test_can_save_detection_with_meta_file(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1_2', subset='test',
-                image=np.ones((10, 10, 3)), annotations=[
+                media=Image(data=np.ones((10, 10, 3))), annotations=[
                 Bbox(0, 1, 2, 2, label=0, id=0,
                     attributes={'truncated': False, 'occluded': False,
                         'score': 1.0}),
             ]),
             DatasetItem(id='1_3', subset='test',
-                image=np.ones((10, 10, 3)), annotations=[
+                media=Image(data=np.ones((10, 10, 3))), annotations=[
                 Bbox(0, 0, 2, 2, label=1, id=0,
                     attributes={'truncated': True, 'occluded': False,
                         'score': 1.0}),
@@ -585,19 +594,21 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(KittiConverter.convert,
-                save_images=True, save_dataset_meta=True,
+                save_media=True, save_dataset_meta=True,
                 tasks=KittiTask.detection), test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_segmentation_with_meta_file(self):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
-                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
-                        attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
-                        attributes={'is_crowd': False}),
-                ])
+                yield DatasetItem(id=1, media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
+                            attributes={'is_crowd': False}),
+                        Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
+                            attributes={'is_crowd': False}),
+                    ]
+                )
 
             def categories(self):
                 label_map = OrderedDict()
@@ -608,14 +619,16 @@ class KittiConverterTest(TestCase):
 
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
-                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]),
-                        attributes={'is_crowd': False}, id=1,
-                        label=self._label('label_1')),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]),
-                        attributes={'is_crowd': False}, id=2,
-                        label=self._label('label_2')),
-                ])
+                yield DatasetItem(id=1, media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(image=np.array([[1, 0, 0, 1, 1]]),
+                            attributes={'is_crowd': False}, id=1,
+                            label=self._label('label_1')),
+                        Mask(image=np.array([[0, 1, 1, 0, 0]]),
+                            attributes={'is_crowd': False}, id=2,
+                            label=self._label('label_2')),
+                    ]
+                )
 
             def categories(self):
                 label_map = OrderedDict()
@@ -627,6 +640,6 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(SrcExtractor(),
                 partial(KittiConverter.convert, label_map='source',
-                save_images=True, save_dataset_meta=True), test_dir,
+                save_media=True, save_dataset_meta=True), test_dir,
                 target_dataset=DstExtractor())
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))

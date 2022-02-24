@@ -12,6 +12,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image, PointCloud
 from datumaro.util import cast
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -28,7 +29,7 @@ class KittiRawExtractor(SourceExtractor):
         assert osp.isfile(path), path
         self._rootdir = osp.dirname(path)
 
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, media_type=PointCloud)
 
         items, categories = self._parse(path)
         self._items = list(self._load_items(items).values())
@@ -245,9 +246,9 @@ class KittiRawExtractor(SourceExtractor):
         for frame_id, item_desc in parsed.items():
             name = name_mapping.get(frame_id, '%010d' % int(frame_id))
             items[frame_id] = DatasetItem(id=name, subset=self._subset,
-                point_cloud=osp.join(self._rootdir,
-                    KittiRawPath.PCD_DIR, name + '.pcd'),
-                related_images=sorted(images.get(name, [])),
+                media=PointCloud(
+                    osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + '.pcd'),
+                    extra_images=[Image(path=image) for image in sorted(images.get(name, []))]),
                 annotations=item_desc.get('annotations'),
                 attributes={'frame': int(frame_id)})
 
@@ -256,9 +257,9 @@ class KittiRawExtractor(SourceExtractor):
                 continue
 
             items[frame_id] = DatasetItem(id=name, subset=self._subset,
-                point_cloud=osp.join(self._rootdir,
-                    KittiRawPath.PCD_DIR, name + '.pcd'),
-                related_images=sorted(images.get(name, [])),
+                media=PointCloud(
+                    osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + '.pcd'),
+                    extra_images=[Image(path=image) for image in sorted(images.get(name, []))]),
                 attributes={'frame': int(frame_id)})
 
         return items

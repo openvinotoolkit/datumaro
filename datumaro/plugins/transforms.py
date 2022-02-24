@@ -53,9 +53,9 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
         if not segments:
             return item
 
-        if not item.has_image:
+        if not isinstance(item.media, Image):
             raise Exception("Image info is required for this transform")
-        h, w = item.image.size
+        h, w = item.media.size
         segments = self.crop_segments(segments, w, h)
 
         annotations += segments
@@ -135,9 +135,9 @@ class MergeInstanceSegments(ItemTransform, CliPlugin):
         if not segments:
             return item
 
-        if not item.has_image:
+        if not isinstance(item.media, Image):
             raise Exception("Image info is required for this transform")
-        h, w = item.image.size
+        h, w = item.media.size
         instances = self.find_instances(segments)
         segments = [self.merge_segments(i, w, h, self._include_polygons)
             for i in instances]
@@ -196,9 +196,9 @@ class PolygonsToMasks(ItemTransform, CliPlugin):
         annotations = []
         for ann in item.annotations:
             if ann.type == AnnotationType.polygon:
-                if not item.has_image:
+                if not isinstance(item.media, Image):
                     raise Exception("Image info is required for this transform")
-                h, w = item.image.size
+                h, w = item.media.size
                 annotations.append(self.convert_polygon(ann, h, w))
             else:
                 annotations.append(ann)
@@ -217,9 +217,9 @@ class BoxesToMasks(ItemTransform, CliPlugin):
         annotations = []
         for ann in item.annotations:
             if ann.type == AnnotationType.bbox:
-                if not item.has_image:
+                if not isinstance(item.media, Image):
                     raise Exception("Image info is required for this transform")
-                h, w = item.image.size
+                h, w = item.media.size
                 annotations.append(self.convert_bbox(ann, h, w))
             else:
                 annotations.append(ann)
@@ -421,8 +421,8 @@ class IdFromImageName(ItemTransform, CliPlugin):
     """
 
     def transform_item(self, item):
-        if item.has_image and item.image.path:
-            name = osp.splitext(osp.basename(item.image.path))[0]
+        if isinstance(item.media, Image) and item.media.path:
+            name = osp.splitext(osp.basename(item.media.path))[0]
             return self.wrap_item(item, id=name)
         else:
             log.debug("Can't change item id for item '%s': "
@@ -820,19 +820,19 @@ class ResizeTransform(ItemTransform):
         return _resize_image
 
     def transform_item(self, item):
-        if not item.has_image:
+        if not isinstance(item.media, Image):
             raise DatumaroError("Item %s: image info is required for this "
                 "transform" % (item.id, ))
 
-        h, w = item.image.size
+        h, w = item.media.size
         xscale = self._width / float(w)
         yscale = self._height / float(h)
 
         new_size = (self._height, self._width)
 
         resized_image = None
-        if item.image.has_data:
-            resized_image = self._lazy_resize_image(item.image, new_size)
+        if item.media.has_data:
+            resized_image = self._lazy_resize_image(item.media, new_size)
 
         resized_annotations = []
         for ann in item.annotations:
@@ -861,7 +861,7 @@ class ResizeTransform(ItemTransform):
                 assert False, f"Unexpected annotation type {type(ann)}"
 
         return self.wrap_item(item,
-            image=resized_image,
+            media=resized_image,
             annotations=resized_annotations)
 
 class RemoveItems(ItemTransform):

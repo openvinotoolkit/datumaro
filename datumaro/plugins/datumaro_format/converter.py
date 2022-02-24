@@ -56,10 +56,10 @@ class _SubsetWriter:
         if item.attributes:
             item_desc['attr'] = item.attributes
 
-        if isinstance(item, Image):
+        if isinstance(item.media, Image):
             image = item.media_as(Image)
             path = image.path
-            if self._context._save_images:
+            if self._context._save_media:
                 path = self._context._make_image_filename(item)
                 self._context._save_image(item,
                     osp.join(self._context._images_dir, item.subset, path))
@@ -67,12 +67,12 @@ class _SubsetWriter:
             item_desc['image'] = {
                 'path': path,
             }
-            if item.image.has_size: # avoid occasional loading
-                item_desc['image']['size'] = item.image.size
-        elif isinstance(item, PointCloud):
+            if item.media.has_size: # avoid occasional loading
+                item_desc['image']['size'] = item.media.size
+        elif isinstance(item.media, PointCloud):
             pcd = item.media_as(PointCloud)
             path = pcd.path
-            if self._context._save_images:
+            if self._context._save_media:
                 path = self._context._make_pcd_filename(item)
                 self._context._save_point_cloud(item,
                     osp.join(self._context._pcd_dir, item.subset, path))
@@ -82,7 +82,7 @@ class _SubsetWriter:
             }
 
             images = sorted(pcd.extra_images, key=lambda v: v.path)
-            if self._context._save_images:
+            if self._context._save_media:
                 related_images = []
                 for i, img in enumerate(images):
                     ri_desc = {}
@@ -106,8 +106,7 @@ class _SubsetWriter:
 
         if isinstance(item.media, MediaElement):
             item_desc['media'] = {
-                'path': item.media.path,
-                'type': type(item.media.type)
+                'path': item.media.path
             }
 
         self.items.append(item_desc)
@@ -334,8 +333,7 @@ class DatumaroConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or \
-                    not item.has_image and not item.has_point_cloud):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             image_path = osp.join(save_dir, DatumaroPath.IMAGES_DIR,

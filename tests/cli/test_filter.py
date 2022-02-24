@@ -49,7 +49,7 @@ class FilterTest(TestCase):
             dataset = Dataset.from_iterable([
                 DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
             ], categories=['a', 'b'])
-            dataset.export(dataset_url, 'coco', save_images=True)
+            dataset.export(dataset_url, 'coco', save_media=True)
 
             project_dir = osp.join(test_dir, 'proj')
             with Project.init(project_dir) as project:

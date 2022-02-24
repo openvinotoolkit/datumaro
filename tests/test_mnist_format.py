@@ -21,14 +21,14 @@ class MnistFormatTest(TestCase):
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='test',
-                image=np.ones((28, 28)),
+                media=Image(data=np.ones((28, 28))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id=1, subset='test',
-                image=np.ones((28, 28))
+                media=Image(data=np.ones((28, 28)))
             ),
             DatasetItem(id=2, subset='test',
-                image=np.ones((28, 28)),
+                media=Image(data=np.ones((28, 28))),
                 annotations=[Label(1)]
             )
         ], categories={
@@ -37,11 +37,11 @@ class MnistFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            MnistConverter.convert(source_dataset, test_dir, save_images=True)
+            MnistConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_without_saving_images(self):
@@ -58,19 +58,19 @@ class MnistFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            MnistConverter.convert(source_dataset, test_dir, save_images=False)
+            MnistConverter.convert(source_dataset, test_dir, save_media=False)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_different_image_size(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=0, image=np.ones((3, 4)),
+            DatasetItem(id=0, media=Image(data=np.ones((3, 4))),
                 annotations=[Label(0)]
             ),
-            DatasetItem(id=1, image=np.ones((2, 2)),
+            DatasetItem(id=1, media=Image(data=np.ones((2, 2))),
                 annotations=[Label(1)]
             ),
         ], categories={
@@ -79,17 +79,17 @@ class MnistFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            MnistConverter.convert(source_dataset, test_dir, save_images=True)
+            MnistConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id="кириллица с пробелом",
-                image=np.ones((28, 28)),
+                media=Image(data=np.ones((28, 28))),
                 annotations=[Label(0)]
             ),
         ], categories={
@@ -98,18 +98,18 @@ class MnistFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            MnistConverter.convert(source_dataset, test_dir, save_images=True)
+            MnistConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+            DatasetItem(id='q/1', media=Image(path='q/1.JPEG',
                 data=np.zeros((28, 28)))),
-            DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
+            DatasetItem(id='a/b/c/2', media=Image(path='a/b/c/2.bmp',
                 data=np.zeros((28, 28)))),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
@@ -117,11 +117,11 @@ class MnistFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            MnistConverter.convert(dataset, test_dir, save_images=True)
+            MnistConverter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist')
 
             compare_datasets(self, dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_empty_image(self):
@@ -134,18 +134,18 @@ class MnistFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            MnistConverter.convert(dataset, test_dir, save_images=True)
+            MnistConverter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist')
 
             compare_datasets(self, dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_other_labels(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id=0, image=np.ones((28, 28)),
+            DatasetItem(id=0, media=Image(data=np.ones((28, 28))),
                 annotations=[Label(0)]),
-            DatasetItem(id=1, image=np.ones((28, 28)),
+            DatasetItem(id=1, media=Image(data=np.ones((28, 28))),
                 annotations=[Label(1)])
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
@@ -153,24 +153,24 @@ class MnistFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            MnistConverter.convert(dataset, test_dir, save_images=True)
+            MnistConverter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist')
 
             compare_datasets(self, dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_meta_file(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='test',
-                image=np.ones((28, 28)),
+                media=Image(data=np.ones((28, 28))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id=1, subset='test',
-                image=np.ones((28, 28))
+                media=Image(data=np.ones((28, 28)))
             ),
             DatasetItem(id=2, subset='test',
-                image=np.ones((28, 28)),
+                media=Image(data=np.ones((28, 28))),
                 annotations=[Label(1)]
             )
         ], categories={
@@ -179,13 +179,13 @@ class MnistFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            MnistConverter.convert(source_dataset, test_dir, save_images=True,
+            MnistConverter.convert(source_dataset, test_dir, save_media=True,
                 save_dataset_meta=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist')
 
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mnist_dataset')
 
@@ -194,23 +194,23 @@ class MnistImporterTest(TestCase):
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='test',
-                image=np.ones((28, 28)),
+                media=Image(data=np.ones((28, 28))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id=1, subset='test',
-                image=np.ones((28, 28)),
+                media=Image(data=np.ones((28, 28))),
                 annotations=[Label(2)]
             ),
             DatasetItem(id=2, subset='test',
-                image=np.ones((28, 28)),
+                media=Image(data=np.ones((28, 28))),
                 annotations=[Label(1)]
             ),
             DatasetItem(id=0, subset='train',
-                image=np.ones((28, 28)),
+                media=Image(data=np.ones((28, 28))),
                 annotations=[Label(5)]
             ),
             DatasetItem(id=1, subset='train',
-                image=np.ones((28, 28)),
+                media=Image(data=np.ones((28, 28))),
                 annotations=[Label(7)]
             )
         ], categories={

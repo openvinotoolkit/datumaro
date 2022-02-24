@@ -14,6 +14,8 @@ import warnings
 import cv2
 import numpy as np
 
+from datumaro.components.media import Image
+
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import tensorboardX as tb
@@ -121,7 +123,10 @@ class DiffVisualizer:
             self.update_mask_confusion(mask_diff)
 
             self.save_item_label_diff(item_a, item_b, label_diff)
-            self.save_item_bbox_diff(item_a, item_b, bbox_diff)
+
+            if a.media_type() and issubclass(a.media_type(), Image) and \
+                    b.media_type() and issubclass(b.media_type(), Image):
+                self.save_item_bbox_diff(item_a, item_b, bbox_diff)
 
         if len(self.label_confusion_matrix) != 0:
             self.save_conf_matrix(self.label_confusion_matrix,
@@ -243,11 +248,11 @@ class DiffVisualizer:
         _, mispred, a_unmatched, b_unmatched = diff
 
         if 0 < len(a_unmatched) + len(b_unmatched) + len(mispred):
-            if not item_a.has_image or not item_a.image.has_data:
+            if not isinstance(item_a.media, Image) or not item_a.media.has_data:
                 log.warning("Item %s: item has no image data, "
                     "it will be skipped" % (item_a.id))
                 return
-            img_a = item_a.image.data.copy()
+            img_a = item_a.media.data.copy()
             img_b = img_a.copy()
             for a_bbox, b_bbox in mispred:
                 self.draw_bbox(img_a, a_bbox, self.get_a_label(a_bbox.label),

@@ -100,7 +100,7 @@ that supports `Label` annotation objects.
 ```
 # Using `convert` command
 datum convert -if imagenet -i <path_to_imagenet> \
-    -f voc -o <output_dir> -- --save-images
+    -f voc -o <output_dir> -- --save-media
 
 # Using Datumaro project
 datum create
@@ -115,7 +115,7 @@ import datumaro as dm
 
 imagenet_dataset = dm.Dataset.import_from('<path_to_dataset', format='imagenet')
 
-imagenet_dataset.export('<output_dir>', format='vgg_face2', save_images=True)
+imagenet_dataset.export('<output_dir>', format='vgg_face2', save_media=True)
 ```
 
 > Note: some formats have extra export options. For particular format see the
@@ -129,7 +129,7 @@ dataset into the ImagetNet format, you can use Datumaro for it:
 ```
 # Using convert command
 datum convert -if open_images -i <path_to_oid> \
-    -f imagenet_txt -o <output_dir> -- --save-images --save-dataset-meta
+    -f imagenet_txt -o <output_dir> -- --save-media --save-dataset-meta
 
 # Using Datumaro project
 datum create
@@ -138,7 +138,7 @@ datum export -f imagenet -o <output_dir>
 ```
 
 Extra options for exporting to ImageNet formats:
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting the dataset (by default `.png`)

@@ -17,7 +17,9 @@ import uuid
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, IExtractor
+from datumaro.components.media import PointCloud
 from datumaro.util import cast, dump_json_file
 
 from .format import PointCloudPath
@@ -61,7 +63,7 @@ class _SuperviselyPointCloudDumper:
     def _write_related_images(self, item):
         img_dir = self._related_images_dir
 
-        for img in item.related_images:
+        for img in item.media.extra_images:
             name = osp.splitext(osp.basename(img.path))[0]
             img_path = osp.join(img_dir, item.id + '_pcd',
                 name + self._find_image_ext(img))
@@ -346,13 +348,13 @@ class _SuperviselyPointCloudDumper:
         self._init_meta()
 
         for item in self._context._extractor:
-            if self._context._save_images:
-                if item.has_point_cloud:
+            if self._context._save_media:
+                if item.media:
                     self._write_pcd(item)
                 else:
                     log.debug("Item '%s' has no point cloud info", item.id)
 
-                if item.related_images:
+                if item.media and item.media.extra_images:
                     self._write_related_images(item)
                 else:
                     log.debug("Item '%s' has no related images info", item.id)
@@ -385,6 +387,10 @@ class SuperviselyPointCloudConverter(Converter):
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not PointCloud:
+            raise MediaTypeError("Media type is not an image")
+
         if 1 < len(self._extractor.subsets()):
             log.warning("Supervisely pointcloud format supports only a single "
                 "subset. Subset information will be ignored on export.")
@@ -402,7 +408,7 @@ class SuperviselyPointCloudConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_point_cloud):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             pcd_name = conv._make_pcd_filename(item)

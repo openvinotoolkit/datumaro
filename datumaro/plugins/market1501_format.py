@@ -7,7 +7,9 @@ import os.path as osp
 import re
 
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.media import Image
 from datumaro.util import str_to_bool
 from datumaro.util.image import find_images
 
@@ -91,8 +93,8 @@ class Market1501Extractor(Extractor):
 
             item = items.get(item_id)
             if item is None:
-                item = DatasetItem(id=item_id, subset=subset, image=image_path,
-                    attributes=attributes)
+                item = DatasetItem(id=item_id, subset=subset,
+                    media=Image(path=image_path), attributes=attributes)
                 items[item_id] = item
 
         return items
@@ -118,6 +120,10 @@ class Market1501Converter(Converter):
         return dirname
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         for subset_name, subset in self._extractor.subsets().items():
             annotation = ''
             used_frames = {}
@@ -139,7 +145,7 @@ class Market1501Converter(Converter):
 
                 image_path = self._make_image_filename(item,
                     name=image_name, subdir=dirname)
-                if self._save_images and item.has_image:
+                if self._save_media and item.media:
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
                 attrs = Market1501Path.PATTERN.search(image_name)

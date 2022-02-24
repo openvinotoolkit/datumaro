@@ -10,7 +10,9 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.media import Image
 
 from .format import YoloPath
 
@@ -32,6 +34,10 @@ class YoloConverter(Converter):
     def apply(self):
         extractor = self._extractor
         save_dir = self._save_dir
+
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
 
         os.makedirs(save_dir, exist_ok=True)
 
@@ -65,14 +71,14 @@ class YoloConverter(Converter):
             image_paths = OrderedDict()
             for item in pbar.iter(subset, desc=f"Exporting '{subset_name}'"):
                 try:
-                    if not item.has_image or not \
-                            (item.image.has_data or item.image.has_size):
+                    if not item.media or not \
+                            (item.media.has_data or item.media.has_size):
                         raise Exception("Failed to export item '%s': "
                             "item has no image info" % item.id)
 
                     image_name = self._make_image_filename(item)
-                    if self._save_images:
-                        if item.has_image and item.image.has_data:
+                    if self._save_media:
+                        if item.media:
                             self._save_image(item,
                                 osp.join(subset_dir, image_name))
                         else:
@@ -111,7 +117,7 @@ class YoloConverter(Converter):
             f.write('backup = backup/\n')
 
     def _export_item_annotation(self, item):
-        height, width = item.image.size
+        height, width = item.media.size
 
         yolo_annotation = ''
 
@@ -137,7 +143,7 @@ class YoloConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             if subset == DEFAULT_SUBSET_NAME:
