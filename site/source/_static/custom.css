@@ -38,5 +38,5 @@ SPDX-License-Identifier: MIT
 
 html.writer-html4 .rst-content dl:not(.docutils) .property,
 html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple) .property {
-    display: inline;
+  display: inline;
 }
