@@ -1,10 +1,10 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import typing
 
-from attr import attrs
+from attrs import frozen
 import pytest
 
 
@@ -18,6 +18,9 @@ class Requirements:
     # Exact requirements
     DATUM_GENERAL_REQ = "Datumaro general requirement"
     DATUM_TELEMETRY = "Datumaro telemetry requirement"
+    DATUM_API = "Datumaro API"
+    DATUM_PROGRESS_REPORTING = "Datumaro progress reporting requirement"
+    DATUM_ERROR_REPORTING = "Datumaro error reporting requirement"
 
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
@@ -33,6 +36,7 @@ class Requirements:
     DATUM_542 = "Images missing after merging two datasets"
     DATUM_580 = "Import for MPII Human Pose Dataset"
     DATUM_616 = "Import for BraTS dataset"
+    DATUM_673 = "Pickling for Dataset and Annotations"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
@@ -57,7 +61,7 @@ class SkipMessages:
     NOT_IMPLEMENTED = "NOT IMPLEMENTED"
 
 
-@attrs(auto_attribs=True)
+@frozen
 class _CombinedDecorator:
     decorators: typing.List[typing.Callable]
 

@@ -1,16 +1,18 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from functools import wraps
 from inspect import isclass
 from itertools import islice
-from typing import Iterable, Tuple
-import distutils.util
+from typing import Any, Iterable, Optional, Tuple, Union
+
+import attrs
+import orjson
 
 NOTSET = object()
 
-str_to_bool = distutils.util.strtobool
+str_to_bool = attrs.converters.to_bool
 
 def find(iterable, pred=lambda x: True, default=None):
     return next((x for x in iterable if pred(x)), default)
@@ -122,3 +124,26 @@ def optional_arg_decorator(fn):
             return real_decorator
 
     return wrapped_decorator
+
+def parse_json(data: Union[str, bytes]):
+    return orjson.loads(data)
+
+def parse_json_file(path: str):
+    with open(path, 'rb') as f:
+        return parse_json(f.read())
+
+def dump_json_file(path: str, data: Any, *,
+        sort_keys: bool = False, allow_numpy: bool = True,
+        indent: bool = False, append_newline: bool = False):
+    flags = 0
+    if sort_keys:
+        flags |= orjson.OPT_SORT_KEYS
+    if allow_numpy:
+        flags |= orjson.OPT_SERIALIZE_NUMPY
+    if indent:
+        flags |= orjson.OPT_INDENT_2
+    if append_newline:
+        flags |= orjson.OPT_APPEND_NEWLINE
+
+    with open(path, 'wb') as outfile:
+        outfile.write(orjson.dumps(data, option=flags))

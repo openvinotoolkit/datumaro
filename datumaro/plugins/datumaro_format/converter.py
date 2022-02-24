@@ -1,10 +1,9 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 # pylint: disable=no-self-use
 
-import json
 import os
 import os.path as osp
 import shutil
@@ -21,7 +20,7 @@ from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.media import Image, MediaElement, PointCloud
-from datumaro.util import cast
+from datumaro.util import cast, dump_json_file
 
 from .format import DatumaroPath
 
@@ -147,8 +146,7 @@ class _SubsetWriter:
             self.categories[ann_type.name] = converted_desc
 
     def write(self, ann_file):
-        with open(ann_file, 'w', encoding='utf-8') as f:
-            json.dump(self._data, f, ensure_ascii=False)
+        dump_json_file(ann_file, self._data)
 
     def _convert_annotation(self, obj):
         assert isinstance(obj, Annotation)

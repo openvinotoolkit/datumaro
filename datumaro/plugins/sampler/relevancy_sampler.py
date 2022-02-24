@@ -3,19 +3,34 @@
 # SPDX-License-Identifier: MIT
 
 from collections import defaultdict
+from typing import Optional, Union
 
 import pandas as pd
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import Transform
+from datumaro.components.extractor import IExtractor, Transform
+from datumaro.util import parse_str_enum_value
 
 from .algorithm.algorithm import Algorithm, SamplingMethod
 
 
-class Sampler(Transform, CliPlugin):
+class RelevancySampler(Transform, CliPlugin):
     r"""
     Sampler that analyzes model inference results on the dataset |n
     and picks the best sample for training.|n
+    |n
+    Creates a dataset from the `-k/--count` hardest items for a model.
+    The whole dataset or a single subset will be split into the `sampled`
+    and `unsampled` subsets based on the model confidence.
+    The dataset **must** contain model confidence
+    values in the `scores` attributes of annotations.|n
+    |n
+    There are five methods of sampling (the `-m/--method` option):|n
+    - `topk` - Return the k items with the highest uncertainty data|n
+    - `lowk` - Return the k items with the lowest uncertainty data|n
+    - `randk` - Return random k items|n
+    - `mixk` - Return a half using topk, and the other half using lowk method|n
+    - `randtopk` - Select 3*k items randomly, and return the topk among them|n
     |n
     Notes:|n
     - Each image's inference result must contain the probability for
@@ -38,56 +53,62 @@ class Sampler(Transform, CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument("-k", "--count", type=int, required=True,
+        parser.add_argument('-k', '--count', type=int, required=True,
             help="Number of items to sample")
-        parser.add_argument("-a", "--algorithm",
+        parser.add_argument('-a', '--algorithm',
             default=Algorithm.entropy.name,
             choices=[t.name for t in Algorithm],
             help="Sampling algorithm (one of {}; default: %(default)s)".format(
                 ', '.join(t.name for t in Algorithm)))
-        parser.add_argument("-i", "--input_subset", default=None,
+        parser.add_argument('-i', '--input_subset', default=None,
             help="Subset name to select sample from (default: %(default)s)")
-        parser.add_argument("-o", "--sampled_subset", default="sample",
+        parser.add_argument('-o', '--sampled_subset', default="sample",
             help="Subset name to put sampled data to (default: %(default)s)")
-        parser.add_argument("-u", "--unsampled_subset", default="unsampled",
+        parser.add_argument('-u', '--unsampled_subset', default="unsampled",
             help="Subset name to put the rest data to (default: %(default)s)")
-        parser.add_argument("-m", "--sampling_method",
+        parser.add_argument('-m', '--sampling_method',
             default=SamplingMethod.topk.name,
             choices=[t.name for t in SamplingMethod],
             help="Sampling method (one of {}; default: %(default)s)".format(
                 ', '.join(t.name for t in SamplingMethod)))
-        parser.add_argument("-d", "--output_file",
-            help="A .csv file path to dump sampling results file path")
+        parser.add_argument('-d', '--output_file',
+            help="A .csv file path to dump sampling results")
         return parser
 
-    def __init__(self, extractor, algorithm, input_subset, sampled_subset,
-            unsampled_subset, sampling_method, count, output_file):
+    def __init__(self, extractor: IExtractor,
+            count: int, *,
+            algorithm: Union[str, Algorithm],
+            sampling_method: Union[str, SamplingMethod],
+            input_subset: Optional[str] = None,
+            sampled_subset: str = 'sample',
+            unsampled_subset: str = 'unsampled',
+            output_file: Optional[str] = None):
         """
         Parameters
         ----------
-        extractor : Extractor, Dataset
-        algorithm : str
+        extractor
+        algorithm
             Specifying the algorithm to calculate the uncertainty
             for sample selection. default: 'entropy'
-        subset_name : str
+        subset_name
             The name of the subset to which you want to select a sample.
-        sample_name : str
+        sample_name
             Subset name of the selected sample, default: 'sample'
-        sampling_method : str
+        sampling_method
             Method of sampling, 'topk' or 'lowk' or 'randk'
-        num_sample : int
+        count
             Number of samples extracted
-        output_file : str
-            Path of sampler result, Use when user want to save results
+        output_file
+            A path to .csv file for sampling results
         """
         super().__init__(extractor)
 
-        # Get Parameters
         self.input_subset = input_subset
         self.sampled_subset = sampled_subset
         self.unsampled_subset = unsampled_subset
-        self.algorithm = algorithm
-        self.sampling_method = sampling_method
+        self.algorithm = parse_str_enum_value(algorithm, Algorithm).name
+        self.sampling_method = \
+            parse_str_enum_value(sampling_method, SamplingMethod).name
         self.count = count
         self.output_file = output_file
 
@@ -164,7 +185,8 @@ class Sampler(Transform, CliPlugin):
 
     def __iter__(self):
         # Import data into a subset name and convert it
-        # to a format that will be used in the sampler algorithm with the inference result.
+        # to a format that will be used in the sampler algorithm with
+        # the inference result.
         data_df, infer_df = self._load_inference_from_subset(
             self._extractor, self.input_subset)
 

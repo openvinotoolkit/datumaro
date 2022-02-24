@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace as namespace
 from typing import (
     Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Union,
 )
@@ -11,7 +12,7 @@ import itertools
 import logging as log
 import os.path as osp
 
-from attr import attrib, attrs
+from attrs import field, frozen
 
 from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories,
@@ -32,63 +33,80 @@ except ImportError:
 else:
     TFDS_EXTRACTOR_AVAILABLE = True
 
-@attrs(auto_attribs=True)
+@frozen
 class TfdsDatasetMetadata:
     default_converter_name: str
 
-@attrs(auto_attribs=True)
+@frozen
 class _TfdsAdapter:
     category_transformers: Sequence[
-        Callable[['tfds.core.DatasetBuilder', CategoriesInfo], None]]
-    data_transformers: Sequence[Callable[[Any, DatasetItem], None]]
-    id_generator: Callable[[Any], str] = attrib(default=None, kw_only=True)
+        Callable[[tfds.core.DatasetBuilder, CategoriesInfo, namespace], None]]
+    data_transformers: Sequence[Callable[[Any, DatasetItem, namespace], None]]
+    id_generator: Callable[[Any], str] = field(default=None, kw_only=True)
 
     metadata: TfdsDatasetMetadata
 
     def transform_categories(self,
         tfds_builder: tfds.core.DatasetBuilder, categories: CategoriesInfo,
+        state: namespace,
     ) -> None:
         for t in self.category_transformers:
-            t(tfds_builder, categories)
+            t(tfds_builder, categories, state)
 
-    def transform_data(self, tfds_example: Any, item: DatasetItem) -> None:
+    def transform_data(
+        self, tfds_example: Any, item: DatasetItem, state: namespace,
+    ) -> None:
         for t in self.data_transformers:
-            t(tfds_example, item)
+            t(tfds_example, item, state)
 
-@attrs(auto_attribs=True)
+_FeaturePath = Union[str, Tuple[str, ...]]
+
+def _resolve_feature_path(
+    feature_path: _FeaturePath, root: tfds.features.FeaturesDict,
+) -> tfds.features.FeatureConnector:
+    if isinstance(feature_path, str):
+        return root[feature_path]
+
+    feature_connector = root
+
+    for segment in feature_path:
+        assert isinstance(feature_connector, (
+            tfds.features.FeaturesDict, tfds.features.Sequence,
+        ))
+
+        if isinstance(feature_connector, tfds.features.Sequence):
+            assert segment == 'feature'
+            feature_connector = feature_connector.feature
+        else:
+            feature_connector = feature_connector[segment]
+
+    return feature_connector
+
+@frozen
 class _SetLabelCategoriesFromClassLabelFeature:
-    feature_path: Union[str, Tuple[str, ...]]
+    feature_path: _FeaturePath
 
     def __call__(self,
         tfds_builder: tfds.core.DatasetBuilder, categories: CategoriesInfo,
+        state: namespace,
     ) -> None:
         assert AnnotationType.label not in categories
-        if isinstance(self.feature_path, str):
-            feature_connector = tfds_builder.info.features[self.feature_path]
-        else:
-            feature_connector = tfds_builder.info.features
 
-            for segment in self.feature_path:
-                assert isinstance(feature_connector, (
-                    tfds.features.FeaturesDict, tfds.features.Sequence,
-                ))
-
-                if isinstance(feature_connector, tfds.features.Sequence):
-                    assert segment == 'feature'
-                    feature_connector = feature_connector.feature
-                else:
-                    feature_connector = feature_connector[segment]
+        feature_connector = _resolve_feature_path(
+            self.feature_path, tfds_builder.info.features)
 
         assert isinstance(feature_connector, tfds.features.ClassLabel)
         categories[AnnotationType.label] = LabelCategories.from_iterable(
             feature_connector.names)
 
-@attrs(auto_attribs=True)
+@frozen
 class _SetImageFromImageFeature:
     feature_name: str
-    filename_feature_name: Optional[str] = attrib(default=None)
+    filename_feature_name: Optional[str] = field(default=None)
 
-    def __call__(self, tfds_example: Any, item: DatasetItem) -> None:
+    def __call__(
+        self, tfds_example: Any, item: DatasetItem, state: namespace,
+    ) -> None:
         if self.filename_feature_name:
             filename = tfds_example[self.filename_feature_name].numpy() \
                 .decode('UTF-8')
@@ -98,22 +116,42 @@ class _SetImageFromImageFeature:
         item.image = ByteImage(data=tfds_example[self.feature_name].numpy(),
             path=filename)
 
-@attrs(auto_attribs=True)
+@frozen
 class _AddLabelFromClassLabelFeature:
     feature_name: str
 
-    def __call__(self, tfds_example: Any, item: DatasetItem) -> None:
+    def __call__(
+        self, tfds_example: Any, item: DatasetItem, state: namespace,
+    ) -> None:
         item.annotations.append(
             Label(tfds_example[self.feature_name].numpy()),
         )
 
-@attrs(auto_attribs=True)
+@frozen
+class _AttributeMemberMapping:
+    member_name: str
+    attribute_name: str = field()
+    value_converter: Optional[Callable[[Any, namespace], Any]] = None
+
+    @attribute_name.default
+    def _attribute_name_default(self):
+        return self.member_name
+
+@frozen
 class _AddObjectsFromFeature:
     feature_name: str
     bbox_member: str
-    label_member: Optional[str] = attrib(default=None, kw_only=True)
+    label_member: Optional[str] = field(default=None, kw_only=True)
+    attribute_members: Tuple[_AttributeMemberMapping, ...] = field(
+        default=(), kw_only=True,
+        converter=lambda values: tuple(
+            value if isinstance(value, _AttributeMemberMapping)
+                else _AttributeMemberMapping(value)
+            for value in values))
 
-    def __call__(self, tfds_example: Any, item: DatasetItem) -> None:
+    def __call__(
+        self, tfds_example: Any, item: DatasetItem, state: namespace,
+    ) -> None:
         tfds_objects = tfds_example[self.feature_name]
         tfds_bboxes = tfds_objects[self.bbox_member]
         num_objects = tfds_bboxes.shape[0]
@@ -123,25 +161,52 @@ class _AddObjectsFromFeature:
             tfds_labels = tfds_objects[self.label_member]
             assert tfds_labels.shape[0] == num_objects
 
+        for am_mapping in self.attribute_members:
+            assert tfds_objects[am_mapping.member_name].shape[0] == num_objects
+
         for i in range(num_objects):
             norm_ymin, norm_xmin, norm_ymax, norm_xmax = tfds_bboxes[i].numpy()
-            item.annotations.append(Bbox(
+
+            new_bbox = Bbox(
                 x=norm_xmin * item.image.size[1],
                 y=norm_ymin * item.image.size[0],
                 w=(norm_xmax - norm_xmin) * item.image.size[1],
                 h=(norm_ymax - norm_ymin) * item.image.size[0],
-            ))
-            if tfds_labels is not None:
-                item.annotations[-1].label = tfds_labels[i].numpy()
+            )
 
-@attrs(auto_attribs=True)
+            if tfds_labels is not None:
+                new_bbox.label = tfds_labels[i].numpy()
+
+            for am_mapping in self.attribute_members:
+                attr_value = tfds_objects[am_mapping.member_name][i].numpy()
+
+                if am_mapping.value_converter:
+                    attr_value = am_mapping.value_converter(attr_value, state)
+
+                new_bbox.attributes[am_mapping.attribute_name] = attr_value
+
+            item.annotations.append(new_bbox)
+
+
+@frozen
+class _SetAttributeFromFeature:
+    feature_name: str
+    attribute_name: str
+
+    def __call__(
+        self, tfds_example: Any, item: DatasetItem, state: namespace,
+    ) -> None:
+        item.attributes[self.attribute_name] = \
+            tfds_example[self.feature_name].numpy()
+
+@frozen
 class _GenerateIdFromTextFeature:
     feature_name: str
 
     def __call__(self, tfds_example: Any) -> str:
         return tfds_example[self.feature_name].numpy().decode('UTF-8')
 
-@attrs(auto_attribs=True)
+@frozen
 class _GenerateIdFromFilenameFeature:
     feature_name: str
 
@@ -168,13 +233,62 @@ _CIFAR_ADAPTER = _TfdsAdapter(
     metadata=TfdsDatasetMetadata(default_converter_name='cifar'),
 )
 
-_VOC_ADAPTER = _TfdsAdapter(
+_COCO_ADAPTER = _TfdsAdapter(
     category_transformers=[_SetLabelCategoriesFromClassLabelFeature(
         ('objects', 'feature', 'label'))],
     data_transformers=[
         _SetImageFromImageFeature('image',
             filename_feature_name='image/filename'),
-        _AddObjectsFromFeature('objects', 'bbox', label_member='label')
+        _AddObjectsFromFeature(
+            'objects', 'bbox', label_member='label',
+            attribute_members=('is_crowd',)),
+        _SetAttributeFromFeature('image/id', 'id'),
+    ],
+    id_generator=_GenerateIdFromFilenameFeature('image/filename'),
+    metadata=TfdsDatasetMetadata(default_converter_name='coco_instances'),
+)
+
+_IMAGENET_ADAPTER = _TfdsAdapter(
+    category_transformers=[_SetLabelCategoriesFromClassLabelFeature('label')],
+    data_transformers=[
+        _SetImageFromImageFeature('image', filename_feature_name='file_name'),
+        _AddLabelFromClassLabelFeature('label'),
+    ],
+    id_generator=_GenerateIdFromFilenameFeature('file_name'),
+    metadata=TfdsDatasetMetadata(default_converter_name='imagenet_txt'),
+)
+
+def _voc_save_pose_names(
+    tfds_builder: tfds.core.DatasetBuilder, categories: CategoriesInfo,
+    state: namespace,
+) -> None:
+    # TFDS represents poses as indexes, but Datumaro represents them as strings.
+    # To convert between representations, save the pose names at the start and
+    # use them when we're converting boxes.
+    # TFDS also provides the pose names in lower case, even though they're title
+    # case in the original dataset. Fix them back to title case so that the
+    # output dataset better resembles the original dataset.
+
+    state.pose_names = [name.title()
+        for name in tfds_builder.info.features['objects'].feature['pose'].names]
+
+_VOC_ADAPTER = _TfdsAdapter(
+    category_transformers=[
+        _SetLabelCategoriesFromClassLabelFeature(
+            ('objects', 'feature', 'label')),
+        _voc_save_pose_names,
+    ],
+    data_transformers=[
+        _SetImageFromImageFeature('image',
+            filename_feature_name='image/filename'),
+        _AddObjectsFromFeature('objects', 'bbox', label_member='label',
+            attribute_members=(
+                _AttributeMemberMapping('is_difficult', 'difficult'),
+                _AttributeMemberMapping('is_truncated', 'truncated'),
+                _AttributeMemberMapping('pose',
+                    value_converter=lambda idx, state: state.pose_names[idx]),
+            ),
+        ),
     ],
     id_generator=_GenerateIdFromFilenameFeature('image/filename'),
     metadata=TfdsDatasetMetadata(default_converter_name='voc'),
@@ -183,6 +297,8 @@ _VOC_ADAPTER = _TfdsAdapter(
 _TFDS_ADAPTERS = {
     'cifar10': _CIFAR_ADAPTER,
     'cifar100': _CIFAR_ADAPTER,
+    'coco/2014': _COCO_ADAPTER,
+    'imagenet_v2': _IMAGENET_ADAPTER,
     'mnist': _MNIST_ADAPTER,
     'voc/2012': _VOC_ADAPTER,
 }
@@ -207,7 +323,8 @@ class _TfdsSplitExtractor(IExtractor):
                 item_id = str(example_index)
 
             dm_item = DatasetItem(id=item_id, subset=self._tfds_split_info.name)
-            self._parent._adapter.transform_data(tfds_example, dm_item)
+            self._parent._adapter.transform_data(
+                tfds_example, dm_item, self._parent._state)
 
             yield dm_item
 
@@ -240,7 +357,9 @@ class _TfdsExtractor(IExtractor):
         tfds_ds_info = tfds_builder.info
 
         self._categories = {}
-        self._adapter.transform_categories(tfds_builder, self._categories)
+        self._state = namespace()
+        self._adapter.transform_categories(
+            tfds_builder, self._categories, self._state)
 
         tfds_decoders = {}
         for tfds_feature_name, tfds_fc in tfds_ds_info.features.items():

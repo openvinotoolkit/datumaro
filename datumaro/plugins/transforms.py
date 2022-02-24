@@ -2,11 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 from collections import Counter
 from copy import deepcopy
 from enum import Enum, auto
 from itertools import chain
-from typing import Dict, Iterable, List, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
+import argparse
 import logging as log
 import os.path as osp
 import random
@@ -23,15 +26,22 @@ from datumaro.components.annotation import (
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import DatumaroError
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, Transform,
+    DEFAULT_SUBSET_NAME, DatasetItem, IExtractor, ItemTransform, Transform,
 )
 from datumaro.components.media import Image
-from datumaro.util import NOTSET, parse_str_enum_value, take_by
+from datumaro.util import NOTSET, filter_dict, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
 import datumaro.util.mask_tools as mask_tools
 
 
 class CropCoveredSegments(ItemTransform, CliPlugin):
+    """
+    Sorts polygons and masks ("segments") according to `z_order`,
+    crops covered areas of underlying segments. If a segment is split
+    into several independent parts by the segments above, produces
+    the corresponding number of separate annotations joined into a group.
+    """
+
     def transform_item(self, item):
         annotations = []
         segments = []
@@ -97,6 +107,9 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
 class MergeInstanceSegments(ItemTransform, CliPlugin):
     """
     Replaces instance masks and, optionally, polygons with a single mask.
+    A group of annotations with the same group id is considered an "instance".
+    The largest annotation in the group is considered the group "head", so the
+    resulting mask takes properties from that annotation.
     """
 
     @classmethod
@@ -267,6 +280,10 @@ class ShapesToBoxes(ItemTransform, CliPlugin):
             id=shape.id, attributes=shape.attributes, group=shape.group)
 
 class Reindex(Transform, CliPlugin):
+    """
+    Replaces dataset item IDs with sequential indices.
+    """
+
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
@@ -284,11 +301,14 @@ class Reindex(Transform, CliPlugin):
             yield self.wrap_item(item, id=i + self._start)
 
 class MapSubsets(ItemTransform, CliPlugin):
+    """
+    Renames subsets in the dataset.
+    """
+
     @staticmethod
     def _mapping_arg(s):
         parts = s.split(':')
         if len(parts) != 2:
-            import argparse
             raise argparse.ArgumentTypeError()
         return parts
 
@@ -336,7 +356,6 @@ class RandomSplit(Transform, CliPlugin):
     def _split_arg(s):
         parts = s.split(':')
         if len(parts) != 2:
-            import argparse
             raise argparse.ArgumentTypeError()
         return (parts[0], float(parts[1]))
 
@@ -397,6 +416,10 @@ class RandomSplit(Transform, CliPlugin):
             yield self.wrap_item(item, subset=self._find_split(i))
 
 class IdFromImageName(ItemTransform, CliPlugin):
+    """
+    Renames items in the dataset using image file name (without extension).
+    """
+
     def transform_item(self, item):
         if item.has_image and item.image.path:
             name = osp.splitext(osp.basename(item.image.path))[0]
@@ -411,20 +434,24 @@ class Rename(ItemTransform, CliPlugin):
     Renames items in the dataset. Supports regular expressions.
     The first character in the expression is a delimiter for
     the pattern and replacement parts. Replacement part can also
-    contain string.format tokens with 'item' object available.|n
+    contain `str.format` replacement fields with the `item`
+    (of type `DatasetItem`) object available.|n
     |n
     Examples:|n
     |s|s- Replace 'pattern' with 'replacement':|n
     |s|s|s|srename -e '|pattern|replacement|'|n
     |s|s- Remove 'frame_' from item ids:|n
-    |s|s|s|srename -e '|frame_(\d+)|\1|'
+    |s|s|s|srename -e '|^frame_||'|n
+    |s|s- Rename by regex:|n
+    |s|s|s|srename -e '|frame_(\d+)_extra|{item.subset}_id_\1|'
     """
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('-e', '--regex',
-            help="Regex for renaming.")
+            help="Regex for renaming in the form "
+                "'<sep><search><sep><replacement><sep>'")
         return parser
 
     def __init__(self, extractor, regex):
@@ -446,10 +473,10 @@ class RemapLabels(ItemTransform, CliPlugin):
     |n
     A label can be:|n
     |s|s- renamed (and joined with existing) -|n
-    |s|s|s|swhen specified '--label <old_name>:<new_name>'|n
-    |s|s- deleted - when specified '--label <name>:' or default action is 'delete'|n
-    |s|s|s|sand the label is not mentioned in the list. When a label|n
-    |s|s|s|sis deleted, all the associated annotations are removed|n
+    |s|s|s|swhen '--label <old_name>:<new_name>' is specified|n
+    |s|s- deleted - when '--label <name>:' is specified, or default action |n
+    |s|s|s|sis 'delete' and the label is not mentioned in the list. |n
+    |s|s|s|sWhen a label is deleted, all the associated annotations are removed|n
     |s|s- kept unchanged - when specified '--label <name>:<name>'|n
     |s|s|s|sor default action is 'keep' and the label is not mentioned in the list|n
     Annotations with no label are managed by the default action policy.|n
@@ -471,7 +498,6 @@ class RemapLabels(ItemTransform, CliPlugin):
     def _split_arg(s):
         parts = s.split(':')
         if len(parts) != 2:
-            import argparse
             raise argparse.ArgumentTypeError()
         return (parts[0], parts[1])
 
@@ -837,3 +863,141 @@ class ResizeTransform(ItemTransform):
         return self.wrap_item(item,
             image=resized_image,
             annotations=resized_annotations)
+
+class RemoveItems(ItemTransform):
+    """
+    Allows to remove specific dataset items from dataset by their ids.|n
+    |n
+    Can be useful to clean the dataset from broken or unnecessary samples.|n
+    |n
+    Examples:|n
+    - Remove specific items from the dataset|n
+    |s|s%(prog)s --id 'image1:train' --id 'image2:test'
+    """
+
+    @staticmethod
+    def _parse_id(s):
+        full_id = s.split(':')
+        if len(full_id) != 2:
+            raise argparse.ArgumentTypeError(None,
+                message="Invalid id format of '%s'. "
+                    "Expected a 'name:subset' pair." % s)
+        return full_id
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('--id', dest='ids', type=cls._parse_id,
+            action='append', required=True,
+            help="Item id to remove. Id is 'name:subset' pair (repeatable)")
+        return parser
+
+    def __init__(self, extractor: IExtractor, ids: Iterable[Tuple[str, str]]):
+        super().__init__(extractor)
+        self._ids = set(tuple(v) for v in (ids or []))
+
+    def transform_item(self, item):
+        if (item.id, item.subset) in self._ids:
+            return None
+        return item
+
+class RemoveAnnotations(ItemTransform):
+    """
+    Allows to remove annotations on specific dataset items.|n
+    |n
+    Can be useful to clean the dataset from broken or unnecessary annotations.|n
+    |n
+    Examples:|n
+    - Remove annotations from specific items in the dataset|n
+    |s|s%(prog)s --id 'image1:train' --id 'image2:test'
+    """
+
+    @staticmethod
+    def _parse_id(s):
+        full_id = s.split(':')
+        if len(full_id) != 2:
+            raise argparse.ArgumentTypeError(None,
+                message="Invalid id format of '%s'. "
+                    "Expected a 'name:subset' pair." % s)
+        return full_id
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('--id', dest='ids', type=cls._parse_id,
+            action='append',
+            help="Image id to clean from annotations. "
+            "Id is 'name:subset' pair. If not specified, removes "
+                "all annotations (repeatable)")
+        return parser
+
+    def __init__(self, extractor: IExtractor, *,
+            ids: Optional[Iterable[Tuple[str, str]]] = None):
+        super().__init__(extractor)
+        self._ids = set(tuple(v) for v in (ids or []))
+
+    def transform_item(self, item: DatasetItem):
+        if not self._ids or (item.id, item.subset) in self._ids:
+            return item.wrap(annotations=[])
+        return item
+
+class RemoveAttributes(ItemTransform):
+    """
+    Allows to remove item and annotation attributes in a dataset.|n
+    |n
+    Can be useful to clean the dataset from broken or unnecessary attributes.|n
+    |n
+    Examples:|n
+    - Remove the `is_crowd` attribute from dataset|n
+    |s|s%(prog)s --attr 'is_crowd'|n
+    |n
+    - Remove the `occluded` attribute from annotations of|n
+    |s|sthe `2010_001705` item in the `train` subset|n
+    |s|s%(prog)s --id '2010_001705:train' --attr 'occluded'
+    """
+
+    @staticmethod
+    def _parse_id(s):
+        full_id = s.split(':')
+        if len(full_id) != 2:
+            raise argparse.ArgumentTypeError(None,
+                message="Invalid id format of '%s'. "
+                    "Expected a 'name:subset' pair." % s)
+        return full_id
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('--id', dest='ids', type=cls._parse_id,
+            action='append',
+            help="Image id to clean from annotations. "
+                "Id is 'name:subset' pair. If not specified, "
+                "affects all images and annotations (repeatable)")
+        parser.add_argument('-a', '--attr', action='append', dest='attributes',
+            help="Attribute name to be removed. If not specified, "
+                "removes all attributes (repeatable)")
+        return parser
+
+    def __init__(self, extractor: IExtractor,
+            ids: Optional[Iterable[Tuple[str, str]]] = None,
+            attributes: Optional[Iterable[str]] = None):
+        super().__init__(extractor)
+        self._ids = set(tuple(v) for v in (ids or []))
+        self._attributes = set(attributes or [])
+
+    def _filter_attrs(self, attrs):
+        if not self._attributes:
+            return None
+        else:
+            return filter_dict(attrs, exclude_keys=self._attributes)
+
+    def transform_item(self, item: DatasetItem):
+        if not self._ids or (item.id, item.subset) in self._ids:
+            filtered_annotations = []
+            for ann in item.annotations:
+                filtered_annotations.append(ann.wrap(
+                    attributes=self._filter_attrs(ann.attributes)))
+
+            return item.wrap(attributes=self._filter_attrs(item.attributes),
+                annotations=filtered_annotations)
+        return item

@@ -1,8 +1,7 @@
 ---
 title: 'Compare datasets'
-linkTitle: 'Diff'
+linkTitle: 'diff'
 description: ''
-weight: 14
 ---
 
 The command compares two datasets and saves the results in the

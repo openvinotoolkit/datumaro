@@ -49,7 +49,7 @@ class ImageZipIntegrationScenarios(TestCase):
     def test_can_export_zip_images_from_coco_dataset(self):
         with TestDir() as test_dir:
             coco_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
-                'tests', 'assets', 'coco_dataset')
+                'tests', 'assets', 'coco_dataset', 'coco')
 
             run(self, 'create', '-o', test_dir)
             run(self, 'import', '-p', test_dir, '-f', 'coco', coco_dir)

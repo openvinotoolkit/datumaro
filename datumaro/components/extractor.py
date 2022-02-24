@@ -6,13 +6,14 @@ from __future__ import annotations
 
 from glob import iglob
 from typing import (
-    Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union, cast,
+    Any, Callable, Dict, Iterator, List, NoReturn, Optional, Sequence, Tuple,
+    Type, TypeVar, Union, cast,
 )
 import os
 import os.path as osp
 import warnings
 
-from attr import attrib, attrs
+from attr import attrs, define, field
 import attr
 import numpy as np
 
@@ -20,50 +21,62 @@ from datumaro.components.annotation import (
     Annotation, AnnotationType, Categories,
 )
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.errors import DatasetNotFoundError
+from datumaro.components.errors import (
+    AnnotationImportError, DatasetNotFoundError, DatumaroError, ItemImportError,
+)
 from datumaro.components.format_detection import (
     FormatDetectionConfidence, FormatDetectionContext,
 )
-from datumaro.components.media import Image, MediaElement, PointCloud
+from datumaro.components.media import Image
+from datumaro.components.progress_reporting import (
+    NullProgressReporter, ProgressReporter,
+)
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 
-
-def __getattr__(name: str):
-    if name in {
-        'Annotation', 'AnnotationType', 'Bbox', 'Caption', 'Categories',
-        'CompiledMask', 'Cuboid3d', 'Label', 'LabelCategories', 'Mask',
-        'MaskCategories', 'Points', 'PointsCategories', 'Polygon', 'RleMask',
-    }:
-        warnings.warn(f"Using {name} from {__package__} is deprecated and "
-            "will be removed in future. The class is moved to "
-            "'datumaro.components.annotation'",
-            DeprecationWarning, stacklevel=2)
-
-        import datumaro.components.annotation as annotation
-        return getattr(annotation, name)
-    raise AttributeError(f"module {__name__} has no attribute {name}")
-
 DEFAULT_SUBSET_NAME = 'default'
 
-T = TypeVar('T', bound=MediaElement)
-
-@attrs(order=False, init=False)
+@attrs(slots=True, order=False)
 class DatasetItem:
-    id: str = attrib(converter=lambda x: str(x).replace('\\', '/'),
+    id: str = field(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)
-
-    subset: str = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
+    annotations: List[Annotation] = field(
+        factory=list, validator=default_if_none(list))
+    subset: str = field(converter=lambda v: v or DEFAULT_SUBSET_NAME,
         default=None)
 
-    media: Optional[MediaElement] = attrib(default=None,
-        validator=attr.validators.optional(
-            attr.validators.instance_of(MediaElement)))
+    # TODO: introduce "media" field with type info. Replace image and pcd.
+    image: Optional[Image] = field(default=None)
+    # TODO: introduce pcd type like Image
+    point_cloud: Optional[str] = field(
+        converter=lambda x: str(x).replace('\\', '/') if x else None,
+        default=None)
+    related_images: List[Image] = field(default=None)
 
-    annotations: List[Annotation] = attrib(
-        factory=list, validator=default_if_none(list))
+    def __attrs_post_init__(self):
+        if (self.has_image and self.has_point_cloud):
+            raise ValueError("Can't set both image and point cloud info")
+        if self.related_images and not self.has_point_cloud:
+            raise ValueError("Related images require point cloud")
 
-    attributes: Dict[str, Any] = attrib(
+    def _image_converter(image):
+        if callable(image) or isinstance(image, np.ndarray):
+            image = Image(data=image)
+        elif isinstance(image, str):
+            image = Image(path=image)
+        assert image is None or isinstance(image, Image), type(image)
+        return image
+    image.converter = _image_converter
+
+    def _related_image_converter(images):
+        return list(map(__class__._image_converter, images or []))
+    related_images.converter = _related_image_converter
+
+    @point_cloud.validator
+    def _point_cloud_validator(self, attribute, pcd):
+        assert pcd is None or isinstance(pcd, str), type(pcd)
+
+    attributes: Dict[str, Any] = field(
         factory=dict, validator=default_if_none(dict))
 
     def wrap(item, **kwargs):
@@ -176,8 +189,8 @@ class IExtractor:
     def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
-class ExtractorBase(IExtractor):
-    def __init__(self, length=None, subsets=None):
+class _ExtractorBase(IExtractor):
+    def __init__(self, *, length=None, subsets=None):
         self._length = length
         self._subsets = subsets
 
@@ -222,7 +235,7 @@ class ExtractorBase(IExtractor):
         return method(self, *args, **kwargs)
 
     def select(self, pred):
-        class _DatasetFilter(ExtractorBase):
+        class _DatasetFilter(_ExtractorBase):
             def __iter__(_):
                 return filter(pred, iter(self))
             def categories(_):
@@ -240,12 +253,78 @@ class ExtractorBase(IExtractor):
                 return item
         return None
 
-class Extractor(ExtractorBase, CliPlugin):
+T = TypeVar('T')
+
+class _ImportFail(DatumaroError):
+    pass
+
+class ImportErrorPolicy:
+    def report_item_error(self, error: Exception, *,
+            item_id: Tuple[str, str]) -> None:
+        """
+        Allows to report a problem with a dataset item.
+        If this function returns, the extractor must skip the item.
+        """
+
+        if not isinstance(error, _ImportFail):
+            ie = ItemImportError(item_id)
+            ie.__cause__ = error
+            return self._handle_item_error(ie)
+        else:
+            raise error
+
+    def report_annotation_error(self, error: Exception, *,
+            item_id: Tuple[str, str]) -> None:
+        """
+        Allows to report a problem with a dataset item annotation.
+        If this function returns, the extractor must skip the annotation.
+        """
+
+        if not isinstance(error, _ImportFail):
+            ie = AnnotationImportError(item_id)
+            ie.__cause__ = error
+            return self._handle_annotation_error(ie)
+        else:
+            raise error
+
+    def _handle_item_error(self, error: ItemImportError) -> None:
+        """This function must either call fail() or return."""
+        self.fail(error)
+
+    def _handle_annotation_error(self, error: AnnotationImportError) -> None:
+        """This function must either call fail() or return."""
+        self.fail(error)
+
+    def fail(self, error: Exception) -> NoReturn:
+        raise _ImportFail from error
+
+class FailingImportErrorPolicy(ImportErrorPolicy):
+    pass
+
+@define(eq=False)
+class ImportContext:
+    progress_reporter: ProgressReporter = field(default=None,
+        converter=attr.converters.default_if_none(factory=NullProgressReporter))
+    error_policy: ImportErrorPolicy = field(default=None,
+        converter=attr.converters.default_if_none(factory=FailingImportErrorPolicy))
+
+class NullImportContext(ImportContext):
+    pass
+
+class Extractor(_ExtractorBase, CliPlugin):
     """
     A base class for user-defined and built-in extractors.
     Should be used in cases, where SourceExtractor is not enough,
     or its use makes problems with performance, implementation etc.
     """
+
+    def __init__(self, *,
+            length: Optional[int] = None,
+            subsets: Optional[Sequence[str]] = None,
+            ctx: Optional[ImportContext] = None):
+        super().__init__(length=length, subsets=subsets)
+
+        self._ctx: ImportContext = ctx or NullImportContext()
 
 class SourceExtractor(Extractor):
     """
@@ -253,9 +332,12 @@ class SourceExtractor(Extractor):
     Should be used by default for user-defined extractors.
     """
 
-    def __init__(self, length=None, subset=None):
+    def __init__(self, *,
+            length: Optional[int] = None,
+            subset: Optional[str] = None,
+            ctx: Optional[ImportContext] = None):
         self._subset = subset or DEFAULT_SUBSET_NAME
-        super().__init__(length=length, subsets=[self._subset])
+        super().__init__(length=length, subsets=[self._subset], ctx=ctx)
 
         self._categories = {}
         self._items = []
@@ -355,7 +437,7 @@ class Importer(CliPlugin):
                     break
         return sources
 
-class Transform(ExtractorBase, CliPlugin):
+class Transform(_ExtractorBase, CliPlugin):
     """
     A base class for dataset transformations that change dataset items
     or their annotations.

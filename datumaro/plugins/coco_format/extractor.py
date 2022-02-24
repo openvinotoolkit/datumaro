@@ -1,13 +1,12 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
-import json
+from typing import Any
 import logging as log
 import os.path as osp
 
-from pycocotools.coco import COCO
+from attrs import define
 import pycocotools.mask as mask_utils
 
 from datumaro.components.annotation import (
@@ -18,19 +17,25 @@ from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor,
 )
 from datumaro.components.media import Image
+from datumaro.util import parse_json_file, take_by
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
-from datumaro.util.os_util import suppress_output
 
 from .format import CocoPath, CocoTask
 
 
 class _CocoExtractor(SourceExtractor):
+    """
+    Parses COCO annotations written in the following format:
+    https://cocodataset.org/#format-data
+    """
+
     def __init__(self, path, task, *,
         merge_instance_polygons=False,
         subset=None,
         keep_original_category_ids=False,
+        **kwargs
     ):
         assert osp.isfile(path), path
 
@@ -38,7 +43,7 @@ class _CocoExtractor(SourceExtractor):
             parts = osp.splitext(osp.basename(path))[0].split(task.name + '_',
                 maxsplit=1)
             subset = parts[1] if len(parts) == 2 else None
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, **kwargs)
 
         rootpath = ''
         if path.endswith(osp.join(CocoPath.ANNOTATIONS_DIR, osp.basename(path))):
@@ -54,160 +59,147 @@ class _CocoExtractor(SourceExtractor):
 
         self._merge_instance_polygons = merge_instance_polygons
 
+        json_data = parse_json_file(path)
+        self._label_map = {} # coco_id -> dm_id
+        self._load_categories(json_data,
+            keep_original_ids=keep_original_category_ids,
+        )
+
         if self._task == CocoTask.panoptic:
-            #panoptic is not added to pycocotools
-            panoptic_config = self._load_panoptic_config(path)
-            panoptic_images = osp.splitext(path)[0]
+            self._mask_dir = osp.splitext(path)[0]
+        self._items = self._load_items(json_data)
 
-            self._load_label_categories(
-                panoptic_config['categories'],
-                keep_original_ids=keep_original_category_ids,
-            )
+    def __iter__(self):
+        yield from self._items.values()
 
-            self._items = list(self._load_panoptic_items(panoptic_config,
-                panoptic_images).values())
-        else:
-            loader = self._make_subset_loader(path)
-            self._load_categories(
-                loader,
-                keep_original_ids=keep_original_category_ids,
-            )
-            self._items = list(self._load_items(loader).values())
+    def _load_categories(self, json_data, *, keep_original_ids):
+        if has_meta_file(self._rootpath):
+            labels = parse_meta_file(self._rootpath).keys()
+            self._categories = {
+                AnnotationType.label: LabelCategories.from_iterable(labels)
+            }
+            # 0 is reserved for no class
+            self._label_map = { i + 1: i for i in range(len(labels)) }
+            return
 
-    @staticmethod
-    def _make_subset_loader(path):
-        # TODO: remove pycocotools dependency?
-
-        # COCO API has an unclosed file problem, so we read json manually
-        coco_api = COCO()
-        with open(path, 'r', encoding='utf-8') as f:
-            dataset = json.load(f)
-
-        coco_api.dataset = dataset
-
-        # suppress annoying messages about dataset reading from cocoapi
-        with suppress_output():
-            coco_api.createIndex()
-        return coco_api
-
-    def _load_categories(self, loader, *, keep_original_ids):
         self._categories = {}
 
         if self._task in [CocoTask.instances, CocoTask.labels,
-                CocoTask.person_keypoints, CocoTask.stuff]:
-            self._load_label_categories(
-                loader.loadCats(loader.getCatIds()),
+                CocoTask.person_keypoints, CocoTask.stuff,
+                CocoTask.panoptic]:
+            self._load_label_categories(json_data['categories'],
                 keep_original_ids=keep_original_ids,
             )
 
         if self._task == CocoTask.person_keypoints:
-            self._load_person_kp_categories(loader)
+            self._load_person_kp_categories(json_data['categories'])
 
-
-    def _load_label_categories(self, raw_cats, *, keep_original_ids):
-        if has_meta_file(self._rootpath):
-            labels = parse_meta_file(self._rootpath).keys()
-            self._categories =  { AnnotationType.label: LabelCategories.
-                from_iterable(labels) }
-            self._label_map = { (i + 1): label for i, label in enumerate(labels) }
-            return
-
+    def _load_label_categories(self, json_cat, *, keep_original_ids):
         categories = LabelCategories()
         label_map = {}
 
         if keep_original_ids:
-            for cat in sorted(raw_cats, key=lambda cat: cat['id']):
+            for cat in sorted(json_cat, key=lambda cat: cat['id']):
                 label_map[cat['id']] = cat['id']
 
                 while len(categories) < cat['id']:
-                    categories.add(name=f"class-{len(categories)}")
+                    categories.add(f"class-{len(categories)}")
 
-                categories.add(name=cat['name'], parent=cat.get('supercategory'))
+                categories.add(cat['name'], parent=cat.get('supercategory'))
         else:
-            for idx, cat in enumerate(raw_cats):
+            for idx, cat in enumerate(sorted(json_cat, key=lambda cat: cat['id'])):
                 label_map[cat['id']] = idx
-                categories.add(name=cat['name'], parent=cat.get('supercategory'))
+                categories.add(cat['name'], parent=cat.get('supercategory'))
 
         self._categories[AnnotationType.label] = categories
         self._label_map = label_map
 
-    def _load_person_kp_categories(self, loader):
-        catIds = loader.getCatIds()
-        cats = loader.loadCats(catIds)
-
+    def _load_person_kp_categories(self, json_cat):
         categories = PointsCategories()
-        for cat in cats:
+        for cat in json_cat:
             label_id = self._label_map[cat['id']]
-            categories.add(label_id=label_id,
+            categories.add(label_id,
                 labels=cat['keypoints'], joints=cat['skeleton']
             )
 
         self._categories[AnnotationType.points] = categories
 
-    @staticmethod
-    def _load_panoptic_config(path):
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+    def _load_items(self, json_data):
+        pbars = self._ctx.progress_reporter.split(2)
+        items = {}
+        img_infos = {}
+        for img_info in pbars[0].iter(json_data['images'],
+                desc="Parsing image info"):
+            try:
+                img_id = img_info.get('id')
+                if not isinstance(img_id, int):
+                    raise ValueError("Invalid image id value '%s'" % img_id)
 
-    def _load_items(self, loader):
-        items = OrderedDict()
+                img_infos[img_id] = img_info
 
-        for img_id in loader.getImgIds():
-            image_info = loader.loadImgs(img_id)[0]
-            image_path = osp.join(self._images_dir, image_info['file_name'])
-            image_size = (image_info.get('height'), image_info.get('width'))
-            if all(image_size):
-                image_size = (int(image_size[0]), int(image_size[1]))
-            else:
-                image_size = None
-            image = Image(path=image_path, size=image_size)
+                if img_info.get('height') and img_info.get('width'):
+                    image_size = (img_info['height'], img_info['width'])
+                else:
+                    image_size = None
 
-            anns = loader.getAnnIds(imgIds=img_id)
-            anns = loader.loadAnns(anns)
-            anns = sum((self._load_annotations(a, image_info) for a in anns), [])
+                items[img_id] = DatasetItem(
+                    id=osp.splitext(img_info['file_name'])[0],
+                    subset=self._subset,
+                    image=Image(
+                        path=osp.join(self._images_dir, img_info['file_name']),
+                        size=image_size),
+                    annotations=[],
+                    attributes={'id': img_id})
+            except Exception as e:
+                self._ctx.error_policy.report_item_error(e,
+                    item_id=(img_id, self._subset))
 
-            items[img_id] = DatasetItem(
-                id=osp.splitext(image_info['file_name'])[0],
-                subset=self._subset, image=image, annotations=anns,
-                attributes={'id': img_id})
+        if self._task is not CocoTask.panoptic:
+            for ann in pbars[1].iter(json_data['annotations'],
+                    desc="Parsing annotations"):
+                try:
+                    img_id = ann.get('image_id')
+                    if not isinstance(img_id, int):
+                        raise ValueError("Invalid image id value '%s'" % img_id)
+
+                    self._load_annotations(ann, img_infos[img_id],
+                        parsed_annotations=items[img_id].annotations)
+                except Exception as e:
+                    self._ctx.error_policy.report_annotation_error(e,
+                        item_id=(img_id, self._subset))
+        else:
+            for ann in pbars[1].iter(json_data['annotations'],
+                    desc='Parsing annotations'):
+                try:
+                    img_id = ann.get('image_id')
+                    if not isinstance(img_id, int):
+                        raise ValueError("Invalid image id value '%s'" % img_id)
+
+                    self._load_panoptic_ann(ann, items[img_id].annotations)
+                except Exception as e:
+                    self._ctx.error_policy.report_annotation_error(e,
+                        item_id=(img_id, self._subset))
 
         return items
 
-    def _load_panoptic_items(self, config, panoptic_images):
-        items = OrderedDict()
+    def _load_panoptic_ann(self, ann, parsed_annotations=None):
+        if parsed_annotations is None:
+            parsed_annotations = []
 
-        imgs_info = {}
-        for img in config['images']:
-            imgs_info[img['id']] = img
+        # For the panoptic task, each annotation struct is a per-image
+        # annotation rather than a per-object annotation.
+        mask_path = osp.join(self._mask_dir, ann['file_name'])
+        mask = lazy_image(mask_path, loader=self._load_pan_mask)
+        mask = CompiledMask(instance_mask=mask)
+        for segm_info in ann['segments_info']:
+            cat_id = self._get_label_id(segm_info)
+            segm_id = segm_info['id']
+            attributes = { 'is_crowd': bool(segm_info['iscrowd']) }
+            parsed_annotations.append(Mask(image=mask.lazy_extract(segm_id),
+                label=cat_id, id=segm_id,
+                group=segm_id, attributes=attributes))
 
-        for ann in config['annotations']:
-            img_id = int(ann['image_id'])
-            image_path = osp.join(self._images_dir, imgs_info[img_id]['file_name'])
-            image_size = (imgs_info[img_id].get('height'),
-                imgs_info[img_id].get('width'))
-            if all(image_size):
-                image_size = (int(image_size[0]), int(image_size[1]))
-            else:
-                image_size = None
-            image = Image(path=image_path, size=image_size)
-            anns = []
-
-            mask_path = osp.join(panoptic_images, ann['file_name'])
-            mask = lazy_image(mask_path, loader=self._load_pan_mask)
-            mask = CompiledMask(instance_mask=mask)
-            for segm_info in ann['segments_info']:
-                cat_id = self._get_label_id(segm_info)
-                segm_id = segm_info['id']
-                attributes = { 'is_crowd': bool(segm_info['iscrowd']) }
-                anns.append(Mask(image=mask.lazy_extract(segm_id),
-                    label=cat_id, id=segm_id,
-                    group=segm_id, attributes=attributes))
-
-            items[img_id] = DatasetItem(
-                id=osp.splitext(imgs_info[img_id]['file_name'])[0],
-                subset=self._subset, image=image,
-                annotations=anns, attributes={'id': img_id})
-        return items
+        return parsed_annotations
 
     @staticmethod
     def _load_pan_mask(path):
@@ -215,47 +207,55 @@ class _CocoExtractor(SourceExtractor):
         mask = bgr2index(mask)
         return mask
 
+    @define
+    class _lazy_merged_mask:
+        segmentation: Any
+        h: int
+        w: int
+
+        def __call__(self):
+            rles = mask_utils.frPyObjects(self.segmentation, self.h, self.w)
+            return mask_utils.merge(rles)
+
     def _get_label_id(self, ann):
-        cat_id = ann.get('category_id')
-        if cat_id in [0, None]:
+        if not ann['category_id']:
             return None
-        return self._label_map[cat_id]
+        return self._label_map[ann['category_id']]
 
-    def _load_annotations(self, ann, image_info=None):
-        parsed_annotations = []
+    def _load_annotations(self, ann, image_info=None, parsed_annotations=None):
+        if parsed_annotations is None:
+            parsed_annotations = []
 
-        ann_id = ann.get('id')
+        ann_id = ann['id']
 
-        attributes = {}
-        if 'attributes' in ann:
-            try:
-                attributes.update(ann['attributes'])
-            except Exception as e:
-                log.debug("item #%s: failed to read annotation attributes: %s",
-                    image_info['id'], e)
+        attributes = ann.get('attributes', {})
         if 'score' in ann:
             attributes['score'] = ann['score']
 
         group = ann_id # make sure all tasks' annotations are merged
 
-        if self._task in [CocoTask.instances, CocoTask.person_keypoints,
-            CocoTask.stuff]:
-            x, y, w, h = ann['bbox']
+        if self._task is CocoTask.instances or \
+                self._task is CocoTask.person_keypoints or \
+                self._task is CocoTask.stuff:
             label_id = self._get_label_id(ann)
 
-            is_crowd = bool(ann['iscrowd'])
-            attributes['is_crowd'] = is_crowd
+            attributes['is_crowd'] = bool(ann['iscrowd'])
 
             if self._task is CocoTask.person_keypoints:
                 keypoints = ann['keypoints']
-                points = [p for i, p in enumerate(keypoints) if i % 3 != 2]
-                visibility = keypoints[2::3]
+                points = []
+                visibility = []
+                for x, y, v in take_by(keypoints, 3):
+                    points.append(x)
+                    points.append(y)
+                    visibility.append(v)
+
                 parsed_annotations.append(
                     Points(points, visibility, label=label_id,
                         id=ann_id, attributes=attributes, group=group)
                 )
 
-            segmentation = ann.get('segmentation')
+            segmentation = ann['segmentation']
             if segmentation and segmentation != [[]]:
                 rle = None
 
@@ -269,18 +269,16 @@ class _CocoExtractor(SourceExtractor):
                             ))
                     else:
                         # merge all parts into a single mask RLE
-                        img_h = image_info['height']
-                        img_w = image_info['width']
-                        rles = mask_utils.frPyObjects(segmentation, img_h, img_w)
-                        rle = mask_utils.merge(rles)
+                        rle = self._lazy_merged_mask(segmentation,
+                            image_info['height'], image_info['width'])
                 elif isinstance(segmentation['counts'], list):
                     # uncompressed RLE
                     img_h = image_info['height']
                     img_w = image_info['width']
                     mask_h, mask_w = segmentation['size']
                     if img_h == mask_h and img_w == mask_w:
-                        rle = mask_utils.frPyObjects(
-                            [segmentation], mask_h, mask_w)[0]
+                        rle = self._lazy_merged_mask(
+                            [segmentation], mask_h, mask_w)
                     else:
                         log.warning("item #%s: mask #%s "
                             "does not match image size: %s vs. %s. "
@@ -292,11 +290,12 @@ class _CocoExtractor(SourceExtractor):
                     # compressed RLE
                     rle = segmentation
 
-                if rle is not None:
+                if rle:
                     parsed_annotations.append(RleMask(rle=rle, label=label_id,
                         id=ann_id, attributes=attributes, group=group
                     ))
             else:
+                x, y, w, h = ann['bbox']
                 parsed_annotations.append(
                     Bbox(x, y, w, h, label=label_id,
                         id=ann_id, attributes=attributes, group=group)

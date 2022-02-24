@@ -3,6 +3,7 @@ from functools import partial
 from unittest import TestCase
 import os
 import os.path as osp
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
 
@@ -20,7 +21,7 @@ from datumaro.plugins.voc_format.converter import (
 from datumaro.plugins.voc_format.importer import VocImporter
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (
-    TestDir, check_save_and_load, compare_datasets,
+    TestDir, check_save_and_load, compare_datasets, compare_datasets_strict,
 )
 import datumaro.plugins.voc_format.format as VOC
 
@@ -392,6 +393,24 @@ class VocImportTest(TestCase):
 
                 compare_datasets(self, expected, actual, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_673)
+    def test_can_pickle(self):
+        formats = [
+            'voc',
+            'voc_classification',
+            'voc_detection',
+            'voc_action',
+            'voc_layout',
+            'voc_segmentation'
+        ]
+
+        for fmt in formats:
+            with self.subTest(fmt=fmt):
+                source = Dataset.import_from(DUMMY_DATASET_DIR, format=fmt)
+
+                parsed = pickle.loads(pickle.dumps(source)) # nosec
+
+                compare_datasets_strict(self, source, parsed)
 
 class VocConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
@@ -840,8 +859,8 @@ class VocConverterTest(TestCase):
 
             def categories(self):
                 label_map = OrderedDict()
-                label_map['background'] = [(0, 0, 0), [], []]
                 label_map['label_1'] = [(1, 2, 3), [], []]
+                label_map['background'] = [(0, 0, 0), [], []]
                 label_map['label_2'] = [(3, 2, 1), [], []]
                 return VOC.make_voc_categories(label_map)
 
@@ -1150,8 +1169,8 @@ class VocConverterTest(TestCase):
             dataset.export(path, 'voc', save_images=True)
 
             dataset.filter('/item[id >= 3]')
-            dataset.transform('random_split', (('train', 0.5), ('test', 0.5)),
-                seed=42)
+            dataset.transform('random_split',
+                splits=(('train', 0.5), ('test', 0.5)), seed=42)
             dataset.save(save_images=True)
 
             self.assertEqual({'3.xml', '4.xml'},

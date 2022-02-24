@@ -1,8 +1,7 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-import json
 import os.path as osp
 
 from datumaro.components.annotation import (
@@ -12,6 +11,7 @@ from datumaro.components.annotation import (
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image, MediaElement
+from datumaro.util import parse_json, parse_json_file
 
 from .format import DatumaroPath
 
@@ -41,8 +41,7 @@ class DatumaroExtractor(SourceExtractor):
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
-        with open(path, 'r', encoding='utf-8') as f:
-            parsed_anns = json.load(f)
+        parsed_anns = parse_json_file(path)
         self._categories = self._load_categories(parsed_anns)
         self._items = self._load_items(parsed_anns)
 
@@ -205,7 +204,7 @@ class DatumaroImporter(Importer):
             annot_file, "must be a JSON object with \"categories\" "
                 "and \"items\" keys",
         ) as f:
-            contents = json.load(f)
+            contents = parse_json(f.read())
             if not {'categories', 'items'} <= contents.keys():
                 raise Exception
 

@@ -1,21 +1,19 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from functools import partial
+from inspect import isclass
 from typing import (
     Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar,
 )
 import glob
 import importlib
-import inspect
 import logging as log
 import os.path as osp
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
-from datumaro.components.format_detection import (
-    FormatRequirementsUnmet, apply_format_detector,
-)
+from datumaro.components.format_detection import detect_dataset_format
 from datumaro.util.os_util import import_foreign_module, split_path
 
 T = TypeVar('T')
@@ -48,11 +46,11 @@ class PluginRegistry(Registry[Type[CliPlugin]]):
     def __init__(self, filter: Callable[[Type[CliPlugin]], bool] = None): \
             #pylint: disable=redefined-builtin
         super().__init__()
-        self.filter = filter
+        self._filter = filter
 
     def batch_register(self, values: Iterable[CliPlugin]):
         for v in values:
-            if self.filter and not self.filter(v):
+            if self._filter and not self._filter(v):
                 continue
 
             self.register(v.NAME, v)
@@ -60,19 +58,25 @@ class PluginRegistry(Registry[Type[CliPlugin]]):
 class Environment:
     _builtin_plugins = None
 
-    def __init__(self):
-        def _filter(accept, skip=None):
-            accept = (accept, ) if inspect.isclass(accept) else tuple(accept)
-            skip = {skip} if inspect.isclass(skip) else set(skip or [])
-            skip = tuple(skip | set(accept))
-            return lambda t: issubclass(t, accept) and t not in skip
+    @classmethod
+    def _make_filter(cls, accept, skip=None):
+        accept = (accept, ) if isclass(accept) else tuple(accept)
+        skip = {skip} if isclass(skip) else set(skip or [])
+        skip = tuple(skip | set(accept))
+        return partial(cls._check_type, accept=accept, skip=skip)
 
+    @staticmethod
+    def _check_type(t, *, accept, skip):
+        return issubclass(t, accept) and t not in skip
+
+    def __init__(self):
         from datumaro.components.converter import Converter
         from datumaro.components.extractor import (
             Extractor, Importer, ItemTransform, SourceExtractor, Transform,
         )
         from datumaro.components.launcher import Launcher
         from datumaro.components.validator import Validator
+        _filter = self._make_filter
         self._extractors = PluginRegistry(_filter(Extractor,
             skip=SourceExtractor))
         self._importers = PluginRegistry(_filter(Importer))
@@ -149,7 +153,7 @@ class Environment:
                 exports.append(getattr(module, symbol))
 
         exports = [s for s in exports
-            if inspect.isclass(s) and issubclass(s, types) and not s in types]
+            if isclass(s) and issubclass(s, types) and not s in types]
 
         return exports
 
@@ -221,7 +225,7 @@ class Environment:
 
     def make_converter(self, name, *args, **kwargs):
         result = self.converters.get(name)
-        if inspect.isclass(result):
+        if isclass(result):
             result = result.convert
         return partial(result, *args, **kwargs)
 
@@ -232,33 +236,8 @@ class Environment:
         return name in self.importers or name in self.extractors
 
     def detect_dataset(self, path):
-        max_confidence = 0
-        matches = []
-
-        if not osp.exists(path):
-            raise FileNotFoundError(f"Path {path} doesn't exist")
-
-        for format_name, importer in self.importers.items.items():
-            log.debug("Checking '%s' format...", format_name)
-            try:
-                new_confidence = apply_format_detector(path, importer.detect)
-            except FormatRequirementsUnmet as cf:
-                log.debug("Format did not match")
-                if len(cf.failed_alternatives) > 1:
-                    log.debug("None of the following requirements were met:")
-                else:
-                    log.debug("The following requirement was not met:")
-
-                for req in cf.failed_alternatives:
-                    log.debug("  %s", req)
-            else:
-                log.debug("Format matched with confidence %d", new_confidence)
-
-                # keep only matches with the highest confidence
-                if new_confidence > max_confidence:
-                    matches = [format_name]
-                    max_confidence = new_confidence
-                elif new_confidence == max_confidence:
-                    matches.append(format_name)
-
-        return matches
+        return detect_dataset_format(
+            ((format_name, importer.detect)
+                for format_name, importer in self.importers.items.items()),
+            path,
+        )

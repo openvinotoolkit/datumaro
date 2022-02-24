@@ -1,8 +1,7 @@
 ---
 title: 'Utilities'
-linkTitle: 'Utilities'
+linkTitle: 'util'
 description: ''
-weight: 7
 ---
 
 ### Split video into frames <a id="split-video"></a>

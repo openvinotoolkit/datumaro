@@ -55,7 +55,7 @@ reading, exporting and iteration capabilities, simplifying integration of custom
 formats and providing high performance operations:
 
 ``` python
-from datumaro.components.project import Project
+from datumaro.project import Project
 
 # load a Datumaro project
 project = Project('directory')
@@ -68,14 +68,16 @@ dataset.select(lambda item: len(item.annotations) != 0)
 
 # change dataset labels
 dataset.transform('remap_labels',
-  {'cat': 'dog', # rename cat to dog
-    'truck': 'car', # rename truck to car
-    'person': '', # remove this label
-  }, default='delete') # remove everything else
+    mapping={
+        'cat': 'dog', # rename cat to dog
+        'truck': 'car', # rename truck to car
+        'person': '', # remove this label
+    },
+    default='delete') # remove everything else
 
 # iterate over dataset elements
 for item in dataset:
-  print(item.id, item.annotations)
+    print(item.id, item.annotations)
 
 # export the resulting dataset in COCO format
 dataset.export('dst/dir', 'coco')
@@ -83,6 +85,8 @@ dataset.export('dst/dir', 'coco')
 # optionally, release the project resources
 project.close()
 ```
+
+[List of components](/api/api/datumaro.html) with the comfortable importing.
 
 > Check our [developer manual](/docs/developer_manual/) for additional
   information.
@@ -167,16 +171,13 @@ project.close()
 - Create a custom COCO-like dataset:
   ```python
   import numpy as np
-  from datumaro.components.annotation import (
-    AnnotationType, Bbox, LabelCategories,
-  )
-  from datumaro.components.extractor import DatasetItem
-  from datumaro.components.dataset import Dataset
+  import datumaro as dm
 
-  dataset = Dataset([
-    DatasetItem(id=0, image=np.ones((5, 5, 3)),
+  dataset = dm.Dataset([
+    dm.DatasetItem(id='image1', subset='train',
+      image=np.ones((5, 5, 3)),
       annotations=[
-        Bbox(1, 2, 3, 4, label=0),
+        dm.Bbox(1, 2, 3, 4, label=0),
       ]
     ),
     # ...
