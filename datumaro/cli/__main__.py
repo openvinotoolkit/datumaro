@@ -99,6 +99,7 @@ def _get_known_commands():
         ("explain", commands.explain, "Run Explainable AI algorithm for model"),
         ("export", commands.export, "Export dataset in some format"),
         ("filter", commands.filter, "Filter dataset items"),
+        ('generate', commands.generate, "Generate synthetic dataset"),
         ("info", commands.info, "Print dataset info"),
         ("merge", commands.merge, "Merge datasets"),
         ("patch", commands.patch, "Update dataset from another one"),

@@ -14,6 +14,9 @@ from datumaro.components.errors import MigrationError, ProjectNotFoundError
 from datumaro.components.operations import compute_ann_statistics, compute_image_statistics
 from datumaro.components.project import Project, ProjectBuildTargets
 from datumaro.components.validator import TaskType
+from datumaro.plugins.synthetic_images_plugin.image_generator import (
+    ImageGenerator,
+)
 from datumaro.util import dump_json_file, str_to_bool
 from datumaro.util.os_util import make_file_name
 from datumaro.util.scope import scope_add, scoped
@@ -445,6 +448,55 @@ def filter_command(args):
     if is_target and args.stage:
         project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
+
+    return 0
+
+
+def build_generate_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor(help="Generate synthetic dataset",
+        description="""
+        This command is useful for making a synthetic dataset
+        with specified height, width and storing them in provided directory.|n
+        |n
+        Examples:|n
+        - Generate 300 3-channel synthetic images with H=224, W=256 and store to data_dir:|n
+        |s|s%(prog)s -o data_dir -k 300 --height 224 --width 256|n
+        """,
+        formatter_class=MultilineFormatter)
+
+    parser.add_argument('-o', '--output-dir', required=True,
+        help="Output directory to store generated dataset")
+    parser.add_argument('-k', '--count', type=int, required=True,
+        help="Number of images to be generated")
+    parser.add_argument('--height', type=int, required=True,
+        help="Image height")
+    parser.add_argument('--width', type=int, required=True,
+        help="Image width")
+    parser.add_argument('--overwrite', action='store_true',
+        help="Overwrite existing files in the save directory")
+
+    parser.set_defaults(command=generate_command)
+
+    return parser
+
+def get_generate_sensitive_args():
+    return {
+        generate_command: ['output_dir', 'count', 'height', 'width']
+    }
+
+@scoped
+def generate_command(args):
+    log.info("Generating images...")
+
+    ImageGenerator(
+        count=args.count,
+        output_dir=args.output_dir,
+        height=args.height,
+        width=args.width,
+        overwrite=args.overwrite
+    ).generate_dataset()
+
+    log.info("Results have been saved to '%s'" % args.output_dir)
 
     return 0
 
@@ -1052,6 +1104,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     subparsers = parser.add_subparsers()
     add_subparser(subparsers, "export", build_export_parser)
     add_subparser(subparsers, "filter", build_filter_parser)
+    add_subparser(subparsers, 'generate', build_generate_parser)
     add_subparser(subparsers, "transform", build_transform_parser)
     add_subparser(subparsers, "info", build_info_parser)
     add_subparser(subparsers, "stats", build_stats_parser)
@@ -1065,6 +1118,7 @@ def get_sensitive_args():
     return {
         **get_export_sensitive_args(),
         **get_filter_sensitive_args(),
+        **get_generate_sensitive_args(),
         **get_transform_sensitive_args(),
         **get_stats_sensitive_args(),
         **get_info_sensitive_args(),

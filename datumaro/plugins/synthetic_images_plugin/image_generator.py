@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from multiprocessing import Pool
+from shutil import rmtree
 from typing import List, Optional
 import os
 
@@ -10,6 +11,7 @@ import cv2 as cv
 import numpy as np
 
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.errors import SourceExistsError
 
 from .utils import IFSFunction, augment, colorize, download_colorization_model
 
@@ -30,13 +32,26 @@ class ImageGenerator(CliPlugin):
             help="Height for generated images")
         parser.add_argument('--width', default=None,
             help="Width for generated images")
+        parser.add_argument('--overwrite', action='store_true',
+            help="Overwrite existing files in the save directory")
+
         return parser
 
-    def __init__(self, count: int, output_dir: str, height: int, width: int):
+    def __init__(self, count: int, output_dir: str,
+                 height: int, width: int, overwrite: bool = False):
         self._count = count
         self._output_dir = output_dir
         self._height = height
         self._width = width
+
+        if os.path.isdir(output_dir) and os.listdir(output_dir):
+            if overwrite:
+                rmtree(output_dir)
+                os.mkdir(output_dir)
+            else:
+                raise SourceExistsError(output_dir)
+        elif not os.path.isdir(output_dir):
+            os.mkdir(output_dir)
 
         np.random.seed(0)
         self._cpu_count = min(os.cpu_count(), self._count)
