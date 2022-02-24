@@ -87,22 +87,22 @@ class IFSFunction:
 
 
 def download_colorization_model(path):
-    proto_name = os.path.join(path, 'colorization_deploy_v2.prototxt')
-    model_name = os.path.join(path, 'colorization_release_v2.caffemodel')
-    npy_name = os.path.join(path, 'pts_in_hull.npy')
+    proto_name = 'colorization_deploy_v2.prototxt'
+    model_name = 'colorization_release_v2.caffemodel'
+    npy_name = 'pts_in_hull.npy'
 
-    if not os.path.exists(proto_name):
+    if not os.path.exists(os.path.join(path, proto_name)):
         url = 'https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/'
         proto = requests.get(url + proto_name)
-        open(proto_name, 'wb').write(proto.content)
-    if not os.path.exists(model_name):
+        open(os.path.join(path, proto_name), 'wb').write(proto.content)
+    if not os.path.exists(os.path.join(path, model_name)):
         url = 'http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/'
         model = requests.get(url + model_name)
-        open(model_name, 'wb').write(model.content)
-    if not os.path.exists(npy_name):
+        open(os.path.join(path, model_name), 'wb').write(model.content)
+    if not os.path.exists(os.path.join(path, npy_name)):
         url = 'https://github.com/richzhang/colorization/raw/caffe/colorization/resources/'
         pts_in_hull = requests.get(url + npy_name)
-        open(npy_name, 'wb').write(pts_in_hull.content)
+        open(os.path.join(path, npy_name), 'wb').write(pts_in_hull.content)
 
 
 def rgb2lab(frame):
@@ -131,7 +131,7 @@ def colorize(frame, net):
     img_bgr_out = np.clip(cv.cvtColor(img_lab_out, cv.COLOR_Lab2BGR), 0, 1)
     frame_normed = 255 * (img_bgr_out - img_bgr_out.min()) / (img_bgr_out.max() - img_bgr_out.min())
     frame_normed = np.array(frame_normed, dtype=np.uint8)
-    return cv.resize(frame_normed, (H_orig, W_orig))
+    return cv.resize(frame_normed, (W_orig, H_orig))
 
 
 def augment(image):

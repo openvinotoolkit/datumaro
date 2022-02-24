@@ -26,22 +26,19 @@ class ImageGenerator(CliPlugin):
             help="Number of images to generate")
         parser.add_argument('-o', '--output-dir', type=os.path.abspath, required=True,
             help="Path to the directory where dataset are saved")
-        parser.add_argument('-h', '--height', default=None,
+        parser.add_argument('--height', default=None,
             help="Height for generated images")
-        parser.add_argument('-w', '--width', default=None,
+        parser.add_argument('--width', default=None,
             help="Width for generated images")
-        parser.add_argument('--seed', type=int, default=0,
-            help="Initial value for random number generator")
         return parser
 
-    def __init__(self, count: int, output_dir: str, height: int, width: int,
-                 *, seed: Optional[int] = 0):
+    def __init__(self, count: int, output_dir: str, height: int, width: int):
         self._count = count
         self._output_dir = output_dir
         self._height = height
         self._width = width
 
-        np.random.seed(seed)
+        np.random.seed(0)
         self._cpu_count = min(os.cpu_count(), self._count)
         self._weights = np.array([
             0.2, 1, 1, 1, 1, 1,
@@ -106,8 +103,12 @@ class ImageGenerator(CliPlugin):
             pool.starmap(self._generate_image_batch, generation_params)
 
     def _generate_image_batch(self, params: np.ndarray, weights: np.ndarray, indices: List[int]) -> None:
-        pts_in_hull = np.load('pts_in_hull.npy').transpose().reshape(2, 313, 1, 1).astype(np.float32)
-        net = cv.dnn.readNetFromCaffe('colorization_deploy_v2.prototxt', 'colorization_release_v2.caffemodel')
+        path = os.path.dirname(os.path.abspath(__file__))
+        proto = os.path.join(path, 'colorization_deploy_v2.prototxt')
+        model = os.path.join(path, 'colorization_release_v2.caffemodel')
+        npy = os.path.join(path, 'pts_in_hull.npy')
+        pts_in_hull = np.load(npy).transpose().reshape(2, 313, 1, 1).astype(np.float32)
+        net = cv.dnn.readNetFromCaffe(proto, model)
         net.getLayer(net.getLayerId('class8_ab')).blobs = [pts_in_hull]
         net.getLayer(net.getLayerId('conv8_313_rh')).blobs = [np.full([1, 313], 2.606, np.float32)]
 

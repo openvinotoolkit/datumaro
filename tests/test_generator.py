@@ -15,7 +15,7 @@ class ImageGeneratorTest(TestCase):
     def test_save_image_can_create_dir(self):
         with TestDir() as test_dir:
             dataset_size = 2
-            ImageGenerator(dataset_size, test_dir, height=224, width=224).generate_dataset()
+            ImageGenerator(dataset_size, test_dir, height=224, width=256).generate_dataset()
             image_files = os.listdir(test_dir)
             self.assertEqual(len(image_files), dataset_size)
 
@@ -24,5 +24,5 @@ class ImageGeneratorTest(TestCase):
                 H, W, C = image.shape
 
                 self.assertEqual(H, 224)
-                self.assertEqual(W, 224)
+                self.assertEqual(W, 256)
                 self.assertEqual(C, 3)
