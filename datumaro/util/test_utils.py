@@ -15,7 +15,6 @@ import unittest.mock
 import warnings
 
 from typing_extensions import Literal
-import numpy as np
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset, IDataset
