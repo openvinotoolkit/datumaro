@@ -456,11 +456,11 @@ def build_generate_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Generate synthetic dataset",
         description="""
         This command is useful for making a synthetic dataset
-        with specified height, width and storing them in provided directory.|n
+        with specified shape and storing them in provided directory.|n
         |n
         Examples:|n
         - Generate 300 3-channel synthetic images with H=224, W=256 and store to data_dir:|n
-        |s|s%(prog)s -o data_dir -k 300 --height 224 --width 256|n
+        |s|s%(prog)s -o data_dir -k 300 --shape 224 256|n
         """,
         formatter_class=MultilineFormatter)
 
@@ -468,10 +468,8 @@ def build_generate_parser(parser_ctor=argparse.ArgumentParser):
         help="Output directory to store generated dataset")
     parser.add_argument('-k', '--count', type=int, required=True,
         help="Number of images to be generated")
-    parser.add_argument('--height', type=int, required=True,
-        help="Image height")
-    parser.add_argument('--width', type=int, required=True,
-        help="Image width")
+    parser.add_argument('--shape', nargs='+', type=int,
+        help="Data shape separated by a space")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
 
@@ -481,7 +479,7 @@ def build_generate_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_generate_sensitive_args():
     return {
-        generate_command: ['output_dir', 'count', 'height', 'width']
+        generate_command: ['output_dir', 'count', 'shape']
     }
 
 @scoped
@@ -491,8 +489,7 @@ def generate_command(args):
     ImageGenerator(
         count=args.count,
         output_dir=args.output_dir,
-        height=args.height,
-        width=args.width,
+        shape=args.shape,
         overwrite=args.overwrite
     ).generate_dataset()
 
