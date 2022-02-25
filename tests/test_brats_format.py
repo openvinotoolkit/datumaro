@@ -35,7 +35,9 @@ class BratsImporterTest(TestCase):
             DatasetItem(id='BRATS_002', subset='test',
                 media=MultiframeImage([np.ones((1, 5, 3))] * 2)
             )
-        ], categories=['overall tumor', 'edema', 'non-enhancing tumor', 'enhancing tumor'])
+        ], categories=[
+            'overall tumor', 'edema', 'non-enhancing tumor', 'enhancing tumor'
+        ], media_type=MultiframeImage)
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'brats')
 

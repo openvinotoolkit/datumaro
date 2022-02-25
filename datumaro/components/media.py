@@ -497,8 +497,8 @@ class MultiframeImage(MediaElement):
             path: Optional[str] = None):
         self._path = path
 
-        self._images: np.ndarray = np.array([])
-        for image in images or []:
+        self._images = [0] * len(images)
+        for i, image in enumerate(images or []):
             assert isinstance(image, (str, Image, np.ndarray)) or callable(image)
 
             if isinstance(image, str):
@@ -506,7 +506,8 @@ class MultiframeImage(MediaElement):
             elif isinstance(image, np.ndarray) or callable(image):
                 image = Image(data=image)
 
-            np.append(self._images, image)
+            self._images[i] = image
+
         assert self._path or self._images
 
     @property

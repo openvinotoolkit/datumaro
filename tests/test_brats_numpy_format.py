@@ -42,7 +42,9 @@ class BratsNumpyImporterTest(TestCase):
                     Cuboid3d(position=[0, 0, 0], rotation=[1, 1, 1])
                 ],
             )
-        ], categories=['overall tumor', 'necrotic and non-enhancing tumor', 'edema', 'enhancing tumor'])
+        ], categories=[
+            'overall tumor', 'necrotic and non-enhancing tumor', 'edema', 'enhancing tumor'
+        ], media_type=MultiframeImage)
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'brats_numpy')
 

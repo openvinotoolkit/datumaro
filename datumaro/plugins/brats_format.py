@@ -30,7 +30,7 @@ class BratsExtractor(SourceExtractor):
             subset = 'train'
         elif self._subset_suffix == 'Ts':
             subset = 'test'
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, media_type=MultiframeImage)
 
         self._root_dir = osp.dirname(path)
         self._categories = self._load_categories()

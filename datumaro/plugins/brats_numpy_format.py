@@ -28,7 +28,7 @@ class BratsNumpyExtractor(SourceExtractor):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
-        super().__init__()
+        super().__init__(media_type=MultiframeImage)
 
         self._root_dir = osp.dirname(path)
         self._categories = self._load_categories()
