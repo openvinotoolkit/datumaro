@@ -5,9 +5,7 @@
 import argparse
 import logging as log
 
-from datumaro.plugins.synthetic_images_plugin.image_generator import (
-    ImageGenerator,
-)
+from datumaro.plugins.synthetic_data import ImageGenerator
 
 from ..util import MultilineFormatter
 

@@ -2,9 +2,7 @@ from unittest import TestCase
 import os
 import os.path as osp
 
-from datumaro.plugins.synthetic_images_plugin.image_generator import (
-    ImageGenerator,
-)
+from datumaro.plugins.synthetic_data import ImageGenerator
 from datumaro.util.test_utils import TestDir
 import datumaro.util.image as image_module
 
