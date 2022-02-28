@@ -1,6 +1,5 @@
 from unittest import TestCase
 import os
-
 import os.path as osp
 
 from datumaro.plugins.synthetic_images_plugin.image_generator import (

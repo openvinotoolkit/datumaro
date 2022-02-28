@@ -3,11 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 from pathlib import Path
-import os
+import os.path as osp
 
 import cv2 as cv
 import numpy as np
-import os.path as osp
 import requests
 
 

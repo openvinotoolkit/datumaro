@@ -3,15 +3,15 @@
 # SPDX-License-Identifier: MIT
 
 from multiprocessing import Pool
-from shutil import rmtree
 from random import Random
+from shutil import rmtree
 from typing import List, Optional, Tuple
+import logging as log
 import os
+import os.path as osp
 
 import cv2 as cv
-import logging as log
 import numpy as np
-import os.path as osp
 
 from datumaro.cli.util.errors import CliException
 from datumaro.components.cli_plugin import CliPlugin
@@ -95,7 +95,7 @@ class ImageGenerator(CliPlugin):
         self._initialize_params()
 
     def generate_dataset(self) -> None:
-        log.info("Generating 3-channel images with height = '%d' and width = '%d'",
+        log.info("Generating 3-channel images with height = '%d' and width = '%d'" % \
             (self._height, self._width))
 
         with Pool(processes=self._cpu_count) as pool:
