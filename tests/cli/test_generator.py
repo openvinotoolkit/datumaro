@@ -1,5 +1,7 @@
 from unittest import TestCase
+
 import os
+import os.path as osp
 
 from datumaro.util.test_utils import TestDir
 from datumaro.util.test_utils import run_datum as run
@@ -17,7 +19,7 @@ class ImageGeneratorTest(TestCase):
             self.assertEqual(len(image_files), 2)
 
             for filename in image_files:
-                image = image_module.load_image(os.path.join(test_dir, filename))
+                image = image_module.load_image(osp.join(test_dir, filename))
                 H, W, C = image.shape
 
                 self.assertEqual(H, 224)

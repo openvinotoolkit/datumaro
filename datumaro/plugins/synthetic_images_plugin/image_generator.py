@@ -4,55 +4,58 @@
 
 from multiprocessing import Pool
 from shutil import rmtree
-from typing import List, Optional
+from random import Random
+from typing import List, Optional, Tuple
 import os
 
 import cv2 as cv
+import logging as log
 import numpy as np
+import os.path as osp
 
+from datumaro.cli.util.errors import CliException
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.errors import SourceExistsError
 
 from .utils import IFSFunction, augment, colorize, download_colorization_model
 
 
 class ImageGenerator(CliPlugin):
     """
-    ImageGenerator generates a 3-channel synthetic dataset with provided shapes.
+    ImageGenerator generates a 3-channel synthetic images with provided shape.
     """
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-o', '--output-dir', type=osp.abspath, required=True,
+            help="Path to the directory where dataset are saved")
         parser.add_argument('-k', '--count', type=int, required=True,
             help="Number of images to generate")
-        parser.add_argument('-o', '--output-dir', type=os.path.abspath, required=True,
-            help="Path to the directory where dataset are saved")
-        parser.add_argument('--shape', nargs='+', type=int,
-            help="Image shape: height and width separated by a space, "
-                 "for example --shape 256 224")
+        parser.add_argument('--shape', nargs='+', type=int, required=True,
+            help="Image shape: height and width, for example --shape 256 224")
         parser.add_argument('--overwrite', action='store_true',
             help="Overwrite existing files in the save directory")
 
         return parser
 
-    def __init__(self, count: int, output_dir: str,
-                 shape: List[int], overwrite: bool = False):
+    def __init__(self, output_dir: str, count: int,
+                 shape: Tuple[int, int], overwrite: bool = False):
         self._count = count
         self._output_dir = output_dir
         assert len(shape) == 2
         self._height, self._width = shape
 
-        if not os.path.exists(output_dir):
+        if not osp.exists(output_dir):
             os.mkdir(output_dir)
-        elif os.path.isdir(output_dir) and os.listdir(output_dir):
+        elif osp.isdir(output_dir) and os.listdir(output_dir):
             if overwrite:
                 rmtree(output_dir)
                 os.mkdir(output_dir)
             else:
-                raise SourceExistsError(output_dir)
+                raise CliException("Directory '%s' already exists "
+                    "(pass --overwrite to overwrite)" % output_dir)
 
-        np.random.seed(0)
+        self._rng = Random(0)
         self._cpu_count = min(os.cpu_count(), self._count)
         self._weights = np.array([
             0.2, 1, 1, 1, 1, 1,
@@ -87,10 +90,13 @@ class ImageGenerator(CliPlugin):
         self._instances = None
         self._categories = None
 
-    def generate_dataset(self) -> None:
-        path = os.path.dirname(os.path.abspath(__file__))
+        path = osp.dirname(osp.abspath(__file__))
         download_colorization_model(path)
         self._initialize_params()
+
+    def generate_dataset(self) -> None:
+        log.info("Generating 3-channel images with height = '%d' and width = '%d'",
+            (self._height, self._width))
 
         with Pool(processes=self._cpu_count) as pool:
             params = pool.map(self._generate_category, [1e-5] * self._categories)
@@ -117,10 +123,10 @@ class ImageGenerator(CliPlugin):
             pool.starmap(self._generate_image_batch, generation_params)
 
     def _generate_image_batch(self, params: np.ndarray, weights: np.ndarray, indices: List[int]) -> None:
-        path = os.path.dirname(os.path.abspath(__file__))
-        proto = os.path.join(path, 'colorization_deploy_v2.prototxt')
-        model = os.path.join(path, 'colorization_release_v2.caffemodel')
-        npy = os.path.join(path, 'pts_in_hull.npy')
+        path = osp.dirname(osp.abspath(__file__))
+        proto = osp.join(path, 'colorization_deploy_v2.prototxt')
+        model = osp.join(path, 'colorization_release_v2.caffemodel')
+        npy = osp.join(path, 'pts_in_hull.npy')
         pts_in_hull = np.load(npy).transpose().reshape(2, 313, 1, 1).astype(np.float32)
         net = cv.dnn.readNetFromCaffe(proto, model)
         net.getLayer(net.getLayerId('class8_ab')).blobs = [pts_in_hull]
@@ -129,13 +135,12 @@ class ImageGenerator(CliPlugin):
         for i, param, w in zip(indices, params, weights):
             image = self._generator(param, self._iterations, self._height, self._width, draw_point=False, weight=w)
             color_image = colorize(image, net)
-            aug_image = augment(color_image)
-            cv.imwrite(os.path.join(self._output_dir, "{:06d}.png".format(i)), aug_image)
+            aug_image = augment(self._rng, color_image)
+            cv.imwrite(osp.join(self._output_dir, "{:06d}.png".format(i)), aug_image)
 
-    @staticmethod
-    def _generator(params: np.ndarray, iterations: int, height: int, width: int,
+    def _generator(self, params: np.ndarray, iterations: int, height: int, width: int,
                    draw_point: bool = True, weight: Optional[np.ndarray] = None) -> np.ndarray:
-        ifs_function = IFSFunction(prev_x=0.0, prev_y=0.0)
+        ifs_function = IFSFunction(self._rng, prev_x=0.0, prev_y=0.0)
         for param in params:
             ifs_function.set_param(param[:6], param[6], weight)
         ifs_function.calculate(iterations)
@@ -145,12 +150,12 @@ class ImageGenerator(CliPlugin):
     def _generate_category(self, eps: float, base_h: int = 512, base_w: int = 512) -> np.ndarray:
         pixels = -1
         while pixels < self._threshold:
-            param_size = np.random.randint(2, 8)
+            param_size = self._rng.randint(2, 7)
             params = np.zeros((param_size, 7), dtype=np.float32)
 
             sum_proba = eps
             for i in range(param_size):
-                a, b, c, d, e, f = np.random.uniform(-1.0, 1.0, 6)
+                a, b, c, d, e, f = [self._rng.uniform(-1.0, 1.0) for _ in range(6)]
                 prob = abs(a * d - b * c)
                 sum_proba += prob
                 params[i] = a, b, c, d, e, f, prob

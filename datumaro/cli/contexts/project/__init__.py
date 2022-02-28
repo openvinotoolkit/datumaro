@@ -455,8 +455,9 @@ def filter_command(args):
 def build_generate_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Generate synthetic dataset",
         description="""
-        This command is useful for making a synthetic dataset
-        with specified shape and storing them in provided directory.|n
+        Create a synthetic dataset whose elements have the specified shape and
+        storing them in provided directory.|n
+        To create 3-channel images, you should provide height and width for them.|n
         |n
         Examples:|n
         - Generate 300 3-channel synthetic images with H=224, W=256 and store to data_dir:|n
@@ -468,8 +469,8 @@ def build_generate_parser(parser_ctor=argparse.ArgumentParser):
         help="Output directory to store generated dataset")
     parser.add_argument('-k', '--count', type=int, required=True,
         help="Number of images to be generated")
-    parser.add_argument('--shape', nargs='+', type=int,
-        help="Data shape separated by a space")
+    parser.add_argument('--shape', nargs='+', type=int, required=True,
+        help="Dimensions of data to be generated")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
 
@@ -484,7 +485,7 @@ def get_generate_sensitive_args():
 
 @scoped
 def generate_command(args):
-    log.info("Generating images...")
+    log.info("Generating dataset...")
 
     ImageGenerator(
         count=args.count,
@@ -493,7 +494,7 @@ def generate_command(args):
         overwrite=args.overwrite
     ).generate_dataset()
 
-    log.info("Results have been saved to '%s'" % args.output_dir)
+    log.info("Results have been saved to '%s'", args.output_dir)
 
     return 0
 

@@ -7,15 +7,17 @@ import os
 
 import cv2 as cv
 import numpy as np
+import os.path as osp
 import requests
 
 
 class IFSFunction:
-    def __init__(self, prev_x, prev_y):
+    def __init__(self, rng, prev_x, prev_y):
         self.function = []
         self.xs, self.ys = [prev_x], [prev_y]
         self.select_function = []
         self.cum_proba = 0.0
+        self._rng = rng
 
     def set_param(self, params, proba, weights=None):
         if weights is not None:
@@ -25,12 +27,12 @@ class IFSFunction:
         self.cum_proba += proba
         self.select_function.append(self.cum_proba)
 
-    def calculate(self, iteration):
-        rand = np.random.random(iteration)
+    def calculate(self, iterations):
+        rand = [self._rng.random() for _ in range(iterations)]
         prev_x, prev_y = 0, 0
         next_x, next_y = 0, 0
 
-        for i in range(iteration):
+        for i in range(iterations):
             for func_params, select_func in zip(self.function, self.select_function):
                 a, b, c, d, e, f = func_params
                 if rand[i] <= select_func:
@@ -79,7 +81,7 @@ class IFSFunction:
             if draw_point:
                 image[x, y] = 127
             else:
-                mask = '{:09b}'.format(np.random.randint(1, 512))
+                mask = '{:09b}'.format(self._rng.randint(1, 511))
                 patch = 127 * np.array(list(map(int, list(mask))), dtype=np.uint8).reshape(3, 3)
                 image[x+1:x+4, y+1:y+4] = patch
 
@@ -91,18 +93,18 @@ def download_colorization_model(path):
     model_name = 'colorization_release_v2.caffemodel'
     npy_name = 'pts_in_hull.npy'
 
-    if not os.path.exists(os.path.join(path, proto_name)):
+    if not osp.exists(osp.join(path, proto_name)):
         url = 'https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/'
         proto = requests.get(url + proto_name)
-        open(os.path.join(path, proto_name), 'wb').write(proto.content)
-    if not os.path.exists(os.path.join(path, model_name)):
+        open(osp.join(path, proto_name), 'wb').write(proto.content)
+    if not osp.exists(osp.join(path, model_name)):
         url = 'http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/'
         model = requests.get(url + model_name)
-        open(os.path.join(path, model_name), 'wb').write(model.content)
-    if not os.path.exists(os.path.join(path, npy_name)):
+        open(osp.join(path, model_name), 'wb').write(model.content)
+    if not osp.exists(osp.join(path, npy_name)):
         url = 'https://github.com/richzhang/colorization/raw/caffe/colorization/resources/'
         pts_in_hull = requests.get(url + npy_name)
-        open(os.path.join(path, npy_name), 'wb').write(pts_in_hull.content)
+        open(osp.join(path, npy_name), 'wb').write(pts_in_hull.content)
 
 
 def rgb2lab(frame):
@@ -134,29 +136,29 @@ def colorize(frame, net):
     return cv.resize(frame_normed, (W_orig, H_orig))
 
 
-def augment(image):
-    if np.random.random(1) >= 0.5:
+def augment(rng, image):
+    if rng.random() >= 0.5:
         image = cv.flip(image, 1)
 
-    if np.random.random(1) >= 0.5:
+    if rng.random() >= 0.5:
         image = cv.flip(image, 0)
 
     height, width = image.shape[:2]
-    angle = np.random.uniform(-30, 30)
+    angle = rng.uniform(-30, 30)
     rotate_matrix = cv.getRotationMatrix2D(center=(width / 2, height / 2), angle=angle, scale=1)
     image = cv.warpAffine(src=image, M=rotate_matrix, dsize=(width, height))
 
-    image = fill_background(image)
+    image = fill_background(rng, image)
 
-    k_size = np.random.choice(list(range(1, 16, 2)))
+    k_size = rng.choice(list(range(1, 16, 2)))
     image = cv.GaussianBlur(image, (k_size, k_size), 0)
     return image
 
 
-def fill_background(image):
+def fill_background(rng, image):
     synthetic_background = Path(__file__).parent / 'synthetic_background.npy'
     imagenet_means = np.load(synthetic_background)
-    class_id = np.random.randint(0, imagenet_means.shape[0])
+    class_id = rng.randint(0, imagenet_means.shape[0] - 1)
     rows, cols = np.where(~np.any(image, axis=-1))  # background color = [0, 0, 0]
     image[rows, cols] = imagenet_means[class_id]
     return image

@@ -1,6 +1,8 @@
 from unittest import TestCase
 import os
 
+import os.path as osp
+
 from datumaro.plugins.synthetic_images_plugin.image_generator import (
     ImageGenerator,
 )
@@ -15,12 +17,12 @@ class ImageGeneratorTest(TestCase):
     def test_save_image_can_create_dir(self):
         with TestDir() as test_dir:
             dataset_size = 2
-            ImageGenerator(dataset_size, test_dir, shape=[224,256]).generate_dataset()
+            ImageGenerator(test_dir, dataset_size, shape=[224,256]).generate_dataset()
             image_files = os.listdir(test_dir)
             self.assertEqual(len(image_files), dataset_size)
 
             for filename in image_files:
-                image = image_module.load_image(os.path.join(test_dir, filename))
+                image = image_module.load_image(osp.join(test_dir, filename))
                 H, W, C = image.shape
 
                 self.assertEqual(H, 224)
