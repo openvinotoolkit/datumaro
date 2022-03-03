@@ -63,7 +63,8 @@ class DatasetItem:
         assert issubclass(t, MediaElement)
         return cast(t, self.media)
 
-    def __init__(self, id: str, subset: Optional[str] = None,
+    def __init__(self, id: str, *,
+            subset: Optional[str] = None,
             media: Union[str, MediaElement, None] = None,
             annotations: Optional[List[Annotation]] = None,
             attributes: Dict[str, Any] = None,
@@ -163,14 +164,18 @@ class IExtractor:
     def categories(self) -> CategoriesInfo:
         raise NotImplementedError()
 
-    def get(self, id, subset=None) -> Optional[DatasetItem]:
+    def get(self, id: str, subset: Optional[str] = None) \
+            -> Optional[DatasetItem]:
         raise NotImplementedError()
 
     def media_type(self) -> Optional[Type[MediaElement]]:
         raise NotImplementedError()
 
 class _ExtractorBase(IExtractor):
-    def __init__(self, *, length=None, subsets=None, media_type=None):
+    def __init__(self, *,
+            length: Optional[int] = None,
+            subsets: Optional[Sequence[str]] = None,
+            media_type: Optional[Type[MediaElement]] = None):
         self._length = length
         self._subsets = subsets
         self._media_type = media_type
@@ -236,7 +241,7 @@ class _ExtractorBase(IExtractor):
                 return item
         return None
 
-    def media_type(self) -> Optional[Type[MediaElement]]:
+    def media_type(self):
         return self._media_type
 
 T = TypeVar('T')
