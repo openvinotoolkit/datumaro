@@ -69,8 +69,8 @@ class DatasetItem:
             attributes: Dict[str, Any] = None,
             image=None, point_cloud=None, related_images=None):
         if image is not None:
-            warnings.warn("image is deprecated and will be "
-                "removed in future. Use media instead.",
+            warnings.warn("'image' is deprecated and will be "
+                "removed in future. Use 'media' instead.",
                 DeprecationWarning, stacklevel=2)
             if isinstance(image, str):
                 image = Image(path=image)
@@ -79,12 +79,12 @@ class DatasetItem:
             assert isinstance(image, Image)
             media = image
         elif point_cloud is not None:
-            warnings.warn("point_cloud is deprecated and will be "
-                "removed in future. Use media instead.",
+            warnings.warn("'point_cloud' is deprecated and will be "
+                "removed in future. Use 'media' instead.",
                 DeprecationWarning, stacklevel=2)
             if related_images is not None:
-                warnings.warn("related_images is deprecated and will be "
-                    "removed in future. Use media instead.",
+                warnings.warn("'related_images' is deprecated and will be "
+                    "removed in future. Use 'media' instead.",
                     DeprecationWarning, stacklevel=2)
             if isinstance(point_cloud, str):
                 point_cloud = PointCloud(path=point_cloud,
@@ -98,8 +98,8 @@ class DatasetItem:
     # Deprecated. Provided for backward compatibility.
     @property
     def image(self) -> Optional[Image]:
-        warnings.warn("DatasetItem.image is deprecated and will be "
-            "removed in future. Use .media and .media_as() instead.",
+        warnings.warn("'DatasetItem.image' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
             DeprecationWarning, stacklevel=2)
         if not isinstance(self.media, Image):
             return None
@@ -108,8 +108,8 @@ class DatasetItem:
     # Deprecated. Provided for backward compatibility.
     @property
     def point_cloud(self) -> Optional[str]:
-        warnings.warn("DatasetItem.point_cloud is deprecated and will be "
-            "removed in future. Use .media and .media_as() instead.",
+        warnings.warn("'DatasetItem.point_cloud' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
             DeprecationWarning, stacklevel=2)
         if not isinstance(self.media, PointCloud):
             return None
@@ -118,8 +118,8 @@ class DatasetItem:
     # Deprecated. Provided for backward compatibility.
     @property
     def related_images(self) -> List[Image]:
-        warnings.warn("DatasetItem.related_images is deprecated and will be "
-            "removed in future. Use .media and .media_as() instead.",
+        warnings.warn("'DatasetItem.related_images' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
             DeprecationWarning, stacklevel=2)
         if not isinstance(self.media, PointCloud):
             return []
@@ -128,16 +128,16 @@ class DatasetItem:
     # Deprecated. Provided for backward compatibility.
     @property
     def has_image(self):
-        warnings.warn("DatasetItem.has_image is deprecated and will be "
-            "removed in future. Use .media and .media_as() instead.",
+        warnings.warn("'DatasetItem.has_image' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
             DeprecationWarning, stacklevel=2)
         return isinstance(self.media, Image)
 
     # Deprecated. Provided for backward compatibility.
     @property
     def has_point_cloud(self):
-        warnings.warn("DatasetItem.has_point_cloud is deprecated and will be "
-            "removed in future. Use .media and .media_as() instead.",
+        warnings.warn("'DatasetItem.has_point_cloud' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
             DeprecationWarning, stacklevel=2)
         return isinstance(self.media, PointCloud)
 
