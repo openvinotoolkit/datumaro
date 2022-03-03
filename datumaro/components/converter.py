@@ -90,11 +90,16 @@ class Converter(CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
+
+        # Deprecated
         parser.add_argument('--save-images', action='store_true',
+            default=None,
             help="(Deprecated. Use --save-media instead) "
-                "Save images (default: %(default)s)")
+                "Save images (default: False)")
+
         parser.add_argument('--save-media', action='store_true',
-            help="Save media (default: %(default)s)")
+            default=None, # TODO: remove default once save-images is removed
+            help="Save media (default: False)")
         parser.add_argument('--image-ext', default=None,
             help="Image extension (default: keep or use format default%s)" % \
                 (' ' + cls.DEFAULT_IMAGE_EXT if cls.DEFAULT_IMAGE_EXT else ''))
