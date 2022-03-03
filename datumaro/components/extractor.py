@@ -442,6 +442,9 @@ class Transform(_ExtractorBase, CliPlugin):
 
         self._extractor = extractor
 
+    def media_type(self):
+        return self._extractor.media_type()
+
     def categories(self):
         return self._extractor.categories()
 
