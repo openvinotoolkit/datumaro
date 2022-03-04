@@ -10,62 +10,28 @@ annotation module
       :special-members:
       :show-inheritance:
 
-   .. py:data:: NO_GROUP
+   .. autoclass:: NO_GROUP
 
    .. autoclass:: Annotation
-      :members: type, wrap, __eq__, __init__
+      :members:
       :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
-
-         Describes an identifier of the annotation.
-         Is not required to be unique within DatasetItem annotations or dataset.
-
-            .. py:data:: id: int
-
-         Arbitrary annotation-specific attributes. Typically, includes
-         metainfo and properties that are not covered by other fields.
-         If possible, try to limit value types of values by the simple
-         builtin types (int, float, bool, str) to increase compatibility with
-         different formats.
-         There are some established names for common attributes like:
-            - "occluded" (bool)
-            - "visible" (bool)
-         Possible dataset attributes can be described in Categories.attributes.
-
-            .. py:data:: attributes: Dict[str, Any]
-
-         Annotations can be grouped, which means they describe parts of a
-         single object. The value of 0 means there is no group.
-
-            .. py:data:: group: int
 
    .. autoclass:: Categories
-      :members: __eq__, __init__
+      :members:
       :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
-
-         Describes the list of possible annotation-type specific attributes in a dataset.
-
-            .. py:data:: attributes: Set[str]
 
    .. autoclass:: LabelCategories
-      :members: from_iterable, add, find, __getitem__, __contains__, __len__, __iter__, __eq__, __init__
+      :members:
       :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
-
-         .. py:data:: items: List[str]
-
-      .. py:class:: Category
-
-         .. py:data:: name: str
-                      parent: str
-                      attributes: Set[str]
 
    .. autoclass:: Label
       :members: __eq__, __init__

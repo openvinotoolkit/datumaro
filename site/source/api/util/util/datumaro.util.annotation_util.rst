@@ -7,11 +7,11 @@ annotation\_util module
 
    .. autofunction:: find_group_leader
 
-   .. autodata:: BboxCoords
+   .. autoclass:: BboxCoords
 
    .. autodata:: Shape
 
-   .. autodata:: SpatialAnnotation
+   .. autoclass:: SpatialAnnotation
 
    .. autofunction:: _get_bbox
 

@@ -113,7 +113,7 @@ class LabelCategories(Categories):
 
                 - a list of str - will be interpreted as list of Category names
                 - a list of positional arguments - will generate Categories
-                with these arguments
+                  with these arguments
 
         Returns: a LabelCategories object
         """
