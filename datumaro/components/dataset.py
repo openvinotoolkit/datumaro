@@ -159,6 +159,8 @@ class DatasetItemStorageDatasetView(IDataset):
         def categories(self):
             return self.parent.categories()
 
+        def media_type(self):
+            return self.parent.media_type()
 
     def __init__(self, parent: DatasetItemStorage, categories: CategoriesInfo,
             media_type: Optional[Type[MediaElement]]):
@@ -275,7 +277,7 @@ class DatasetSubset(IDataset): # non-owning view
 
 class DatasetStorage(IDataset):
     def __init__(self, source: Union[IDataset, DatasetItemStorage] = None,
-            categories: CategoriesInfo = None,
+            categories: Optional[CategoriesInfo] = None,
             media_type: Optional[Type[MediaElement]] = None):
         if source is None and categories is None:
             categories = {}
@@ -283,7 +285,10 @@ class DatasetStorage(IDataset):
             raise ValueError("Can't use both source and categories")
         self._categories = categories
 
-        self._media_type = media_type
+        assert media_type or \
+            isinstance(source, IDataset) and source.media_type(), \
+            "Media type must be provided for a dataset"
+        self._media_type = media_type or source.media_type()
 
         # Possible combinations:
         # 1. source + storage
@@ -341,7 +346,7 @@ class DatasetStorage(IDataset):
                 super().__init__(source)
 
                 self.is_local = True
-                self.transforms = []
+                self.transforms: List[Transform] = []
                 for transform in transforms:
                     source = transform[0](source, *transform[1], **transform[2])
                     self.transforms.append(source)
@@ -361,6 +366,9 @@ class DatasetStorage(IDataset):
 
             def categories(self):
                 return self.transforms[-1].categories()
+
+            def media_type(self):
+                return self.transforms[-1].media_type()
 
         def _update_status(item_id, new_status: ItemStatus):
             current_status = self._updated_items.get(item_id)
@@ -401,12 +409,19 @@ class DatasetStorage(IDataset):
                 old_ids = set((item.id, item.subset) for item in source)
                 source = transform
 
+        if transform:
+            media_type = transform.media_type()
+        else:
+            media_type = source.media_type()
+
         i = -1
         for i, item in enumerate(source):
-            if source.media_type():
-                if item.media and not isinstance(item.media, source.media_type()):
-                    raise MediaTypeError("Dataset elements must have a '%s' " \
-                        "media type" % source.media_type())
+            if media_type and item.media and \
+                    not isinstance(item.media, source.media_type()):
+                raise MediaTypeError(
+                    "Unexpected media type of a dataset item '%s'. " \
+                    "Expected '%s', actual '%s' " %
+                    (item.id, media_type, type(item.media)))
 
             if transform and transform.is_local:
                 old_id = (item.id, item.subset)
@@ -468,12 +483,14 @@ class DatasetStorage(IDataset):
 
         self._storage = cache
         self._length = len(cache)
+        self._media_type = media_type
 
         if transform:
             source_cat = transform.categories()
         else:
             source_cat = source.categories()
         if source_cat is not None:
+            # Don't need to override categories if already defined
             self._categories = source_cat
 
         self._source = None
@@ -522,10 +539,15 @@ class DatasetStorage(IDataset):
     def media_type(self):
         if self.is_cache_initialized():
             return self._media_type
-        elif self._media_type is not None:
-            return self._media_type
-        else:
+        elif self._is_unchanged_wrapper:
             return self._source.media_type()
+        elif any(is_method_redefined('media_type', Transform, t[0])
+                for t in self._transforms):
+            self.init_cache()
+            media_type = self._media_type
+        else:
+            media_type = self._media_type
+        return media_type
 
     def put(self, item):
         is_new = self._storage.put(item)
@@ -649,8 +671,9 @@ class Dataset(IDataset):
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
             categories: Union[CategoriesInfo, List[str], None] = None,
+            *,
             env: Optional[Environment] = None,
-            media_type: Type = Image) -> Dataset:
+            media_type: Type[MediaElement] = Image) -> Dataset:
         if isinstance(categories, list):
             categories = { AnnotationType.label:
                 LabelCategories.from_iterable(categories)
@@ -681,10 +704,10 @@ class Dataset(IDataset):
             dataset = Dataset(source=source, env=env)
         else:
             from datumaro.components.operations import ExactMerge
+            media_type = ExactMerge.merge_media_types(sources)
             source = ExactMerge.merge(*sources)
             categories = ExactMerge.merge_categories(
                 s.categories() for s in sources)
-            media_type=ExactMerge.merge_media_types(sources)
             dataset = Dataset(source=source, categories=categories,
                 media_type=media_type, env=env)
         return dataset
@@ -729,7 +752,7 @@ class Dataset(IDataset):
     def categories(self) -> CategoriesInfo:
         return self._data.categories()
 
-    def media_type(self) -> Optional[Type[MediaElement]]:
+    def media_type(self) -> Type[MediaElement]:
         return self._data.media_type()
 
     def get(self, id: str, subset: Optional[str] = None) \
