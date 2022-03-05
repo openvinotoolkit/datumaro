@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -136,8 +136,11 @@ def compare_datasets(test, expected: IDataset, actual: IDataset,
         require_media: bool = False, require_images: bool = False):
     compare_categories(test, expected.categories(), actual.categories())
 
+    test.assertTrue(issubclass(actual.media_type(), expected.media_type()))
+
     test.assertEqual(sorted(expected.subsets()), sorted(actual.subsets()))
     test.assertEqual(len(expected), len(actual))
+
     for item_a in expected:
         item_b = find(actual, lambda x: x.id == item_a.id and \
             x.subset == item_a.subset)
@@ -175,9 +178,10 @@ def compare_datasets(test, expected: IDataset, actual: IDataset,
                 test.fail('ann %s, candidates %s' % (ann_a, ann_b_matches))
             item_b.annotations.remove(ann_b) # avoid repeats
 
-def compare_datasets_strict(test, expected, actual):
+def compare_datasets_strict(test, expected: IDataset, actual: IDataset):
     # Compares datasets for strong equality
 
+    test.assertEqual(expected.media_type(), actual.media_type())
     test.assertEqual(expected.categories(), actual.categories())
 
     test.assertListEqual(sorted(expected.subsets()), sorted(actual.subsets()))
