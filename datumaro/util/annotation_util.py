@@ -268,12 +268,10 @@ def make_label_id_mapping(
 
     Returns:
 
-        .. code-block::
-
-            map_id (callable): src id -> dst id
-            id_mapping (dict): src id -> dst i
-            src_labels (dict): src id -> src label
-            dst_labels (dict): dst id -> dst label
+    |   map_id (callable): src id -> dst id
+    |   id_mapping (dict): src id -> dst i
+    |   src_labels (dict): src id -> src label
+    |   dst_labels (dict): dst id -> dst label
     """
 
     source_labels = { id: label.name
