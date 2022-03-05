@@ -674,6 +674,8 @@ class Dataset(IDataset):
             *,
             env: Optional[Environment] = None,
             media_type: Type[MediaElement] = Image) -> Dataset:
+        # TODO: remove default value for media_type
+
         if isinstance(categories, list):
             categories = { AnnotationType.label:
                 LabelCategories.from_iterable(categories)
