@@ -64,11 +64,7 @@ project module
 
    .. autoclass:: Revision
 
-      a commit hash or a named reference
-
-   .. autodata:: ObjectId
-
-      a commit or an object hash
+   .. autoclass:: ObjectId
 
    .. autoclass:: Project
       :members:
