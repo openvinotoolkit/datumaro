@@ -193,11 +193,9 @@ class IExtractor:
 class _ExtractorBase(IExtractor):
     def __init__(self, *,
             length: Optional[int] = None,
-            subsets: Optional[Sequence[str]] = None,
-            media_type: Optional[Type[MediaElement]] = None):
+            subsets: Optional[Sequence[str]] = None):
         self._length = length
         self._subsets = subsets
-        self._media_type = media_type
 
     def _init_cache(self):
         subsets = set()
@@ -259,9 +257,6 @@ class _ExtractorBase(IExtractor):
             if item.id == id and item.subset == subset:
                 return item
         return None
-
-    def media_type(self):
-        return self._media_type
 
 T = TypeVar('T')
 
@@ -331,12 +326,15 @@ class Extractor(_ExtractorBase, CliPlugin):
     def __init__(self, *,
             length: Optional[int] = None,
             subsets: Optional[Sequence[str]] = None,
-            media_type: Optional[Type[MediaElement]] = Image,
+            media_type: Type[MediaElement] = Image,
             ctx: Optional[ImportContext] = None):
-        super().__init__(length=length, subsets=subsets,
-            media_type=media_type)
+        super().__init__(length=length, subsets=subsets)
 
         self._ctx: ImportContext = ctx or NullImportContext()
+        self._media_type = media_type
+
+    def media_type(self):
+        return self._media_type
 
 class SourceExtractor(Extractor):
     """
@@ -347,7 +345,7 @@ class SourceExtractor(Extractor):
     def __init__(self, *,
             length: Optional[int] = None,
             subset: Optional[str] = None,
-            media_type: Optional[Type] = Image,
+            media_type: Type[MediaElement] = Image,
             ctx: Optional[ImportContext] = None):
         self._subset = subset or DEFAULT_SUBSET_NAME
         super().__init__(length=length, subsets=[self._subset],
@@ -466,9 +464,6 @@ class Transform(_ExtractorBase, CliPlugin):
 
         self._extractor = extractor
 
-    def media_type(self):
-        return self._extractor.media_type()
-
     def categories(self):
         return self._extractor.categories()
 
@@ -484,6 +479,9 @@ class Transform(_ExtractorBase, CliPlugin):
                 or self._length == 'parent':
             self._length = len(self._extractor)
         return super().__len__()
+
+    def media_type(self):
+        return self._extractor.media_type()
 
 class ItemTransform(Transform):
     def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
