@@ -304,11 +304,14 @@ class ExactMerge:
         return merge_categories(sources)
 
     @staticmethod
-    def merge_media_types(sources: Iterable[IDataset]) -> Optional[Type[MediaElement]]:
+    def merge_media_types(sources: Iterable[IDataset]) -> Type[MediaElement]:
         if sources:
             media_type = sources[0].media_type()
             for s in sources:
-                if s.media_type() is not media_type:
+                if not issubclass(s.media_type(), media_type) or \
+                        not issubclass(media_type, s.media_type()):
+                    # Symmetric comparision is needed in the case of subclasses:
+                    # eg. Image and ByteImage
                     raise MediaTypeError("Datasets have different media types")
             return media_type
 
@@ -357,7 +360,8 @@ class IntersectMerge(MergingStrategy):
     def __call__(self, datasets):
         self._categories = self._merge_categories(
             [d.categories() for d in datasets])
-        merged = Dataset(categories=self._categories)
+        merged = Dataset(categories=self._categories,
+            media_type=ExactMerge.merge_media_types(datasets))
 
         self._check_groups_definition()
 
