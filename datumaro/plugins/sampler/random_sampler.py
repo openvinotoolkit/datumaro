@@ -113,14 +113,12 @@ class LabelRandomSampler(Transform, CliPlugin):
     |s|s- For reasons above, the resulting class distribution in the dataset may|n
     |s|s|s|snot be the same as requested|n
     |s|s- The resulting dataset will only keep annotations for|n
-    |s|s|s|sclasses with specified count > 0|n
-    |n
+    |s|s|s|sclasses with specified count > 0|n |n
     Example: select at least 5 annotations of each class randomly|n
 
     .. code-block::
 
-    |s|s%(prog)s -k 5 |n
-    |n
+    |s|s%(prog)s -k 5 |n |n
     Example: select at least 5 images with "cat" annotations and 3 "person"|n
 
     .. code-block::

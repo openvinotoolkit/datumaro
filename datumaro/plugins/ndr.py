@@ -34,12 +34,12 @@ class NDR(Transform, CliPlugin):
     resulting images.|n
     |n
     Available oversampling policies (the `-e` parameter):|n
-    - `random` - sample from removed data randomly|n
-    - `similarity` - sample from removed data with ascending similarity score|n
+    |s|s- `random` - sample from removed data randomly|n
+    |s|s- `similarity` - sample from removed data with ascending similarity score|n
     |n
     Available undersampling policies (the `-u` parameter):|n
-    - `uniform` - sample data with uniform distribution|n
-    - `inverse` - sample data with reciprocal of the number of number of
+    |s|s- `uniform` - sample data with uniform distribution|n
+    |s|s- `inverse` - sample data with reciprocal of the number of number of
     items with the same similarity|n
     |n
     Example: apply NDR, return no more than 100 images|n

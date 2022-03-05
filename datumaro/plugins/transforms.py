@@ -443,19 +443,19 @@ class Rename(ItemTransform, CliPlugin):
     Examples:|n
     |s|s- Replace 'pattern' with 'replacement':|n
 
-    |s|s.. code-block::
+      .. code-block::
 
     |s|s|s|srename -e '|pattern|replacement|'|n
     |n
     |s|s- Remove 'frame_' from item ids:|n
 
-    |s|s.. code-block::
+      .. code-block::
 
     |s|s|s|srename -e '|^frame_||'|n
     |n
     |s|s- Rename by regex:|n
 
-    |s|s.. code-block::
+      .. code-block::
 
     |s|s|s|srename -e '|frame_(\d+)_extra|{item.subset}_id_\1|'
     """
