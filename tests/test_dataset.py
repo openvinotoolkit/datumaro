@@ -18,7 +18,7 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    ConflictingCategoriesError, DatasetNotFoundError,
+    ConflictingCategoriesError, DatasetNotFoundError, MediaTypeError,
     MismatchingAttributesError, MismatchingImageInfoError,
     MismatchingMediaPathError, MultipleFormatsMatchError,
     NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
@@ -29,7 +29,7 @@ from datumaro.components.extractor import (
     Transform,
 )
 from datumaro.components.launcher import Launcher
-from datumaro.components.media import Image
+from datumaro.components.media import Image, MediaElement, Video
 from datumaro.components.progress_reporting import NullProgressReporter
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, compare_datasets_strict,
@@ -325,7 +325,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compute_length_when_created_from_scratch(self):
-        dataset = Dataset()
+        dataset = Dataset(media_type=MediaElement)
 
         dataset.put(DatasetItem(1))
         dataset.put(DatasetItem(2))
@@ -463,6 +463,14 @@ class DatasetTest(TestCase):
         ])
 
         with self.assertRaises(MismatchingAttributesError):
+            Dataset.from_extractors(s1, s2)
+
+    @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
+    def test_cant_join_different_media_types(self):
+        s1 = Dataset.from_iterable([], media_type=Video)
+        s2 = Dataset.from_iterable([], media_type=Image)
+
+        with self.assertRaises(MediaTypeError):
             Dataset.from_extractors(s1, s2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -904,7 +912,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_put(self):
-        dataset = Dataset()
+        dataset = Dataset(media_type=MediaElement)
 
         dataset.put(DatasetItem(1))
 
@@ -1577,7 +1585,7 @@ class DatasetTest(TestCase):
     def test_can_report_progress_from_extractor_multiple_pbars(self):
         class TestExtractor(SourceExtractor):
             def __init__(self, url, **kwargs):
-                super().__init__(**kwargs)
+                super().__init__(**kwargs, media_type=MediaElement)
 
             def __iter__(self):
                 pbars = self._ctx.progress_reporter.split(2)
@@ -1596,7 +1604,8 @@ class DatasetTest(TestCase):
             iter = mock.MagicMock()
 
         progress_reporter = TestProgressReporter()
-        progress_reporter.split = mock.MagicMock(TestProgressReporter.split)
+        progress_reporter.split = mock.MagicMock(wraps=lambda count: \
+            TestProgressReporter.split(progress_reporter, count))
 
         env = Environment()
         env.importers.items.clear()
@@ -1611,7 +1620,7 @@ class DatasetTest(TestCase):
     def test_can_report_errors_from_extractor(self):
         class TestExtractor(SourceExtractor):
             def __init__(self, url, **kwargs):
-                super().__init__(**kwargs)
+                super().__init__(**kwargs, media_type=MediaElement)
 
             def __iter__(self):
                 class TestError(Exception):
@@ -1657,7 +1666,7 @@ class DatasetTest(TestCase):
         progress_reporter.finish = mock.MagicMock()
 
         with TestDir() as test_dir:
-            Dataset().export(test_dir, TestConverter,
+            Dataset(media_type=MediaElement).export(test_dir, TestConverter,
                 progress_reporter=progress_reporter)
 
         period_mock.assert_called_once()
@@ -1685,7 +1694,7 @@ class DatasetTest(TestCase):
         error_policy.report_annotation_error = mock.MagicMock()
 
         with TestDir() as test_dir:
-            Dataset().export(test_dir, TestConverter,
+            Dataset(media_type=MediaElement).export(test_dir, TestConverter,
                 error_policy=error_policy)
 
         error_policy.report_item_error.assert_called()
@@ -1715,6 +1724,33 @@ class DatasetTest(TestCase):
         parsed = pickle.loads(pickle.dumps(source)) # nosec
 
         compare_datasets_strict(self, source, parsed)
+
+    @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
+    def test_can_specify_media_type_in_ctor(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, media=Image(data=np.ones((5, 4, 3))))
+        ], media_type=Video)
+
+        self.assertTrue(dataset.media_type() is Video)
+
+    @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
+    def test_can_get_media_type_from_extractor(self):
+        class TestExtractor(Extractor):
+            def __init__(self, **kwargs):
+                super().__init__(media_type=Video, **kwargs)
+
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        self.assertTrue(dataset.media_type() is Video)
+
+    @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
+    def test_can_check_media_type_on_caching(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, media=Image(data=np.ones((5, 4, 3))))
+        ], media_type=Video)
+
+        with self.assertRaises(MediaTypeError):
+            dataset.init_cache()
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
