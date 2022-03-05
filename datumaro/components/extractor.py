@@ -147,6 +147,9 @@ CategoriesInfo = Dict[AnnotationType, Categories]
 
 class IExtractor:
     def __iter__(self) -> Iterator[DatasetItem]:
+        """
+        Provides sequential access to dataset items.
+        """
         raise NotImplementedError()
 
     def __len__(self) -> int:
@@ -156,19 +159,35 @@ class IExtractor:
         return True
 
     def subsets(self) -> Dict[str, IExtractor]:
+        """
+        Enumerates subsets in the dataset. Each subset can be a dataset itself.
+        """
         raise NotImplementedError()
 
     def get_subset(self, name) -> IExtractor:
         raise NotImplementedError()
 
     def categories(self) -> CategoriesInfo:
+        """
+        Returns metainfo about dataset labels.
+        """
         raise NotImplementedError()
 
     def get(self, id: str, subset: Optional[str] = None) \
             -> Optional[DatasetItem]:
+        """
+        Provides random access to dataset items.
+        """
         raise NotImplementedError()
 
-    def media_type(self) -> Optional[Type[MediaElement]]:
+    def media_type(self) -> Type[MediaElement]:
+        """
+        Returns media type of the dataset items.
+
+        All the items are supposed to have the same media type.
+        Supposed to be constant and known immediately after the
+        object construction (i.e. doesn't require dataset iteration).
+        """
         raise NotImplementedError()
 
 class _ExtractorBase(IExtractor):
