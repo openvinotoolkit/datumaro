@@ -15,6 +15,7 @@ import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
@@ -129,7 +130,7 @@ class MotSeqExtractor(SourceExtractor):
                 items[frame_id] = DatasetItem(
                     id=frame_id,
                     subset=self._subset,
-                    image=Image(
+                    media=Image(
                         path=osp.join(self._image_dir,
                             '%06d%s' % (frame_id, self._seq_info['imext'])),
                         size=(self._seq_info['imheight'], self._seq_info['imwidth'])
@@ -139,7 +140,7 @@ class MotSeqExtractor(SourceExtractor):
             for p in find_images(self._image_dir):
                 frame_id = int(osp.splitext(osp.relpath(p, self._image_dir))[0])
                 items[frame_id] = DatasetItem(id=frame_id, subset=self._subset,
-                    image=p)
+                    media=Image(path=p))
 
         with open(path, newline='', encoding='utf-8') as csv_file:
             # NOTE: Different MOT files have different count of fields
@@ -218,6 +219,10 @@ class MotSeqGtConverter(Converter):
     def apply(self):
         extractor = self._extractor
 
+        if extractor.media_type() and \
+                not issubclass(extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         image_dir = osp.join(self._save_dir, MotPath.IMAGE_DIR)
         os.makedirs(image_dir, exist_ok=True)
 
@@ -260,8 +265,8 @@ class MotSeqGtConverter(Converter):
                         )
                     })
 
-                if self._save_images:
-                    if item.has_image and item.image.has_data:
+                if self._save_media:
+                    if item.media and item.media.has_data:
                         self._save_image(item, subdir=image_dir,
                             name='%06d' % frame_id)
                     else:

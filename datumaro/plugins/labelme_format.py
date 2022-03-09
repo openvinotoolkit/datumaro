@@ -16,6 +16,7 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, LabelCategories, Mask, Polygon,
 )
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
@@ -94,7 +95,7 @@ class LabelMeExtractor(Extractor):
                 osp.join(dataset_root, subset), categories)
 
             items.append(DatasetItem(id=item_id, subset=subset,
-                image=image, annotations=annotations))
+                media=image, annotations=annotations))
             subsets.add(items[-1].subset)
         return items, categories, subsets
 
@@ -338,6 +339,10 @@ class LabelMeConverter(Converter):
     DEFAULT_IMAGE_EXT = LabelMePath.IMAGE_EXT
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
         if self._save_dataset_meta:
@@ -364,8 +369,8 @@ class LabelMeConverter(Converter):
         log.debug("Converting item '%s'", item.id)
 
         image_filename = self._make_image_filename(item)
-        if self._save_images:
-            if item.has_image and item.image.has_data:
+        if self._save_media:
+            if item.media and item.media.has_data:
                 self._save_image(item, osp.join(subset_dir, image_filename))
             else:
                 log.debug("Item '%s' has no image", item.id)
@@ -378,9 +383,9 @@ class LabelMeConverter(Converter):
         ET.SubElement(source_elem, 'sourceImage').text = ''
         ET.SubElement(source_elem, 'sourceAnnotation').text = 'Datumaro'
 
-        if item.has_image:
+        if item.media:
             image_elem = ET.SubElement(root_elem, 'imagesize')
-            image_size = item.image.size
+            image_size = item.media.size
             ET.SubElement(image_elem, 'nrows').text = str(image_size[0])
             ET.SubElement(image_elem, 'ncols').text = str(image_size[1])
 

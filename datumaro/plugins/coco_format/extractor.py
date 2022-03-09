@@ -145,7 +145,7 @@ class _CocoExtractor(SourceExtractor):
                 items[img_id] = DatasetItem(
                     id=osp.splitext(img_info['file_name'])[0],
                     subset=self._subset,
-                    image=Image(
+                    media=Image(
                         path=osp.join(self._images_dir, img_info['file_name']),
                         size=image_size),
                     annotations=[],

@@ -6,6 +6,7 @@ from datumaro.components.annotation import (
     AnnotationType, Label, LabelCategories,
 )
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 import datumaro.plugins.ndr as ndr
 
@@ -36,7 +37,7 @@ class NDRTest(TestCase):
                     iterable.append(
                         DatasetItem(idx, subset=subset,
                             annotations=[Label(label_id)],
-                            image=dummy_images[idx % num_duplicate],
+                            media=Image(data=dummy_images[idx % num_duplicate]),
                         )
                     )
         categories = {AnnotationType.label: label_cat}

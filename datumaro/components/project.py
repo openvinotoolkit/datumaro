@@ -110,6 +110,8 @@ class ProjectSourceDataset(IDataset):
     def get(self, id, subset=None):
         return self._dataset.get(id, subset)
 
+    def media_type(self):
+        return self._dataset.media_type()
 
 class IgnoreMode(Enum):
     rewrite = auto()

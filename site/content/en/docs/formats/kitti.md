@@ -143,7 +143,7 @@ Or, using Python API:
 import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path/to/dataset>', 'kitti')
-dataset.export('save_dir', 'cityscapes', save_images=True)
+dataset.export('save_dir', 'cityscapes', save_media=True)
 ```
 
 ## Export to KITTI
@@ -153,16 +153,16 @@ There are several ways to convert a dataset to KITTI format:
 ``` bash
 # export dataset into KITTI format from existing project
 datum export -p <path/to/project> -f kitti -o <output/dir> \
-    -- --save-images
+    -- --save-media
 ```
 ``` bash
 # converting to KITTI format from other format
 datum convert -if cityscapes -i <path/to/dataset> \
-    -f kitti -o <output/dir> -- --save-images
+    -f kitti -o <output/dir> -- --save-media
 ```
 
 Extra options for exporting to KITTI format:
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.png`, if none)
@@ -209,7 +209,7 @@ particular problems with KITTI dataset:
 datum create -o project
 datum import -p project -f kitti ./KITTI/
 datum stats -p project
-datum export -p project -f cityscapes -- --save-images
+datum export -p project -f cityscapes -- --save-media
 ```
 
 ### Example 2. How to create a custom KITTI-like dataset

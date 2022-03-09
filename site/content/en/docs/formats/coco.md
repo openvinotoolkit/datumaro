@@ -176,7 +176,7 @@ Or, using Python API:
 import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path/to/dataset>', 'coco')
-dataset.export('save_dir', 'voc', save_images=True)
+dataset.export('save_dir', 'voc', save_media=True)
 ```
 
 ## Export to COCO
@@ -186,16 +186,16 @@ There are several ways to convert a dataset to COCO format:
 ``` bash
 # export dataset into COCO format from existing project
 datum export -p <path/to/project> -f coco -o <output/dir> \
-    -- --save-images
+    -- --save-media
 ```
 ``` bash
 # converting to COCO format from other format
 datum convert -if voc -i <path/to/dataset> \
-    -f coco -o <output/dir> -- --save-images
+    -f coco -o <output/dir> -- --save-media
 ```
 
 Extra options for exporting to COCO format:
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.jpg`, if none)
@@ -250,7 +250,7 @@ particular problems with a COCO dataset:
 datum create -o project
 datum import -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
 datum stats -p project
-datum export -p project -f voc -- --save-images
+datum export -p project -f voc -- --save-media
 ```
 
 ### Example 2. How to create custom COCO-like dataset

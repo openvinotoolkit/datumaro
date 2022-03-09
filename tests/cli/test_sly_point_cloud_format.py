@@ -6,6 +6,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image, PointCloud
 from datumaro.util.test_utils import TestDir, compare_datasets_3d
 from datumaro.util.test_utils import run_datum as run
 
@@ -37,11 +38,11 @@ class SlyPointCloudIntegrationScenarios(TestCase):
                             attributes={'track_id': 3,
                                 'tag1': 'v12', 'tag3': '', 'occluded': False}),
                     ],
-                    point_cloud=osp.join(export_dir, 'velodyne_points', 'data',
-                        'frame1.pcd'),
-                    related_images=[osp.join(export_dir, 'image_00', 'data',
-                        'frame1.png')
-                    ],
+                    media=PointCloud(osp.join(export_dir, 'velodyne_points', 'data',
+                            'frame1.pcd'),
+                        extra_images=[Image(path=osp.join(export_dir, 'image_00', 'data',
+                            'frame1.png'))
+                    ]),
                     attributes={'frame': 0}
                 ),
 
@@ -52,14 +53,14 @@ class SlyPointCloudIntegrationScenarios(TestCase):
                             attributes={'track_id': 1,
                                 'tag1': '', 'tag3': '', 'occluded': False})
                     ],
-                    point_cloud=osp.join(export_dir, 'velodyne_points', 'data',
-                        'frame2.pcd'),
-                    related_images=[osp.join(export_dir, 'image_00', 'data',
-                        'frame2.png')
-                    ],
+                    media=PointCloud(osp.join(export_dir, 'velodyne_points', 'data',
+                            'frame2.pcd'),
+                        extra_images=[Image(path=osp.join(export_dir, 'image_00', 'data',
+                            'frame2.png'))
+                    ]),
                     attributes={'frame': 1}
                 ),
-            ], categories={AnnotationType.label: expected_label_cat})
+            ], categories={AnnotationType.label: expected_label_cat}, media_type=PointCloud)
 
             run(self, 'convert',
                 '-if', 'sly_pointcloud', '-i', DUMMY_DATASET_DIR,

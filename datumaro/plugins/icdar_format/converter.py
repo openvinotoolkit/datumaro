@@ -7,7 +7,8 @@ import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, CompiledMask
 from datumaro.components.converter import Converter
-from datumaro.components.errors import DatumaroError
+from datumaro.components.errors import DatumaroError, MediaTypeError
+from datumaro.components.media import Image
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
 
@@ -18,11 +19,15 @@ class IcdarWordRecognitionConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         for subset_name, subset in self._extractor.subsets().items():
             annotation = ''
             for item in subset:
                 image_filename = self._make_image_filename(item)
-                if self._save_images and item.has_image:
+                if self._save_media and item.media:
                     self._save_image(item, osp.join(self._save_dir,
                         subset_name, IcdarPath.IMAGES_DIR, image_filename))
 
@@ -43,9 +48,13 @@ class IcdarTextLocalizationConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         for subset_name, subset in self._extractor.subsets().items():
             for item in subset:
-                if self._save_images and item.has_image:
+                if self._save_media and item.media:
                     self._save_image(item,
                         subdir=osp.join(subset_name, IcdarPath.IMAGES_DIR))
 
@@ -71,12 +80,16 @@ class IcdarTextSegmentationConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         for subset_name, subset in self._extractor.subsets().items():
             for item in subset:
                 self._save_item(subset_name, subset, item)
 
     def _save_item(self, subset_name, subset, item):
-        if self._save_images and item.has_image:
+        if self._save_media and item.media:
             self._save_image(item,
                 subdir=osp.join(subset_name, IcdarPath.IMAGES_DIR))
 

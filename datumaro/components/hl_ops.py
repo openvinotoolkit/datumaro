@@ -99,8 +99,9 @@ def merge(*datasets: IDataset) -> IDataset:
     """
 
     categories = ExactMerge.merge_categories(d.categories() for d in datasets)
+    media_type = ExactMerge.merge_media_types(datasets)
     return DatasetItemStorageDatasetView(ExactMerge.merge(*datasets),
-        categories=categories)
+        categories=categories, media_type=media_type)
 
 def run_model(dataset: IDataset,
         model: Union[Launcher, Type[ModelTransform]], *,

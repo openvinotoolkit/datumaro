@@ -129,7 +129,7 @@ class MpiiJsonExtractor(SourceExtractor):
                     group_num +=1
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=Image(path=osp.join(root_dir, ann.get('img_paths', ''))),
+                media=Image(path=osp.join(root_dir, ann.get('img_paths', ''))),
                 annotations=annotations)
 
         return items

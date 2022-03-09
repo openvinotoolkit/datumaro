@@ -11,7 +11,9 @@ from datumaro.components.annotation import (
     AnnotationType, Label, LabelCategories,
 )
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
@@ -87,11 +89,14 @@ class MnistCsvExtractor(SourceExtractor):
                     image = np.array([int(pix) for pix in data[1:]],
                         dtype='uint8').reshape(28, 28)
 
+            if image is not None:
+                image = Image(data=image)
+
             if 0 < len(meta) and len(meta[i]) in [1, 3]:
                 i = meta[i][0]
 
             items[i] = DatasetItem(id=i, subset=self._subset,
-                image=image, annotations=item_anno)
+                media=image, annotations=item_anno)
         return items
 
 class MnistCsvImporter(Importer):
@@ -104,6 +109,10 @@ class MnistCsvConverter(Converter):
     DEFAULT_IMAGE_EXT = '.png'
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
@@ -119,8 +128,8 @@ class MnistCsvConverter(Converter):
                 if anns:
                     label = anns[0]
 
-                if item.has_image and self._save_images:
-                    image = item.image
+                if item.media and self._save_media:
+                    image = item.media
                     if not image.has_data:
                         data.append([label, None])
                     else:

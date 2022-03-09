@@ -181,7 +181,7 @@ class TfDetectionApiExtractor(SourceExtractor):
                 image = ByteImage(**image_params, size=image_size)
 
             dataset_items.append(DatasetItem(id=item_id, subset=subset,
-                image=image, annotations=annotations,
+                media=image, annotations=annotations,
                 attributes={'source_id': frame_id}))
 
         return dataset_items, dataset_labels

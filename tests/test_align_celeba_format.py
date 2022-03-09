@@ -9,6 +9,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.align_celeba_format import AlignCelebaImporter
 from datumaro.util.test_utils import compare_datasets
 
@@ -24,7 +25,7 @@ class AlignCelebaImporterTest(TestCase):
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000001', subset='train',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[
                     Label(12),
                     Points([69, 109, 106, 113, 77, 142, 73, 152, 108, 154],
@@ -35,7 +36,7 @@ class AlignCelebaImporterTest(TestCase):
                     'Bangs': False, 'Big_Lips': False, 'Big_Nose': False}
             ),
             DatasetItem(id='000002', subset='train',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[
                     Label(5),
                     Points([69, 110, 107, 112, 81, 135, 70, 151, 108, 153],
@@ -43,7 +44,7 @@ class AlignCelebaImporterTest(TestCase):
                 ]
             ),
             DatasetItem(id='000003', subset='val',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[
                     Label(2),
                     Points([76, 112, 104, 106, 108, 128, 74, 156, 98, 158],
@@ -54,7 +55,7 @@ class AlignCelebaImporterTest(TestCase):
                     'Bangs': False, 'Big_Lips': False, 'Big_Nose': True}
             ),
             DatasetItem(id='000004', subset='test',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[
                     Label(10),
                     Points([72, 113, 108, 108, 101, 138, 71, 155, 101, 151],
@@ -62,7 +63,7 @@ class AlignCelebaImporterTest(TestCase):
                 ]
             ),
             DatasetItem(id='000005', subset='test',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[
                     Label(7),
                     Points([66, 114, 112, 112, 86, 119, 71, 147, 104, 150],
@@ -80,29 +81,29 @@ class AlignCelebaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_ALIGN_DATASET_DIR, 'align_celeba')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_475)
     def test_can_import_with_meta_file(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000001', subset='train',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[Label(1)]
             ),
             DatasetItem(id='000002', subset='train',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[Label(3)]
             ),
             DatasetItem(id='000003', subset='val',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id='000004', subset='test',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[Label(2)]
             ),
             DatasetItem(id='000005', subset='test',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[Label(6)]
             )
         ], categories=[f'class-{i}' for i in range(7)])
@@ -110,7 +111,7 @@ class AlignCelebaImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_ALIGN_DATASET_DIR_WITH_META_FILE,
             'align_celeba')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_475)
     def test_can_detect_align_dataset(self):

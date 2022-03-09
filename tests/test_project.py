@@ -18,6 +18,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
 from datumaro.components.launcher import Launcher
+from datumaro.components.media import Image
 from datumaro.components.project import DiffStatus, Project
 from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
@@ -85,8 +86,10 @@ class ProjectTest(TestCase):
                     yield [ Label(inp[0, 0, 0]) ]
 
         expected = Dataset.from_iterable([
-            DatasetItem(0, image=np.zeros([2, 2, 3]), annotations=[Label(0)]),
-            DatasetItem(1, image=np.ones([2, 2, 3]), annotations=[Label(1)])
+            DatasetItem(0, media=Image(data=np.zeros([2, 2, 3])),
+                annotations=[Label(0)]),
+            DatasetItem(1, media=Image(data=np.ones([2, 2, 3])),
+                annotations=[Label(1)])
         ], categories=['a', 'b'])
 
         launcher_name = 'custom_launcher'
@@ -95,10 +98,10 @@ class ProjectTest(TestCase):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'source')
         source_dataset = Dataset.from_iterable([
-            DatasetItem(0, image=np.ones([2, 2, 3]) * 0),
-            DatasetItem(1, image=np.ones([2, 2, 3]) * 1),
+            DatasetItem(0, media=Image(data=np.zeros([2, 2, 3]) * 0)),
+            DatasetItem(1, media=Image(data=np.ones([2, 2, 3]) * 1)),
         ], categories=['a', 'b'])
-        source_dataset.save(source_url, save_images=True)
+        source_dataset.save(source_url, save_media=True)
 
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
         project.env.launchers.register(launcher_name, TestLauncher)
@@ -163,15 +166,18 @@ class ProjectTest(TestCase):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'source')
         source_dataset = Dataset.from_iterable([
-            DatasetItem(0, subset='a', image=np.ones((2, 3, 3)),
+            DatasetItem(0, subset='a',
+                media=Image(data=np.zeros([2, 2, 3])),
                 annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
-            DatasetItem(1, subset='b', image=np.zeros((10, 20, 3)),
+            DatasetItem(1, subset='b',
+                media=Image(data=np.zeros((10, 20, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
-        source_dataset.save(source_url, save_images=True)
+        source_dataset.save(source_url, save_media=True)
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(1, subset='b', image=np.zeros((10, 20, 3)),
+            DatasetItem(1, subset='b',
+                media=Image(data=np.zeros((10, 20, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
 
@@ -186,7 +192,7 @@ class ProjectTest(TestCase):
         compare_dirs(self, source_url, project.source_data_dir('s1'))
         read_dataset = project.working_tree.make_dataset('s1')
         compare_datasets(self, expected_dataset, read_dataset,
-            require_images=True)
+            require_media=True)
 
         with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
             self.assertTrue('/s1' in [line.strip() for line in f])
@@ -388,12 +394,13 @@ class ProjectTest(TestCase):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'source')
         source_dataset = Dataset.from_iterable([
-            DatasetItem(0, image=np.ones((2, 3, 3)),
+            DatasetItem(0, media=Image(data=np.ones((2, 3, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
-            DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+            DatasetItem(1, subset='s',
+                media=Image(data=np.zeros((10, 20, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
-        source_dataset.save(source_url, save_images=True)
+        source_dataset.save(source_url, save_media=True)
 
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
         project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
@@ -416,12 +423,13 @@ class ProjectTest(TestCase):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'source')
         source_dataset = Dataset.from_iterable([
-            DatasetItem(0, image=np.ones((2, 3, 3)),
+            DatasetItem(0, media=Image(data=np.zeros((2, 3, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
-            DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+            DatasetItem(1, subset='s',
+                media=Image(data=np.zeros((10, 20, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
-        source_dataset.save(source_url, save_images=True)
+        source_dataset.save(source_url, save_media=True)
 
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
         project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
@@ -445,12 +453,13 @@ class ProjectTest(TestCase):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'source')
         source_dataset = Dataset.from_iterable([
-            DatasetItem(0, image=np.ones((2, 3, 3)),
+            DatasetItem(0, media=Image(data=np.zeros((2, 3, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
-            DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+            DatasetItem(1, subset='s',
+                media=Image(data=np.zeros((10, 20, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
-        source_dataset.save(source_url, save_images=True)
+        source_dataset.save(source_url, save_media=True)
 
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
         project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
@@ -469,12 +478,13 @@ class ProjectTest(TestCase):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'source')
         source_dataset = Dataset.from_iterable([
-            DatasetItem(0, image=np.ones((2, 3, 3)),
+            DatasetItem(0, media=Image(data=np.zeros((2, 3, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
-            DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+            DatasetItem(1, subset='s',
+                media=Image(data=np.zeros((10, 20, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
-        source_dataset.save(source_url, save_images=True)
+        source_dataset.save(source_url, save_media=True)
 
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
         project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
@@ -498,12 +508,13 @@ class ProjectTest(TestCase):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'source')
         source_dataset = Dataset.from_iterable([
-            DatasetItem(0, image=np.ones((2, 3, 3)),
+            DatasetItem(0, media=Image(data=np.zeros((2, 3, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
-            DatasetItem(1, subset='s', image=np.ones((1, 2, 3)),
+            DatasetItem(1, subset='s',
+                media=Image(data=np.zeros((1, 2, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
-        source_dataset.save(source_url, save_images=True)
+        source_dataset.save(source_url, save_media=True)
 
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
         project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
@@ -519,12 +530,13 @@ class ProjectTest(TestCase):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'source')
         source_dataset = Dataset.from_iterable([
-            DatasetItem(0, image=np.ones((2, 3, 3)),
+            DatasetItem(0, media=Image(data=np.zeros((2, 3, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
-            DatasetItem(1, subset='s', image=np.ones((1, 2, 3)),
+            DatasetItem(1, subset='s',
+                media=Image(data=np.zeros((1, 2, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
-        source_dataset.save(source_url, save_images=True)
+        source_dataset.save(source_url, save_media=True)
 
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
         project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
@@ -1007,7 +1019,7 @@ class ProjectTest(TestCase):
     def test_can_transform_by_name(self):
         class CustomExtractor(Extractor):
             def __init__(self, *args, **kwargs):
-                pass
+                super().__init__()
 
             def __iter__(self):
                 return iter([
@@ -1168,12 +1180,14 @@ class ProjectTest(TestCase):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'source')
         source_dataset = Dataset.from_iterable([
-            DatasetItem(0, subset='a', image=np.ones((2, 3, 3)),
+            DatasetItem(0, subset='a',
+                media=Image(data=np.ones((2, 3, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
-            DatasetItem(1, subset='b', image=np.zeros((10, 20, 3)),
+            DatasetItem(1, subset='b',
+                media=Image(data=np.zeros((10, 20, 3))),
                 annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
-        source_dataset.save(source_url, save_images=True)
+        source_dataset.save(source_url, save_media=True)
 
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
         project.import_source('s1', url=source_url, format=DEFAULT_FORMAT,

@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -12,11 +12,13 @@ import os.path as osp
 import tempfile
 import unittest
 import unittest.mock
+import warnings
 
 from typing_extensions import Literal
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset, IDataset
+from datumaro.components.media import Image, PointCloud
 from datumaro.util import filter_dict, find
 from datumaro.util.os_util import rmfile, rmtree
 
@@ -131,11 +133,14 @@ def _compare_annotations(expected, actual, ignored_attrs=None):
 
 def compare_datasets(test, expected: IDataset, actual: IDataset,
         ignored_attrs: Union[None, Literal['*'], Collection[str]] = None,
-        require_images: bool = False):
+        require_media: bool = False, require_images: bool = False):
     compare_categories(test, expected.categories(), actual.categories())
+
+    test.assertTrue(issubclass(actual.media_type(), expected.media_type()))
 
     test.assertEqual(sorted(expected.subsets()), sorted(actual.subsets()))
     test.assertEqual(len(expected), len(actual))
+
     for item_a in expected:
         item_b = find(actual, lambda x: x.id == item_a.id and \
             x.subset == item_a.subset)
@@ -148,10 +153,17 @@ def compare_datasets(test, expected: IDataset, actual: IDataset,
         elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
-        if (require_images and item_a.has_image and item_a.image.has_data) or \
-                item_a.has_image and item_a.image.has_data and \
-                item_b.has_image and item_b.image.has_data:
-            test.assertEqual(item_a.image, item_b.image, item_a.id)
+        if require_images:
+            warnings.warn("'require_images' is deprecated and will be "
+                "removed in future. Use 'require_media' instead.",
+                DeprecationWarning, stacklevel=2)
+        require_media = require_media or require_images
+
+        if require_media and item_a.media and item_b.media:
+            if isinstance(item_a.media, Image):
+                test.assertEqual(item_a.media, item_b.media, item_a.id)
+            elif isinstance(item_a.media, PointCloud):
+                test.assertEqual(item_a.media.extra_images, item_b.media.extra_images, item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations),
             item_a.id)
         for ann_a in item_a.annotations:
@@ -166,9 +178,10 @@ def compare_datasets(test, expected: IDataset, actual: IDataset,
                 test.fail('ann %s, candidates %s' % (ann_a, ann_b_matches))
             item_b.annotations.remove(ann_b) # avoid repeats
 
-def compare_datasets_strict(test, expected, actual):
+def compare_datasets_strict(test, expected: IDataset, actual: IDataset):
     # Compares datasets for strong equality
 
+    test.assertEqual(expected.media_type(), actual.media_type())
     test.assertEqual(expected.categories(), actual.categories())
 
     test.assertListEqual(sorted(expected.subsets()), sorted(actual.subsets()))
@@ -203,12 +216,12 @@ def compare_datasets_3d(test, expected: IDataset, actual: IDataset,
         elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
-        if (require_point_cloud and item_a.has_point_cloud) or \
-                (item_a.has_point_cloud and item_b.has_point_cloud):
-            test.assertEqual(item_a.point_cloud, item_b.point_cloud, item_a.id)
+        if (require_point_cloud and item_a.media) or \
+                (item_a.media and item_b.media):
+            test.assertEqual(item_a.media.path, item_b.media.path, item_a.id)
             test.assertEqual(
-                set(img.path for img in item_a.related_images),
-                set(img.path for img in item_b.related_images),
+                set(img.path for img in item_a.media.extra_images),
+                set(img.path for img in item_b.media.extra_images),
                 item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations))
         for ann_a in item_a.annotations:

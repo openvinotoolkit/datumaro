@@ -21,6 +21,7 @@ class Requirements:
     DATUM_API = "Datumaro API"
     DATUM_PROGRESS_REPORTING = "Datumaro progress reporting requirement"
     DATUM_ERROR_REPORTING = "Datumaro error reporting requirement"
+    DATUM_GENERIC_MEDIA = "Datumaro generic media support"
 
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues

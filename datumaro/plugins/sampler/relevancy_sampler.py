@@ -132,13 +132,13 @@ class RelevancySampler(Transform, CliPlugin):
         for item in subset:
             data_df['ImageID'].append(item.id)
 
-            if not item.has_image or item.image.size is None:
+            if not item.media or item.media.size is None:
                 raise Exception(f"Item {item.id} does not have image info")
 
-            width, height = item.image.size
+            width, height = item.media.size
             data_df['Width'].append(width)
             data_df['Height'].append(height)
-            data_df['ImagePath'].append(item.image.path)
+            data_df['ImagePath'].append(item.media.path)
 
             if not item.annotations:
                 raise Exception(f"Item {item.id} does not have annotations")

@@ -101,7 +101,7 @@ datum export -f voc -o <output/dir>
 or
 ``` bash
 datum convert -if cityscapes -i <path/to/cityscapes> \
-    -f voc -o <output/dir> -- --save-images
+    -f voc -o <output/dir> -- --save-media
 ```
 
 Or, using Python API:
@@ -110,7 +110,7 @@ Or, using Python API:
 import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path/to/dataset>', 'cityscapes')
-dataset.export('save_dir', 'voc', save_images=True)
+dataset.export('save_dir', 'voc', save_media=True)
 ```
 
 ## Export to Cityscapes
@@ -120,16 +120,16 @@ There are several ways to convert a dataset to Cityscapes format:
 ``` bash
 # export dataset into Cityscapes format from existing project
 datum export -p <path/to/project> -f cityscapes -o <output/dir> \
-    -- --save-images
+    -- --save-media
 ```
 ``` bash
 # converting to Cityscapes format from other format
 datum convert -if voc -i <path/to/dataset> \
-    -f cityscapes -o <output/dir> -- --save-images
+    -f cityscapes -o <output/dir> -- --save-media
 ```
 
 Extra options for exporting to Cityscapes format:
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.png`, if none)
@@ -165,7 +165,7 @@ particular problems with a Cityscapes dataset:
 datum create -o project
 datum import -p project -f cityscapes ./Cityscapes/
 datum stats -p project
-datum export -p project -o dataset/ -f voc -- --save-images
+datum export -p project -o dataset/ -f voc -- --save-media
 ```
 
 ### Example 2. Create a custom Cityscapes-like dataset

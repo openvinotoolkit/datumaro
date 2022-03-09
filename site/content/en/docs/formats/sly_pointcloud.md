@@ -107,7 +107,7 @@ Or, using Python API:
 import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path/to/dataset>', 'sly_pointcloud')
-dataset.export('save_dir', 'kitti_raw', save_images=True)
+dataset.export('save_dir', 'kitti_raw', save_media=True)
 ```
 
 ## Export to Supervisely Point Cloud
@@ -117,16 +117,16 @@ There are several ways to convert a dataset to Supervisely Point Cloud format:
 ``` bash
 # export dataset into Supervisely Point Cloud format from existing project
 datum export -p <path/to/project> -f sly_pointcloud -o <output/dir> \
-    -- --save-images
+    -- --save-media
 ```
 ``` bash
 # converting to Supervisely Point Cloud format from other format
 datum convert -if kitti_raw -i <path/to/dataset> \
-    -f sly_pointcloud -o <output/dir> -- --save-images
+    -f sly_pointcloud -o <output/dir> -- --save-media
 ```
 
 Extra options for exporting in Supervisely Point Cloud format:
-- `--save-images` allow to export dataset with saving images. This will
+- `--save-media` allow to export dataset with saving media files. This will
   include point clouds and related images (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.png`, if none)
@@ -149,7 +149,7 @@ datum stats -p project
 
 ``` bash
 datum convert -if sly_pointcloud -i ../sly_pcd/ \
-    -f kitti_raw -o my_kitti/ -- --save-images --reindex --allow-attrs
+    -f kitti_raw -o my_kitti/ -- --save-media --reindex --allow-attrs
 ```
 
 ### Example 3. Create a custom dataset
@@ -183,7 +183,7 @@ dataset = dm.Dataset.from_iterable([
     ),
 ], categories=['cat', 'dog'])
 
-dataset.export('my_dataset/', format='sly_pointcloud', save_images=True,
+dataset.export('my_dataset/', format='sly_pointcloud', save_media=True,
     allow_undeclared_attrs=True)
 ```
 

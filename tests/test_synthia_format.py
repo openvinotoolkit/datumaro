@@ -10,6 +10,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.util.test_utils import compare_datasets
 import datumaro.plugins.synthia_format as Synthia
 
@@ -47,7 +48,7 @@ class SynthiaImporterTest(TestCase):
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='Stereo_Left/Omni_B/000000',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(np.array([[1, 1, 0, 0, 0]]), label=1,
                         attributes={'dynamic_object': False}),
@@ -56,7 +57,7 @@ class SynthiaImporterTest(TestCase):
                 ],
             ),
             DatasetItem(id='Stereo_Left/Omni_B/000001',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(np.array([[1, 0, 0, 0, 0]]), label=8,
                         attributes={'dynamic_object': True}),
@@ -67,7 +68,7 @@ class SynthiaImporterTest(TestCase):
                 ],
             ),
             DatasetItem(id='Stereo_Left/Omni_F/000000',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(np.array([[1, 1, 0, 0, 0]]), label=1,
                         attributes={'dynamic_object': False}),
@@ -78,7 +79,7 @@ class SynthiaImporterTest(TestCase):
                 ],
             ),
             DatasetItem(id='Stereo_Left/Omni_F/000001',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(np.array([[1, 0, 0, 0, 0]]), label=1,
                         attributes={'dynamic_object': False}),
@@ -94,14 +95,14 @@ class SynthiaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_LABELS_SEGM_DATASET_DIR, 'synthia')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
 
     @mark_requirement(Requirements.DATUM_497)
     def test_can_import_with_colored_masks(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='Stereo_Left/Omni_F/000000',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(np.array([[1, 1, 0, 0, 0]]), label=1),
                     Mask(np.array([[0, 0, 1, 1, 0]]), label=2),
@@ -109,7 +110,7 @@ class SynthiaImporterTest(TestCase):
                 ],
             ),
             DatasetItem(id='Stereo_Left/Omni_F/000001',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(np.array([[1, 0, 0, 0, 0]]), label=1),
                     Mask(np.array([[0, 1, 0, 0, 0]]), label=2),
@@ -121,20 +122,20 @@ class SynthiaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_COLOR_SEGM_DATASET_DIR, 'synthia')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_497)
     def test_can_import_with_custom_labelmap(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='Stereo_Left/Omni_F/000000',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(np.array([[1, 1, 1, 0, 0]]), label=1),
                     Mask(np.array([[0, 0, 0, 1, 1]]), label=4),
                 ],
             ),
             DatasetItem(id='Stereo_Left/Omni_F/000001',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(np.array([[1, 1, 0, 0, 0]]), label=2),
                     Mask(np.array([[0, 0, 1, 1, 0]]), label=3),
@@ -150,20 +151,20 @@ class SynthiaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_CUSTOM_LABELMAP, 'synthia')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_497)
     def test_can_import_with_meta_file(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='Stereo_Left/Omni_F/000000',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(np.array([[1, 1, 1, 0, 0]]), label=1),
                     Mask(np.array([[0, 0, 0, 1, 1]]), label=4),
                 ],
             ),
             DatasetItem(id='Stereo_Left/Omni_F/000001',
-                image=np.ones((1, 5, 3)),
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(np.array([[1, 1, 0, 0, 0]]), label=2),
                     Mask(np.array([[0, 0, 1, 1, 0]]), label=3),
@@ -179,4 +180,4 @@ class SynthiaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_META_FILE, 'synthia')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)

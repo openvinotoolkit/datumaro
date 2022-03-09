@@ -24,19 +24,22 @@ class YoloFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train', image=np.ones((8, 8, 3)),
+            DatasetItem(id=1, subset='train',
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(0, 1, 2, 3, label=4),
                 ]),
-            DatasetItem(id=2, subset='train', image=np.ones((10, 10, 3)),
+            DatasetItem(id=2, subset='train',
+                media=Image(data=np.ones((10, 10, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(3, 3, 2, 3, label=4),
                     Bbox(2, 1, 2, 3, label=4),
                 ]),
 
-            DatasetItem(id=3, subset='valid', image=np.ones((8, 8, 3)),
+            DatasetItem(id=3, subset='valid',
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 1, 5, 2, label=2),
                     Bbox(0, 2, 3, 2, label=5),
@@ -49,7 +52,7 @@ class YoloFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            YoloConverter.convert(source_dataset, test_dir, save_images=True)
+            YoloConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -58,7 +61,7 @@ class YoloFormatTest(TestCase):
     def test_can_save_dataset_with_image_info(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
-                image=Image(path='1.jpg', size=(10, 15)),
+                media=Image(path='1.jpg', size=(10, 15)),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(3, 3, 2, 3, label=4),
@@ -81,7 +84,7 @@ class YoloFormatTest(TestCase):
     def test_can_load_dataset_with_exact_image_info(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
-                image=Image(path='1.jpg', size=(10, 15)),
+                media=Image(path='1.jpg', size=(10, 15)),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(3, 3, 2, 3, label=4),
@@ -103,7 +106,7 @@ class YoloFormatTest(TestCase):
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='train',
-                image=np.ones((8, 8, 3)),
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(0, 1, 2, 3, label=4),
@@ -114,28 +117,28 @@ class YoloFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            YoloConverter.convert(source_dataset, test_dir, save_images=True)
+            YoloConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
             compare_datasets(self, source_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
-                image=np.ones((4, 2, 3))),
+                media=Image(data=np.ones((4, 2, 3)))),
             DatasetItem(id='subdir1/1', subset='train',
-                image=np.ones((2, 6, 3))),
+                media=Image(data=np.ones((2, 6, 3)))),
             DatasetItem(id='subdir2/1', subset='train',
-                image=np.ones((5, 4, 3))),
+                media=Image(data=np.ones((5, 4, 3)))),
         ], categories=[])
 
-        for save_images in {True, False}:
-            with self.subTest(save_images=save_images):
+        for save_media in {True, False}:
+            with self.subTest(save_media=save_media):
                 with TestDir() as test_dir:
                     YoloConverter.convert(source_dataset, test_dir,
-                        save_images=save_images)
+                        save_media=save_media)
                     parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
                     compare_datasets(self, source_dataset, parsed_dataset)
@@ -144,60 +147,63 @@ class YoloFormatTest(TestCase):
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem('q/1', subset='train',
-                image=Image(path='q/1.JPEG', data=np.zeros((4, 3, 3)))),
+                media=Image(path='q/1.JPEG', data=np.zeros((4, 3, 3)))),
             DatasetItem('a/b/c/2', subset='valid',
-                image=Image(path='a/b/c/2.bmp', data=np.zeros((3, 4, 3)))),
+                media=Image(path='a/b/c/2.bmp', data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
         with TestDir() as test_dir:
-            YoloConverter.convert(dataset, test_dir, save_images=True)
+            YoloConverter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
-            compare_datasets(self, dataset, parsed_dataset, require_images=True)
+            compare_datasets(self, dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         expected = Dataset.from_iterable([
-            DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
-            DatasetItem(2, subset='train', image=np.ones((3, 2, 3))),
+            DatasetItem(1, subset='train', media=Image(data=np.ones((2, 4, 3)))),
+            DatasetItem(2, subset='train', media=Image(data=np.ones((3, 2, 3)))),
         ], categories=[])
 
         with TestDir() as path:
             dataset = Dataset.from_iterable([
-                DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
+                DatasetItem(1, subset='train', media=Image(data=np.ones((2, 4, 3)))),
                 DatasetItem(2, subset='train',
-                    image=Image(path='2.jpg', size=(3, 2))),
-                DatasetItem(3, subset='valid', image=np.ones((2, 2, 3))),
+                    media=Image(path='2.jpg', size=(3, 2))),
+                DatasetItem(3, subset='valid', media=Image(data=np.ones((2, 2, 3)))),
             ], categories=[])
-            dataset.export(path, 'yolo', save_images=True)
+            dataset.export(path, 'yolo', save_media=True)
 
-            dataset.put(DatasetItem(2, subset='train', image=np.ones((3, 2, 3))))
+            dataset.put(DatasetItem(2, subset='train', media=Image(data=np.ones((3, 2, 3)))))
             dataset.remove(3, 'valid')
-            dataset.save(save_images=True)
+            dataset.save(save_media=True)
 
             self.assertEqual({'1.txt', '2.txt', '1.jpg', '2.jpg'},
                 set(os.listdir(osp.join(path, 'obj_train_data'))))
             self.assertEqual(set(),
                 set(os.listdir(osp.join(path, 'obj_valid_data'))))
             compare_datasets(self, expected, Dataset.import_from(path, 'yolo'),
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_meta_file(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train', image=np.ones((8, 8, 3)),
+            DatasetItem(id=1, subset='train',
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(0, 1, 2, 3, label=4),
                 ]),
-            DatasetItem(id=2, subset='train', image=np.ones((10, 10, 3)),
+            DatasetItem(id=2, subset='train',
+                media=Image(data=np.ones((10, 10, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(3, 3, 2, 3, label=4),
                     Bbox(2, 1, 2, 3, label=4),
                 ]),
 
-            DatasetItem(id=3, subset='valid', image=np.ones((8, 8, 3)),
+            DatasetItem(id=3, subset='valid',
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 1, 5, 2, label=2),
                     Bbox(0, 2, 3, 2, label=5),
@@ -210,7 +216,7 @@ class YoloFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            YoloConverter.convert(source_dataset, test_dir, save_images=True,
+            YoloConverter.convert(source_dataset, test_dir, save_media=True,
                 save_dataset_meta=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
@@ -229,7 +235,7 @@ class YoloImporterTest(TestCase):
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
-                image=np.ones((10, 15, 3)),
+                media=Image(data=np.ones((10, 15, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(3, 3, 2, 3, label=4),

@@ -12,7 +12,9 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import PointCloud
 from datumaro.util import cast
 from datumaro.util.image import find_images
 
@@ -414,23 +416,26 @@ class KittiRawConverter(Converter):
         if not self._reindex:
             index = cast(item.attributes.get('frame'), int, index)
 
-        if self._save_images:
-            if item.has_point_cloud:
-                self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
+        if self._save_media and item.media:
+            self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
 
-            images = sorted(item.related_images, key=lambda img: img.path)
+            images = sorted(item.media.extra_images, key=lambda img: img.path)
             for i, image in enumerate(images):
                 if image.has_data:
                     image.save(osp.join(self._save_dir,
                         KittiRawPath.IMG_DIR_PREFIX + ('%02d' % i), 'data',
                         item.id + self._find_image_ext(image)))
 
-        else:
+        elif self._save_media and not item.media:
             log.debug("Item '%s' has no image info", item.id)
 
         return index
 
     def apply(self):
+        if self._extractor.media_type() and \
+                self._extractor.media_type() is not PointCloud:
+            raise MediaTypeError("Media type is not a point cloud")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
         if self._save_dataset_meta:
@@ -458,7 +463,7 @@ class KittiRawConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_point_cloud):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             pcd_path = osp.join(pcd_dir, conv._make_pcd_filename(item))

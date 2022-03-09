@@ -8,16 +8,17 @@ import logging as log
 import os
 import os.path as osp
 import shutil
+import warnings
 
 from attrs import define, field
 import attr
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
-    AnnotationExportError, DatumaroError, ItemExportError,
+    AnnotationExportError, DatasetExportError, DatumaroError, ItemExportError,
 )
 from datumaro.components.extractor import DatasetItem, IExtractor
-from datumaro.components.media import Image
+from datumaro.components.media import Image, PointCloud
 from datumaro.components.progress_reporting import (
     NullProgressReporter, ProgressReporter,
 )
@@ -89,8 +90,16 @@ class Converter(CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
+
+        # Deprecated
         parser.add_argument('--save-images', action='store_true',
-            help="Save images (default: %(default)s)")
+            default=None,
+            help="(Deprecated. Use --save-media instead) "
+                "Save images (default: False)")
+
+        parser.add_argument('--save-media', action='store_true',
+            default=None, # TODO: remove default once save-images is removed
+            help="Save media (default: False)")
         parser.add_argument('--image-ext', default=None,
             help="Image extension (default: keep or use format default%s)" % \
                 (' ' + cls.DEFAULT_IMAGE_EXT if cls.DEFAULT_IMAGE_EXT else ''))
@@ -138,7 +147,8 @@ class Converter(CliPlugin):
         raise NotImplementedError("Should be implemented in a subclass")
 
     def __init__(self, extractor: IExtractor, save_dir: str, *,
-            save_images: bool = False,
+            save_images=None, # Deprecated
+            save_media: Optional[bool] = None,
             image_ext: Optional[str] = None,
             default_image_ext: Optional[str] = None,
             save_dataset_meta: bool = False,
@@ -147,7 +157,20 @@ class Converter(CliPlugin):
         assert default_image_ext
         self._default_image_ext = default_image_ext
 
-        self._save_images = save_images
+        if save_images is not None and save_media is not None:
+            raise DatasetExportError("Can't use both 'save-media' and "
+                "'save-images'")
+
+        if save_media is not None:
+            self._save_media = save_media
+        elif save_images is not None:
+            self._save_media = save_images
+            warnings.warn("'save-images' is deprecated and will be "
+                "removed in future. Use 'save-media' instead.",
+                DeprecationWarning, stacklevel=2)
+        else:
+            self._save_media = False
+
         self._image_ext = image_ext
 
         self._extractor = extractor
@@ -168,8 +191,8 @@ class Converter(CliPlugin):
     def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None
 
-        if isinstance(item, DatasetItem) and item.has_image:
-            src_ext = item.image.ext
+        if isinstance(item, DatasetItem) and isinstance(item.media, Image):
+            src_ext = item.media.ext
         elif isinstance(item, Image):
             src_ext = item.ext
 
@@ -192,7 +215,7 @@ class Converter(CliPlugin):
         assert not ((subdir or name or basedir) and path), \
             "Can't use both subdir or name or basedir and path arguments"
 
-        if not item.has_image or not item.image.has_data:
+        if not isinstance(item.media, Image) or not item.media.has_data:
             log.warning("Item '%s' has no image", item.id)
             return
 
@@ -201,14 +224,14 @@ class Converter(CliPlugin):
             self._make_image_filename(item, name=name, subdir=subdir))
         path = osp.abspath(path)
 
-        item.image.save(path)
+        item.media.save(path)
 
     def _save_point_cloud(self, item=None, path=None, *,
             name=None, subdir=None, basedir=None):
         assert not ((subdir or name or basedir) and path), \
             "Can't use both subdir or name or basedir and path arguments"
 
-        if not item.point_cloud:
+        if not item.media or not isinstance(item.media, PointCloud):
             log.warning("Item '%s' has no pcd", item.id)
             return
 
@@ -218,9 +241,9 @@ class Converter(CliPlugin):
         path = osp.abspath(path)
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if item.point_cloud and osp.isfile(item.point_cloud):
-            if item.point_cloud != path:
-                shutil.copyfile(item.point_cloud, path)
+        if item.media and osp.isfile(item.media.path):
+            if item.media.path != path:
+                shutil.copyfile(item.media.path, path)
 
     def _save_meta_file(self, path):
         save_meta_file(path, self._extractor.categories())

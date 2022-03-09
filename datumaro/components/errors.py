@@ -206,6 +206,9 @@ class NoMatchingFormatsError(DatasetImportError):
 class DatasetError(DatumaroError):
     pass
 
+class MediaTypeError(DatumaroError):
+    pass
+
 class CategoriesRedefinedError(DatasetError):
     def __str__(self):
         return "Categories can only be set once for a dataset"
@@ -268,13 +271,23 @@ class MismatchingImageInfoError(DatasetMergeError):
             (self.item_id, self.a, self.b)
 
 @define(auto_exc=False)
-class MismatchingImagePathError(DatasetMergeError):
+class MismatchingMediaPathError(DatasetMergeError):
     item_id: Tuple[str, str]
     a: str
     b: str
 
     def __str__(self):
-        return "Item %s: mismatching image path info: %s vs %s" % \
+        return "Item %s: mismatching media path info: %s vs %s" % \
+            (self.item_id, self.a, self.b)
+
+@define(auto_exc=False)
+class MismatchingMediaError(DatasetMergeError):
+    item_id: Tuple[str, str]
+    a: Any
+    b: Any
+
+    def __str__(self):
+        return "Item %s: mismatching media info: %s vs %s" % \
             (self.item_id, self.a, self.b)
 
 @define(auto_exc=False)
@@ -331,6 +344,14 @@ class FailedAttrVotingError(DatasetMergeError):
         return "Item %s: attribute voting failed " \
             "for ann %s, votes %s, sources %s" % \
             (self.item_id, self.ann, self.votes, self.sources)
+
+@define(auto_exc=False)
+class VideoMergeError(DatasetMergeError):
+    item_id = field()
+
+    def __str__(self):
+        return "Item %s: video merging is not possible" % \
+            (self.item_id, )
 
 @define(auto_exc=False)
 class DatasetValidationError(DatumaroError):

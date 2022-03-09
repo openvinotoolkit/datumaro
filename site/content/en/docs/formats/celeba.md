@@ -86,12 +86,12 @@ formats using CLI:
 ```bash
 datum create
 datum import -f celeba <path/to/dataset>
-datum export -f imagenet_txt -o ./save_dir -- --save-images
+datum export -f imagenet_txt -o ./save_dir -- --save-media
 ```
 or
 ``` bash
 datum convert -if celeba -i <path/to/dataset> \
-    -f imagenet_txt -o <output/dir> -- --save-images
+    -f imagenet_txt -o <output/dir> -- --save-media
 ```
 
 Or, using Python API:

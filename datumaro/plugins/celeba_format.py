@@ -9,6 +9,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -66,8 +67,12 @@ class CelebaExtractor(SourceExtractor):
                         label_categories.add('class-%d' % len(label_categories))
                     anno.append(Label(label))
 
+                image = images.get(item_id)
+                if image:
+                    image = Image(path=image)
+
                 items[item_id] = DatasetItem(id=item_id,
-                    image=images.get(item_id), annotations=anno)
+                    media=image, annotations=anno)
 
         landmark_path = osp.join(root_dir, CelebaPath.LANDMARKS_FILE)
         if osp.isfile(landmark_path):
@@ -153,8 +158,12 @@ class CelebaExtractor(SourceExtractor):
                         for name, ann in zip(attr_names, item_ann)}
 
                     if item_id not in items:
+                        image = images.get(item_id)
+                        if image:
+                            image = Image(path=image)
+
                         items[item_id] = DatasetItem(id=item_id,
-                            image=images.get(item_id))
+                            media=image)
 
                     items[item_id].attributes = attrs
 
@@ -172,8 +181,12 @@ class CelebaExtractor(SourceExtractor):
                     subset = CelebaPath.SUBSETS[subset_id]
 
                     if item_id not in items:
+                        image = images.get(item_id)
+                        if image:
+                            image = Image(path=image)
+
                         items[item_id] = DatasetItem(id=item_id,
-                            image=images.get(item_id))
+                            media=image)
 
                     items[item_id].subset = subset
 

@@ -55,7 +55,7 @@ class TfrecordConverterTest(TestCase):
     def test_can_save_bboxes(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=2),
                     Bbox(0, 4, 4, 4, label=3),
@@ -70,13 +70,14 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
-                partial(TfDetectionApiConverter.convert, save_images=True),
+                partial(TfDetectionApiConverter.convert, save_media=True),
                 test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_masks(self):
         test_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train', image=np.ones((4, 5, 3)),
+            DatasetItem(id=1, subset='train',
+                media=Image(data=np.ones((4, 5, 3))),
                 annotations=[
                     Mask(image=np.array([
                         [1, 0, 0, 1],
@@ -102,7 +103,7 @@ class TfrecordConverterTest(TestCase):
     def test_can_save_dataset_with_no_subsets(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(2, 1, 4, 4, label=2),
                     Bbox(4, 2, 8, 4, label=3),
@@ -111,7 +112,7 @@ class TfrecordConverterTest(TestCase):
             ),
 
             DatasetItem(id=2,
-                image=np.ones((8, 8, 3)) * 2,
+                media=Image(data=np.ones((8, 8, 3)) * 2),
                 annotations=[
                     Bbox(4, 4, 4, 4, label=3),
                 ],
@@ -119,7 +120,7 @@ class TfrecordConverterTest(TestCase):
             ),
 
             DatasetItem(id=3,
-                image=np.ones((8, 4, 3)) * 3,
+                media=Image(data=np.ones((8, 4, 3)) * 3),
                 attributes={'source_id': ''}
             ),
         ], categories={
@@ -130,14 +131,14 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
-                partial(TfDetectionApiConverter.convert, save_images=True),
+                partial(TfDetectionApiConverter.convert, save_media=True),
                 test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(2, 1, 4, 4, label=2),
                     Bbox(4, 2, 8, 4, label=3),
@@ -152,14 +153,14 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
-                partial(TfDetectionApiConverter.convert, save_images=True),
+                partial(TfDetectionApiConverter.convert, save_media=True),
                 test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_image_info(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id='1/q.e',
-                image=Image(path='1/q.e', size=(10, 15)),
+                media=Image(path='1/q.e', size=(10, 15)),
                 attributes={'source_id': ''}
             )
         ], categories=[])
@@ -172,12 +173,12 @@ class TfrecordConverterTest(TestCase):
     def test_can_save_dataset_with_unknown_image_formats(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
-                image=ByteImage(data=encode_image(np.ones((5, 4, 3)), 'png'),
+                media=ByteImage(data=encode_image(np.ones((5, 4, 3)), 'png'),
                     path='1/q.e'),
                 attributes={'source_id': ''}
             ),
             DatasetItem(id=2,
-                image=ByteImage(data=encode_image(np.ones((6, 4, 3)), 'png'),
+                media=ByteImage(data=encode_image(np.ones((6, 4, 3)), 'png'),
                     ext='qwe'),
                 attributes={'source_id': ''}
             )
@@ -185,42 +186,46 @@ class TfrecordConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
-                partial(TfDetectionApiConverter.convert, save_images=True),
-                test_dir, require_images=True)
+                partial(TfDetectionApiConverter.convert, save_media=True),
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem('q/1', subset='train',
-                image=Image(path='q/1.JPEG', data=np.zeros((4, 3, 3))),
+                media=Image(path='q/1.JPEG', data=np.zeros((4, 3, 3))),
                 attributes={'source_id': ''}),
             DatasetItem('a/b/c/2', subset='valid',
-                image=Image(path='a/b/c/2.bmp', data=np.zeros((3, 4, 3))),
+                media=Image(path='a/b/c/2.bmp', data=np.zeros((3, 4, 3))),
                 attributes={'source_id': ''}),
         ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(dataset,
-                partial(TfDetectionApiConverter.convert, save_images=True),
-                test_dir, require_images=True)
+                partial(TfDetectionApiConverter.convert, save_media=True),
+                test_dir, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
-                DatasetItem(1, subset='a', image=np.ones((2, 3, 3))),
-                DatasetItem(2, subset='b', image=np.ones((2, 4, 3))),
-                DatasetItem(3, subset='c', image=np.ones((2, 5, 3))),
+                DatasetItem(1, subset='a',
+                    media=Image(data=np.ones((2, 3, 3)))),
+                DatasetItem(2, subset='b',
+                    media=Image(data=np.ones((2, 4, 3)))),
+                DatasetItem(3, subset='c',
+                    media=Image(data=np.ones((2, 5, 3)))),
             ])
-            dataset.export(path, 'tf_detection_api', save_images=True)
+            dataset.export(path, 'tf_detection_api', save_media=True)
             os.unlink(osp.join(path, 'a.tfrecord'))
             os.unlink(osp.join(path, 'b.tfrecord'))
             os.unlink(osp.join(path, 'c.tfrecord'))
 
-            dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
+            dataset.put(DatasetItem(2, subset='a',
+                media=Image(data=np.ones((3, 2, 3)))))
             dataset.remove(3, 'c')
-            dataset.save(save_images=True)
+            dataset.save(save_media=True)
 
             self.assertTrue(osp.isfile(osp.join(path, 'a.tfrecord')))
             self.assertFalse(osp.isfile(osp.join(path, 'b.tfrecord')))
@@ -268,7 +273,7 @@ class TfrecordImporterTest(TestCase):
     def test_can_import(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=2),
                     Bbox(0, 4, 4, 4, label=3),
@@ -278,7 +283,7 @@ class TfrecordImporterTest(TestCase):
             ),
 
             DatasetItem(id=2, subset='val',
-                image=np.ones((8, 8, 3)),
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(1, 2, 4, 2, label=3),
                 ],
@@ -286,7 +291,7 @@ class TfrecordImporterTest(TestCase):
             ),
 
             DatasetItem(id=3, subset='test',
-                image=np.ones((5, 4, 3)) * 3,
+                media=Image(data=np.ones((5, 4, 3)) * 3),
                 attributes={'source_id': '3'}
             ),
         ], categories={

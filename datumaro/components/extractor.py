@@ -7,10 +7,11 @@ from __future__ import annotations
 from glob import iglob
 from typing import (
     Any, Callable, Dict, Iterator, List, NoReturn, Optional, Sequence, Tuple,
-    TypeVar,
+    Type, TypeVar, Union, cast,
 )
 import os
 import os.path as osp
+import warnings
 
 from attr import attrs, define, field
 import attr
@@ -26,7 +27,7 @@ from datumaro.components.errors import (
 from datumaro.components.format_detection import (
     FormatDetectionConfidence, FormatDetectionContext,
 )
-from datumaro.components.media import Image
+from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.components.progress_reporting import (
     NullProgressReporter, ProgressReporter,
 )
@@ -35,65 +36,120 @@ from datumaro.util.attrs_util import default_if_none, not_empty
 
 DEFAULT_SUBSET_NAME = 'default'
 
-@attrs(slots=True, order=False)
+T = TypeVar('T', bound=MediaElement)
+
+@attrs(order=False, init=False, slots=True)
 class DatasetItem:
     id: str = field(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)
-    annotations: List[Annotation] = field(
-        factory=list, validator=default_if_none(list))
+
     subset: str = field(converter=lambda v: v or DEFAULT_SUBSET_NAME,
         default=None)
 
-    # TODO: introduce "media" field with type info. Replace image and pcd.
-    image: Optional[Image] = field(default=None)
-    # TODO: introduce pcd type like Image
-    point_cloud: Optional[str] = field(
-        converter=lambda x: str(x).replace('\\', '/') if x else None,
-        default=None)
-    related_images: List[Image] = field(default=None)
+    media: Optional[MediaElement] = field(default=None,
+        validator=attr.validators.optional(
+            attr.validators.instance_of(MediaElement)))
 
-    def __attrs_post_init__(self):
-        if (self.has_image and self.has_point_cloud):
-            raise ValueError("Can't set both image and point cloud info")
-        if self.related_images and not self.has_point_cloud:
-            raise ValueError("Related images require point cloud")
-
-    def _image_converter(image):
-        if callable(image) or isinstance(image, np.ndarray):
-            image = Image(data=image)
-        elif isinstance(image, str):
-            image = Image(path=image)
-        assert image is None or isinstance(image, Image), type(image)
-        return image
-    image.converter = _image_converter
-
-    def _related_image_converter(images):
-        return list(map(__class__._image_converter, images or []))
-    related_images.converter = _related_image_converter
-
-    @point_cloud.validator
-    def _point_cloud_validator(self, attribute, pcd):
-        assert pcd is None or isinstance(pcd, str), type(pcd)
+    annotations: List[Annotation] = field(
+        factory=list, validator=default_if_none(list))
 
     attributes: Dict[str, Any] = field(
         factory=dict, validator=default_if_none(dict))
 
-    @property
-    def has_image(self):
-        return self.image is not None
-
-    @property
-    def has_point_cloud(self):
-        return self.point_cloud is not None
-
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)
+
+    def media_as(self, t: Type[T]) -> T:
+        assert issubclass(t, MediaElement)
+        return cast(t, self.media)
+
+    def __init__(self, id: str, *,
+            subset: Optional[str] = None,
+            media: Union[str, MediaElement, None] = None,
+            annotations: Optional[List[Annotation]] = None,
+            attributes: Dict[str, Any] = None,
+            image=None, point_cloud=None, related_images=None):
+        if image is not None:
+            warnings.warn("'image' is deprecated and will be "
+                "removed in future. Use 'media' instead.",
+                DeprecationWarning, stacklevel=2)
+            if isinstance(image, str):
+                image = Image(path=image)
+            elif isinstance(image, np.ndarray) or callable(image):
+                image = Image(data=image)
+            assert isinstance(image, Image)
+            media = image
+        elif point_cloud is not None:
+            warnings.warn("'point_cloud' is deprecated and will be "
+                "removed in future. Use 'media' instead.",
+                DeprecationWarning, stacklevel=2)
+            if related_images is not None:
+                warnings.warn("'related_images' is deprecated and will be "
+                    "removed in future. Use 'media' instead.",
+                    DeprecationWarning, stacklevel=2)
+            if isinstance(point_cloud, str):
+                point_cloud = PointCloud(path=point_cloud,
+                    extra_images=related_images)
+            assert isinstance(point_cloud, PointCloud)
+            media = point_cloud
+
+        self.__attrs_init__(id=id, subset=subset, media=media,
+            annotations=annotations, attributes=attributes)
+
+    # Deprecated. Provided for backward compatibility.
+    @property
+    def image(self) -> Optional[Image]:
+        warnings.warn("'DatasetItem.image' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
+            DeprecationWarning, stacklevel=2)
+        if not isinstance(self.media, Image):
+            return None
+        return self.media_as(Image)
+
+    # Deprecated. Provided for backward compatibility.
+    @property
+    def point_cloud(self) -> Optional[str]:
+        warnings.warn("'DatasetItem.point_cloud' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
+            DeprecationWarning, stacklevel=2)
+        if not isinstance(self.media, PointCloud):
+            return None
+        return self.media_as(PointCloud).path
+
+    # Deprecated. Provided for backward compatibility.
+    @property
+    def related_images(self) -> List[Image]:
+        warnings.warn("'DatasetItem.related_images' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
+            DeprecationWarning, stacklevel=2)
+        if not isinstance(self.media, PointCloud):
+            return []
+        return self.media_as(PointCloud).extra_images
+
+    # Deprecated. Provided for backward compatibility.
+    @property
+    def has_image(self):
+        warnings.warn("'DatasetItem.has_image' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
+            DeprecationWarning, stacklevel=2)
+        return isinstance(self.media, Image)
+
+    # Deprecated. Provided for backward compatibility.
+    @property
+    def has_point_cloud(self):
+        warnings.warn("'DatasetItem.has_point_cloud' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
+            DeprecationWarning, stacklevel=2)
+        return isinstance(self.media, PointCloud)
 
 
 CategoriesInfo = Dict[AnnotationType, Categories]
 
 class IExtractor:
     def __iter__(self) -> Iterator[DatasetItem]:
+        """
+        Provides sequential access to dataset items.
+        """
         raise NotImplementedError()
 
     def __len__(self) -> int:
@@ -103,19 +159,41 @@ class IExtractor:
         return True
 
     def subsets(self) -> Dict[str, IExtractor]:
+        """
+        Enumerates subsets in the dataset. Each subset can be a dataset itself.
+        """
         raise NotImplementedError()
 
     def get_subset(self, name) -> IExtractor:
         raise NotImplementedError()
 
     def categories(self) -> CategoriesInfo:
+        """
+        Returns metainfo about dataset labels.
+        """
         raise NotImplementedError()
 
-    def get(self, id, subset=None) -> Optional[DatasetItem]:
+    def get(self, id: str, subset: Optional[str] = None) \
+            -> Optional[DatasetItem]:
+        """
+        Provides random access to dataset items.
+        """
+        raise NotImplementedError()
+
+    def media_type(self) -> Type[MediaElement]:
+        """
+        Returns media type of the dataset items.
+
+        All the items are supposed to have the same media type.
+        Supposed to be constant and known immediately after the
+        object construction (i.e. doesn't require dataset iteration).
+        """
         raise NotImplementedError()
 
 class _ExtractorBase(IExtractor):
-    def __init__(self, *, length=None, subsets=None):
+    def __init__(self, *,
+            length: Optional[int] = None,
+            subsets: Optional[Sequence[str]] = None):
         self._length = length
         self._subsets = subsets
 
@@ -165,6 +243,8 @@ class _ExtractorBase(IExtractor):
                 return filter(pred, iter(self))
             def categories(_):
                 return self.categories()
+            def media_type(_):
+                return self.media_type()
 
         return _DatasetFilter()
 
@@ -246,10 +326,15 @@ class Extractor(_ExtractorBase, CliPlugin):
     def __init__(self, *,
             length: Optional[int] = None,
             subsets: Optional[Sequence[str]] = None,
+            media_type: Type[MediaElement] = Image,
             ctx: Optional[ImportContext] = None):
         super().__init__(length=length, subsets=subsets)
 
         self._ctx: ImportContext = ctx or NullImportContext()
+        self._media_type = media_type
+
+    def media_type(self):
+        return self._media_type
 
 class SourceExtractor(Extractor):
     """
@@ -260,9 +345,11 @@ class SourceExtractor(Extractor):
     def __init__(self, *,
             length: Optional[int] = None,
             subset: Optional[str] = None,
+            media_type: Type[MediaElement] = Image,
             ctx: Optional[ImportContext] = None):
         self._subset = subset or DEFAULT_SUBSET_NAME
-        super().__init__(length=length, subsets=[self._subset], ctx=ctx)
+        super().__init__(length=length, subsets=[self._subset],
+            media_type=media_type, ctx=ctx)
 
         self._categories = {}
         self._items = []
@@ -392,6 +479,9 @@ class Transform(_ExtractorBase, CliPlugin):
                 or self._length == 'parent':
             self._length = len(self._extractor)
         return super().__len__()
+
+    def media_type(self):
+        return self._extractor.media_type()
 
 class ItemTransform(Transform):
     def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:

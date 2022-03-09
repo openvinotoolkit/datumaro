@@ -6,6 +6,7 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.components.media import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 from datumaro.util.test_utils import run_datum as run
 
@@ -23,8 +24,8 @@ class ImageZipIntegrationScenarios(TestCase):
     @mark_requirement(Requirements.DATUM_267)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', image=np.ones((5, 5, 3))),
-            DatasetItem(id='2', image=np.ones((2, 8, 3)))
+            DatasetItem(id='1', media=Image(data=np.ones((5, 5, 3)))),
+            DatasetItem(id='2', media=Image(data=np.ones((2, 8, 3))))
         ])
 
         with TestDir() as test_dir:
@@ -67,8 +68,8 @@ class ImageZipIntegrationScenarios(TestCase):
     @mark_requirement(Requirements.DATUM_267)
     def test_can_change_extension_for_images_in_zip(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', image=np.ones((5, 5, 3))),
-            DatasetItem(id='2', image=np.ones((2, 8, 3)))
+            DatasetItem(id='1', media=Image(data=np.ones((5, 5, 3)))),
+            DatasetItem(id='2', media=Image(data=np.ones((2, 8, 3))))
         ])
 
         with TestDir() as test_dir:

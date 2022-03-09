@@ -89,7 +89,7 @@ datum convert -if mars -i ./mars_dataset \
 # Export dataaset to the Market-1501 format through the Datumaro project:
 datum create
 datum add -f mars ../mars
-datum export -f market1501 -o ./output_dir -- --save-images --image-ext png
+datum export -f market1501 -o ./output_dir -- --save-media --image-ext png
 ```
 
 > Note: if your dataset contains only person_id attributes Datumaro
@@ -97,7 +97,7 @@ datum export -f market1501 -o ./output_dir -- --save-images --image-ext png
 > and increment frame_id for collisions.
 
 Available extra export options for Market-1501 dataset format:
-- `--save-images` allow to export dataset with saving images.
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original)

@@ -146,7 +146,7 @@ class _MapillaryVistasExtractor(SourceExtractor):
                     group=segment_id, attributes=attributes))
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                annotations=annotations, image=image)
+                annotations=annotations, media=image)
 
         self._load_polygons(items)
         return items.values()
@@ -211,10 +211,10 @@ class _MapillaryVistasExtractor(SourceExtractor):
             item_id = osp.splitext(osp.relpath(image_path, self._images_dir))[0]
             image = Image(path=image_path)
             if item_id in items:
-                items[item_id].image = image
+                items[item_id].media = image
             else:
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=image)
+                    media=image)
 
         self._load_polygons(items)
         return items.values()
@@ -231,7 +231,7 @@ class _MapillaryVistasExtractor(SourceExtractor):
 
             image_size = self._get_image_size(item_info)
             if image_size and item.has_image:
-                item.image = Image(path=item.image.path, size=image_size)
+                item.media = Image(path=item.image.path, size=image_size)
 
             polygons = item_info['objects']
             annotations = []
