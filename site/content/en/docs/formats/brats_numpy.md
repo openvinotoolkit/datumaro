@@ -59,12 +59,12 @@ formats using CLI:
 ```bash
 datum create
 datum import -f brats_numpy <path/to/dataset>
-datum export -f voc -o <output/dir> -- --save-images
+datum export -f voc -o <output/dir> -- --save-media
 ```
 or
 ``` bash
 datum convert -if brats_numpy -i <path/to/dataset> \
-    -f voc -o <output/dir> -- --save-images
+    -f voc -o <output/dir> -- --save-media
 ```
 
 Or, using Python API:
