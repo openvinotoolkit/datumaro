@@ -90,10 +90,16 @@ class Converter(CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('--save-images', action='store_true', default=None,
-            help="Save images (default: %s)" % (None))
-        parser.add_argument('--save-media', action='store_true', default=None,
-            help="Save media (default: %s)" % (None))
+
+        # Deprecated
+        parser.add_argument('--save-images', action='store_true',
+            default=None,
+            help="(Deprecated. Use --save-media instead) "
+                "Save images (default: False)")
+
+        parser.add_argument('--save-media', action='store_true',
+            default=None, # TODO: remove default once save-images is removed
+            help="Save media (default: False)")
         parser.add_argument('--image-ext', default=None,
             help="Image extension (default: keep or use format default%s)" % \
                 (' ' + cls.DEFAULT_IMAGE_EXT if cls.DEFAULT_IMAGE_EXT else ''))
@@ -141,8 +147,8 @@ class Converter(CliPlugin):
         raise NotImplementedError("Should be implemented in a subclass")
 
     def __init__(self, extractor: IExtractor, save_dir: str, *,
-            save_images = None,
-            save_media: bool = None,
+            save_images=None, # Deprecated
+            save_media: Optional[bool] = None,
             image_ext: Optional[str] = None,
             default_image_ext: Optional[str] = None,
             save_dataset_meta: bool = False,
@@ -152,8 +158,8 @@ class Converter(CliPlugin):
         self._default_image_ext = default_image_ext
 
         if save_images is not None and save_media is not None:
-            raise DatasetExportError("Can't use 'save-media' and "
-                "save-images together")
+            raise DatasetExportError("Can't use both 'save-media' and "
+                "'save-images'")
 
         if save_media is not None:
             self._save_media = save_media

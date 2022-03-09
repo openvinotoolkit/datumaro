@@ -10,69 +10,28 @@ annotation module
       :special-members:
       :show-inheritance:
 
-   .. autodata:: NO_GROUP
+   .. autoclass:: NO_GROUP
 
    .. autoclass:: Annotation
-      :members: type, wrap, __eq__, __init__
+      :members:
       :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
-
-         Describes an identifier of the annotation.
-         Is not required to be unique within DatasetItem annotations or dataset.
-
-            .. py:decorator:: id: int
-
-         Arbitrary annotation-specific attributes. Typically, includes
-         metainfo and properties that are not covered by other fields.
-         If possible, try to limit value types of values by the simple
-         builtin types (int, float, bool, str) to increase compatibility with
-         different formats.
-         There are some established names for common attributes like:
-            - "occluded" (bool)
-            - "visible" (bool)
-         Possible dataset attributes can be described in Categories.attributes.
-
-            .. py:data:: attributes: Dict[str, Any]
-
-         Annotations can be grouped, which means they describe parts of a
-         single object. The value of 0 means there is no group.
-
-            .. py:data:: group: int
 
    .. autoclass:: Categories
-      :members: __eq__, __init__
+      :members:
       :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
-
-         Describes the list of possible annotation-type specific attributes in a dataset.
-
-            .. py:data:: attributes: Set[str]
 
    .. autoclass:: LabelCategories
-      :members: from_iterable, add, find, __getitem__, __contains__, __len__, __iter__, __eq__, __init__
+      :members:
       :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
-
-         .. py:data:: items: List[str]
-
-      .. autoclass:: Category
-         :members:
-         :undoc-members:
-         :private-members:
-         :special-members:
-         :show-inheritance:
-
-         test
-
-         .. py:data:: name: str
-                      parent: str
-                      attributes: Set[str]
 
    .. autoclass:: Label
       :members: __eq__, __init__
@@ -83,8 +42,8 @@ annotation module
 
       .. py:data:: label: int
 
-   .. autodata:: RgbColor
-   .. autodata:: Colormap
+   .. py:data:: RgbColor
+   .. py:data:: Colormap
 
    .. autoclass:: MaskCategories
       :members: inverse_colormap, __contains__, __getitem__, __len__, __eq__, __init__
@@ -98,8 +57,8 @@ annotation module
          .. py:data:: colormap: Colormap
 
 
-   .. autodata:: BinaryMaskImage = np.ndarray
-   .. autodata:: IndexMaskImage = np.ndarray
+   .. autoclass:: BinaryMaskImage
+   .. autoclass:: IndexMaskImage
 
    .. autoclass:: Mask
       :members: image, as_class_mask, as_instance_mask, get_area, get_bbox, paint, __eq__, __init__
@@ -122,13 +81,16 @@ annotation module
 
          uses pycocotools RLE representation
 
-      .. py:data:: CompiledMaskImage
-
-         2d of integers (of different precision)
-
-   .. autodata:: CompiledMaskImage = np.ndarray
+   .. autoclass:: CompiledMaskImage
 
    .. autoclass:: CompiledMask
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: _Shape
       :members:
       :undoc-members:
       :private-members:
@@ -183,8 +145,6 @@ annotation module
       :private-members:
       :special-members:
       :show-inheritance:
-
-      .. py:data::  items: Dict[int, Category]
 
       .. autoclass:: Category
          :members:

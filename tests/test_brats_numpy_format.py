@@ -48,4 +48,4 @@ class BratsNumpyImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'brats_numpy')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)

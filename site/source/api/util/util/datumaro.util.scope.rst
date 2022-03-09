@@ -3,6 +3,8 @@ scope module
 
 .. automodule:: datumaro.util.scope
 
+   .. autodata:: T
+
    .. autoclass:: Scope
       :members:
       :private-members:

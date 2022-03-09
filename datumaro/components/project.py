@@ -2235,6 +2235,7 @@ class Project:
         Creates a new commit. Moves the HEAD pointer to the new commit.
 
         Options:
+
             - no_cache (bool) - don't put added dataset data into cache,
                 store only metainfo. Can be used to reduce storage size.
             - allow_empty (bool) - allow commits with no changes.

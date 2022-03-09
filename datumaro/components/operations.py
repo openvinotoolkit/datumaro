@@ -90,13 +90,13 @@ class MergingStrategy(CliPlugin):
 class ExactMerge:
     """
     Merges several datasets using the "simple" algorithm:
-    - items are matched by (id, subset) pairs
-    - matching items share the media info available:
-        - nothing + nothing = nothing
-        - nothing + something = something
-        - something A + something B = conflict
-    - annotations are matched by value and shared
-    - in case of conflicts, throws an error
+        - items are matched by (id, subset) pairs
+        - matching items share the media info available:
+            - nothing + nothing = nothing
+            - nothing + something = something
+            - something A + something B = conflict
+        - annotations are matched by value and shared
+        - in case of conflicts, throws an error
     """
 
     @classmethod
@@ -304,11 +304,14 @@ class ExactMerge:
         return merge_categories(sources)
 
     @staticmethod
-    def merge_media_types(sources: Iterable[IDataset]) -> Optional[Type[MediaElement]]:
+    def merge_media_types(sources: Iterable[IDataset]) -> Type[MediaElement]:
         if sources:
             media_type = sources[0].media_type()
             for s in sources:
-                if s.media_type() is not media_type:
+                if not issubclass(s.media_type(), media_type) or \
+                        not issubclass(media_type, s.media_type()):
+                    # Symmetric comparision is needed in the case of subclasses:
+                    # eg. Image and ByteImage
                     raise MediaTypeError("Datasets have different media types")
             return media_type
 
@@ -357,7 +360,8 @@ class IntersectMerge(MergingStrategy):
     def __call__(self, datasets):
         self._categories = self._merge_categories(
             [d.categories() for d in datasets])
-        merged = Dataset(categories=self._categories)
+        merged = Dataset(categories=self._categories,
+            media_type=ExactMerge.merge_media_types(datasets))
 
         self._check_groups_definition()
 
@@ -1238,9 +1242,7 @@ class _MeanStdCounter:
     def _pairwise_stats(count_a, mean_a, var_a, count_b, mean_b, var_b):
         """
         Computes vector mean and variance.
-
         Needed do avoid catastrophic cancellation in floating point computations
-
         Returns:
             A tuple (total count, mean, variance)
         """
@@ -1265,13 +1267,11 @@ class _MeanStdCounter:
         """
         Recursively computes total count, mean and variance,
         does O(log(N)) calls.
-
         Args:
-            stats (float array of shape N, 2 * d, d = dimensions of values)
-            count (integer array of shape N)
-            mean_accessor (function(idx, stats)) to retrieve element mean
-            variance_accessor (function(idx, stats)) to retrieve element variance
-
+            stats: (float array of shape N, 2 * d, d = dimensions of values)
+            count: (integer array of shape N)
+            mean_accessor: (function(idx, stats)) to retrieve element mean
+            variance_accessor: (function(idx, stats)) to retrieve element variance
         Returns:
             A tuple (total count, mean, variance)
         """

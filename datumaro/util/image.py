@@ -255,7 +255,9 @@ def load_image_meta_file(image_meta_path: str) -> ImageMeta:
     Loads image metadata from a file with the following format:
 
         <image name 1> <height 1> <width 1>
+
         <image name 2> <height 2> <width 2>
+
         ...
 
     Shell-like comments and quoted fields are allowed.

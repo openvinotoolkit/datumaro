@@ -63,14 +63,15 @@ class DatasetItem:
         assert issubclass(t, MediaElement)
         return cast(t, self.media)
 
-    def __init__(self, id: str, subset: Optional[str] = None,
+    def __init__(self, id: str, *,
+            subset: Optional[str] = None,
             media: Union[str, MediaElement, None] = None,
             annotations: Optional[List[Annotation]] = None,
             attributes: Dict[str, Any] = None,
             image=None, point_cloud=None, related_images=None):
         if image is not None:
-            warnings.warn("image is deprecated and will be "
-                "removed in future. Use media instead.",
+            warnings.warn("'image' is deprecated and will be "
+                "removed in future. Use 'media' instead.",
                 DeprecationWarning, stacklevel=2)
             if isinstance(image, str):
                 image = Image(path=image)
@@ -79,12 +80,12 @@ class DatasetItem:
             assert isinstance(image, Image)
             media = image
         elif point_cloud is not None:
-            warnings.warn("point_cloud is deprecated and will be "
-                "removed in future. Use media instead.",
+            warnings.warn("'point_cloud' is deprecated and will be "
+                "removed in future. Use 'media' instead.",
                 DeprecationWarning, stacklevel=2)
             if related_images is not None:
-                warnings.warn("related_images is deprecated and will be "
-                    "removed in future. Use media instead.",
+                warnings.warn("'related_images' is deprecated and will be "
+                    "removed in future. Use 'media' instead.",
                     DeprecationWarning, stacklevel=2)
             if isinstance(point_cloud, str):
                 point_cloud = PointCloud(path=point_cloud,
@@ -98,8 +99,8 @@ class DatasetItem:
     # Deprecated. Provided for backward compatibility.
     @property
     def image(self) -> Optional[Image]:
-        warnings.warn("DatasetItem.image is deprecated and will be "
-            "removed in future. Use .media and .media_as() instead.",
+        warnings.warn("'DatasetItem.image' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
             DeprecationWarning, stacklevel=2)
         if not isinstance(self.media, Image):
             return None
@@ -108,8 +109,8 @@ class DatasetItem:
     # Deprecated. Provided for backward compatibility.
     @property
     def point_cloud(self) -> Optional[str]:
-        warnings.warn("DatasetItem.point_cloud is deprecated and will be "
-            "removed in future. Use .media and .media_as() instead.",
+        warnings.warn("'DatasetItem.point_cloud' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
             DeprecationWarning, stacklevel=2)
         if not isinstance(self.media, PointCloud):
             return None
@@ -118,8 +119,8 @@ class DatasetItem:
     # Deprecated. Provided for backward compatibility.
     @property
     def related_images(self) -> List[Image]:
-        warnings.warn("DatasetItem.related_images is deprecated and will be "
-            "removed in future. Use .media and .media_as() instead.",
+        warnings.warn("'DatasetItem.related_images' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
             DeprecationWarning, stacklevel=2)
         if not isinstance(self.media, PointCloud):
             return []
@@ -128,16 +129,16 @@ class DatasetItem:
     # Deprecated. Provided for backward compatibility.
     @property
     def has_image(self):
-        warnings.warn("DatasetItem.has_image is deprecated and will be "
-            "removed in future. Use .media and .media_as() instead.",
+        warnings.warn("'DatasetItem.has_image' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
             DeprecationWarning, stacklevel=2)
         return isinstance(self.media, Image)
 
     # Deprecated. Provided for backward compatibility.
     @property
     def has_point_cloud(self):
-        warnings.warn("DatasetItem.has_point_cloud is deprecated and will be "
-            "removed in future. Use .media and .media_as() instead.",
+        warnings.warn("'DatasetItem.has_point_cloud' is deprecated and will be "
+            "removed in future. Use '.media' and '.media_as()' instead.",
             DeprecationWarning, stacklevel=2)
         return isinstance(self.media, PointCloud)
 
@@ -146,6 +147,9 @@ CategoriesInfo = Dict[AnnotationType, Categories]
 
 class IExtractor:
     def __iter__(self) -> Iterator[DatasetItem]:
+        """
+        Provides sequential access to dataset items.
+        """
         raise NotImplementedError()
 
     def __len__(self) -> int:
@@ -155,25 +159,42 @@ class IExtractor:
         return True
 
     def subsets(self) -> Dict[str, IExtractor]:
+        """
+        Enumerates subsets in the dataset. Each subset can be a dataset itself.
+        """
         raise NotImplementedError()
 
     def get_subset(self, name) -> IExtractor:
         raise NotImplementedError()
 
     def categories(self) -> CategoriesInfo:
+        """
+        Returns metainfo about dataset labels.
+        """
         raise NotImplementedError()
 
-    def get(self, id, subset=None) -> Optional[DatasetItem]:
+    def get(self, id: str, subset: Optional[str] = None) \
+            -> Optional[DatasetItem]:
+        """
+        Provides random access to dataset items.
+        """
         raise NotImplementedError()
 
-    def media_type(self) -> Optional[Type[MediaElement]]:
+    def media_type(self) -> Type[MediaElement]:
+        """
+        Returns media type of the dataset items.
+        All the items are supposed to have the same media type.
+        Supposed to be constant and known immediately after the
+        object construction (i.e. doesn't require dataset iteration).
+        """
         raise NotImplementedError()
 
 class _ExtractorBase(IExtractor):
-    def __init__(self, *, length=None, subsets=None, media_type=None):
+    def __init__(self, *,
+            length: Optional[int] = None,
+            subsets: Optional[Sequence[str]] = None):
         self._length = length
         self._subsets = subsets
-        self._media_type = media_type
 
     def _init_cache(self):
         subsets = set()
@@ -235,9 +256,6 @@ class _ExtractorBase(IExtractor):
             if item.id == id and item.subset == subset:
                 return item
         return None
-
-    def media_type(self) -> Optional[Type[MediaElement]]:
-        return self._media_type
 
 T = TypeVar('T')
 
@@ -307,12 +325,15 @@ class Extractor(_ExtractorBase, CliPlugin):
     def __init__(self, *,
             length: Optional[int] = None,
             subsets: Optional[Sequence[str]] = None,
-            media_type: Optional[Type[MediaElement]] = Image,
+            media_type: Type[MediaElement] = Image,
             ctx: Optional[ImportContext] = None):
-        super().__init__(length=length, subsets=subsets,
-            media_type=media_type)
+        super().__init__(length=length, subsets=subsets)
 
         self._ctx: ImportContext = ctx or NullImportContext()
+        self._media_type = media_type
+
+    def media_type(self):
+        return self._media_type
 
 class SourceExtractor(Extractor):
     """
@@ -323,7 +344,7 @@ class SourceExtractor(Extractor):
     def __init__(self, *,
             length: Optional[int] = None,
             subset: Optional[str] = None,
-            media_type: Optional[Type] = Image,
+            media_type: Type[MediaElement] = Image,
             ctx: Optional[ImportContext] = None):
         self._subset = subset or DEFAULT_SUBSET_NAME
         super().__init__(length=length, subsets=[self._subset],
@@ -390,7 +411,6 @@ class Importer(CliPlugin):
         Finds sources in the specified location, using the matching pattern
         to filter file names and directories.
         Supposed to be used, and to be the only call in subclasses.
-
         Parameters:
             path: a directory or file path, where sources need to be found.
             ext: file extension to match. To match directories,
@@ -401,7 +421,6 @@ class Importer(CliPlugin):
             dirname: a glob pattern for filename prefixes
             file_filter: a callable (abspath: str) -> bool, to filter paths found
             max_depth: the maximum depth for recursive search.
-
         Returns: a list of source configurations
             (i.e. Extractor type names and c-tor parameters)
         """
@@ -458,11 +477,13 @@ class Transform(_ExtractorBase, CliPlugin):
             self._length = len(self._extractor)
         return super().__len__()
 
+    def media_type(self):
+        return self._extractor.media_type()
+
 class ItemTransform(Transform):
     def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
         """
         Returns a modified copy of the input item.
-
         Avoid changing and returning the input item, because it can lead to
         unexpected problems. Use wrap_item() or item.wrap() to simplify copying.
         """
