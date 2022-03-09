@@ -94,6 +94,7 @@ class ExactMerge:
     Merges several datasets using the "simple" algorithm:
         - items are matched by (id, subset) pairs
         - matching items share the media info available:
+
             - nothing + nothing = nothing
             - nothing + something = something
             - something A + something B = conflict
@@ -1283,7 +1284,9 @@ class _MeanStdCounter:
     def _pairwise_stats(count_a, mean_a, var_a, count_b, mean_b, var_b):
         """
         Computes vector mean and variance.
+
         Needed do avoid catastrophic cancellation in floating point computations
+
         Returns:
             A tuple (total count, mean, variance)
         """
@@ -1308,11 +1311,13 @@ class _MeanStdCounter:
         """
         Recursively computes total count, mean and variance,
         does O(log(N)) calls.
+
         Args:
             stats: (float array of shape N, 2 * d, d = dimensions of values)
             count: (integer array of shape N)
             mean_accessor: (function(idx, stats)) to retrieve element mean
             variance_accessor: (function(idx, stats)) to retrieve element variance
+
         Returns:
             A tuple (total count, mean, variance)
         """

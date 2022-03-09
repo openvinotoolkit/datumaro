@@ -183,6 +183,7 @@ class IExtractor:
     def media_type(self) -> Type[MediaElement]:
         """
         Returns media type of the dataset items.
+
         All the items are supposed to have the same media type.
         Supposed to be constant and known immediately after the
         object construction (i.e. doesn't require dataset iteration).
@@ -411,6 +412,7 @@ class Importer(CliPlugin):
         Finds sources in the specified location, using the matching pattern
         to filter file names and directories.
         Supposed to be used, and to be the only call in subclasses.
+
         Parameters:
             path: a directory or file path, where sources need to be found.
             ext: file extension to match. To match directories,
@@ -421,6 +423,7 @@ class Importer(CliPlugin):
             dirname: a glob pattern for filename prefixes
             file_filter: a callable (abspath: str) -> bool, to filter paths found
             max_depth: the maximum depth for recursive search.
+
         Returns: a list of source configurations
             (i.e. Extractor type names and c-tor parameters)
         """
@@ -484,6 +487,7 @@ class ItemTransform(Transform):
     def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
         """
         Returns a modified copy of the input item.
+
         Avoid changing and returning the input item, because it can lead to
         unexpected problems. Use wrap_item() or item.wrap() to simplify copying.
         """

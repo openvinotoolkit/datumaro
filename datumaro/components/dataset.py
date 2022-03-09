@@ -670,9 +670,11 @@ class Dataset(IDataset):
     """
     Represents a dataset, contains metainfo about labels and dataset items.
     Provides iteration and access options to dataset elements.
+
     By default, all operations are done lazily, it can be changed by
     modifying the `eager` property and by using the `eager_mode`
     context manager.
+
     Dataset is supposed to have a single media type for its items. If the
     dataset is filled manually or from extractors, and media type does not
     match, an error is raised.
@@ -690,6 +692,7 @@ class Dataset(IDataset):
         Creates a new dataset from an iterable object producing dataset items -
         a generator, a list etc. It is a convenient way to create and fill
         a custom dataset.
+
         Parameters:
             iterable: An iterable which returns dataset items
             categories: A simple list of labels or complete information
@@ -700,6 +703,7 @@ class Dataset(IDataset):
                 raised during caching
             env: A context for plugins, which will be used for this dataset.
                 If not specified, the builtin plugins will be used.
+
         Returns:
             dataset: A new dataset with specified contents
         """
@@ -734,13 +738,16 @@ class Dataset(IDataset):
             env: Optional[Environment] = None) -> Dataset:
         """
         Creates a new dataset from one or several `Extractor`s.
+
         In case of a single input, creates a lazy wrapper around the input.
         In case of several inputs, merges them and caches the resulting
         dataset.
+
         Parameters:
             sources: one or many input extractors
             env: A context for plugins, which will be used for this dataset.
                 If not specified, the builtin plugins will be used.
+
         Returns:
             dataset: A new dataset with contents produced by input extractors
         """
@@ -832,7 +839,9 @@ class Dataset(IDataset):
         """
         Filters out some dataset items or annotations, using a custom filter
         expression.
+
         Results are stored in-place. Modifications are applied lazily.
+
         Args:
             expr: XPath-formatted filter expression
                 (e.g. `/item[subset = 'train']`,
@@ -841,6 +850,7 @@ class Dataset(IDataset):
                 applied to items or annotations
             remove_empty: When filtering annotations, allows to
                 exclude empty items from the resulting dataset
+
         Returns: self
         """
 
@@ -857,11 +867,14 @@ class Dataset(IDataset):
         Updates items of the current dataset from another dataset or an
         iterable (the source). Items from the source overwrite matching
         items in the current dataset. Unmatched items are just appended.
+
         If the source is a DatasetPatch, the removed items in the patch
         will be removed in the current dataset.
+
         If the source is a dataset, labels are matched. If the labels match,
         but the order is different, the annotation labels will be remapped to
         the current dataset label order during updating.
+
         Returns: self
         """
 
@@ -872,13 +885,16 @@ class Dataset(IDataset):
             **kwargs) -> Dataset:
         """
         Applies some function to dataset items.
+
         Results are stored in-place. Modifications are applied lazily.
         Transforms are not allowed to change media type of dataset items.
+
         Args:
             method: The transformation to be applied to the dataset.
                 If a string is passed, it is treated as a plugin name,
                 which is searched for in the dataset environment.
             **kwargs: Parameters for the transformation
+
         Returns: self
         """
 
@@ -900,11 +916,13 @@ class Dataset(IDataset):
         """
         Applies a model to dataset items' media and produces a dataset with
         media and annotations.
+
         Args:
             model: The model to be applied to the dataset
             batch_size: The number of dataset items processed
                 simultaneously by the model
             **kwargs: Parameters for the model
+
         Returns: self
         """
 
@@ -968,6 +986,7 @@ class Dataset(IDataset):
         """
         Binds the dataset to a speific directory.
         Allows to set default saving parameters.
+
         The following saves will be done to this directory by default and will
         use the saved parameters.
         """
@@ -986,6 +1005,7 @@ class Dataset(IDataset):
             **kwargs) -> None:
         """
         Saves the dataset in some format.
+
         Args:
             save_dir: The output directory
             format: The desired output format.
@@ -1089,6 +1109,7 @@ class Dataset(IDataset):
             **kwargs) -> Dataset:
         """
         Creates a `Dataset` instance from a dataset on the disk.
+
         Args:
             path - The input file or directory path
             format - Dataset format.
@@ -1182,9 +1203,11 @@ class Dataset(IDataset):
             env: Optional[Environment] = None, depth: int = 1) -> str:
         """
         Attempts to detect dataset format of a given directory.
+
         This function tries to detect a single format and fails if it's not
         possible. Check Environment.detect_dataset() for a function that
         reports status for each format checked.
+
         Args:
             path: The directory to check
             depth: The maximum depth for recursive search
