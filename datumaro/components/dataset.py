@@ -285,10 +285,13 @@ class DatasetStorage(IDataset):
             raise ValueError("Can't use both source and categories")
         self._categories = categories
 
-        assert media_type or \
-            isinstance(source, IDataset) and source.media_type(), \
-            "Media type must be provided for a dataset"
-        self._media_type = media_type or source.media_type()
+        if media_type:
+            pass
+        elif isinstance(source, IDataset) and source.media_type():
+            media_type = source.media_type()
+        else:
+            raise ValueError("Media type must be provided for a dataset")
+        self._media_type = media_type
 
         # Possible combinations:
         # 1. source + storage
@@ -409,15 +412,13 @@ class DatasetStorage(IDataset):
                 old_ids = set((item.id, item.subset) for item in source)
                 source = transform
 
-        if transform:
             media_type = transform.media_type()
         else:
             media_type = source.media_type()
 
         i = -1
         for i, item in enumerate(source):
-            if media_type and item.media and \
-                    not isinstance(item.media, source.media_type()):
+            if item.media and not isinstance(item.media, media_type):
                 raise MediaTypeError(
                     "Unexpected media type of a dataset item '%s'. " \
                     "Expected '%s', actual '%s' " %
@@ -536,11 +537,11 @@ class DatasetStorage(IDataset):
             raise CategoriesRedefinedError()
         self._categories = categories
 
-    def media_type(self):
+    def media_type(self) -> Type[MediaElement]:
         if self.is_cache_initialized():
-            return self._media_type
+            media_type = self._media_type
         elif self._is_unchanged_wrapper:
-            return self._source.media_type()
+            media_type = self._source.media_type()
         elif any(is_method_redefined('media_type', Transform, t[0])
                 for t in self._transforms):
             self.init_cache()
@@ -549,7 +550,7 @@ class DatasetStorage(IDataset):
             media_type = self._media_type
         return media_type
 
-    def put(self, item):
+    def put(self, item: DatasetItem):
         is_new = self._storage.put(item)
 
         if not self.is_cache_initialized() or is_new:
