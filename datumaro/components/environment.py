@@ -235,9 +235,23 @@ class Environment:
     def is_format_known(self, name):
         return name in self.importers or name in self.extractors
 
-    def detect_dataset(self, path):
-        return detect_dataset_format(
-            ((format_name, importer.detect)
-                for format_name, importer in self.importers.items.items()),
-            path,
-        )
+    def detect_dataset(self, path, rejection_callback=None, depth=1):
+        ignore_dirs = {'__MSOSX', '__MACOSX'}
+        detected_formats = []
+        for _ in range(depth + 1):
+            detected_formats = detect_dataset_format(
+                ((format_name, importer.detect)
+                    for format_name, importer in self.importers.items.items()),
+                path,
+                rejection_callback=rejection_callback,
+            )
+
+            if detected_formats and len(detected_formats) == 1:
+                break
+
+            paths = glob.glob(osp.join(path, '*'))
+            path = '' if len(paths) != 1 else paths[0]
+            if not osp.isdir(path) or osp.basename(path) in ignore_dirs:
+                break
+
+        return detected_formats

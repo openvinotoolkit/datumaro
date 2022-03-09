@@ -47,6 +47,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('--json-report',
         help="Path to which to save a JSON report describing detected "
             "and rejected formats. By default, no report is saved.")
+    parser.add_argument('--depth',
+        help="The maximum depth for recursive search (default: 2) ")
     parser.set_defaults(command=detect_format_command)
 
     return parser
@@ -80,12 +82,9 @@ def detect_format_command(args):
             'message': human_message,
         }
 
-    detected_formats = detect_dataset_format(
-        ((format_name, importer.detect)
-            for format_name, importer in env.importers.items.items()),
-        args.url,
-        rejection_callback=rejection_callback,
-    )
+    depth = 2 if not args.depth else args.depth
+    detected_formats = env.detect_dataset(args.url,
+        rejection_callback=rejection_callback, depth=depth)
     report['detected_formats'] = detected_formats
 
     if len(detected_formats) == 1:
