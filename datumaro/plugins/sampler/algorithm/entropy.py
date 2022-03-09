@@ -21,12 +21,14 @@ class SampleEntropy(InferenceResultAnalyzer):
     def __init__(self, data, inference):
         """
         Constructor function
+
         Args:
+
             data: Receive the data format in pd.DataFrame format.
                     ImageID is an essential element for data.
             inference:
-                    Receive the inference format in the form of pd.DataFrame.
-                    ImageID and ClassProbability are essential for inferences.
+                Receive the inference format in the form of pd.DataFrame.
+                ImageID and ClassProbability are essential for inferences.
         """
         super().__init__(data, inference)
 
@@ -52,13 +54,14 @@ class SampleEntropy(InferenceResultAnalyzer):
     def get_sample(self, method: str, k: int, n: int = 3) -> pd.DataFrame:
         """
         A function that extracts sample data and returns it.
+
         Args:
             method:
-                - 'topk': It extracts the k sample data with the
-                    highest uncertainty.
-                - 'lowk':  It extracts the k sample data with the
-                    lowest uncertainty.
-                - 'randomk': Extract and return random k sample data.
+                - 'topk' - It extracts the k sample data with the
+                  highest uncertainty.
+                - 'lowk' - It extracts the k sample data with the
+                  lowest uncertainty.
+                - 'randomk' - Extract and return random k sample data.
             k: number of sample data
             n: Parameters to be used in the randtopk method, Variable to first
                 extract data of multiple n of k.
@@ -99,11 +102,12 @@ class SampleEntropy(InferenceResultAnalyzer):
     def _get_sample_mixed(self, method: str, k: int, n: int = 3) -> pd.DataFrame:
         """
         A function that extracts sample data and returns it.
+
         Args:
             method:
                 - 'mixk': Return top-k and low-k halves based on uncertainty.
                 - 'randomtopk': Randomly extract n*k and return k
-                    with high uncertainty.
+                  with high uncertainty.
             k: number of sample data
             n: Number to extract n * k from total data according to n,
                 and top-k from it

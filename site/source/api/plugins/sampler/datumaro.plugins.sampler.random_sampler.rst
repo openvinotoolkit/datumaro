@@ -1,5 +1,5 @@
 random sampler module
---------------
+---------------------
 
 .. automodule:: datumaro.plugins.sampler.random_sampler
    :members:

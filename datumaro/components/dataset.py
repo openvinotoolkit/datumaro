@@ -843,12 +843,12 @@ class Dataset(IDataset):
         Results are stored in-place. Modifications are applied lazily.
 
         Args:
-            expr - XPath-formatted filter expression
+            expr: XPath-formatted filter expression
                 (e.g. `/item[subset = 'train']`,
                 `/item/annotation[label = 'cat']`)
-            filter_annotations - Indicates if the filter should be
+            filter_annotations: Indicates if the filter should be
                 applied to items or annotations
-            remove_empty - When filtering annotations, allows to
+            remove_empty: When filtering annotations, allows to
                 exclude empty items from the resulting dataset
 
         Returns: self
@@ -890,10 +890,10 @@ class Dataset(IDataset):
         Transforms are not allowed to change media type of dataset items.
 
         Args:
-            method - The transformation to be applied to the dataset.
+            method: The transformation to be applied to the dataset.
                 If a string is passed, it is treated as a plugin name,
-                which is searched for in the dataset environment
-            **kwargs - Parameters for the transformation
+                which is searched for in the dataset environment.
+            **kwargs: Parameters for the transformation
 
         Returns: self
         """
@@ -918,10 +918,10 @@ class Dataset(IDataset):
         media and annotations.
 
         Args:
-            model - The model to be applied to the dataset
-            batch_size - The number of dataset items processed
+            model: The model to be applied to the dataset
+            batch_size: The number of dataset items processed
                 simultaneously by the model
-            **kwargs - Parameters for the model
+            **kwargs: Parameters for the model
 
         Returns: self
         """
@@ -1007,13 +1007,13 @@ class Dataset(IDataset):
         Saves the dataset in some format.
 
         Args:
-            save_dir - The output directory
-            format - The desired output format.
+            save_dir: The output directory
+            format: The desired output format.
                 If a string is passed, it is treated as a plugin name,
                 which is searched for in the dataset environment.
-            progress_reporter - An object to report progress
-            error_policy - An object to report format-related errors
-            **kwargs - Parameters for the format
+            progress_reporter: An object to report progress
+            error_policy: An object to report format-related errors
+            **kwargs: Parameters for the format
         """
 
         if not save_dir:
@@ -1209,9 +1209,9 @@ class Dataset(IDataset):
         reports status for each format checked.
 
         Args:
-            path - The directory to check
-            depth - The maximum depth for recursive search
-            env - A plugin collection. If not set, the built-in plugins are used
+            path: The directory to check
+            depth: The maximum depth for recursive search
+            env: A plugin collection. If not set, the built-in plugins are used
         """
 
         if env is None:

@@ -56,6 +56,8 @@ class TestDir(FileRemover):
 
     Usage:
 
+    .. code-block::
+
         with TestDir() as test_dir:
             ...
     """

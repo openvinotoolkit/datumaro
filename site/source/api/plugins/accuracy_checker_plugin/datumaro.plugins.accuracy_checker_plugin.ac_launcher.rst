@@ -1,11 +1,9 @@
-environment module
+ac_launcher module
 ------------------
 
-.. automodule:: datumaro.components.environment
+.. automodule:: datumaro.plugins.accuracy_checker_plugin.ac_launcher
    :members:
    :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:
-
-   .. autodata:: T

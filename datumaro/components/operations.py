@@ -90,13 +90,14 @@ class MergingStrategy(CliPlugin):
 class ExactMerge:
     """
     Merges several datasets using the "simple" algorithm:
-    - items are matched by (id, subset) pairs
-    - matching items share the media info available:
-        - nothing + nothing = nothing
-        - nothing + something = something
-        - something A + something B = conflict
-    - annotations are matched by value and shared
-    - in case of conflicts, throws an error
+        - items are matched by (id, subset) pairs
+        - matching items share the media info available:
+
+            - nothing + nothing = nothing
+            - nothing + something = something
+            - something A + something B = conflict
+        - annotations are matched by value and shared
+        - in case of conflicts, throws an error
     """
 
     @classmethod
@@ -1271,10 +1272,10 @@ class _MeanStdCounter:
         does O(log(N)) calls.
 
         Args:
-            stats (float array of shape N, 2 * d, d = dimensions of values)
-            count (integer array of shape N)
-            mean_accessor (function(idx, stats)) to retrieve element mean
-            variance_accessor (function(idx, stats)) to retrieve element variance
+            stats: (float array of shape N, 2 * d, d = dimensions of values)
+            count: (integer array of shape N)
+            mean_accessor: (function(idx, stats)) to retrieve element mean
+            variance_accessor: (function(idx, stats)) to retrieve element variance
 
         Returns:
             A tuple (total count, mean, variance)

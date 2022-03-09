@@ -1,4 +1,4 @@
-OpenVino plugin package
+OpenVINO plugin package
 =======================
 
 .. toctree::

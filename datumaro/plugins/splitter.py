@@ -26,49 +26,58 @@ class SplitTask(Enum):
 class Split(Transform, CliPlugin):
     """
     - classification split |n
-    Splits dataset into subsets(train/val/test) in class-wise manner. |n
-    Splits dataset images in the specified ratio, keeping the initial class
-    distribution.|n
+    |s|s|s|sSplits dataset into subsets(train/val/test) in class-wise manner. |n
+    |s|s|s|sSplits dataset images in the specified ratio, keeping the initial class |n
+    |s|s|s|sdistribution.|n
     |n
     - detection & segmentation split |n
-    Each image can have multiple object annotations -
-    (bbox, mask, polygon). Since an image shouldn't be included
-    in multiple subsets at the same time, and image annotations
-    shouldn't be split, in general, dataset annotations are unlikely
-    to be split exactly in the specified ratio. |n
-    This split tries to split dataset images as close as possible
-    to the specified ratio, keeping the initial class distribution.|n
+    |s|s|s|sEach image can have multiple object annotations - |n
+    |s|s|s|s(bbox, mask, polygon). Since an image shouldn't be included |n
+    |s|s|s|sin multiple subsets at the same time, and image annotations |n
+    |s|s|s|sshouldn't be split, in general, dataset annotations are unlikely |n
+    |s|s|s|sto be split exactly in the specified ratio. |n
+    |s|s|s|sThis split tries to split dataset images as close as possible |n
+    |s|s|s|sto the specified ratio, keeping the initial class distribution.|n
     |n
     - reidentification split |n
-    In this task, the test set should consist of images of unseen
-    people or objects during the training phase. |n
-    This function splits a dataset in the following way:|n
-    |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
-    |s|s|s|sbased on person or object ID.|n
-    |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
-    |s|s|s|sin class-wise manner.|n
-    |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
-    |s|s|s|sin the same way.|n
-    The final subsets would be
+    |s|s|s|sIn this task, the test set should consist of images of unseen|n
+    |s|s|s|speople or objects during the training phase.|n
+    |s|s|s|sThis function splits a dataset in the following way:|n
+    |n
+    |s|s1. Splits the dataset into 'train + val' and 'test' sets |n
+    |s|s|s|s|sbased on person or object ID.|n
+    |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets |n
+    |s|s|s|s|sin class-wise manner.|n
+    |s|s3. Splits the 'train + val' set into 'train' and 'val' sets |n
+    |s|s|s|s|sin the same way.|n
+    |n
+    The final subsets would be|n
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
     Notes:|n
-    |s|s- Each image is expected to have only one Annotation. Unlabeled or
+    |s|s- Each image is expected to have only one Annotation. Unlabeled or |n
     |s|s|s|smulti-labeled images will be split into subsets randomly. |n
     |s|s- If Labels also have attributes, also splits by attribute values.|n
-    |s|s- If there is not enough images in some class or attributes group,
-    |s|s|s|sthe split ratio can't be guaranteed.|n
+    |s|s- If there is not enough images in some class or attributes group, |n
+    |s|s|s|sthe split ratio can't be guaranteed. |n
     |s|s|s|sIn reidentification task, |n
     |s|s- Object ID can be described by Label, or by attribute (--attr parameter)|n
     |s|s- The splits of the test set are controlled by '--query' parameter |n
     |s|s|s|sGallery ratio would be 1.0 - query.|n
     |n
     Example:|n
+
+    .. code-block::
+
     |s|s%(prog)s -t classification --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t detection --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t segmentation --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t reid --subset train:.5 --subset val:.2 --subset test:.3 --query .5 |n
+    |n
     Example: use 'person_id' attribute for splitting|n
+
+    .. code-block::
+
     |s|s%(prog)s --attr person_id
     """
 
@@ -410,13 +419,16 @@ class _ClassificationSplit(_TaskSpecificSplit):
     distribution.|n
     |n
     Notes:|n
-    - Each image is expected to have only one Label. Unlabeled or
-      multi-labeled images will be split into subsets randomly. |n
-    - If Labels also have attributes, also splits by attribute values.|n
-    - If there is not enough images in some class or attributes group,
-      the split ratio can't be guaranteed.|n
+    |s|s- Each image is expected to have only one Label. Unlabeled or
+    |s|s|s|smulti-labeled images will be split into subsets randomly. |n
+    |s|s- If Labels also have attributes, also splits by attribute values.|n
+    |s|s- If there is not enough images in some class or attributes group,
+    |s|s|s|sthe split ratio can't be guaranteed.|n
     |n
     Example:|n
+
+    .. code-block::
+
     |s|s%(prog)s -t classification --subset train:.5 --subset val:.2 --subset test:.3
     """
 
@@ -428,7 +440,8 @@ class _ClassificationSplit(_TaskSpecificSplit):
         splits : list
             A list of (subset(str), ratio(float))
             The sum of ratios is expected to be 1.
-        seed : int, optional
+        seed : int
+            optional
         """
         super().__init__(dataset, splits, seed)
 
@@ -470,26 +483,35 @@ class _ReidentificationSplit(_TaskSpecificSplit):
     In this task, the test set should consist of images of unseen
     people or objects during the training phase. |n
     This function splits a dataset in the following way:|n
+    |n
     |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
-    |s|s|s|sbased on person or object ID.|n
+    |s|s|s|s|sbased on person or object ID.|n
     |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
-    |s|s|s|sin class-wise manner.|n
+    |s|s|s|s|sin class-wise manner.|n
     |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
-    |s|s|s|sin the same way.|n
+    |s|s|s|s|sin the same way.|n
+    |n
     The final subsets would be
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
     Notes:|n
     |s|s- Each image is expected to have a single Label. Unlabeled or multi-labeled
-    |s|s  images will be split into 'not-supported'.|n
+    |s|s|s|simages will be split into 'not-supported'.|n
     |s|s- Object ID can be described by Label, or by attribute (--attr parameter)|n
     |s|s- The splits of the test set are controlled by '--query' parameter. |n
     |s|s|s|sGallery ratio would be 1.0 - query.|n
     |n
     Example: split a dataset in the specified ratio, split the test set|n
-    |s|s|s|sinto gallery and query in 1:1 ratio|n
+    into gallery and query in 1:1 ratio|n
+
+    .. code-block::
+
     |s|s%(prog)s -t reidentification --subset train:.5 --subset val:.2 --subset test:.3 --query .5|n
+    |n
     Example: use 'person_id' attribute for splitting|n
+
+    .. code-block::
+
     |s|s%(prog)s --attr person_id
     """
 
@@ -510,7 +532,8 @@ class _ReidentificationSplit(_TaskSpecificSplit):
         attr_for_id: str
             attribute name representing the person/object id.
             if this is not specified, label would be used.
-        seed : int, optional
+        seed : int
+            optional
         """
         super().__init__(dataset, splits, seed, restrict=True)
 
@@ -698,7 +721,10 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
     |s|s- Mask or Polygon annotations are considered in segmentation task.|n
     |n
     Example: split dataset so that each object class annotations were split|n
-    |s|s|s|sin the specified ratio between subsets|n
+    in the specified ratio between subsets|n
+
+    .. code-block::
+
     |s|s%(prog)s -t detection --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t segmentation --subset train:.5 --subset val:.2 --subset test:.3
     """
@@ -711,7 +737,8 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
         splits : list
             A list of (subset(str), ratio(float))
             The sum of ratios is expected to be 1.
-        seed : int, optional
+        seed : int
+            optional
         """
         super().__init__(dataset, splits, seed)
 

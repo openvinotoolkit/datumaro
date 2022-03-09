@@ -18,13 +18,20 @@ class RandomSampler(Transform, CliPlugin):
     Sampler that keeps no more than required number of items in the dataset.|n
     |n
     Notes:|n
-    - Items are selected uniformly|n
-    - Requesting a sample larger than the number of all images will
-    return all images|n
+    |s|s- Items are selected uniformly|n
+    |s|s- Requesting a sample larger than the number of all images will|n
+    |s|s|s|sreturn all images|n
     |n
     Example: select subset of 20 images randomly|n
+
+    .. code-block::
+
     |s|s%(prog)s -k 20 |n
+    |n
     Example: select subset of 20 images, modify only 'train' subset|n
+
+    .. code-block::
+
     |s|s%(prog)s -k 20 -s train
     """
 
@@ -97,20 +104,25 @@ class LabelRandomSampler(Transform, CliPlugin):
     the dataset.|n
     |n
     Notes:|n
-    - Items can contain annotations of several selected classes
-    (e.g. 3 bounding boxes per image). The number of annotations in the
-    resulting dataset varies between max(class counts) and sum(class counts)|n
-    - If the input dataset does not has enough class annotations, the result
-    will contain only what is available|n
-    - Items are selected uniformly|n
-    - For reasons above, the resulting class distribution in the dataset may
-    not be the same as requested|n
-    - The resulting dataset will only keep annotations for
-    classes with specified count > 0|n
-    |n
+    |s|s- Items can contain annotations of several selected classes|n
+    |s|s|s|s(e.g. 3 bounding boxes per image). The number of annotations in the|n
+    |s|s|s|sresulting dataset varies between max(class counts) and sum(class counts)|n
+    |s|s- If the input dataset does not has enough class annotations, the result|n
+    |s|s|s|swill contain only what is available|n
+    |s|s- Items are selected uniformly|n
+    |s|s- For reasons above, the resulting class distribution in the dataset may|n
+    |s|s|s|snot be the same as requested|n
+    |s|s- The resulting dataset will only keep annotations for|n
+    |s|s|s|sclasses with specified count > 0|n |n
     Example: select at least 5 annotations of each class randomly|n
-    |s|s%(prog)s -k 5 |n
+
+    .. code-block::
+
+    |s|s%(prog)s -k 5 |n |n
     Example: select at least 5 images with "cat" annotations and 3 "person"|n
+
+    .. code-block::
+
     |s|s%(prog)s -l "cat:5" -l "person:3"
     """
 

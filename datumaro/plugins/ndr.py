@@ -34,15 +34,18 @@ class NDR(Transform, CliPlugin):
     resulting images.|n
     |n
     Available oversampling policies (the `-e` parameter):|n
-    - `random` - sample from removed data randomly|n
-    - `similarity` - sample from removed data with ascending similarity score|n
+    |s|s- `random` - sample from removed data randomly|n
+    |s|s- `similarity` - sample from removed data with ascending similarity score|n
     |n
     Available undersampling policies (the `-u` parameter):|n
-    - `uniform` - sample data with uniform distribution|n
-    - `inverse` - sample data with reciprocal of the number of number of|n
-    |s|sitems with the same similarity|n
+    |s|s- `uniform` - sample data with uniform distribution|n
+    |s|s- `inverse` - sample data with reciprocal of the number of number of
+    items with the same similarity|n
     |n
     Example: apply NDR, return no more than 100 images|n
+
+    .. code-block::
+
     |s|s%(prog)s|n
     |s|s|s|s--working_subset train|n
     |s|s|s|s--algorithm gradient|n
@@ -86,7 +89,7 @@ class NDR(Transform, CliPlugin):
         Near-duplicated image removal
 
         Arguments
-        ---------------
+        ---------
         working_subset: str
             name of the subset to operate
             if None, use DEFAULT_SUBSET_NAME

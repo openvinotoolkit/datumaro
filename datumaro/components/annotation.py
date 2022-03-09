@@ -111,9 +111,10 @@ class LabelCategories(Categories):
 
         Args:
             iterable: This iterable object can be:
+
                 - a list of str - will be interpreted as list of Category names
                 - a list of positional arguments - will generate Categories
-                with these arguments
+                  with these arguments
 
         Returns: a LabelCategories object
         """
@@ -670,7 +671,8 @@ class PointsCategories(Categories):
         Create PointsCategories from an iterable.
 
         Args:
-            - iterable - An Iterable with the following elements:
+            iterable: An Iterable with the following elements:
+
                 - a label id
                 - a list of positional arguments for Categories
 
