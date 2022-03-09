@@ -1733,6 +1733,12 @@ class DatasetTest(TestCase):
 
         self.assertTrue(dataset.media_type() is Video)
 
+    @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
+    def test_cant_put_item_with_mismatching_media_type(self):
+        dataset = Dataset(media_type=Video)
+
+        with self.assertRaises(MediaTypeError):
+            dataset.put(DatasetItem(id=1, media=Image(data=np.ones((5, 4, 3)))))
 
     @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
     def test_cant_change_media_type_with_transform(self):

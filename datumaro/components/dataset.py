@@ -546,6 +546,11 @@ class DatasetStorage(IDataset):
         return self._media_type
 
     def put(self, item: DatasetItem):
+        if item.media and not isinstance(item.media, self._media_type):
+            raise MediaTypeError("Mismatching item media type '%s', "
+                "the dataset contains '%s' items." % \
+                (type(item.media), self._media_type))
+
         is_new = self._storage.put(item)
 
         if not self.is_cache_initialized() or is_new:
