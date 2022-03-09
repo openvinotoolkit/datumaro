@@ -7,6 +7,12 @@ annotation\_util module
 
    .. autofunction:: find_group_leader
 
+   .. autoclass:: BboxCoords
+
+   .. autodata:: Shape
+
+   .. autoclass:: SpatialAnnotation
+
    .. autofunction:: _get_bbox
 
    .. autofunction:: max_bbox
@@ -25,6 +31,6 @@ annotation\_util module
 
    .. autofunction:: OKS
 
-   .. autofunction:: smooth_line
+   .. autofunction:: approximate_line
 
    .. autofunction:: make_label_id_mapping

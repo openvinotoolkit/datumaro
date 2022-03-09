@@ -16,7 +16,9 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
@@ -257,13 +259,16 @@ class CityscapesExtractor(SourceExtractor):
                     label=label_id, id=ann_id,
                     attributes = { 'is_crowd': is_crowd }))
 
+            image = image_path_by_id.pop(item_id, None)
+            if image:
+                image = Image(path=image)
+
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=image_path_by_id.pop(item_id, None),
-                annotations=anns)
+                media=image, annotations=anns)
 
         for item_id, path in image_path_by_id.items():
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=path)
+                media=Image(path=path))
 
         self._categories = self._load_categories(self._path,
             use_train_label_map= \
@@ -325,6 +330,10 @@ class CityscapesConverter(Converter):
         self._load_categories(label_map)
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
         for subset_name, subset in self._extractor.subsets().items():
@@ -333,7 +342,7 @@ class CityscapesConverter(Converter):
                     CityscapesPath.ORIGINAL_IMAGE_DIR, subset_name,
                     item.id + CityscapesPath.ORIGINAL_IMAGE + \
                         self._find_image_ext(item))
-                if self._save_images:
+                if self._save_media:
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
                 masks = [a for a in item.annotations
@@ -471,8 +480,7 @@ class CityscapesConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or \
-                    not item.has_image and not item.has_point_cloud):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             image_path = osp.join(save_dir, CityscapesPath.IMGS_FINE_DIR,

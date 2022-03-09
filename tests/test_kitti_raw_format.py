@@ -8,6 +8,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
 from datumaro.plugins.kitti_raw_format.converter import KittiRawConverter
 from datumaro.plugins.kitti_raw_format.extractor import KittiRawImporter
@@ -36,12 +37,12 @@ class KittiRawImporterTest(TestCase):
         pcd3 = osp.join(DUMMY_DATASET_DIR,
             'velodyne_points', 'data', '0000000002.pcd')
 
-        image1 = osp.join(DUMMY_DATASET_DIR,
-            'IMAGE_00', 'data', '0000000000.png')
-        image2 = osp.join(DUMMY_DATASET_DIR,
-            'IMAGE_00', 'data', '0000000001.png')
-        image3 = osp.join(DUMMY_DATASET_DIR,
-            'IMAGE_00', 'data', '0000000002.png')
+        image1 = Image(path=osp.join(DUMMY_DATASET_DIR,
+            'IMAGE_00', 'data', '0000000000.png'))
+        image2 = Image(path=osp.join(DUMMY_DATASET_DIR,
+            'IMAGE_00', 'data', '0000000001.png'))
+        image3 = Image(path=osp.join(DUMMY_DATASET_DIR,
+            'IMAGE_00', 'data', '0000000002.png'))
 
         expected_label_cat = LabelCategories(attributes={'occluded'})
         expected_label_cat.add('bus')
@@ -55,7 +56,7 @@ class KittiRawImporterTest(TestCase):
                     Cuboid3d(position=[1, 1, 0], scale=[8.34, 23.01, -0.76],
                         label=0, attributes={'occluded': False, 'track_id': 2})
                 ],
-                point_cloud=pcd1, related_images=[image1],
+                media=PointCloud(pcd1, extra_images=[image1]),
                 attributes={'frame': 0}),
 
             DatasetItem(id='0000000001',
@@ -64,7 +65,7 @@ class KittiRawImporterTest(TestCase):
                         rotation=[1, 1, 3],
                         label=0, attributes={'occluded': True, 'track_id': 2})
                 ],
-                point_cloud=pcd2, related_images=[image2],
+                media=PointCloud(pcd2, extra_images=[image2]),
                 attributes={'frame': 1}),
 
             DatasetItem(id='0000000002',
@@ -72,10 +73,10 @@ class KittiRawImporterTest(TestCase):
                     Cuboid3d(position=[1, 2, 3], scale=[-9.41, 13.54, 0.24],
                         label=1, attributes={'occluded': False, 'track_id': 3})
                 ],
-                point_cloud=pcd3, related_images=[image3],
+                media=PointCloud(pcd3, extra_images=[image3]),
                 attributes={'frame': 2})
 
-        ], categories={AnnotationType.label: expected_label_cat})
+        ], categories={AnnotationType.label: expected_label_cat}, media_type=PointCloud)
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'kitti_raw')
 
@@ -91,12 +92,12 @@ class KittiRawConverterTest(TestCase):
     pcd3 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
         'velodyne_points', 'data', '0000000002.pcd'))
 
-    image1 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
-        'IMAGE_00', 'data', '0000000000.png'))
-    image2 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
-        'IMAGE_00', 'data', '0000000001.png'))
-    image3 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
-        'IMAGE_00', 'data', '0000000002.png'))
+    image1 = Image(path=osp.abspath(osp.join(DUMMY_DATASET_DIR,
+        'IMAGE_00', 'data', '0000000000.png')))
+    image2 = Image(path=osp.abspath(osp.join(DUMMY_DATASET_DIR,
+        'IMAGE_00', 'data', '0000000001.png')))
+    image3 = Image(path=osp.abspath(osp.join(DUMMY_DATASET_DIR,
+        'IMAGE_00', 'data', '0000000002.png')))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def _test_save_and_load(self, source_dataset, converter, test_dir,
@@ -117,7 +118,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
                         attributes={'occluded': True, 'track_id': 2})
                 ],
-                point_cloud=self.pcd1, related_images=[self.image1],
+                media=PointCloud(self.pcd1, extra_images=[self.image1]),
                 attributes={'frame': 0}
             ),
 
@@ -136,10 +137,10 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[0.4, -1, 2.24], scale=[2, 1, 2],
                         label=0, attributes={'track_id': 3}),
                 ],
-                point_cloud=self.pcd3,
+                media=PointCloud(self.pcd3),
                 attributes={'frame': 2}
             ),
-        ], categories=['cat', 'dog'])
+        ], categories=['cat', 'dog'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             target_label_cat = LabelCategories(attributes={'occluded'})
@@ -157,11 +158,11 @@ class KittiRawConverterTest(TestCase):
                             attributes={
                                 'occluded': True, 'track_id': 2})
                     ],
-                    point_cloud=osp.join(test_dir,
-                        'velodyne_points', 'data', '0000000000.pcd'),
-                    related_images=[osp.join(test_dir,
-                        'image_00', 'data', '0000000000.png')
-                    ],
+                    media=PointCloud(osp.join(test_dir,
+                            'velodyne_points', 'data', '0000000000.pcd'),
+                        extra_images=[Image(path=osp.join(test_dir,
+                            'image_00', 'data', '0000000000.png'))
+                    ]),
                     attributes={'frame': 0}
                 ),
 
@@ -183,14 +184,14 @@ class KittiRawConverterTest(TestCase):
                             label=0, attributes={
                                 'occluded': False, 'track_id': 3}),
                     ],
-                    point_cloud=osp.join(test_dir,
-                        'velodyne_points', 'data', '0000000002.pcd'),
+                    media=PointCloud(osp.join(test_dir,
+                        'velodyne_points', 'data', '0000000002.pcd')),
                     attributes={'frame': 2}
                 ),
-            ], categories={AnnotationType.label: target_label_cat})
+            ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
             self._test_save_and_load(source_dataset,
-                partial(KittiRawConverter.convert, save_images=True),
+                partial(KittiRawConverter.convert, save_media=True),
                 test_dir, target_dataset=target_dataset,
                 require_point_cloud=True)
 
@@ -198,7 +199,7 @@ class KittiRawConverterTest(TestCase):
     def test_preserve_frame_ids(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='abc', attributes={'frame': 40})
-        ], categories=[])
+        ], categories=[], media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -208,11 +209,11 @@ class KittiRawConverterTest(TestCase):
     def test_reindex_frames(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='abc')
-        ], categories=[])
+        ], categories=[], media_type=PointCloud)
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='abc', attributes={'frame': 0})
-        ], categories=[])
+        ], categories=[], media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -227,7 +228,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[0.4, -1, 2.24], label=0),
                 ]
             )
-        ], categories=['dog'])
+        ], categories=['dog'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             with self.assertRaisesRegex(Exception, 'track_id'):
@@ -241,7 +242,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[0.4, -1, 2.24], label=0),
                 ]
             )
-        ], categories=['dog'])
+        ], categories=['dog'], media_type=PointCloud)
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='abc',
@@ -250,7 +251,7 @@ class KittiRawConverterTest(TestCase):
                         attributes={'track_id': 1, 'occluded': False}),
                 ],
                 attributes={'frame': 0})
-        ], categories=['dog'])
+        ], categories=['dog'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -268,7 +269,7 @@ class KittiRawConverterTest(TestCase):
                 ],
                 attributes={'frame': 0}
             )
-        ], categories=['cat'])
+        ], categories=['cat'], media_type=PointCloud)
 
         target_label_cat = LabelCategories(attributes={'occluded'})
         target_label_cat.add('cat', attributes=['a', 'b'])
@@ -281,7 +282,7 @@ class KittiRawConverterTest(TestCase):
                 ],
                 attributes={'frame': 0}
             )
-        ], categories={AnnotationType.label: target_label_cat})
+        ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -298,7 +299,7 @@ class KittiRawConverterTest(TestCase):
                 ],
                 attributes={'frame': 0}
             )
-        ], categories=['cat'])
+        ], categories=['cat'], media_type=PointCloud)
 
         target_label_cat = LabelCategories(attributes={'occluded'})
         target_label_cat.add('cat')
@@ -310,7 +311,7 @@ class KittiRawConverterTest(TestCase):
                 ],
                 attributes={'frame': 0}
             )
-        ], categories={AnnotationType.label: target_label_cat})
+        ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -321,7 +322,7 @@ class KittiRawConverterTest(TestCase):
     def test_can_save_and_load_without_annotations(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0000000000', attributes={'frame': 0})
-        ], categories=[])
+        ], categories=[], media_type=PointCloud)
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -335,10 +336,10 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[1, 2, 3], label=0,
                         attributes={'track_id': 1})
                 ],
-                point_cloud=self.pcd1, related_images=[self.image1],
+                media=PointCloud(self.pcd1, extra_images=[self.image1]),
                 attributes={'frame': 3}
             ),
-        ], categories=['cat'])
+        ], categories=['cat'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             target_label_cat = LabelCategories(attributes={'occluded'})
@@ -349,17 +350,17 @@ class KittiRawConverterTest(TestCase):
                         Cuboid3d(position=[1, 2, 3], label=0,
                             attributes={'track_id': 1, 'occluded': False})
                     ],
-                    point_cloud=osp.join(test_dir,
-                        'velodyne_points', 'data', 'a', 'd.pcd'),
-                    related_images=[
-                        osp.join(test_dir, 'image_00', 'data', 'a', 'd.png'),
-                    ],
+                    media=PointCloud(osp.join(test_dir,
+                            'velodyne_points', 'data', 'a', 'd.pcd'),
+                        extra_images=[
+                            Image(path=osp.join(test_dir, 'image_00', 'data', 'a', 'd.png')),
+                    ]),
                     attributes={'frame': 3}
                 ),
-            ], categories={AnnotationType.label: target_label_cat})
+            ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
             self._test_save_and_load(source_dataset,
-                partial(KittiRawConverter.convert, save_images=True),
+                partial(KittiRawConverter.convert, save_media=True),
                 test_dir, target_dataset=target_dataset,
                 require_point_cloud=True)
             self.assertTrue(osp.isfile(osp.join(
@@ -373,11 +374,11 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[1, 2, 3], label=0,
                         attributes={'track_id': 1})
                 ],
-                point_cloud=self.pcd1,
-                related_images=[self.image1, self.image2, self.image3],
+                media=PointCloud(self.pcd1,
+                    extra_images=[self.image1, self.image2, self.image3]),
                 attributes={'frame': 3}
             ),
-        ], categories=['cat'])
+        ], categories=['cat'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             target_label_cat = LabelCategories(attributes={'occluded'})
@@ -388,19 +389,19 @@ class KittiRawConverterTest(TestCase):
                         Cuboid3d(position=[1, 2, 3], label=0,
                             attributes={'track_id': 1, 'occluded': False})
                     ],
-                    point_cloud=osp.join(test_dir,
-                        'velodyne_points', 'data', 'a', 'd.pcd'),
-                    related_images=[
-                        osp.join(test_dir, 'image_00', 'data', 'a', 'd.png'),
-                        osp.join(test_dir, 'image_01', 'data', 'a', 'd.png'),
-                        osp.join(test_dir, 'image_02', 'data', 'a', 'd.png'),
-                    ],
+                    media=PointCloud(osp.join(test_dir,
+                            'velodyne_points', 'data', 'a', 'd.pcd'),
+                        extra_images=[
+                            Image(path=osp.join(test_dir, 'image_00', 'data', 'a', 'd.png')),
+                            Image(path=osp.join(test_dir, 'image_01', 'data', 'a', 'd.png')),
+                            Image(path=osp.join(test_dir, 'image_02', 'data', 'a', 'd.png')),
+                    ]),
                     attributes={'frame': 3}
                 ),
-            ], categories={AnnotationType.label: target_label_cat})
+            ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
             self._test_save_and_load(source_dataset,
-                partial(KittiRawConverter.convert, save_images=True),
+                partial(KittiRawConverter.convert, save_media=True),
                 test_dir, target_dataset=target_dataset,
                 require_point_cloud=True)
             self.assertTrue(osp.isfile(osp.join(
@@ -419,22 +420,22 @@ class KittiRawConverterTest(TestCase):
                         Cuboid3d(position=[3.5, 9.8, 0.3], label=0,
                             attributes={'track_id': 1})
                     ],
-                    point_cloud=self.pcd1, related_images=[self.image1],
+                    media=PointCloud(self.pcd1, extra_images=[self.image1]),
                     attributes={'frame': 0}
                 )
-            ], categories=['car', 'bus'])
-            dataset.export(path, 'kitti_raw', save_images=True)
+            ], categories=['car', 'bus'], media_type=PointCloud)
+            dataset.export(path, 'kitti_raw', save_media=True)
 
             dataset.put(DatasetItem('frame2',
                 annotations=[
                     Cuboid3d(position=[1, 2, 0], label=1,
                         attributes={'track_id': 1})
                 ],
-                point_cloud=self.pcd2, related_images=[self.image2],
+                media=PointCloud(self.pcd2, extra_images=[self.image2]),
                 attributes={'frame': 1}
             ))
             dataset.remove('frame1')
-            dataset.save(save_images=True)
+            dataset.save(save_media=True)
 
             self.assertEqual({'frame2.png'}, set(os.listdir(
                 osp.join(path, 'image_00', 'data'))))
@@ -449,7 +450,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
                         attributes={'occluded': False, 'track_id': 1})
                 ],
-                point_cloud=self.pcd1, related_images=[self.image1],
+                media=PointCloud(self.pcd1, extra_images=[self.image1]),
                 attributes={'frame': 0}
             ),
 
@@ -459,7 +460,7 @@ class KittiRawConverterTest(TestCase):
                         attributes={'track_id': 2})
                 ],
             )
-        ], categories=['cat', 'dog'])
+        ], categories=['cat', 'dog'], media_type=PointCloud)
 
         with TestDir() as test_dir:
             target_label_cat = LabelCategories(attributes={'occluded'})
@@ -473,11 +474,11 @@ class KittiRawConverterTest(TestCase):
                             attributes={
                                 'occluded': False, 'track_id': 1})
                     ],
-                    point_cloud=osp.join(test_dir,
-                        'velodyne_points', 'data', '0000000000.pcd'),
-                    related_images=[osp.join(test_dir,
-                        'image_00', 'data', '0000000000.png')
-                    ],
+                    media=PointCloud(osp.join(test_dir,
+                            'velodyne_points', 'data', '0000000000.pcd'),
+                        extra_images=[Image(path=osp.join(test_dir,
+                            'image_00', 'data', '0000000000.png'))
+                    ]),
                     attributes={'frame': 0}
                 ),
 
@@ -488,10 +489,10 @@ class KittiRawConverterTest(TestCase):
                     ],
                     attributes={'frame': 1}
                 )
-            ], categories={AnnotationType.label: target_label_cat})
+            ], categories={AnnotationType.label: target_label_cat}, media_type=PointCloud)
 
             self._test_save_and_load(source_dataset,
-                partial(KittiRawConverter.convert, save_images=True,
+                partial(KittiRawConverter.convert, save_media=True,
                     save_dataset_meta=True),
                 test_dir, target_dataset=target_dataset,
                 require_point_cloud=True)

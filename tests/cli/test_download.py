@@ -21,11 +21,11 @@ class DownloadTest(TestCase):
 
             run(self, 'download',
                 '-i', 'tfds:mnist', '-o', test_dir,
-                '--', '--save-images')
+                '--', '--save-media')
 
             actual_dataset = Dataset.import_from(test_dir, 'mnist')
             compare_datasets(self, expected_dataset, actual_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_download_custom_format(self):
@@ -34,11 +34,11 @@ class DownloadTest(TestCase):
 
             run(self, 'download',
                 '-i', 'tfds:mnist', '-f', 'datumaro', '-o', test_dir,
-                '--', '--save-images')
+                '--', '--save-media')
 
             actual_dataset = Dataset.load(test_dir)
             compare_datasets(self, expected_dataset, actual_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_download_fails_on_existing_dir_without_overwrite(self):
@@ -58,4 +58,4 @@ class DownloadTest(TestCase):
 
             run(self, 'download',
                 '-i', 'tfds:mnist', '-f', 'datumaro', '-o', test_dir,
-                '--overwrite', '--', '--save-images')
+                '--overwrite', '--', '--save-media')

@@ -53,9 +53,9 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
         if not segments:
             return item
 
-        if not item.has_image:
+        if not isinstance(item.media, Image):
             raise Exception("Image info is required for this transform")
-        h, w = item.image.size
+        h, w = item.media.size
         segments = self.crop_segments(segments, w, h)
 
         annotations += segments
@@ -135,9 +135,9 @@ class MergeInstanceSegments(ItemTransform, CliPlugin):
         if not segments:
             return item
 
-        if not item.has_image:
+        if not isinstance(item.media, Image):
             raise Exception("Image info is required for this transform")
-        h, w = item.image.size
+        h, w = item.media.size
         instances = self.find_instances(segments)
         segments = [self.merge_segments(i, w, h, self._include_polygons)
             for i in instances]
@@ -196,9 +196,9 @@ class PolygonsToMasks(ItemTransform, CliPlugin):
         annotations = []
         for ann in item.annotations:
             if ann.type == AnnotationType.polygon:
-                if not item.has_image:
+                if not isinstance(item.media, Image):
                     raise Exception("Image info is required for this transform")
-                h, w = item.image.size
+                h, w = item.media.size
                 annotations.append(self.convert_polygon(ann, h, w))
             else:
                 annotations.append(ann)
@@ -217,9 +217,9 @@ class BoxesToMasks(ItemTransform, CliPlugin):
         annotations = []
         for ann in item.annotations:
             if ann.type == AnnotationType.bbox:
-                if not item.has_image:
+                if not isinstance(item.media, Image):
                     raise Exception("Image info is required for this transform")
-                h, w = item.image.size
+                h, w = item.media.size
                 annotations.append(self.convert_bbox(ann, h, w))
             else:
                 annotations.append(ann)
@@ -346,6 +346,9 @@ class RandomSplit(Transform, CliPlugin):
     It is expected that item ids are unique and subset ratios sum up to 1.|n
     |n
     Example:|n
+
+    .. code-block::
+
     |s|s|s|s%(prog)s --subset train:.67 --subset test:.33
     """
 
@@ -421,8 +424,8 @@ class IdFromImageName(ItemTransform, CliPlugin):
     """
 
     def transform_item(self, item):
-        if item.has_image and item.image.path:
-            name = osp.splitext(osp.basename(item.image.path))[0]
+        if isinstance(item.media, Image) and item.media.path:
+            name = osp.splitext(osp.basename(item.media.path))[0]
             return self.wrap_item(item, id=name)
         else:
             log.debug("Can't change item id for item '%s': "
@@ -439,10 +442,21 @@ class Rename(ItemTransform, CliPlugin):
     |n
     Examples:|n
     |s|s- Replace 'pattern' with 'replacement':|n
+
+      .. code-block::
+
     |s|s|s|srename -e '|pattern|replacement|'|n
+    |n
     |s|s- Remove 'frame_' from item ids:|n
+
+      .. code-block::
+
     |s|s|s|srename -e '|^frame_||'|n
+    |n
     |s|s- Rename by regex:|n
+
+      .. code-block::
+
     |s|s|s|srename -e '|frame_(\d+)_extra|{item.subset}_id_\1|'
     """
 
@@ -478,15 +492,28 @@ class RemapLabels(ItemTransform, CliPlugin):
     |s|s|s|sis 'delete' and the label is not mentioned in the list. |n
     |s|s|s|sWhen a label is deleted, all the associated annotations are removed|n
     |s|s- kept unchanged - when specified '--label <name>:<name>'|n
-    |s|s|s|sor default action is 'keep' and the label is not mentioned in the list|n
+    |s|s|s|sor default action is 'keep' and the label is not mentioned in the list.|n
+    |n
     Annotations with no label are managed by the default action policy.|n
     |n
     Examples:|n
+    |n
     |s|s- Remove the 'person' label (and corresponding annotations):|n
+
+    |s|s.. code-block::
+
     |s|s|s|s%(prog)s -l person: --default keep|n
+    |n
     |s|s- Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
+
+    |s|s.. code-block::
+
     |s|s|s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
+    |n
     |s|s- Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
+
+    |s|s.. code-block::
+
     |s|s|s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
     """
 
@@ -625,6 +652,9 @@ class ProjectLabels(ItemTransform):
     |n
     Examples:|n
     |s|s- Align the source dataset labels to [person, cat, dog]:|n
+
+    |s|s.. code-block::
+
     |s|s|s|s%(prog)s -l person -l cat -l dog
     """
 
@@ -771,8 +801,11 @@ class ResizeTransform(ItemTransform):
     Supports upscaling, downscaling and mixed variants.|n
     |n
     Examples:|n
-    - Resize all images to 256x256 size|n
-    |s|s%(prog)s -dw 256 -dh 256
+        - Resize all images to 256x256 size|n
+
+        .. code-block::
+
+        |s|s%(prog)s -dw 256 -dh 256
     """
 
     @classmethod
@@ -820,19 +853,19 @@ class ResizeTransform(ItemTransform):
         return _resize_image
 
     def transform_item(self, item):
-        if not item.has_image:
+        if not isinstance(item.media, Image):
             raise DatumaroError("Item %s: image info is required for this "
                 "transform" % (item.id, ))
 
-        h, w = item.image.size
+        h, w = item.media.size
         xscale = self._width / float(w)
         yscale = self._height / float(h)
 
         new_size = (self._height, self._width)
 
         resized_image = None
-        if item.image.has_data:
-            resized_image = self._lazy_resize_image(item.image, new_size)
+        if item.media.has_data:
+            resized_image = self._lazy_resize_image(item.media, new_size)
 
         resized_annotations = []
         for ann in item.annotations:
@@ -861,7 +894,7 @@ class ResizeTransform(ItemTransform):
                 assert False, f"Unexpected annotation type {type(ann)}"
 
         return self.wrap_item(item,
-            image=resized_image,
+            media=resized_image,
             annotations=resized_annotations)
 
 class RemoveItems(ItemTransform):
@@ -871,8 +904,11 @@ class RemoveItems(ItemTransform):
     Can be useful to clean the dataset from broken or unnecessary samples.|n
     |n
     Examples:|n
-    - Remove specific items from the dataset|n
-    |s|s%(prog)s --id 'image1:train' --id 'image2:test'
+        - Remove specific items from the dataset|n
+
+        .. code-block::
+
+        |s|s%(prog)s --id 'image1:train' --id 'image2:test'
     """
 
     @staticmethod
@@ -908,8 +944,11 @@ class RemoveAnnotations(ItemTransform):
     Can be useful to clean the dataset from broken or unnecessary annotations.|n
     |n
     Examples:|n
-    - Remove annotations from specific items in the dataset|n
-    |s|s%(prog)s --id 'image1:train' --id 'image2:test'
+        - Remove annotations from specific items in the dataset|n
+
+        .. code-block::
+
+        |s|s%(prog)s --id 'image1:train' --id 'image2:test'
     """
 
     @staticmethod
@@ -948,12 +987,18 @@ class RemoveAttributes(ItemTransform):
     Can be useful to clean the dataset from broken or unnecessary attributes.|n
     |n
     Examples:|n
-    - Remove the `is_crowd` attribute from dataset|n
-    |s|s%(prog)s --attr 'is_crowd'|n
-    |n
-    - Remove the `occluded` attribute from annotations of|n
-    |s|sthe `2010_001705` item in the `train` subset|n
-    |s|s%(prog)s --id '2010_001705:train' --attr 'occluded'
+        - Remove the `is_crowd` attribute from dataset|n
+
+        .. code-block::
+
+        |s|s%(prog)s --attr 'is_crowd'|n
+        |n
+        - Remove the `occluded` attribute from annotations of|n
+        |s|sthe `2010_001705` item in the `train` subset|n
+
+        .. code-block::
+
+        |s|s%(prog)s --id '2010_001705:train' --attr 'occluded'
     """
 
     @staticmethod

@@ -14,6 +14,8 @@ from datumaro.components.annotation import (
     AnnotationType, CompiledMask, LabelCategories,
 )
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
+from datumaro.components.media import Image
 from datumaro.util import cast, parse_str_enum_value, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
@@ -87,6 +89,10 @@ class KittiConverter(Converter):
                     LabelCategories())}
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
         for subset_name, subset in self._extractor.subsets().items():
@@ -95,7 +101,7 @@ class KittiConverter(Converter):
                     KittiPath.INSTANCES_DIR), exist_ok=True)
 
             for item in subset:
-                if self._save_images:
+                if self._save_media:
                     self._save_image(item,
                         subdir=osp.join(subset_name, KittiPath.IMAGES_DIR))
 

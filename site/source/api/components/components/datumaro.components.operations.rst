@@ -234,15 +234,19 @@ operations module
    .. autofunction:: match_segments
 
       .. py:data:: a_matches = -np.ones(len(a_segms), dtype=int)
-                   b_matches = -np.ones(len(b_segms), dtype=int)
 
          indices of b_segms matched to a bboxes
+
+      .. py:data:: b_matches = -np.ones(len(b_segms), dtype=int)
+
          indices of a_segms matched to b bboxes
 
       .. py:data:: matches = []
-                   mispred = []
 
          matches: boxes we succeeded to match completely
+
+      .. py:data:: mispred = []
+
          mispred: boxes we succeeded to match, having label mismatch
 
    .. autoclass:: mean_std
@@ -251,6 +255,17 @@ operations module
       :private-members:
       :special-members:
       :show-inheritance:
+
+   .. autoclass:: _MeanStdCounter
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+      .. automethod:: _pairwise_stats
+
+      .. automethod:: _compute_stats
 
    .. autoclass:: StatsCounter
       :members:
@@ -297,10 +312,12 @@ operations module
       :special-members:
       :show-inheritance:
 
-      .. py:data:: match_images: bool = attrib(kw_only=True, default=False)
-                   ignored_fields = attrib(kw_only=True,
-                      factory=set, validator=default_if_none(set))
-                   ignored_attrs = attrib(kw_only=True,
-                      factory=set, validator=default_if_none(set))
-                   ignored_item_attrs = attrib(kw_only=True,
-                      factory=set, validator=default_if_none(set))
+      .. code-block::
+
+         match_images: bool = attrib(kw_only=True, default=False)
+         ignored_fields = attrib(kw_only=True,
+            factory=set, validator=default_if_none(set))
+         ignored_attrs = attrib(kw_only=True,
+            factory=set, validator=default_if_none(set))
+         ignored_item_attrs = attrib(kw_only=True,
+            factory=set, validator=default_if_none(set))

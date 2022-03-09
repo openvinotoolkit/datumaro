@@ -12,6 +12,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util.image import find_images, load_image
 from datumaro.util.mask_tools import generate_colormap, lazy_mask
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -139,7 +140,11 @@ class SynthiaExtractor(SourceExtractor):
                         image=self._lazy_extract_mask(labels_mask, segm_id),
                         label=segm_id, attributes=attr))
 
-                items[item_id] = DatasetItem(id=item_id, image=images[item_id],
+                image = images.get(item_id)
+                if image:
+                    image = Image(path=image)
+
+                items[item_id] = DatasetItem(id=item_id, media=image,
                     annotations=anno)
 
         elif osp.isdir(osp.join(root_dir, SynthiaPath.SEMANTIC_SEGM_DIR)):
@@ -158,7 +163,11 @@ class SynthiaExtractor(SourceExtractor):
                     anno.append(Mask(image=self._lazy_extract_mask(color_mask, label_id),
                         label=label_id))
 
-                items[item_id] = DatasetItem(id=item_id, image=images[item_id],
+                image = images.get(item_id)
+                if image:
+                    image = Image(path=image)
+
+                items[item_id] = DatasetItem(id=item_id, media=image,
                     annotations=anno)
 
 

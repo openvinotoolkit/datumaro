@@ -62,15 +62,12 @@ project module
       :undoc-members:
       :show-inheritance:
 
-   .. autodata:: Revision
+   .. autoclass:: Revision
 
-      a commit hash or a named reference
-
-   .. autodata:: ObjectId
-
-      a commit or an object hash
+   .. autoclass:: ObjectId
 
    .. autoclass:: Project
       :members:
       :private-members:
+      :special-members:
       :show-inheritance:

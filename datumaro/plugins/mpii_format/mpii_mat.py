@@ -127,7 +127,7 @@ class MpiiExtractor(SourceExtractor):
             item_id = osp.splitext(image)[0]
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=Image(path=osp.join(root_dir, image)),
+                media=Image(path=osp.join(root_dir, image)),
                 annotations=annotations)
 
         return items

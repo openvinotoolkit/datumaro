@@ -1,4 +1,5 @@
 from unittest import TestCase
+import os.path as osp
 
 import numpy as np
 
@@ -8,6 +9,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.media import Image, PointCloud
 from datumaro.components.operations import (
     FailedAttrVotingError, IntersectMerge, NoMatchingAnnError,
     NoMatchingItemError, WrongGroupError, compute_ann_statistics,
@@ -25,9 +27,9 @@ class TestOperations(TestCase):
         expected_std = [20, 50, 10]
 
         dataset = Dataset.from_iterable([
-            DatasetItem(id=i, image=np.random.normal(
+            DatasetItem(id=i, media=Image(data=np.random.normal(
                 expected_mean, expected_std, size=(h, w, 3))
-            )
+            ))
             for i, (w, h) in enumerate([
                 (3000, 100), (800, 600), (400, 200), (700, 300)
             ])
@@ -46,8 +48,8 @@ class TestOperations(TestCase):
         expected_std = [20, 50, 10]
 
         dataset = Dataset.from_iterable([
-            DatasetItem(id=i, image=np.random.normal(
-                expected_mean, expected_std, size=(h, w, 3))
+            DatasetItem(id=i, media=Image(data=np.random.normal(
+                expected_mean, expected_std, size=(h, w, 3)))
             )
             for i, (w, h) in enumerate([
                 (3000, 100), (800, 600), (400, 200), (700, 300)
@@ -76,32 +78,36 @@ class TestOperations(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_stats(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.ones((5, 5, 3)), annotations=[
-                Caption('hello'),
-                Caption('world'),
-                Label(2, attributes={ 'x': 1, 'y': '2', }),
-                Bbox(1, 2, 2, 2, label=2, attributes={ 'score': 0.5, }),
-                Bbox(5, 6, 2, 2, attributes={
-                    'x': 1, 'y': '3', 'occluded': True,
-                }),
-                Points([1, 2, 2, 0, 1, 1], label=0),
-                Mask(label=3, image=np.array([
-                    [0, 0, 1, 1, 1],
-                    [0, 0, 1, 1, 1],
-                    [0, 0, 1, 1, 1],
-                    [0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0],
-                ])),
-            ]),
-            DatasetItem(id=2, image=np.ones((2, 4, 3)), annotations=[
-                Label(2, attributes={ 'x': 2, 'y': '2', }),
-                Bbox(1, 2, 2, 2, label=3, attributes={ 'score': 0.5, }),
-                Bbox(5, 6, 2, 2, attributes={
-                    'x': 2, 'y': '3', 'occluded': False,
-                }),
+            DatasetItem(id=1, media=Image(data=np.ones((5, 5, 3))),
+                annotations=[
+                    Caption('hello'),
+                    Caption('world'),
+                    Label(2, attributes={ 'x': 1, 'y': '2', }),
+                    Bbox(1, 2, 2, 2, label=2, attributes={ 'score': 0.5, }),
+                    Bbox(5, 6, 2, 2, attributes={
+                        'x': 1, 'y': '3', 'occluded': True,
+                    }),
+                    Points([1, 2, 2, 0, 1, 1], label=0),
+                    Mask(label=3, image=np.array([
+                        [0, 0, 1, 1, 1],
+                        [0, 0, 1, 1, 1],
+                        [0, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ])),
+                ]
+            ),
+            DatasetItem(id=2, media=Image(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Label(2, attributes={ 'x': 2, 'y': '2', }),
+                    Bbox(1, 2, 2, 2, label=3, attributes={ 'score': 0.5, }),
+                    Bbox(5, 6, 2, 2, attributes={
+                        'x': 2, 'y': '3', 'occluded': False,
+                    }
+                ),
             ]),
             DatasetItem(id=3),
-            DatasetItem(id='2.2', image=np.ones((2, 4, 3))),
+            DatasetItem(id='2.2', media=Image(data=np.ones((2, 4, 3)))),
         ], categories=['label_%s' % i for i in range(4)])
 
         expected = {
@@ -237,12 +243,12 @@ class TestOperations(TestCase):
 
         dataset = Dataset.from_iterable([
             # no image data, but the same path
-            DatasetItem(1, subset='a', image='1.jpg'),
-            DatasetItem(1, subset='b', image='1.jpg'),
+            DatasetItem(1, subset='a', media=Image(path='1.jpg')),
+            DatasetItem(1, subset='b', media=Image(path='1.jpg')),
 
             # same images
-            DatasetItem(2, image=np.array([1])),
-            DatasetItem(3, image=np.array([1])),
+            DatasetItem(2, media=Image(data=np.array([1]))),
+            DatasetItem(3, media=Image(data=np.array([1]))),
 
             # no image is always a unique image
             DatasetItem(4),
@@ -599,3 +605,44 @@ class TestMultimerge(TestCase):
         merged = merger([source0, source1])
 
         compare_datasets(self, expected, merged, ignored_attrs={'score'})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_merge_point_clouds(self):
+        dataset_dir = osp.join(osp.dirname(__file__),
+            'assets', 'sly_pointcloud_dataset')
+        pcd1 = osp.join(dataset_dir, 'ds0', 'pointcloud', 'frame1.pcd')
+        pcd2 = osp.join(dataset_dir, 'ds0', 'pointcloud', 'frame2.pcd')
+
+        image1 = Image(path=osp.join(dataset_dir,
+            'ds0', 'related_images', 'frame1_pcd', 'img2.png'))
+        image2 = Image(path=osp.join(dataset_dir,
+            'ds0', 'related_images', 'frame2_pcd', 'img1.png'))
+
+        source0 = Dataset.from_iterable([
+            DatasetItem(1, media=PointCloud(path=pcd1, extra_images=[image1])),
+            DatasetItem(2, media=PointCloud(path=pcd1, extra_images=[image1])),
+            DatasetItem(3, media=PointCloud(path=pcd2)),
+            DatasetItem(4),
+            DatasetItem(5, media=PointCloud(path=pcd2)),
+        ], categories=[], media_type=PointCloud)
+
+        source1 = Dataset.from_iterable([
+            DatasetItem(1, media=PointCloud(path=pcd1, extra_images=[image1])),
+            DatasetItem(2, media=PointCloud(path=pcd1, extra_images=[image2])),
+            DatasetItem(3),
+            DatasetItem(4, media=PointCloud(path=pcd2)),
+            DatasetItem(5, media=PointCloud(path=pcd2, extra_images=[image2])),
+        ], categories=[], media_type=PointCloud)
+
+        expected = Dataset.from_iterable([
+            DatasetItem(1, media=PointCloud(path=pcd1, extra_images=[image1])),
+            DatasetItem(2, media=PointCloud(path=pcd1, extra_images=[image1, image2])),
+            DatasetItem(3, media=PointCloud(path=pcd2)),
+            DatasetItem(4, media=PointCloud(path=pcd2)),
+            DatasetItem(5, media=PointCloud(path=pcd2, extra_images=[image2])),
+        ], categories=[], media_type=PointCloud)
+
+        merger = IntersectMerge()
+        merged = merger([source0, source1])
+
+        compare_datasets(self, expected, merged)

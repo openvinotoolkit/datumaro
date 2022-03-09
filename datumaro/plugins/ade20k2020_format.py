@@ -15,6 +15,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util import parse_json
 from datumaro.util.image import (
     IMAGE_EXTENSIONS, find_images, lazy_image, load_image,
@@ -132,7 +133,7 @@ class Ade20k2020Extractor(Extractor):
                     ))
 
             self._items.append(DatasetItem(item_id, subset=subset,
-                image=image_path, annotations=item_annotations))
+                media=Image(path=image_path), annotations=item_annotations))
 
     def _load_item_info(self, path):
         json_path = osp.splitext(path)[0] + '.json'

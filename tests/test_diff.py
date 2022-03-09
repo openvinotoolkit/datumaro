@@ -4,6 +4,7 @@ import numpy as np
 
 from datumaro.components.annotation import Bbox, Caption, Label, Mask, Points
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.operations import DistanceComparator, ExactComparator
 from datumaro.components.project import Dataset
 
@@ -209,47 +210,66 @@ class ExactComparatorTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_image_comparison(self):
         a = Dataset.from_iterable([
-            DatasetItem(id=11, image=np.ones((5, 4, 3)), annotations=[
-                Bbox(5, 6, 7, 8),
-            ]),
-            DatasetItem(id=12, image=np.ones((5, 4, 3)), annotations=[
-                Bbox(1, 2, 3, 4),
-                Bbox(5, 6, 7, 8),
-            ]),
-            DatasetItem(id=13, image=np.ones((5, 4, 3)), annotations=[
-                Bbox(9, 10, 11, 12), # mismatch
-            ]),
+            DatasetItem(id=11, media=Image(data=np.ones((5, 4, 3))),
+                annotations=[
+                    Bbox(5, 6, 7, 8),
+                ]
+            ),
+            DatasetItem(id=12, media=Image(data=np.ones((5, 4, 3))),
+                annotations=[
+                    Bbox(1, 2, 3, 4),
+                    Bbox(5, 6, 7, 8),
+                ]
+            ),
+            DatasetItem(id=13, media=Image(data=np.ones((5, 4, 3))),
+                annotations=[
+                    Bbox(9, 10, 11, 12), # mismatch
+                ]
+            ),
 
-            DatasetItem(id=14, image=np.zeros((5, 4, 3)), annotations=[
-                Bbox(1, 2, 3, 4),
-                Bbox(5, 6, 7, 8),
-            ], attributes={ 'a': 1 }),
+            DatasetItem(id=14, media=Image(data=np.zeros((5, 4, 3))),
+                annotations=[
+                    Bbox(1, 2, 3, 4),
+                    Bbox(5, 6, 7, 8),
+                ], attributes={ 'a': 1 }
+            ),
 
-            DatasetItem(id=15, image=np.zeros((5, 5, 3)), annotations=[
-                Bbox(1, 2, 3, 4),
-                Bbox(5, 6, 7, 8),
-            ]),
+            DatasetItem(id=15, media=Image(data=np.zeros((5, 5, 3))),
+                annotations=[
+                    Bbox(1, 2, 3, 4),
+                    Bbox(5, 6, 7, 8),
+                ]
+            ),
         ], categories=['a', 'b', 'c', 'd'])
 
         b = Dataset.from_iterable([
-            DatasetItem(id=21, image=np.ones((5, 4, 3)), annotations=[
-                Bbox(5, 6, 7, 8),
-            ]),
-            DatasetItem(id=22, image=np.ones((5, 4, 3)), annotations=[
-                Bbox(1, 2, 3, 4),
-                Bbox(5, 6, 7, 8),
-            ]),
-            DatasetItem(id=23, image=np.ones((5, 4, 3)), annotations=[
-                Bbox(10, 10, 11, 12), # mismatch
-            ]),
+            DatasetItem(id=21, media=Image(data=np.ones((5, 4, 3))),
+                annotations=[
+                    Bbox(5, 6, 7, 8),
+                ]
+            ),
+            DatasetItem(id=22, media=Image(data=np.ones((5, 4, 3))),
+                annotations=[
+                    Bbox(1, 2, 3, 4),
+                    Bbox(5, 6, 7, 8),
+                ]
+            ),
+            DatasetItem(id=23, media=Image(data=np.ones((5, 4, 3))),
+                annotations=[
+                    Bbox(10, 10, 11, 12), # mismatch
+                ]
+            ),
 
-            DatasetItem(id=24, image=np.zeros((5, 4, 3)), annotations=[
-                Bbox(6, 6, 7, 8), # 1 ann missing, mismatch
-            ], attributes={ 'a': 2 }),
+            DatasetItem(id=24, media=Image(data=np.zeros((5, 4, 3))),
+                annotations=[
+                    Bbox(6, 6, 7, 8), # 1 ann missing, mismatch
+                ], attributes={ 'a': 2 }),
 
-            DatasetItem(id=25, image=np.zeros((4, 4, 3)), annotations=[
-                Bbox(6, 6, 7, 8),
-            ]),
+            DatasetItem(id=25, media=Image(data=np.zeros((4, 4, 3))),
+                annotations=[
+                    Bbox(6, 6, 7, 8),
+                ]
+            ),
         ], categories=['a', 'b', 'c', 'd'])
 
         comp = ExactComparator(match_images=True)

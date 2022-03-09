@@ -14,7 +14,9 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import merge_masks
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -77,9 +79,11 @@ class MotsPngExtractor(SourceExtractor):
 
         for p in sorted(iglob(self._anno_dir + '/**/*.png', recursive=True)):
             item_id = osp.splitext(osp.relpath(p, self._anno_dir))[0]
+            image = images.get(item_id)
+            if image:
+                image = Image(path=image)
             items.append(DatasetItem(id=item_id, subset=self._subset,
-                image=images.get(item_id),
-                annotations=self._parse_annotations(p)))
+                media=image, annotations=self._parse_annotations(p)))
         return items
 
     @staticmethod
@@ -127,6 +131,10 @@ class MotsPngConverter(Converter):
     DEFAULT_IMAGE_EXT = MotsPath.IMAGE_EXT
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
         if self._save_dataset_meta:
@@ -141,8 +149,8 @@ class MotsPngConverter(Converter):
             for item in subset:
                 log.debug("Converting item '%s'", item.id)
 
-                if self._save_images:
-                    if item.has_image and item.image.has_data:
+                if self._save_media:
+                    if item.media and item.media.has_data:
                         self._save_image(item, subdir=image_dir)
                     else:
                         log.debug("Item '%s' has no image", item.id)

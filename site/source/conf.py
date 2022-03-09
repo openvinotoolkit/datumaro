@@ -1,3 +1,7 @@
+# Copyright (C) 2021-2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -11,6 +15,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.abspath('../..'))
@@ -36,6 +41,9 @@ extensions = [
     'sphinx.ext.autodoc',  # Core library for html generation from docstrings
     'sphinx.ext.viewcode', # Find the source files
     'sphinx_copybutton', # Copy buttons for code blocks
+    'sphinx.ext.autosectionlabel', # Refer sections its title
+    'sphinx.ext.intersphinx', # Generate links to the documentation
+                              # of objects in external projects
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -49,9 +57,9 @@ exclude_patterns = [ ]
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
+# The theme to use for HTML and HTML Help pages. See the documentation for
 # a list of builtin themes.
-#
+
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = ['_themes', ]
 html_theme_options = {
@@ -73,6 +81,15 @@ html_css_files = ['custom.css', ]
 # -- Extension configuration -------------------------------------------------
 autodoc_docstring_signature = True
 autodoc_member_order = 'bysource'
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+}
+
+nitpick_ignore_regex = [
+    ('py:class', r"^(.*[\s\"(\._)]+.*)+$"), # Hiding warnings contain ' ', '"' or '._'
+    ('py:class', ''),
+]
 
 # Members to be included.
 include_members_list = [
@@ -89,8 +106,23 @@ def skip_member(app, what, name, obj, skip, options):
         return name.startswith('_')
 
 def replace(app, what, name, obj, options, lines):
+    exclude_plugins_name = ['transform', 'extractor', 'converter', 'launcher',
+    'importer', 'validator']
+    names = re.sub(r'([A-Z])', r' \1', name.replace('_', '').split('.')[-1]).split()
+    for n, a in enumerate(names):
+        if len(a) != 1:
+            for b in exclude_plugins_name:
+                if a.lower() == b:
+                    names.pop(n)
+    if all(1 == len(a) for a in names):
+        prog_name = ''.join(names).lower()
+    else:
+        prog_name = '_'.join(names).lower()
     for i, line in enumerate(lines):
         if line:
+            prog = str('%(prog)s')
+            lines[i] = lines[i].replace(prog, prog_name)
+            lines[i] = lines[i].replace("'frame_'", r"'frame\_'") # fix unwanted link
             if not "'|n'" in lines[i]:
                 if not "'|s'" in lines[i]:
                     lines[i] = lines[i].replace("|n", "\n").replace("|s", " ")

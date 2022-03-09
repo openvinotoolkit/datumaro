@@ -15,7 +15,9 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.util import cast, dump_json_file, find, str_to_bool
 from datumaro.util.image import save_image
 import datumaro.util.annotation_util as anno_tools
@@ -67,8 +69,8 @@ class _TaskConverter:
     def save_image_info(self, item, filename):
         h = 0
         w = 0
-        if item.has_image and item.image.size:
-            h, w = item.image.size
+        if item.media and item.media.size:
+            h, w = item.media.size
 
         self._data['images'].append({
             'id': self._get_image_id(item),
@@ -260,11 +262,11 @@ class _InstancesConverter(_TaskConverter):
         if not instances:
             return
 
-        if not item.has_image or not item.image.size:
+        if not item.media or not item.media.size:
             log.warning("Item '%s': skipping writing instances "
                 "since no image info available" % item.id)
             return
-        h, w = item.image.size
+        h, w = item.media.size
         instances = [self.find_instance_parts(i, w, h) for i in instances]
 
         if self._context._crop_covered:
@@ -289,8 +291,8 @@ class _InstancesConverter(_TaskConverter):
 
         area = 0
         if segmentation:
-            if item.has_image and item.image.size:
-                h, w = item.image.size
+            if item.media and item.media.size:
+                h, w = item.media.size
             else:
                 # Here we can guess the image size as
                 # it is only needed for the area computation
@@ -470,7 +472,7 @@ class _PanopticConverter(_TaskConverter):
             })
 
     def save_annotations(self, item):
-        if not item.has_image:
+        if not item.media:
             return
 
         ann_filename = item.id + CocoPath.PANOPTIC_EXT
@@ -646,6 +648,10 @@ class CocoConverter(Converter):
         return image_id
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         self._make_dirs()
 
         if self._save_dataset_meta:
@@ -662,8 +668,8 @@ class CocoConverter(Converter):
 
             for item in pbar.iter(subset, desc=f'Exporting {subset_name}'):
                 try:
-                    if self._save_images:
-                        if item.has_image:
+                    if self._save_media:
+                        if item.media:
                             self._save_image(item, subdir=osp.join(
                                 self._images_dir,
                                 '' if self._merge_images else subset_name))
@@ -711,7 +717,7 @@ class CocoConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             # Converter supports saving in separate dirs and common image dir

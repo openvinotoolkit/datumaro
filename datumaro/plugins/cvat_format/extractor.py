@@ -308,9 +308,11 @@ class CvatExtractor(SourceExtractor):
             image_size = (item_desc.get('height'), item_desc.get('width'))
             if all(image_size):
                 image = Image(path=image, size=tuple(map(int, image_size)))
+            else:
+                image = Image(path=image)
 
             parsed[frame_id] = DatasetItem(id=osp.splitext(name)[0],
-                subset=self._subset, image=image,
+                subset=self._subset, media=image,
                 annotations=item_desc.get('annotations'),
                 attributes={'frame': int(frame_id)})
         return parsed

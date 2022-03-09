@@ -17,7 +17,7 @@ Contents
    :glob:
 
    /api/datumaro.rst
-   /api/cli/*
+   /api/cli/cli.rst
    /api/components/*
    /api/plugins/*
    /api/util/util/util.rst

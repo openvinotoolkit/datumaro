@@ -15,6 +15,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util.image import (
     IMAGE_EXTENSIONS, find_images, lazy_image, load_image,
 )
@@ -111,7 +112,7 @@ class Ade20k2017Extractor(Extractor):
                     + '_parts_%s.png' % (part_level + 1)
 
             self._items.append(DatasetItem(item_id, subset=subset,
-                image=image_path, annotations=item_annotations))
+                media=Image(path=image_path), annotations=item_annotations))
 
     def _load_item_info(self, path):
         attr_path = osp.splitext(path)[0] + '_atr.txt'

@@ -10,8 +10,10 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, Points,
 )
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -122,8 +124,11 @@ class VggFace2Extractor(Extractor):
                     label = _get_label(item_id)
 
                 if item_id not in items:
+                    image = images.get(row['NAME_ID'])
+                    if image:
+                        image = Image(path=image)
                     items[item_id] = DatasetItem(id=item_id, subset=subset,
-                        image=images.get(row['NAME_ID']))
+                        media=image)
 
                 annotations = items[item_id].annotations
                 if [a for a in annotations if a.type == AnnotationType.points]:
@@ -150,8 +155,11 @@ class VggFace2Extractor(Extractor):
                     label = _get_label(item_id)
 
                 if item_id not in items:
+                    image = images.get(row['NAME_ID'])
+                    if image:
+                        image = Image(path=image)
                     items[item_id] = DatasetItem(id=item_id, subset=subset,
-                        image=images.get(row['NAME_ID']))
+                        media=image)
 
                 annotations = items[item_id].annotations
                 if [a for a in annotations if a.type == AnnotationType.bbox]:
@@ -201,6 +209,10 @@ class VggFace2Converter(Converter):
             else:
                 return '/'.join([label_name, *item_parts])
 
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         save_dir = self._save_dir
         os.makedirs(save_dir, exist_ok=True)
 
@@ -224,7 +236,7 @@ class VggFace2Converter(Converter):
             landmarks_table = []
             for item in subset:
                 item_parts = item.id.split('/')
-                if item.has_image and self._save_images:
+                if item.media and self._save_media:
                     labels = set(p.label for p in item.annotations
                         if getattr(p, 'label') is not None)
                     if labels:

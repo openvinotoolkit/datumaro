@@ -11,6 +11,7 @@ from datumaro.components.annotation import Bbox, LabelCategories, Mask
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, SourceExtractor,
 )
+from datumaro.components.media import Image
 from datumaro.util.image import find_images, load_image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -84,9 +85,12 @@ class _KittiExtractor(SourceExtractor):
                         label=semantic_id, id=ann_id,
                         attributes={ 'is_crowd': isCrowd }))
 
+                image = image_path_by_id.pop(item_id, None)
+                if image:
+                    image = Image(path=image)
+
                 items[item_id] = DatasetItem(id=item_id, annotations=anns,
-                    image=image_path_by_id.pop(item_id, None),
-                    subset=self._subset)
+                    media=image, subset=self._subset)
 
         det_dir = osp.join(self._path, KittiPath.LABELS_DIR)
         if self._task == KittiTask.detection:
@@ -123,13 +127,16 @@ class _KittiExtractor(SourceExtractor):
                             attributes=attributes, label=label_id,
                         ))
 
+                image = image_path_by_id.pop(item_id, None)
+                if image:
+                    image = Image(path=image)
+
                 items[item_id] = DatasetItem(id=item_id, annotations=anns,
-                    image=image_path_by_id.pop(item_id, None),
-                    subset=self._subset)
+                    media=image, subset=self._subset)
 
         for item_id, image_path in image_path_by_id.items():
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=image_path)
+                media=Image(path=image_path))
 
         return items
 

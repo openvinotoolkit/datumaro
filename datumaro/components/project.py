@@ -110,6 +110,8 @@ class ProjectSourceDataset(IDataset):
     def get(self, id, subset=None):
         return self._dataset.get(id, subset)
 
+    def media_type(self):
+        return self._dataset.media_type()
 
 class IgnoreMode(Enum):
     rewrite = auto()
@@ -2233,6 +2235,7 @@ class Project:
         Creates a new commit. Moves the HEAD pointer to the new commit.
 
         Options:
+
             - no_cache (bool) - don't put added dataset data into cache,
                 store only metainfo. Can be used to reduce storage size.
             - allow_empty (bool) - allow commits with no changes.

@@ -14,6 +14,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images
 from datumaro.util.mask_tools import lazy_mask
 
@@ -78,7 +79,7 @@ class _IcdarExtractor(SourceExtractor):
                     IcdarPath.IMAGES_DIR, image)
                 if item_id not in items:
                     items[item_id] = DatasetItem(item_id, subset=self._subset,
-                        image=image_path)
+                        media=Image(path=image_path))
 
                 annotations = items[item_id].annotations
                 for caption in captions:
@@ -106,8 +107,13 @@ class _IcdarExtractor(SourceExtractor):
             item_id = item_id.replace('\\', '/')
 
             if item_id not in items:
+                image = None
+                image_path = images.get(item_id)
+                if image_path:
+                    image = Image(path=image_path)
+
                 items[item_id] = DatasetItem(item_id, subset=self._subset,
-                    image=images.get(item_id))
+                    media=image)
             annotations = items[item_id].annotations
 
             with open(path, encoding='utf-8') as f:
@@ -175,8 +181,13 @@ class _IcdarExtractor(SourceExtractor):
                 item_id = item_id[:-3]
 
             if item_id not in items:
+                image = None
+                image_path = images.get(item_id)
+                if image_path:
+                    image = Image(path=image_path)
+
                 items[item_id] = DatasetItem(item_id, subset=self._subset,
-                    image=images.get(item_id))
+                    media=image)
             annotations = items[item_id].annotations
 
             colors = [(255, 255, 255)]

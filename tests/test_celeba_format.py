@@ -9,6 +9,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.celeba_format import CelebaImporter
 from datumaro.util.test_utils import compare_datasets
 
@@ -24,7 +25,7 @@ class CelebaImporterTest(TestCase):
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000001', subset='train',
-                image=np.ones((5, 5, 3)),
+                media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Label(12),
                     Bbox(95, 71, 226, 313, label=12),
@@ -36,7 +37,7 @@ class CelebaImporterTest(TestCase):
                     'Bangs': False, 'Big_Lips': False, 'Big_Nose': False}
             ),
             DatasetItem(id='000002', subset='train',
-                image=np.ones((5, 5, 3)),
+                media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Label(5),
                     Bbox(72, 94, 221, 306, label=5),
@@ -45,7 +46,7 @@ class CelebaImporterTest(TestCase):
                 ]
             ),
             DatasetItem(id='000003', subset='val',
-                image=np.ones((5, 5, 3)),
+                media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Label(2),
                     Bbox(216, 59, 91, 126, label=2),
@@ -57,7 +58,7 @@ class CelebaImporterTest(TestCase):
                     'Bangs': False, 'Big_Lips': False, 'Big_Nose': True}
             ),
             DatasetItem(id='000004', subset='test',
-                image=np.ones((5, 5, 3)),
+                media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Label(10),
                     Bbox(622, 257, 564, 781, label=10),
@@ -66,7 +67,7 @@ class CelebaImporterTest(TestCase):
                     ]
             ),
             DatasetItem(id='000005', subset='test',
-                image=np.ones((5, 5, 3)),
+                media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Label(7),
                     Bbox(236, 109, 120, 166, label=7),
@@ -85,29 +86,29 @@ class CelebaImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'celeba')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_475)
     def test_can_import_with_meta_file(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000001', subset='train',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[Label(1)]
             ),
             DatasetItem(id='000002', subset='train',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[Label(3)]
             ),
             DatasetItem(id='000003', subset='val',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id='000004', subset='test',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[Label(2)]
             ),
             DatasetItem(id='000005', subset='test',
-                image=np.ones((3, 4, 3)),
+                media=Image(data=np.ones((3, 4, 3))),
                 annotations=[Label(6)]
             )
         ], categories=[f'class-{i}' for i in range(7)])
@@ -115,7 +116,7 @@ class CelebaImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_WITH_META_FILE,
             'celeba')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_475)
     def test_can_detect(self):

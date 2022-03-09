@@ -17,8 +17,10 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
@@ -212,7 +214,7 @@ class CamvidExtractor(SourceExtractor):
                                 Mask(image=image, label=label_id))
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=image_path, annotations=item_annotations)
+                    media=Image(path=image_path), annotations=item_annotations)
 
         return items
 
@@ -287,13 +289,17 @@ class CamvidConverter(Converter):
         self._load_categories(label_map)
 
     def apply(self):
+        if self._extractor.media_type() and \
+                not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         os.makedirs(self._save_dir, exist_ok=True)
 
         for subset_name, subset in self._extractor.subsets().items():
             segm_list = {}
             for item in subset:
                 image_path = self._make_image_filename(item, subdir=subset_name)
-                if self._save_images:
+                if self._save_media and item.media:
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
                 masks = [a for a in item.annotations
@@ -430,7 +436,7 @@ class CamvidConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             image_path = osp.join(save_dir,

@@ -8,9 +8,10 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Caption, Cuboid3d, Label, LabelCategories,
     MaskCategories, Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import Image
+from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import parse_json, parse_json_file
 
 from .format import DatumaroPath
@@ -85,7 +86,7 @@ class DatumaroExtractor(SourceExtractor):
         for item_desc in parsed['items']:
             item_id = item_desc['id']
 
-            image = None
+            media = None
             image_info = item_desc.get('image')
             if image_info:
                 image_filename = image_info.get('path') or \
@@ -98,30 +99,40 @@ class DatumaroExtractor(SourceExtractor):
                     if osp.isfile(old_image_path):
                         image_path = old_image_path
 
-                image = Image(path=image_path, size=image_info.get('size'))
+                media = Image(path=image_path, size=image_info.get('size'))
+                self._media_type = Image
 
-            point_cloud = None
             pcd_info = item_desc.get('point_cloud')
+            if media and pcd_info:
+                raise DatasetImportError("Dataset cannot contain multiple media types")
             if pcd_info:
                 pcd_path = pcd_info.get('path')
                 point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
 
-            related_images = None
-            ri_info = item_desc.get('related_images')
-            if ri_info:
-                related_images = [
-                    Image(size=ri.get('size'),
-                        path=osp.join(self._related_images_dir, self._subset,
-                            item_id, ri.get('path'))
-                    )
-                    for ri in ri_info
-                ]
+                related_images = None
+                ri_info = item_desc.get('related_images')
+                if ri_info:
+                    related_images = [
+                        Image(size=ri.get('size'),
+                            path=osp.join(self._related_images_dir, self._subset,
+                                item_id, ri.get('path'))
+                        )
+                        for ri in ri_info
+                    ]
+
+                media = PointCloud(point_cloud, extra_images=related_images)
+                self._media_type = PointCloud
+
+            media_desc = item_desc.get('media')
+            if not media and media_desc and media_desc.get('path'):
+                media = MediaElement(path=media_desc.get('path'))
+                self._media_type = MediaElement
 
             annotations = self._load_annotations(item_desc)
 
             item = DatasetItem(id=item_id, subset=self._subset,
-                annotations=annotations, image=image, point_cloud=point_cloud,
-                related_images=related_images, attributes=item_desc.get('attr'))
+                annotations=annotations, media=media,
+                attributes=item_desc.get('attr'))
 
             items.append(item)
 

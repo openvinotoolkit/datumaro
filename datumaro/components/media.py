@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Iterable, Iterator, Optional, Tuple, Union
+from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
 import os
 import os.path as osp
 import shutil
@@ -20,6 +20,7 @@ from datumaro.util.image import (
 
 class MediaElement:
     def __init__(self, path: str) -> None:
+        assert path, "Path can't be empty"
         self._path = path
 
     @property
@@ -54,14 +55,14 @@ class Image(MediaElement):
         construction.
 
         Args:
-            data - Image pixels or a function to retrieve them. The expected
+            data: Image pixels or a function to retrieve them. The expected
                 image shape is (H, W [, C]). If a function is provided,
                 it must accept image path as the first argument.
-            path - Image path
-            ext - Image extension. Cannot be used together with `path`. It can
+            path: Image path
+            ext: Image extension. Cannot be used together with `path`. It can
                 be used for saving with a custom extension - in that case,
                 the image need to have the `data` and `ext` fields defined.
-            size - A pair (H, W), which represents image size.
+            size: A pair (H, W), which represents image size.
         """
 
         if size is not None:
@@ -482,3 +483,9 @@ class Video(MediaElement, Iterable[VideoFrame]):
     def __hash__(self):
         # Required for caching
         return hash((self._path, self._step, self._start_frame, self._end_frame))
+
+class PointCloud(MediaElement):
+    def __init__(self, path: str, extra_images: Optional[List[Image]] = None):
+        self._path = path
+
+        self.extra_images: List[Image] = extra_images or []

@@ -371,10 +371,10 @@ def filter_command(args):
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory.
-                # We specify save_images here as a heuristic. It can probably
+                # We specify save_media here as a heuristic. It can probably
                 # be improved by checking if there are images in the dataset
                 # directory.
-                dataset.save(project.source_data_dir(target), save_images=True)
+                dataset.save(project.source_data_dir(target), save_media=True)
 
             log.info("Finished")
         else:
@@ -389,7 +389,7 @@ def filter_command(args):
             dst_dir = osp.abspath(dst_dir)
 
             dataset.filter(filter_expr, *filter_args)
-            dataset.save(dst_dir, save_images=True)
+            dataset.save(dst_dir, save_media=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -437,17 +437,17 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         saved if '--apply' is enabled.|n
         |n
         Examples:|n
-        - Convert instance polygons to masks:|n
+        - Convert instance polygons to masks:|n |n
         |s|s%(prog)s -t polygons_to_masks|n
         |n
-        - Rename dataset items by a regular expression|n
-        |s|s- Replace 'pattern' with 'replacement'|n|n
-        |s|s%(prog)s -t rename -- -e '|pattern|replacement|'|n
+        - Rename dataset items by a regular expression:|n |n
+        |s|s- Replace 'pattern' with 'replacement':|n |n
+        |s|s|s|s%(prog)s -t rename -- -e '|pattern|replacement|'|n
         |n
-        |s|s- Remove 'frame_' from item ids|n
-        |s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'|n
+        |s|s- Remove 'frame_' from item ids:|n |n
+        |s|s|s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'|n
         |n
-        - Split a dataset randomly:|n
+        - Split a dataset randomly:|n |n
         |s|s%(prog)s -t random_split --overwrite path/to/dataset:voc
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
@@ -557,10 +557,10 @@ def transform_command(args):
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory
-                # We specify save_images here as a heuristic. It can probably
+                # We specify save_media here as a heuristic. It can probably
                 # be improved by checking if there are images in the dataset
                 # directory.
-                dataset.save(project.source_data_dir(target), save_images=True)
+                dataset.save(project.source_data_dir(target), save_media=True)
 
             log.info("Finished")
         else:
@@ -575,7 +575,7 @@ def transform_command(args):
             dst_dir = osp.abspath(dst_dir)
 
             dataset.transform(args.transform, **extra_args)
-            dataset.save(dst_dir, save_images=True)
+            dataset.save(dst_dir, save_media=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -661,10 +661,10 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
         sources, build tree, models and revisions.|n
         |n
         Examples:|n
-        - Print project info for the current working tree:|n
+        - Print project info for the current working tree:|n |n
         |s|s%(prog)s|n
         |n
-        - Print project info for the previous revision:|n
+        - Print project info for the previous revision:|n |n
         |s|s%(prog)s HEAD~1
         """,
         formatter_class=MultilineFormatter)
@@ -742,7 +742,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         project's working tree is used.|n
         |n
         Examples:|n
-        - Validate a project's subset as a classification dataset:|n
+        - Validate a project's subset as a classification dataset:|n |n
         |s|s%(prog)s -t classification -s train
         """,
         formatter_class=MultilineFormatter)

@@ -31,7 +31,8 @@ class OpenImagesFormatTest(TestCase):
             DatasetItem(id='a', subset='train',
                 annotations=[Label(0, attributes={'score': 0.7})]
             ),
-            DatasetItem(id='b', subset='train', image=np.zeros((8, 8, 3)),
+            DatasetItem(id='b', subset='train',
+                media=Image(data=np.zeros((8, 8, 3))),
                 annotations=[
                     Label(1),
                     Label(2, attributes={'score': 0}),
@@ -60,7 +61,8 @@ class OpenImagesFormatTest(TestCase):
 
         expected_dataset = Dataset.from_extractors(source_dataset)
         expected_dataset.put(
-            DatasetItem(id='b', subset='train', image=np.zeros((8, 8, 3)),
+            DatasetItem(id='b', subset='train',
+                media=Image(data=np.zeros((8, 8, 3))),
                 annotations=[
                     # the converter assumes that annotations without a score
                     # have a score of 100%
@@ -90,12 +92,12 @@ class OpenImagesFormatTest(TestCase):
 
         with TestDir() as test_dir:
             OpenImagesConverter.convert(source_dataset, test_dir,
-                save_images=True)
+                save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
             compare_datasets(self, expected_dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_save_and_load_with_no_subsets(self):
@@ -107,7 +109,7 @@ class OpenImagesFormatTest(TestCase):
 
         with TestDir() as test_dir:
             OpenImagesConverter.convert(source_dataset, test_dir,
-                save_images=True)
+                save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
@@ -116,46 +118,50 @@ class OpenImagesFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_274)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id='a/1', image=Image(path='a/1.JPEG',
+            DatasetItem(id='a/1', media=Image(path='a/1.JPEG',
                 data=np.zeros((4, 3, 3)))),
-            DatasetItem(id='b/c/d/2', image=Image(path='b/c/d/2.bmp',
+            DatasetItem(id='b/c/d/2', media=Image(path='b/c/d/2.bmp',
                 data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
         with TestDir() as test_dir:
-            OpenImagesConverter.convert(dataset, test_dir, save_images=True)
+            OpenImagesConverter.convert(dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
-            compare_datasets(self, dataset, parsed_dataset, require_images=True)
+            compare_datasets(self, dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_inplace_save_writes_only_updated_data(self):
         dataset = Dataset.from_iterable([
-            DatasetItem('a', subset='modified', image=np.ones((2, 1, 3)),
+            DatasetItem('a', subset='modified',
+                media=Image(data=np.ones((2, 1, 3))),
                 annotations=[
                     Label(0, attributes={'score': 1}),
                     Bbox(0, 0, 1, 2, label=0),
                     Mask(label=0, image=np.ones((2, 1))),
                 ]),
-            DatasetItem('b', subset='modified', image=np.ones((2, 1, 3)),
+            DatasetItem('b', subset='modified',
+                media=Image(data=np.ones((2, 1, 3))),
                 annotations=[
                     Label(1, attributes={'score': 1}),
                 ]),
-            DatasetItem('c', subset='removed', image=np.ones((3, 2, 3)),
+            DatasetItem('c', subset='removed',
+                media=Image(data=np.ones((3, 2, 3))),
                 annotations=[Label(2, attributes={'score': 1})]),
-            DatasetItem('d', subset='unmodified', image=np.ones((4, 3, 3)),
+            DatasetItem('d', subset='unmodified',
+                media=Image(data=np.ones((4, 3, 3))),
                 annotations=[Label(3, attributes={'score': 1})]),
         ], categories=['/m/0', '/m/1', '/m/2', '/m/3'])
 
         with TestDir() as path:
-            dataset.export(path, 'open_images', save_images=True)
+            dataset.export(path, 'open_images', save_media=True)
 
-            dataset.put(DatasetItem('e', subset='new', image=np.ones((5, 4, 3)),
+            dataset.put(DatasetItem('e', subset='new', media=Image(data=np.ones((5, 4, 3))),
                 annotations=[Label(1, attributes={'score': 1})]))
             dataset.remove('c', subset='removed')
             del dataset.get('a', subset='modified').annotations[1:3]
-            dataset.save(save_images=True)
+            dataset.save(save_media=True)
 
             self.assertEqual(
                 {
@@ -181,12 +187,12 @@ class OpenImagesFormatTest(TestCase):
             self.assertEqual(actual_images, expected_images)
 
             dataset_reloaded = Dataset.import_from(path, 'open_images')
-            compare_datasets(self, dataset, dataset_reloaded, require_images=True)
+            compare_datasets(self, dataset, dataset_reloaded, require_media=True)
 
     @mark_requirement(Requirements.DATUM_BUG_466)
     def test_can_save_and_load_without_saving_images(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id='a', image=np.ones((5, 5, 3)),
+            DatasetItem(id='a', media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Bbox(1, 2, 3, 4, label=0, group=1, attributes={'score': 1.0}),
                     Mask(label=1, group=0, image=np.ones((5, 5)),
@@ -205,7 +211,7 @@ class OpenImagesFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_274)
     def test_can_save_and_load_with_meta_file(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id='a', image=np.ones((5, 5, 3)),
+            DatasetItem(id='a', media=Image(data=np.ones((5, 5, 3))),
                 annotations=[
                     Bbox(1, 2, 3, 4, label=0, group=1, attributes={'score': 1.0}),
                     Mask(label=1, group=0, image=np.ones((5, 5)),
@@ -216,13 +222,13 @@ class OpenImagesFormatTest(TestCase):
 
         with TestDir() as test_dir:
             OpenImagesConverter.convert(dataset, test_dir,
-                save_images=True, save_dataset_meta=True)
+                save_media=True, save_dataset_meta=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
             compare_datasets(self, dataset, parsed_dataset,
-                require_images=True)
+                require_media=True)
 
 
 ASSETS_DIR = osp.join(osp.dirname(__file__), 'assets')
@@ -234,9 +240,11 @@ class OpenImagesImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_274)
     def test_can_import_v6(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='a', subset='train', image=np.zeros((8, 6, 3)),
+            DatasetItem(id='a', subset='train',
+                media=Image(data=np.zeros((8, 6, 3))),
                 annotations=[Label(label=0, attributes={'score': 1})]),
-            DatasetItem(id='b', subset='train', image=np.zeros((2, 8, 3)),
+            DatasetItem(id='b', subset='train',
+                media=Image(data=np.zeros((2, 8, 3))),
                 annotations=[
                     Label(label=0, attributes={'score': 0}),
                     Bbox(label=0, x=1.6, y=0.6, w=6.4, h=0.4,
@@ -249,7 +257,8 @@ class OpenImagesImporterTest(TestCase):
                         }
                     ),
                 ]),
-            DatasetItem(id='c', subset='test', image=np.ones((10, 5, 3)),
+            DatasetItem(id='c', subset='test',
+                media=Image(data=np.ones((10, 5, 3))),
                 annotations=[
                     Label(label=1, attributes={'score': 1}),
                     Label(label=3, attributes={'score': 1}),
@@ -260,7 +269,8 @@ class OpenImagesImporterTest(TestCase):
                         'is_inside': False,
                     }),
                 ]),
-            DatasetItem(id='d', subset='validation', image=np.ones((1, 5, 3)),
+            DatasetItem(id='d', subset='validation',
+                media=Image(data=np.ones((1, 5, 3))),
                 annotations=[]),
         ],
         categories={
@@ -278,25 +288,28 @@ class OpenImagesImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_V6, 'open_images')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_import_v5(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='aa', subset='train', image=np.zeros((8, 6, 3))),
-            DatasetItem(id='cc', subset='test', image=np.ones((10, 5, 3))),
+            DatasetItem(id='aa', subset='train',
+                media=Image(data=np.zeros((8, 6, 3)))),
+            DatasetItem(id='cc', subset='test',
+                media=Image(data=np.ones((10, 5, 3)))),
         ], categories=[ '/m/0', '/m/1', ])
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_V5, 'open_images')
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_import_without_image_ids_file(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='a', subset='train', image=np.zeros((8, 6, 3)),
+            DatasetItem(id='a', subset='train',
+                media=Image(data=np.zeros((8, 6, 3))),
                 annotations=[Label(label=0, attributes={'score': 1})]),
-            DatasetItem(id='b', subset='train', image=np.zeros((2, 8, 3)),
+            DatasetItem(id='b', subset='train', media=Image(data=np.zeros((2, 8, 3))),
                 annotations=[
                     Label(label=0, attributes={'score': 0}),
                     Bbox(label=0, x=1.6, y=0.6, w=6.4, h=0.4,
@@ -309,7 +322,7 @@ class OpenImagesImporterTest(TestCase):
                         }
                     ),
                 ]),
-            DatasetItem(id='c', subset='test', image=np.ones((10, 5, 3)),
+            DatasetItem(id='c', subset='test', media=Image(data=np.ones((10, 5, 3))),
                 annotations=[
                     Label(label=1, attributes={'score': 1}),
                     Label(label=3, attributes={'score': 1}),
@@ -338,7 +351,7 @@ class OpenImagesImporterTest(TestCase):
 
             dataset = Dataset.import_from(dataset_path, 'open_images')
 
-            compare_datasets(self, expected_dataset, dataset, require_images=True)
+            compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_detect(self):

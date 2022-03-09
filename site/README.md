@@ -22,7 +22,6 @@ display on the sidebar), the description and the tags:
     weight: 1
     description: >
         Description
-    tags: [ 'Tag1', 'Tag2' ]
     ---
 
 ### Start site localy
@@ -46,12 +45,20 @@ you also need to get local copies of the theme’s own submodules:
 
 #### API documentation
 
-API documentation is generated using `Sphinx` with a theme
-[`Read the Docs`](https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html).
-The `Read the Docs` theme is added as a submodule.
-Install Sphinx ([learn more](https://www.sphinx-doc.org/en/master/index.html)).
+API documentation is generated using [`Sphinx`](https://www.sphinx-doc.org/en/master/index.html)
+with a theme [`Read the Docs`](https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html).
+For versioning using
+[fork of the sphinxcontrib-versioning repository](https://github.com/pytorch-ignite/sphinxcontrib-versioning)
 
-    pip install Sphinx==4.2.0 sphinx-rtd-theme==1.0.0
+Optionally, install a virtual environment (recommended):
+
+    python -m virtualenv .venv
+    .venv/bin/active
+
+Then install all dependencies:
+
+    pip install -r requirements.txt
+    pip install Sphinx==4.2.0 sphinx-rtd-theme==1.0.0 sphinx-copybutton==0.4.0 tensorflow openvino-dev[accuracy_check]
     pip install git+https://github.com/pytorch-ignite/sphinxcontrib-versioning.git@a1a1a94ca80a0233f0df3eaf9876812484901e76
 
 Documentation is generated automatically from `rst` files and comments
@@ -61,13 +68,18 @@ Comments in the source code should be in the format [reST](https://www.sphinx-do
 [Google](https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings) or
 [Numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html#).
 
-For generation only latest version
+For generation only latest version:
 
     sphinx-build -a -n site/source site/static/api
 
-For generation documentation with versioning
+For generation documentation with versioning,
+you must push the changes to your repository:
 
-    sphinx-versioning -l site\source\conf.py build -r develop -w develop site\source site\static\api
+    git push -u origin <your branch>
+
+and then you can use sphinx-versioning to generate documentation:
+
+    sphinx-versioning -l site\source\conf.py build -r <your branch> -w <your branch> site\source site\static\api
 
 Sphinx generates documentation in the html format to the `site/static/api`.
 After generating the documentation API,
@@ -76,13 +88,8 @@ you can [generate a site with documentation](#site-generation).
 ##### Generation options
 
 If you want to add API documentation for third-party modules,
-use the `intersphinx` extension, for proper operation,
-install the required modules.
+use the `intersphinx` extension.
 Learn more about [`intersphinx`](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html).
-
-    cd <your local directory>/datumaro/
-    pip install -r requirements.txt
-
 To describe new modules, you can generate the `rst` files using the
 [`sphinx-apidoc`](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html).
 
@@ -108,6 +115,7 @@ After the directive you can specify the members that should be displayed.
 
 If can used `|n` and `|s` in the source code comments they will
 be replaced by `\n` and space accordingly.
+Also removes the `.. code-block::` directives.
 
 Members starting with `_` are not displayed,
 except for the list of `include_members_list` located in `site/source/conf.py`.

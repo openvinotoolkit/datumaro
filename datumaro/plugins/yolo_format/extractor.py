@@ -136,7 +136,7 @@ class YoloExtractor(SourceExtractor):
             annotations = self._parse_annotations(anno_path, image)
 
             item = DatasetItem(id=item_id, subset=subset_name,
-                image=image, annotations=annotations)
+                media=image, annotations=annotations)
             subset.items[item_id] = item
 
         return item

@@ -88,7 +88,7 @@ There is few ways to convert LFW dataset into other format:
 
 # Converting to ImageNet with `convert` command:
 datum convert -if lfw -i ./lfw_dataset \
-    -f imagenet -o ./output_dir -- --save-images
+    -f imagenet -o ./output_dir -- --save-media
 
 
 # Converting to VggFace2 through the Datumaro project:
@@ -114,11 +114,11 @@ datum convert -if vgg_face2 -i ./voc_dataset \
 # Export dataaset to the LFW format through the Datumaro project:
 datum create
 datum import -f voc_classification ../vgg_dataset
-datum export -f lfw -o ./output_dir -- --save-images --image-ext png
+datum export -f lfw -o ./output_dir -- --save-media --image-ext png
 ```
 
 Available extra export options for LFW dataset format:
-- `--save-images` allow to export dataset with saving images.
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original)

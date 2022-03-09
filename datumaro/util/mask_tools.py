@@ -16,8 +16,8 @@ def generate_colormap(length=256, *, include_background=True):
     Generates colors using PASCAL VOC algorithm.
 
     If include_background is True, the result will include the item
-        "0: (0, 0, 0)", which is typically used as a background color.
-        Otherwise, indices will start from 0, but (0, 0, 0) is not included.
+    "0: (0, 0, 0)", which is typically used as a background color.
+    Otherwise, indices will start from 0, but (0, 0, 0) is not included.
 
     Returns index -> (R, G, B) mapping.
     """
@@ -86,6 +86,7 @@ def paint_mask(mask, colormap=None):
     Applies colormap to index mask
 
     mask: HW(C) [0; max_index] mask
+
     colormap: index -> (R, G, B)
     """
     check_is_mask(mask)
@@ -218,6 +219,9 @@ def crop_covered_segments(segments, width, height,
 
     Returns:
         A list of input segments' parts (in the same order as input):
+
+        .. code-block::
+
             [
                 [[x1,y1, x2,y2 ...], ...], # input segment #0 parts
                 mask1, # input segment #1 mask (if source segment is mask)
@@ -303,6 +307,7 @@ def merge_masks(masks, start=None):
         a generator.
 
         Inputs: a sequence of index masks or (binary mask, index) pairs
+
         Outputs: an index mask
     """
     if start is not None:
