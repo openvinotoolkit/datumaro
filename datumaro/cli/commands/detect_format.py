@@ -82,7 +82,7 @@ def detect_format_command(args):
             'message': human_message,
         }
 
-    depth = 2 if not args.depth else args.depth
+    depth = 2 if not args.depth else int(args.depth)
     detected_formats = env.detect_dataset(args.url,
         rejection_callback=rejection_callback, depth=depth)
     report['detected_formats'] = detected_formats

@@ -1115,7 +1115,7 @@ class Dataset(IDataset):
         elif 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
         else:
-            return matches
+            return matches[0]
 
 @contextmanager
 def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:
