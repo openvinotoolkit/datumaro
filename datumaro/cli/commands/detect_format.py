@@ -9,7 +9,6 @@ from datumaro.cli.util.project import load_project
 from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.format_detection import RejectionReason
-)
 from datumaro.util import dump_json_file
 from datumaro.util.scope import scope_add, scoped
 
