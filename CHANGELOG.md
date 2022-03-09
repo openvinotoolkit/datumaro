@@ -13,8 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
 - \[API\] A way to request dataset and extractor media type with `media_type`
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
-- BraTS format (import-only) (.npy and .nii.gz)
-  (<https://github.com/openvinotoolkit/datumaro/pull/628>)
+- BraTS format (import-only) (.npy and .nii.gz), new `MultiframeImage`
+  media type (<https://github.com/openvinotoolkit/datumaro/pull/628>)
 
 ### Changed
 - TBD
