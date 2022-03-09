@@ -30,7 +30,9 @@ from datumaro.components.errors import (
     NoMatchingItemError, VideoMergeError, WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
-from datumaro.components.media import Image, MediaElement, MultiframeImage, PointCloud, Video
+from datumaro.components.media import (
+    Image, MediaElement, MultiframeImage, PointCloud, Video,
+)
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
