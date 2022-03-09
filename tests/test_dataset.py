@@ -1733,6 +1733,19 @@ class DatasetTest(TestCase):
 
         self.assertTrue(dataset.media_type() is Video)
 
+
+    @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
+    def test_cant_change_media_type_with_transform(self):
+        class TestTransform(Transform):
+            def media_type(self):
+                return Image
+
+        dataset = Dataset(media_type=Video)
+
+        with self.assertRaises(MediaTypeError):
+            dataset.transform(TestTransform)
+            dataset.init_cache()
+
     @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
     def test_can_get_media_type_from_extractor(self):
         class TestExtractor(Extractor):

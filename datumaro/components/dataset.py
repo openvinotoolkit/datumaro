@@ -291,6 +291,7 @@ class DatasetStorage(IDataset):
             media_type = source.media_type()
         else:
             raise ValueError("Media type must be provided for a dataset")
+        assert issubclass(media_type, MediaElement)
         self._media_type = media_type
 
         # Possible combinations:
@@ -392,9 +393,12 @@ class DatasetStorage(IDataset):
             else:
                 assert False, "Unknown status %s" % new_status
 
+        media_type = self._media_type
         patch = self._storage # must be empty after transforming
         cache = DatasetItemStorage()
-        source = self._source
+        source = self._source or \
+            DatasetItemStorageDatasetView(self._storage,
+                categories=self._categories, media_type=media_type)
         transform = None
 
         if self._transforms:
@@ -412,9 +416,11 @@ class DatasetStorage(IDataset):
                 old_ids = set((item.id, item.subset) for item in source)
                 source = transform
 
-            media_type = transform.media_type()
-        else:
-            media_type = source.media_type()
+            if not issubclass(transform.media_type(), media_type):
+                # TODO: make it statically available
+                raise MediaTypeError(
+                    "Transforms are not allowed to change media "
+                    "type of dataset items")
 
         i = -1
         for i, item in enumerate(source):
@@ -484,7 +490,6 @@ class DatasetStorage(IDataset):
 
         self._storage = cache
         self._length = len(cache)
-        self._media_type = media_type
 
         if transform:
             source_cat = transform.categories()
@@ -538,17 +543,7 @@ class DatasetStorage(IDataset):
         self._categories = categories
 
     def media_type(self) -> Type[MediaElement]:
-        if self.is_cache_initialized():
-            media_type = self._media_type
-        elif self._is_unchanged_wrapper:
-            media_type = self._source.media_type()
-        elif any(is_method_redefined('media_type', Transform, t[0])
-                for t in self._transforms):
-            self.init_cache()
-            media_type = self._media_type
-        else:
-            media_type = self._media_type
-        return media_type
+        return self._media_type
 
     def put(self, item: DatasetItem):
         is_new = self._storage.put(item)
@@ -837,6 +832,7 @@ class Dataset(IDataset):
         Applies some function to dataset items.
 
         Results are stored in-place. Modifications are applied lazily.
+        Transforms are not allowed to change media type of dataset items.
 
         Args:
             method - The transformation to be applied to the dataset.
