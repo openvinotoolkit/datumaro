@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
-- Support for new and custom media types
+- Support for custom media types, new `PointCloud` media type,
+  `DatasetItem.media` and `.media_as(type)` members
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
 - \[API\] A way to request dataset and extractor media type with `media_type`
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
@@ -20,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--save-images` is replaced with `--save-media` in CLI and converter API
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
 - \[API\] `image`, `point_cloud` and `related_images` of `DatasetItem` are
-  replaced with `media` and `media_as` members and c-tor parameters
+  replaced with `media` and `media_as(type)` members and c-tor parameters
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
 
 ### Removed
