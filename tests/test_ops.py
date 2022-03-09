@@ -9,7 +9,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
-from datumaro.components.media import Image, PointCloud
+from datumaro.components.media import Image, MultiframeImage, PointCloud
 from datumaro.components.operations import (
     FailedAttrVotingError, IntersectMerge, NoMatchingAnnError,
     NoMatchingItemError, WrongGroupError, compute_ann_statistics,
@@ -641,6 +641,37 @@ class TestMultimerge(TestCase):
             DatasetItem(4, media=PointCloud(path=pcd2)),
             DatasetItem(5, media=PointCloud(path=pcd2, extra_images=[image2])),
         ], categories=[], media_type=PointCloud)
+
+        merger = IntersectMerge()
+        merged = merger([source0, source1])
+
+        compare_datasets(self, expected, merged)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_merge_multiframe_images(self):
+        source0 = Dataset.from_iterable([
+            DatasetItem(1, media=MultiframeImage([np.ones((1, 5, 3))] * 2)),
+            DatasetItem(2, media=MultiframeImage([np.ones((3, 5, 3))] * 2)),
+            DatasetItem(3, media=MultiframeImage([np.zeros((1, 5, 3))] * 2)),
+            DatasetItem(4),
+            DatasetItem(5, media=MultiframeImage([np.ones((1, 5, 3))] * 4)),
+        ], categories=[], media_type=MultiframeImage)
+
+        source1 = Dataset.from_iterable([
+            DatasetItem(1, media=MultiframeImage([np.ones((1, 5, 3))] * 2)),
+            DatasetItem(2, media=MultiframeImage([np.ones((3, 5, 3))] * 3)),
+            DatasetItem(3),
+            DatasetItem(4, media=MultiframeImage([np.ones((4, 5, 3))] * 2)),
+            DatasetItem(5, media=MultiframeImage([np.ones((1, 5, 3))] * 2)),
+        ], categories=[], media_type=MultiframeImage)
+
+        expected = Dataset.from_iterable([
+            DatasetItem(1, media=MultiframeImage([np.ones((1, 5, 3))] * 2)),
+            DatasetItem(2, media=MultiframeImage([np.ones((3, 5, 3))] * 3)),
+            DatasetItem(3, media=MultiframeImage([np.zeros((1, 5, 3))] * 2)),
+            DatasetItem(4, media=MultiframeImage([np.ones((4, 5, 3))] * 2)),
+            DatasetItem(5, media=MultiframeImage([np.ones((1, 5, 3))] * 4)),
+        ], categories=[], media_type=MultiframeImage)
 
         merger = IntersectMerge()
         merged = merger([source0, source1])
