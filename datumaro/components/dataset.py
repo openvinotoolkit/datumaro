@@ -667,6 +667,19 @@ class DatasetStorage(IDataset):
                 self.put(item)
 
 class Dataset(IDataset):
+    """
+    Represents a dataset, contains metainfo about labels and dataset items.
+    Provides iteration and access options to dataset elements.
+
+    By default, all operations are done lazily, it can be changed by
+    modifying the `eager` property and by using the `eager_mode`
+    context manager.
+
+    Dataset is supposed to have a single media type for its items. If the
+    dataset is filled manually or from extractors, and media type does not
+    match, an error is raised.
+    """
+
     _global_eager: bool = False
 
     @classmethod
@@ -675,7 +688,28 @@ class Dataset(IDataset):
             *,
             env: Optional[Environment] = None,
             media_type: Type[MediaElement] = Image) -> Dataset:
-        # TODO: remove default value for media_type
+        """
+        Creates a new dataset from an iterable object producing dataset items -
+        a generator, a list etc. It is a convenient way to create and fill
+        a custom dataset.
+
+        Parameters:
+            iterable: An iterable which returns dataset items
+            categories: A simple list of labels or complete information
+                about labels. If not specified, an empty list of labels
+                is assumed.
+            media_type: Media type for the dataset items. If the sequence
+                contains items with mismatching media type, an error is
+                raised during caching
+            env: A context for plugins, which will be used for this dataset.
+                If not specified, the builtin plugins will be used.
+
+        Returns:
+            dataset: A new dataset with specified contents
+        """
+
+        # TODO: remove the default value for media_type
+        # https://github.com/openvinotoolkit/datumaro/issues/675
 
         if isinstance(categories, list):
             categories = { AnnotationType.label:
@@ -702,6 +736,22 @@ class Dataset(IDataset):
     @staticmethod
     def from_extractors(*sources: IDataset,
             env: Optional[Environment] = None) -> Dataset:
+        """
+        Creates a new dataset from one or several `Extractor`s.
+
+        In case of a single input, creates a lazy wrapper around the input.
+        In case of several inputs, merges them and caches the resulting
+        dataset.
+
+        Parameters:
+            sources: one or many input extractors
+            env: A context for plugins, which will be used for this dataset.
+                If not specified, the builtin plugins will be used.
+
+        Returns:
+            dataset: A new dataset with contents produced by input extractors
+        """
+
         if len(sources) == 1:
             source = sources[0]
             dataset = Dataset(source=source, env=env)
