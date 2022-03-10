@@ -49,7 +49,7 @@ This section contains documents for Datumaro users.
 
 {{% /blocks/feature %}}
 
-{{% blocks/feature icon="fa-code" title="[Developer Manual](/docs/developer_manual/)" %}}
+{{% blocks/feature icon="fa-code" title="[Developer Manual](/api/api/developer_manual.html)" %}}
 
 Documentation for Datumaro developers.
 

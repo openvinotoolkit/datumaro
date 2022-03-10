@@ -12,7 +12,7 @@ updating in-place, use the `--overwrite` parameter along with the
 `--save-images` export option (in-place updates fail by default
 to prevent data loss).
 
-Unlike the regular project [data source joining](/docs/developer_manual/#merging),
+Unlike the regular project [data source joining](/api/api/developer_manual.html#merging),
 the datasets are not required to have the same labels. The labels from
 the "patch" dataset are projected onto the labels of the patched dataset,
 so only the annotations with the matching labels are used, i.e.
