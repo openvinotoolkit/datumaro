@@ -51,7 +51,7 @@ def process_outputs(inputs, outputs):
 
         image_results = []
         for i, det in enumerate(detections):
-            image_id = int(det[0]) # pylint: disable=unused-variable
+            image_id = int(det[0])  # pylint: disable=unused-variable
             label = int(det[1])
             conf = float(det[2])
             det_confs = confs[conf_ids[i]]
@@ -64,9 +64,16 @@ def process_outputs(inputs, outputs):
             w = min(int(det[5] * input_width - x), input_width)
             h = min(int(det[6] * input_height - y), input_height)
 
-            image_results.append(Bbox(x, y, w, h, label=label,
-                attributes={ 'score': conf, 'scores': list(map(float, det_confs)) }
-            ))
+            image_results.append(
+                Bbox(
+                    x,
+                    y,
+                    w,
+                    h,
+                    label=label,
+                    attributes={"score": conf, "scores": list(map(float, det_confs))},
+                )
+            )
 
             results.append(image_results)
 

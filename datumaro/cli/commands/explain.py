@@ -15,7 +15,8 @@ from ..util.project import load_project, parse_full_revpath
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Run Explainable AI algorithm",
+    parser = parser_ctor(
+        help="Run Explainable AI algorithm",
         description="""
         Runs an explainable AI algorithm for a model.|n
         |n
@@ -62,74 +63,139 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         - Run RISE on a source revision:|n
         |s|s%(prog)s HEAD~1:source-1 -m model rise
-        """, formatter_class=MultilineFormatter)
+        """,
+        formatter_class=MultilineFormatter,
+    )
 
-    parser.add_argument('target', nargs='?', default=None,
-        help="Inference target - image, revpath (default: project)")
-    parser.add_argument('-m', '--model', required=True,
-        help="Model to use for inference")
-    parser.add_argument('-o', '--output-dir', dest='save_dir', default=None,
-        help="Directory to save output (default: display only)")
+    parser.add_argument(
+        "target",
+        nargs="?",
+        default=None,
+        help="Inference target - image, revpath (default: project)",
+    )
+    parser.add_argument("-m", "--model", required=True, help="Model to use for inference")
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        dest="save_dir",
+        default=None,
+        help="Directory to save output (default: display only)",
+    )
 
-    method_sp = parser.add_subparsers(dest='algorithm')
+    method_sp = parser.add_subparsers(dest="algorithm")
 
-    rise_parser = method_sp.add_parser('rise',
+    rise_parser = method_sp.add_parser(
+        "rise",
         description="""
         RISE: Randomized Input Sampling for
         Explanation of Black-box Models algorithm|n
         |n
         See explanations at: https://arxiv.org/pdf/1806.07421.pdf
         """,
-        formatter_class=MultilineFormatter)
-    rise_parser.add_argument('-s', '--max-samples', default=None, type=int,
-        help="Number of algorithm iterations (default: mask size ^ 2)")
-    rise_parser.add_argument('--mw', '--mask-width',
-        dest='mask_width', default=7, type=int,
-        help="Mask width (default: %(default)s)")
-    rise_parser.add_argument('--mh', '--mask-height',
-        dest='mask_height', default=7, type=int,
-        help="Mask height (default: %(default)s)")
-    rise_parser.add_argument('--prob', default=0.5, type=float,
-        help="Mask pixel inclusion probability (default: %(default)s)")
-    rise_parser.add_argument('--iou', '--iou-thresh',
-        dest='iou_thresh', default=0.9, type=float,
-        help="IoU match threshold for detections (default: %(default)s)")
-    rise_parser.add_argument('--nms', '--nms-iou-thresh',
-        dest='nms_iou_thresh', default=0.0, type=float,
-        help="IoU match threshold in Non-maxima suppression (default: no NMS)")
-    rise_parser.add_argument('--conf', '--det-conf-thresh',
-        dest='det_conf_thresh', default=0.0, type=float,
-        help="Confidence threshold for detections (default: include all)")
-    rise_parser.add_argument('-b', '--batch-size', default=1, type=int,
-        help="Inference batch size (default: %(default)s)")
-    rise_parser.add_argument('--display', action='store_true',
-        help="Visualize results during computations")
+        formatter_class=MultilineFormatter,
+    )
+    rise_parser.add_argument(
+        "-s",
+        "--max-samples",
+        default=None,
+        type=int,
+        help="Number of algorithm iterations (default: mask size ^ 2)",
+    )
+    rise_parser.add_argument(
+        "--mw",
+        "--mask-width",
+        dest="mask_width",
+        default=7,
+        type=int,
+        help="Mask width (default: %(default)s)",
+    )
+    rise_parser.add_argument(
+        "--mh",
+        "--mask-height",
+        dest="mask_height",
+        default=7,
+        type=int,
+        help="Mask height (default: %(default)s)",
+    )
+    rise_parser.add_argument(
+        "--prob",
+        default=0.5,
+        type=float,
+        help="Mask pixel inclusion probability (default: %(default)s)",
+    )
+    rise_parser.add_argument(
+        "--iou",
+        "--iou-thresh",
+        dest="iou_thresh",
+        default=0.9,
+        type=float,
+        help="IoU match threshold for detections (default: %(default)s)",
+    )
+    rise_parser.add_argument(
+        "--nms",
+        "--nms-iou-thresh",
+        dest="nms_iou_thresh",
+        default=0.0,
+        type=float,
+        help="IoU match threshold in Non-maxima suppression (default: no NMS)",
+    )
+    rise_parser.add_argument(
+        "--conf",
+        "--det-conf-thresh",
+        dest="det_conf_thresh",
+        default=0.0,
+        type=float,
+        help="Confidence threshold for detections (default: include all)",
+    )
+    rise_parser.add_argument(
+        "-b",
+        "--batch-size",
+        default=1,
+        type=int,
+        help="Inference batch size (default: %(default)s)",
+    )
+    rise_parser.add_argument(
+        "--display", action="store_true", help="Visualize results during computations"
+    )
 
-    parser.add_argument('-p', '--project', dest='project_dir',
-        help="Directory of the project to operate on (default: current dir)")
+    parser.add_argument(
+        "-p",
+        "--project",
+        dest="project_dir",
+        help="Directory of the project to operate on (default: current dir)",
+    )
     parser.set_defaults(command=explain_command)
 
     return parser
 
+
 def get_sensitive_args():
     return {
-        explain_command: ['target', 'model', 'save_dir', 'project_dir',],
+        explain_command: [
+            "target",
+            "model",
+            "save_dir",
+            "project_dir",
+        ],
     }
+
 
 @scoped
 def explain_command(args):
-    from matplotlib import cm
     import cv2
+    from matplotlib import cm
 
     project = scope_add(load_project(args.project_dir))
 
     model = project.working_tree.models.make_executable_model(args.model)
 
-    if str(args.algorithm).lower() != 'rise':
+    if str(args.algorithm).lower() != "rise":
         raise NotImplementedError()
 
     from datumaro.components.algorithms.rise import RISE
-    rise = RISE(model,
+
+    rise = RISE(
+        model,
         max_samples=args.max_samples,
         mask_width=args.mask_width,
         mask_height=args.mask_height,
@@ -137,7 +203,8 @@ def explain_command(args):
         iou_thresh=args.iou_thresh,
         nms_thresh=args.nms_iou_thresh,
         det_conf_thresh=args.det_conf_thresh,
-        batch_size=args.batch_size)
+        batch_size=args.batch_size,
+    )
 
     if args.target and is_image(args.target):
         image_path = args.target
@@ -153,10 +220,10 @@ def explain_command(args):
                 for j, heatmap in enumerate(heatmaps):
                     hm_painted = cm.jet(heatmap)[:, :, 2::-1]
                     disp = (image + hm_painted) / 2
-                    cv2.imshow('heatmap-%s' % j, hm_painted)
-                    cv2.imshow(file_name + '-heatmap-%s' % j, disp)
+                    cv2.imshow("heatmap-%s" % j, hm_painted)
+                    cv2.imshow(file_name + "-heatmap-%s" % j, disp)
                 cv2.waitKey(10)
-                print("Iter", i, "of", args.max_samples, end='\r')
+                print("Iter", i, "of", args.max_samples, end="\r")
         else:
             heatmaps = next(heatmap_iter)
 
@@ -165,18 +232,16 @@ def explain_command(args):
             os.makedirs(args.save_dir, exist_ok=True)
 
             for j, heatmap in enumerate(heatmaps):
-                save_path = osp.join(args.save_dir,
-                    file_name + '-heatmap-%s.png' % j)
+                save_path = osp.join(args.save_dir, file_name + "-heatmap-%s.png" % j)
                 save_image(save_path, heatmap * 255.0)
         else:
             for j, heatmap in enumerate(heatmaps):
                 disp = (image + cm.jet(heatmap)[:, :, 2::-1]) / 2
-                cv2.imshow(file_name + '-heatmap-%s' % j, disp)
+                cv2.imshow(file_name + "-heatmap-%s" % j, disp)
             cv2.waitKey(0)
 
     else:
-        dataset, target_project = \
-            parse_full_revpath(args.target or 'project', project)
+        dataset, target_project = parse_full_revpath(args.target or "project", project)
         if target_project:
             scope_add(target_project)
 
@@ -185,8 +250,7 @@ def explain_command(args):
         for item in dataset:
             image = item.image.data
             if image is None:
-                log.warning("Item %s does not have image data. Skipping.",
-                    item.id)
+                log.warning("Item %s does not have image data. Skipping.", item.id)
                 continue
 
             heatmap_iter = rise.apply(image)
@@ -199,14 +263,16 @@ def explain_command(args):
                 os.makedirs(args.save_dir, exist_ok=True)
 
                 for j, heatmap in enumerate(heatmaps):
-                    save_image(osp.join(args.save_dir,
-                            item.id + '-heatmap-%s.png' % j),
-                        heatmap * 255.0, create_dir=True)
+                    save_image(
+                        osp.join(args.save_dir, item.id + "-heatmap-%s.png" % j),
+                        heatmap * 255.0,
+                        create_dir=True,
+                    )
 
             if not args.save_dir or args.display:
                 for j, heatmap in enumerate(heatmaps):
                     disp = (image + cm.jet(heatmap)[:, :, 2::-1]) / 2
-                    cv2.imshow(item.id + '-heatmap-%s' % j, disp)
+                    cv2.imshow(item.id + "-heatmap-%s" % j, disp)
                 cv2.waitKey(0)
 
     return 0

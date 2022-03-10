@@ -1,6 +1,6 @@
-from unittest.case import TestCase
 import os
 import os.path as osp
+from unittest.case import TestCase
 
 from datumaro.components.media_manager import MediaManager
 from datumaro.util.scope import on_exit_do, scope_add, scoped
@@ -18,14 +18,27 @@ class VideoSplittingTest:
         on_exit_do(MediaManager.get_instance().clear)
 
         test_dir = scope_add(TestDir())
-        video_path = osp.join(test_dir, 'video.avi')
+        video_path = osp.join(test_dir, "video.avi")
         make_sample_video(video_path, frames=10)
 
-        output_dir = osp.join(test_dir, 'result')
+        output_dir = osp.join(test_dir, "result")
 
-        run(TestCase(), 'util', 'split_video',
-            '-i', video_path, '-o', output_dir, '--image-ext', '.jpg',
-            '--start-frame', '2', '--end-frame', '8', '--step', '2')
+        run(
+            TestCase(),
+            "util",
+            "split_video",
+            "-i",
+            video_path,
+            "-o",
+            output_dir,
+            "--image-ext",
+            ".jpg",
+            "--start-frame",
+            "2",
+            "--end-frame",
+            "8",
+            "--step",
+            "2",
+        )
 
-        assert set(os.listdir(output_dir)) == {'%06d.jpg' % n
-            for n in range(2, 8, 2)}
+        assert set(os.listdir(output_dir)) == {"%06d.jpg" % n for n in range(2, 8, 2)}

@@ -8,6 +8,7 @@ _instance = None
 
 DEFAULT_CAPACITY = 2
 
+
 class ImageCache:
     @staticmethod
     def get_instance():
@@ -31,7 +32,7 @@ class ImageCache:
         if item is default:
             return None
 
-        self.items.move_to_end(item_id, last=False) # naive splay tree
+        self.items.move_to_end(item_id, last=False)  # naive splay tree
         return item
 
     def size(self):

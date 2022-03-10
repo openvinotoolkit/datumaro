@@ -2,16 +2,26 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum, IntEnum, auto
-from typing import (
-    Any, Callable, Collection, Iterable, Iterator, List, NoReturn, Optional,
-    Sequence, TextIO, Tuple, Union,
-)
 import contextlib
 import fnmatch
 import glob
 import logging as log
 import os.path as osp
+from enum import Enum, IntEnum, auto
+from typing import (
+    Any,
+    Callable,
+    Collection,
+    Iterable,
+    Iterator,
+    List,
+    NoReturn,
+    Optional,
+    Sequence,
+    TextIO,
+    Tuple,
+    Union,
+)
 
 from typing_extensions import Protocol
 
@@ -37,21 +47,25 @@ class FormatDetectionConfidence(IntEnum):
     # the dataset belongs to the format; for example, because the format
     # has explicit identification via magic numbers/files.
 
+
 # All confidence levels should be positive for a couple of reasons:
 # * It makes it possible to use 0 or a negative number as a special
 #   value that is guaranteed to be less than any real value.
 # * It makes sure that every confidence level is a true value.
 assert all(level > 0 for level in FormatDetectionConfidence)
 
+
 class RejectionReason(Enum):
     unmet_requirements = auto()
     insufficient_confidence = auto()
     detection_unsupported = auto()
 
+
 class _FormatRejected(Exception):
     @property
     def reason(self) -> RejectionReason:
         raise NotImplementedError
+
 
 class FormatRequirementsUnmet(_FormatRejected):
     """
@@ -80,13 +94,14 @@ class FormatRequirementsUnmet(_FormatRejected):
         else:
             lines.append("The following requirement was not met:")
 
-        lines.extend('  ' + req for req in self.failed_alternatives)
+        lines.extend("  " + req for req in self.failed_alternatives)
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     @property
     def reason(self) -> RejectionReason:
         return RejectionReason.unmet_requirements
+
 
 class FormatDetectionUnsupported(_FormatRejected):
     """
@@ -103,6 +118,7 @@ class FormatDetectionUnsupported(_FormatRejected):
     @property
     def reason(self) -> RejectionReason:
         return RejectionReason.detection_unsupported
+
 
 class FormatDetectionContext:
     """
@@ -158,15 +174,15 @@ class FormatDetectionContext:
             return False
 
         path = osp.normpath(path)
-        if path.startswith('..' + osp.sep):
+        if path.startswith(".." + osp.sep):
             return False
 
         return True
 
     def _start_requirement(self, req_type: str) -> None:
-        assert not self._one_or_more_context, \
-            f"a requirement ({req_type}) can't be placed directly within " \
-            "a 'require_any' block"
+        assert not self._one_or_more_context, (
+            f"a requirement ({req_type}) can't be placed directly within " "a 'require_any' block"
+        )
 
     def raise_unsupported(self) -> NoReturn:
         """
@@ -185,7 +201,10 @@ class FormatDetectionContext:
 
         raise FormatRequirementsUnmet((requirement_desc,))
 
-    def require_file(self, pattern: str, *,
+    def require_file(
+        self,
+        pattern: str,
+        *,
         exclude_fnames: Union[str, Collection[str]] = (),
     ) -> str:
         """
@@ -207,10 +226,12 @@ class FormatDetectionContext:
 
         self._start_requirement("require_file")
 
-        return next(self._require_files_iter(
-            pattern, exclude_fnames=exclude_fnames))
+        return next(self._require_files_iter(pattern, exclude_fnames=exclude_fnames))
 
-    def require_files(self, pattern: str, *,
+    def require_files(
+        self,
+        pattern: str,
+        *,
         exclude_fnames: Union[str, Collection[str]] = (),
     ) -> List[str]:
         """
@@ -220,21 +241,23 @@ class FormatDetectionContext:
 
         self._start_requirement("require_files")
 
-        return sorted(self._require_files_iter(
-            pattern, exclude_fnames=exclude_fnames))
+        return sorted(self._require_files_iter(pattern, exclude_fnames=exclude_fnames))
 
-    def _require_files_iter(self, pattern: str, *,
+    def _require_files_iter(
+        self,
+        pattern: str,
+        *,
         exclude_fnames: Union[str, Collection[str]] = (),
     ) -> Iterator[str]:
         if isinstance(exclude_fnames, str):
             exclude_fnames = (exclude_fnames,)
 
-        requirement_desc = \
-            f"dataset must contain a file matching pattern \"{pattern}\""
+        requirement_desc = f'dataset must contain a file matching pattern "{pattern}"'
 
         if exclude_fnames:
-            requirement_desc += ' (but not named ' + \
-                ', '.join(f'"{e}"' for e in exclude_fnames) + ')'
+            requirement_desc += (
+                " (but not named " + ", ".join(f'"{e}"' for e in exclude_fnames) + ")"
+            )
 
         if not self._is_path_within_root(pattern):
             self.fail(requirement_desc)
@@ -248,8 +271,7 @@ class FormatDetectionContext:
                 # entire path with a pattern (fnmatch is unsuitable, because
                 # it lets '*' match a slash, which can lead to spurious matches
                 # and is not how glob works).
-                if any(fnmatch.fnmatch(osp.basename(path), pat)
-                        for pat in exclude_fnames):
+                if any(fnmatch.fnmatch(osp.basename(path), pat) for pat in exclude_fnames):
                     continue
 
                 yield osp.relpath(path, self._root_path)
@@ -260,7 +282,9 @@ class FormatDetectionContext:
 
     @contextlib.contextmanager
     def probe_text_file(
-        self, path: str, requirement_desc: str,
+        self,
+        path: str,
+        requirement_desc: str,
     ) -> Iterator[TextIO]:
         """
         Returns a context manager that can be used to place a requirement on
@@ -294,7 +318,7 @@ class FormatDetectionContext:
             self.fail(requirement_desc_full)
 
         try:
-            with open(osp.join(self._root_path, path), encoding='utf-8') as f:
+            with open(osp.join(self._root_path, path), encoding="utf-8") as f:
                 yield f
         except _FormatRejected:
             raise
@@ -341,12 +365,11 @@ class FormatDetectionContext:
 
             # If no alternatives succeeded, and none failed, then there were
             # no alternatives at all.
-            assert self._one_or_more_context.failed_alternatives, \
-                "a 'require_any' block must contain " \
-                "at least one 'alternative' block"
+            assert self._one_or_more_context.failed_alternatives, (
+                "a 'require_any' block must contain " "at least one 'alternative' block"
+            )
 
-            raise FormatRequirementsUnmet(
-                self._one_or_more_context.failed_alternatives)
+            raise FormatRequirementsUnmet(self._one_or_more_context.failed_alternatives)
         finally:
             self._one_or_more_context = None
 
@@ -360,9 +383,9 @@ class FormatDetectionContext:
         Must only be used directly within a `with context.requirements()` block.
         """
 
-        assert self._one_or_more_context, \
-            "An 'alternative' block must be directly within " \
-            "a 'require_any' block"
+        assert self._one_or_more_context, (
+            "An 'alternative' block must be directly within " "a 'require_any' block"
+        )
 
         saved_one_or_more_context = self._one_or_more_context
         self._one_or_more_context = None
@@ -370,8 +393,7 @@ class FormatDetectionContext:
         try:
             yield
         except FormatRequirementsUnmet as e:
-            saved_one_or_more_context.failed_alternatives.extend(
-                e.failed_alternatives)
+            saved_one_or_more_context.failed_alternatives.extend(e.failed_alternatives)
         else:
             saved_one_or_more_context.had_successful_alternatives = True
         finally:
@@ -398,8 +420,10 @@ Must terminate in one of the following ways:
   `FormatDetectionContext.raise_unsupported`.
 """
 
+
 def apply_format_detector(
-    dataset_root_path: str, detector: FormatDetector,
+    dataset_root_path: str,
+    detector: FormatDetector,
 ) -> FormatDetectionConfidence:
     """
     Checks whether the dataset located at `dataset_root_path` belongs to the
@@ -414,11 +438,16 @@ def apply_format_detector(
 
     return detector(context) or FormatDetectionConfidence.MEDIUM
 
+
 class RejectionCallback(Protocol):
-    def __call__(self,
-        format_name: str, reason: RejectionReason, human_message: str,
+    def __call__(
+        self,
+        format_name: str,
+        reason: RejectionReason,
+        human_message: str,
     ) -> Any:
         ...
+
 
 def detect_dataset_format(
     formats: Iterable[Tuple[str, FormatDetector]],
@@ -456,9 +485,10 @@ def detect_dataset_format(
     ):
         if rejection_callback:
             rejection_callback(
-                format_name, RejectionReason.insufficient_confidence,
+                format_name,
+                RejectionReason.insufficient_confidence,
                 f"Another format ({format_with_more_confidence}) "
-                    "was matched with more confidence",
+                "was matched with more confidence",
             )
 
     max_confidence = 0
@@ -485,8 +515,7 @@ def detect_dataset_format(
                 max_confidence = new_confidence
             elif new_confidence == max_confidence:
                 matches.append(format_name)
-            else: # new confidence is less than max
+            else:  # new confidence is less than max
                 report_insufficient_confidence(format_name, matches[0])
-
 
     return matches

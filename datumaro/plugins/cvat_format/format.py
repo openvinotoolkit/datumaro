@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+
 class CvatPath:
-    IMAGES_DIR = 'images'
+    IMAGES_DIR = "images"
 
-    IMAGE_EXT = '.jpg'
+    IMAGE_EXT = ".jpg"
 
-    BUILTIN_ATTRS = {'occluded', 'outside', 'keyframe', 'track_id'}
+    BUILTIN_ATTRS = {"occluded", "outside", "keyframe", "track_id"}

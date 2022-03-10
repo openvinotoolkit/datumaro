@@ -2,9 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum, auto
-from glob import glob
-from typing import Collection, Optional, Union
 import contextlib
 import inspect
 import os
@@ -13,6 +10,9 @@ import tempfile
 import unittest
 import unittest.mock
 import warnings
+from enum import Enum, auto
+from glob import glob
+from typing import Collection, Optional, Union
 
 from typing_extensions import Literal
 
@@ -27,8 +27,10 @@ class Dimensions(Enum):
     dim_2d = auto()
     dim_3d = auto()
 
+
 def current_function_name(depth=1):
     return inspect.getouterframes(inspect.currentframe())[depth].function
+
 
 class FileRemover:
     def __init__(self, path, is_dir=False):
@@ -49,6 +51,7 @@ class FileRemover:
         else:
             rmfile(self.path)
 
+
 class TestDir(FileRemover):
     """
     Creates a temporary directory for a test. Uses the name of
@@ -64,7 +67,7 @@ class TestDir(FileRemover):
 
     def __init__(self, path: Optional[str] = None, frame_id: int = 2):
         if not path:
-            prefix = f'temp_{current_function_name(frame_id)}-'
+            prefix = f"temp_{current_function_name(frame_id)}-"
         else:
             prefix = None
         self._prefix = prefix
@@ -88,11 +91,9 @@ class TestDir(FileRemover):
 
         return path
 
+
 def compare_categories(test, expected, actual):
-    test.assertEqual(
-        sorted(expected, key=lambda t: t.value),
-        sorted(actual, key=lambda t: t.value)
-    )
+    test.assertEqual(sorted(expected, key=lambda t: t.value), sorted(actual, key=lambda t: t.value))
 
     if AnnotationType.label in expected:
         test.assertEqual(
@@ -110,7 +111,9 @@ def compare_categories(test, expected, actual):
             actual[AnnotationType.points].items,
         )
 
-IGNORE_ALL = '*'
+
+IGNORE_ALL = "*"
+
 
 def _compare_annotations(expected, actual, ignored_attrs=None):
     if not ignored_attrs:
@@ -133,9 +136,15 @@ def _compare_annotations(expected, actual, ignored_attrs=None):
 
     return r
 
-def compare_datasets(test, expected: IDataset, actual: IDataset,
-        ignored_attrs: Union[None, Literal['*'], Collection[str]] = None,
-        require_media: bool = False, require_images: bool = False):
+
+def compare_datasets(
+    test,
+    expected: IDataset,
+    actual: IDataset,
+    ignored_attrs: Union[None, Literal["*"], Collection[str]] = None,
+    require_media: bool = False,
+    require_images: bool = False,
+):
     compare_categories(test, expected.categories(), actual.categories())
 
     test.assertTrue(issubclass(actual.media_type(), expected.media_type()))
@@ -144,21 +153,25 @@ def compare_datasets(test, expected: IDataset, actual: IDataset,
     test.assertEqual(len(expected), len(actual))
 
     for item_a in expected:
-        item_b = find(actual, lambda x: x.id == item_a.id and \
-            x.subset == item_a.subset)
+        item_b = find(actual, lambda x: x.id == item_a.id and x.subset == item_a.subset)
         test.assertFalse(item_b is None, item_a.id)
 
         if ignored_attrs and ignored_attrs != IGNORE_ALL:
-            test.assertEqual(item_a.attributes,
+            test.assertEqual(
+                item_a.attributes,
                 filter_dict(item_b.attributes, exclude_keys=ignored_attrs),
-                item_a.id)
+                item_a.id,
+            )
         elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
         if require_images:
-            warnings.warn("'require_images' is deprecated and will be "
+            warnings.warn(
+                "'require_images' is deprecated and will be "
                 "removed in future. Use 'require_media' instead.",
-                DeprecationWarning, stacklevel=2)
+                DeprecationWarning,
+                stacklevel=2,
+            )
         require_media = require_media or require_images
 
         if require_media and item_a.media and item_b.media:
@@ -166,19 +179,19 @@ def compare_datasets(test, expected: IDataset, actual: IDataset,
                 test.assertEqual(item_a.media, item_b.media, item_a.id)
             elif isinstance(item_a.media, PointCloud):
                 test.assertEqual(item_a.media.extra_images, item_b.media.extra_images, item_a.id)
-        test.assertEqual(len(item_a.annotations), len(item_b.annotations),
-            item_a.id)
+        test.assertEqual(len(item_a.annotations), len(item_b.annotations), item_a.id)
         for ann_a in item_a.annotations:
             # We might find few corresponding items, so check them all
-            ann_b_matches = [x for x in item_b.annotations
-                if x.type == ann_a.type]
-            test.assertFalse(len(ann_b_matches) == 0, 'ann id: %s' % ann_a.id)
+            ann_b_matches = [x for x in item_b.annotations if x.type == ann_a.type]
+            test.assertFalse(len(ann_b_matches) == 0, "ann id: %s" % ann_a.id)
 
-            ann_b = find(ann_b_matches, lambda x:
-                _compare_annotations(x, ann_a, ignored_attrs=ignored_attrs))
+            ann_b = find(
+                ann_b_matches, lambda x: _compare_annotations(x, ann_a, ignored_attrs=ignored_attrs)
+            )
             if ann_b is None:
-                test.fail('ann %s, candidates %s' % (ann_a, ann_b_matches))
-            item_b.annotations.remove(ann_b) # avoid repeats
+                test.fail("ann %s, candidates %s" % (ann_a, ann_b_matches))
+            item_b.annotations.remove(ann_b)  # avoid repeats
+
 
 def compare_datasets_strict(test, expected: IDataset, actual: IDataset):
     # Compares datasets for strong equality
@@ -194,13 +207,16 @@ def compare_datasets_strict(test, expected: IDataset, actual: IDataset):
         a_subset = actual.get_subset(subset_name)
         test.assertEqual(len(e_subset), len(a_subset))
         for idx, (item_a, item_b) in enumerate(zip(e_subset, a_subset)):
-            test.assertEqual(item_a, item_b,
-                '%s:\n%s\nvs.\n%s\n' % \
-                (idx, item_a, item_b))
+            test.assertEqual(item_a, item_b, "%s:\n%s\nvs.\n%s\n" % (idx, item_a, item_b))
 
-def compare_datasets_3d(test, expected: IDataset, actual: IDataset,
-        ignored_attrs: Union[None, Literal['*'], Collection[str]] = None,
-        require_point_cloud: bool = False):
+
+def compare_datasets_3d(
+    test,
+    expected: IDataset,
+    actual: IDataset,
+    ignored_attrs: Union[None, Literal["*"], Collection[str]] = None,
+    require_point_cloud: bool = False,
+):
     compare_categories(test, expected.categories(), actual.categories())
 
     if actual.subsets():
@@ -212,35 +228,46 @@ def compare_datasets_3d(test, expected: IDataset, actual: IDataset,
         test.assertFalse(item_b is None, item_a.id)
 
         if ignored_attrs and ignored_attrs != IGNORE_ALL:
-            test.assertEqual(item_a.attributes,
+            test.assertEqual(
+                item_a.attributes,
                 filter_dict(item_b.attributes, exclude_keys=ignored_attrs),
-                item_a.id)
+                item_a.id,
+            )
         elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
-        if (require_point_cloud and item_a.media) or \
-                (item_a.media and item_b.media):
+        if (require_point_cloud and item_a.media) or (item_a.media and item_b.media):
             test.assertEqual(item_a.media.path, item_b.media.path, item_a.id)
             test.assertEqual(
                 set(img.path for img in item_a.media.extra_images),
                 set(img.path for img in item_b.media.extra_images),
-                item_a.id)
+                item_a.id,
+            )
         test.assertEqual(len(item_a.annotations), len(item_b.annotations))
         for ann_a in item_a.annotations:
             # We might find few corresponding items, so check them all
-            ann_b_matches = [x for x in item_b.annotations
-                if x.type == ann_a.type]
-            test.assertFalse(len(ann_b_matches) == 0, 'ann id: %s' % ann_a.id)
+            ann_b_matches = [x for x in item_b.annotations if x.type == ann_a.type]
+            test.assertFalse(len(ann_b_matches) == 0, "ann id: %s" % ann_a.id)
 
-            ann_b = find(ann_b_matches, lambda x:
-                _compare_annotations(x, ann_a, ignored_attrs=ignored_attrs))
+            ann_b = find(
+                ann_b_matches, lambda x: _compare_annotations(x, ann_a, ignored_attrs=ignored_attrs)
+            )
             if ann_b is None:
-                test.fail('ann %s, candidates %s' % (ann_a, ann_b_matches))
-            item_b.annotations.remove(ann_b) # avoid repeats
+                test.fail("ann %s, candidates %s" % (ann_a, ann_b_matches))
+            item_b.annotations.remove(ann_b)  # avoid repeats
 
 
-def check_save_and_load(test, source_dataset, converter, test_dir, importer,
-        target_dataset=None, importer_args=None, compare=None, **kwargs):
+def check_save_and_load(
+    test,
+    source_dataset,
+    converter,
+    test_dir,
+    importer,
+    target_dataset=None,
+    importer_args=None,
+    compare=None,
+    **kwargs,
+):
     converter(source_dataset, test_dir)
 
     if importer_args is None:
@@ -257,6 +284,7 @@ def check_save_and_load(test, source_dataset, converter, test_dir, importer,
         compare = compare_datasets
     compare(test, expected=target_dataset, actual=parsed_dataset, **kwargs)
 
+
 def compare_dirs(test, expected: str, actual: str):
     """
     Compares file and directory structures in the given directories.
@@ -264,7 +292,7 @@ def compare_dirs(test, expected: str, actual: str):
     """
     skip_empty_dirs = True
 
-    for a_path in glob(osp.join(expected, '**', '*'), recursive=True):
+    for a_path in glob(osp.join(expected, "**", "*"), recursive=True):
         rel_path = osp.relpath(a_path, expected)
         b_path = osp.join(actual, rel_path)
         if osp.isdir(a_path):
@@ -273,13 +301,15 @@ def compare_dirs(test, expected: str, actual: str):
             continue
 
         test.assertTrue(osp.isfile(b_path), rel_path)
-        with open(a_path, 'rb') as a_file, \
-                open(b_path, 'rb') as b_file:
+        with open(a_path, "rb") as a_file, open(b_path, "rb") as b_file:
             test.assertEqual(a_file.read(), b_file.read(), rel_path)
+
 
 def run_datum(test, *args, expected_code=0):
     from datumaro.cli.__main__ import main
+
     test.assertEqual(expected_code, main(args), str(args))
+
 
 @contextlib.contextmanager
 def mock_tfds_data(example=None):
@@ -289,8 +319,10 @@ def mock_tfds_data(example=None):
     NUM_EXAMPLES = 1
 
     if example:
+
         def as_dataset(self, *args, **kwargs):
             return tf.data.Dataset.from_tensors(example)
+
     else:
         as_dataset = None
 
@@ -304,13 +336,15 @@ def mock_tfds_data(example=None):
         def new_init(self, **kwargs):
             original_init(self, **kwargs)
             self.info.set_splits(
-                tfds.core.SplitDict([
-                    tfds.core.SplitInfo(
-                        name="train", shard_lengths=[NUM_EXAMPLES],
-                        num_bytes=1234),
-                ], dataset_name=self.name),
+                tfds.core.SplitDict(
+                    [
+                        tfds.core.SplitInfo(
+                            name="train", shard_lengths=[NUM_EXAMPLES], num_bytes=1234
+                        ),
+                    ],
+                    dataset_name=self.name,
+                ),
             )
 
-        with unittest.mock.patch(
-            'tensorflow_datasets.core.DatasetBuilder.__init__', new_init):
+        with unittest.mock.patch("tensorflow_datasets.core.DatasetBuilder.__init__", new_init):
             yield

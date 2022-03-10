@@ -2,9 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from datumaro.components.annotation import (
-    AnnotationType, Label, LabelCategories,
-)
+from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.util.annotation_util import softmax
 
 
@@ -15,7 +13,7 @@ def process_outputs(inputs, outputs):
     # results = conversion result; [[ Annotation, ... ], ... ]
 
     results = []
-    for input_, output in zip(inputs, outputs): # pylint: disable=unused-variable
+    for input_, output in zip(inputs, outputs):  # pylint: disable=unused-variable
         image_results = []
         output = softmax(output).tolist()
         label = output.index(max(output))
@@ -31,7 +29,7 @@ def get_categories():
 
     label_categories = LabelCategories()
 
-    with open("samples/imagenet.class", "r", encoding='utf-8') as file:
+    with open("samples/imagenet.class", "r", encoding="utf-8") as file:
         for line in file.readlines():
             label = line.strip()
             label_categories.add(label)

@@ -2,12 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
-class DatumaroPath:
-    IMAGES_DIR = 'images'
-    ANNOTATIONS_DIR = 'annotations'
-    PCD_DIR = 'point_clouds'
-    RELATED_IMAGES_DIR = 'related_images'
-    MASKS_DIR = 'masks'
 
-    IMAGE_EXT = '.jpg'
-    MASK_EXT = '.png'
+class DatumaroPath:
+    IMAGES_DIR = "images"
+    ANNOTATIONS_DIR = "annotations"
+    PCD_DIR = "point_clouds"
+    RELATED_IMAGES_DIR = "related_images"
+    MASKS_DIR = "masks"
+
+    IMAGE_EXT = ".jpg"
+    MASK_EXT = ".png"
