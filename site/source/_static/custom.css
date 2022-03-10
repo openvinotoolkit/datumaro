@@ -40,3 +40,20 @@ html.writer-html4 .rst-content dl:not(.docutils) .property,
 html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple) .property {
   display: inline;
 }
+
+/* Meramaid config */
+
+.mermaid svg {
+  width: 60%;
+  height: auto;
+}
+
+.large-scheme svg {
+  width: 20%;
+  font-size: 55px !important;
+}
+
+.large-scheme-two svg {
+  width: 20%;
+  font-size: 50px !important;
+}

@@ -44,6 +44,7 @@ extensions = [
     'sphinx.ext.autosectionlabel', # Refer sections its title
     'sphinx.ext.intersphinx', # Generate links to the documentation
                               # of objects in external projects
+    'sphinxcontrib.mermaid', # allows Mermaid graphs
 ]
 
 # Add any paths that contain templates here, relative to this directory.

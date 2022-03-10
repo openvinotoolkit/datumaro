@@ -1,6 +1,13 @@
 Welcome to Datumaro API documentation!
 ######################################
 
+.. sidebar:: :ref:`Learn the basics <developer_manual>`
+
+   Explore Datumaro concepts and classes. From the
+   :ref:`Developer Manual <developer_manual>` you will learn about
+   the central part of Datumaro - the Dataset class, projects,
+   library contents, plugins and how to work with datumaro through the CLI.
+
 This API Dataset Management Framework Documentation (Datumaro).
 
 The Datumaro API provides access to functions for building composite datasets
@@ -16,7 +23,8 @@ Contents
    :maxdepth: 1
    :glob:
 
-   /api/datumaro.rst
+   /api/developer_manual.rst
+   /api/datumaro/datumaro.rst
    /api/cli/cli.rst
    /api/components/*
    /api/plugins/*
