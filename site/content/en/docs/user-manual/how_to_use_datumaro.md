@@ -70,8 +70,8 @@ dataset = dm.Dataset.import_from(path, format)
 
       If a path refers to `project` (i.e. target name is not set, or
       this target is exactly specified), the target dataset is the result of
-      [joining](/api/api/developer_manual.html#merging) all the project data sources.
-      Otherwise, if the path refers to a data source revision, the
+      [joining](/api/api/developer_manual.html#merging) all the project data
+      sources. Otherwise, if the path refers to a data source revision, the
       corresponding stage from the revision build tree will be used.
 
 - Dataset building concepts:
