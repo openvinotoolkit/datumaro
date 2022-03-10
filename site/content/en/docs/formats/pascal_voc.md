@@ -180,7 +180,7 @@ Or, using Python API:
 import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path/to/dataset>', 'voc')
-dataset.export('save_dir', 'coco', save_images=True)
+dataset.export('save_dir', 'coco', save_media=True)
 ```
 
 ## Export to Pascal VOC
@@ -195,11 +195,11 @@ datum export -p <path/to/project> -f voc -o <output/dir> -- --tasks classificati
 # converting to Pascal VOC format from other format
 datum convert -if imagenet -i <path/to/dataset> \
     -f voc -o <output/dir> \
-    -- --label_map voc --save-images
+    -- --label_map voc --save-media
 ```
 
 Extra options for exporting to Pascal VOC format:
-- `--save-images` - allow to export dataset with saving images
+- `--save-media` - allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext IMAGE_EXT` - allow to specify image extension
   for exporting dataset (by default use original or `.jpg` if none)
@@ -257,7 +257,7 @@ datum stats -p project # check statisctics.json -> repeated images
 datum transform -p project -t ndr -- -w trainval -k 2500
 datum filter -p project -e '/item[subset="trainval"]'
 datum transform -p project -t random_split -- -s train:.8 -s val:.2
-datum export -p project -f voc -- --label-map voc --save-images
+datum export -p project -f voc -- --label-map voc --save-media
 ```
 
 ### Example 2. How to create a custom dataset
@@ -309,7 +309,7 @@ def only_jumping(item):
 
 train_dataset.select(only_jumping)
 
-train_dataset.export('./jumping_label_me', format='label_me', save_images=True)
+train_dataset.export('./jumping_label_me', format='label_me', save_media=True)
 ```
 
 ### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task:

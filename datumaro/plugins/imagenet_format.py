@@ -6,16 +6,16 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.annotation import (
-    AnnotationType, Label, LabelCategories,
-)
+from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.converter import Converter
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
 
 class ImagenetPath:
-    IMAGE_DIR_NO_LABEL = 'no_label'
+    IMAGE_DIR_NO_LABEL = "no_label"
 
 
 class ImagenetExtractor(SourceExtractor):
@@ -31,7 +31,7 @@ class ImagenetExtractor(SourceExtractor):
         for dirname in sorted(os.listdir(path)):
             if dirname != ImagenetPath.IMAGE_DIR_NO_LABEL:
                 label_cat.add(dirname)
-        return { AnnotationType.label: label_cat }
+        return {AnnotationType.label: label_cat}
 
     def _load_items(self, path):
         items = {}
@@ -43,8 +43,7 @@ class ImagenetExtractor(SourceExtractor):
             item_id = osp.join(label, image_name)
             item = items.get(item_id)
             if item is None:
-                item = DatasetItem(id=item_id, subset=self._subset,
-                    image=image_path)
+                item = DatasetItem(id=item_id, subset=self._subset, media=Image(path=image_path))
                 items[item_id] = item
             annotations = item.annotations
 
@@ -60,37 +59,45 @@ class ImagenetImporter(Importer):
     def find_sources(cls, path):
         if not osp.isdir(path):
             return []
-        return [{ 'url': path, 'format': ImagenetExtractor.NAME }]
+        return [{"url": path, "format": ImagenetExtractor.NAME}]
 
 
 class ImagenetConverter(Converter):
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = ".jpg"
 
     def apply(self):
-
         def _get_dir_name(id_parts, label_name):
             if 1 < len(id_parts) and id_parts[0] == label_name:
-                return ''
+                return ""
             else:
                 return label_name
 
+        if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
         if 1 < len(self._extractor.subsets()):
-            log.warning("ImageNet format only supports exporting a single "
-                "subset, subset information will not be used.")
+            log.warning(
+                "ImageNet format only supports exporting a single "
+                "subset, subset information will not be used."
+            )
 
         subset_dir = self._save_dir
         extractor = self._extractor
         labels = {}
         for item in self._extractor:
-            id_parts = item.id.split('/')
-            labels = set(p.label for p in item.annotations
-                if p.type == AnnotationType.label)
+            id_parts = item.id.split("/")
+            labels = set(p.label for p in item.annotations if p.type == AnnotationType.label)
 
             for label in labels:
                 label_name = extractor.categories()[AnnotationType.label][label].name
-                self._save_image(item, subdir=osp.join(subset_dir,
-                    _get_dir_name(id_parts, label_name)))
+                self._save_image(
+                    item, subdir=osp.join(subset_dir, _get_dir_name(id_parts, label_name))
+                )
 
             if not labels:
-                self._save_image(item, subdir=osp.join(subset_dir,
-                     _get_dir_name(id_parts, ImagenetPath.IMAGE_DIR_NO_LABEL)))
+                self._save_image(
+                    item,
+                    subdir=osp.join(
+                        subset_dir, _get_dir_name(id_parts, ImagenetPath.IMAGE_DIR_NO_LABEL)
+                    ),
+                )

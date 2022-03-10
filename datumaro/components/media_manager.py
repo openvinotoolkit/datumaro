@@ -35,12 +35,13 @@
 # investigation for each operation (however, it's just about the caching,
 # so it's unlikely to make the system unstable)
 
-from collections import OrderedDict
 import sys
+from collections import OrderedDict
 
 _instance = None
 
 DEFAULT_CAPACITY = 2
+
 
 class MediaManager:
     @staticmethod
@@ -57,7 +58,7 @@ class MediaManager:
     def push(self, key, media):
         if self.capacity <= len(self.items):
             _, v = self.items.popitem(last=True)
-            if hasattr(v, 'close') and sys.getrefcount(v) <= 2:
+            if hasattr(v, "close") and sys.getrefcount(v) <= 2:
                 v.close()
         self.items[key] = media
 
@@ -67,7 +68,7 @@ class MediaManager:
         if item is default:
             return None
 
-        self.items.move_to_end(key, last=False) # naive splay tree
+        self.items.move_to_end(key, last=False)  # naive splay tree
         return item
 
     def size(self):
@@ -75,6 +76,6 @@ class MediaManager:
 
     def clear(self):
         for item in self.items.values():
-            if hasattr(item, 'close'):
+            if hasattr(item, "close"):
                 item.close()
         self.items.clear()

@@ -101,7 +101,7 @@ import datumaro as dm
 
 vgg_face2_dataset = dm.Dataset.import_from('<path_to_dataset', format='vgg_face2')
 
-vgg_face2_dataset.export('<output_dir>', format='open_images', save_images=True)
+vgg_face2_dataset.export('<output_dir>', format='open_images', save_media=True)
 ```
 
 > Note: some formats have extra export options. For particular format see the
@@ -122,14 +122,14 @@ datum convert -if wider_face -i <path_to_wider> \
 # Using Datumaro project
 datum create
 datum import -f wider_face <path_to_wider>
-datum export -f vgg_face2 -o <output_dir> -- --save-images --image-ext '.png'
+datum export -f vgg_face2 -o <output_dir> -- --save-media --image-ext '.png'
 ```
 
 > Note: `vgg_face2` format supports only one `Bbox` per image
 
 Extra options for exporting to Vgg Face2 format:
 
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting the dataset (by default `.png`)

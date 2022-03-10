@@ -8,8 +8,8 @@ This command exports a project or a source as a dataset in some format.
 
 Check [supported formats](/docs/user-manual/supported_formats) for more info
 about format specifications, supported options and other details.
-The list of formats can be extended by custom plugins, check [extending tips](/docs/user-manual/extending)
-for information on this topic.
+The list of formats can be extended by custom plugins, check
+[extending tips](/docs/user-manual/extending) for information on this topic.
 
 Available formats are listed in the command help output.
 
@@ -27,8 +27,8 @@ Common export options:
   allows to convert all the images from one format into another.
 
 This command allows to use the `-f/--filter` parameter to select dataset
-elements needed for exporting. Read the [`filter`](/docs/user-manual/command-reference/filter/) command
-description for more info about this functionality.
+elements needed for exporting. Read the [`filter`](/docs/user-manual/command-reference/filter/)
+command description for more info about this functionality.
 
 The command can only be applied to a project build target, a stage
 or the combined `project` target, in which case all the targets will

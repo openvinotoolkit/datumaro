@@ -26,6 +26,18 @@ jobs:
         run: |
           pip install --user -r <(grep "^isort" ./requirements.txt)
           isort --check --diff .
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Run checks
+        run: |
+          pip install --user -r <(grep "^black" ./requirements.txt)
+          black --check --diff --color .
   Pylint:
     runs-on: ubuntu-latest
     steps:
@@ -38,7 +50,7 @@ jobs:
         run: |
           pip install --user -r <(grep "^pylint" ./requirements.txt)
           echo "Pylint version: "`pylint --version | head -1`
-          git ls-files -z '*.py' | xargs -0 pylint -r n
+          git ls-files -z '*.py' | xargs -0 pylint -j 0 -r n
   remark:
     runs-on: ubuntu-latest
     steps:

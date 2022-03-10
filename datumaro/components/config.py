@@ -55,7 +55,7 @@ class Schema:
         default = object()
         value = self.get(key, default=default)
         if value is default:
-            raise KeyError('Key "%s" does not exist' % (key, ))
+            raise KeyError('Key "%s" does not exist' % (key,))
         return value
 
     def get(self, key, default=None):
@@ -67,13 +67,14 @@ class Schema:
             return self._fallback.get(key, default)
         return found
 
+
 class SchemaBuilder:
     def __init__(self):
         self._items = {}
 
     def add(self, name, ctor=str, internal=False):
         if name in self._items:
-            raise KeyError('Key "%s" already exists' % (name, ))
+            raise KeyError('Key "%s" already exists' % (name,))
 
         self._items[name] = Schema.Item(ctor, internal=internal)
         return self
@@ -81,20 +82,21 @@ class SchemaBuilder:
     def build(self):
         return Schema(self._items)
 
+
 class Config:
     def __init__(self, config=None, fallback=None, schema=None, mutable=True):
         # schema should be established first
-        self.__dict__['_schema'] = schema
-        self.__dict__['_mutable'] = True
+        self.__dict__["_schema"] = schema
+        self.__dict__["_mutable"] = True
 
-        self.__dict__['_config'] = {}
+        self.__dict__["_config"] = {}
         if fallback is not None:
             for k, v in fallback.items(allow_fallback=False):
                 self.set(k, v)
         if config is not None:
             self.update(config)
 
-        self.__dict__['_mutable'] = mutable
+        self.__dict__["_mutable"] = mutable
 
     def _items(self, allow_fallback=True, allow_internal=True):
         all_config = {}
@@ -110,22 +112,13 @@ class Config:
         return all_config
 
     def items(self, allow_fallback=True, allow_internal=True):
-        return self._items(
-                allow_fallback=allow_fallback,
-                allow_internal=allow_internal
-            ).items()
+        return self._items(allow_fallback=allow_fallback, allow_internal=allow_internal).items()
 
     def keys(self, allow_fallback=True, allow_internal=True):
-        return self._items(
-                allow_fallback=allow_fallback,
-                allow_internal=allow_internal
-            ).keys()
+        return self._items(allow_fallback=allow_fallback, allow_internal=allow_internal).keys()
 
     def values(self, allow_fallback=True, allow_internal=True):
-        return self._items(
-                allow_fallback=allow_fallback,
-                allow_internal=allow_internal
-            ).values()
+        return self._items(allow_fallback=allow_fallback, allow_internal=allow_internal).values()
 
     def __contains__(self, key):
         return key in self.keys()
@@ -140,7 +133,7 @@ class Config:
         default = object()
         value = self.get(key, default=default)
         if value is default:
-            raise KeyError('Key "%s" does not exist' % (key, ))
+            raise KeyError('Key "%s" does not exist' % (key,))
         return value
 
     def __setitem__(self, key, value):
@@ -202,20 +195,19 @@ class Config:
 
         if self._schema is not None:
             if key not in self._schema:
-                raise KeyError("Can not set key '%s' - schema mismatch: "
-                    "unknown key" % (key, ))
+                raise KeyError("Can not set key '%s' - schema mismatch: " "unknown key" % (key,))
 
             schema_entry = self._schema[key]
             schema_entry_instance = schema_entry()
 
-            if isinstance(value, (dict, Config)) and \
-                    isinstance(schema_entry_instance, Config):
+            if isinstance(value, (dict, Config)) and isinstance(schema_entry_instance, Config):
                 schema_entry_instance.update(value)
                 value = schema_entry_instance
             elif not isinstance(value, type(schema_entry_instance)):
-                raise ValueError("Can not set key '%s' - schema mismatch:"
-                    "unexpected value type %s, expected %s" % \
-                    (key, type(value), type(schema_entry_instance))
+                raise ValueError(
+                    "Can not set key '%s' - schema mismatch:"
+                    "unexpected value type %s, expected %s"
+                    % (key, type(value), type(schema_entry_instance))
                 )
 
         self._config[key] = value
@@ -224,46 +216,45 @@ class Config:
     @classmethod
     def parse(cls, path: Union[str, IO], *args, **kwargs):
         if isinstance(path, str):
-            with open(path, 'r', encoding='utf-8') as f:
+            with open(path, "r", encoding="utf-8") as f:
                 return cls(yaml.safe_load(f), *args, **kwargs)
         else:
             return cls(yaml.safe_load(path), *args, **kwargs)
 
     @staticmethod
     def yaml_representer(dumper, value):
-        return dumper.represent_data(
-            value._items(allow_internal=False, allow_fallback=False))
+        return dumper.represent_data(value._items(allow_internal=False, allow_fallback=False))
 
     def dump(self, path: Union[str, IO]):
         if isinstance(path, str):
-            with open(path, 'w', encoding='utf-8') as f:
+            with open(path, "w", encoding="utf-8") as f:
                 yaml.safe_dump(self, f)
         else:
             yaml.safe_dump(self, path)
 
-yaml.add_multi_representer(Config, Config.yaml_representer,
-    Dumper=yaml.SafeDumper)
-yaml.add_multi_representer(tuple,
-    lambda dumper, value: dumper.represent_data(list(value)),
-    Dumper=yaml.SafeDumper)
+
+yaml.add_multi_representer(Config, Config.yaml_representer, Dumper=yaml.SafeDumper)
+yaml.add_multi_representer(
+    tuple, lambda dumper, value: dumper.represent_data(list(value)), Dumper=yaml.SafeDumper
+)
 
 
 class DictConfig(Config):
     def __init__(self, default=None):
         super().__init__()
-        self.__dict__['_default'] = default
+        self.__dict__["_default"] = default
 
     def set(self, key, value):
         if self._default is not None:
             schema_entry_instance = self._default(value)
 
-            if isinstance(value, (dict, Config)) and \
-                    isinstance(schema_entry_instance, Config):
+            if isinstance(value, (dict, Config)) and isinstance(schema_entry_instance, Config):
                 value = schema_entry_instance
             elif not isinstance(value, type(schema_entry_instance)):
-                raise ValueError("Can not set key '%s' - schema mismatch:"
-                    "unexpected value type %s, expected %s" % \
-                    (key, type(value), type(schema_entry_instance))
+                raise ValueError(
+                    "Can not set key '%s' - schema mismatch:"
+                    "unexpected value type %s, expected %s"
+                    % (key, type(value), type(schema_entry_instance))
                 )
 
         return super().set(key, value)

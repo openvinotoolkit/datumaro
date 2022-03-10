@@ -20,7 +20,10 @@ class Launcher(CliPlugin):
 
     def categories(self):
         return None
+
+
 # pylint: enable=no-self-use
+
 
 class ModelTransform(Transform):
     def __init__(self, extractor, launcher, batch_size=1):
@@ -30,8 +33,7 @@ class ModelTransform(Transform):
 
     def __iter__(self):
         for batch in take_by(self._extractor, self._batch_size):
-            inputs = np.array([np.atleast_3d(item.image.data)
-                for item in batch])
+            inputs = np.array([np.atleast_3d(item.media.data) for item in batch])
             inference = self._launcher.launch(inputs)
 
             for item, annotations in zip(batch, inference):
@@ -49,20 +51,20 @@ class ModelTransform(Transform):
         return self._extractor.categories()
 
     def transform_item(self, item):
-        inputs = np.expand_dims(item.image, axis=0)
+        inputs = np.expand_dims(item.media, axis=0)
         annotations = self._launcher.launch(inputs)[0]
         return self.wrap_item(item, annotations=annotations)
 
     def _check_annotations(self, annotations):
-        labels_count = len(self.categories().get(
-            AnnotationType.label, LabelCategories()).items)
+        labels_count = len(self.categories().get(AnnotationType.label, LabelCategories()).items)
 
         for ann in annotations:
-            label = getattr(ann, 'label')
+            label = getattr(ann, "label")
             if label is None:
                 continue
 
             if label not in range(labels_count):
-                raise Exception("Annotation has unexpected label id %s, "
-                    "while there is only %s defined labels." % \
-                    (label, labels_count))
+                raise Exception(
+                    "Annotation has unexpected label id %s, "
+                    "while there is only %s defined labels." % (label, labels_count)
+                )

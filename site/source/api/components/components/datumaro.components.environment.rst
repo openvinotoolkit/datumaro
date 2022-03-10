@@ -7,3 +7,5 @@ environment module
    :private-members:
    :special-members:
    :show-inheritance:
+
+   .. autodata:: T

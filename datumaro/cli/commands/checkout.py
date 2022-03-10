@@ -11,7 +11,8 @@ from ..util.project import load_project
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Navigate to a revision",
+    parser = parser_ctor(
+        help="Navigate to a revision",
         description="""
         Command forms:|n
         1) %(prog)s <revision>|n
@@ -33,43 +34,57 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |s|s%(prog)s -- source-1 |n |n
         - Restore a previous version of a source|n
         |s|s%(prog)s 33fbfbe my-source
-        """, formatter_class=MultilineFormatter)
+        """,
+        formatter_class=MultilineFormatter,
+    )
 
-    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
-        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
-    parser.add_argument('rev', nargs='?',
-        help="Commit or tag (default: current)")
-    parser.add_argument('sources', nargs='*',
-        help="Sources to restore (default: all)")
-    parser.add_argument('-f', '--force', action='store_true',
-        help="Allows to overwrite unsaved changes in case of conflicts "
-            "(default: %(default)s)")
-    parser.add_argument('-p', '--project', dest='project_dir',
-        help="Directory of the project to operate on (default: current dir)")
+    parser.add_argument(
+        "_positionals", nargs=argparse.REMAINDER, help=argparse.SUPPRESS
+    )  # workaround for -- eaten by positionals
+    parser.add_argument("rev", nargs="?", help="Commit or tag (default: current)")
+    parser.add_argument("sources", nargs="*", help="Sources to restore (default: all)")
+    parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Allows to overwrite unsaved changes in case of conflicts " "(default: %(default)s)",
+    )
+    parser.add_argument(
+        "-p",
+        "--project",
+        dest="project_dir",
+        help="Directory of the project to operate on (default: current dir)",
+    )
     parser.set_defaults(command=checkout_command)
 
     return parser
 
+
 def get_sensitive_args():
     return {
-        checkout_command: ['rev', 'sources', 'project_dir',],
+        checkout_command: [
+            "rev",
+            "sources",
+            "project_dir",
+        ],
     }
+
 
 @scoped
 def checkout_command(args):
-    has_sep = '--' in args._positionals
+    has_sep = "--" in args._positionals
     if has_sep:
-        pos = args._positionals.index('--')
+        pos = args._positionals.index("--")
         if 1 < pos:
-            raise argparse.ArgumentError(None,
-                message="Expected no more than 1 revision argument")
+            raise argparse.ArgumentError(None, message="Expected no more than 1 revision argument")
     else:
         pos = 1
     args.rev = (args._positionals[:pos] or [None])[0]
-    args.sources = args._positionals[pos + has_sep:]
+    args.sources = args._positionals[pos + has_sep :]
     if has_sep and not args.sources:
-        raise argparse.ArgumentError('sources', message="When '--' is used, "
-            "at least 1 source name must be specified")
+        raise argparse.ArgumentError(
+            "sources", message="When '--' is used, " "at least 1 source name must be specified"
+        )
 
     project = scope_add(load_project(args.project_dir))
 

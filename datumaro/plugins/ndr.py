@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum, auto
 import logging as log
+from enum import Enum, auto
 
-from scipy.linalg import orth
 import cv2
 import numpy as np
+from scipy.linalg import orth
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Transform
@@ -18,13 +18,16 @@ class Algorithm(Enum):
     gradient = auto()
     # other algorithms will be added
 
+
 class OverSamplingMethod(Enum):
     random = auto()
     similarity = auto()
 
+
 class UnderSamplingMethod(Enum):
     uniform = auto()
     inverse = auto()
+
 
 class NDR(Transform, CliPlugin):
     """
@@ -34,15 +37,18 @@ class NDR(Transform, CliPlugin):
     resulting images.|n
     |n
     Available oversampling policies (the `-e` parameter):|n
-    - `random` - sample from removed data randomly|n
-    - `similarity` - sample from removed data with ascending similarity score|n
+    |s|s- `random` - sample from removed data randomly|n
+    |s|s- `similarity` - sample from removed data with ascending similarity score|n
     |n
     Available undersampling policies (the `-u` parameter):|n
-    - `uniform` - sample data with uniform distribution|n
-    - `inverse` - sample data with reciprocal of the number of number of|n
-    |s|sitems with the same similarity|n
+    |s|s- `uniform` - sample data with uniform distribution|n
+    |s|s- `inverse` - sample data with reciprocal of the number of number of
+    items with the same similarity|n
     |n
     Example: apply NDR, return no more than 100 images|n
+
+    .. code-block::
+
     |s|s%(prog)s|n
     |s|s|s|s--working_subset train|n
     |s|s|s|s--algorithm gradient|n
@@ -54,39 +60,64 @@ class NDR(Transform, CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-w', '--working_subset', default=None,
-            help="Name of the subset to operate (default: %(default)s)")
-        parser.add_argument('-d', '--duplicated_subset', default='duplicated',
-            help="Name of the subset for the removed data "
-                "after NDR runs (default: %(default)s)")
-        parser.add_argument('-a', '--algorithm', default=Algorithm.gradient.name,
+        parser.add_argument(
+            "-w",
+            "--working_subset",
+            default=None,
+            help="Name of the subset to operate (default: %(default)s)",
+        )
+        parser.add_argument(
+            "-d",
+            "--duplicated_subset",
+            default="duplicated",
+            help="Name of the subset for the removed data " "after NDR runs (default: %(default)s)",
+        )
+        parser.add_argument(
+            "-a",
+            "--algorithm",
+            default=Algorithm.gradient.name,
             choices=[algo.name for algo in Algorithm],
-            help="Name of the algorithm to use (default: %(default)s)")
-        parser.add_argument('-k', '--num_cut', default=None, type=int,
-            help="Maximum output dataset size")
-        parser.add_argument('-e', '--over_sample',
+            help="Name of the algorithm to use (default: %(default)s)",
+        )
+        parser.add_argument(
+            "-k", "--num_cut", default=None, type=int, help="Maximum output dataset size"
+        )
+        parser.add_argument(
+            "-e",
+            "--over_sample",
             default=OverSamplingMethod.random.name,
             choices=[method.name for method in OverSamplingMethod],
             help="The policy to use when num_cut is bigger "
-                "than result length (default: %(default)s)")
-        parser.add_argument('-u', '--under_sample',
+            "than result length (default: %(default)s)",
+        )
+        parser.add_argument(
+            "-u",
+            "--under_sample",
             default=UnderSamplingMethod.uniform.name,
             choices=[method.name for method in UnderSamplingMethod],
             help="The policy to use when num_cut is smaller "
-                "than result length (default: %(default)s)")
-        parser.add_argument('-s', '--seed', type=int, help="Random seed")
+            "than result length (default: %(default)s)",
+        )
+        parser.add_argument("-s", "--seed", type=int, help="Random seed")
         return parser
 
-    def __init__(self, extractor,
-            working_subset, duplicated_subset='duplicated',
-            algorithm=None, num_cut=None,
-            over_sample=None, under_sample=None,
-            seed=None, **kwargs):
+    def __init__(
+        self,
+        extractor,
+        working_subset,
+        duplicated_subset="duplicated",
+        algorithm=None,
+        num_cut=None,
+        over_sample=None,
+        under_sample=None,
+        seed=None,
+        **kwargs,
+    ):
         """
         Near-duplicated image removal
 
         Arguments
-        ---------------
+        ---------
         working_subset: str
             name of the subset to operate
             if None, use DEFAULT_SUBSET_NAME
@@ -135,15 +166,24 @@ class NDR(Transform, CliPlugin):
         if working_subset == duplicated_subset:
             raise ValueError("working_subset == duplicated_subset")
 
-        algorithm = parse_str_enum_value(algorithm, Algorithm,
+        algorithm = parse_str_enum_value(
+            algorithm,
+            Algorithm,
             default=Algorithm.gradient,
-            unknown_member_error="Unknown algorithm '{value}'.")
-        over_sample = parse_str_enum_value(over_sample, OverSamplingMethod,
+            unknown_member_error="Unknown algorithm '{value}'.",
+        )
+        over_sample = parse_str_enum_value(
+            over_sample,
+            OverSamplingMethod,
             default=OverSamplingMethod.random,
-            unknown_member_error="Unknown oversampling method '{value}'.")
-        under_sample = parse_str_enum_value(under_sample, UnderSamplingMethod,
+            unknown_member_error="Unknown oversampling method '{value}'.",
+        )
+        under_sample = parse_str_enum_value(
+            under_sample,
+            UnderSamplingMethod,
             default=UnderSamplingMethod.uniform,
-            unknown_member_error="Unknown undersampling method '{value}'.")
+            unknown_member_error="Unknown undersampling method '{value}'.",
+        )
 
         if seed:
             self.seed = seed
@@ -168,32 +208,34 @@ class NDR(Transform, CliPlugin):
         having_image = []
         all_imgs = []
         for item in working_subset:
-            if item.image.has_data:
+            if item.media.has_data:
                 having_image.append(item)
-                img = item.image.data
+                img = item.media.data
                 # Not handle empty image, as utils/image.py if check empty
                 if len(img.shape) == 2:
-                    img = np.stack((img,)*3, axis=-1)
+                    img = np.stack((img,) * 3, axis=-1)
                 elif len(img.shape) == 3:
                     if img.shape[2] == 1:
-                        img = np.stack((img[:,:,0],)*3, axis=-1)
+                        img = np.stack((img[:, :, 0],) * 3, axis=-1)
                     elif img.shape[2] == 4:
-                        img = img[...,:3]
+                        img = img[..., :3]
                     elif img.shape[2] == 3:
                         pass
                     else:
-                        raise ValueError("Item %s: invalid image shape: "
-                            "unexpected number of channels (%s)" % \
-                            (item.id, img.shape[2]))
+                        raise ValueError(
+                            "Item %s: invalid image shape: "
+                            "unexpected number of channels (%s)" % (item.id, img.shape[2])
+                        )
                 else:
-                    raise ValueError("Item %s: invalid image shape: "
-                        "unexpected number of dimensions (%s)" % \
-                            (item.id, len(img.shape)))
+                    raise ValueError(
+                        "Item %s: invalid image shape: "
+                        "unexpected number of dimensions (%s)" % (item.id, len(img.shape))
+                    )
 
                 if self.algorithm == Algorithm.gradient:
                     # Calculate gradient
                     img = self._cgrad_feature(img)
-                else :
+                else:
                     raise NotImplementedError()
                 all_imgs.append(img)
             else:
@@ -203,18 +245,25 @@ class NDR(Transform, CliPlugin):
             raise ValueError("The number of images is smaller than the cut you want")
 
         if self.algorithm == Algorithm.gradient:
-            all_key, fidx, kept_index, key_counter, removed_index_with_sim = \
-                self._gradient_based(all_imgs, **self.algorithm_specific)
+            all_key, fidx, kept_index, key_counter, removed_index_with_sim = self._gradient_based(
+                all_imgs, **self.algorithm_specific
+            )
         else:
             raise NotImplementedError()
 
-        kept_index = self._keep_cut(self.num_cut, all_key, fidx,
-            kept_index, key_counter, removed_index_with_sim,
-            self.over_sample, self.under_sample)
+        kept_index = self._keep_cut(
+            self.num_cut,
+            all_key,
+            fidx,
+            kept_index,
+            key_counter,
+            removed_index_with_sim,
+            self.over_sample,
+            self.under_sample,
+        )
         self.kept_item_id = set(having_image[ii].id for ii in kept_index)
 
-    def _gradient_based(self, all_imgs, block_shape=(4, 4),
-            hash_dim=32, sim_threshold=0.5):
+    def _gradient_based(self, all_imgs, block_shape=(4, 4), hash_dim=32, sim_threshold=0.5):
         if len(block_shape) != 2:
             raise ValueError("Invalid block_shape")
         if block_shape[0] <= 0 or block_shape[1] <= 0:
@@ -259,23 +308,32 @@ class NDR(Transform, CliPlugin):
                 kept_index.append(ii)
             else:
                 removed_index_with_similarity[ii] = max_sim
-        return all_key, fidx, kept_index, key_counter, \
-            removed_index_with_similarity
+        return all_key, fidx, kept_index, key_counter, removed_index_with_similarity
 
-    def _keep_cut(self, num_cut, all_key, fidx,
-            kept_index, key_counter, removed_index_with_similarity,
-            over_sample, under_sample):
+    def _keep_cut(
+        self,
+        num_cut,
+        all_key,
+        fidx,
+        kept_index,
+        key_counter,
+        removed_index_with_similarity,
+        over_sample,
+        under_sample,
+    ):
         if num_cut and num_cut > len(kept_index):
             if over_sample == OverSamplingMethod.random:
                 selected_index = np.random.choice(
-                    list(set(fidx) - set(kept_index)),
-                    size=num_cut - len(kept_index), replace=False)
+                    list(set(fidx) - set(kept_index)), size=num_cut - len(kept_index), replace=False
+                )
             elif over_sample == OverSamplingMethod.similarity:
-                removed_index_with_similarity = [[key, value] \
-                    for key, value in removed_index_with_similarity.items()]
+                removed_index_with_similarity = [
+                    [key, value] for key, value in removed_index_with_similarity.items()
+                ]
                 removed_index_with_similarity.sort(key=lambda x: x[1])
-                selected_index = [index \
-                    for index, _ in removed_index_with_similarity[:num_cut - len(kept_index)]]
+                selected_index = [
+                    index for index, _ in removed_index_with_similarity[: num_cut - len(kept_index)]
+                ]
             kept_index.extend(selected_index)
         elif num_cut and num_cut < len(kept_index):
             if under_sample == UnderSamplingMethod.uniform:
@@ -290,35 +348,35 @@ class NDR(Transform, CliPlugin):
                 # Normalizing them by dividing with sum, we get [6/13, 3/13, 4/13]
                 # Then the key x will be sampled with probability 6/13
                 # and each point, x1 and x2, will share same prob. 3/13
-                key_with_reverse_occur = {
-                    key: 1 / key_counter[key] for key in key_counter}
+                key_with_reverse_occur = {key: 1 / key_counter[key] for key in key_counter}
                 reverse_occur_sum = sum(key_with_reverse_occur.values())
                 key_normalized_reverse_occur = {
-                    key: reverse_occur / reverse_occur_sum \
-                    for key, reverse_occur in key_with_reverse_occur.items()}
-                prob = [key_normalized_reverse_occur[all_key[ii]] / key_counter[all_key[ii]] \
-                    for ii in kept_index]
-            kept_index = np.random.choice(kept_index, size=num_cut,
-                replace=False, p=prob)
+                    key: reverse_occur / reverse_occur_sum
+                    for key, reverse_occur in key_with_reverse_occur.items()
+                }
+                prob = [
+                    key_normalized_reverse_occur[all_key[ii]] / key_counter[all_key[ii]]
+                    for ii in kept_index
+                ]
+            kept_index = np.random.choice(kept_index, size=num_cut, replace=False, p=prob)
 
         return kept_index
 
     @staticmethod
     def _cgrad_feature(img, out_wh=(8, 8)):
-        if img.dtype == 'uint8':
+        if img.dtype == "uint8":
             img = img.astype(float) / 255.0
         else:
             img = img.astype(float)
 
         r_img = cv2.resize(img, out_wh, interpolation=cv2.INTER_AREA)
-        r2 = cv2.resize(img ** 2, out_wh, interpolation=cv2.INTER_AREA)
+        r2 = cv2.resize(img**2, out_wh, interpolation=cv2.INTER_AREA)
 
-        r2 -= r_img ** 2
+        r2 -= r_img**2
         r2 = np.sqrt(np.maximum(r2, 0))
 
         # mean and variance feature, zero padding for gradient computation
-        rr = np.pad(np.concatenate([r_img, r2], axis=-1),
-            ((1, 1), (1, 1), (0, 0)))
+        rr = np.pad(np.concatenate([r_img, r2], axis=-1), ((1, 1), (1, 1), (0, 0)))
 
         # compute gradients along x- and y-axes
         rx = rr[1:-1, :-2, :] - rr[1:-1, 2:, :]
@@ -356,8 +414,8 @@ class NDR(Transform, CliPlugin):
                 break
         if proj is None:
             # if failed to get an orthonormal one, just use a random one instead
-            proj = np. random.uniform(-1, 1, (ndim, ndim))
-            proj /= np.sqrt(np.sum(proj ** 2, axis=1, keepdims=True))
+            proj = np.random.uniform(-1, 1, (ndim, ndim))
+            proj /= np.sqrt(np.sum(proj**2, axis=1, keepdims=True))
 
         # simple binarization
         # compute dot product between each feature and each projection basis,
@@ -367,9 +425,9 @@ class NDR(Transform, CliPlugin):
         # generate hash key strings
         # assign hex string from each consecutive 16 bits and concatenate
         _all_key = np.packbits(feat_binary, axis=-1)
-        _all_key = np.array(list(
-            map(lambda row: ''.join(['{:02x}'.format(r) for r in row]), _all_key)
-        ))
+        _all_key = np.array(
+            list(map(lambda row: "".join(["{:02x}".format(r) for r in row]), _all_key))
+        )
         if len(_all_key) == 1:
             return _all_key[0]
         else:

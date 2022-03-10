@@ -110,13 +110,13 @@ Datumaro can convert ICDAR dataset into any other format
 ``` bash
 # converting ICDAR text segmentation dataset into the VOC with `convert` command
 datum convert -if icdar_text_segmentation -i source_dataset \
-    -f voc -o export_dir -- --save-images
+    -f voc -o export_dir -- --save-media
 ```
 ``` bash
 # converting ICDAR text localization into the LabelMe through Datumaro project
 datum create
 datum import -f icdar_text_localization source_dataset
-datum export -f label_me -o ./export_dir -- --save-images
+datum export -f label_me -o ./export_dir -- --save-media
 ```
 > Note: some formats have extra export options. For particular format see the
 > [docs](/docs/formats/) to get information about it.
@@ -128,7 +128,7 @@ attributes, described in previous section.
 > masks without attribute `color` then it will be generated automatically.
 
 Available extra export options for ICDAR dataset formats:
-- `--save-images` allow to export dataset with saving images.
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original)

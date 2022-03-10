@@ -4,8 +4,8 @@
 
 import typing
 
-from attrs import frozen
 import pytest
+from attrs import frozen
 
 
 class DatumaroComponent:
@@ -21,6 +21,7 @@ class Requirements:
     DATUM_API = "Datumaro API"
     DATUM_PROGRESS_REPORTING = "Datumaro progress reporting requirement"
     DATUM_ERROR_REPORTING = "Datumaro error reporting requirement"
+    DATUM_GENERIC_MEDIA = "Datumaro generic media support"
 
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
@@ -35,6 +36,7 @@ class Requirements:
     DATUM_497 = "Support import for SYNTHIA dataset"
     DATUM_542 = "Images missing after merging two datasets"
     DATUM_580 = "Import for MPII Human Pose Dataset"
+    DATUM_673 = "Pickling for Dataset and Annotations"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
@@ -76,14 +78,20 @@ _SHARED_DECORATORS = [
     pytest.mark.priority_medium,
 ]
 
+
 def mark_requirement(requirement):
-    return _CombinedDecorator([
-        *_SHARED_DECORATORS,
-        pytest.mark.reqids(requirement),
-    ])
+    return _CombinedDecorator(
+        [
+            *_SHARED_DECORATORS,
+            pytest.mark.reqids(requirement),
+        ]
+    )
+
 
 def mark_bug(bugs):
-    return _CombinedDecorator([
-        *_SHARED_DECORATORS,
-        pytest.mark.bugs(bugs),
-    ])
+    return _CombinedDecorator(
+        [
+            *_SHARED_DECORATORS,
+            pytest.mark.bugs(bugs),
+        ]
+    )

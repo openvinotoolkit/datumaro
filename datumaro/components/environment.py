@@ -2,21 +2,20 @@
 #
 # SPDX-License-Identifier: MIT
 
-from functools import partial
-from typing import (
-    Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar,
-)
 import glob
 import importlib
-import inspect
 import logging as log
 import os.path as osp
+from functools import partial
+from inspect import isclass
+from typing import Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
 from datumaro.components.format_detection import detect_dataset_format
 from datumaro.util.os_util import import_foreign_module, split_path
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class Registry(Generic[T]):
     def __init__(self):
@@ -42,42 +41,54 @@ class Registry(Generic[T]):
     def __iter__(self) -> Iterator[T]:
         return iter(self.items)
 
+
 class PluginRegistry(Registry[Type[CliPlugin]]):
-    def __init__(self, filter: Callable[[Type[CliPlugin]], bool] = None): \
-            #pylint: disable=redefined-builtin
+    def __init__(
+        self, filter: Callable[[Type[CliPlugin]], bool] = None
+    ):  # pylint: disable=redefined-builtin
         super().__init__()
-        self.filter = filter
+        self._filter = filter
 
     def batch_register(self, values: Iterable[CliPlugin]):
         for v in values:
-            if self.filter and not self.filter(v):
+            if self._filter and not self._filter(v):
                 continue
 
             self.register(v.NAME, v)
 
+
 class Environment:
     _builtin_plugins = None
 
-    def __init__(self):
-        def _filter(accept, skip=None):
-            accept = (accept, ) if inspect.isclass(accept) else tuple(accept)
-            skip = {skip} if inspect.isclass(skip) else set(skip or [])
-            skip = tuple(skip | set(accept))
-            return lambda t: issubclass(t, accept) and t not in skip
+    @classmethod
+    def _make_filter(cls, accept, skip=None):
+        accept = (accept,) if isclass(accept) else tuple(accept)
+        skip = {skip} if isclass(skip) else set(skip or [])
+        skip = tuple(skip | set(accept))
+        return partial(cls._check_type, accept=accept, skip=skip)
 
+    @staticmethod
+    def _check_type(t, *, accept, skip):
+        return issubclass(t, accept) and t not in skip
+
+    def __init__(self):
         from datumaro.components.converter import Converter
         from datumaro.components.extractor import (
-            Extractor, Importer, ItemTransform, SourceExtractor, Transform,
+            Extractor,
+            Importer,
+            ItemTransform,
+            SourceExtractor,
+            Transform,
         )
         from datumaro.components.launcher import Launcher
         from datumaro.components.validator import Validator
-        self._extractors = PluginRegistry(_filter(Extractor,
-            skip=SourceExtractor))
+
+        _filter = self._make_filter
+        self._extractors = PluginRegistry(_filter(Extractor, skip=SourceExtractor))
         self._importers = PluginRegistry(_filter(Importer))
         self._launchers = PluginRegistry(_filter(Launcher))
         self._converters = PluginRegistry(_filter(Converter))
-        self._transforms = PluginRegistry(_filter(Transform,
-            skip=ItemTransform))
+        self._transforms = PluginRegistry(_filter(Transform, skip=ItemTransform))
         self._validators = PluginRegistry(_filter(Validator))
         self._builtins_initialized = False
 
@@ -89,35 +100,34 @@ class Environment:
 
     @property
     def extractors(self) -> PluginRegistry:
-        return self._get_plugin_registry('_extractors')
+        return self._get_plugin_registry("_extractors")
 
     @property
     def importers(self) -> PluginRegistry:
-        return self._get_plugin_registry('_importers')
+        return self._get_plugin_registry("_importers")
 
     @property
     def launchers(self) -> PluginRegistry:
-        return self._get_plugin_registry('_launchers')
+        return self._get_plugin_registry("_launchers")
 
     @property
     def converters(self) -> PluginRegistry:
-        return self._get_plugin_registry('_converters')
+        return self._get_plugin_registry("_converters")
 
     @property
     def transforms(self) -> PluginRegistry:
-        return self._get_plugin_registry('_transforms')
+        return self._get_plugin_registry("_transforms")
 
     @property
     def validators(self) -> PluginRegistry:
-        return self._get_plugin_registry('_validators')
+        return self._get_plugin_registry("_validators")
 
     @staticmethod
     def _find_plugins(plugins_dir):
         plugins = []
 
-        for pattern in ('*.py', '*/*.py'):
-            for path in glob.glob(
-                    osp.join(glob.escape(plugins_dir), pattern)):
+        for pattern in ("*.py", "*/*.py"):
+            for path in glob.glob(osp.join(glob.escape(plugins_dir), pattern)):
                 if not osp.isfile(path):
                     continue
 
@@ -125,29 +135,30 @@ class Environment:
                 name_parts = split_path(osp.splitext(path_rel)[0])
 
                 # a module with a dot in the name won't load correctly
-                if any('.' in part for part in name_parts):
+                if any("." in part for part in name_parts):
                     log.warning(
                         "Python file '%s' in directory '%s' can't be imported "
                         "due to a dot in the name; skipping.",
-                        path_rel, plugins_dir)
+                        path_rel,
+                        plugins_dir,
+                    )
                     continue
-                plugins.append('.'.join(name_parts))
+                plugins.append(".".join(name_parts))
 
         return plugins
 
     @classmethod
     def _get_plugin_exports(cls, module, types):
         exports = []
-        if hasattr(module, 'exports'):
+        if hasattr(module, "exports"):
             exports = module.exports
         else:
             for symbol in dir(module):
-                if symbol.startswith('_'):
+                if symbol.startswith("_"):
                     continue
                 exports.append(getattr(module, symbol))
 
-        exports = [s for s in exports
-            if inspect.isclass(s) and issubclass(s, types) and not s in types]
+        exports = [s for s in exports if isclass(s) and issubclass(s, types) and not s in types]
 
         return exports
 
@@ -170,11 +181,9 @@ class Environment:
                     log.warning(*message)
                 continue
 
-            log.debug("Imported the following symbols from %s: %s" % \
-                (
-                    module_name,
-                    ', '.join(s.__name__ for s in exports)
-                )
+            log.debug(
+                "Imported the following symbols from %s: %s"
+                % (module_name, ", ".join(s.__name__ for s in exports))
             )
             all_exports.extend(exports)
 
@@ -184,17 +193,19 @@ class Environment:
     def _load_builtin_plugins(cls):
         if cls._builtin_plugins is None:
             import datumaro.plugins
+
             plugins_dir = osp.dirname(datumaro.plugins.__file__)
-            module_names = [datumaro.plugins.__name__ + '.' + name
-                for name in cls._find_plugins(plugins_dir)]
-            cls._builtin_plugins = cls._load_plugins(module_names,
-                importer=importlib.import_module)
+            module_names = [
+                datumaro.plugins.__name__ + "." + name for name in cls._find_plugins(plugins_dir)
+            ]
+            cls._builtin_plugins = cls._load_plugins(module_names, importer=importlib.import_module)
         return cls._builtin_plugins
 
     def load_plugins(self, plugins_dir):
         module_names = self._find_plugins(plugins_dir)
-        plugins = self._load_plugins(module_names,
-            importer=partial(import_foreign_module, path=plugins_dir))
+        plugins = self._load_plugins(
+            module_names, importer=partial(import_foreign_module, path=plugins_dir)
+        )
         self._register_plugins(plugins)
 
     def _register_builtin_plugins(self):
@@ -219,7 +230,7 @@ class Environment:
 
     def make_converter(self, name, *args, **kwargs):
         result = self.converters.get(name)
-        if inspect.isclass(result):
+        if isclass(result):
             result = result.convert
         return partial(result, *args, **kwargs)
 
@@ -231,7 +242,9 @@ class Environment:
 
     def detect_dataset(self, path):
         return detect_dataset_format(
-            ((format_name, importer.detect)
-                for format_name, importer in self.importers.items.items()),
+            (
+                (format_name, importer.detect)
+                for format_name, importer in self.importers.items.items()
+            ),
             path,
         )

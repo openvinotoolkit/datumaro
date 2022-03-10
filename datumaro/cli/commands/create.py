@@ -15,7 +15,8 @@ from ..util.errors import CliException
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Create empty project",
+    parser = parser_ctor(
+        help="Create empty project",
         description="""
         Create an empty Datumaro project. A project is required for the most of
         Datumaro functionality.|n
@@ -27,20 +28,31 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         - Create a project in other directory:|n
         |s|s%(prog)s -o path/I/like/
         """,
-        formatter_class=MultilineFormatter)
+        formatter_class=MultilineFormatter,
+    )
 
-    parser.add_argument('-o', '--output-dir', default='.', dest='dst_dir',
-        help="Save directory for the new project (default: current dir")
-    parser.add_argument('--overwrite', action='store_true',
-        help="Overwrite existing files in the save directory")
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        default=".",
+        dest="dst_dir",
+        help="Save directory for the new project (default: current dir",
+    )
+    parser.add_argument(
+        "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
+    )
     parser.set_defaults(command=create_command)
 
     return parser
 
+
 def get_sensitive_args():
     return {
-        create_command: ['dst_dir',],
+        create_command: [
+            "dst_dir",
+        ],
     }
+
 
 def create_command(args):
     project_dir = osp.abspath(args.dst_dir)
@@ -50,8 +62,10 @@ def create_command(args):
         if args.overwrite:
             rmtree(existing_project_dir)
         else:
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % existing_project_dir)
+            raise CliException(
+                "Directory '%s' already exists "
+                "(pass --overwrite to overwrite)" % existing_project_dir
+            )
 
     log.info("Creating project at '%s'" % project_dir)
 

@@ -6,12 +6,8 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import (
-    Bbox, LabelCategories, Points, PointsCategories,
-)
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Importer, SourceExtractor,
-)
+from datumaro.components.annotation import Bbox, LabelCategories, Points, PointsCategories
+from datumaro.components.extractor import AnnotationType, DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 from datumaro.util import parse_json_file
@@ -20,10 +16,11 @@ from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
 
 
 class MpiiJsonPath:
-    ANNOTATION_FILE = 'mpii_annotations.json'
-    HEADBOXES_FILE = 'mpii_headboxes.npy'
-    VISIBILITY_FILE = 'jnt_visible.npy'
-    POS_GT_FILE = 'mpii_pos_gt.npy'
+    ANNOTATION_FILE = "mpii_annotations.json"
+    HEADBOXES_FILE = "mpii_headboxes.npy"
+    VISIBILITY_FILE = "jnt_visible.npy"
+    POS_GT_FILE = "mpii_pos_gt.npy"
+
 
 class MpiiJsonExtractor(SourceExtractor):
     def __init__(self, path):
@@ -33,9 +30,10 @@ class MpiiJsonExtractor(SourceExtractor):
         super().__init__()
 
         self._categories = {
-            AnnotationType.label: LabelCategories.from_iterable(['human']),
+            AnnotationType.label: LabelCategories.from_iterable(["human"]),
             AnnotationType.points: PointsCategories.from_iterable(
-                [(0, MPII_POINTS_LABELS, MPII_POINTS_JOINTS)])
+                [(0, MPII_POINTS_LABELS, MPII_POINTS_JOINTS)]
+            ),
         }
 
         self._items = list(self._load_items(path).values())
@@ -64,10 +62,10 @@ class MpiiJsonExtractor(SourceExtractor):
             gt_pose = np.array([])
 
         for i, ann in enumerate(parse_json_file(path)):
-            item_id = osp.splitext(ann.get('img_paths', ''))[0]
+            item_id = osp.splitext(ann.get("img_paths", ""))[0]
 
-            center = ann.get('objpos', [])
-            scale = float(ann.get('scale_provided', 0))
+            center = ann.get("objpos", [])
+            scale = float(ann.get("scale_provided", 0))
 
             if i < gt_pose.shape[0]:
                 points = gt_pose[i].ravel()
@@ -77,7 +75,7 @@ class MpiiJsonExtractor(SourceExtractor):
                 else:
                     vis = np.ones(len(points) // 2, dtype=np.int8)
             else:
-                keypoints = np.array(ann.get('joint_self', []))
+                keypoints = np.array(ann.get("joint_self", []))
                 points = keypoints[:, 0:2].ravel()
 
                 vis = keypoints[:, 2]
@@ -88,22 +86,36 @@ class MpiiJsonExtractor(SourceExtractor):
 
             group_num = 1
 
-            annotations = [Points(points, vis, label=0, group=group_num,
-                attributes={'center': center, 'scale': scale})]
+            annotations = [
+                Points(
+                    points,
+                    vis,
+                    label=0,
+                    group=group_num,
+                    attributes={"center": center, "scale": scale},
+                )
+            ]
 
             if i < headboxes.shape[2]:
                 bbox = headboxes[:, :, i]
-                annotations.append(Bbox(bbox[0][0], bbox[0][1],
-                    bbox[1][0] - bbox[0][0], bbox[1][1] - bbox[0][1],
-                    label=0, group=group_num))
+                annotations.append(
+                    Bbox(
+                        bbox[0][0],
+                        bbox[0][1],
+                        bbox[1][0] - bbox[0][0],
+                        bbox[1][1] - bbox[0][1],
+                        label=0,
+                        group=group_num,
+                    )
+                )
 
             group_num += 1
 
-            joint_others = ann.get('joint_others')
+            joint_others = ann.get("joint_others")
             if joint_others:
-                num_others = int(ann.get('numOtherPeople', 1))
-                center = ann.get('objpos_other', [])
-                scale = ann.get('scale_provided_other', 0)
+                num_others = int(ann.get("numOtherPeople", 1))
+                center = ann.get("objpos_other", [])
+                scale = ann.get("scale_provided_other", 0)
 
                 if num_others == 1:
                     center = [center]
@@ -116,28 +128,32 @@ class MpiiJsonExtractor(SourceExtractor):
                     vis = keypoints[:, 2]
                     vis = [int(val) for val in vis]
 
-
                     attributes = {}
                     if i < len(center):
-                        attributes['center'] = center[i]
+                        attributes["center"] = center[i]
                     if i < len(scale):
-                        attributes['scale'] = scale[i]
+                        attributes["scale"] = scale[i]
 
-                    annotations.append(Points(points, vis, label=0,
-                        group=group_num, attributes=attributes))
+                    annotations.append(
+                        Points(points, vis, label=0, group=group_num, attributes=attributes)
+                    )
 
-                    group_num +=1
+                    group_num += 1
 
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=Image(path=osp.join(root_dir, ann.get('img_paths', ''))),
-                annotations=annotations)
+            items[item_id] = DatasetItem(
+                id=item_id,
+                subset=self._subset,
+                media=Image(path=osp.join(root_dir, ann.get("img_paths", ""))),
+                annotations=annotations,
+            )
 
         return items
+
 
 class MpiiJsonImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '.json', 'mpii_json')
+        return cls._find_sources_recursive(path, ".json", "mpii_json")
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:

@@ -1,5 +1,5 @@
 relevancy sampler module
---------------
+------------------------
 
 .. automodule:: datumaro.plugins.sampler.relevancy_sampler
    :members:

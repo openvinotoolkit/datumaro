@@ -253,7 +253,7 @@ Or, using Python API:
 import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path/to/dataset>', 'open_images')
-dataset.export('save_dir', 'cvat', save_images=True)
+dataset.export('save_dir', 'cvat', save_media=True)
 ```
 
 ## Export to Open Images
@@ -263,17 +263,17 @@ There are several ways to convert an existing dataset to the Open Images format:
 ``` bash
 # export dataset into Open Images format from existing project
 datum export -p <path/to/project> -f open_images -o <output/dir> \
-  -- --save_images
+  -- --save_media
 ```
 ``` bash
 # convert a dataset in another format to the Open Images format
 datum convert -if imagenet -i <path/to/dataset> \
     -f open_images -o <output/dir> \
-    -- --save-images
+    -- --save-media
 ```
 
 Extra options for exporting to the Open Images format:
-- `--save-images` - save image files when exporting the dataset
+- `--save-media` - save media files when exporting the dataset
   (by default, `False`)
 - `--image-ext IMAGE_EXT` - save image files with the specified extension
   when exporting the dataset (by default, uses the original extension
@@ -297,7 +297,7 @@ particular problems with the Open Images dataset:
 datum create -o project
 datum import -p project -f open_images ./open-images-dataset/
 datum stats -p project
-datum export -p project -f cvat -- --save-images
+datum export -p project -f cvat -- --save-media
 ```
 
 ### Example 2. Create a custom OID-like dataset

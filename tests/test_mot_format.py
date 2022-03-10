@@ -1,6 +1,6 @@
+import os.path as osp
 from functools import partial
 from unittest import TestCase
-import os.path as osp
 
 import numpy as np
 
@@ -10,205 +10,333 @@ from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
-from datumaro.util.test_utils import (
-    TestDir, check_save_and_load, compare_datasets,
-)
+from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 
 from .requirements import Requirements, mark_requirement
 
 
 class MotConverterTest(TestCase):
-    def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None, **kwargs):
-        return check_save_and_load(self, source_dataset, converter, test_dir,
-            importer='mot_seq',
-            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
+    def _test_save_and_load(
+        self, source_dataset, converter, test_dir, target_dataset=None, importer_args=None, **kwargs
+    ):
+        return check_save_and_load(
+            self,
+            source_dataset,
+            converter,
+            test_dir,
+            importer="mot_seq",
+            target_dataset=target_dataset,
+            importer_args=importer_args,
+            **kwargs,
+        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_bboxes(self):
-        source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train',
-                image=np.ones((16, 16, 3)),
-                annotations=[
-                    Bbox(0, 4, 4, 8, label=2, attributes={
-                        'occluded': True,
-                    }),
-                    Bbox(0, 4, 4, 4, label=3, attributes={
-                        'visibility': 0.4,
-                    }),
-                    Bbox(2, 4, 4, 4, attributes={
-                        'ignored': True
-                    }),
-                ]
-            ),
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    subset="train",
+                    media=Image(data=np.ones((16, 16, 3))),
+                    annotations=[
+                        Bbox(
+                            0,
+                            4,
+                            4,
+                            8,
+                            label=2,
+                            attributes={
+                                "occluded": True,
+                            },
+                        ),
+                        Bbox(
+                            0,
+                            4,
+                            4,
+                            4,
+                            label=3,
+                            attributes={
+                                "visibility": 0.4,
+                            },
+                        ),
+                        Bbox(2, 4, 4, 4, attributes={"ignored": True}),
+                    ],
+                ),
+                DatasetItem(
+                    id=2,
+                    subset="val",
+                    media=Image(data=np.ones((8, 8, 3))),
+                    annotations=[
+                        Bbox(1, 2, 4, 2, label=3),
+                    ],
+                ),
+                DatasetItem(
+                    id=3,
+                    subset="test",
+                    media=Image(data=np.ones((5, 4, 3)) * 3),
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(
+                    "label_" + str(label) for label in range(10)
+                ),
+            },
+        )
 
-            DatasetItem(id=2, subset='val',
-                image=np.ones((8, 8, 3)),
-                annotations=[
-                    Bbox(1, 2, 4, 2, label=3),
-                ]
-            ),
-
-            DatasetItem(id=3, subset='test',
-                image=np.ones((5, 4, 3)) * 3,
-            ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                'label_' + str(label) for label in range(10)),
-        })
-
-        target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1,
-                image=np.ones((16, 16, 3)),
-                annotations=[
-                    Bbox(0, 4, 4, 8, label=2, attributes={
-                        'occluded': True,
-                        'visibility': 0.0,
-                        'ignored': False,
-                    }),
-                    Bbox(0, 4, 4, 4, label=3, attributes={
-                        'occluded': False,
-                        'visibility': 0.4,
-                        'ignored': False,
-                    }),
-                    Bbox(2, 4, 4, 4, attributes={
-                        'occluded': False,
-                        'visibility': 1.0,
-                        'ignored': True,
-                    }),
-                ]
-            ),
-
-            DatasetItem(id=2,
-                image=np.ones((8, 8, 3)),
-                annotations=[
-                    Bbox(1, 2, 4, 2, label=3, attributes={
-                        'occluded': False,
-                        'visibility': 1.0,
-                        'ignored': False,
-                    }),
-                ]
-            ),
-
-            DatasetItem(id=3,
-                image=np.ones((5, 4, 3)) * 3,
-            ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                'label_' + str(label) for label in range(10)),
-        })
+        target_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((16, 16, 3))),
+                    annotations=[
+                        Bbox(
+                            0,
+                            4,
+                            4,
+                            8,
+                            label=2,
+                            attributes={
+                                "occluded": True,
+                                "visibility": 0.0,
+                                "ignored": False,
+                            },
+                        ),
+                        Bbox(
+                            0,
+                            4,
+                            4,
+                            4,
+                            label=3,
+                            attributes={
+                                "occluded": False,
+                                "visibility": 0.4,
+                                "ignored": False,
+                            },
+                        ),
+                        Bbox(
+                            2,
+                            4,
+                            4,
+                            4,
+                            attributes={
+                                "occluded": False,
+                                "visibility": 1.0,
+                                "ignored": True,
+                            },
+                        ),
+                    ],
+                ),
+                DatasetItem(
+                    id=2,
+                    media=Image(data=np.ones((8, 8, 3))),
+                    annotations=[
+                        Bbox(
+                            1,
+                            2,
+                            4,
+                            2,
+                            label=3,
+                            attributes={
+                                "occluded": False,
+                                "visibility": 1.0,
+                                "ignored": False,
+                            },
+                        ),
+                    ],
+                ),
+                DatasetItem(
+                    id=3,
+                    media=Image(data=np.ones((5, 4, 3)) * 3),
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(
+                    "label_" + str(label) for label in range(10)
+                ),
+            },
+        )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(source_dataset,
-                partial(MotSeqGtConverter.convert, save_images=True),
-                test_dir, target_dataset=target_dataset, require_images=True)
+            self._test_save_and_load(
+                source_dataset,
+                partial(MotSeqGtConverter.convert, save_media=True),
+                test_dir,
+                target_dataset=target_dataset,
+                require_media=True,
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_with_no_save_images(self):
-        source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1,
-                image=np.ones((16, 16, 3)),
-                annotations=[
-                    Bbox(0, 4, 4, 8, label=0, attributes={
-                        'occluded': True,
-                        'visibility': 0.0,
-                        'ignored': False,
-                    }),
-                ]
-            ),
-
-            DatasetItem(id=2,
-                image=np.ones((8, 8, 3)),
-                annotations=[
-                    Bbox(1, 2, 4, 2, label=1, attributes={
-                        'occluded': False,
-                        'visibility': 1.0,
-                        'ignored': False,
-                    }),
-                ]
-            ),
-        ], categories=['label_0', 'label_1'])
+    def test_can_save_and_load_with_no_save_media(self):
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((16, 16, 3))),
+                    annotations=[
+                        Bbox(
+                            0,
+                            4,
+                            4,
+                            8,
+                            label=0,
+                            attributes={
+                                "occluded": True,
+                                "visibility": 0.0,
+                                "ignored": False,
+                            },
+                        ),
+                    ],
+                ),
+                DatasetItem(
+                    id=2,
+                    media=Image(data=np.ones((8, 8, 3))),
+                    annotations=[
+                        Bbox(
+                            1,
+                            2,
+                            4,
+                            2,
+                            label=1,
+                            attributes={
+                                "occluded": False,
+                                "visibility": 1.0,
+                                "ignored": False,
+                            },
+                        ),
+                    ],
+                ),
+            ],
+            categories=["label_0", "label_1"],
+        )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(source_dataset,
-                partial(MotSeqGtConverter.convert, save_images=False),
-                test_dir)
+            self._test_save_and_load(
+                source_dataset, partial(MotSeqGtConverter.convert, save_media=False), test_dir
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
-        expected = Dataset.from_iterable([
-            DatasetItem('1', image=Image(
-                path='1.JPEG', data=np.zeros((4, 3, 3))),
-                annotations=[
-                    Bbox(0, 4, 4, 8, label=0, attributes={
-                        'occluded': True,
-                        'visibility': 0.0,
-                        'ignored': False,
-                    }),
-                ]
-            ),
-            DatasetItem('2', image=Image(
-                path='2.bmp', data=np.zeros((3, 4, 3))),
-            ),
-        ], categories=['a'])
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    "1",
+                    media=Image(path="1.JPEG", data=np.zeros((4, 3, 3))),
+                    annotations=[
+                        Bbox(
+                            0,
+                            4,
+                            4,
+                            8,
+                            label=0,
+                            attributes={
+                                "occluded": True,
+                                "visibility": 0.0,
+                                "ignored": False,
+                            },
+                        ),
+                    ],
+                ),
+                DatasetItem(
+                    "2",
+                    media=Image(path="2.bmp", data=np.zeros((3, 4, 3))),
+                ),
+            ],
+            categories=["a"],
+        )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(expected,
-                partial(MotSeqGtConverter.convert, save_images=True),
-                test_dir, require_images=True)
+            self._test_save_and_load(
+                expected,
+                partial(MotSeqGtConverter.convert, save_media=True),
+                test_dir,
+                require_media=True,
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_meta_file(self):
-        source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1,
-                image=np.ones((16, 16, 3)),
-                annotations=[
-                    Bbox(0, 4, 4, 8, label=0, attributes={
-                        'occluded': True,
-                        'visibility': 0.0,
-                        'ignored': False,
-                    }),
-                ]
-            ),
-
-            DatasetItem(id=2,
-                image=np.ones((8, 8, 3)),
-                annotations=[
-                    Bbox(1, 2, 4, 2, label=1, attributes={
-                        'occluded': False,
-                        'visibility': 1.0,
-                        'ignored': False,
-                    }),
-                ]
-            ),
-        ], categories=['label_0', 'label_1'])
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((16, 16, 3))),
+                    annotations=[
+                        Bbox(
+                            0,
+                            4,
+                            4,
+                            8,
+                            label=0,
+                            attributes={
+                                "occluded": True,
+                                "visibility": 0.0,
+                                "ignored": False,
+                            },
+                        ),
+                    ],
+                ),
+                DatasetItem(
+                    id=2,
+                    media=Image(data=np.ones((8, 8, 3))),
+                    annotations=[
+                        Bbox(
+                            1,
+                            2,
+                            4,
+                            2,
+                            label=1,
+                            attributes={
+                                "occluded": False,
+                                "visibility": 1.0,
+                                "ignored": False,
+                            },
+                        ),
+                    ],
+                ),
+            ],
+            categories=["label_0", "label_1"],
+        )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(source_dataset,
-                partial(MotSeqGtConverter.convert, save_images=True,
-                    save_dataset_meta=True),
-                test_dir, require_images=True)
-            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+            self._test_save_and_load(
+                source_dataset,
+                partial(MotSeqGtConverter.convert, save_media=True, save_dataset_meta=True),
+                test_dir,
+                require_media=True,
+            )
+            self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
-    'mot_dataset', 'mot_seq')
-DUMMY_SEQINFO_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
-    'mot_dataset', 'mot_seq_with_seqinfo')
+
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "mot_dataset", "mot_seq")
+DUMMY_SEQINFO_DATASET_DIR = osp.join(
+    osp.dirname(__file__), "assets", "mot_dataset", "mot_seq_with_seqinfo"
+)
+
 
 class MotImporterTest(TestCase):
     def _define_expected_dataset(self):
-        expected_dataset = Dataset.from_iterable([
-            DatasetItem(id=1,
-                image=np.ones((16, 16, 3)),
-                annotations=[
-                    Bbox(0, 4, 4, 8, label=2, attributes={
-                        'occluded': False,
-                        'visibility': 1.0,
-                        'ignored': False,
-                    }),
-                ]
-            ),
-        ], categories=['label_' + str(label) for label in range(10)])
+        expected_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((16, 16, 3))),
+                    annotations=[
+                        Bbox(
+                            0,
+                            4,
+                            4,
+                            8,
+                            label=2,
+                            attributes={
+                                "occluded": False,
+                                "visibility": 1.0,
+                                "ignored": False,
+                            },
+                        ),
+                    ],
+                ),
+            ],
+            categories=["label_" + str(label) for label in range(10)],
+        )
 
         return expected_dataset
 
@@ -221,7 +349,7 @@ class MotImporterTest(TestCase):
     def test_can_import(self):
         expected_dataset = self._define_expected_dataset()
 
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'mot_seq')
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR, "mot_seq")
 
         compare_datasets(self, expected_dataset, dataset)
 
@@ -229,6 +357,6 @@ class MotImporterTest(TestCase):
     def test_can_import_seqinfo(self):
         expected_dataset = self._define_expected_dataset()
 
-        dataset = Dataset.import_from(DUMMY_SEQINFO_DATASET_DIR, 'mot_seq')
+        dataset = Dataset.import_from(DUMMY_SEQINFO_DATASET_DIR, "mot_seq")
 
         compare_datasets(self, expected_dataset, dataset)

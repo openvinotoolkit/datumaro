@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Optional, Tuple
 import os
 import re
+from typing import Optional, Tuple
 
 from datumaro.cli.util.errors import WrongRevpathError
 from datumaro.components.dataset import Dataset
@@ -20,7 +20,8 @@ from datumaro.util.scope import on_error_do, scoped
 def load_project(project_dir, readonly=False):
     return Project(project_dir, readonly=readonly)
 
-def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
+
+def generate_next_file_name(basename, basedir=".", sep=".", ext=""):
     """
     If basedir does not contain basename, returns basename,
     otherwise generates a name by appending sep to the basename
@@ -30,7 +31,10 @@ def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
 
     return generate_next_name(os.listdir(basedir), basename, sep, ext)
 
-def parse_dataset_pathspec(s: str, *,
+
+def parse_dataset_pathspec(
+    s: str,
+    *,
     env: Optional[Environment] = None,
     progress_reporter: Optional[ProgressReporter] = None,
     error_policy: Optional[ImportErrorPolicy] = None,
@@ -42,22 +46,27 @@ def parse_dataset_pathspec(s: str, *,
     Returns: a dataset from the parsed path
     """
 
-    match = re.fullmatch(r"""
+    match = re.fullmatch(
+        r"""
         (?P<dataset_path>(?: [^:] | :[/\\] )+)
         (:(?P<format>.+))?
-        """, s, flags=re.VERBOSE)
+        """,
+        s,
+        flags=re.VERBOSE,
+    )
     if not match:
         raise ValueError("Failed to recognize dataset pathspec in '%s'" % s)
     match = match.groupdict()
 
     path = match["dataset_path"]
     format = match["format"]
-    return Dataset.import_from(path, format, env=env,
-        progress_reporter=progress_reporter, error_policy=error_policy)
+    return Dataset.import_from(
+        path, format, env=env, progress_reporter=progress_reporter, error_policy=error_policy
+    )
+
 
 @scoped
-def parse_revspec(s: str, ctx_project: Optional[Project] = None) \
-        -> Tuple[Dataset, Project]:
+def parse_revspec(s: str, ctx_project: Optional[Project] = None) -> Tuple[Dataset, Project]:
     """
     Parses Revision paths. The syntax is:
         - <project path> [ @<rev> ] [ :<target> ]
@@ -69,11 +78,15 @@ def parse_revspec(s: str, ctx_project: Optional[Project] = None) \
         The project is only returned when specified in the revpath.
     """
 
-    match = re.fullmatch(r"""
+    match = re.fullmatch(
+        r"""
         (?P<proj_path>(?: [^@:] | :[/\\] )+)
         (@(?P<rev>[^:]+))?
         (:(?P<source>.+))?
-        """, s, flags=re.VERBOSE)
+        """,
+        s,
+        flags=re.VERBOSE,
+    )
     if not match:
         raise ValueError("Failed to recognize revspec in '%s'" % s)
     match = match.groupdict()
@@ -100,9 +113,11 @@ def parse_revspec(s: str, ctx_project: Optional[Project] = None) \
             source = proj_path
 
     else:
-        raise ProjectNotFoundError("Failed to find project at '%s'. " \
+        raise ProjectNotFoundError(
+            "Failed to find project at '%s'. "
             "Specify project path with '-p/--project' or in the "
-            "target pathspec." % proj_path)
+            "target pathspec." % proj_path
+        )
 
     if target_project:
         on_error_do(Project.close, target_project, ignore_errors=True)
@@ -110,7 +125,11 @@ def parse_revspec(s: str, ctx_project: Optional[Project] = None) \
     tree = project.get_rev(rev)
     return tree.make_dataset(source), target_project
 
-def parse_full_revpath(s: str, ctx_project: Optional[Project] = None, *,
+
+def parse_full_revpath(
+    s: str,
+    ctx_project: Optional[Project] = None,
+    *,
     progress_reporter: Optional[ProgressReporter] = None,
     error_policy: Optional[ImportErrorPolicy] = None,
 ) -> Tuple[Dataset, Optional[Project]]:
@@ -133,15 +152,15 @@ def parse_full_revpath(s: str, ctx_project: Optional[Project] = None, *,
         errors.append(e)
 
     try:
-        dataset = parse_dataset_pathspec(s, env=env,
-            progress_reporter=progress_reporter,
-            error_policy=error_policy
+        dataset = parse_dataset_pathspec(
+            s, env=env, progress_reporter=progress_reporter, error_policy=error_policy
         )
         return dataset, None
     except (DatumaroError, OSError) as e:
         errors.append(e)
 
     raise WrongRevpathError(problems=errors)
+
 
 def split_local_revpath(revpath: str) -> Tuple[Revision, str]:
     """
@@ -155,12 +174,12 @@ def split_local_revpath(revpath: str) -> Tuple[Revision, str]:
     Returns: (revision, build target)
     """
 
-    sep_pos = revpath.find(':')
+    sep_pos = revpath.find(":")
     if -1 < sep_pos:
         rev = revpath[:sep_pos]
-        target = revpath[sep_pos + 1:]
+        target = revpath[sep_pos + 1 :]
     else:
-        rev = ''
+        rev = ""
         target = revpath
 
     return rev, target

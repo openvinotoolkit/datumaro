@@ -112,12 +112,12 @@ formats using CLI:
 ```bash
 datum create
 datum import -f synthia <path/to/dataset>
-datum export -f voc -o <output/dir> -- --save-images
+datum export -f voc -o <output/dir> -- --save-media
 ```
 or
 ``` bash
 datum convert -if synthia -i <path/to/dataset> \
-    -f voc -o <output/dir> -- --save-images
+    -f voc -o <output/dir> -- --save-media
 ```
 
 Or, using Python API:

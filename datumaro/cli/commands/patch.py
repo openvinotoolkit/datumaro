@@ -17,7 +17,8 @@ from ..util.project import load_project, parse_full_revpath
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Updates dataset from another one",
+    parser = parser_ctor(
+        help="Updates dataset from another one",
         description="""
         Updates items of the first dataset with items from the second one.|n
         |n
@@ -77,29 +78,46 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         - Update a dataset in a custom format, described in a project plugin:|n
         |s|s%(prog)s -p proj/ --overwrite dataset/:my_format dataset2/:coco
         """,
-        formatter_class=MultilineFormatter)
+        formatter_class=MultilineFormatter,
+    )
 
-    parser.add_argument('target', help="Target dataset revpath")
-    parser.add_argument('patch', help="Patch dataset revpath")
-    parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
-        help="Output directory (default: save in-place)")
-    parser.add_argument('--overwrite', action='store_true',
-        help="Overwrite existing files in the save directory, "
-            "if it is not empty")
-    parser.add_argument('-p', '--project', dest='project_dir',
-        help="Directory of the 'current' project (default: current dir)")
-    parser.add_argument('extra_args', nargs=argparse.REMAINDER,
+    parser.add_argument("target", help="Target dataset revpath")
+    parser.add_argument("patch", help="Patch dataset revpath")
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        dest="dst_dir",
+        default=None,
+        help="Output directory (default: save in-place)",
+    )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite existing files in the save directory, " "if it is not empty",
+    )
+    parser.add_argument(
+        "-p",
+        "--project",
+        dest="project_dir",
+        help="Directory of the 'current' project (default: current dir)",
+    )
+    parser.add_argument(
+        "extra_args",
+        nargs=argparse.REMAINDER,
         help="Additional arguments for exporting (pass '-- -h' for help). "
-            "Must be specified after the main command arguments and after "
-            "the '--' separator")
+        "Must be specified after the main command arguments and after "
+        "the '--' separator",
+    )
     parser.set_defaults(command=patch_command)
 
     return parser
 
+
 def get_sensitive_args():
     return {
-        patch_command: ['target', 'patch', 'dst_dir', 'project_dir', 'extra_args'],
+        patch_command: ["target", "patch", "dst_dir", "project_dir", "extra_args"],
     }
+
 
 @scoped
 def patch_command(args):
@@ -117,17 +135,19 @@ def patch_command(args):
 
     cli_ctx = make_cli_context(args)
 
-    target_dataset, _project = parse_full_revpath(args.target, project,
+    target_dataset, _project = parse_full_revpath(
+        args.target,
+        project,
         progress_reporter=cli_ctx.progress_reporter,
-        error_policy=cli_ctx.import_error_policy)
+        error_policy=cli_ctx.import_error_policy,
+    )
     if _project is not None:
         scope_add(_project)
 
     try:
         converter = env.converters[target_dataset.format]
     except KeyError:
-        raise CliException("Converter for format '%s' is not found" % \
-            args.format)
+        raise CliException("Converter for format '%s' is not found" % args.format)
 
     extra_args = converter.parse_cmdline(args.extra_args)
 
@@ -135,8 +155,9 @@ def patch_command(args):
 
     dst_dir = args.dst_dir or target_dataset.data_path
     if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
-        raise CliException("Directory '%s' already exists "
-            "(pass --overwrite to overwrite)" % dst_dir)
+        raise CliException(
+            "Directory '%s' already exists " "(pass --overwrite to overwrite)" % dst_dir
+        )
     dst_dir = osp.abspath(dst_dir)
 
     patch_dataset, _project = parse_full_revpath(args.patch, project)
@@ -145,9 +166,12 @@ def patch_command(args):
 
     target_dataset.update(patch_dataset)
 
-    target_dataset.save(save_dir=dst_dir, **extra_args,
+    target_dataset.save(
+        save_dir=dst_dir,
+        **extra_args,
         progress_reporter=cli_ctx.progress_reporter,
-        error_policy=cli_ctx.export_error_policy)
+        error_policy=cli_ctx.export_error_policy,
+    )
 
     log.info("Patched dataset has been saved to '%s'" % dst_dir)
 

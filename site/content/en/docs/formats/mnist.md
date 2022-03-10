@@ -133,7 +133,7 @@ Or, using Python API:
 import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path/to/dataset>', 'mnist')
-dataset.export('save_dir', 'imagenet', save_images=True)
+dataset.export('save_dir', 'imagenet', save_media=True)
 ```
 
 These steps also will work for MNIST in CSV, if you use `mnist_csv`
@@ -146,16 +146,16 @@ There are several ways to convert a dataset to MNIST format:
 ``` bash
 # export dataset into MNIST format from existing project
 datum export -p <path/to/project> -f mnist -o <output/dir> \
-    -- --save-images
+    -- --save-media
 ```
 ``` bash
 # converting to MNIST format from other format
 datum convert -if imagenet -i <path/to/dataset> \
-    -f mnist -o <output/dir> -- --save-images
+    -f mnist -o <output/dir> -- --save-media
 ```
 
 Extra options for exporting to MNIST format:
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting dataset (by default `.png`)

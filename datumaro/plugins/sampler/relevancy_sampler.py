@@ -26,22 +26,25 @@ class RelevancySampler(Transform, CliPlugin):
     values in the `scores` attributes of annotations.|n
     |n
     There are five methods of sampling (the `-m/--method` option):|n
-    - `topk` - Return the k items with the highest uncertainty data|n
-    - `lowk` - Return the k items with the lowest uncertainty data|n
-    - `randk` - Return random k items|n
-    - `mixk` - Return a half using topk, and the other half using lowk method|n
-    - `randtopk` - Select 3*k items randomly, and return the topk among them|n
+    |s|s- `topk` - Return the k items with the highest uncertainty data|n
+    |s|s- `lowk` - Return the k items with the lowest uncertainty data|n
+    |s|s- `randk` - Return random k items|n
+    |s|s- `mixk` - Return a half using topk, and the other half using lowk method|n
+    |s|s- `randtopk` - Select 3*k items randomly, and return the topk among them|n
     |n
     Notes:|n
-    - Each image's inference result must contain the probability for
-    all classes.|n
-    - Requesting a sample larger than the number of all images will
-    return all images.|n
+    |s|s- Each image's inference result must contain the probability for|n
+    |s|s|s|sall classes.|n
+    |s|s- Requesting a sample larger than the number of all images will|n
+    |s|s|s|sreturn all images.|n
     |n
     Example: select the most relevant data subset of 20 images |n
-    |s|sbased on model certainty, put the result into 'sample' subset
+    |s|sbased on model certainty, put the result into 'sample' subset |n
     |s|sand put all the rest into 'unsampled' subset, use 'train' subset |n
     |s|sas input. |n
+
+    .. code-block::
+
     |s|s%(prog)s \ |n
     |s|s|s|s--algorithm entropy \ |n
     |s|s|s|s--subset_name train \ |n
@@ -53,36 +56,60 @@ class RelevancySampler(Transform, CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-k', '--count', type=int, required=True,
-            help="Number of items to sample")
-        parser.add_argument('-a', '--algorithm',
+        parser.add_argument(
+            "-k", "--count", type=int, required=True, help="Number of items to sample"
+        )
+        parser.add_argument(
+            "-a",
+            "--algorithm",
             default=Algorithm.entropy.name,
             choices=[t.name for t in Algorithm],
             help="Sampling algorithm (one of {}; default: %(default)s)".format(
-                ', '.join(t.name for t in Algorithm)))
-        parser.add_argument('-i', '--input_subset', default=None,
-            help="Subset name to select sample from (default: %(default)s)")
-        parser.add_argument('-o', '--sampled_subset', default="sample",
-            help="Subset name to put sampled data to (default: %(default)s)")
-        parser.add_argument('-u', '--unsampled_subset', default="unsampled",
-            help="Subset name to put the rest data to (default: %(default)s)")
-        parser.add_argument('-m', '--sampling_method',
+                ", ".join(t.name for t in Algorithm)
+            ),
+        )
+        parser.add_argument(
+            "-i",
+            "--input_subset",
+            default=None,
+            help="Subset name to select sample from (default: %(default)s)",
+        )
+        parser.add_argument(
+            "-o",
+            "--sampled_subset",
+            default="sample",
+            help="Subset name to put sampled data to (default: %(default)s)",
+        )
+        parser.add_argument(
+            "-u",
+            "--unsampled_subset",
+            default="unsampled",
+            help="Subset name to put the rest data to (default: %(default)s)",
+        )
+        parser.add_argument(
+            "-m",
+            "--sampling_method",
             default=SamplingMethod.topk.name,
             choices=[t.name for t in SamplingMethod],
             help="Sampling method (one of {}; default: %(default)s)".format(
-                ', '.join(t.name for t in SamplingMethod)))
-        parser.add_argument('-d', '--output_file',
-            help="A .csv file path to dump sampling results")
+                ", ".join(t.name for t in SamplingMethod)
+            ),
+        )
+        parser.add_argument("-d", "--output_file", help="A .csv file path to dump sampling results")
         return parser
 
-    def __init__(self, extractor: IExtractor,
-            count: int, *,
-            algorithm: Union[str, Algorithm],
-            sampling_method: Union[str, SamplingMethod],
-            input_subset: Optional[str] = None,
-            sampled_subset: str = 'sample',
-            unsampled_subset: str = 'unsampled',
-            output_file: Optional[str] = None):
+    def __init__(
+        self,
+        extractor: IExtractor,
+        count: int,
+        *,
+        algorithm: Union[str, Algorithm],
+        sampling_method: Union[str, SamplingMethod],
+        input_subset: Optional[str] = None,
+        sampled_subset: str = "sample",
+        unsampled_subset: str = "unsampled",
+        output_file: Optional[str] = None,
+    ):
         """
         Parameters
         ----------
@@ -107,8 +134,7 @@ class RelevancySampler(Transform, CliPlugin):
         self.sampled_subset = sampled_subset
         self.unsampled_subset = unsampled_subset
         self.algorithm = parse_str_enum_value(algorithm, Algorithm).name
-        self.sampling_method = \
-            parse_str_enum_value(sampling_method, SamplingMethod).name
+        self.sampling_method = parse_str_enum_value(sampling_method, SamplingMethod).name
         self.count = count
         self.output_file = output_file
 
@@ -130,26 +156,27 @@ class RelevancySampler(Transform, CliPlugin):
         # 2. Fill the data_df and infer_df to fit the sampler algorithm
         # input format.
         for item in subset:
-            data_df['ImageID'].append(item.id)
+            data_df["ImageID"].append(item.id)
 
-            if not item.has_image or item.image.size is None:
+            if not item.media or item.media.size is None:
                 raise Exception(f"Item {item.id} does not have image info")
 
-            width, height = item.image.size
-            data_df['Width'].append(width)
-            data_df['Height'].append(height)
-            data_df['ImagePath'].append(item.image.path)
+            width, height = item.media.size
+            data_df["Width"].append(width)
+            data_df["Height"].append(height)
+            data_df["ImagePath"].append(item.media.path)
 
             if not item.annotations:
                 raise Exception(f"Item {item.id} does not have annotations")
 
             for annotation in item.annotations:
-                if 'scores' not in annotation.attributes:
-                    raise Exception(f"Item {item.id} - an annotation "
-                        "does not have 'scores' attribute")
-                probs = annotation.attributes['scores']
+                if "scores" not in annotation.attributes:
+                    raise Exception(
+                        f"Item {item.id} - an annotation " "does not have 'scores' attribute"
+                    )
+                probs = annotation.attributes["scores"]
 
-                infer_df['ImageID'].append(item.id)
+                infer_df["ImageID"].append(item.id)
 
                 for prob_idx, prob in enumerate(probs):
                     infer_df[f"ClassProbability{prob_idx+1}"].append(prob)
@@ -168,8 +195,10 @@ class RelevancySampler(Transform, CliPlugin):
             # Data delivery, uncertainty score calculations also proceed.
             sampler = SampleEntropy(data, inference)
         else:
-            raise Exception(f"Unknown algorithm '{algorithm}', available "
-                f"algorithms: {[a.name for a in Algorithm]}")
+            raise Exception(
+                f"Unknown algorithm '{algorithm}', available "
+                f"algorithms: {[a.name for a in Algorithm]}"
+            )
         return sampler
 
     def _get_sample_subset(self, image):
@@ -187,17 +216,15 @@ class RelevancySampler(Transform, CliPlugin):
         # Import data into a subset name and convert it
         # to a format that will be used in the sampler algorithm with
         # the inference result.
-        data_df, infer_df = self._load_inference_from_subset(
-            self._extractor, self.input_subset)
+        data_df, infer_df = self._load_inference_from_subset(self._extractor, self.input_subset)
 
         sampler = self._calculate_uncertainty(self.algorithm, data_df, infer_df)
-        self.result = sampler.get_sample(method=self.sampling_method,
-            k=self.count)
+        self.result = sampler.get_sample(method=self.sampling_method, k=self.count)
 
         if self.output_file is not None:
             self.result.to_csv(self.output_file, index=False)
 
-        self.sample_id = self.result['ImageID'].to_list()
+        self.sample_id = self.result["ImageID"].to_list()
 
         # Transform properties for each data
         for item in self._extractor:
