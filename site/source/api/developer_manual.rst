@@ -227,7 +227,7 @@ The ``Environment`` class is responsible for accessing built-in and
 project-specific plugins. For a ``Project`` object, there is an instance of
 related ``Environment`` in ``project.env``.
 
-Check the `Data Model section of the User Manual <supported_formats>`_
+Check the :ref:`Data Model section of the User Manual <supported_formats>`:
 for more info about Project behavior and high-level details.
 
 Library contents
