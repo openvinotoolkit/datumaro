@@ -15,7 +15,9 @@ from datumaro.util.scope import on_error_do, scope_add, scoped
 from ..util import MultilineFormatter, add_subparser
 from ..util.errors import CliException
 from ..util.project import (
-    generate_next_file_name, generate_next_name, load_project,
+    generate_next_file_name,
+    generate_next_name,
+    load_project,
     parse_full_revpath,
 )
 
@@ -23,7 +25,8 @@ from ..util.project import (
 def build_add_parser(parser_ctor=argparse.ArgumentParser):
     builtins = sorted(Environment().launchers)
 
-    parser = parser_ctor(help="Add model to project",
+    parser = parser_ctor(
+        help="Add model to project",
         description="""
         Adds an executable model into a project. A model requires
         a launcher to be executed. Each launcher has its own options, which
@@ -34,33 +37,51 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         Examples:|n
         - Add an OpenVINO model into a project:|n
         |s|s%(prog)s -l openvino -- -d model.xml -w model.bin -i parse_outs.py
-        """.format(', '.join(builtins)),
-        formatter_class=MultilineFormatter)
+        """.format(
+            ", ".join(builtins)
+        ),
+        formatter_class=MultilineFormatter,
+    )
 
-    parser.add_argument('-n', '--name', default=None,
-        help="Name of the model to be added (default: generate automatically)")
-    parser.add_argument('-l', '--launcher', required=True,
-        help="Model launcher")
-    parser.add_argument('--copy', action='store_true',
-        help="Copy model data into project (default: %(default)s)")
-    parser.add_argument('--no-check', action='store_true',
-        help="Don't check model loading (default: %(default)s)")
-    parser.add_argument('-p', '--project', dest='project_dir',
-        help="Directory of the project to operate on (default: current dir)")
-    parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
-        help="Additional arguments for converter (pass '-- -h' for help)")
+    parser.add_argument(
+        "-n",
+        "--name",
+        default=None,
+        help="Name of the model to be added (default: generate automatically)",
+    )
+    parser.add_argument("-l", "--launcher", required=True, help="Model launcher")
+    parser.add_argument(
+        "--copy", action="store_true", help="Copy model data into project (default: %(default)s)"
+    )
+    parser.add_argument(
+        "--no-check", action="store_true", help="Don't check model loading (default: %(default)s)"
+    )
+    parser.add_argument(
+        "-p",
+        "--project",
+        dest="project_dir",
+        help="Directory of the project to operate on (default: current dir)",
+    )
+    parser.add_argument(
+        "extra_args",
+        nargs=argparse.REMAINDER,
+        default=None,
+        help="Additional arguments for converter (pass '-- -h' for help)",
+    )
     parser.set_defaults(command=add_command)
 
     return parser
 
+
 def get_add_sensitive_args():
     return {
-        add_command: ['project_dir', 'name', 'extra_args'],
+        add_command: ["project_dir", "name", "extra_args"],
     }
+
 
 @scoped
 def add_command(args):
-    show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
+    show_plugin_help = "-h" in args.extra_args or "--help" in args.extra_args
 
     project = None
     try:
@@ -79,15 +100,14 @@ def add_command(args):
         if name in project.models:
             raise CliException("Model '%s' already exists" % name)
     else:
-        name = generate_next_name(list(project.models),
-            'model', sep='-', default=0)
+        name = generate_next_name(list(project.models), "model", sep="-", default=0)
 
     try:
         launcher = env.launchers[args.launcher]
     except KeyError:
         raise CliException("Launcher '%s' is not found" % args.launcher)
 
-    cli_plugin = getattr(launcher, 'cli_plugin', launcher)
+    cli_plugin = getattr(launcher, "cli_plugin", launcher)
     model_args = cli_plugin.parse_cmdline(args.extra_args)
 
     if args.copy:
@@ -101,8 +121,8 @@ def add_command(args):
             cli_plugin.copy_model(model_dir, model_args)
         except (AttributeError, NotImplementedError):
             raise NotImplementedError(
-                "Can't copy: copying is not available for '%s' models. " %
-                args.launcher)
+                "Can't copy: copying is not available for '%s' models. " % args.launcher
+            )
 
     project.add_model(name, launcher=args.launcher, options=model_args)
     on_error_do(project.remove_model, name, ignore_errors=True)
@@ -113,27 +133,36 @@ def add_command(args):
 
     project.save()
 
-    log.info("Model '%s' with launcher '%s' has been added to project",
-        name, args.launcher)
+    log.info("Model '%s' with launcher '%s' has been added to project", name, args.launcher)
 
     return 0
 
-def build_remove_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Remove model from project",
-        description="Remove a model from a project")
 
-    parser.add_argument('name',
-        help="Name of the model to be removed")
-    parser.add_argument('-p', '--project', dest='project_dir',
-        help="Directory of the project to operate on (default: current dir)")
+def build_remove_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor(
+        help="Remove model from project", description="Remove a model from a project"
+    )
+
+    parser.add_argument("name", help="Name of the model to be removed")
+    parser.add_argument(
+        "-p",
+        "--project",
+        dest="project_dir",
+        help="Directory of the project to operate on (default: current dir)",
+    )
     parser.set_defaults(command=remove_command)
 
     return parser
 
+
 def get_remove_sensitive_args():
     return {
-        remove_command: ['project_dir', 'name',],
+        remove_command: [
+            "project_dir",
+            "name",
+        ],
     }
+
 
 @scoped
 def remove_command(args):
@@ -144,8 +173,10 @@ def remove_command(args):
 
     return 0
 
+
 def build_run_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Launches model inference",
+    parser = parser_ctor(
+        help="Launches model inference",
         description="""
         Launches model inference on a dataset.|n
         |n
@@ -160,36 +191,56 @@ def build_run_parser(parser_ctor=argparse.ArgumentParser):
         Both forms use the -p/--project as a context for plugins and models.
         When not specified, the current project's working tree is used.|n
         """,
-        formatter_class=MultilineFormatter)
+        formatter_class=MultilineFormatter,
+    )
 
-    parser.add_argument('target', nargs='?', default='project',
-        help="Target dataset revpath (default: %(default)s)")
-    parser.add_argument('-o', '--output-dir', dest='dst_dir',
-        help="Directory to save output (default: auto-generated)")
-    parser.add_argument('-m', '--model', dest='model_name', required=True,
-        help="Model to apply to the project")
-    parser.add_argument('-p', '--project', dest='project_dir',
-        help="Directory of the project to operate on (default: current dir)")
-    parser.add_argument('--overwrite', action='store_true',
-        help="Overwrite output directory if exists")
+    parser.add_argument(
+        "target", nargs="?", default="project", help="Target dataset revpath (default: %(default)s)"
+    )
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        dest="dst_dir",
+        help="Directory to save output (default: auto-generated)",
+    )
+    parser.add_argument(
+        "-m", "--model", dest="model_name", required=True, help="Model to apply to the project"
+    )
+    parser.add_argument(
+        "-p",
+        "--project",
+        dest="project_dir",
+        help="Directory of the project to operate on (default: current dir)",
+    )
+    parser.add_argument(
+        "--overwrite", action="store_true", help="Overwrite output directory if exists"
+    )
     parser.set_defaults(command=run_command)
 
     return parser
 
+
 def get_run_sensitive_args():
     return {
-        run_command: ['target', 'dst_dir', 'model_name', 'project_dir',],
+        run_command: [
+            "target",
+            "dst_dir",
+            "model_name",
+            "project_dir",
+        ],
     }
+
 
 @scoped
 def run_command(args):
     dst_dir = args.dst_dir
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite overwrite)" % dst_dir)
+            raise CliException(
+                "Directory '%s' already exists " "(pass --overwrite overwrite)" % dst_dir
+            )
     else:
-        dst_dir = generate_next_file_name('%s-inference' % args.model_name)
+        dst_dir = generate_next_file_name("%s-inference" % args.model_name)
     dst_dir = osp.abspath(dst_dir)
 
     project = scope_add(load_project(args.project_dir))
@@ -206,23 +257,31 @@ def run_command(args):
 
     return 0
 
+
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
-    parser.add_argument('-n', '--name',
-        help="Model name")
-    parser.add_argument('-v', '--verbose', action='store_true',
-        help="Show details")
-    parser.add_argument('-p', '--project', dest='project_dir',
-        help="Directory of the project to operate on (default: current dir)")
+    parser.add_argument("-n", "--name", help="Model name")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Show details")
+    parser.add_argument(
+        "-p",
+        "--project",
+        dest="project_dir",
+        help="Directory of the project to operate on (default: current dir)",
+    )
     parser.set_defaults(command=info_command)
 
     return parser
 
+
 def get_info_sensitive_args():
     return {
-        info_command: ['name', 'project_dir',],
+        info_command: [
+            "name",
+            "project_dir",
+        ],
     }
+
 
 @scoped
 def info_command(args):
@@ -236,16 +295,18 @@ def info_command(args):
             if args.verbose:
                 print(dict(conf))
 
+
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
     subparsers = parser.add_subparsers()
-    add_subparser(subparsers, 'add', build_add_parser)
-    add_subparser(subparsers, 'remove', build_remove_parser)
-    add_subparser(subparsers, 'run', build_run_parser)
-    add_subparser(subparsers, 'info', build_info_parser)
+    add_subparser(subparsers, "add", build_add_parser)
+    add_subparser(subparsers, "remove", build_remove_parser)
+    add_subparser(subparsers, "run", build_run_parser)
+    add_subparser(subparsers, "info", build_info_parser)
 
     return parser
+
 
 def get_sensitive_args():
     return {

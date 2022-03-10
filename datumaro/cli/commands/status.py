@@ -11,24 +11,33 @@ from ..util.project import load_project
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Prints project status.",
+    parser = parser_ctor(
+        help="Prints project status.",
         description="""
         This command prints the summary of the project changes between
         the working tree of a project and its HEAD revision.
         """,
-        formatter_class=MultilineFormatter
+        formatter_class=MultilineFormatter,
     )
 
-    parser.add_argument('-p', '--project', dest='project_dir',
-        help="Directory of the project to operate on (default: current dir)")
+    parser.add_argument(
+        "-p",
+        "--project",
+        dest="project_dir",
+        help="Directory of the project to operate on (default: current dir)",
+    )
     parser.set_defaults(command=status_command)
 
     return parser
 
+
 def get_sensitive_args():
     return {
-        status_command: ['project_dir',],
+        status_command: [
+            "project_dir",
+        ],
     }
+
 
 @scoped
 def status_command(args):
@@ -43,7 +52,7 @@ def status_command(args):
 
     if statuses:
         for target, status in statuses.items():
-            print('%s\t%s' % (status.name, target))
+            print("%s\t%s" % (status.name, target))
     else:
         print("Working directory clean")
 

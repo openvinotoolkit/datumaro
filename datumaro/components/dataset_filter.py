@@ -8,7 +8,14 @@ import logging as log
 from lxml import etree as ET  # nosec, lxml has proper XPath implementation
 
 from datumaro.components.annotation import (
-    Annotation, AnnotationType, Bbox, Caption, Label, Mask, Points, Polygon,
+    Annotation,
+    AnnotationType,
+    Bbox,
+    Caption,
+    Label,
+    Mask,
+    Points,
+    Polygon,
     PolyLine,
 )
 from datumaro.components.extractor import ItemTransform
@@ -18,9 +25,9 @@ from datumaro.components.media import Image
 class DatasetItemEncoder:
     @classmethod
     def encode(cls, item, categories=None):
-        item_elem = ET.Element('item')
-        ET.SubElement(item_elem, 'id').text = str(item.id)
-        ET.SubElement(item_elem, 'subset').text = str(item.subset)
+        item_elem = ET.Element("item")
+        ET.SubElement(item_elem, "id").text = str(item.id)
+        ET.SubElement(item_elem, "subset").text = str(item.subset)
 
         image = item.media
         if isinstance(image, Image):
@@ -33,41 +40,41 @@ class DatasetItemEncoder:
 
     @classmethod
     def encode_image(cls, image):
-        image_elem = ET.Element('image')
+        image_elem = ET.Element("image")
 
         size = image.size
         if size is not None:
             h, w = size
         else:
-            h = 'unknown'
+            h = "unknown"
             w = h
-        ET.SubElement(image_elem, 'width').text = str(w)
-        ET.SubElement(image_elem, 'height').text = str(h)
+        ET.SubElement(image_elem, "width").text = str(w)
+        ET.SubElement(image_elem, "height").text = str(h)
 
-        ET.SubElement(image_elem, 'has_data').text = '%d' % int(image.has_data)
-        ET.SubElement(image_elem, 'path').text = image.path
+        ET.SubElement(image_elem, "has_data").text = "%d" % int(image.has_data)
+        ET.SubElement(image_elem, "path").text = image.path
 
         return image_elem
 
     @classmethod
     def encode_annotation_base(cls, annotation):
         assert isinstance(annotation, Annotation)
-        ann_elem = ET.Element('annotation')
-        ET.SubElement(ann_elem, 'id').text = str(annotation.id)
-        ET.SubElement(ann_elem, 'type').text = str(annotation.type.name)
+        ann_elem = ET.Element("annotation")
+        ET.SubElement(ann_elem, "id").text = str(annotation.id)
+        ET.SubElement(ann_elem, "type").text = str(annotation.type.name)
 
         for k, v in annotation.attributes.items():
-            ET.SubElement(ann_elem, k.replace(' ', '-')).text = str(v)
+            ET.SubElement(ann_elem, k.replace(" ", "-")).text = str(v)
 
-        ET.SubElement(ann_elem, 'group').text = str(annotation.group)
+        ET.SubElement(ann_elem, "group").text = str(annotation.group)
 
         return ann_elem
 
     @staticmethod
     def _get_label(label_id, categories):
-        label = ''
+        label = ""
         if label_id is None:
-            return ''
+            return ""
         if categories is not None:
             label_cat = categories.get(AnnotationType.label)
             if label_cat is not None:
@@ -78,9 +85,8 @@ class DatasetItemEncoder:
     def encode_label_object(cls, obj, categories):
         ann_elem = cls.encode_annotation_base(obj)
 
-        ET.SubElement(ann_elem, 'label').text = \
-            str(cls._get_label(obj.label, categories))
-        ET.SubElement(ann_elem, 'label_id').text = str(obj.label)
+        ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
+        ET.SubElement(ann_elem, "label_id").text = str(obj.label)
 
         return ann_elem
 
@@ -88,9 +94,8 @@ class DatasetItemEncoder:
     def encode_mask_object(cls, obj, categories):
         ann_elem = cls.encode_annotation_base(obj)
 
-        ET.SubElement(ann_elem, 'label').text = \
-            str(cls._get_label(obj.label, categories))
-        ET.SubElement(ann_elem, 'label_id').text = str(obj.label)
+        ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
+        ET.SubElement(ann_elem, "label_id").text = str(obj.label)
 
         return ann_elem
 
@@ -98,14 +103,13 @@ class DatasetItemEncoder:
     def encode_bbox_object(cls, obj, categories):
         ann_elem = cls.encode_annotation_base(obj)
 
-        ET.SubElement(ann_elem, 'label').text = \
-            str(cls._get_label(obj.label, categories))
-        ET.SubElement(ann_elem, 'label_id').text = str(obj.label)
-        ET.SubElement(ann_elem, 'x').text = str(obj.x)
-        ET.SubElement(ann_elem, 'y').text = str(obj.y)
-        ET.SubElement(ann_elem, 'w').text = str(obj.w)
-        ET.SubElement(ann_elem, 'h').text = str(obj.h)
-        ET.SubElement(ann_elem, 'area').text = str(obj.get_area())
+        ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
+        ET.SubElement(ann_elem, "label_id").text = str(obj.label)
+        ET.SubElement(ann_elem, "x").text = str(obj.x)
+        ET.SubElement(ann_elem, "y").text = str(obj.y)
+        ET.SubElement(ann_elem, "w").text = str(obj.w)
+        ET.SubElement(ann_elem, "h").text = str(obj.h)
+        ET.SubElement(ann_elem, "area").text = str(obj.get_area())
 
         return ann_elem
 
@@ -113,26 +117,24 @@ class DatasetItemEncoder:
     def encode_points_object(cls, obj, categories):
         ann_elem = cls.encode_annotation_base(obj)
 
-        ET.SubElement(ann_elem, 'label').text = \
-            str(cls._get_label(obj.label, categories))
-        ET.SubElement(ann_elem, 'label_id').text = str(obj.label)
+        ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
+        ET.SubElement(ann_elem, "label_id").text = str(obj.label)
 
         x, y, w, h = obj.get_bbox()
         area = w * h
-        bbox_elem = ET.SubElement(ann_elem, 'bbox')
-        ET.SubElement(bbox_elem, 'x').text = str(x)
-        ET.SubElement(bbox_elem, 'y').text = str(y)
-        ET.SubElement(bbox_elem, 'w').text = str(w)
-        ET.SubElement(bbox_elem, 'h').text = str(h)
-        ET.SubElement(bbox_elem, 'area').text = str(area)
+        bbox_elem = ET.SubElement(ann_elem, "bbox")
+        ET.SubElement(bbox_elem, "x").text = str(x)
+        ET.SubElement(bbox_elem, "y").text = str(y)
+        ET.SubElement(bbox_elem, "w").text = str(w)
+        ET.SubElement(bbox_elem, "h").text = str(h)
+        ET.SubElement(bbox_elem, "area").text = str(area)
 
         points = obj.points
         for i in range(0, len(points), 2):
-            point_elem = ET.SubElement(ann_elem, 'point')
-            ET.SubElement(point_elem, 'x').text = str(points[i])
-            ET.SubElement(point_elem, 'y').text = str(points[i + 1])
-            ET.SubElement(point_elem, 'visible').text = \
-                str(obj.visibility[i // 2].name)
+            point_elem = ET.SubElement(ann_elem, "point")
+            ET.SubElement(point_elem, "x").text = str(points[i])
+            ET.SubElement(point_elem, "y").text = str(points[i + 1])
+            ET.SubElement(point_elem, "visible").text = str(obj.visibility[i // 2].name)
 
         return ann_elem
 
@@ -140,24 +142,23 @@ class DatasetItemEncoder:
     def encode_polygon_object(cls, obj, categories):
         ann_elem = cls.encode_annotation_base(obj)
 
-        ET.SubElement(ann_elem, 'label').text = \
-            str(cls._get_label(obj.label, categories))
-        ET.SubElement(ann_elem, 'label_id').text = str(obj.label)
+        ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
+        ET.SubElement(ann_elem, "label_id").text = str(obj.label)
 
         x, y, w, h = obj.get_bbox()
         area = w * h
-        bbox_elem = ET.SubElement(ann_elem, 'bbox')
-        ET.SubElement(bbox_elem, 'x').text = str(x)
-        ET.SubElement(bbox_elem, 'y').text = str(y)
-        ET.SubElement(bbox_elem, 'w').text = str(w)
-        ET.SubElement(bbox_elem, 'h').text = str(h)
-        ET.SubElement(bbox_elem, 'area').text = str(area)
+        bbox_elem = ET.SubElement(ann_elem, "bbox")
+        ET.SubElement(bbox_elem, "x").text = str(x)
+        ET.SubElement(bbox_elem, "y").text = str(y)
+        ET.SubElement(bbox_elem, "w").text = str(w)
+        ET.SubElement(bbox_elem, "h").text = str(h)
+        ET.SubElement(bbox_elem, "area").text = str(area)
 
         points = obj.points
         for i in range(0, len(points), 2):
-            point_elem = ET.SubElement(ann_elem, 'point')
-            ET.SubElement(point_elem, 'x').text = str(points[i])
-            ET.SubElement(point_elem, 'y').text = str(points[i + 1])
+            point_elem = ET.SubElement(ann_elem, "point")
+            ET.SubElement(point_elem, "x").text = str(points[i])
+            ET.SubElement(point_elem, "y").text = str(points[i + 1])
 
         return ann_elem
 
@@ -165,24 +166,23 @@ class DatasetItemEncoder:
     def encode_polyline_object(cls, obj, categories):
         ann_elem = cls.encode_annotation_base(obj)
 
-        ET.SubElement(ann_elem, 'label').text = \
-            str(cls._get_label(obj.label, categories))
-        ET.SubElement(ann_elem, 'label_id').text = str(obj.label)
+        ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
+        ET.SubElement(ann_elem, "label_id").text = str(obj.label)
 
         x, y, w, h = obj.get_bbox()
         area = w * h
-        bbox_elem = ET.SubElement(ann_elem, 'bbox')
-        ET.SubElement(bbox_elem, 'x').text = str(x)
-        ET.SubElement(bbox_elem, 'y').text = str(y)
-        ET.SubElement(bbox_elem, 'w').text = str(w)
-        ET.SubElement(bbox_elem, 'h').text = str(h)
-        ET.SubElement(bbox_elem, 'area').text = str(area)
+        bbox_elem = ET.SubElement(ann_elem, "bbox")
+        ET.SubElement(bbox_elem, "x").text = str(x)
+        ET.SubElement(bbox_elem, "y").text = str(y)
+        ET.SubElement(bbox_elem, "w").text = str(w)
+        ET.SubElement(bbox_elem, "h").text = str(h)
+        ET.SubElement(bbox_elem, "area").text = str(area)
 
         points = obj.points
         for i in range(0, len(points), 2):
-            point_elem = ET.SubElement(ann_elem, 'point')
-            ET.SubElement(point_elem, 'x').text = str(points[i])
-            ET.SubElement(point_elem, 'y').text = str(points[i + 1])
+            point_elem = ET.SubElement(ann_elem, "point")
+            ET.SubElement(point_elem, "x").text = str(points[i])
+            ET.SubElement(point_elem, "y").text = str(points[i + 1])
 
         return ann_elem
 
@@ -190,7 +190,7 @@ class DatasetItemEncoder:
     def encode_caption_object(cls, obj):
         ann_elem = cls.encode_annotation_base(obj)
 
-        ET.SubElement(ann_elem, 'caption').text = str(obj.caption)
+        ET.SubElement(ann_elem, "caption").text = str(obj.caption)
 
         return ann_elem
 
@@ -214,7 +214,8 @@ class DatasetItemEncoder:
 
     @staticmethod
     def to_string(encoded_item):
-        return ET.tostring(encoded_item, encoding='unicode', pretty_print=True)
+        return ET.tostring(encoded_item, encoding="unicode", pretty_print=True)
+
 
 class XPathDatasetFilter(ItemTransform):
     def __init__(self, extractor, xpath=None):
@@ -227,8 +228,9 @@ class XPathDatasetFilter(ItemTransform):
                 log.error("Failed to create XPath from expression '%s'", xpath)
                 raise
 
-            self._f = lambda item: bool(xpath(
-                DatasetItemEncoder.encode(item, extractor.categories())))
+            self._f = lambda item: bool(
+                xpath(DatasetItemEncoder.encode(item, extractor.categories()))
+            )
         else:
             self._f = None
 
@@ -236,6 +238,7 @@ class XPathDatasetFilter(ItemTransform):
         if self._f and not self._f(item):
             return None
         return item
+
 
 class XPathAnnotationsFilter(ItemTransform):
     def __init__(self, extractor, xpath=None, remove_empty=False):
@@ -257,9 +260,9 @@ class XPathAnnotationsFilter(ItemTransform):
 
         encoded = DatasetItemEncoder.encode(item, self._extractor.categories())
         filtered = self._filter(encoded)
-        filtered = [elem for elem in filtered if elem.tag == 'annotation']
+        filtered = [elem for elem in filtered if elem.tag == "annotation"]
 
-        encoded = encoded.findall('annotation')
+        encoded = encoded.findall("annotation")
         annotations = [item.annotations[encoded.index(e)] for e in filtered]
 
         if self._remove_empty and len(annotations) == 0:

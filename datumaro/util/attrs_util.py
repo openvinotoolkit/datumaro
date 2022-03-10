@@ -10,6 +10,7 @@ import attrs
 def not_empty(inst, attribute, x):
     assert len(x) != 0, x
 
+
 def default_if_none(conv):
     def validator(inst, attribute, value):
         default = attribute.default
@@ -30,7 +31,9 @@ def default_if_none(conv):
             if not dst_type or not isinstance(value, dst_type):
                 value = conv(value)
         setattr(inst, attribute.name, value)
+
     return validator
+
 
 def ensure_cls(c):
     def converter(arg):
@@ -38,4 +41,5 @@ def ensure_cls(c):
             return arg
         else:
             return c(**arg)
+
     return converter

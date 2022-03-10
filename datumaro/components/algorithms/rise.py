@@ -15,10 +15,12 @@ from datumaro.util.annotation_util import nms
 def flatmatvec(mat):
     return np.reshape(mat, (len(mat), -1))
 
+
 def expand(array, axis=None):
     if axis is None:
         axis = len(array.shape)
     return np.expand_dims(array, axis=axis)
+
 
 class RISE:
     """
@@ -27,10 +29,18 @@ class RISE:
     See explanations at: https://arxiv.org/pdf/1806.07421.pdf
     """
 
-    def __init__(self, model,
-            max_samples=None, mask_width=7, mask_height=7, prob=0.5,
-            iou_thresh=0.9, nms_thresh=0.0, det_conf_thresh=0.0,
-            batch_size=1):
+    def __init__(
+        self,
+        model,
+        max_samples=None,
+        mask_width=7,
+        mask_height=7,
+        prob=0.5,
+        iou_thresh=0.9,
+        nms_thresh=0.0,
+        det_conf_thresh=0.0,
+        batch_size=1,
+    ):
         self.model = model
         self.max_samples = max_samples
         self.mask_height = mask_height
@@ -63,8 +73,7 @@ class RISE:
     def apply(self, image, progressive=False):
         import cv2
 
-        assert len(image.shape) in [2, 3], \
-            "Expected an input image in (H, W, C) format"
+        assert len(image.shape) in [2, 3], "Expected an input image in (H, W, C) format"
         if len(image.shape) == 3:
             assert image.shape[2] in [3, 4], "Expected BGR or BGRA input"
         image = image[:, :, :3].astype(np.float32)
@@ -86,21 +95,20 @@ class RISE:
         result = next(iter(model.launch(expand(image, 0))))
         result_labels, result_bboxes = self.split_outputs(result)
         if 0 < self.det_conf_thresh:
-            result_bboxes = [b for b in result_bboxes \
-                if self.det_conf_thresh <= b.attributes['score']]
+            result_bboxes = [
+                b for b in result_bboxes if self.det_conf_thresh <= b.attributes["score"]
+            ]
         if 0 < self.nms_thresh:
             result_bboxes = nms(result_bboxes, self.nms_thresh)
 
         predicted_labels = set()
         if len(result_labels) != 0:
-            predicted_label = max(result_labels,
-                key=lambda r: r.attributes['score']).label
+            predicted_label = max(result_labels, key=lambda r: r.attributes["score"]).label
             predicted_labels.add(predicted_label)
         if len(result_bboxes) != 0:
             for bbox in result_bboxes:
                 predicted_labels.add(bbox.label)
-        predicted_labels = { label: idx \
-            for idx, label in enumerate(predicted_labels) }
+        predicted_labels = {label: idx for idx, label in enumerate(predicted_labels)}
 
         predicted_bboxes = result_bboxes
 
@@ -140,16 +148,16 @@ class RISE:
             batch_pos = b * batch_size
             current_batch_size = min(samples - batch_pos, batch_size)
 
-            batch_masks = masks[: current_batch_size]
+            batch_masks = masks[:current_batch_size]
             for i in range(current_batch_size):
                 mask = (rng(mask_size) < self.prob).astype(np.float32)
-                cv2.resize(mask, (int(upsampled_size[1]), int(upsampled_size[0])),
-                    ups_mask)
+                cv2.resize(mask, (int(upsampled_size[1]), int(upsampled_size[0])), ups_mask)
 
                 offsets = np.round(rng((2,)) * cell_size)
                 mask = ups_mask[
-                    int(offsets[0]):int(image_size[0] + offsets[0]),
-                    int(offsets[1]):int(image_size[1] + offsets[1]) ]
+                    int(offsets[0]) : int(image_size[0] + offsets[0]),
+                    int(offsets[1]) : int(image_size[1] + offsets[1]),
+                ]
                 batch_masks[i] = mask
 
             batch_inputs = full_batch_inputs[:current_batch_size]
@@ -165,17 +173,20 @@ class RISE:
                         idx = predicted_labels.get(r.label, None)
                         if idx is not None:
                             label_total_counts[idx] += 1
-                            label_confs[idx] += r.attributes['score']
+                            label_confs[idx] += r.attributes["score"]
                     for r in result_bboxes:
                         idx = predicted_labels.get(r.label, None)
                         if idx is not None:
                             label_total_counts[idx] += 1
-                            label_confs[idx] += r.attributes['score']
+                            label_confs[idx] += r.attributes["score"]
 
                 if len(predicted_bboxes) != 0 and len(result_bboxes) != 0:
                     if 0 < self.det_conf_thresh:
-                        result_bboxes = [b for b in result_bboxes \
-                            if self.det_conf_thresh <= b.attributes['score']]
+                        result_bboxes = [
+                            b
+                            for b in result_bboxes
+                            if self.det_conf_thresh <= b.attributes["score"]
+                        ]
                     if 0 < self.nms_thresh:
                         result_bboxes = nms(result_bboxes, self.nms_thresh)
 
@@ -191,7 +202,7 @@ class RISE:
 
                             bbox_total_counts[pred_idx] += 1
 
-                            conf = detection.attributes['score']
+                            conf = detection.attributes["score"]
                             bbox_confs[pred_idx] += conf
 
                 np.multiply.outer(confs, mask, out=current_heatmaps)

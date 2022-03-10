@@ -2,11 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
+
 class DetectionApiPath:
-    IMAGES_DIR = 'images'
-    ANNOTATIONS_DIR = 'annotations'
+    IMAGES_DIR = "images"
+    ANNOTATIONS_DIR = "annotations"
 
-    DEFAULT_IMAGE_EXT = '.jpg'
-    IMAGE_EXT_FORMAT = {'.jpg': 'jpeg', '.jpeg': 'jpeg', '.png': 'png'}
+    DEFAULT_IMAGE_EXT = ".jpg"
+    IMAGE_EXT_FORMAT = {".jpg": "jpeg", ".jpeg": "jpeg", ".png": "png"}
 
-    LABELMAP_FILE = 'label_map.pbtxt'
+    LABELMAP_FILE = "label_map.pbtxt"

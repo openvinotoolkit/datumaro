@@ -12,11 +12,11 @@ from .format import VocPath, VocTask
 
 class VocImporter(Importer):
     _TASKS = {
-        VocTask.classification: ('voc_classification', 'Main'),
-        VocTask.detection: ('voc_detection', 'Main'),
-        VocTask.segmentation: ('voc_segmentation', 'Segmentation'),
-        VocTask.person_layout: ('voc_layout', 'Layout'),
-        VocTask.action_classification: ('voc_action', 'Action'),
+        VocTask.classification: ("voc_classification", "Main"),
+        VocTask.detection: ("voc_detection", "Main"),
+        VocTask.segmentation: ("voc_segmentation", "Segmentation"),
+        VocTask.person_layout: ("voc_layout", "Layout"),
+        VocTask.action_classification: ("voc_action", "Action"),
     }
 
     @classmethod
@@ -32,8 +32,7 @@ class VocImporter(Importer):
             task_dirs = {task_dir for _, task_dir in cls._TASKS.values()}
             for task_dir in sorted(task_dirs):
                 with context.alternative():
-                    context.require_file(
-                        osp.join(VocPath.SUBSETS_DIR, task_dir, '*.txt'))
+                    context.require_file(osp.join(VocPath.SUBSETS_DIR, task_dir, "*.txt"))
 
     @classmethod
     def find_sources(cls, path):
@@ -42,15 +41,17 @@ class VocImporter(Importer):
         # find root path for the dataset and use it for all tasks
         root_path = None
         for extractor_type, task_dir in cls._TASKS.values():
-            if osp.isfile(path) and \
-                    not osp.basename(osp.dirname(path)) == task_dir:
+            if osp.isfile(path) and not osp.basename(osp.dirname(path)) == task_dir:
                 continue
 
-            task_subsets = cls._find_sources_recursive(root_path or path,
-                'txt', extractor_type,
+            task_subsets = cls._find_sources_recursive(
+                root_path or path,
+                "txt",
+                extractor_type,
                 dirname=osp.join(VocPath.SUBSETS_DIR, task_dir),
-                file_filter=lambda p: '_' not in osp.basename(p),
-                max_depth=0 if root_path else 3)
+                file_filter=lambda p: "_" not in osp.basename(p),
+                max_depth=0 if root_path else 3,
+            )
 
             if not task_subsets:
                 continue
@@ -58,27 +59,31 @@ class VocImporter(Importer):
             subsets.extend(task_subsets)
 
             if not root_path:
-                root_path = osp.dirname(osp.dirname(
-                    osp.dirname(task_subsets[0]['url'])))
+                root_path = osp.dirname(osp.dirname(osp.dirname(task_subsets[0]["url"])))
 
         return subsets
 
+
 class VocClassificationImporter(VocImporter):
     _TASK = VocTask.classification
-    _TASKS = { _TASK: VocImporter._TASKS[_TASK] }
+    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+
 
 class VocDetectionImporter(VocImporter):
     _TASK = VocTask.detection
-    _TASKS = { _TASK: VocImporter._TASKS[_TASK] }
+    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+
 
 class VocSegmentationImporter(VocImporter):
     _TASK = VocTask.segmentation
-    _TASKS = { _TASK: VocImporter._TASKS[_TASK] }
+    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+
 
 class VocLayoutImporter(VocImporter):
     _TASK = VocTask.person_layout
-    _TASKS = { _TASK: VocImporter._TASKS[_TASK] }
+    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+
 
 class VocActionImporter(VocImporter):
     _TASK = VocTask.action_classification
-    _TASKS = { _TASK: VocImporter._TASKS[_TASK] }
+    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}

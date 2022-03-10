@@ -12,8 +12,10 @@ class SamplingMethod(Enum):
     mixk = auto()
     randtopk = auto()
 
+
 class Algorithm(Enum):
     entropy = auto()
+
 
 class InferenceResultAnalyzer:
     """

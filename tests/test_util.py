@@ -1,7 +1,7 @@
-from contextlib import suppress
-from unittest import TestCase, mock
 import os
 import os.path as osp
+from contextlib import suppress
+from unittest import TestCase, mock
 
 from datumaro.util import is_method_redefined
 from datumaro.util.os_util import walk
@@ -13,6 +13,7 @@ from .requirements import Requirements, mark_requirement
 
 class TestException(Exception):
     pass
+
 
 class ScopeTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -70,7 +71,7 @@ class ScopeTest(TestCase):
     def test_decorator_calls_on_error(self):
         cb = mock.MagicMock()
 
-        @scoped('scope')
+        @scoped("scope")
         def foo(scope=None):
             scope.on_error_do(cb)
             raise TestException()
@@ -85,7 +86,7 @@ class ScopeTest(TestCase):
         error_cb = mock.MagicMock()
         exit_cb = mock.MagicMock()
 
-        @scoped('scope')
+        @scoped("scope")
         def foo(scope=None):
             scope.on_error_do(error_cb)
             scope.on_exit_do(exit_cb)
@@ -117,7 +118,7 @@ class ScopeTest(TestCase):
         cb = mock.MagicMock()
 
         with suppress(TestException), Scope() as scope:
-            scope.on_error_do(cb, 5, ignore_errors=True, kwargs={'a2': 2})
+            scope.on_error_do(cb, 5, ignore_errors=True, kwargs={"a2": 2})
             raise TestException()
 
         cb.assert_called_once_with(5, a2=2)
@@ -134,7 +135,7 @@ class ScopeTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_can_return_on_success_in_explicit_form(self):
-        @scoped('scope')
+        @scoped("scope")
         def f(scope=None):
             return 42
 
@@ -142,18 +143,22 @@ class ScopeTest(TestCase):
 
         self.assertEqual(42, retval)
 
+
 class TestOsUtils(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_walk_with_maxdepth(self):
         with TestDir() as rootdir:
-            os.makedirs(osp.join(rootdir, '1', '2', '3', '4'))
+            os.makedirs(osp.join(rootdir, "1", "2", "3", "4"))
 
             visited = set(d for d, _, _ in walk(rootdir, max_depth=2))
-            self.assertEqual({
-                osp.join(rootdir),
-                osp.join(rootdir, '1'),
-                osp.join(rootdir, '1', '2'),
-            }, visited)
+            self.assertEqual(
+                {
+                    osp.join(rootdir),
+                    osp.join(rootdir, "1"),
+                    osp.join(rootdir, "1", "2"),
+                },
+                visited,
+            )
 
 
 class TestMemberRedefined(TestCase):
@@ -166,14 +171,14 @@ class TestMemberRedefined(TestCase):
         class Derived(self.Base):
             pass
 
-        self.assertFalse(is_method_redefined('method', self.Base, Derived))
+        self.assertFalse(is_method_redefined("method", self.Base, Derived))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_no_changes_in_derived_instance(self):
         class Derived(self.Base):
             pass
 
-        self.assertFalse(is_method_redefined('method', self.Base, Derived()))
+        self.assertFalse(is_method_redefined("method", self.Base, Derived()))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_changes_in_derived_class(self):
@@ -181,7 +186,7 @@ class TestMemberRedefined(TestCase):
             def method(self):
                 pass
 
-        self.assertTrue(is_method_redefined('method', self.Base, Derived))
+        self.assertTrue(is_method_redefined("method", self.Base, Derived))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_changes_in_derived_instance(self):
@@ -189,10 +194,10 @@ class TestMemberRedefined(TestCase):
             def method(self):
                 pass
 
-        self.assertTrue(is_method_redefined('method', self.Base, Derived()))
+        self.assertTrue(is_method_redefined("method", self.Base, Derived()))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_changes_in_patched_instance(self):
         obj = self.Base()
-        with mock.patch.object(obj, 'method'):
-            self.assertTrue(is_method_redefined('method', self.Base, obj))
+        with mock.patch.object(obj, "method"):
+            self.assertTrue(is_method_redefined("method", self.Base, obj))
