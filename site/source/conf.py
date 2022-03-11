@@ -37,14 +37,14 @@ release = VERSION
 # extensions coming with Sphinx (named "sphinx.ext.*") or your custom
 # ones.
 extensions = [
-    "sphinx.ext.napoleon", # Support for NumPy and Google style docstrings
+    "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
     "sphinx.ext.autodoc",  # Core library for html generation from docstrings
-    "sphinx.ext.viewcode", # Find the source files
-    "sphinx_copybutton", # Copy buttons for code blocks
-    "sphinx.ext.autosectionlabel", # Refer sections its title
-    "sphinx.ext.intersphinx", # Generate links to the documentation
+    "sphinx.ext.viewcode",  # Find the source files
+    "sphinx_copybutton",  # Copy buttons for code blocks
+    "sphinx.ext.autosectionlabel",  # Refer sections its title
+    "sphinx.ext.intersphinx",  # Generate links to the documentation
     # of objects in external projects
-    "sphinxcontrib.mermaid", # allows Mermaid graphs
+    "sphinxcontrib.mermaid",  # allows Mermaid graphs
 ]
 
 # Add any paths that contain templates here, relative to this directory.
