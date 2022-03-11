@@ -7,7 +7,10 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.annotation import (
-    AnnotationType, Cuboid3d, LabelCategories, Mask,
+    AnnotationType,
+    Cuboid3d,
+    LabelCategories,
+    Mask,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
@@ -16,11 +19,11 @@ from datumaro.util.pickle_util import PickleLoader
 
 
 class BratsNumpyPath:
-    IDS_FILE = 'val_ids.p'
-    BOXES_FILE = 'val_brain_bbox.p'
-    LABELS_FILE = 'labels'
-    DATA_SUFFIX = '_data_cropped'
-    LABEL_SUFFIX = '_label_cropped'
+    IDS_FILE = "val_ids.p"
+    BOXES_FILE = "val_brain_bbox.p"
+    LABELS_FILE = "labels"
+    DATA_SUFFIX = "_data_cropped"
+    LABEL_SUFFIX = "_label_cropped"
 
 
 class BratsNumpyExtractor(SourceExtractor):
@@ -39,44 +42,43 @@ class BratsNumpyExtractor(SourceExtractor):
 
         labels_path = osp.join(self._root_dir, BratsNumpyPath.LABELS_FILE)
         if osp.isfile(labels_path):
-            with open(labels_path, encoding='utf-8') as f:
+            with open(labels_path, encoding="utf-8") as f:
                 for line in f:
                     label_cat.add(line.strip())
 
-        return { AnnotationType.label: label_cat }
+        return {AnnotationType.label: label_cat}
 
     def _load_items(self, path):
         items = {}
 
-        with open(path, 'rb') as f:
+        with open(path, "rb") as f:
             ids = PickleLoader.restricted_load(f)
 
         boxes = None
         boxes_file = osp.join(self._root_dir, BratsNumpyPath.BOXES_FILE)
         if osp.isfile(boxes_file):
-            with open(boxes_file, 'rb') as f:
+            with open(boxes_file, "rb") as f:
                 boxes = PickleLoader.restricted_load(f)
 
         for i, item_id in enumerate(ids):
-            image_path = osp.join(self._root_dir, item_id + BratsNumpyPath.DATA_SUFFIX + '.npy')
+            image_path = osp.join(self._root_dir, item_id + BratsNumpyPath.DATA_SUFFIX + ".npy")
             media = None
             if osp.isfile(image_path):
                 data = np.load(image_path)[0].transpose()
                 images = [0] * data.shape[2]
                 for j in range(data.shape[2]):
-                    images[j] = data[:,:,i]
+                    images[j] = data[:, :, i]
 
                 media = MultiframeImage(images, path=image_path)
 
             anno = []
-            mask_path = osp.join(self._root_dir, item_id + BratsNumpyPath.LABEL_SUFFIX + '.npy')
+            mask_path = osp.join(self._root_dir, item_id + BratsNumpyPath.LABEL_SUFFIX + ".npy")
             if osp.isfile(mask_path):
                 mask = np.load(mask_path)[0].transpose()
                 classes = np.unique(mask)
 
                 for class_id in classes:
-                    anno.append(Mask(image=self._lazy_extract_mask(mask, class_id),
-                        label=class_id))
+                    anno.append(Mask(image=self._lazy_extract_mask(mask, class_id), label=class_id))
 
             if boxes is not None:
                 box = boxes[i]
@@ -90,6 +92,7 @@ class BratsNumpyExtractor(SourceExtractor):
     def _lazy_extract_mask(mask, c):
         return lambda: mask == c
 
+
 class BratsNumpyImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
@@ -97,5 +100,6 @@ class BratsNumpyImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '', 'brats_numpy',
-            filename=BratsNumpyPath.IDS_FILE)
+        return cls._find_sources_recursive(
+            path, "", "brats_numpy", filename=BratsNumpyPath.IDS_FILE
+        )

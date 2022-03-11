@@ -15,21 +15,22 @@ from datumaro.components.media import MultiframeImage
 
 
 class BratsPath:
-    IMAGES_DIR = 'images'
-    LABELS = 'labels'
-    DATA_EXT = '.nii.gz'
+    IMAGES_DIR = "images"
+    LABELS = "labels"
+    DATA_EXT = ".nii.gz"
+
 
 class BratsExtractor(SourceExtractor):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
-        self._subset_suffix = osp.basename(path)[len(BratsPath.IMAGES_DIR):]
+        self._subset_suffix = osp.basename(path)[len(BratsPath.IMAGES_DIR) :]
         subset = None
-        if self._subset_suffix == 'Tr':
-            subset = 'train'
-        elif self._subset_suffix == 'Ts':
-            subset = 'test'
+        if self._subset_suffix == "Tr":
+            subset = "train"
+        elif self._subset_suffix == "Ts":
+            subset = "test"
         super().__init__(subset=subset, media_type=MultiframeImage)
 
         self._root_dir = osp.dirname(path)
@@ -41,32 +42,33 @@ class BratsExtractor(SourceExtractor):
 
         labels_path = osp.join(self._root_dir, BratsPath.LABELS)
         if osp.isfile(labels_path):
-            with open(labels_path, encoding='utf-8') as f:
+            with open(labels_path, encoding="utf-8") as f:
                 for line in f:
                     label_cat.add(line.strip())
 
-        return { AnnotationType.label: label_cat }
+        return {AnnotationType.label: label_cat}
 
     def _load_items(self, path):
         items = {}
 
-        for image_path in glob.glob(osp.join(path, f'*{BratsPath.DATA_EXT}')):
+        for image_path in glob.glob(osp.join(path, f"*{BratsPath.DATA_EXT}")):
             data = nib.load(image_path).get_fdata()
 
             item_id = osp.basename(image_path)[: - len(BratsPath.DATA_EXT)]
 
             images = [0] * data.shape[2]
             for i in range(data.shape[2]):
-                images[i] = data[:,:,i]
+                images[i] = data[:, :, i]
 
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                media=MultiframeImage(images, path=image_path))
+            items[item_id] = DatasetItem(
+                id=item_id, subset=self._subset, media=MultiframeImage(images, path=image_path)
+            )
 
         masks_dir = osp.join(self._root_dir, BratsPath.LABELS + self._subset_suffix)
-        for mask in glob.glob(osp.join(masks_dir, f'*{BratsPath.DATA_EXT}')):
+        for mask in glob.glob(osp.join(masks_dir, f"*{BratsPath.DATA_EXT}")):
             data = nib.load(mask).get_fdata()
 
-            item_id = osp.basename(image_path)[: - len(BratsPath.DATA_EXT)]
+            item_id = osp.basename(image_path)[: -len(BratsPath.DATA_EXT)]
 
             if item_id not in items:
                 items[item_id] = DatasetItem(id=item_id)
@@ -74,8 +76,7 @@ class BratsExtractor(SourceExtractor):
             anno = []
             classes = np.unique(data)
             for class_id in classes:
-                anno.append(Mask(image=self._lazy_extract_mask(data, class_id),
-                    label=class_id))
+                anno.append(Mask(image=self._lazy_extract_mask(data, class_id), label=class_id))
 
             items[item_id].annotations = anno
 
@@ -85,13 +86,14 @@ class BratsExtractor(SourceExtractor):
     def _lazy_extract_mask(mask, c):
         return lambda: mask == c
 
+
 class BratsImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
         with context.require_any():
             with context.alternative():
-                context.require_file(f'*/*{BratsPath.DATA_EXT}')
+                context.require_file(f"*/*{BratsPath.DATA_EXT}")
 
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '', 'brats', filename=f'{BratsPath.IMAGES_DIR}*')
+        return cls._find_sources_recursive(path, "", "brats", filename=f"{BratsPath.IMAGES_DIR}*")
