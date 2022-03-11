@@ -2,19 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Dict, Optional, Type, Union
 import inspect
 import os
 import os.path as osp
 import shutil
+from typing import Dict, Optional, Type, Union
 
 from datumaro.components.converter import Converter
-from datumaro.components.dataset import (
-    Dataset, DatasetItemStorageDatasetView, IDataset,
-)
-from datumaro.components.dataset_filter import (
-    XPathAnnotationsFilter, XPathDatasetFilter,
-)
+from datumaro.components.dataset import Dataset, DatasetItemStorageDatasetView, IDataset
+from datumaro.components.dataset_filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import Transform
 from datumaro.components.launcher import Launcher, ModelTransform
@@ -24,8 +20,13 @@ from datumaro.util import parse_str_enum_value
 from datumaro.util.scope import on_error_do, scoped
 
 
-def transform(dataset: IDataset, method: Union[str, Type[Transform]], *,
-        env: Optional[Environment] = None, **kwargs) -> IDataset:
+def transform(
+    dataset: IDataset,
+    method: Union[str, Type[Transform]],
+    *,
+    env: Optional[Environment] = None,
+    **kwargs,
+) -> IDataset:
     """
     Applies some function to dataset items.
 
@@ -49,16 +50,20 @@ def transform(dataset: IDataset, method: Union[str, Type[Transform]], *,
         method = env.transforms[method]
 
     if not (inspect.isclass(method) and issubclass(method, Transform)):
-        raise TypeError("Unexpected 'method' argument type: %s" % \
-            type(method))
+        raise TypeError("Unexpected 'method' argument type: %s" % type(method))
 
     produced = method(dataset, **kwargs)
 
     return Dataset(source=produced, env=env)
 
-def filter(dataset: IDataset, expr: str, *, #pylint: disable=redefined-builtin
-        filter_annotations: bool = False,
-        remove_empty: bool = False) -> IDataset:
+
+def filter(
+    dataset: IDataset,
+    expr: str,
+    *,  # pylint: disable=redefined-builtin
+    filter_annotations: bool = False,
+    remove_empty: bool = False,
+) -> IDataset:
     """
     Filters out some dataset items or annotations, using a custom filter
     expression.
@@ -77,12 +82,12 @@ def filter(dataset: IDataset, expr: str, *, #pylint: disable=redefined-builtin
     """
 
     if filter_annotations:
-        return transform(dataset, XPathAnnotationsFilter,
-            xpath=expr, remove_empty=remove_empty)
+        return transform(dataset, XPathAnnotationsFilter, xpath=expr, remove_empty=remove_empty)
     else:
         if not expr:
             return dataset
         return transform(dataset, XPathDatasetFilter, xpath=expr)
+
 
 def merge(*datasets: IDataset) -> IDataset:
     """
@@ -102,12 +107,18 @@ def merge(*datasets: IDataset) -> IDataset:
 
     categories = ExactMerge.merge_categories(d.categories() for d in datasets)
     media_type = ExactMerge.merge_media_types(datasets)
-    return DatasetItemStorageDatasetView(ExactMerge.merge(*datasets),
-        categories=categories, media_type=media_type)
+    return DatasetItemStorageDatasetView(
+        ExactMerge.merge(*datasets), categories=categories, media_type=media_type
+    )
 
-def run_model(dataset: IDataset,
-        model: Union[Launcher, Type[ModelTransform]], *,
-        batch_size: int = 1, **kwargs) -> IDataset:
+
+def run_model(
+    dataset: IDataset,
+    model: Union[Launcher, Type[ModelTransform]],
+    *,
+    batch_size: int = 1,
+    **kwargs,
+) -> IDataset:
     """
     Applies a model to dataset items' media and produces a dataset with
     media and annotations.
@@ -124,18 +135,22 @@ def run_model(dataset: IDataset,
     """
 
     if isinstance(model, Launcher):
-        return transform(dataset, ModelTransform, launcher=model,
-            batch_size=batch_size, **kwargs)
+        return transform(dataset, ModelTransform, launcher=model, batch_size=batch_size, **kwargs)
     elif inspect.isclass(model) and issubclass(model, ModelTransform):
-        return transform(dataset, model,
-            batch_size=batch_size, **kwargs)
+        return transform(dataset, model, batch_size=batch_size, **kwargs)
     else:
-        raise TypeError('Unexpected model argument type: %s' % type(model))
+        raise TypeError("Unexpected model argument type: %s" % type(model))
+
 
 @scoped
-def export(dataset: IDataset, path: str,
-        format: Union[str, Type[Converter]], *,
-        env: Optional[Environment] = None, **kwargs) -> None:
+def export(
+    dataset: IDataset,
+    path: str,
+    format: Union[str, Type[Converter]],
+    *,
+    env: Optional[Environment] = None,
+    **kwargs,
+) -> None:
     """
     Saves the input dataset in some format.
 
@@ -157,8 +172,7 @@ def export(dataset: IDataset, path: str,
         converter = format
 
     if not (inspect.isclass(converter) and issubclass(converter, Converter)):
-        raise TypeError("Unexpected 'format' argument type: %s" % \
-            type(converter))
+        raise TypeError("Unexpected 'format' argument type: %s" % type(converter))
 
     path = osp.abspath(path)
     if not osp.exists(path):
@@ -167,8 +181,10 @@ def export(dataset: IDataset, path: str,
 
     converter.convert(dataset, save_dir=path, **kwargs)
 
-def validate(dataset: IDataset, task: Union[str, TaskType], *,
-        env: Optional[Environment] = None, **kwargs) -> Dict:
+
+def validate(
+    dataset: IDataset, task: Union[str, TaskType], *, env: Optional[Environment] = None, **kwargs
+) -> Dict:
     """
     Checks dataset annotations for correctness relatively to a task type.
 

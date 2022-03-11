@@ -4,56 +4,61 @@
 
 from __future__ import annotations
 
-from contextlib import contextmanager
-from copy import copy
-from enum import Enum, auto
-from typing import (
-    Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union,
-)
 import glob
 import inspect
 import logging as log
 import os
 import os.path as osp
 import warnings
+from contextlib import contextmanager
+from copy import copy
+from enum import Enum, auto
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.config_model import Source
-from datumaro.components.converter import (
-    Converter, ExportContext, ExportErrorPolicy, _ExportFail,
-)
-from datumaro.components.dataset_filter import (
-    XPathAnnotationsFilter, XPathDatasetFilter,
-)
+from datumaro.components.converter import Converter, ExportContext, ExportErrorPolicy, _ExportFail
+from datumaro.components.dataset_filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    CategoriesRedefinedError, ConflictingCategoriesError, MediaTypeError,
-    MultipleFormatsMatchError, NoMatchingFormatsError, RepeatedItemError,
+    CategoriesRedefinedError,
+    ConflictingCategoriesError,
+    MediaTypeError,
+    MultipleFormatsMatchError,
+    NoMatchingFormatsError,
+    RepeatedItemError,
     UnknownFormatError,
 )
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
-    ImportContext, ImportErrorPolicy, ItemTransform, Transform, _ImportFail,
+    DEFAULT_SUBSET_NAME,
+    CategoriesInfo,
+    DatasetItem,
+    Extractor,
+    IExtractor,
+    ImportContext,
+    ImportErrorPolicy,
+    ItemTransform,
+    Transform,
+    _ImportFail,
 )
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.media import Image, MediaElement
-from datumaro.components.progress_reporting import (
-    NullProgressReporter, ProgressReporter,
-)
+from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
-DEFAULT_FORMAT = 'datumaro'
+DEFAULT_FORMAT = "datumaro"
 
 IDataset = IExtractor
 
+
 class DatasetItemStorage:
     def __init__(self):
-        self.data = {} # { subset_name: { id: DatasetItem } }
-        self._traversal_order = {} # maintain the order of elements
+        self.data = {}  # { subset_name: { id: DatasetItem } }
+        self._traversal_order = {}  # maintain the order of elements
 
     def __iter__(self) -> Iterator[DatasetItem]:
         for item in self._traversal_order.values():
@@ -73,8 +78,9 @@ class DatasetItemStorage:
         subset[item.id] = item
         return is_new
 
-    def get(self, id: Union[str, DatasetItem], subset: Optional[str] = None,
-            dummy: Any = None) -> Optional[DatasetItem]:
+    def get(
+        self, id: Union[str, DatasetItem], subset: Optional[str] = None, dummy: Any = None
+    ) -> Optional[DatasetItem]:
         if isinstance(id, DatasetItem):
             id, subset = id.id, id.subset
         else:
@@ -83,8 +89,7 @@ class DatasetItemStorage:
 
         return self.data.get(subset, {}).get(id, dummy)
 
-    def remove(self, id: Union[str, DatasetItem],
-            subset: Optional[str] = None) -> bool:
+    def remove(self, id: Union[str, DatasetItem], subset: Optional[str] = None) -> bool:
         if isinstance(id, DatasetItem):
             id, subset = id.id, id.subset
         else:
@@ -116,6 +121,7 @@ class DatasetItemStorage:
         copied.data = copy(self.data)
         return copied
 
+
 class DatasetItemStorageDatasetView(IDataset):
     class Subset(IDataset):
         def __init__(self, parent: DatasetItemStorageDatasetView, name: str):
@@ -139,22 +145,19 @@ class DatasetItemStorageDatasetView(IDataset):
             return self._data.put(item)
 
         def get(self, id, subset=None):
-            assert (subset or DEFAULT_SUBSET_NAME) == \
-                   (self.name or DEFAULT_SUBSET_NAME)
+            assert (subset or DEFAULT_SUBSET_NAME) == (self.name or DEFAULT_SUBSET_NAME)
             return self._data.get(id, subset)
 
         def remove(self, id, subset=None):
-            assert (subset or DEFAULT_SUBSET_NAME) == \
-                   (self.name or DEFAULT_SUBSET_NAME)
+            assert (subset or DEFAULT_SUBSET_NAME) == (self.name or DEFAULT_SUBSET_NAME)
             return self._data.remove(id, subset)
 
         def get_subset(self, name):
-            assert (name or DEFAULT_SUBSET_NAME) == \
-                   (self.name or DEFAULT_SUBSET_NAME)
+            assert (name or DEFAULT_SUBSET_NAME) == (self.name or DEFAULT_SUBSET_NAME)
             return self
 
         def subsets(self):
-            return { self.name or DEFAULT_SUBSET_NAME : self }
+            return {self.name or DEFAULT_SUBSET_NAME: self}
 
         def categories(self):
             return self.parent.categories()
@@ -162,8 +165,12 @@ class DatasetItemStorageDatasetView(IDataset):
         def media_type(self):
             return self.parent.media_type()
 
-    def __init__(self, parent: DatasetItemStorage, categories: CategoriesInfo,
-            media_type: Optional[Type[MediaElement]]):
+    def __init__(
+        self,
+        parent: DatasetItemStorage,
+        categories: CategoriesInfo,
+        media_type: Optional[Type[MediaElement]],
+    ):
         self._parent = parent
         self._categories = categories
         self._media_type = media_type
@@ -192,10 +199,12 @@ class DatasetItemStorageDatasetView(IDataset):
     def media_type(self):
         return self._media_type
 
+
 class ItemStatus(Enum):
     added = auto()
     modified = auto()
     removed = auto()
+
 
 class DatasetPatch:
     class DatasetPatchWrapper(DatasetItemStorageDatasetView):
@@ -206,12 +215,15 @@ class DatasetPatch:
             self.patch = patch
 
         def subsets(self):
-            return { s: self.get_subset(s) for s in self.patch.updated_subsets }
+            return {s: self.get_subset(s) for s in self.patch.updated_subsets}
 
-    def __init__(self, data: DatasetItemStorage,
-            categories: CategoriesInfo,
-            updated_items: Dict[Tuple[str, str], ItemStatus],
-            updated_subsets: Dict[str, ItemStatus] = None):
+    def __init__(
+        self,
+        data: DatasetItemStorage,
+        categories: CategoriesInfo,
+        updated_items: Dict[Tuple[str, str], ItemStatus],
+        updated_subsets: Dict[str, ItemStatus] = None,
+    ):
         self.data = data
         self.categories = categories
         self.updated_items = updated_items
@@ -220,8 +232,7 @@ class DatasetPatch:
     @property
     def updated_subsets(self) -> Dict[str, ItemStatus]:
         if self._updated_subsets is None:
-            self._updated_subsets = {s: ItemStatus.modified
-                for s in self.data.subsets()}
+            self._updated_subsets = {s: ItemStatus.modified for s in self.data.subsets()}
         return self._updated_subsets
 
     def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
@@ -230,7 +241,8 @@ class DatasetPatch:
     def as_dataset(self, parent: IDataset) -> IDataset:
         return __class__.DatasetPatchWrapper(self, parent)
 
-class DatasetSubset(IDataset): # non-owning view
+
+class DatasetSubset(IDataset):  # non-owning view
     def __init__(self, parent: Dataset, name: str):
         super().__init__()
         self.parent = parent
@@ -246,24 +258,21 @@ class DatasetSubset(IDataset): # non-owning view
         return self.parent.put(item, subset=self.name)
 
     def get(self, id, subset=None):
-        assert (subset or DEFAULT_SUBSET_NAME) == \
-               (self.name or DEFAULT_SUBSET_NAME)
+        assert (subset or DEFAULT_SUBSET_NAME) == (self.name or DEFAULT_SUBSET_NAME)
         return self.parent.get(id, subset=self.name)
 
     def remove(self, id, subset=None):
-        assert (subset or DEFAULT_SUBSET_NAME) == \
-               (self.name or DEFAULT_SUBSET_NAME)
+        assert (subset or DEFAULT_SUBSET_NAME) == (self.name or DEFAULT_SUBSET_NAME)
         return self.parent.remove(id, subset=self.name)
 
     def get_subset(self, name):
-        assert (name or DEFAULT_SUBSET_NAME) == \
-               (self.name or DEFAULT_SUBSET_NAME)
+        assert (name or DEFAULT_SUBSET_NAME) == (self.name or DEFAULT_SUBSET_NAME)
         return self
 
     def subsets(self):
         if (self.name or DEFAULT_SUBSET_NAME) == DEFAULT_SUBSET_NAME:
             return self.parent.subsets()
-        return { self.name: self }
+        return {self.name: self}
 
     def categories(self):
         return self.parent.categories()
@@ -276,9 +285,12 @@ class DatasetSubset(IDataset): # non-owning view
 
 
 class DatasetStorage(IDataset):
-    def __init__(self, source: Union[IDataset, DatasetItemStorage] = None,
-            categories: Optional[CategoriesInfo] = None,
-            media_type: Optional[Type[MediaElement]] = None):
+    def __init__(
+        self,
+        source: Union[IDataset, DatasetItemStorage] = None,
+        categories: Optional[CategoriesInfo] = None,
+        media_type: Optional[Type[MediaElement]] = None,
+    ):
         if source is None and categories is None:
             categories = {}
         elif isinstance(source, IDataset) and categories is not None:
@@ -305,13 +317,13 @@ class DatasetStorage(IDataset):
             self._storage = source
         else:
             self._source = source
-            self._storage = DatasetItemStorage() # patch or cache
-        self._transforms = [] # A stack of postponed transforms
+            self._storage = DatasetItemStorage()  # patch or cache
+        self._transforms = []  # A stack of postponed transforms
 
         # Describes changes in the dataset since initialization
-        self._updated_items = {} # (id, subset) -> ItemStatus
+        self._updated_items = {}  # (id, subset) -> ItemStatus
 
-        self._flush_changes = False # Deferred flush indicator
+        self._flush_changes = False  # Deferred flush indicator
 
         self._length = len(self._storage) if self._source is None else None
 
@@ -320,12 +332,12 @@ class DatasetStorage(IDataset):
 
     @property
     def _is_unchanged_wrapper(self) -> bool:
-        return self._source is not None and self._storage.is_empty() and \
-            not self._transforms
+        return self._source is not None and self._storage.is_empty() and not self._transforms
 
     def init_cache(self):
         if not self.is_cache_initialized():
-            for _ in self._iter_init_cache(): pass
+            for _ in self._iter_init_cache():
+                pass
 
     def _iter_init_cache(self) -> Iterable[DatasetItem]:
         # Merges the source, source transforms and patch, caches the result
@@ -394,11 +406,11 @@ class DatasetStorage(IDataset):
                 assert False, "Unknown status %s" % new_status
 
         media_type = self._media_type
-        patch = self._storage # must be empty after transforming
+        patch = self._storage  # must be empty after transforming
         cache = DatasetItemStorage()
-        source = self._source or \
-            DatasetItemStorageDatasetView(self._storage,
-                categories=self._categories, media_type=media_type)
+        source = self._source or DatasetItemStorageDatasetView(
+            self._storage, categories=self._categories, media_type=media_type
+        )
         transform = None
 
         if self._transforms:
@@ -419,16 +431,16 @@ class DatasetStorage(IDataset):
             if not issubclass(transform.media_type(), media_type):
                 # TODO: make it statically available
                 raise MediaTypeError(
-                    "Transforms are not allowed to change media "
-                    "type of dataset items")
+                    "Transforms are not allowed to change media " "type of dataset items"
+                )
 
         i = -1
         for i, item in enumerate(source):
             if item.media and not isinstance(item.media, media_type):
                 raise MediaTypeError(
-                    "Unexpected media type of a dataset item '%s'. " \
-                    "Expected '%s', actual '%s' " %
-                    (item.id, media_type, type(item.media)))
+                    "Unexpected media type of a dataset item '%s'. "
+                    "Expected '%s', actual '%s' " % (item.id, media_type, type(item.media))
+                )
 
             if transform and transform.is_local:
                 old_id = (item.id, item.subset)
@@ -475,7 +487,7 @@ class DatasetStorage(IDataset):
                 yield item
         else:
             for item in patch:
-                if item in cache: # already processed
+                if item in cache:  # already processed
                     continue
                 if not self._flush_changes:
                     _update_status((item.id, item.subset), ItemStatus.added)
@@ -517,8 +529,7 @@ class DatasetStorage(IDataset):
             return self._source
         elif self._source is not None:
             self.init_cache()
-        return DatasetItemStorageDatasetView(self._storage,
-            self._categories, self._media_type)
+        return DatasetItemStorageDatasetView(self._storage, self._categories, self._media_type)
 
     def __len__(self) -> int:
         if self._length is None:
@@ -530,8 +541,7 @@ class DatasetStorage(IDataset):
             return self._categories
         elif self._categories is not None:
             return self._categories
-        elif any(is_method_redefined('categories', Transform, t[0])
-                for t in self._transforms):
+        elif any(is_method_redefined("categories", Transform, t[0]) for t in self._transforms):
             self.init_cache()
             return self._categories
         else:
@@ -547,9 +557,10 @@ class DatasetStorage(IDataset):
 
     def put(self, item: DatasetItem):
         if item.media and not isinstance(item.media, self._media_type):
-            raise MediaTypeError("Mismatching item media type '%s', "
-                "the dataset contains '%s' items." % \
-                (type(item.media), self._media_type))
+            raise MediaTypeError(
+                "Mismatching item media type '%s', "
+                "the dataset contains '%s' items." % (type(item.media), self._media_type)
+            )
 
         is_new = self._storage.put(item)
 
@@ -613,7 +624,7 @@ class DatasetStorage(IDataset):
             self._source = source
         self._transforms.append((method, args, kwargs))
 
-        if is_method_redefined('categories', Transform, method):
+        if is_method_redefined("categories", Transform, method):
             self._categories = None
         self._length = None
 
@@ -645,8 +656,7 @@ class DatasetStorage(IDataset):
         if not (self.is_cache_initialized() or self._is_unchanged_wrapper):
             self._flush_changes = True
 
-    def update(self,
-            source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]):
+    def update(self, source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]):
         # TODO: provide a more efficient implementation with patch reuse
 
         if isinstance(source, DatasetPatch):
@@ -659,12 +669,14 @@ class DatasetStorage(IDataset):
                 else:
                     self.put(source.data.get(*item_id))
         elif isinstance(source, IExtractor):
-            for item in ProjectLabels(source, self.categories().get(
-                    AnnotationType.label, LabelCategories())):
+            for item in ProjectLabels(
+                source, self.categories().get(AnnotationType.label, LabelCategories())
+            ):
                 self.put(item)
         else:
             for item in source:
                 self.put(item)
+
 
 class Dataset(IDataset):
     """
@@ -683,11 +695,14 @@ class Dataset(IDataset):
     _global_eager: bool = False
 
     @classmethod
-    def from_iterable(cls, iterable: Iterable[DatasetItem],
-            categories: Union[CategoriesInfo, List[str], None] = None,
-            *,
-            env: Optional[Environment] = None,
-            media_type: Type[MediaElement] = Image) -> Dataset:
+    def from_iterable(
+        cls,
+        iterable: Iterable[DatasetItem],
+        categories: Union[CategoriesInfo, List[str], None] = None,
+        *,
+        env: Optional[Environment] = None,
+        media_type: Type[MediaElement] = Image,
+    ) -> Dataset:
         """
         Creates a new dataset from an iterable object producing dataset items -
         a generator, a list etc. It is a convenient way to create and fill
@@ -712,18 +727,17 @@ class Dataset(IDataset):
         # https://github.com/openvinotoolkit/datumaro/issues/675
 
         if isinstance(categories, list):
-            categories = { AnnotationType.label:
-                LabelCategories.from_iterable(categories)
-            }
+            categories = {AnnotationType.label: LabelCategories.from_iterable(categories)}
 
         if not categories:
             categories = {}
 
         class _extractor(Extractor):
             def __init__(self):
-                super().__init__(length=len(iterable) \
-                        if hasattr(iterable, '__len__') else None,
-                    media_type=media_type)
+                super().__init__(
+                    length=len(iterable) if hasattr(iterable, "__len__") else None,
+                    media_type=media_type,
+                )
 
             def __iter__(self):
                 return iter(iterable)
@@ -734,8 +748,7 @@ class Dataset(IDataset):
         return cls.from_extractors(_extractor(), env=env)
 
     @staticmethod
-    def from_extractors(*sources: IDataset,
-            env: Optional[Environment] = None) -> Dataset:
+    def from_extractors(*sources: IDataset, env: Optional[Environment] = None) -> Dataset:
         """
         Creates a new dataset from one or several `Extractor`s.
 
@@ -757,26 +770,28 @@ class Dataset(IDataset):
             dataset = Dataset(source=source, env=env)
         else:
             from datumaro.components.operations import ExactMerge
+
             media_type = ExactMerge.merge_media_types(sources)
             source = ExactMerge.merge(*sources)
-            categories = ExactMerge.merge_categories(
-                s.categories() for s in sources)
-            dataset = Dataset(source=source, categories=categories,
-                media_type=media_type, env=env)
+            categories = ExactMerge.merge_categories(s.categories() for s in sources)
+            dataset = Dataset(source=source, categories=categories, media_type=media_type, env=env)
         return dataset
 
-    def __init__(self, source: Optional[IDataset] = None, *,
-            categories: Optional[CategoriesInfo] = None,
-            media_type: Optional[Type[MediaElement]] = None,
-            env: Optional[Environment] = None) -> None:
+    def __init__(
+        self,
+        source: Optional[IDataset] = None,
+        *,
+        categories: Optional[CategoriesInfo] = None,
+        media_type: Optional[Type[MediaElement]] = None,
+        env: Optional[Environment] = None,
+    ) -> None:
         super().__init__()
 
         assert env is None or isinstance(env, Environment), env
         self._env = env
 
         self.eager = None
-        self._data = DatasetStorage(source, categories=categories,
-            media_type=media_type)
+        self._data = DatasetStorage(source, categories=categories, media_type=media_type)
         if self.is_eager:
             self.init_cache()
 
@@ -800,7 +815,7 @@ class Dataset(IDataset):
         return DatasetSubset(self, name)
 
     def subsets(self) -> Dict[str, DatasetSubset]:
-        return { k: self.get_subset(k) for k in self._data.subsets() }
+        return {k: self.get_subset(k) for k in self._data.subsets()}
 
     def categories(self) -> CategoriesInfo:
         return self._data.categories()
@@ -808,8 +823,7 @@ class Dataset(IDataset):
     def media_type(self) -> Type[MediaElement]:
         return self._data.media_type()
 
-    def get(self, id: str, subset: Optional[str] = None) \
-            -> Optional[DatasetItem]:
+    def get(self, id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         return self._data.get(id, subset)
 
     def __contains__(self, x: Union[DatasetItem, str, Tuple[str, str]]) -> bool:
@@ -819,13 +833,14 @@ class Dataset(IDataset):
             x = [x]
         return self.get(*x) is not None
 
-    def put(self, item: DatasetItem, id: Optional[str] = None,
-            subset: Optional[str] = None) -> None:
+    def put(
+        self, item: DatasetItem, id: Optional[str] = None, subset: Optional[str] = None
+    ) -> None:
         overrides = {}
         if id is not None:
-            overrides['id'] = id
+            overrides["id"] = id
         if subset is not None:
-            overrides['subset'] = subset
+            overrides["subset"] = subset
         if overrides:
             item = item.wrap(**overrides)
 
@@ -834,8 +849,9 @@ class Dataset(IDataset):
     def remove(self, id: str, subset: Optional[str] = None) -> None:
         self._data.remove(id, subset)
 
-    def filter(self, expr: str, filter_annotations: bool = False,
-            remove_empty: bool = False) -> Dataset:
+    def filter(
+        self, expr: str, filter_annotations: bool = False, remove_empty: bool = False
+    ) -> Dataset:
         """
         Filters out some dataset items or annotations, using a custom filter
         expression.
@@ -855,14 +871,11 @@ class Dataset(IDataset):
         """
 
         if filter_annotations:
-            return self.transform(XPathAnnotationsFilter,
-                xpath=expr, remove_empty=remove_empty)
+            return self.transform(XPathAnnotationsFilter, xpath=expr, remove_empty=remove_empty)
         else:
             return self.transform(XPathDatasetFilter, xpath=expr)
 
-    def update(self,
-            source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]
-    ) -> Dataset:
+    def update(self, source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]) -> Dataset:
         """
         Updates items of the current dataset from another dataset or an
         iterable (the source). Items from the source overwrite matching
@@ -881,8 +894,7 @@ class Dataset(IDataset):
         self._data.update(source)
         return self
 
-    def transform(self, method: Union[str, Type[Transform]],
-            **kwargs) -> Dataset:
+    def transform(self, method: Union[str, Type[Transform]], **kwargs) -> Dataset:
         """
         Applies some function to dataset items.
 
@@ -902,8 +914,7 @@ class Dataset(IDataset):
             method = self.env.transforms[method]
 
         if not (inspect.isclass(method) and issubclass(method, Transform)):
-            raise TypeError("Unexpected 'method' argument type: %s" % \
-                type(method))
+            raise TypeError("Unexpected 'method' argument type: %s" % type(method))
 
         self._data.transform(method, **kwargs)
         if self.is_eager:
@@ -911,8 +922,9 @@ class Dataset(IDataset):
 
         return self
 
-    def run_model(self, model: Union[Launcher, Type[ModelTransform]], *,
-            batch_size: int = 1, **kwargs) -> Dataset:
+    def run_model(
+        self, model: Union[Launcher, Type[ModelTransform]], *, batch_size: int = 1, **kwargs
+    ) -> Dataset:
         """
         Applies a model to dataset items' media and produces a dataset with
         media and annotations.
@@ -927,13 +939,11 @@ class Dataset(IDataset):
         """
 
         if isinstance(model, Launcher):
-            return self.transform(ModelTransform, launcher=model,
-                batch_size=batch_size, **kwargs)
+            return self.transform(ModelTransform, launcher=model, batch_size=batch_size, **kwargs)
         elif inspect.isclass(model) and isinstance(model, ModelTransform):
             return self.transform(model, batch_size=batch_size, **kwargs)
         else:
-            raise TypeError("Unexpected 'model' argument type: %s" % \
-                type(model))
+            raise TypeError("Unexpected 'model' argument type: %s" % type(model))
 
     def select(self, pred: Callable[[DatasetItem], bool]) -> Dataset:
         class _DatasetFilter(ItemTransform):
@@ -981,8 +991,9 @@ class Dataset(IDataset):
     def is_bound(self) -> bool:
         return bool(self._source_path) and bool(self._format)
 
-    def bind(self, path: str, format: Optional[str] = None, *,
-            options: Optional[Dict[str, Any]] = None) -> None:
+    def bind(
+        self, path: str, format: Optional[str] = None, *, options: Optional[Dict[str, Any]] = None
+    ) -> None:
         """
         Binds the dataset to a speific directory.
         Allows to set default saving parameters.
@@ -999,10 +1010,15 @@ class Dataset(IDataset):
         self._data.flush_changes()
 
     @scoped
-    def export(self, save_dir: str, format: Union[str, Type[Converter]], *,
-            progress_reporter: Optional[ProgressReporter] = None,
-            error_policy: Optional[ExportErrorPolicy] = None,
-            **kwargs) -> None:
+    def export(
+        self,
+        save_dir: str,
+        format: Union[str, Type[Converter]],
+        *,
+        progress_reporter: Optional[ProgressReporter] = None,
+        error_policy: Optional[ExportErrorPolicy] = None,
+        **kwargs,
+    ) -> None:
         """
         Saves the dataset in some format.
 
@@ -1019,7 +1035,7 @@ class Dataset(IDataset):
         if not save_dir:
             raise ValueError("Dataset export path is not specified")
 
-        inplace = (save_dir == self._source_path and format == self._format)
+        inplace = save_dir == self._source_path and format == self._format
 
         if isinstance(format, str):
             converter = self.env.converters[format]
@@ -1027,8 +1043,7 @@ class Dataset(IDataset):
             converter = format
 
         if not (inspect.isclass(converter) and issubclass(converter, Converter)):
-            raise TypeError("Unexpected 'format' argument type: %s" % \
-                type(converter))
+            raise TypeError("Unexpected 'format' argument type: %s" % type(converter))
 
         save_dir = osp.abspath(save_dir)
         if not osp.exists(save_dir):
@@ -1041,49 +1056,49 @@ class Dataset(IDataset):
         if not progress_reporter:
             progress_reporter = NullProgressReporter()
 
-        assert 'ctx' not in kwargs
+        assert "ctx" not in kwargs
         converter_kwargs = copy(kwargs)
-        converter_kwargs['ctx'] = ExportContext(
-            progress_reporter=progress_reporter,
-            error_policy=error_policy)
+        converter_kwargs["ctx"] = ExportContext(
+            progress_reporter=progress_reporter, error_policy=error_policy
+        )
 
         try:
             if not inplace:
                 try:
-                    converter.convert(self, save_dir=save_dir,
-                        **converter_kwargs)
+                    converter.convert(self, save_dir=save_dir, **converter_kwargs)
                 except TypeError as e:
                     # TODO: for backward compatibility. To be removed after 0.3
                     if "unexpected keyword argument 'ctx'" not in str(e):
                         raise
 
                     if has_ctx_args:
-                        warnings.warn("It seems that '%s' converter "
+                        warnings.warn(
+                            "It seems that '%s' converter "
                             "does not support progress and error reporting, "
                             "it will be disabled" % format,
-                            DeprecationWarning)
-                    converter_kwargs.pop('ctx')
+                            DeprecationWarning,
+                        )
+                    converter_kwargs.pop("ctx")
 
-                    converter.convert(self, save_dir=save_dir,
-                        **converter_kwargs)
+                    converter.convert(self, save_dir=save_dir, **converter_kwargs)
             else:
                 try:
-                    converter.patch(self, self.get_patch(), save_dir=save_dir,
-                        **converter_kwargs)
+                    converter.patch(self, self.get_patch(), save_dir=save_dir, **converter_kwargs)
                 except TypeError as e:
                     # TODO: for backward compatibility. To be removed after 0.3
                     if "unexpected keyword argument 'ctx'" not in str(e):
                         raise
 
                     if has_ctx_args:
-                        warnings.warn("It seems that '%s' converter "
+                        warnings.warn(
+                            "It seems that '%s' converter "
                             "does not support progress and error reporting, "
                             "it will be disabled" % format,
-                            DeprecationWarning)
-                    converter_kwargs.pop('ctx')
+                            DeprecationWarning,
+                        )
+                    converter_kwargs.pop("ctx")
 
-                    converter.patch(self, self.get_patch(), save_dir=save_dir,
-                        **converter_kwargs)
+                    converter.patch(self, self.get_patch(), save_dir=save_dir, **converter_kwargs)
         except _ExportFail as e:
             raise e.__cause__
 
@@ -1094,19 +1109,23 @@ class Dataset(IDataset):
         options = dict(self._options)
         options.update(kwargs)
 
-        self.export(save_dir or self._source_path,
-            format=self._format, **options)
+        self.export(save_dir or self._source_path, format=self._format, **options)
 
     @classmethod
     def load(cls, path: str, **kwargs) -> Dataset:
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
-    def import_from(cls, path: str, format: Optional[str] = None, *,
-            env: Optional[Environment] = None,
-            progress_reporter: Optional[ProgressReporter] = None,
-            error_policy: Optional[ImportErrorPolicy] = None,
-            **kwargs) -> Dataset:
+    def import_from(
+        cls,
+        path: str,
+        format: Optional[str] = None,
+        *,
+        env: Optional[Environment] = None,
+        progress_reporter: Optional[ProgressReporter] = None,
+        error_policy: Optional[ImportErrorPolicy] = None,
+        **kwargs,
+    ) -> Dataset:
         """
         Creates a `Dataset` instance from a dataset on the disk.
 
@@ -1137,9 +1156,7 @@ class Dataset(IDataset):
             with logging_disabled(log.INFO):
                 detected_sources = importer(path, **kwargs)
         elif format in env.extractors:
-            detected_sources = [{
-                'url': path, 'format': format, 'options': kwargs
-            }]
+            detected_sources = [{"url": path, "format": format, "options": kwargs}]
         else:
             raise UnknownFormatError(format)
 
@@ -1162,30 +1179,32 @@ class Dataset(IDataset):
 
                 extractor_kwargs = dict(src_conf.options)
 
-                assert 'ctx' not in extractor_kwargs
-                extractor_kwargs['ctx'] = ImportContext(
-                    progress_reporter=pbar,
-                    error_policy=error_policy)
+                assert "ctx" not in extractor_kwargs
+                extractor_kwargs["ctx"] = ImportContext(
+                    progress_reporter=pbar, error_policy=error_policy
+                )
 
                 try:
-                    extractors.append(env.make_extractor(
-                        src_conf.format, src_conf.url, **extractor_kwargs
-                    ))
+                    extractors.append(
+                        env.make_extractor(src_conf.format, src_conf.url, **extractor_kwargs)
+                    )
                 except TypeError as e:
                     # TODO: for backward compatibility. To be removed after 0.3
                     if "unexpected keyword argument 'ctx'" not in str(e):
                         raise
 
                     if has_ctx_args:
-                        warnings.warn("It seems that '%s' extractor "
+                        warnings.warn(
+                            "It seems that '%s' extractor "
                             "does not support progress and error reporting, "
                             "it will be disabled" % src_conf.format,
-                            DeprecationWarning)
-                    extractor_kwargs.pop('ctx')
+                            DeprecationWarning,
+                        )
+                    extractor_kwargs.pop("ctx")
 
-                    extractors.append(env.make_extractor(
-                        src_conf.format, src_conf.url, **extractor_kwargs
-                    ))
+                    extractors.append(
+                        env.make_extractor(src_conf.format, src_conf.url, **extractor_kwargs)
+                    )
 
             dataset = cls.from_extractors(*extractors, env=env)
             if eager:
@@ -1199,8 +1218,7 @@ class Dataset(IDataset):
         return dataset
 
     @staticmethod
-    def detect(path: str, *,
-            env: Optional[Environment] = None, depth: int = 1) -> str:
+    def detect(path: str, *, env: Optional[Environment] = None, depth: int = 1) -> str:
         """
         Attempts to detect dataset format of a given directory.
 
@@ -1225,9 +1243,9 @@ class Dataset(IDataset):
             if matches and len(matches) == 1:
                 return matches[0]
 
-            paths = glob.glob(osp.join(path, '*'))
-            path = '' if len(paths) != 1 else paths[0]
-            ignore_dirs = {'__MSOSX', '__MACOSX'}
+            paths = glob.glob(osp.join(path, "*"))
+            path = "" if len(paths) != 1 else paths[0]
+            ignore_dirs = {"__MSOSX", "__MACOSX"}
             if not osp.isdir(path) or osp.basename(path) in ignore_dirs:
                 break
 
@@ -1235,6 +1253,7 @@ class Dataset(IDataset):
             raise NoMatchingFormatsError()
         if 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
+
 
 @contextmanager
 def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:

@@ -4,5 +4,5 @@
 
 
 class YoloPath:
-    DEFAULT_SUBSET_NAME = 'train'
-    SUBSET_NAMES = ['train', 'valid']
+    DEFAULT_SUBSET_NAME = "train"
+    SUBSET_NAMES = ["train", "valid"]

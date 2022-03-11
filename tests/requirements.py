@@ -4,8 +4,8 @@
 
 import typing
 
-from attrs import frozen
 import pytest
+from attrs import frozen
 
 
 class DatumaroComponent:
@@ -78,14 +78,20 @@ _SHARED_DECORATORS = [
     pytest.mark.priority_medium,
 ]
 
+
 def mark_requirement(requirement):
-    return _CombinedDecorator([
-        *_SHARED_DECORATORS,
-        pytest.mark.reqids(requirement),
-    ])
+    return _CombinedDecorator(
+        [
+            *_SHARED_DECORATORS,
+            pytest.mark.reqids(requirement),
+        ]
+    )
+
 
 def mark_bug(bugs):
-    return _CombinedDecorator([
-        *_SHARED_DECORATORS,
-        pytest.mark.bugs(bugs),
-    ])
+    return _CombinedDecorator(
+        [
+            *_SHARED_DECORATORS,
+            pytest.mark.bugs(bugs),
+        ]
+    )

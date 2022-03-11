@@ -10,7 +10,8 @@ class IcdarTask(Enum):
     text_localization = auto()
     text_segmentation = auto()
 
+
 class IcdarPath:
-    IMAGE_EXT = '.png'
-    GT_EXT = '.bmp'
-    IMAGES_DIR = 'images'
+    IMAGE_EXT = ".png"
+    GT_EXT = ".bmp"
+    IMAGES_DIR = "images"

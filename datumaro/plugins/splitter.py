@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum, auto
-from math import gcd
 import copy
 import logging as log
+from enum import Enum, auto
+from math import gcd
 
 import numpy as np
 
@@ -15,6 +15,7 @@ from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Transform
 from datumaro.util import cast
 
 NEAR_ZERO = 1e-7
+
 
 class SplitTask(Enum):
     classification = auto()
@@ -92,9 +93,7 @@ class Split(Transform, CliPlugin):
             "--task",
             default=SplitTask.classification.name,
             choices=[t.name for t in SplitTask],
-            help="(one of {}; default: %(default)s)".format(
-                ", ".join(t.name for t in SplitTask)
-            ),
+            help="(one of {}; default: %(default)s)".format(", ".join(t.name for t in SplitTask)),
         )
         parser.add_argument(
             "-s",
@@ -109,8 +108,7 @@ class Split(Transform, CliPlugin):
             "--query",
             type=float,
             default=None,
-            help="Query ratio in the test set (default: %.3f)"
-            % cls._default_query_ratio,
+            help="Query ratio in the test set (default: %.3f)" % cls._default_query_ratio,
         )
         parser.add_argument(
             "--attr",
@@ -138,9 +136,7 @@ class Split(Transform, CliPlugin):
             splits = self._default_split
 
         self.task = task
-        self.splitter = self._get_splitter(
-            task, dataset, splits, seed, query, attr_for_id
-        )
+        self.splitter = self._get_splitter(task, dataset, splits, seed, query, attr_for_id)
         self._initialized = False
         self._subsets = self.splitter._subsets
 
@@ -149,9 +145,7 @@ class Split(Transform, CliPlugin):
         if task == SplitTask.classification.name:
             splitter = _ClassificationSplit(dataset=dataset, splits=splits, seed=seed)
         elif task in {SplitTask.detection.name, SplitTask.segmentation.name}:
-            splitter = _InstanceSpecificSplit(
-                dataset=dataset, splits=splits, seed=seed, task=task
-            )
+            splitter = _InstanceSpecificSplit(dataset=dataset, splits=splits, seed=seed, task=task)
         elif task == SplitTask.reid.name:
             splitter = _ReidentificationSplit(
                 dataset=dataset,
@@ -262,8 +256,7 @@ class _TaskSpecificSplit:
         total_ratio = np.sum(ratios)
         if not abs(total_ratio - 1.0) <= NEAR_ZERO:
             raise Exception(
-                "Sum of ratios is expected to be 1, got %s, which is %s"
-                % (splits, total_ratio)
+                "Sum of ratios is expected to be 1, got %s, which is %s" % (splits, total_ratio)
             )
 
         return snames, ratios, subsets
@@ -342,9 +335,7 @@ class _TaskSpecificSplit:
 
         return by_attributes
 
-    def _split_by_attr(
-        self, datasets, snames, ratio, out_splits, merge_small_classes=True
-    ):
+    def _split_by_attr(self, datasets, snames, ratio, out_splits, merge_small_classes=True):
         def _split_indice(indice):
             sections, _ = self._get_sections(len(indice), ratio)
             splits = np.array_split(indice, sections)
@@ -598,9 +589,7 @@ class _ReidentificationSplit(_TaskSpecificSplit):
             trval = {pid: by_id[pid] for pid in splits[1]}
             # follow the ratio of datasetitems as possible.
             # naive heuristic: exchange the best item one by one.
-            expected_count = int(
-                (len(self._extractor) - len(unlabeled)) * split_ratio[0]
-            )
+            expected_count = int((len(self._extractor) - len(unlabeled)) * split_ratio[0])
             testset_total = int(np.sum([len(v) for v in testset.values()]))
             self._rebalancing(testset, trval, expected_count, testset_total)
         else:

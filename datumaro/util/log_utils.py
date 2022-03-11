@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging
 from contextlib import contextmanager
 from io import StringIO
-import logging
 
 
 @contextmanager
@@ -15,6 +15,7 @@ def logging_disabled(max_level=logging.CRITICAL):
         yield
     finally:
         logging.disable(previous_level)
+
 
 @contextmanager
 def catch_logs(logger=None):

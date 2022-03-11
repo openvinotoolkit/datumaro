@@ -15,3 +15,4 @@ bandit>=1.7.0
 isort~=5.9
 pylint>=2.7.0
 coverage
+black>=22.1.0

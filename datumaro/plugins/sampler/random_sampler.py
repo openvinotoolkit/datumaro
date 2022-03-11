@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+import argparse
 from collections import defaultdict
 from random import Random
 from typing import List, Mapping, Optional, Tuple
-import argparse
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.cli_plugin import CliPlugin
@@ -38,16 +38,26 @@ class RandomSampler(Transform, CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-k', '--count', type=int, required=True,
-            help="Maximum number of items to sample")
-        parser.add_argument('-s', '--subset', default=None,
-            help="Limit changes to this subset (default: affect all dataset)")
-        parser.add_argument('--seed', type=int,
-            help="Initial value for random number generator")
+        parser.add_argument(
+            "-k", "--count", type=int, required=True, help="Maximum number of items to sample"
+        )
+        parser.add_argument(
+            "-s",
+            "--subset",
+            default=None,
+            help="Limit changes to this subset (default: affect all dataset)",
+        )
+        parser.add_argument("--seed", type=int, help="Initial value for random number generator")
         return parser
 
-    def __init__(self, extractor: IExtractor, count: int, *,
-            subset: Optional[str] = None, seed: Optional[int] = None):
+    def __init__(
+        self,
+        extractor: IExtractor,
+        count: int,
+        *,
+        subset: Optional[str] = None,
+        seed: Optional[int] = None,
+    ):
         super().__init__(extractor)
 
         self._seed = seed
@@ -95,6 +105,7 @@ class RandomSampler(Transform, CliPlugin):
 
                 i += 1
 
+
 class LabelRandomSampler(Transform, CliPlugin):
     """
     Sampler that keeps at least the required number of annotations of
@@ -128,35 +139,47 @@ class LabelRandomSampler(Transform, CliPlugin):
 
     @staticmethod
     def _parse_label_count(s: str) -> Tuple[str, int]:
-        label, count = s.split(':', maxsplit=1)
+        label, count = s.split(":", maxsplit=1)
         count = cast(count, int, default=None)
 
         if not label:
             raise argparse.ArgumentError(None, "Class name cannot be empty")
         if count is None or count < 0:
-            raise argparse.ArgumentError(None,
-                f"Class '{label}' count is invalid")
+            raise argparse.ArgumentError(None, f"Class '{label}' count is invalid")
 
         return label, count
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-k', '--count', type=int, required=True,
-            help="Minimum number of annotations of each class")
-        parser.add_argument('-l', '--label', dest='label_counts',
-            action='append', type=cls._parse_label_count,
+        parser.add_argument(
+            "-k",
+            "--count",
+            type=int,
+            required=True,
+            help="Minimum number of annotations of each class",
+        )
+        parser.add_argument(
+            "-l",
+            "--label",
+            dest="label_counts",
+            action="append",
+            type=cls._parse_label_count,
             help="Minimum number of annotations of a specific class. "
-                "Overrides the `-k/--count` setting for the class. "
-                "The format is 'label_name:count' (repeatable)")
-        parser.add_argument('--seed', type=int,
-            help="Initial value for random number generator")
+            "Overrides the `-k/--count` setting for the class. "
+            "The format is 'label_name:count' (repeatable)",
+        )
+        parser.add_argument("--seed", type=int, help="Initial value for random number generator")
         return parser
 
-    def __init__(self, extractor: IExtractor, *,
-            count: Optional[int] = None,
-            label_counts: Optional[Mapping[str, int]] = None,
-            seed: Optional[int] = None):
+    def __init__(
+        self,
+        extractor: IExtractor,
+        *,
+        count: Optional[int] = None,
+        label_counts: Optional[Mapping[str, int]] = None,
+        seed: Optional[int] = None,
+    ):
         from datumaro.plugins.transforms import ProjectLabels
 
         count = count or 0
@@ -168,8 +191,7 @@ class LabelRandomSampler(Transform, CliPlugin):
             label_count = label_counts.get(label.name, count)
             if label_count:
                 new_labels[label.name] = label_count
-        self._label_counts = { idx: count
-            for idx, count in enumerate(new_labels.values()) }
+        self._label_counts = {idx: count for idx, count in enumerate(new_labels.values())}
         super().__init__(ProjectLabels(extractor, new_labels.keys()))
 
         self._seed = seed
@@ -187,14 +209,14 @@ class LabelRandomSampler(Transform, CliPlugin):
 
         def _make_bucket():
             # label -> bucket
-            return { label: [] for label in self._label_counts }
-        buckets = defaultdict(_make_bucket) # subset -> subset_buckets
+            return {label: [] for label in self._label_counts}
+
+        buckets = defaultdict(_make_bucket)  # subset -> subset_buckets
 
         rng = Random(self._seed)
 
         for i, item in enumerate(self._extractor):
-            labels = set(getattr(ann, 'label', None)
-                for ann in item.annotations)
+            labels = set(getattr(ann, "label", None) for ann in item.annotations)
             labels.discard(None)
             for label in labels:
                 if len(buckets[item.subset][label]) < self._label_counts[label]:

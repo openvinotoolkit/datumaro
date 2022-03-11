@@ -2,12 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
-from copy import deepcopy
-# Disable B406: import_xml_sax - the library is used for writing
-from xml.sax.saxutils import XMLGenerator  # nosec
 import logging as log
 import os
 import os.path as osp
+from copy import deepcopy
+
+# Disable B406: import_xml_sax - the library is used for writing
+from xml.sax.saxutils import XMLGenerator  # nosec
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
@@ -45,7 +46,7 @@ class _XmlAnnotationWriter:
         self._file = file
         self._tracklets = tracklets
 
-        self._xmlgen = XMLGenerator(self._file, encoding='utf-8')
+        self._xmlgen = XMLGenerator(self._file, encoding="utf-8")
         self._level = 0
 
         # See reference for section headers here:
@@ -68,9 +69,9 @@ class _XmlAnnotationWriter:
 
     def _open_serialization(self):
         self._indent(newline=True)
-        self._xmlgen.startElement("boost_serialization", {
-            "version": "9", "signature": "serialization::archive"
-        })
+        self._xmlgen.startElement(
+            "boost_serialization", {"version": "9", "signature": "serialization::archive"}
+        )
 
     def _close_serialization(self):
         self._indent(newline=True)
@@ -90,11 +91,14 @@ class _XmlAnnotationWriter:
 
     def _open_tracklets(self, tracklets):
         self._indent(newline=True)
-        self._xmlgen.startElement("tracklets", {
-            "version": str(self._tracklets_version),
-            "tracking_level": str(self._tracking_level),
-            "class_id": str(self._tracklets_class_id),
-        })
+        self._xmlgen.startElement(
+            "tracklets",
+            {
+                "version": str(self._tracklets_version),
+                "tracking_level": str(self._tracking_level),
+                "class_id": str(self._tracklets_class_id),
+            },
+        )
         self._level += 1
         self._add_count(len(tracklets))
         self._add_item_version(self._tracklet_version)
@@ -107,11 +111,14 @@ class _XmlAnnotationWriter:
     def _open_tracklet(self):
         self._indent(newline=True)
         if self._add_tracklet_header:
-            self._xmlgen.startElement("item", {
-                "version": str(self._tracklet_class_id),
-                "tracking_level": str(self._tracking_level),
-                "class_id": str(self._tracklet_class_id),
-            })
+            self._xmlgen.startElement(
+                "item",
+                {
+                    "version": str(self._tracklet_class_id),
+                    "tracking_level": str(self._tracking_level),
+                    "class_id": str(self._tracklet_class_id),
+                },
+            )
             self._add_tracklet_header = False
         else:
             self._xmlgen.startElement("item", {})
@@ -141,11 +148,14 @@ class _XmlAnnotationWriter:
     def _open_poses(self, poses):
         self._indent(newline=True)
         if self._add_poses_header:
-            self._xmlgen.startElement("poses", {
-                "version": str(self._poses_version),
-                "tracking_level": str(self._tracking_level),
-                "class_id": str(self._poses_class_id),
-            })
+            self._xmlgen.startElement(
+                "poses",
+                {
+                    "version": str(self._poses_version),
+                    "tracking_level": str(self._tracking_level),
+                    "class_id": str(self._poses_class_id),
+                },
+            )
             self._add_poses_header = False
         else:
             self._xmlgen.startElement("poses", {})
@@ -170,11 +180,14 @@ class _XmlAnnotationWriter:
     def _open_pose(self):
         self._indent(newline=True)
         if self._add_pose_header:
-            self._xmlgen.startElement("item", {
-                "version": str(self._pose_version),
-                "tracking_level": str(self._tracking_level),
-                "class_id": str(self._pose_class_id),
-            })
+            self._xmlgen.startElement(
+                "item",
+                {
+                    "version": str(self._pose_version),
+                    "tracking_level": str(self._tracking_level),
+                    "class_id": str(self._pose_class_id),
+                },
+            )
             self._add_pose_header = False
         else:
             self._xmlgen.startElement("item", {})
@@ -189,9 +202,9 @@ class _XmlAnnotationWriter:
         self._open_pose()
 
         for key, value in pose.items():
-            if key == 'attributes':
+            if key == "attributes":
                 self._add_attributes(value)
-            elif key != 'frame_id':
+            elif key != "frame_id":
                 self._indent(newline=True)
                 self._xmlgen.startElement(key, {})
                 self._xmlgen.characters(str(value))
@@ -261,33 +274,37 @@ class KittiRawConverter(Converter):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('--reindex', action='store_true',
+        parser.add_argument(
+            "--reindex",
+            action="store_true",
             help="Assign new indices to frames and tracks. "
-                "Allows annotations without 'track_id' (default: %(default)s)")
-        parser.add_argument('--allow-attrs', action='store_true',
-            help="Allow writing annotation attributes (default: %(default)s)")
+            "Allows annotations without 'track_id' (default: %(default)s)",
+        )
+        parser.add_argument(
+            "--allow-attrs",
+            action="store_true",
+            help="Allow writing annotation attributes (default: %(default)s)",
+        )
         return parser
 
-    def __init__(self, extractor, save_dir, reindex=False,
-            allow_attrs=False, **kwargs):
+    def __init__(self, extractor, save_dir, reindex=False, allow_attrs=False, **kwargs):
         super().__init__(extractor, save_dir, **kwargs)
 
         self._reindex = reindex
-        self._builtin_attrs = \
-            KittiRawPath.BUILTIN_ATTRS | KittiRawPath.SPECIAL_ATTRS
+        self._builtin_attrs = KittiRawPath.BUILTIN_ATTRS | KittiRawPath.SPECIAL_ATTRS
         self._allow_attrs = allow_attrs
 
     def _create_tracklets(self, subset):
-        tracks = {} # track_id -> track
-        name_mapping = {} # frame_id -> name
+        tracks = {}  # track_id -> track
+        name_mapping = {}  # frame_id -> name
 
         for frame_id, item in enumerate(subset):
             frame_id = self._write_item(item, frame_id)
 
             if frame_id in name_mapping:
                 raise Exception(
-                    "Item %s: frame id %s is repeated in the dataset" % \
-                    (item.id, frame_id))
+                    "Item %s: frame id %s is repeated in the dataset" % (item.id, frame_id)
+                )
             name_mapping[frame_id] = item.id
 
             for ann in item.annotations:
@@ -295,23 +312,28 @@ class KittiRawConverter(Converter):
                     continue
 
                 if ann.label is None:
-                    log.warning("Item %s: skipping a %s%s with no label",
-                        item.id, ann.type.name,
-                        '(#%s) ' % ann.id if ann.id is not None else '')
+                    log.warning(
+                        "Item %s: skipping a %s%s with no label",
+                        item.id,
+                        ann.type.name,
+                        "(#%s) " % ann.id if ann.id is not None else "",
+                    )
                     continue
 
                 label = self._get_label(ann.label).name
 
-                track_id = cast(ann.attributes.get('track_id'), int, None)
+                track_id = cast(ann.attributes.get("track_id"), int, None)
                 if self._reindex and track_id is None:
                     # In this format, track id is not used for anything except
                     # annotation grouping. So we only need to pick a definitely
                     # unused id. A negative one, for example.
                     track_id = -(len(tracks) + 1)
                 if track_id is None:
-                    raise Exception("Item %s: expected track annotations "
+                    raise Exception(
+                        "Item %s: expected track annotations "
                         "having 'track_id' (integer) attribute. "
-                        "Use --reindex to export single shapes." % item.id)
+                        "Use --reindex to export single shapes." % item.id
+                    )
 
                 track = tracks.get(track_id)
                 if not track:
@@ -322,44 +344,46 @@ class KittiRawConverter(Converter):
                         "l": ann.scale[2],
                         "first_frame": frame_id,
                         "poses": [],
-                        "finished": 1 # keep last
+                        "finished": 1,  # keep last
                     }
                     tracks[track_id] = track
                 else:
-                    if [track['w'], track['h'], track['l']] != ann.scale:
+                    if [track["w"], track["h"], track["l"]] != ann.scale:
                         # Tracks have fixed scale in the format
-                        raise Exception("Item %s: mismatching track shapes, " \
-                            "track id %s" % (item.id, track_id))
+                        raise Exception(
+                            "Item %s: mismatching track shapes, "
+                            "track id %s" % (item.id, track_id)
+                        )
 
-                    if track['objectType'] != label:
-                        raise Exception("Item %s: mismatching track labels, " \
-                            "track id %s: %s vs. %s" % \
-                            (item.id, track_id, track['objectType'], label))
+                    if track["objectType"] != label:
+                        raise Exception(
+                            "Item %s: mismatching track labels, "
+                            "track id %s: %s vs. %s"
+                            % (item.id, track_id, track["objectType"], label)
+                        )
 
                     # If there is a skip in track frames, add missing as outside
-                    if frame_id != track['poses'][-1]['frame_id'] + 1:
-                        last_key_pose = track['poses'][-1]
-                        last_keyframe_id = last_key_pose['frame_id']
-                        last_key_pose['occlusion_kf'] = 1
+                    if frame_id != track["poses"][-1]["frame_id"] + 1:
+                        last_key_pose = track["poses"][-1]
+                        last_keyframe_id = last_key_pose["frame_id"]
+                        last_key_pose["occlusion_kf"] = 1
                         for i in range(last_keyframe_id + 1, frame_id):
                             pose = deepcopy(last_key_pose)
-                            pose['occlusion'] = OcclusionStates.OCCLUSION_UNSET
-                            pose['truncation'] = TruncationStates.OUT_IMAGE
-                            pose['frame_id'] = i
-                            track['poses'].append(pose)
+                            pose["occlusion"] = OcclusionStates.OCCLUSION_UNSET
+                            pose["truncation"] = TruncationStates.OUT_IMAGE
+                            pose["frame_id"] = i
+                            track["poses"].append(pose)
 
                 occlusion = OcclusionStates.VISIBLE
-                if 'occlusion' in ann.attributes:
-                    occlusion = OcclusionStates(
-                        ann.attributes['occlusion'].upper())
-                elif 'occluded' in ann.attributes:
-                    if ann.attributes['occluded']:
+                if "occlusion" in ann.attributes:
+                    occlusion = OcclusionStates(ann.attributes["occlusion"].upper())
+                elif "occluded" in ann.attributes:
+                    if ann.attributes["occluded"]:
                         occlusion = OcclusionStates.PARTLY
 
                 truncation = TruncationStates.IN_IMAGE
-                if 'truncation' in ann.attributes:
-                    truncation = TruncationStates(
-                        ann.attributes['truncation'].upper())
+                if "truncation" in ann.attributes:
+                    truncation = TruncationStates(ann.attributes["truncation"].upper())
 
                 pose = {
                     "tx": ann.position[0],
@@ -370,8 +394,7 @@ class KittiRawConverter(Converter):
                     "rz": ann.rotation[2],
                     "state": PoseStates.LABELED.value,
                     "occlusion": occlusion.value,
-                    "occlusion_kf": \
-                        int(ann.attributes.get("keyframe", False) is True),
+                    "occlusion_kf": int(ann.attributes.get("keyframe", False) is True),
                     "truncation": truncation.value,
                     "amt_occlusion": -1,
                     "amt_border_l": -1,
@@ -388,7 +411,7 @@ class KittiRawConverter(Converter):
                             continue
 
                         if isinstance(value, bool):
-                            value = 'true' if value else 'false'
+                            value = "true" if value else "false"
                         attributes[name] = value
 
                     pose["attributes"] = attributes
@@ -400,21 +423,20 @@ class KittiRawConverter(Converter):
         return [e[1] for e in sorted(tracks.items(), key=lambda e: e[0])]
 
     def _write_name_mapping(self, name_mapping):
-        with open(osp.join(self._save_dir, KittiRawPath.NAME_MAPPING_FILE),
-                'w', encoding='utf-8') as f:
-            f.writelines('%s %s\n' % (frame_id, name)
-                for frame_id, name in name_mapping.items())
+        with open(
+            osp.join(self._save_dir, KittiRawPath.NAME_MAPPING_FILE), "w", encoding="utf-8"
+        ) as f:
+            f.writelines("%s %s\n" % (frame_id, name) for frame_id, name in name_mapping.items())
 
     def _get_label(self, label_id):
         if label_id is None:
             return ""
-        label_cat = self._extractor.categories().get(
-            AnnotationType.label, LabelCategories())
+        label_cat = self._extractor.categories().get(AnnotationType.label, LabelCategories())
         return label_cat.items[label_id]
 
     def _write_item(self, item, index):
         if not self._reindex:
-            index = cast(item.attributes.get('frame'), int, index)
+            index = cast(item.attributes.get("frame"), int, index)
 
         if self._save_media and item.media:
             self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
@@ -422,9 +444,14 @@ class KittiRawConverter(Converter):
             images = sorted(item.media.extra_images, key=lambda img: img.path)
             for i, image in enumerate(images):
                 if image.has_data:
-                    image.save(osp.join(self._save_dir,
-                        KittiRawPath.IMG_DIR_PREFIX + ('%02d' % i), 'data',
-                        item.id + self._find_image_ext(image)))
+                    image.save(
+                        osp.join(
+                            self._save_dir,
+                            KittiRawPath.IMG_DIR_PREFIX + ("%02d" % i),
+                            "data",
+                            item.id + self._find_image_ext(image),
+                        )
+                    )
 
         elif self._save_media and not item.media:
             log.debug("Item '%s' has no image info", item.id)
@@ -432,8 +459,7 @@ class KittiRawConverter(Converter):
         return index
 
     def apply(self):
-        if self._extractor.media_type() and \
-                self._extractor.media_type() is not PointCloud:
+        if self._extractor.media_type() and self._extractor.media_type() is not PointCloud:
             raise MediaTypeError("Media type is not a point cloud")
 
         os.makedirs(self._save_dir, exist_ok=True)
@@ -442,12 +468,13 @@ class KittiRawConverter(Converter):
             self._save_meta_file(self._save_dir)
 
         if 1 < len(self._extractor.subsets()):
-            log.warning("Kitti RAW format supports only a single "
-                "subset. Subset information will be ignored on export.")
+            log.warning(
+                "Kitti RAW format supports only a single "
+                "subset. Subset information will be ignored on export."
+            )
 
         tracklets = self._create_tracklets(self._extractor)
-        with open(osp.join(self._save_dir, KittiRawPath.ANNO_FILE),
-                'w', encoding='utf-8') as f:
+        with open(osp.join(self._save_dir, KittiRawPath.ANNO_FILE), "w", encoding="utf-8") as f:
             writer = _XmlAnnotationWriter(f, tracklets)
             writer.write()
 
@@ -471,10 +498,8 @@ class KittiRawConverter(Converter):
                 os.unlink(pcd_path)
 
             for d in os.listdir(save_dir):
-                image_dir = osp.join(save_dir, d, 'data', osp.dirname(item.id))
-                if d.startswith(KittiRawPath.IMG_DIR_PREFIX) and \
-                        osp.isdir(image_dir):
+                image_dir = osp.join(save_dir, d, "data", osp.dirname(item.id))
+                if d.startswith(KittiRawPath.IMG_DIR_PREFIX) and osp.isdir(image_dir):
                     for p in find_images(image_dir):
-                        if osp.splitext(osp.basename(p))[0] == \
-                                osp.basename(item.id):
+                        if osp.splitext(osp.basename(p))[0] == osp.basename(item.id):
                             os.unlink(p)

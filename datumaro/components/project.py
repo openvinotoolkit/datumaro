@@ -4,12 +4,6 @@
 
 from __future__ import annotations
 
-from contextlib import ExitStack, suppress
-from enum import Enum, auto
-from typing import (
-    Any, Dict, Generic, Iterable, Iterator, List, NewType, Optional, Tuple,
-    TypeVar, Union,
-)
 import logging as log
 import os
 import os.path as osp
@@ -17,64 +11,107 @@ import re
 import shutil
 import tempfile
 import unittest.mock
+from contextlib import ExitStack, suppress
+from enum import Enum, auto
+from typing import (
+    Any,
+    Dict,
+    Generic,
+    Iterable,
+    Iterator,
+    List,
+    NewType,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import networkx as nx
 import ruamel.yaml as yaml
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (
-    BuildStage, BuildTarget, Model, PipelineConfig, ProjectConfig,
-    ProjectLayout, Source, TreeConfig, TreeLayout,
+    BuildStage,
+    BuildTarget,
+    Model,
+    PipelineConfig,
+    ProjectConfig,
+    ProjectLayout,
+    Source,
+    TreeConfig,
+    TreeLayout,
 )
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    DatasetMergeError, EmptyCommitError, EmptyPipelineError,
-    ForeignChangesError, InvalidStageError, MigrationError,
-    MismatchingObjectError, MissingObjectError, MissingPipelineHeadError,
-    MissingSourceHashError, MultiplePipelineHeadsError, OldProjectError,
-    PathOutsideSourceError, ProjectAlreadyExists, ProjectNotFoundError,
-    ReadonlyDatasetError, ReadonlyProjectError, SourceExistsError,
-    SourceUrlInsideProjectError, UnexpectedUrlError, UnknownRefError,
-    UnknownSourceError, UnknownStageError, UnknownTargetError,
-    UnsavedChangesError, VcsError,
+    DatasetMergeError,
+    EmptyCommitError,
+    EmptyPipelineError,
+    ForeignChangesError,
+    InvalidStageError,
+    MigrationError,
+    MismatchingObjectError,
+    MissingObjectError,
+    MissingPipelineHeadError,
+    MissingSourceHashError,
+    MultiplePipelineHeadsError,
+    OldProjectError,
+    PathOutsideSourceError,
+    ProjectAlreadyExists,
+    ProjectNotFoundError,
+    ReadonlyDatasetError,
+    ReadonlyProjectError,
+    SourceExistsError,
+    SourceUrlInsideProjectError,
+    UnexpectedUrlError,
+    UnknownRefError,
+    UnknownSourceError,
+    UnknownStageError,
+    UnknownTargetError,
+    UnsavedChangesError,
+    VcsError,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.components.media_manager import MediaManager
 from datumaro.util import find, parse_json_file, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (
-    copytree, generate_next_name, is_subpath, make_file_name, rmfile, rmtree,
+    copytree,
+    generate_next_name,
+    is_subpath,
+    make_file_name,
+    rmfile,
+    rmtree,
 )
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
 
 class ProjectSourceDataset(IDataset):
-    def __init__(self, path: str, tree: Tree, source: str,
-            readonly: bool = False):
+    def __init__(self, path: str, tree: Tree, source: str, readonly: bool = False):
         config = tree.sources[source]
 
         rpath = path
         if config.path:
             rpath = osp.join(path, config.path)
 
-        dataset = Dataset.import_from(rpath,
-            env=tree.env, format=config.format, **config.options)
+        dataset = Dataset.import_from(rpath, env=tree.env, format=config.format, **config.options)
 
         # Using rpath won't allow to save directly with .save() when a file
         # path is specified. Dataset doesn't know the root location and if
         # it exists at all, but in a project, we do.
         dataset.bind(path, format=dataset.format, options=dataset.options)
 
-        self.__dict__['_dataset'] = dataset
+        self.__dict__["_dataset"] = dataset
 
-        self.__dict__['_config'] = config
-        self.__dict__['_readonly'] = readonly
-        self.__dict__['name'] = source
+        self.__dict__["_config"] = config
+        self.__dict__["_readonly"] = readonly
+        self.__dict__["name"] = source
 
     def save(self, save_dir=None, **kwargs):
-        if self.readonly and (save_dir is None or \
-                osp.abspath(save_dir) == osp.abspath(self.data_path)):
+        if self.readonly and (
+            save_dir is None or osp.abspath(save_dir) == osp.abspath(self.data_path)
+        ):
             raise ReadonlyDatasetError()
         self._dataset.save(save_dir, **kwargs)
 
@@ -113,33 +150,38 @@ class ProjectSourceDataset(IDataset):
     def media_type(self):
         return self._dataset.media_type()
 
+
 class IgnoreMode(Enum):
     rewrite = auto()
     append = auto()
     remove = auto()
 
-def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
-        filepath: str, mode: Union[None, str, IgnoreMode] = None):
+
+def _update_ignore_file(
+    paths: Union[str, List[str]],
+    repo_root: str,
+    filepath: str,
+    mode: Union[None, str, IgnoreMode] = None,
+):
     def _make_ignored_path(path):
         path = osp.join(repo_root, osp.normpath(path))
         assert is_subpath(path, base=repo_root)
 
         # Prepend the '/' to match only direct childs.
         # Otherwise the rule can be in any path part.
-        return '/' + osp.relpath(path, repo_root).replace('\\', '/')
+        return "/" + osp.relpath(path, repo_root).replace("\\", "/")
 
-    header = '# The file is autogenerated by Datumaro'
+    header = "# The file is autogenerated by Datumaro"
 
     mode = parse_str_enum_value(mode, IgnoreMode, IgnoreMode.append)
 
     if isinstance(paths, str):
         paths = [paths]
-    paths = {osp.join(repo_root, osp.normpath(p)): _make_ignored_path(p)
-        for p in paths}
+    paths = {osp.join(repo_root, osp.normpath(p)): _make_ignored_path(p) for p in paths}
 
-    openmode = 'r+'
+    openmode = "r+"
     if not osp.isfile(filepath):
-        openmode = 'w+' # r+ cannot create, w truncates
+        openmode = "w+"  # r+ cannot create, w truncates
     with open(filepath, openmode) as f:
         lines = []
         if mode in {IgnoreMode.append, IgnoreMode.remove}:
@@ -149,13 +191,14 @@ def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
 
         new_lines = []
         for line in lines:
-            if not line or line.startswith('#'):
+            if not line or line.startswith("#"):
                 new_lines.append(line)
                 continue
 
-            line_path = osp.join(repo_root,
-                osp.normpath(line.split('#', maxsplit=1)[0]) \
-                    .replace('\\', '/').lstrip('/'))
+            line_path = osp.join(
+                repo_root,
+                osp.normpath(line.split("#", maxsplit=1)[0]).replace("\\", "/").lstrip("/"),
+            )
 
             if mode == IgnoreMode.append:
                 if line_path in paths:
@@ -165,7 +208,7 @@ def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
                 if line_path not in paths:
                     new_lines.append(line)
 
-        if mode in { IgnoreMode.rewrite, IgnoreMode.append }:
+        if mode in {IgnoreMode.rewrite, IgnoreMode.append}:
             new_lines.extend(paths.values())
 
         if not new_lines or new_lines[0] != header:
@@ -175,8 +218,9 @@ def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
         f.truncate()
 
 
-CrudEntry = TypeVar('CrudEntry')
-T = TypeVar('T')
+CrudEntry = TypeVar("CrudEntry")
+T = TypeVar("T")
+
 
 class CrudProxy(Generic[CrudEntry]):
     @property
@@ -189,8 +233,9 @@ class CrudProxy(Generic[CrudEntry]):
     def __getitem__(self, name: str) -> CrudEntry:
         return self._data[name]
 
-    def get(self, name: str, default: Union[None, T, CrudEntry] = None) \
-            -> Union[None, T, CrudEntry]:
+    def get(
+        self, name: str, default: Union[None, T, CrudEntry] = None
+    ) -> Union[None, T, CrudEntry]:
         return self._data.get(name, default)
 
     def __iter__(self) -> Iterator[CrudEntry]:
@@ -201,6 +246,7 @@ class CrudProxy(Generic[CrudEntry]):
 
     def __contains__(self, name: str):
         return name in self._data
+
 
 class _DataSourceBase(CrudProxy[Source]):
     def __init__(self, tree: Tree, config_field: str):
@@ -220,9 +266,10 @@ class _DataSourceBase(CrudProxy[Source]):
     def remove(self, name: str):
         self._data.remove(name)
 
+
 class ProjectSources(_DataSourceBase):
     def __init__(self, tree: Tree):
-        super().__init__(tree, 'sources')
+        super().__init__(tree, "sources")
 
     def __getitem__(self, name):
         try:
@@ -239,14 +286,15 @@ class BuildStageType(Enum):
     convert = auto()
     inference = auto()
 
+
 class Pipeline:
     @staticmethod
     def _create_graph(config: PipelineConfig):
         graph = nx.DiGraph()
         for entry in config:
-            target_name = entry['name']
-            parents = entry['parents']
-            target = BuildStage(entry['config'])
+            target_name = entry["name"]
+            parents = entry["parents"]
+            target = BuildStage(entry["config"])
 
             graph.add_node(target_name, config=target)
             for prev_stage in parents:
@@ -274,9 +322,9 @@ class Pipeline:
             if graph.out_degree(node) == 0:
                 if head is not None:
                     raise MultiplePipelineHeadsError(
-                        "A pipeline can have only one " \
-                        "main target, but it has at least 2: %s, %s" % \
-                        (head, node))
+                        "A pipeline can have only one "
+                        "main target, but it has at least 2: %s, %s" % (head, node)
+                    )
                 head = node
         return head
 
@@ -294,11 +342,13 @@ class Pipeline:
     def _serialize(graph) -> PipelineConfig:
         serialized = PipelineConfig()
         for node_name, node in graph.nodes.items():
-            serialized.nodes.append({
-                'name': node_name,
-                'parents': list(graph.predecessors(node_name)),
-                'config': dict(node['config']),
-            })
+            serialized.nodes.append(
+                {
+                    "name": node_name,
+                    "parents": list(graph.predecessors(node_name)),
+                    "config": dict(node["config"]),
+                }
+            )
         return serialized
 
     @staticmethod
@@ -313,6 +363,7 @@ class Pipeline:
         pipeline = Pipeline()
         pipeline._graph = self._get_subgraph(self._graph, target).copy()
         return pipeline
+
 
 class ProjectBuilder:
     def __init__(self, project: Project, tree: Tree):
@@ -347,41 +398,46 @@ class ProjectBuilder:
             source = self._tree.sources[source_name]
 
             if wd_hashes.get(source_name):
-                raise ForeignChangesError("Local source '%s' data does not "
+                raise ForeignChangesError(
+                    "Local source '%s' data does not "
                     "match any previous source revision. Probably, the source "
                     "was modified outside Datumaro. You can restore the "
-                    "latest source revision with 'checkout' command." % \
-                    source_name)
+                    "latest source revision with 'checkout' command." % source_name
+                )
 
             if self._project.readonly:
                 # Source re-downloading is prohibited in readonly projects
                 # because it can seriously hurt free storage space. It must
                 # be run manually, so that the user could know about this.
-                log.info("Skipping re-downloading missing source '%s', "
+                log.info(
+                    "Skipping re-downloading missing source '%s', "
                     "because the project is read-only. Automatic downloading "
-                    "is disabled in read-only projects.", source_name)
+                    "is disabled in read-only projects.",
+                    source_name,
+                )
                 continue
 
             if not source.hash:
-                raise MissingSourceHashError("Unable to re-download source "
-                    "'%s': the source was added with no hash information. " % \
-                    source_name)
+                raise MissingSourceHashError(
+                    "Unable to re-download source "
+                    "'%s': the source was added with no hash information. " % source_name
+                )
 
             with self._project._make_tmp_dir() as tmp_dir:
-                obj_hash, _, _ = \
-                    self._project._download_source(source.url, tmp_dir)
+                obj_hash, _, _ = self._project._download_source(source.url, tmp_dir)
 
                 if source.hash and source.hash != obj_hash:
                     raise MismatchingObjectError(
-                        "Downloaded source '%s' data is different " \
+                        "Downloaded source '%s' data is different "
                         "from what is saved in the build pipeline: "
-                        "'%s' vs '%s'" % (source_name, obj_hash, source.hash))
+                        "'%s' vs '%s'" % (source_name, obj_hash, source.hash)
+                    )
 
         return self._init_pipeline(pipeline, working_dir_hashes=wd_hashes)
 
     def _get_resulting_dataset(self, pipeline):
         graph, head = self._run_pipeline(pipeline)
-        return graph.nodes[head]['dataset']
+        return graph.nodes[head]["dataset"]
 
     def _init_pipeline(self, pipeline: Pipeline, working_dir_hashes=None):
         """
@@ -391,33 +447,32 @@ class ProjectBuilder:
         """
 
         def _join_parent_datasets(force=False):
-            parents = { p: graph.nodes[p]
-                for p in graph.predecessors(stage_name) }
+            parents = {p: graph.nodes[p] for p in graph.predecessors(stage_name)}
 
             if 1 < len(parents) or force:
                 try:
                     dataset = Dataset.from_extractors(
-                        *(p['dataset'] for p in parents.values()),
-                        env=self._tree.env)
+                        *(p["dataset"] for p in parents.values()), env=self._tree.env
+                    )
                 except DatasetMergeError as e:
                     e.sources = set(parents)
                     raise e
             else:
-                dataset = next(iter(parents.values()))['dataset']
+                dataset = next(iter(parents.values()))["dataset"]
 
             # clear fully utilized datasets to release memory
             for p_name, p in parents.items():
-                p['_use_count'] = p.get('_use_count', 0) + 1
+                p["_use_count"] = p.get("_use_count", 0) + 1
 
-                if p_name != head and p['_use_count'] == graph.out_degree(p_name):
-                    p.pop('dataset')
+                if p_name != head and p["_use_count"] == graph.out_degree(p_name):
+                    p.pop("dataset")
 
             return dataset
 
         if working_dir_hashes is None:
             working_dir_hashes = {}
-        def _try_load_from_disk(stage_name: str, stage_config: BuildStage) \
-                -> Dataset:
+
+        def _try_load_from_disk(stage_name: str, stage_config: BuildStage) -> Dataset:
             # Check if we can restore this stage from the cache or
             # from the working directory.
             #
@@ -430,36 +485,43 @@ class ProjectBuilder:
             data_dir = None
             cached = False
 
-            source_name, source_stage_name = \
-                ProjectBuildTargets.split_target_name(stage_name)
+            source_name, source_stage_name = ProjectBuildTargets.split_target_name(stage_name)
             if self._tree.is_working_tree and source_name in self._tree.sources:
                 target = self._tree.build_targets[source_name]
                 data_dir = self._project.source_data_dir(source_name)
                 wd_hash = working_dir_hashes.get(source_name)
 
                 if not stage_hash:
-                    if source_stage_name == target.head.name and \
-                            osp.isdir(data_dir):
+                    if source_stage_name == target.head.name and osp.isdir(data_dir):
                         pass
                     else:
-                        log.debug("Build: skipping loading stage '%s' from "
+                        log.debug(
+                            "Build: skipping loading stage '%s' from "
                             "working dir '%s', because the stage has no hash "
                             "and is not the head stage",
-                            stage_name, data_dir)
+                            stage_name,
+                            data_dir,
+                        )
                         data_dir = None
                 elif not wd_hash:
                     if osp.isdir(data_dir):
                         wd_hash = self._project.compute_source_hash(data_dir)
                         working_dir_hashes[source_name] = wd_hash
                     else:
-                        log.debug("Build: skipping checking working dir '%s', "
-                            "because it does not exist", data_dir)
+                        log.debug(
+                            "Build: skipping checking working dir '%s', "
+                            "because it does not exist",
+                            data_dir,
+                        )
                         data_dir = None
 
                 if stage_hash and stage_hash != wd_hash:
-                    log.debug("Build: skipping loading stage '%s' from "
+                    log.debug(
+                        "Build: skipping loading stage '%s' from "
                         "working dir '%s', because hashes do not match",
-                        stage_name, data_dir)
+                        stage_name,
+                        data_dir,
+                    )
                     data_dir = None
 
             if not data_dir and stage_hash:
@@ -471,17 +533,20 @@ class ProjectBuilder:
                     cached = True
 
                 if not data_dir or not osp.isdir(data_dir):
-                    log.debug("Build: skipping loading stage '%s' from "
+                    log.debug(
+                        "Build: skipping loading stage '%s' from "
                         "cache obj '%s', because it is not available",
-                        stage_name, stage_hash)
+                        stage_name,
+                        stage_hash,
+                    )
                     return None
 
             if data_dir:
                 assert osp.isdir(data_dir), data_dir
-                log.debug("Build: loading stage '%s' from '%s'",
-                    stage_name, data_dir)
-                return ProjectSourceDataset(data_dir, self._tree, source_name,
-                    readonly=cached or self._project.readonly)
+                log.debug("Build: loading stage '%s' from '%s'", stage_name, data_dir)
+                return ProjectSourceDataset(
+                    data_dir, self._tree, source_name, readonly=cached or self._project.readonly
+                )
 
             return None
 
@@ -494,21 +559,21 @@ class ProjectBuilder:
         while to_visit:
             stage_name = to_visit.pop()
             stage = graph.nodes[stage_name]
-            stage_config = stage['config']
+            stage_config = stage["config"]
             stage_type = BuildStageType[stage_config.type]
             stage_hash = stage_config.hash
 
-            assert stage.get('dataset') is None
+            assert stage.get("dataset") is None
 
             dataset = _try_load_from_disk(stage_name, stage_config)
             if dataset is not None:
-                stage['dataset'] = dataset
+                stage["dataset"] = dataset
                 continue
 
             uninitialized_parents = []
             for p_name in graph.predecessors(stage_name):
                 parent = graph.nodes[p_name]
-                if parent.get('dataset') is None:
+                if parent.get("dataset") is None:
                     uninitialized_parents.append(p_name)
 
             if uninitialized_parents:
@@ -521,8 +586,7 @@ class ProjectBuilder:
                 try:
                     transform = self._tree.env.transforms[kind]
                 except KeyError as e:
-                    raise UnknownStageError("Unknown transform '%s'" % kind) \
-                        from e
+                    raise UnknownStageError("Unknown transform '%s'" % kind) from e
 
                 dataset = _join_parent_datasets()
                 dataset = dataset.transform(transform, **stage_config.params)
@@ -556,8 +620,8 @@ class ProjectBuilder:
                     # downloaded earlier.
                     raise MissingObjectError(
                         "Failed to initialize stage '%s': "
-                        "object '%s' was not found in cache" % \
-                        (stage_name, stage_hash))
+                        "object '%s' was not found in cache" % (stage_name, stage_hash)
+                    )
 
                 # Generated sources do not require a data directory,
                 # but they still can be bound to a directory
@@ -565,9 +629,12 @@ class ProjectBuilder:
                     source_dir = self._project.source_data_dir(source_name)
                 else:
                     source_dir = None
-                dataset = ProjectSourceDataset(source_dir, self._tree,
+                dataset = ProjectSourceDataset(
+                    source_dir,
+                    self._tree,
                     source_name,
-                    readonly=not source_dir or self._project.readonly)
+                    readonly=not source_dir or self._project.readonly,
+                )
 
             elif stage_type == BuildStageType.project:
                 dataset = _join_parent_datasets(force=True)
@@ -576,20 +643,23 @@ class ProjectBuilder:
                 dataset = _join_parent_datasets()
 
             else:
-                raise UnknownStageError("Unexpected stage type '%s'" % \
-                    stage_type)
+                raise UnknownStageError("Unexpected stage type '%s'" % stage_type)
 
-            stage['dataset'] = dataset
+            stage["dataset"] = dataset
 
         return graph, head
 
     @staticmethod
     def _validate_pipeline(pipeline: Pipeline):
         graph = pipeline._graph
-        if len(graph) == 0 or len(graph) == 1 and next(iter(graph.nodes)) == \
-                ProjectBuildTargets.make_target_name(
-                    ProjectBuildTargets.MAIN_TARGET,
-                    ProjectBuildTargets.BASE_STAGE):
+        if (
+            len(graph) == 0
+            or len(graph) == 1
+            and next(iter(graph.nodes))
+            == ProjectBuildTargets.make_target_name(
+                ProjectBuildTargets.MAIN_TARGET, ProjectBuildTargets.BASE_STAGE
+            )
+        ):
             raise EmptyPipelineError()
 
         head = pipeline.head
@@ -597,25 +667,25 @@ class ProjectBuilder:
             raise MissingPipelineHeadError()
 
         for stage_name, stage in graph.nodes.items():
-            stage_type = BuildStageType[stage['config'].type]
+            stage_type = BuildStageType[stage["config"].type]
 
             if graph.in_degree(stage_name) == 0:
                 if stage_type != BuildStageType.source:
                     raise InvalidStageError(
-                        "Stage '%s' of type '%s' must have inputs" %
-                        (stage_name, stage_type.name))
+                        "Stage '%s' of type '%s' must have inputs" % (stage_name, stage_type.name)
+                    )
             else:
                 if stage_type == BuildStageType.source:
                     raise InvalidStageError(
-                        "Stage '%s' of type '%s' can't have inputs" %
-                        (stage_name, stage_type.name))
+                        "Stage '%s' of type '%s' can't have inputs" % (stage_name, stage_type.name)
+                    )
 
             if graph.out_degree(stage_name) == 0:
                 if stage_name != head:
                     raise InvalidStageError(
                         "Stage '%s' of type '%s' has no outputs, "
-                        "but is not the head stage" %
-                        (stage_name, stage_type.name))
+                        "but is not the head stage" % (stage_name, stage_type.name)
+                    )
 
     def _find_missing_sources(self, pipeline: Pipeline):
         work_dir_hashes = {}
@@ -623,20 +693,19 @@ class ProjectBuilder:
         def _can_retrieve(stage_name: str, stage_config: BuildStage):
             stage_hash = stage_config.hash
 
-            source_name, source_stage_name = \
-                ProjectBuildTargets.split_target_name(stage_name)
+            source_name, source_stage_name = ProjectBuildTargets.split_target_name(stage_name)
             if self._tree.is_working_tree and source_name in self._tree.sources:
                 target = self._tree.build_targets[source_name]
                 data_dir = self._project.source_data_dir(source_name)
 
                 if not stage_hash:
-                    return source_stage_name == target.head.name and \
-                        osp.isdir(data_dir)
+                    return source_stage_name == target.head.name and osp.isdir(data_dir)
 
                 wd_hash = work_dir_hashes.get(source_name)
                 if not wd_hash and osp.isdir(data_dir):
                     wd_hash = self._project.compute_source_hash(
-                        self._project.source_data_dir(source_name))
+                        self._project.source_data_dir(source_name)
+                    )
                     work_dir_hashes[source_name] = wd_hash
 
                 if stage_hash and stage_hash == wd_hash:
@@ -655,13 +724,12 @@ class ProjectBuilder:
             if stage_name in checked_deps:
                 continue
 
-            stage_config = pipeline._graph.nodes[stage_name]['config']
+            stage_config = pipeline._graph.nodes[stage_name]["config"]
 
             if not _can_retrieve(stage_name, stage_config):
                 if pipeline._graph.in_degree(stage_name) == 0:
-                    assert stage_config.type == 'source', stage_config.type
-                    source_name = \
-                        self._tree.build_targets.strip_target_name(stage_name)
+                    assert stage_config.type == "source", stage_config.type
+                    source_name = self._tree.build_targets.strip_target_name(stage_name)
                     source = self._tree.sources[source_name]
                     if not source.is_generated:
                         missing_sources.add(source_name)
@@ -674,9 +742,10 @@ class ProjectBuilder:
             checked_deps.add(stage_name)
         return missing_sources, work_dir_hashes
 
+
 class ProjectBuildTargets(CrudProxy[BuildTarget]):
-    MAIN_TARGET = 'project'
-    BASE_STAGE = 'root'
+    MAIN_TARGET = "project"
+    BASE_STAGE = "root"
 
     def __init__(self, tree: Tree):
         self._tree = tree
@@ -687,48 +756,56 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
 
         if self.MAIN_TARGET not in data:
             data[self.MAIN_TARGET] = {
-                'stages': [
-                    BuildStage({
-                        'name': self.BASE_STAGE,
-                        'type': BuildStageType.project.name,
-                    }),
+                "stages": [
+                    BuildStage(
+                        {
+                            "name": self.BASE_STAGE,
+                            "type": BuildStageType.project.name,
+                        }
+                    ),
                 ]
             }
 
         for source in self._tree.sources:
             if source not in data:
                 data[source] = {
-                    'stages': [
-                        BuildStage({
-                            'name': self.BASE_STAGE,
-                            'type': BuildStageType.source.name,
-                        }),
+                    "stages": [
+                        BuildStage(
+                            {
+                                "name": self.BASE_STAGE,
+                                "type": BuildStageType.source.name,
+                            }
+                        ),
                     ]
                 }
 
         return data
 
     def __contains__(self, key):
-        if '.' in key:
+        if "." in key:
             target, stage = self.split_target_name(key)
-            return target in self._data and \
-                self._data[target].find_stage(stage) is not None
+            return target in self._data and self._data[target].find_stage(stage) is not None
         return key in self._data
 
     def add_target(self, name) -> BuildTarget:
-        return self._data.set(name, {
-            'stages': [
-                BuildStage({
-                    'name': self.BASE_STAGE,
-                    'type': BuildStageType.source.name,
-                }),
-            ]
-        })
+        return self._data.set(
+            name,
+            {
+                "stages": [
+                    BuildStage(
+                        {
+                            "name": self.BASE_STAGE,
+                            "type": BuildStageType.source.name,
+                        }
+                    ),
+                ]
+            },
+        )
 
     def add_stage(self, target, value, prev=None, name=None) -> str:
         target_name = target
         target_stage_name = None
-        if '.' in target:
+        if "." in target:
             target_name, target_stage_name = self.split_target_name(target)
 
         if prev is None:
@@ -737,22 +814,22 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
         target = self._data[target_name]
 
         if prev:
-            prev_stage = find(enumerate(target.stages),
-                lambda e: e[1].name == prev)
+            prev_stage = find(enumerate(target.stages), lambda e: e[1].name == prev)
             if prev_stage is None:
                 raise KeyError("Can't find stage '%s'" % prev)
             prev_stage = prev_stage[0]
         else:
             prev_stage = len(target.stages) - 1
 
-        name = value.get('name') or name
+        name = value.get("name") or name
         if not name:
-            name = generate_next_name((s.name for s in target.stages),
-                'stage', sep='-', default='1')
+            name = generate_next_name(
+                (s.name for s in target.stages), "stage", sep="-", default="1"
+            )
         else:
             if target.find_stage(name):
                 raise VcsError("Stage '%s' already exists" % name)
-        value['name'] = name
+        value["name"] = name
 
         value = BuildStage(value)
         assert value.type in BuildStageType.__members__
@@ -773,64 +850,85 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
             raise KeyError("Can't find stage '%s'" % name)
         target.stages.remove(idx)
 
-    def add_transform_stage(self, target: str, transform: str,
-            params: Optional[Dict] = None, name: Optional[str] = None):
+    def add_transform_stage(
+        self, target: str, transform: str, params: Optional[Dict] = None, name: Optional[str] = None
+    ):
         if not transform in self._tree.env.transforms:
             raise KeyError("Unknown transform '%s'" % transform)
 
-        return self.add_stage(target, {
-            'type': BuildStageType.transform.name,
-            'kind': transform,
-            'params': params or {},
-        }, name=name)
+        return self.add_stage(
+            target,
+            {
+                "type": BuildStageType.transform.name,
+                "kind": transform,
+                "params": params or {},
+            },
+            name=name,
+        )
 
-    def add_inference_stage(self, target: str, model: str,
-            params: Optional[Dict] = None, name: Optional[str] = None):
+    def add_inference_stage(
+        self, target: str, model: str, params: Optional[Dict] = None, name: Optional[str] = None
+    ):
         if not model in self._tree._project.models:
             raise KeyError("Unknown model '%s'" % model)
 
-        return self.add_stage(target, {
-            'type': BuildStageType.inference.name,
-            'kind': model,
-            'params': params or {},
-        }, name=name)
+        return self.add_stage(
+            target,
+            {
+                "type": BuildStageType.inference.name,
+                "kind": model,
+                "params": params or {},
+            },
+            name=name,
+        )
 
-    def add_filter_stage(self, target: str, expr: str,
-            params: Optional[Dict] = None, name: Optional[str] = None):
+    def add_filter_stage(
+        self, target: str, expr: str, params: Optional[Dict] = None, name: Optional[str] = None
+    ):
         params = params or {}
-        params['expr'] = expr
-        return self.add_stage(target, {
-            'type': BuildStageType.filter.name,
-            'params': params,
-        }, name=name)
+        params["expr"] = expr
+        return self.add_stage(
+            target,
+            {
+                "type": BuildStageType.filter.name,
+                "params": params,
+            },
+            name=name,
+        )
 
-    def add_convert_stage(self, target: str, format: str,
-            params: Optional[Dict] = None, name: Optional[str] = None):
+    def add_convert_stage(
+        self, target: str, format: str, params: Optional[Dict] = None, name: Optional[str] = None
+    ):
         if not self._tree.env.is_format_known(format):
             raise KeyError("Unknown format '%s'" % format)
 
-        return self.add_stage(target, {
-            'type': BuildStageType.convert.name,
-            'kind': format,
-            'params': params or {},
-        }, name=name)
+        return self.add_stage(
+            target,
+            {
+                "type": BuildStageType.convert.name,
+                "kind": format,
+                "params": params or {},
+            },
+            name=name,
+        )
 
     @staticmethod
     def make_target_name(target: str, stage: Optional[str] = None) -> str:
         if stage:
-            return '%s.%s' % (target, stage)
+            return "%s.%s" % (target, stage)
         return target
 
     @classmethod
     def split_target_name(cls, name: str) -> Tuple[str, str]:
-        if '.' in name:
-            target, stage = name.split('.', maxsplit=1)
+        if "." in name:
+            target, stage = name.split(".", maxsplit=1)
             if not target:
-                raise ValueError("Wrong build target name '%s': "
-                    "a name can't be empty" % name)
+                raise ValueError("Wrong build target name '%s': " "a name can't be empty" % name)
             if not stage:
-                raise ValueError("Wrong build target name '%s': "
-                    "expected stage name after the separator" % name)
+                raise ValueError(
+                    "Wrong build target name '%s': "
+                    "expected stage name after the separator" % name
+                )
         else:
             target = name
             stage = cls.BASE_STAGE
@@ -847,14 +945,16 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
         for target_name, target in self.items():
             if target_name == self.MAIN_TARGET:
                 # main target combines all the others
-                prev_stages = [self.make_target_name(n, t.head.name)
-                    for n, t in self.items() if n != self.MAIN_TARGET]
+                prev_stages = [
+                    self.make_target_name(n, t.head.name)
+                    for n, t in self.items()
+                    if n != self.MAIN_TARGET
+                ]
             else:
-                prev_stages = [self.make_target_name(t, self[t].head.name)
-                    for t in target.parents]
+                prev_stages = [self.make_target_name(t, self[t].head.name) for t in target.parents]
 
             for stage in target.stages:
-                stage_name = self.make_target_name(target_name, stage['name'])
+                stage_name = self.make_target_name(target_name, stage["name"])
 
                 graph.add_node(stage_name, config=stage)
 
@@ -869,32 +969,34 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
             raise UnknownTargetError(target)
 
         # a subgraph with all the target dependencies
-        if '.' not in target:
+        if "." not in target:
             target = self.make_target_name(target, self[target].head.name)
 
         return self._make_full_pipeline().get_slice(target)
+
 
 class GitWrapper:
     @staticmethod
     def module():
         try:
             import git
+
             return git
         except ModuleNotFoundError as e:
-            raise ModuleNotFoundError("Can't import the 'git' package. "
+            raise ModuleNotFoundError(
+                "Can't import the 'git' package. "
                 "Make sure GitPython is installed, or install it with "
                 "'pip install datumaro[default]'."
             ) from e
 
     def _git_dir(self):
-        return osp.join(self._project_dir, '.git')
+        return osp.join(self._project_dir, ".git")
 
     def __init__(self, project_dir, repo=None):
         self._project_dir = project_dir
         self.repo = repo
 
-        if repo is None and \
-                osp.isdir(project_dir) and osp.isdir(self._git_dir()):
+        if repo is None and osp.isdir(project_dir) and osp.isdir(self._git_dir()):
             self.repo = self.module().Repo(project_dir)
 
     @property
@@ -906,10 +1008,9 @@ class GitWrapper:
             return
 
         repo = self.module().Repo.init(path=self._project_dir)
-        repo.config_writer() \
-            .set_value("user", "name", "User") \
-            .set_value("user", "email", "<>") \
-            .release()
+        repo.config_writer().set_value("user", "name", "User").set_value(
+            "user", "email", "<>"
+        ).release()
 
         # GitPython's init produces an incomplete repo, which becomes normal
         # only after a first commit. Unless the commit is done, some
@@ -951,8 +1052,7 @@ class GitWrapper:
 
             # Only modified files produce conflicts in checkout
             dst_rpath = osp.relpath(dst_dir, repo_dir)
-            conflicts = [osp.join(dst_rpath, p)
-                for p, s in statuses.items() if s == 'M']
+            conflicts = [osp.join(dst_rpath, p) for p, s in statuses.items() if s == "M"]
             if conflicts:
                 raise UnsavedChangesError(conflicts)
 
@@ -974,11 +1074,9 @@ class GitWrapper:
         if base:
             base = osp.abspath(base)
             repo_root = osp.abspath(self._project_dir)
-            assert is_subpath(base, base=repo_root), \
-                "Base path should be inside of the repo"
+            assert is_subpath(base, base=repo_root), "Base path should be inside of the repo"
             base = osp.relpath(base, repo_root)
-            path_rewriter = lambda entry: osp.relpath(entry.path, base) \
-                .replace('\\', '/')
+            path_rewriter = lambda entry: osp.relpath(entry.path, base).replace("\\", "/")
 
         if isinstance(paths, str):
             paths = [paths]
@@ -1004,11 +1102,12 @@ class GitWrapper:
         """
         return self.repo.index.commit(message).hexsha
 
-    GitTree = NewType('GitTree', object)
-    GitStatus = NewType('GitStatus', str)
+    GitTree = NewType("GitTree", object)
+    GitStatus = NewType("GitStatus", str)
 
-    def status(self, paths: Union[str, GitTree, Iterable[str]] = None,
-            base_dir: str = None) -> Dict[str, GitStatus]:
+    def status(
+        self, paths: Union[str, GitTree, Iterable[str]] = None, base_dir: str = None
+    ) -> Dict[str, GitStatus]:
         """
         Compares working directory and index.
 
@@ -1034,7 +1133,7 @@ class GitWrapper:
                 tree = self.repo.head.commit.tree
             else:
                 tree = paths
-            paths = (obj.path for obj in tree.traverse() if obj.type == 'blob')
+            paths = (obj.path for obj in tree.traverse() if obj.type == "blob")
         elif isinstance(paths, str):
             paths = [paths]
 
@@ -1052,19 +1151,18 @@ class GitWrapper:
             index_entry = self.repo.index.entries.get((obj_path, 0), None)
             file_exists = osp.isfile(file_path)
             if not file_exists and index_entry:
-                status = 'D'
+                status = "D"
             elif file_exists and not index_entry:
-                status = 'A'
+                status = "A"
             elif file_exists and index_entry:
                 # '--ignore-cr-at-eol' doesn't affect '--name-status'
                 # so we can't really obtain 'T'
-                status = self.repo.git.diff('--ignore-cr-at-eol',
-                    index_entry.hexsha, file_path)
+                status = self.repo.git.diff("--ignore-cr-at-eol", index_entry.hexsha, file_path)
                 if status:
-                    status = 'M'
-                assert status in {'', 'M', 'T'}, status
+                    status = "M"
+                assert status in {"", "M", "T"}, status
             else:
-                status = '' # ignore missing paths
+                status = ""  # ignore missing paths
 
             if status:
                 statuses[obj_path] = status
@@ -1079,13 +1177,12 @@ class GitWrapper:
             return False
 
     def has_commits(self):
-        return self.is_ref('HEAD')
+        return self.is_ref("HEAD")
 
     def get_tree(self, ref):
         return self.repo.tree(ref)
 
-    def write_tree(self, tree, base_path: str,
-            include_files: Optional[List[str]] = None):
+    def write_tree(self, tree, base_path: str, include_files: Optional[List[str]] = None):
         os.makedirs(base_path, exist_ok=True)
 
         for obj in tree.traverse(visit_once=True):
@@ -1094,14 +1191,15 @@ class GitWrapper:
 
             path = osp.join(base_path, obj.path)
             os.makedirs(osp.dirname(path), exist_ok=True)
-            if obj.type == 'blob':
-                with open(path, 'wb') as f:
+            if obj.type == "blob":
+                with open(path, "wb") as f:
                     obj.stream_data(f)
-            elif obj.type == 'tree':
+            elif obj.type == "tree":
                 pass
             else:
-                raise ValueError("Unexpected object type in a "
-                    "git tree: %s (%s)" % (obj.type, obj.hexsha))
+                raise ValueError(
+                    "Unexpected object type in a " "git tree: %s (%s)" % (obj.type, obj.hexsha)
+                )
 
     @property
     def head(self) -> str:
@@ -1122,17 +1220,19 @@ class GitWrapper:
         obj = self.repo.rev_parse(ref)
         return obj.type, obj.hexsha
 
-    def ignore(self, paths: Union[str, List[str]],
-            mode: Union[None, str, IgnoreMode] = None,
-            gitignore: Optional[str] = None):
+    def ignore(
+        self,
+        paths: Union[str, List[str]],
+        mode: Union[None, str, IgnoreMode] = None,
+        gitignore: Optional[str] = None,
+    ):
         if not gitignore:
-            gitignore = '.gitignore'
+            gitignore = ".gitignore"
         repo_root = self._project_dir
         gitignore = osp.abspath(osp.join(repo_root, gitignore))
         assert is_subpath(gitignore, base=repo_root), gitignore
 
-        _update_ignore_file(paths, repo_root=repo_root,
-            mode=mode, filepath=gitignore)
+        _update_ignore_file(paths, repo_root=repo_root, mode=mode, filepath=gitignore)
 
     HASH_LEN = 40
 
@@ -1150,9 +1250,10 @@ class GitWrapper:
         if not self.has_commits():
             return commits
 
-        for commit in zip(self.repo.iter_commits(rev='HEAD'), range(depth)):
+        for commit in zip(self.repo.iter_commits(rev="HEAD"), range(depth)):
             commits.append(commit)
         return commits
+
 
 class DvcWrapper:
     @staticmethod
@@ -1162,15 +1263,17 @@ class DvcWrapper:
             import dvc.env
             import dvc.main
             import dvc.repo
+
             return dvc
         except ModuleNotFoundError as e:
-            raise ModuleNotFoundError("Can't import the 'dvc' package. "
+            raise ModuleNotFoundError(
+                "Can't import the 'dvc' package. "
                 "Make sure DVC is installed, or install it with "
                 "'pip install datumaro[default]'."
             ) from e
 
     def _dvc_dir(self):
-        return osp.join(self._project_dir, '.dvc')
+        return osp.join(self._project_dir, ".dvc")
 
     class DvcError(Exception):
         pass
@@ -1194,10 +1297,11 @@ class DvcWrapper:
         with logging_disabled():
             self.repo = self.module().repo.Repo.init(self._project_dir)
 
-        repo_dir = osp.join(self._project_dir, '.dvc')
-        _update_ignore_file([osp.join(repo_dir, 'plots')],
-            filepath=osp.join(repo_dir, '.gitignore'),
-            repo_root=repo_dir
+        repo_dir = osp.join(self._project_dir, ".dvc")
+        _update_ignore_file(
+            [osp.join(repo_dir, "plots")],
+            filepath=osp.join(repo_dir, ".gitignore"),
+            repo_root=repo_dir,
         )
 
     def close(self):
@@ -1210,7 +1314,7 @@ class DvcWrapper:
             self.close()
 
     def checkout(self, targets=None):
-        args = ['checkout']
+        args = ["checkout"]
         if targets:
             if isinstance(targets, str):
                 args.append(targets)
@@ -1219,15 +1323,15 @@ class DvcWrapper:
         self._exec(args)
 
     def add(self, paths, dvc_path=None, no_commit=False, allow_external=False):
-        args = ['add']
+        args = ["add"]
         if dvc_path:
-            args.append('--file')
+            args.append("--file")
             args.append(dvc_path)
             os.makedirs(osp.dirname(dvc_path), exist_ok=True)
         if no_commit:
-            args.append('--no-commit')
+            args.append("--no-commit")
         if allow_external:
-            args.append('--external')
+            args.append("--external")
         if paths:
             if isinstance(paths, str):
                 args.append(paths)
@@ -1235,24 +1339,26 @@ class DvcWrapper:
                 args.extend(paths)
         self._exec(args)
 
-    def _exec(self, args, hide_output=True, answer_on_input='y'):
-        args = ['--cd', self._project_dir] + args
+    def _exec(self, args, hide_output=True, answer_on_input="y"):
+        args = ["--cd", self._project_dir] + args
 
         # Avoid calling an extra process. Improves call performance and
         # removes an extra console window on Windows.
-        os.environ[self.module().env.DVC_NO_ANALYTICS] = '1'
+        os.environ[self.module().env.DVC_NO_ANALYTICS] = "1"
 
         with ExitStack() as es:
-            es.callback(os.chdir, os.getcwd()) # restore cd after DVC
+            es.callback(os.chdir, os.getcwd())  # restore cd after DVC
 
             if answer_on_input is not None:
-                def _input(*args): return answer_on_input
-                es.enter_context(unittest.mock.patch(
-                    'dvc.prompt.input', new=_input))
+
+                def _input(*args):
+                    return answer_on_input
+
+                es.enter_context(unittest.mock.patch("dvc.prompt.input", new=_input))
 
             log.debug("Calling DVC main with args: %s", args)
 
-            logs = es.enter_context(catch_logs('dvc'))
+            logs = es.enter_context(catch_logs("dvc"))
             retcode = self.module().main.main(args)
 
         logs = logs.getvalue()
@@ -1270,7 +1376,7 @@ class DvcWrapper:
         if obj_hash.endswith(self.DIR_HASH_SUFFIX):
             objects = parse_json_file(path)
             for entry in objects:
-                if not osp.isfile(self.obj_path(entry['md5'])):
+                if not osp.isfile(self.obj_path(entry["md5"])):
                     return False
 
         return True
@@ -1278,34 +1384,36 @@ class DvcWrapper:
     def obj_path(self, obj_hash, root=None):
         assert self.is_hash(obj_hash), obj_hash
         if not root:
-            root = osp.join(self._project_dir, '.dvc', 'cache')
+            root = osp.join(self._project_dir, ".dvc", "cache")
         return osp.join(root, obj_hash[:2], obj_hash[2:])
 
-    def ignore(self, paths: Union[str, List[str]],
-            mode: Union[None, str, IgnoreMode] = None,
-            dvcignore: Optional[str] = None):
+    def ignore(
+        self,
+        paths: Union[str, List[str]],
+        mode: Union[None, str, IgnoreMode] = None,
+        dvcignore: Optional[str] = None,
+    ):
         if not dvcignore:
-            dvcignore = '.dvcignore'
+            dvcignore = ".dvcignore"
         repo_root = self._project_dir
         dvcignore = osp.abspath(osp.join(repo_root, dvcignore))
         assert is_subpath(dvcignore, base=repo_root), dvcignore
 
-        _update_ignore_file(paths, repo_root=repo_root,
-            mode=mode, filepath=dvcignore)
+        _update_ignore_file(paths, repo_root=repo_root, mode=mode, filepath=dvcignore)
 
     # This ruamel parser is needed to preserve comments,
     # order and form (if multiple forms allowed by the standard)
     # of the entries in the file. It can be reused.
-    yaml_parser = yaml.YAML(typ='rt')
+    yaml_parser = yaml.YAML(typ="rt")
 
     @classmethod
     def get_hash_from_dvcfile(cls, path) -> str:
         with open(path) as f:
             contents = cls.yaml_parser.load(f)
-        return contents['outs'][0]['md5']
+        return contents["outs"][0]["md5"]
 
     FILE_HASH_LEN = 32
-    DIR_HASH_SUFFIX = '.dir'
+    DIR_HASH_SUFFIX = ".dir"
     DIR_HASH_LEN = FILE_HASH_LEN + len(DIR_HASH_SUFFIX)
 
     @classmethod
@@ -1339,8 +1447,9 @@ class DvcWrapper:
 
         src_meta = parse_json_file(src)
         for entry in src_meta:
-            _copy_obj(self.obj_path(entry['md5']),
-                osp.join(dst_dir, entry['relpath']), link=allow_links)
+            _copy_obj(
+                self.obj_path(entry["md5"]), osp.join(dst_dir, entry["relpath"]), link=allow_links
+            )
 
     def remove_cache_obj(self, obj_hash: str):
         src = self.obj_path(obj_hash)
@@ -1354,28 +1463,33 @@ class DvcWrapper:
 
         src_meta = parse_json_file(src)
         for entry in src_meta:
-            entry_path = self.obj_path(entry['md5'])
+            entry_path = self.obj_path(entry["md5"])
             if osp.isfile(entry_path):
                 rmfile(entry_path)
 
         rmfile(src)
+
 
 class Tree:
     # can be:
     # - attached to the work dir
     # - attached to a revision
 
-    def __init__(self, project: Project,
-            config: Union[None, Dict, Config, TreeConfig] = None,
-            rev: Union[None, Revision] = None):
+    def __init__(
+        self,
+        project: Project,
+        config: Union[None, Dict, Config, TreeConfig] = None,
+        rev: Union[None, Revision] = None,
+    ):
         assert isinstance(project, Project)
         assert not rev or project.is_ref(rev), rev
 
         if not isinstance(config, TreeConfig):
             config = TreeConfig(config)
         if config.format_version != 2:
-            raise ValueError("Unexpected tree config version '%s', expected 2" %
-                config.format_version)
+            raise ValueError(
+                "Unexpected tree config version '%s', expected 2" % config.format_version
+            )
         self._config = config
 
         self._project = project
@@ -1416,12 +1530,11 @@ class Tree:
 
     def make_pipeline(self, target: Optional[str] = None) -> Pipeline:
         if not target:
-            target = 'project'
+            target = "project"
 
         return self.build_targets.make_pipeline(target)
 
-    def make_dataset(self,
-            target: Union[None, str, Pipeline] = None) -> Dataset:
+    def make_dataset(self, target: Union[None, str, Pipeline] = None) -> Dataset:
         if not target or isinstance(target, str):
             pipeline = self.make_pipeline(target)
         elif isinstance(target, Pipeline):
@@ -1450,8 +1563,10 @@ class DiffStatus(Enum):
     missing = auto()
     foreign_modified = auto()
 
-Revision = NewType('Revision', str) # a commit hash or a named reference
-ObjectId = NewType('ObjectId', str) # a commit or an object hash
+
+Revision = NewType("Revision", str)  # a commit hash or a named reference
+ObjectId = NewType("ObjectId", str)  # a commit or an object hash
+
 
 class Project:
     @staticmethod
@@ -1468,8 +1583,7 @@ class Project:
 
     @staticmethod
     @scoped
-    def migrate_from_v1_to_v2(src_dir: str, dst_dir: str,
-            skip_import_errors=False):
+    def migrate_from_v1_to_v2(src_dir: str, dst_dir: str, skip_import_errors=False):
         if not osp.isdir(src_dir):
             raise FileNotFoundError("Source project is not found")
 
@@ -1479,51 +1593,49 @@ class Project:
         src_dir = osp.abspath(src_dir)
         dst_dir = osp.abspath(dst_dir)
         if src_dir == dst_dir:
-            raise MigrationError("Source and destination paths are the same. "
-                "Project migration cannot be done inplace.")
+            raise MigrationError(
+                "Source and destination paths are the same. "
+                "Project migration cannot be done inplace."
+            )
 
-        old_aux_dir = osp.join(src_dir, '.datumaro')
-        old_config = Config.parse(osp.join(old_aux_dir, 'config.yaml'))
+        old_aux_dir = osp.join(src_dir, ".datumaro")
+        old_config = Config.parse(osp.join(old_aux_dir, "config.yaml"))
         if old_config.format_version != 1:
-            raise MigrationError("Failed to migrate project: "
-                "unexpected old version '%s'" % \
-                old_config.format_version)
+            raise MigrationError(
+                "Failed to migrate project: "
+                "unexpected old version '%s'" % old_config.format_version
+            )
 
         on_error_do(rmtree, dst_dir, ignore_errors=True)
         new_project = scope_add(Project.init(dst_dir))
 
-        new_wtree_dir = osp.join(new_project._aux_dir,
-            ProjectLayout.working_tree_dir)
+        new_wtree_dir = osp.join(new_project._aux_dir, ProjectLayout.working_tree_dir)
         os.makedirs(new_wtree_dir, exist_ok=True)
 
-        old_plugins_dir = osp.join(old_aux_dir, 'plugins')
+        old_plugins_dir = osp.join(old_aux_dir, "plugins")
         if osp.isdir(old_plugins_dir):
-            copytree(old_plugins_dir,
-                osp.join(new_project._aux_dir, ProjectLayout.plugins_dir))
+            copytree(old_plugins_dir, osp.join(new_project._aux_dir, ProjectLayout.plugins_dir))
 
-        old_models_dir = osp.join(old_aux_dir, 'models')
+        old_models_dir = osp.join(old_aux_dir, "models")
         if osp.isdir(old_models_dir):
-            copytree(old_models_dir,
-                osp.join(new_project._aux_dir, ProjectLayout.models_dir))
+            copytree(old_models_dir, osp.join(new_project._aux_dir, ProjectLayout.models_dir))
 
-        new_project.env.load_plugins(
-            osp.join(new_project._aux_dir, ProjectLayout.plugins_dir))
+        new_project.env.load_plugins(osp.join(new_project._aux_dir, ProjectLayout.plugins_dir))
 
         new_tree_config = new_project.working_tree.config
         new_local_config = new_project.config
 
-        if 'models' in old_config:
+        if "models" in old_config:
             for name, old_model in old_config.models.items():
-                new_local_config.models[name] = Model({
-                    'launcher': old_model['launcher'],
-                    'options': old_model['options']
-                })
+                new_local_config.models[name] = Model(
+                    {"launcher": old_model["launcher"], "options": old_model["options"]}
+                )
 
-        if 'sources' in old_config:
+        if "sources" in old_config:
             for name, old_source in old_config.sources.items():
                 is_local = False
-                source_dir = osp.join(src_dir, 'sources', name)
-                url = osp.abspath(osp.join(source_dir, old_source['url']))
+                source_dir = osp.join(src_dir, "sources", name)
+                url = osp.abspath(osp.join(source_dir, old_source["url"]))
                 rpath = None
                 if osp.exists(url):
                     if is_subpath(url, source_dir):
@@ -1533,41 +1645,46 @@ class Project:
                         is_local = True
                     elif osp.isfile(url):
                         url, rpath = osp.split(url)
-                elif not old_source['url']:
-                    url = ''
+                elif not old_source["url"]:
+                    url = ""
 
                 try:
-                    source = new_project.import_source(name,
-                        url=url, rpath=rpath, format=old_source['format'],
-                        options=old_source['options'])
+                    source = new_project.import_source(
+                        name,
+                        url=url,
+                        rpath=rpath,
+                        format=old_source["format"],
+                        options=old_source["options"],
+                    )
                     if is_local:
-                        source.url = ''
+                        source.url = ""
 
                     new_project.working_tree.make_dataset(name)
                 except Exception as e:
                     if not skip_import_errors:
-                        raise MigrationError(
-                            f"Failed to migrate the source '{name}'") from e
+                        raise MigrationError(f"Failed to migrate the source '{name}'") from e
                     else:
-                        log.warning(f"Failed to migrate the source '{name}'. "
+                        log.warning(
+                            f"Failed to migrate the source '{name}'. "
                             "Try to add this source manually with "
                             "'datum import', once migration is finished. The "
-                            "reason is: %s", e)
-                        new_project.remove_source(name,
-                            force=True, keep_data=False)
+                            "reason is: %s",
+                            e,
+                        )
+                        new_project.remove_source(name, force=True, keep_data=False)
 
-        old_dataset_dir = osp.join(src_dir, 'dataset')
+        old_dataset_dir = osp.join(src_dir, "dataset")
         if osp.isdir(old_dataset_dir):
             # Such source cannot be represented in v2 directly.
             # However, it can be considered a generated source with
             # working tree data.
-            name = generate_next_name(list(new_tree_config.sources),
-                'local_dataset', sep='-', default='1')
-            source = new_project.import_source(name, url=old_dataset_dir,
-                format=DEFAULT_FORMAT)
+            name = generate_next_name(
+                list(new_tree_config.sources), "local_dataset", sep="-", default="1"
+            )
+            source = new_project.import_source(name, url=old_dataset_dir, format=DEFAULT_FORMAT)
 
             # Make the source generated. It can only have local data.
-            source.url = ''
+            source.url = ""
 
         new_project.save()
         new_project.close()
@@ -1579,7 +1696,7 @@ class Project:
         if not found_path:
             raise ProjectNotFoundError(path)
 
-        old_config_path = osp.join(found_path, 'config.yaml')
+        old_config_path = osp.join(found_path, "config.yaml")
         if osp.isfile(old_config_path):
             if Config.parse(old_config_path).format_version != 2:
                 raise OldProjectError()
@@ -1618,20 +1735,25 @@ class Project:
         # DVC requires Git to be initialized
         if not self._git.initialized:
             self._git.init()
-            self._git.ignore([
-                ProjectLayout.cache_dir,
-            ], gitignore=osp.join(self._aux_dir, '.gitignore'))
-            self._git.ignore([]) # create the file
+            self._git.ignore(
+                [
+                    ProjectLayout.cache_dir,
+                ],
+                gitignore=osp.join(self._aux_dir, ".gitignore"),
+            )
+            self._git.ignore([])  # create the file
         if not self._dvc.initialized:
             self._dvc.init()
-            self._dvc.ignore([
-                osp.join(self._aux_dir, ProjectLayout.cache_dir),
-                osp.join(self._aux_dir, ProjectLayout.working_tree_dir),
-            ])
+            self._dvc.ignore(
+                [
+                    osp.join(self._aux_dir, ProjectLayout.cache_dir),
+                    osp.join(self._aux_dir, ProjectLayout.working_tree_dir),
+                ]
+            )
             self._git.repo.index.remove(
-                osp.join(self._root_dir, '.dvc', 'plots'), r=True,
-                    ignore_unmatch=True)
-        self.commit('Initial commit', allow_empty=True)
+                osp.join(self._root_dir, ".dvc", "plots"), r=True, ignore_unmatch=True
+            )
+        self.commit("Initial commit", allow_empty=True)
 
     @classmethod
     @scoped
@@ -1650,15 +1772,13 @@ class Project:
 
         os.makedirs(path, exist_ok=True)
 
-        on_error_do(rmtree, osp.join(project_dir, ProjectLayout.cache_dir),
-            ignore_errors=True)
-        on_error_do(rmtree, osp.join(project_dir, ProjectLayout.tmp_dir),
-            ignore_errors=True)
+        on_error_do(rmtree, osp.join(project_dir, ProjectLayout.cache_dir), ignore_errors=True)
+        on_error_do(rmtree, osp.join(project_dir, ProjectLayout.tmp_dir), ignore_errors=True)
         os.makedirs(osp.join(path, ProjectLayout.cache_dir))
         os.makedirs(osp.join(path, ProjectLayout.tmp_dir))
 
-        on_error_do(rmtree, osp.join(project_dir, '.git'), ignore_errors=True)
-        on_error_do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True)
+        on_error_do(rmtree, osp.join(project_dir, ".git"), ignore_errors=True)
+        on_error_do(rmtree, osp.join(project_dir, ".dvc"), ignore_errors=True)
         project = Project(path)
         project._init_vcs()
 
@@ -1704,7 +1824,7 @@ class Project:
     @property
     def head(self) -> Tree:
         if self._head_tree is None:
-            self._head_tree = self.get_rev('HEAD')
+            self._head_tree = self.get_rev("HEAD")
         return self._head_tree
 
     @property
@@ -1738,8 +1858,9 @@ class Project:
         assert obj_type == self._ObjectIdKind.tree, obj_type
 
         if self._is_working_tree_ref(obj_hash):
-            config_path = osp.join(self._aux_dir,
-                ProjectLayout.working_tree_dir, TreeLayout.conf_file)
+            config_path = osp.join(
+                self._aux_dir, ProjectLayout.working_tree_dir, TreeLayout.conf_file
+            )
             if osp.isfile(config_path):
                 tree_config = TreeConfig.parse(config_path)
             else:
@@ -1754,8 +1875,7 @@ class Project:
                 self._materialize_rev(obj_hash)
 
             rev_dir = self.cache_path(obj_hash)
-            tree_config = TreeConfig.parse(osp.join(rev_dir,
-                TreeLayout.conf_file))
+            tree_config = TreeConfig.parse(osp.join(rev_dir, TreeLayout.conf_file))
             tree_config.base_dir = rev_dir
             tree = Tree(config=tree_config, project=self, rev=obj_hash)
         return tree
@@ -1766,8 +1886,7 @@ class Project:
         return self._is_cached(obj_hash)
 
     def is_obj_cached(self, obj_hash: ObjectId) -> bool:
-        return self._is_cached(obj_hash) or \
-            self._can_retrieve_from_vcs_cache(obj_hash)
+        return self._is_cached(obj_hash) or self._can_retrieve_from_vcs_cache(obj_hash)
 
     @staticmethod
     def _is_working_tree_ref(ref: Union[None, Revision, ObjectId]) -> bool:
@@ -1780,8 +1899,7 @@ class Project:
         # Source revision data. DVC directories and files.
         blob = auto()
 
-    def _parse_ref(self, ref: Union[None, Revision, ObjectId]) \
-            -> Tuple[_ObjectIdKind, ObjectId]:
+    def _parse_ref(self, ref: Union[None, Revision, ObjectId]) -> Tuple[_ObjectIdKind, ObjectId]:
         """
         Resolves the reference to an object hash.
         """
@@ -1792,9 +1910,9 @@ class Project:
         try:
             obj_type, obj_hash = self._git.rev_parse(ref)
         except Exception:  # nosec - B110:try_except_pass
-            pass # Ignore git errors
+            pass  # Ignore git errors
         else:
-            if obj_type != 'commit':
+            if obj_type != "commit":
                 raise UnknownRefError(obj_hash)
 
             return self._ObjectIdKind.tree, obj_hash
@@ -1831,15 +1949,13 @@ class Project:
     def cache_path(self, obj_hash: ObjectId) -> str:
         assert self._git.is_hash(obj_hash) or self._dvc.is_hash(obj_hash), obj_hash
         if self._dvc.is_dir_hash(obj_hash):
-            obj_hash = obj_hash[:self._dvc.FILE_HASH_LEN]
+            obj_hash = obj_hash[: self._dvc.FILE_HASH_LEN]
 
-        return osp.join(self._aux_dir, ProjectLayout.cache_dir,
-            obj_hash[:2], obj_hash[2:])
+        return osp.join(self._aux_dir, ProjectLayout.cache_dir, obj_hash[:2], obj_hash[2:])
 
     def _can_retrieve_from_vcs_cache(self, obj_hash: ObjectId):
         if not self._dvc.is_dir_hash(obj_hash):
-            dir_check = self._dvc.is_cached(
-                obj_hash + self._dvc.DIR_HASH_SUFFIX)
+            dir_check = self._dvc.is_cached(obj_hash + self._dvc.DIR_HASH_SUFFIX)
         else:
             dir_check = False
         return dir_check or self._dvc.is_cached(obj_hash)
@@ -1847,8 +1963,7 @@ class Project:
     def source_data_dir(self, name: str) -> str:
         return osp.join(self._root_dir, name)
 
-    def _source_dvcfile_path(self, name: str,
-            root: Optional[str] = None) -> str:
+    def _source_dvcfile_path(self, name: str, root: Optional[str] = None) -> str:
         """
         root - Path to the tree root directory. If not set,
             the working tree is used.
@@ -1856,13 +1971,13 @@ class Project:
 
         if not root:
             root = osp.join(self._aux_dir, ProjectLayout.working_tree_dir)
-        return osp.join(root, TreeLayout.sources_dir, name, 'source.dvc')
+        return osp.join(root, TreeLayout.sources_dir, name, "source.dvc")
 
     def _make_tmp_dir(self, suffix: Optional[str] = None):
         project_tmp_dir = osp.join(self._aux_dir, ProjectLayout.tmp_dir)
         os.makedirs(project_tmp_dir, exist_ok=True)
         if suffix:
-            suffix = '_' + suffix
+            suffix = "_" + suffix
 
         return tempfile.TemporaryDirectory(suffix=suffix, dir=project_tmp_dir)
 
@@ -1893,30 +2008,30 @@ class Project:
         disallowed_symbols = r"[^\\ \.\~\-\w]"
         found_wrong_symbols = re.findall(disallowed_symbols, name)
         if found_wrong_symbols:
-            raise ValueError("Source name contains invalid symbols: %s" %
-                found_wrong_symbols)
+            raise ValueError("Source name contains invalid symbols: %s" % found_wrong_symbols)
 
         valid_filename = make_file_name(name)
         if valid_filename != name:
-            raise ValueError("Source name contains "
-                "invalid symbols: %s" % (set(name) - set(valid_filename)) )
+            raise ValueError(
+                "Source name contains " "invalid symbols: %s" % (set(name) - set(valid_filename))
+            )
 
-        if name.startswith('.'):
+        if name.startswith("."):
             raise ValueError("Source name can't start with '.'")
 
-        reserved_names = {'dataset', 'build', 'project'}
+        reserved_names = {"dataset", "build", "project"}
         if name.lower() in reserved_names:
             raise ValueError("Source name is reserved for internal use")
 
     @scoped
-    def _download_source(self, url: str, dst_dir: str, *,
-            no_cache: bool = False, no_hash: bool = False) \
-                -> Tuple[str, str, str]:
+    def _download_source(
+        self, url: str, dst_dir: str, *, no_cache: bool = False, no_hash: bool = False
+    ) -> Tuple[str, str, str]:
         assert url
         assert dst_dir
 
-        dvcfile = osp.join(dst_dir, 'source.dvc')
-        data_dir = osp.join(dst_dir, 'data')
+        dvcfile = osp.join(dst_dir, "source.dvc")
+        data_dir = osp.join(dst_dir, "data")
 
         log.debug(f"Copying from '{url}' to '{data_dir}'")
 
@@ -1932,13 +2047,14 @@ class Project:
         log.debug("Done")
 
         if not no_hash:
-            obj_hash = self.compute_source_hash(data_dir,
-                dvcfile=dvcfile, no_cache=no_cache, allow_external=True)
+            obj_hash = self.compute_source_hash(
+                data_dir, dvcfile=dvcfile, no_cache=no_cache, allow_external=True
+            )
             if not no_cache:
                 log.debug("Data is added to DVC cache")
             log.debug("Data hash: '%s'", obj_hash)
         else:
-            obj_hash = ''
+            obj_hash = ""
 
         return obj_hash, dvcfile, data_dir
 
@@ -1946,23 +2062,26 @@ class Project:
     def _get_source_hash(dvcfile):
         obj_hash = DvcWrapper.get_hash_from_dvcfile(dvcfile)
         if obj_hash.endswith(DvcWrapper.DIR_HASH_SUFFIX):
-            obj_hash = obj_hash[:-len(DvcWrapper.DIR_HASH_SUFFIX)]
+            obj_hash = obj_hash[: -len(DvcWrapper.DIR_HASH_SUFFIX)]
         return obj_hash
 
     @scoped
-    def compute_source_hash(self, data_dir: str, dvcfile: Optional[str] = None,
-            no_cache: bool = True, allow_external: bool = True) -> ObjectId:
+    def compute_source_hash(
+        self,
+        data_dir: str,
+        dvcfile: Optional[str] = None,
+        no_cache: bool = True,
+        allow_external: bool = True,
+    ) -> ObjectId:
         if not dvcfile:
             tmp_dir = scope_add(self._make_tmp_dir())
-            dvcfile = osp.join(tmp_dir, 'source.dvc')
+            dvcfile = osp.join(tmp_dir, "source.dvc")
 
-        self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache,
-            allow_external=allow_external)
+        self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache, allow_external=allow_external)
         obj_hash = self._get_source_hash(dvcfile)
         return obj_hash
 
-    def refresh_source_hash(self, source: str,
-            no_cache: bool = True) -> ObjectId:
+    def refresh_source_hash(self, source: str, no_cache: bool = True) -> ObjectId:
         """
         Computes and updates the source hash in the working directory.
 
@@ -1980,8 +2099,7 @@ class Project:
 
         dvcfile = self._source_dvcfile_path(source)
         os.makedirs(osp.dirname(dvcfile), exist_ok=True)
-        obj_hash = self.compute_source_hash(source_dir,
-            dvcfile=dvcfile, no_cache=no_cache)
+        obj_hash = self.compute_source_hash(source_dir, dvcfile=dvcfile, no_cache=no_cache)
 
         build_target.head.hash = obj_hash
         if not build_target.has_stages:
@@ -2012,10 +2130,17 @@ class Project:
         return dst_dir
 
     @scoped
-    def import_source(self, name: str, url: Optional[str],
-            format: str, options: Optional[Dict] = None, *,
-            no_cache: bool = True, no_hash: bool = True,
-            rpath: Optional[str] = None) -> Source:
+    def import_source(
+        self,
+        name: str,
+        url: Optional[str],
+        format: str,
+        options: Optional[Dict] = None,
+        *,
+        no_cache: bool = True,
+        no_hash: bool = True,
+        rpath: Optional[str] = None,
+    ) -> Source:
         """
         Adds a new source (dataset) to the working directory of the project.
 
@@ -2050,8 +2175,7 @@ class Project:
         data_dir = self.source_data_dir(name)
         if osp.exists(data_dir):
             if os.listdir(data_dir):
-                raise FileExistsError("Source directory '%s' already "
-                    "exists" % data_dir)
+                raise FileExistsError("Source directory '%s' already " "exists" % data_dir)
             os.rmdir(data_dir)
 
         if url:
@@ -2071,7 +2195,8 @@ class Project:
                 if not is_subpath(rpath, base=url):
                     raise PathOutsideSourceError(
                         "Source data path is outside of the directory, "
-                        "specified by source URL: '%s', '%s'" % (rpath, url))
+                        "specified by source URL: '%s', '%s'" % (rpath, url)
+                    )
 
                 rpath = osp.relpath(rpath, url)
             elif osp.isfile(url):
@@ -2082,28 +2207,30 @@ class Project:
         if no_hash:
             no_cache = True
 
-        config = Source({
-            'url': (url or '').replace('\\', '/'),
-            'path': (rpath or '').replace('\\', '/'),
-            'format': format,
-            'options': options or {},
-        })
+        config = Source(
+            {
+                "url": (url or "").replace("\\", "/"),
+                "path": (rpath or "").replace("\\", "/"),
+                "format": format,
+                "options": options or {},
+            }
+        )
 
         if not config.is_generated:
             dvcfile = self._source_dvcfile_path(name)
             os.makedirs(osp.dirname(dvcfile), exist_ok=True)
 
             with self._make_tmp_dir() as tmp_dir:
-                obj_hash, tmp_dvcfile, tmp_data_dir = \
-                    self._download_source(url, tmp_dir,
-                        no_cache=no_cache, no_hash=no_hash)
+                obj_hash, tmp_dvcfile, tmp_data_dir = self._download_source(
+                    url, tmp_dir, no_cache=no_cache, no_hash=no_hash
+                )
 
                 shutil.move(tmp_data_dir, data_dir)
                 on_error_do(rmtree, data_dir)
 
                 if not no_hash:
                     os.replace(tmp_dvcfile, dvcfile)
-                    config['hash'] = obj_hash
+                    config["hash"] = obj_hash
 
         self._git.ignore([data_dir])
 
@@ -2116,9 +2243,9 @@ class Project:
         return config
 
     @scoped
-    def add_source(self, path: str,
-            format: str, options: Optional[Dict] = None, *,
-            rpath: Optional[str] = None) -> Tuple[str, Source]:
+    def add_source(
+        self, path: str, format: str, options: Optional[Dict] = None, *, rpath: Optional[str] = None
+    ) -> Tuple[str, Source]:
         """
         Adds a new source (dataset) from the working directory of the project.
 
@@ -2157,10 +2284,10 @@ class Project:
         if not osp.isdir(path):
             raise FileNotFoundError("Source directory '%s' is not found" % path)
 
-        if not (is_subpath(path, base=self._root_dir) and \
-                osp.dirname(path) == self._root_dir):
-            raise UnexpectedUrlError("The source path is expected to be "
-                "a directory in the project root")
+        if not (is_subpath(path, base=self._root_dir) and osp.dirname(path) == self._root_dir):
+            raise UnexpectedUrlError(
+                "The source path is expected to be " "a directory in the project root"
+            )
 
         if rpath:
             rpath = osp.normpath(osp.join(path, rpath))
@@ -2171,7 +2298,8 @@ class Project:
             if not is_subpath(rpath, base=path):
                 raise PathOutsideSourceError(
                     "Source data path is outside of the directory, "
-                    "specified by source URL: '%s', '%s'" % (rpath, path))
+                    "specified by source URL: '%s', '%s'" % (rpath, path)
+                )
 
             rpath = osp.relpath(rpath, path)
         else:
@@ -2179,20 +2307,22 @@ class Project:
 
         self._git.ignore([path])
 
-        config = self.working_tree.sources.add(name, {
-            'url': (path or '').replace('\\', '/'),
-            'path': (rpath or '').replace('\\', '/'),
-            'format': format,
-            'options': options or {},
-        })
+        config = self.working_tree.sources.add(
+            name,
+            {
+                "url": (path or "").replace("\\", "/"),
+                "path": (rpath or "").replace("\\", "/"),
+                "format": format,
+                "options": options or {},
+            },
+        )
         self.working_tree.build_targets.add_target(name)
 
         self.working_tree.save()
 
         return name, config
 
-    def remove_source(self, name: str, *,
-            force: bool = False, keep_data: bool = True):
+    def remove_source(self, name: str, *, force: bool = False, keep_data: bool = True):
         """
         Options:
             - force (bool) - ignores errors and tries to wipe remaining data
@@ -2226,10 +2356,16 @@ class Project:
 
         self.working_tree.save()
 
-        self._git.ignore([data_dir], mode='remove')
+        self._git.ignore([data_dir], mode="remove")
 
-    def commit(self, message: str, *, no_cache: bool = False,
-            allow_empty: bool = False, allow_foreign: bool = False) -> Revision:
+    def commit(
+        self,
+        message: str,
+        *,
+        no_cache: bool = False,
+        allow_empty: bool = False,
+        allow_foreign: bool = False,
+    ) -> Revision:
         """
         Copies tree and objects from the working dir to the cache.
         Creates a new commit. Moves the HEAD pointer to the new commit.
@@ -2256,14 +2392,18 @@ class Project:
             if s == DiffStatus.foreign_modified:
                 # TODO: compute a patch and a new stage, remove allow_foreign
                 if allow_foreign:
-                    log.warning("The source '%s' has been changed "
+                    log.warning(
+                        "The source '%s' has been changed "
                         "without Datumaro. It will be saved, but it will "
-                        "only be available for reproduction from the cache.", t)
+                        "only be available for reproduction from the cache.",
+                        t,
+                    )
                 else:
                     raise ForeignChangesError(
                         "The source '%s' is changed outside Datumaro. You can "
                         "restore the latest source revision with 'checkout' "
-                        "command." % t)
+                        "command." % t
+                    )
 
         for s in self.working_tree.sources:
             self.refresh_source_hash(s, no_cache=no_cache)
@@ -2273,11 +2413,11 @@ class Project:
         self._git.add(wtree_dir, base=wtree_dir)
 
         extra_files = [
-            osp.join(self._root_dir, '.dvc', '.gitignore'),
-            osp.join(self._root_dir, '.dvc', 'config'),
-            osp.join(self._root_dir, '.dvcignore'),
-            osp.join(self._root_dir, '.gitignore'),
-            osp.join(self._aux_dir, '.gitignore'),
+            osp.join(self._root_dir, ".dvc", ".gitignore"),
+            osp.join(self._root_dir, ".dvc", "config"),
+            osp.join(self._root_dir, ".dvcignore"),
+            osp.join(self._root_dir, ".gitignore"),
+            osp.join(self._aux_dir, ".gitignore"),
         ]
         self._git.add(extra_files, base=self._root_dir)
 
@@ -2297,12 +2437,16 @@ class Project:
 
     @staticmethod
     def _move_dvc_dir(src_dir, dst_dir):
-        for name in {'config', '.gitignore'}:
+        for name in {"config", ".gitignore"}:
             os.replace(osp.join(src_dir, name), osp.join(dst_dir, name))
 
-    def checkout(self, rev: Union[None, Revision] = None,
-            sources: Union[None, str, Iterable[str]] = None, *,
-            force: bool = False):
+    def checkout(
+        self,
+        rev: Union[None, Revision] = None,
+        sources: Union[None, str, Iterable[str]] = None,
+        *,
+        force: bool = False,
+    ):
         """
         Copies tree and objects from the cache to the working tree.
 
@@ -2327,7 +2471,7 @@ class Project:
         else:
             sources = set(sources)
 
-        rev = rev or 'HEAD'
+        rev = rev or "HEAD"
 
         MediaManager.get_instance().clear()
 
@@ -2346,13 +2490,13 @@ class Project:
                 for s in sources:
                     dvcfile = self._source_dvcfile_path(s, root=rev_dir)
 
-                    tmp_dvcfile = osp.join(tmp_dir, s + '.dvc')
+                    tmp_dvcfile = osp.join(tmp_dir, s + ".dvc")
                     with open(dvcfile) as f:
                         conf = self._dvc.yaml_parser.load(f)
 
-                    conf['wdir'] = self._root_dir
+                    conf["wdir"] = self._root_dir
 
-                    with open(tmp_dvcfile, 'w') as f:
+                    with open(tmp_dvcfile, "w") as f:
                         self._dvc.yaml_parser.dump(conf, f)
 
                     dvcfiles.append(tmp_dvcfile)
@@ -2362,10 +2506,8 @@ class Project:
             self._git.ignore(sources)
 
             for s in sources:
-                self.working_tree.config.sources[s] = \
-                    rev_tree.config.sources[s]
-                self.working_tree.config.build_targets[s] = \
-                    rev_tree.config.build_targets[s]
+                self.working_tree.config.sources[s] = rev_tree.config.sources[s]
+                self.working_tree.config.build_targets[s] = rev_tree.config.build_targets[s]
 
             self.working_tree.save()
         else:
@@ -2374,8 +2516,7 @@ class Project:
             # write revision tree to working tree
             wtree_dir = osp.join(self._aux_dir, ProjectLayout.working_tree_dir)
             self._git.checkout(rev, dst_dir=wtree_dir, clean=True, force=force)
-            self._move_dvc_dir(osp.join(wtree_dir, '.dvc'),
-                               osp.join(self._root_dir, '.dvc'))
+            self._move_dvc_dir(osp.join(wtree_dir, ".dvc"), osp.join(self._root_dir, ".dvc"))
 
             self._working_tree = None
 
@@ -2390,23 +2531,21 @@ class Project:
                 for s in rev_tree.sources:
                     dvcfile = self._source_dvcfile_path(s)
 
-                    tmp_dvcfile = osp.join(tmp_dir, s + '.dvc')
+                    tmp_dvcfile = osp.join(tmp_dir, s + ".dvc")
                     with open(dvcfile) as f:
                         conf = self._dvc.yaml_parser.load(f)
 
-                    conf['wdir'] = self._root_dir
+                    conf["wdir"] = self._root_dir
 
-                    with open(tmp_dvcfile, 'w') as f:
+                    with open(tmp_dvcfile, "w") as f:
                         self._dvc.yaml_parser.dump(conf, f)
 
                     dvcfiles.append(tmp_dvcfile)
 
                 self._dvc.checkout(dvcfiles)
 
-            os.replace(osp.join(wtree_dir, '.gitignore'),
-                       osp.join(self._root_dir, '.gitignore'))
-            os.replace(osp.join(wtree_dir, '.dvcignore'),
-                       osp.join(self._root_dir, '.dvcignore'))
+            os.replace(osp.join(wtree_dir, ".gitignore"), osp.join(self._root_dir, ".gitignore"))
+            os.replace(osp.join(wtree_dir, ".dvcignore"), osp.join(self._root_dir, ".dvcignore"))
 
         self._working_tree = None
 
@@ -2422,8 +2561,7 @@ class Project:
         wd = self.working_tree
 
         if not self.has_commits():
-            return { s: DiffStatus.added for s in wd.sources }
-
+            return {s: DiffStatus.added for s in wd.sources}
 
         head = self.head
 
@@ -2469,8 +2607,9 @@ class Project:
     def history(self, max_count=10) -> List[Tuple[Revision, str]]:
         return [(c.hexsha, c.message) for c, _ in self._git.log(max_count)]
 
-    def diff(self, rev_a: Union[Tree, Revision],
-            rev_b: Union[Tree, Revision]) -> Dict[str, DiffStatus]:
+    def diff(
+        self, rev_a: Union[Tree, Revision], rev_b: Union[Tree, Revision]
+    ) -> Dict[str, DiffStatus]:
         """
         Compares 2 revision trees.
 
@@ -2489,7 +2628,6 @@ class Project:
             tree_b = self.get_rev(rev_b)
         else:
             tree_b = rev_b
-
 
         changed_targets = {}
 
@@ -2523,11 +2661,9 @@ class Project:
         model_dir = self.model_data_dir(name)
         if not osp.isdir(model_dir):
             model_dir = None
-        return self._env.make_launcher(model.launcher,
-            **model.options, model_dir=model_dir)
+        return self._env.make_launcher(model.launcher, **model.options, model_dir=model_dir)
 
-    def add_model(self, name: str, launcher: str,
-            options: Dict[str, Any] = None) -> Model:
+    def add_model(self, name: str, launcher: str, options: Dict[str, Any] = None) -> Model:
         if self.readonly:
             raise ReadonlyProjectError()
 
@@ -2540,10 +2676,7 @@ class Project:
         if name in self.models:
             raise KeyError("Model '%s' already exists" % name)
 
-        return self._config.models.set(name, {
-            'launcher': launcher,
-            'options': options or {}
-        })
+        return self._config.models.set(name, {"launcher": launcher, "options": options or {}})
 
     def remove_model(self, name: str):
         if self.readonly:

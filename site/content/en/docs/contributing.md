@@ -67,51 +67,9 @@ import datumaro
 
 Try to be readable and consistent with the existing codebase.
 
-The project mostly follows PEP8 with little differences.
-Continuation lines have a standard indentation step by default,
-or any other, if it improves readability. For long conditionals use 2 steps.
-No trailing whitespaces, 80 characters per line.
-
-Example:
-
-```python
-def do_important_work(parameter1, parameter2, parameter3,
-        option1=None, option2=None, option3=None) -> str:
-    """
-    Optional description. Mandatory for API.
-    Use comments for implementation specific information, use docstrings
-    to give information to user / developer.
-
-    Returns: status (str) - Possible values: 'done', 'failed'
-    """
-
-    ... do stuff ...
-
-    # Use +1 level of indentation for continuation lines
-    variable_with_a_long_but_meaningful_name = \
-        function_with_a_long_but_meaningful_name(arg1, arg2, arg3,
-            kwarg1=value_with_a_long_name, kwarg2=value_with_a_long_name)
-
-    # long conditions, loops, with etc. also use +1 level of indentation
-    if condition1 and long_condition2 or \
-            not condition3 and condition4 and condition5 or \
-            condition6 and condition7:
-
-        ... do other stuff ...
-
-    elif other_conditions:
-
-        ... some other things ...
-
-    # in some cases special formatting can improve code readability
-    specific_case_formatting = np.array([
-        [0, 1, 1, 0],
-        [1, 1, 0, 0],
-        [1, 1, 0, 1],
-    ], dtype=np.int32)
-
-    return status
-```
+The project uses Black for code formatting and isort for sorting import statements.
+You can find corresponding configurations in `pyproject.toml` in the repository root.
+No trailing whitespaces, at most 100 characters per line.
 
 ## Environment
 

@@ -2,38 +2,55 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
-from copy import deepcopy
-from typing import (
-    Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Type, Union,
-)
-from unittest import TestCase
 import hashlib
 import logging as log
+from collections import OrderedDict
+from copy import deepcopy
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
+from unittest import TestCase
 
-from attr import attrib, attrs
 import attr
 import cv2
 import numpy as np
+from attr import attrib, attrs
 
 from datumaro.components.annotation import (
-    Annotation, AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
+    Annotation,
+    AnnotationType,
+    Bbox,
+    Label,
+    LabelCategories,
+    MaskCategories,
     PointsCategories,
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
-    AnnotationsTooCloseError, ConflictingCategoriesError, DatasetMergeError,
-    FailedAttrVotingError, FailedLabelVotingError, MediaTypeError,
-    MismatchingAttributesError, MismatchingImageInfoError,
-    MismatchingMediaError, MismatchingMediaPathError, NoMatchingAnnError,
-    NoMatchingItemError, VideoMergeError, WrongGroupError,
+    AnnotationsTooCloseError,
+    ConflictingCategoriesError,
+    DatasetMergeError,
+    FailedAttrVotingError,
+    FailedLabelVotingError,
+    MediaTypeError,
+    MismatchingAttributesError,
+    MismatchingImageInfoError,
+    MismatchingMediaError,
+    MismatchingMediaPathError,
+    NoMatchingAnnError,
+    NoMatchingItemError,
+    VideoMergeError,
+    WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
 from datumaro.components.media import Image, MediaElement, PointCloud, Video
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
-    OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
+    OKS,
+    approximate_line,
+    bbox_iou,
+    find_instances,
+    max_bbox,
+    mean_bbox,
     segment_iou,
 )
 from datumaro.util.attrs_util import default_if_none, ensure_cls
@@ -55,9 +72,11 @@ def match_annotations_equal(a, b):
 
     return matches, a_unmatched, b_unmatched
 
+
 def merge_annotations_equal(a, b):
     matches, a_unmatched, b_unmatched = match_annotations_equal(a, b)
     return [ann_a for (ann_a, _) in matches] + a_unmatched + b_unmatched
+
 
 def merge_categories(sources):
     categories = {}
@@ -71,8 +90,10 @@ def merge_categories(sources):
                     raise ConflictingCategoriesError(
                         "Merging of datasets with different categories is "
                         "only allowed in 'merge' command.",
-                        sources=list(range(source_idx)))
+                        sources=list(range(source_idx)),
+                    )
     return categories
+
 
 class MergingStrategy(CliPlugin):
     @classmethod
@@ -82,10 +103,11 @@ class MergingStrategy(CliPlugin):
 
     def __init__(self, **options):
         super().__init__(**options)
-        self.__dict__['_sources'] = None
+        self.__dict__["_sources"] = None
 
     def __call__(self, sources):
         raise NotImplementedError()
+
 
 class ExactMerge:
     """
@@ -117,19 +139,19 @@ class ExactMerge:
         return items
 
     @classmethod
-    def _merge_items(cls, existing_item: DatasetItem,
-            current_item: DatasetItem) -> DatasetItem:
+    def _merge_items(cls, existing_item: DatasetItem, current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
             media=cls._merge_media(existing_item, current_item),
             attributes=cls._merge_attrs(
-                existing_item.attributes, current_item.attributes,
-                item_id=(existing_item.id, existing_item.subset)),
-            annotations=cls._merge_anno(
-                existing_item.annotations, current_item.annotations))
+                existing_item.attributes,
+                current_item.attributes,
+                item_id=(existing_item.id, existing_item.subset),
+            ),
+            annotations=cls._merge_anno(existing_item.annotations, current_item.annotations),
+        )
 
     @staticmethod
-    def _merge_attrs(a: Dict[str, Any], b: Dict[str, Any],
-            item_id: Tuple[str, str]) -> Dict:
+    def _merge_attrs(a: Dict[str, Any], b: Dict[str, Any], item_id: Tuple[str, str]) -> Dict:
         merged = {}
 
         for name in a.keys() | b.keys():
@@ -150,25 +172,33 @@ class ExactMerge:
         return merged
 
     @classmethod
-    def _merge_media(cls, item_a: DatasetItem, item_b: DatasetItem) \
-            -> Union[Image, PointCloud, Video]:
-        if (not item_a.media or isinstance(item_a.media, Image)) and \
-                (not item_b.media or isinstance(item_b.media, Image)):
+    def _merge_media(
+        cls, item_a: DatasetItem, item_b: DatasetItem
+    ) -> Union[Image, PointCloud, Video]:
+        if (not item_a.media or isinstance(item_a.media, Image)) and (
+            not item_b.media or isinstance(item_b.media, Image)
+        ):
             media = cls._merge_images(item_a, item_b)
-        elif (not item_a.media or isinstance(item_a.media, PointCloud)) and \
-                (not item_b.media or isinstance(item_b.media, PointCloud)):
+        elif (not item_a.media or isinstance(item_a.media, PointCloud)) and (
+            not item_b.media or isinstance(item_b.media, PointCloud)
+        ):
             media = cls._merge_point_clouds(item_a, item_b)
-        elif (not item_a.media or isinstance(item_a.media, Video)) and \
-                (not item_b.media or isinstance(item_b.media, Video)):
+        elif (not item_a.media or isinstance(item_a.media, Video)) and (
+            not item_b.media or isinstance(item_b.media, Video)
+        ):
             media = cls._merge_videos(item_a, item_b)
-        elif (not item_a.media or isinstance(item_a.media, MediaElement)) and \
-                (not item_b.media or isinstance(item_b.media, MediaElement)):
+        elif (not item_a.media or isinstance(item_a.media, MediaElement)) and (
+            not item_b.media or isinstance(item_b.media, MediaElement)
+        ):
             if isinstance(item_a.media, MediaElement) and isinstance(item_b.media, MediaElement):
-                if item_a.media.path and item_b.media.path and \
-                        item_a.media.path != item_b.media.path:
+                if (
+                    item_a.media.path
+                    and item_b.media.path
+                    and item_a.media.path != item_b.media.path
+                ):
                     raise MismatchingMediaPathError(
-                        (item_a.id, item_a.subset),
-                        item_a.media.path, item_b.media.path)
+                        (item_a.id, item_a.subset), item_a.media.path, item_b.media.path
+                    )
 
                 if item_a.media.path:
                     media = item_a.media
@@ -180,9 +210,7 @@ class ExactMerge:
             else:
                 media = item_b.media
         else:
-            raise MismatchingMediaError(
-                (item_a.id, item_a.subset),
-                item_a.media, item_b.media)
+            raise MismatchingMediaError((item_a.id, item_a.subset), item_a.media, item_b.media)
         return media
 
     @staticmethod
@@ -190,9 +218,12 @@ class ExactMerge:
         media = None
 
         if isinstance(item_a.media, Image) and isinstance(item_b.media, Image):
-            if item_a.media.path and item_b.media.path and \
-                    item_a.media.path != item_b.media.path and \
-                    item_a.media.has_data is item_b.media.has_data:
+            if (
+                item_a.media.path
+                and item_b.media.path
+                and item_a.media.path != item_b.media.path
+                and item_a.media.has_data is item_b.media.has_data
+            ):
                 # We use has_data as a replacement for path existence check
                 # - If only one image has data, we'll use it. The other
                 #   one is just a path metainfo, which is not significant
@@ -204,14 +235,17 @@ class ExactMerge:
                 # but it's not the case we'd like to allow here to be
                 # a "simple" merging strategy used for extractor joining
                 raise MismatchingMediaPathError(
-                    (item_a.id, item_a.subset),
-                    item_a.media.path, item_b.media.path)
+                    (item_a.id, item_a.subset), item_a.media.path, item_b.media.path
+                )
 
-            if item_a.media.has_size and item_b.media.has_size and \
-                    item_a.media.size != item_b.media.size:
+            if (
+                item_a.media.has_size
+                and item_b.media.has_size
+                and item_a.media.size != item_b.media.size
+            ):
                 raise MismatchingImageInfoError(
-                    (item_a.id, item_a.subset),
-                    item_a.media.size, item_b.media.size)
+                    (item_a.id, item_a.subset), item_a.media.size, item_b.media.size
+                )
 
             # Avoid direct comparison here for better performance
             # If there are 2 "data-only" images, they won't be compared and
@@ -248,11 +282,10 @@ class ExactMerge:
         media = None
 
         if isinstance(item_a.media, PointCloud) and isinstance(item_b.media, PointCloud):
-            if item_a.media.path and item_b.media.path and \
-                    item_a.media.path != item_b.media.path:
+            if item_a.media.path and item_b.media.path and item_a.media.path != item_b.media.path:
                 raise MismatchingMediaPathError(
-                    (item_a.id, item_a.subset),
-                    item_a.media.path, item_b.media.path)
+                    (item_a.id, item_a.subset), item_a.media.path, item_b.media.path
+                )
 
             if item_a.media.path or item_a.media.extra_images:
                 media = item_a.media
@@ -281,10 +314,12 @@ class ExactMerge:
         media = None
 
         if isinstance(item_a.media, Video) and isinstance(item_b.media, Video):
-            if item_a.media.path is not item_b.media.path or \
-                    item_a.media._start_frame is not item_b.media._start_frame or \
-                    item_a.media._end_frame is not item_b.media._end_frame or \
-                    item_a.media._step is not item_b.media._step:
+            if (
+                item_a.media.path is not item_b.media.path
+                or item_a.media._start_frame is not item_b.media._start_frame
+                or item_a.media._end_frame is not item_b.media._end_frame
+                or item_a.media._step is not item_b.media._step
+            ):
                 raise VideoMergeError(item_a.id)
 
             media = item_a.media
@@ -296,8 +331,7 @@ class ExactMerge:
         return media
 
     @staticmethod
-    def _merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) \
-            -> List[Annotation]:
+    def _merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) -> List[Annotation]:
         return merge_annotations_equal(a, b)
 
     @staticmethod
@@ -309,8 +343,9 @@ class ExactMerge:
         if sources:
             media_type = sources[0].media_type()
             for s in sources:
-                if not issubclass(s.media_type(), media_type) or \
-                        not issubclass(media_type, s.media_type()):
+                if not issubclass(s.media_type(), media_type) or not issubclass(
+                    media_type, s.media_type()
+                ):
                     # Symmetric comparision is needed in the case of subclasses:
                     # eg. Image and ByteImage
                     raise MediaTypeError("Datasets have different media types")
@@ -318,9 +353,10 @@ class ExactMerge:
 
         return None
 
+
 @attrs
 class IntersectMerge(MergingStrategy):
-    @attrs(repr_ns='IntersectMerge', kw_only=True)
+    @attrs(repr_ns="IntersectMerge", kw_only=True)
     class Conf:
         pairwise_dist = attrib(converter=float, default=0.5)
         sigma = attrib(converter=list, factory=list)
@@ -334,51 +370,52 @@ class IntersectMerge(MergingStrategy):
             for group in value:
                 rg = set()
                 for label in group:
-                    optional = label.endswith('?')
+                    optional = label.endswith("?")
                     name = label if not optional else label[:-1]
                     rg.add((name, optional))
                 result.append(rg)
             return result
+
         groups = attrib(converter=_groups_converter, factory=list)
         close_distance = attrib(converter=float, default=0.75)
+
     conf = attrib(converter=ensure_cls(Conf), factory=Conf)
 
     # Error trackers:
     errors = attrib(factory=list, init=False)
+
     def add_item_error(self, error, *args, **kwargs):
         self.errors.append(error(self._item_id, *args, **kwargs))
 
     # Indexes:
-    _dataset_map = attrib(init=False) # id(dataset) -> (dataset, index)
-    _item_map = attrib(init=False) # id(item) -> (item, id(dataset))
-    _ann_map = attrib(init=False) # id(ann) -> (ann, id(item))
+    _dataset_map = attrib(init=False)  # id(dataset) -> (dataset, index)
+    _item_map = attrib(init=False)  # id(item) -> (item, id(dataset))
+    _ann_map = attrib(init=False)  # id(ann) -> (ann, id(item))
     _item_id = attrib(init=False)
     _item = attrib(init=False)
 
     # Misc.
-    _categories = attrib(init=False) # merged categories
+    _categories = attrib(init=False)  # merged categories
 
     def __call__(self, datasets):
-        self._categories = self._merge_categories(
-            [d.categories() for d in datasets])
-        merged = Dataset(categories=self._categories,
-            media_type=ExactMerge.merge_media_types(datasets))
+        self._categories = self._merge_categories([d.categories() for d in datasets])
+        merged = Dataset(
+            categories=self._categories, media_type=ExactMerge.merge_media_types(datasets)
+        )
 
         self._check_groups_definition()
 
         item_matches, item_map = self.match_items(datasets)
         self._item_map = item_map
-        self._dataset_map = { id(d): (d, i) for i, d in enumerate(datasets) }
+        self._dataset_map = {id(d): (d, i) for i, d in enumerate(datasets)}
 
         for item_id, items in item_matches.items():
             self._item_id = item_id
 
             if len(items) < len(datasets):
                 missing_sources = set(id(s) for s in datasets) - set(items)
-                missing_sources = [self._dataset_map[s][1]
-                    for s in missing_sources]
-                self.add_item_error(NoMatchingItemError,
-                    sources=missing_sources)
+                missing_sources = [self._dataset_map[s][1] for s in missing_sources]
+                self.add_item_error(NoMatchingItemError, sources=missing_sources)
             merged.put(self.merge_items(items))
 
         return merged
@@ -392,16 +429,17 @@ class IntersectMerge(MergingStrategy):
         self._ann_map = {}
         sources = []
         for item in items.values():
-            self._ann_map.update({ id(a): (a, id(item))
-                for a in item.annotations })
+            self._ann_map.update({id(a): (a, id(item)) for a in item.annotations})
             sources.append(item.annotations)
-        log.debug("Merging item %s: source annotations %s" % \
-            (self._item_id, list(map(len, sources))))
+        log.debug(
+            "Merging item %s: source annotations %s" % (self._item_id, list(map(len, sources)))
+        )
 
         annotations = self.merge_annotations(sources)
 
-        annotations = [a for a in annotations
-            if self.conf.output_conf_thresh <= a.attributes.get('score', 1)]
+        annotations = [
+            a for a in annotations if self.conf.output_conf_thresh <= a.attributes.get("score", 1)
+        ]
 
         return self._item.wrap(annotations=annotations)
 
@@ -422,13 +460,13 @@ class IntersectMerge(MergingStrategy):
 
             for merged_ann, cluster in zip(merged_clusters, clusters):
                 attributes = self._find_cluster_attrs(cluster, merged_ann)
-                attributes = { k: v for k, v in attributes.items()
-                    if k not in self.conf.ignored_attributes }
+                attributes = {
+                    k: v for k, v in attributes.items() if k not in self.conf.ignored_attributes
+                }
                 attributes.update(merged_ann.attributes)
                 merged_ann.attributes = attributes
 
-                new_group_id = find(enumerate(group_map),
-                    lambda e: id(cluster) in e[1][0])
+                new_group_id = find(enumerate(group_map), lambda e: id(cluster) in e[1][0])
                 if new_group_id is None:
                     new_group_id = 0
                 else:
@@ -449,7 +487,7 @@ class IntersectMerge(MergingStrategy):
     def match_items(datasets):
         item_ids = set((item.id, item.subset) for d in datasets for item in d)
 
-        item_map = {} # id(item) -> (item, id(dataset))
+        item_map = {}  # id(item) -> (item, id(dataset))
 
         matches = OrderedDict()
         for (item_id, item_subset) in sorted(item_ids, key=lambda e: e[0]):
@@ -487,22 +525,23 @@ class IntersectMerge(MergingStrategy):
                 dst_label = dst_cat.find(src_label.name)[1]
                 if dst_label is not None:
                     if dst_label != src_label:
-                        if src_label.parent and dst_label.parent and \
-                                src_label.parent != dst_label.parent:
+                        if (
+                            src_label.parent
+                            and dst_label.parent
+                            and src_label.parent != dst_label.parent
+                        ):
                             raise ConflictingCategoriesError(
                                 "Can't merge label category %s (from #%s): "
-                                    "parent label conflict: %s vs. %s" % \
-                                    (src_label.name, src_id,
-                                        src_label.parent, dst_label.parent),
-                                sources=list(range(src_id))
+                                "parent label conflict: %s vs. %s"
+                                % (src_label.name, src_id, src_label.parent, dst_label.parent),
+                                sources=list(range(src_id)),
                             )
                         dst_label.parent = dst_label.parent or src_label.parent
                         dst_label.attributes |= src_label.attributes
                     else:
                         pass
                 else:
-                    dst_cat.add(src_label.name,
-                        src_label.parent, src_label.attributes)
+                    dst_cat.add(src_label.name, src_label.parent, src_label.attributes)
 
         return dst_cat
 
@@ -523,15 +562,13 @@ class IntersectMerge(MergingStrategy):
                     if dst_cat != src_cat:
                         raise ConflictingCategoriesError(
                             "Can't merge point category for label "
-                                "%s (from #%s): %s vs. %s" % \
-                                (src_label, src_id, src_cat, dst_cat),
-                            sources=list(range(src_id))
+                            "%s (from #%s): %s vs. %s" % (src_label, src_id, src_cat, dst_cat),
+                            sources=list(range(src_id)),
                         )
                     else:
                         pass
                 else:
-                    dst_point_cat.add(dst_label_id,
-                        src_cat.labels, src_cat.joints)
+                    dst_point_cat.add(dst_label_id, src_cat.labels, src_cat.joints)
 
         if len(dst_point_cat.items) == 0:
             return None
@@ -555,9 +592,8 @@ class IntersectMerge(MergingStrategy):
                     if dst_cat != src_cat:
                         raise ConflictingCategoriesError(
                             "Can't merge mask category for label "
-                                "%s (from #%s): %s vs. %s" % \
-                                (src_label, src_id, src_cat, dst_cat),
-                            sources=list(range(src_id))
+                            "%s (from #%s): %s vs. %s" % (src_label, src_id, src_cat, dst_cat),
+                            sources=list(range(src_id)),
                         )
                     else:
                         pass
@@ -606,8 +642,7 @@ class IntersectMerge(MergingStrategy):
         def _make(c, **kwargs):
             kwargs.update(attr.asdict(self.conf))
             fields = attr.fields_dict(c)
-            return c(**{ k: v for k, v in kwargs.items() if k in fields },
-                context=self)
+            return c(**{k: v for k, v in kwargs.items() if k in fields}, context=self)
 
         def _for_type(t, **kwargs):
             if t is AnnotationType.label:
@@ -633,15 +668,18 @@ class IntersectMerge(MergingStrategy):
         for s in sources:
             s_instances = find_instances(s)
             for inst in s_instances:
-                inst_bbox = max_bbox([a for a in inst if a.type in
-                    {AnnotationType.polygon,
-                     AnnotationType.mask, AnnotationType.bbox}
-                ])
+                inst_bbox = max_bbox(
+                    [
+                        a
+                        for a in inst
+                        if a.type
+                        in {AnnotationType.polygon, AnnotationType.mask, AnnotationType.bbox}
+                    ]
+                )
                 for ann in inst:
                     instance_map[id(ann)] = [inst, inst_bbox]
 
-        self._mergers = { t: _for_type(t, instance_map=instance_map)
-            for t in AnnotationType }
+        self._mergers = {t: _for_type(t, instance_map=instance_map) for t in AnnotationType}
 
     def _match_ann_type(self, t, sources):
         return self._mergers[t].match_annotations(sources)
@@ -658,27 +696,27 @@ class IntersectMerge(MergingStrategy):
                 continue
             visited.add(a_idx)
 
-            cluster_group = { id(cluster_a) }
+            cluster_group = {id(cluster_a)}
 
             # find segment groups in the cluster group
             a_groups = set(ann.group for ann in cluster_a)
-            for cluster_b in clusters[a_idx+1 :]:
+            for cluster_b in clusters[a_idx + 1 :]:
                 b_groups = set(ann.group for ann in cluster_b)
                 if a_groups & b_groups:
                     a_groups |= b_groups
 
             # now we know all the segment groups in this cluster group
             # so we can find adjacent clusters
-            for b_idx, cluster_b in enumerate(clusters[a_idx+1 :]):
+            for b_idx, cluster_b in enumerate(clusters[a_idx + 1 :]):
                 b_idx = a_idx + 1 + b_idx
                 b_groups = set(ann.group for ann in cluster_b)
                 if a_groups & b_groups:
-                    cluster_group.add( id(cluster_b) )
+                    cluster_group.add(id(cluster_b))
                     visited.add(b_idx)
 
             if a_groups == {0}:
-                continue # skip annotations without a group
-            cluster_groups.append( (cluster_group, a_groups) )
+                continue  # skip annotations without a group
+            cluster_groups.append((cluster_group, a_groups))
         return cluster_groups
 
     def _find_cluster_attrs(self, cluster, ann):
@@ -687,7 +725,7 @@ class IntersectMerge(MergingStrategy):
         # TODO: when attribute types are implemented, add linear
         # interpolation for contiguous values
 
-        attr_votes = {} # name -> { value: score , ... }
+        attr_votes = {}  # name -> { value: score , ... }
         for s in cluster:
             for name, value in s.attributes.items():
                 votes = attr_votes.get(name, {})
@@ -701,17 +739,21 @@ class IntersectMerge(MergingStrategy):
                 if sum(votes.values()) < quorum:
                     # blame provokers
                     missing_sources = set(
-                        self.get_ann_source(id(a)) for a in cluster
-                        if s.attributes.get(name) == winner)
+                        self.get_ann_source(id(a))
+                        for a in cluster
+                        if s.attributes.get(name) == winner
+                    )
                 else:
                     # blame outliers
                     missing_sources = set(
-                        self.get_ann_source(id(a)) for a in cluster
-                        if s.attributes.get(name) != winner)
-                missing_sources = [self._dataset_map[s][1]
-                    for s in missing_sources]
-                self.add_item_error(FailedAttrVotingError,
-                    name, votes, ann, sources=missing_sources)
+                        self.get_ann_source(id(a))
+                        for a in cluster
+                        if s.attributes.get(name) != winner
+                    )
+                missing_sources = [self._dataset_map[s][1] for s in missing_sources]
+                self.add_item_error(
+                    FailedAttrVotingError, name, votes, ann, sources=missing_sources
+                )
                 continue
             attributes[name] = winner
 
@@ -729,21 +771,17 @@ class IntersectMerge(MergingStrategy):
                 return False
             return True
 
-        missing_sources = set(self._dataset_map) - \
-            set(self.get_ann_source(id(a)) for a in cluster)
-        missing_sources = [self._dataset_map[s][1] for s in missing_sources
-            if _has_item(s)]
+        missing_sources = set(self._dataset_map) - set(self.get_ann_source(id(a)) for a in cluster)
+        missing_sources = [self._dataset_map[s][1] for s in missing_sources if _has_item(s)]
         if missing_sources:
-            self.add_item_error(NoMatchingAnnError, cluster[0],
-                sources=missing_sources)
+            self.add_item_error(NoMatchingAnnError, cluster[0], sources=missing_sources)
 
     def _check_annotation_distance(self, t, annotations):
         for a_idx, a_ann in enumerate(annotations):
-            for b_ann in annotations[a_idx+1:]:
+            for b_ann in annotations[a_idx + 1 :]:
                 d = self._mergers[t].distance(a_ann, b_ann)
                 if self.conf.close_distance < d:
-                    self.add_item_error(
-                        AnnotationsTooCloseError, a_ann, b_ann, d)
+                    self.add_item_error(AnnotationsTooCloseError, a_ann, b_ann, d)
 
     def _check_groups(self, annotations):
         check_groups = []
@@ -758,15 +796,14 @@ class IntersectMerge(MergingStrategy):
                 real_miss = check_group - common - optional
                 extra = group_labels - check_group
                 if common and (extra or real_miss):
-                    self.add_item_error(WrongGroupError, group_labels,
-                        check_group, group)
+                    self.add_item_error(WrongGroupError, group_labels, check_group, group)
                     break
 
         groups = find_instances(annotations)
         for group in groups:
             group_labels = set()
             for ann in group:
-                if not hasattr(ann, 'label'):
+                if not hasattr(ann, "label"):
                     continue
                 label = self._get_label_name(ann.label)
 
@@ -792,8 +829,9 @@ class IntersectMerge(MergingStrategy):
             return None
         item_id = self._ann_map[id(ann)][1]
         dataset_id = self._item_map[item_id][1]
-        return self._dataset_map[dataset_id][0] \
-            .categories()[AnnotationType.label].items[label_id].name
+        return (
+            self._dataset_map[dataset_id][0].categories()[AnnotationType.label].items[label_id].name
+        )
 
     def _get_any_label_name(self, ann, label_id):
         if label_id is None:
@@ -808,11 +846,12 @@ class IntersectMerge(MergingStrategy):
             for label, _ in group:
                 _, entry = self._categories[AnnotationType.label].find(label)
                 if entry is None:
-                    raise ValueError("Datasets do not contain "
-                        "label '%s', available labels %s" % \
-                        (label, [i.name for i in
-                            self._categories[AnnotationType.label].items])
+                    raise ValueError(
+                        "Datasets do not contain "
+                        "label '%s', available labels %s"
+                        % (label, [i.name for i in self._categories[AnnotationType.label].items])
                     )
+
 
 @attrs(kw_only=True)
 class AnnotationMatcher:
@@ -820,6 +859,7 @@ class AnnotationMatcher:
 
     def match_annotations(self, sources):
         raise NotImplementedError()
+
 
 @attrs
 class LabelMatcher(AnnotationMatcher):
@@ -830,6 +870,7 @@ class LabelMatcher(AnnotationMatcher):
 
     def match_annotations(self, sources):
         return [sum(sources, [])]
+
 
 @attrs(kw_only=True)
 class _ShapeMatcher(AnnotationMatcher):
@@ -842,9 +883,10 @@ class _ShapeMatcher(AnnotationMatcher):
         pairwise_dist = self.pairwise_dist
         cluster_dist = self.cluster_dist
 
-        if cluster_dist < 0: cluster_dist = pairwise_dist
+        if cluster_dist < 0:
+            cluster_dist = pairwise_dist
 
-        id_segm = { id(a): (a, id(s)) for s in sources for a in s }
+        id_segm = {id(a): (a, id(s)) for s in sources for a in s}
 
         def _is_close_enough(cluster, extra_id):
             # check if whole cluster IoU will not be broken
@@ -865,12 +907,16 @@ class _ShapeMatcher(AnnotationMatcher):
             return False
 
         # match segments in sources, pairwise
-        adjacent = { i: [] for i in id_segm } # id(sgm) -> [id(adj_sgm1), ...]
+        adjacent = {i: [] for i in id_segm}  # id(sgm) -> [id(adj_sgm1), ...]
         for a_idx, src_a in enumerate(sources):
-            for src_b in sources[a_idx+1 :]:
-                matches, _, _, _ = match_segments(src_a, src_b,
+            for src_b in sources[a_idx + 1 :]:
+                matches, _, _, _ = match_segments(
+                    src_a,
+                    src_b,
                     dist_thresh=pairwise_dist,
-                    distance=distance, label_matcher=label_matcher)
+                    distance=distance,
+                    label_matcher=label_matcher,
+                )
                 for a, b in matches:
                     adjacent[id(a)].append(id(b))
 
@@ -882,7 +928,7 @@ class _ShapeMatcher(AnnotationMatcher):
                 continue
 
             cluster = set()
-            to_visit = { cluster_idx }
+            to_visit = {cluster_idx}
             while to_visit:
                 c = to_visit.pop()
                 cluster.add(c)
@@ -911,17 +957,21 @@ class _ShapeMatcher(AnnotationMatcher):
         b_label = self._context._get_any_label_name(b, b.label)
         return a_label == b_label
 
+
 @attrs
 class BboxMatcher(_ShapeMatcher):
     pass
+
 
 @attrs
 class PolygonMatcher(_ShapeMatcher):
     pass
 
+
 @attrs
 class MaskMatcher(_ShapeMatcher):
     pass
+
 
 @attrs(kw_only=True)
 class PointsMatcher(_ShapeMatcher):
@@ -935,6 +985,7 @@ class PointsMatcher(_ShapeMatcher):
             return 0
         bbox = mean_bbox([a_bbox, b_bbox])
         return OKS(a, b, sigma=self.sigma, bbox=bbox)
+
 
 @attrs
 class LineMatcher(_ShapeMatcher):
@@ -955,6 +1006,7 @@ class LineMatcher(_ShapeMatcher):
             if len(line) // 2 != segments + 1:
                 line = approximate_line(line, segments=segments)
             return np.reshape(line, (-1, 2))
+
         segments = max(len(a.points) // 2, len(b.points) // 2, 5) - 1
 
         a = _approx(a.points, segments)
@@ -981,10 +1033,12 @@ class LineMatcher(_ShapeMatcher):
 
         return abs(1 - area)
 
+
 @attrs
 class CaptionsMatcher(AnnotationMatcher):
     def match_annotations(self, sources):
         raise NotImplementedError()
+
 
 @attrs
 class Cuboid3dMatcher(_ShapeMatcher):
@@ -992,10 +1046,12 @@ class Cuboid3dMatcher(_ShapeMatcher):
     def distance(a, b):
         raise NotImplementedError()
 
+
 @attrs(kw_only=True)
 class AnnotationMerger:
     def merge_clusters(self, clusters):
         raise NotImplementedError()
+
 
 @attrs(kw_only=True)
 class LabelMerger(AnnotationMerger, LabelMatcher):
@@ -1006,7 +1062,7 @@ class LabelMerger(AnnotationMerger, LabelMatcher):
         if len(clusters) == 0:
             return []
 
-        votes = {} # label -> score
+        votes = {}  # label -> score
         for ann in clusters[0]:
             label = self._context._get_src_label_name(ann, ann.label)
             votes[label] = 1 + votes.get(label, 0)
@@ -1014,19 +1070,24 @@ class LabelMerger(AnnotationMerger, LabelMatcher):
         merged = []
         for label, count in votes.items():
             if count < self.quorum:
-                sources = set(self.get_ann_source(id(a)) for a in clusters[0]
-                    if label not in [self._context._get_src_label_name(l, l.label)
-                        for l in a])
+                sources = set(
+                    self.get_ann_source(id(a))
+                    for a in clusters[0]
+                    if label not in [self._context._get_src_label_name(l, l.label) for l in a]
+                )
                 sources = [self._context._dataset_map[s][1] for s in sources]
-                self._context.add_item_error(FailedLabelVotingError, votes,
-                    sources=sources)
+                self._context.add_item_error(FailedLabelVotingError, votes, sources=sources)
                 continue
 
-            merged.append(Label(self._context._get_label_id(label), attributes={
-                'score': count / len(self._context._dataset_map)
-            }))
+            merged.append(
+                Label(
+                    self._context._get_label_id(label),
+                    attributes={"score": count / len(self._context._dataset_map)},
+                )
+            )
 
         return merged
+
 
 @attrs(kw_only=True)
 class _ShapeMerger(AnnotationMerger, _ShapeMatcher):
@@ -1040,7 +1101,7 @@ class _ShapeMerger(AnnotationMerger, _ShapeMatcher):
         for s in cluster:
             label = self._context._get_src_label_name(s, s.label)
             state = votes.setdefault(label, [0, 0])
-            state[0] += s.attributes.get('score', 1.0)
+            state[0] += s.attributes.get("score", 1.0)
             state[1] += 1
 
         label, (score, count) = max(votes.items(), key=lambda e: e[1][0])
@@ -1060,8 +1121,7 @@ class _ShapeMerger(AnnotationMerger, _ShapeMatcher):
 
     def merge_cluster_shape(self, cluster):
         shape = self._merge_cluster_shape_mean_box_nearest(cluster)
-        shape_score = sum(max(0, self.distance(shape, s))
-            for s in cluster) / len(cluster)
+        shape_score = sum(max(0, self.distance(shape, s)) for s in cluster) / len(cluster)
         return shape, shape_score
 
     def merge_cluster(self, cluster):
@@ -1070,34 +1130,40 @@ class _ShapeMerger(AnnotationMerger, _ShapeMatcher):
 
         shape.z_order = max(cluster, key=lambda a: a.z_order).z_order
         shape.label = label
-        shape.attributes['score'] = label_score * shape_score \
-            if label is not None else shape_score
+        shape.attributes["score"] = label_score * shape_score if label is not None else shape_score
 
         return shape
+
 
 @attrs
 class BboxMerger(_ShapeMerger, BboxMatcher):
     pass
 
+
 @attrs
 class PolygonMerger(_ShapeMerger, PolygonMatcher):
     pass
+
 
 @attrs
 class MaskMerger(_ShapeMerger, MaskMatcher):
     pass
 
+
 @attrs
 class PointsMerger(_ShapeMerger, PointsMatcher):
     pass
+
 
 @attrs
 class LineMerger(_ShapeMerger, LineMatcher):
     pass
 
+
 @attrs
 class CaptionsMerger(AnnotationMerger, CaptionsMatcher):
     pass
+
 
 @attrs
 class Cuboid3dMerger(_ShapeMerger, Cuboid3dMatcher):
@@ -1114,18 +1180,23 @@ class Cuboid3dMerger(_ShapeMerger, Cuboid3dMatcher):
         shape, shape_score = self.merge_cluster_shape(cluster)
 
         shape.label = label
-        shape.attributes['score'] = label_score * shape_score \
-            if label is not None else shape_score
+        shape.attributes["score"] = label_score * shape_score if label is not None else shape_score
 
         return shape
 
-def match_segments(a_segms, b_segms, distance=segment_iou, dist_thresh=1.0,
-        label_matcher=lambda a, b: a.label == b.label):
+
+def match_segments(
+    a_segms,
+    b_segms,
+    distance=segment_iou,
+    dist_thresh=1.0,
+    label_matcher=lambda a, b: a.label == b.label,
+):
     assert callable(distance), distance
     assert callable(label_matcher), label_matcher
 
-    a_segms.sort(key=lambda ann: 1 - ann.attributes.get('score', 1))
-    b_segms.sort(key=lambda ann: 1 - ann.attributes.get('score', 1))
+    a_segms.sort(key=lambda ann: 1 - ann.attributes.get("score", 1))
+    b_segms.sort(key=lambda ann: 1 - ann.attributes.get("score", 1))
 
     # a_matches: indices of b_segms matched to a bboxes
     # b_matches: indices of a_segms matched to b bboxes
@@ -1144,11 +1215,11 @@ def match_segments(a_segms, b_segms, distance=segment_iou, dist_thresh=1.0,
             break
         matched_b = -1
         max_dist = -1
-        b_indices = np.argsort([not label_matcher(a_segm, b_segm)
-            for b_segm in b_segms],
-            kind='stable') # prioritize those with same label, keep score order
+        b_indices = np.argsort(
+            [not label_matcher(a_segm, b_segm) for b_segm in b_segms], kind="stable"
+        )  # prioritize those with same label, keep score order
         for b_idx in b_indices:
-            if 0 <= b_matches[b_idx]: # assign a_segm with max conf
+            if 0 <= b_matches[b_idx]:  # assign a_segm with max conf
                 continue
             d = distances[a_idx, b_idx]
             if d < dist_thresh or d <= max_dist:
@@ -1164,15 +1235,16 @@ def match_segments(a_segms, b_segms, distance=segment_iou, dist_thresh=1.0,
         b_segm = b_segms[matched_b]
 
         if label_matcher(a_segm, b_segm):
-            matches.append( (a_segm, b_segm) )
+            matches.append((a_segm, b_segm))
         else:
-            mispred.append( (a_segm, b_segm) )
+            mispred.append((a_segm, b_segm))
 
     # *_umatched: boxes of (*) we failed to match
     a_unmatched = [a_segms[i] for i, m in enumerate(a_matches) if m < 0]
     b_unmatched = [b_segms[i] for i, m in enumerate(b_matches) if m < 0]
 
     return matches, mispred, a_unmatched, b_unmatched
+
 
 def mean_std(dataset: IDataset):
     counter = _MeanStdCounter()
@@ -1182,19 +1254,23 @@ def mean_std(dataset: IDataset):
 
     return counter.get_result()
 
+
 class _MeanStdCounter:
     """
     Computes unbiased mean and std. dev. for dataset images, channel-wise.
     """
 
     def __init__(self):
-        self._stats = {} # (id, subset) -> (pixel count, mean vec, std vec)
+        self._stats = {}  # (id, subset) -> (pixel count, mean vec, std vec)
 
     def accumulate(self, item: DatasetItem):
         size = item.media.size
         if size is None:
-            log.warning("Item %s: can't detect image size, "
-                "the image will be skipped from pixel statistics", item.id)
+            log.warning(
+                "Item %s: can't detect image size, "
+                "the image will be skipped from pixel statistics",
+                item.id,
+            )
             return
         count = np.prod(item.media.size)
 
@@ -1208,8 +1284,7 @@ class _MeanStdCounter:
 
         self._stats[(item.id, item.subset)] = (count, mean, std)
 
-    def get_result(self) -> \
-            Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
+    def get_result(self) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
         n = len(self._stats)
 
         if n == 0:
@@ -1227,9 +1302,7 @@ class _MeanStdCounter:
         var = lambda i, s: s[i][1]
 
         # make variance unbiased
-        np.multiply(np.square(stats[:, 1]),
-            (counts / (counts - 1))[:, np.newaxis],
-            out=stats[:, 1])
+        np.multiply(np.square(stats[:, 1]), (counts / (counts - 1))[:, np.newaxis], out=stats[:, 1])
 
         # Use an online algorithm to:
         # - handle different image sizes
@@ -1257,13 +1330,9 @@ class _MeanStdCounter:
         delta = mean_b - mean_a
         m_a = var_a * (count_a - 1)
         m_b = var_b * (count_b - 1)
-        M2 = m_a + m_b + delta ** 2 * (count_a * count_b / (count_a + count_b))
+        M2 = m_a + m_b + delta**2 * (count_a * count_b / (count_a + count_b))
 
-        return (
-            count_a + count_b,
-            mean_a * 0.5 + mean_b * 0.5,
-            M2 / (count_a + count_b - 1)
-        )
+        return (count_a + count_b, mean_a * 0.5 + mean_b * 0.5, M2 / (count_a + count_b - 1))
 
     @staticmethod
     def _compute_stats(stats, counts, mean_accessor, variance_accessor):
@@ -1288,24 +1357,24 @@ class _MeanStdCounter:
             return counts[0], m(0, stats), v(0, stats)
         if n == 2:
             return __class__._pairwise_stats(
-                counts[0], m(0, stats), v(0, stats),
-                counts[1], m(1, stats), v(1, stats)
-                )
+                counts[0], m(0, stats), v(0, stats), counts[1], m(1, stats), v(1, stats)
+            )
         h = n // 2
         return __class__._pairwise_stats(
             *__class__._compute_stats(stats[:h], counts[:h], m, v),
-            *__class__._compute_stats(stats[h:], counts[h:], m, v)
-            )
+            *__class__._compute_stats(stats[h:], counts[h:], m, v),
+        )
+
 
 def compute_image_statistics(dataset: IDataset):
     stats = {
-        'dataset': {
-            'images count': 0,
-            'unique images count': 0,
-            'repeated images count': 0,
-            'repeated images': [], # [[id1, id2], [id3, id4, id5], ...]
+        "dataset": {
+            "images count": 0,
+            "unique images count": 0,
+            "repeated images count": 0,
+            "repeated images": [],  # [[id1, id2], [id3, id4, id5], ...]
         },
-        'subsets': {},
+        "subsets": {},
     }
 
     stats_counter = _MeanStdCounter()
@@ -1317,161 +1386,171 @@ def compute_image_statistics(dataset: IDataset):
 
     def _extractor_stats(subset_name, extractor):
         sub_counter = _MeanStdCounter()
-        sub_counter._stats = {k: v for k, v in stats_counter._stats.items()
-            if subset_name and k[1] == subset_name or not subset_name}
+        sub_counter._stats = {
+            k: v
+            for k, v in stats_counter._stats.items()
+            if subset_name and k[1] == subset_name or not subset_name
+        }
 
         available = len(sub_counter._stats) != 0
 
         stats = {
-            'images count': len(extractor),
+            "images count": len(extractor),
         }
 
         if available:
             mean, std = sub_counter.get_result()
 
-            stats.update({
-                'image mean': [float(v) for v in mean[::-1]],
-                'image std': [float(v) for v in std[::-1]],
-            })
+            stats.update(
+                {
+                    "image mean": [float(v) for v in mean[::-1]],
+                    "image std": [float(v) for v in std[::-1]],
+                }
+            )
         else:
-            stats.update({
-                'image mean': 'n/a',
-                'image std': 'n/a',
-            })
+            stats.update(
+                {
+                    "image mean": "n/a",
+                    "image std": "n/a",
+                }
+            )
         return stats
 
     for subset_name in dataset.subsets():
-        stats['subsets'][subset_name] = _extractor_stats(subset_name,
-            dataset.get_subset(subset_name))
+        stats["subsets"][subset_name] = _extractor_stats(
+            subset_name, dataset.get_subset(subset_name)
+        )
 
     unique_items = unique_counter.get_result()
     repeated_items = [sorted(g) for g in unique_items.values() if 1 < len(g)]
 
-    stats['dataset'].update({
-        'images count': len(dataset),
-        'unique images count': len(unique_items),
-        'repeated images count': len(repeated_items),
-        'repeated images': repeated_items, # [[id1, id2], [id3, id4, id5], ...]
-    })
+    stats["dataset"].update(
+        {
+            "images count": len(dataset),
+            "unique images count": len(unique_items),
+            "repeated images count": len(repeated_items),
+            "repeated images": repeated_items,  # [[id1, id2], [id3, id4, id5], ...]
+        }
+    )
 
     return stats
 
+
 def compute_ann_statistics(dataset: IDataset):
     labels = dataset.categories().get(AnnotationType.label, LabelCategories())
+
     def get_label(ann):
         return labels.items[ann.label].name if ann.label is not None else None
 
     stats = {
-        'images count': 0,
-        'annotations count': 0,
-        'unannotated images count': 0,
-        'unannotated images': [],
-        'annotations by type': { t.name: {
-            'count': 0,
-        } for t in AnnotationType },
-        'annotations': {},
+        "images count": 0,
+        "annotations count": 0,
+        "unannotated images count": 0,
+        "unannotated images": [],
+        "annotations by type": {
+            t.name: {
+                "count": 0,
+            }
+            for t in AnnotationType
+        },
+        "annotations": {},
     }
-    by_type = stats['annotations by type']
+    by_type = stats["annotations by type"]
 
     attr_template = {
-        'count': 0,
-        'values count': 0,
-        'values present': set(),
-        'distribution': {}, # value -> (count, total%)
+        "count": 0,
+        "values count": 0,
+        "values present": set(),
+        "distribution": {},  # value -> (count, total%)
     }
     label_stat = {
-        'count': 0,
-        'distribution': { l.name: [0, 0] for l in labels.items
-        }, # label -> (count, total%)
-
-        'attributes': {},
+        "count": 0,
+        "distribution": {l.name: [0, 0] for l in labels.items},  # label -> (count, total%)
+        "attributes": {},
     }
-    stats['annotations']['labels'] = label_stat
+    stats["annotations"]["labels"] = label_stat
     segm_stat = {
-        'avg. area': 0,
-        'area distribution': [], # a histogram with 10 bins
+        "avg. area": 0,
+        "area distribution": [],  # a histogram with 10 bins
         # (min, min+10%), ..., (min+90%, max) -> (count, total%)
-
-        'pixel distribution': { l.name: [0, 0] for l in labels.items
-        }, # label -> (count, total%)
+        "pixel distribution": {l.name: [0, 0] for l in labels.items},  # label -> (count, total%)
     }
-    stats['annotations']['segments'] = segm_stat
+    stats["annotations"]["segments"] = segm_stat
     segm_areas = []
-    pixel_dist = segm_stat['pixel distribution']
+    pixel_dist = segm_stat["pixel distribution"]
     total_pixels = 0
 
     for item in dataset:
         if len(item.annotations) == 0:
-            stats['unannotated images'].append(item.id)
+            stats["unannotated images"].append(item.id)
             continue
 
         for ann in item.annotations:
-            by_type[ann.type.name]['count'] += 1
+            by_type[ann.type.name]["count"] += 1
 
-            if not hasattr(ann, 'label') or ann.label is None:
+            if not hasattr(ann, "label") or ann.label is None:
                 continue
 
-            if ann.type in {AnnotationType.mask,
-                    AnnotationType.polygon, AnnotationType.bbox}:
+            if ann.type in {AnnotationType.mask, AnnotationType.polygon, AnnotationType.bbox}:
                 area = ann.get_area()
                 segm_areas.append(area)
                 pixel_dist[get_label(ann)][0] += int(area)
 
-            label_stat['count'] += 1
-            label_stat['distribution'][get_label(ann)][0] += 1
+            label_stat["count"] += 1
+            label_stat["distribution"][get_label(ann)][0] += 1
 
             for name, value in ann.attributes.items():
-                if name.lower() in { 'occluded', 'visibility', 'score',
-                        'id', 'track_id' }:
+                if name.lower() in {"occluded", "visibility", "score", "id", "track_id"}:
                     continue
-                attrs_stat = label_stat['attributes'].setdefault(name,
-                    deepcopy(attr_template))
-                attrs_stat['count'] += 1
-                attrs_stat['values present'].add(str(value))
-                attrs_stat['distribution'] \
-                    .setdefault(str(value), [0, 0])[0] += 1
+                attrs_stat = label_stat["attributes"].setdefault(name, deepcopy(attr_template))
+                attrs_stat["count"] += 1
+                attrs_stat["values present"].add(str(value))
+                attrs_stat["distribution"].setdefault(str(value), [0, 0])[0] += 1
 
-    stats['images count'] = len(dataset)
+    stats["images count"] = len(dataset)
 
-    stats['annotations count'] = sum(t['count'] for t in
-        stats['annotations by type'].values())
-    stats['unannotated images count'] = len(stats['unannotated images'])
+    stats["annotations count"] = sum(t["count"] for t in stats["annotations by type"].values())
+    stats["unannotated images count"] = len(stats["unannotated images"])
 
-    for label_info in label_stat['distribution'].values():
-        label_info[1] = label_info[0] / (label_stat['count'] or 1)
+    for label_info in label_stat["distribution"].values():
+        label_info[1] = label_info[0] / (label_stat["count"] or 1)
 
-    for label_attr in label_stat['attributes'].values():
-        label_attr['values count'] = len(label_attr['values present'])
-        label_attr['values present'] = sorted(label_attr['values present'])
-        for attr_info in label_attr['distribution'].values():
-            attr_info[1] = attr_info[0] / (label_attr['count'] or 1)
+    for label_attr in label_stat["attributes"].values():
+        label_attr["values count"] = len(label_attr["values present"])
+        label_attr["values present"] = sorted(label_attr["values present"])
+        for attr_info in label_attr["distribution"].values():
+            attr_info[1] = attr_info[0] / (label_attr["count"] or 1)
 
     # numpy.sum might be faster, but could overflow with large datasets.
     # Python's int can transparently mutate to be of indefinite precision (long)
     total_pixels = sum(int(a) for a in segm_areas)
 
-    segm_stat['avg. area'] = total_pixels / (len(segm_areas) or 1.0)
+    segm_stat["avg. area"] = total_pixels / (len(segm_areas) or 1.0)
 
-    for label_info in segm_stat['pixel distribution'].values():
+    for label_info in segm_stat["pixel distribution"].values():
         label_info[1] = label_info[0] / (total_pixels or 1)
 
     if len(segm_areas) != 0:
         hist, bins = np.histogram(segm_areas)
-        segm_stat['area distribution'] = [{
-            'min': float(bin_min), 'max': float(bin_max),
-            'count': int(c), 'percent': int(c) / len(segm_areas)
-        } for c, (bin_min, bin_max) in zip(hist, zip(bins[:-1], bins[1:]))]
+        segm_stat["area distribution"] = [
+            {
+                "min": float(bin_min),
+                "max": float(bin_max),
+                "count": int(c),
+                "percent": int(c) / len(segm_areas),
+            }
+            for c, (bin_min, bin_max) in zip(hist, zip(bins[:-1], bins[1:]))
+        ]
 
     return stats
+
 
 @attrs
 class DistanceComparator:
     iou_threshold = attrib(converter=float, default=0.5)
 
     def match_annotations(self, item_a, item_b):
-        return { t: self._match_ann_type(t, item_a, item_b)
-            for t in AnnotationType
-        }
+        return {t: self._match_ann_type(t, item_a, item_b) for t in AnnotationType}
 
     def _match_ann_type(self, t, *args):
         # pylint: disable=no-value-for-parameter
@@ -1496,10 +1575,8 @@ class DistanceComparator:
         return [a for a in item.annotations if a.type == t]
 
     def match_labels(self, item_a, item_b):
-        a_labels = set(a.label for a in
-            self._get_ann_type(AnnotationType.label, item_a))
-        b_labels = set(a.label for a in
-            self._get_ann_type(AnnotationType.label, item_b))
+        a_labels = set(a.label for a in self._get_ann_type(AnnotationType.label, item_a))
+        b_labels = set(a.label for a in self._get_ann_type(AnnotationType.label, item_b))
 
         matches = a_labels & b_labels
         a_unmatched = a_labels - b_labels
@@ -1533,8 +1610,9 @@ class DistanceComparator:
                     instance_map[id(ann)] = [inst, inst_bbox]
         matcher = PointsMatcher(instance_map=instance_map)
 
-        return match_segments(a_points, b_points,
-            dist_thresh=self.iou_threshold, distance=matcher.distance)
+        return match_segments(
+            a_points, b_points, dist_thresh=self.iou_threshold, distance=matcher.distance
+        )
 
     def match_lines(self, item_a, item_b):
         a_lines = self._get_ann_type(AnnotationType.polyline, item_a)
@@ -1542,8 +1620,10 @@ class DistanceComparator:
 
         matcher = LineMatcher()
 
-        return match_segments(a_lines, b_lines,
-            dist_thresh=self.iou_threshold, distance=matcher.distance)
+        return match_segments(
+            a_lines, b_lines, dist_thresh=self.iou_threshold, distance=matcher.distance
+        )
+
 
 def match_items_by_id(a: IDataset, b: IDataset):
     a_items = set((item.id, item.subset) for item in a)
@@ -1554,6 +1634,7 @@ def match_items_by_id(a: IDataset, b: IDataset):
     a_unmatched = a_items - b_items
     b_unmatched = b_items - a_items
     return matches, a_unmatched, b_unmatched
+
 
 def match_items_by_image_hash(a: IDataset, b: IDataset):
     a_hash = find_unique_images(a)
@@ -1572,6 +1653,7 @@ def match_items_by_image_hash(a: IDataset, b: IDataset):
 
     return matches, a_unmatched, b_unmatched
 
+
 class _ItemMatcher:
     @staticmethod
     def _default_item_hash(item: DatasetItem):
@@ -1579,12 +1661,13 @@ class _ItemMatcher:
             if item.media and item.media.path:
                 return hash(item.media.path)
 
-            log.warning("Item (%s, %s) has no image "
-                "info, counted as unique", item.id, item.subset)
+            log.warning(
+                "Item (%s, %s) has no image " "info, counted as unique", item.id, item.subset
+            )
             return None
 
         # Disable B303:md5, because the hash is not used in a security context
-        return hashlib.md5(item.media.data.tobytes()).hexdigest() # nosec
+        return hashlib.md5(item.media.data.tobytes()).hexdigest()  # nosec
 
     def __init__(self, item_hash: Optional[Callable] = None):
         self._hash = item_hash or self._default_item_hash
@@ -1595,18 +1678,20 @@ class _ItemMatcher:
     def process_item(self, item: DatasetItem):
         h = self._hash(item)
         if h is None:
-            h = str(id(item)) # anything unique
+            h = str(id(item))  # anything unique
 
         self._unique.setdefault(h, set()).add((item.id, item.subset))
 
     def get_result(self):
         return self._unique
 
+
 def find_unique_images(dataset: IDataset, item_hash: Optional[Callable] = None):
     matcher = _ItemMatcher(item_hash=item_hash)
     for item in dataset:
         matcher.process_item(item)
     return matcher.get_result()
+
 
 def match_classes(a: CategoriesInfo, b: CategoriesInfo):
     a_label_cat = a.get(AnnotationType.label, LabelCategories())
@@ -1620,15 +1705,13 @@ def match_classes(a: CategoriesInfo, b: CategoriesInfo):
     b_unmatched = b_labels - a_labels
     return matches, a_unmatched, b_unmatched
 
+
 @attrs
 class ExactComparator:
     match_images: bool = attrib(kw_only=True, default=False)
-    ignored_fields = attrib(kw_only=True,
-        factory=set, validator=default_if_none(set))
-    ignored_attrs = attrib(kw_only=True,
-        factory=set, validator=default_if_none(set))
-    ignored_item_attrs = attrib(kw_only=True,
-        factory=set, validator=default_if_none(set))
+    ignored_fields = attrib(kw_only=True, factory=set, validator=default_if_none(set))
+    ignored_attrs = attrib(kw_only=True, factory=set, validator=default_if_none(set))
+    ignored_item_attrs = attrib(kw_only=True, factory=set, validator=default_if_none(set))
 
     _test: TestCase = attrib(init=False)
     errors: list = attrib(init=False)
@@ -1636,7 +1719,6 @@ class ExactComparator:
     def __attrs_post_init__(self):
         self._test = TestCase()
         self._test.maxDiff = None
-
 
     def _match_items(self, a, b):
         if self.match_images:
@@ -1649,12 +1731,9 @@ class ExactComparator:
         errors = self.errors
 
         try:
-            test.assertEqual(
-                sorted(a, key=lambda t: t.value),
-                sorted(b, key=lambda t: t.value)
-            )
+            test.assertEqual(sorted(a, key=lambda t: t.value), sorted(b, key=lambda t: t.value))
         except AssertionError as e:
-            errors.append({'type': 'categories', 'message': str(e)})
+            errors.append({"type": "categories", "message": str(e)})
 
         if AnnotationType.label in a:
             try:
@@ -1663,7 +1742,7 @@ class ExactComparator:
                     b[AnnotationType.label].items,
                 )
             except AssertionError as e:
-                errors.append({'type': 'labels', 'message': str(e)})
+                errors.append({"type": "labels", "message": str(e)})
         if AnnotationType.mask in a:
             try:
                 test.assertEqual(
@@ -1671,7 +1750,7 @@ class ExactComparator:
                     b[AnnotationType.mask].colormap,
                 )
             except AssertionError as e:
-                errors.append({'type': 'colormap', 'message': str(e)})
+                errors.append({"type": "colormap", "message": str(e)})
         if AnnotationType.points in a:
             try:
                 test.assertEqual(
@@ -1679,17 +1758,17 @@ class ExactComparator:
                     b[AnnotationType.points].items,
                 )
             except AssertionError as e:
-                errors.append({'type': 'points', 'message': str(e)})
+                errors.append({"type": "points", "message": str(e)})
 
     def _compare_annotations(self, a, b):
         ignored_fields = self.ignored_fields
         ignored_attrs = self.ignored_attrs
 
-        a_fields = { k: None for k in a.as_dict() if k in ignored_fields }
-        b_fields = { k: None for k in b.as_dict() if k in ignored_fields }
-        if 'attributes' not in ignored_fields:
-            a_fields['attributes'] = filter_dict(a.attributes, ignored_attrs)
-            b_fields['attributes'] = filter_dict(b.attributes, ignored_attrs)
+        a_fields = {k: None for k in a.as_dict() if k in ignored_fields}
+        b_fields = {k: None for k in b.as_dict() if k in ignored_fields}
+        if "attributes" not in ignored_fields:
+            a_fields["attributes"] = filter_dict(a.attributes, ignored_attrs)
+            b_fields["attributes"] = filter_dict(b.attributes, ignored_attrs)
 
         result = a.wrap(**a_fields) == b.wrap(**b_fields)
 
@@ -1708,33 +1787,36 @@ class ExactComparator:
         try:
             test.assertEqual(
                 filter_dict(item_a.attributes, self.ignored_item_attrs),
-                filter_dict(item_b.attributes, self.ignored_item_attrs)
+                filter_dict(item_b.attributes, self.ignored_item_attrs),
             )
         except AssertionError as e:
-            errors.append({'type': 'item_attr',
-                'a_item': a_id, 'b_item': b_id, 'message': str(e)})
+            errors.append({"type": "item_attr", "a_item": a_id, "b_item": b_id, "message": str(e)})
 
         b_annotations = item_b.annotations[:]
         for ann_a in item_a.annotations:
-            ann_b_candidates = [x for x in item_b.annotations
-                if x.type == ann_a.type]
+            ann_b_candidates = [x for x in item_b.annotations if x.type == ann_a.type]
 
-            ann_b = find(enumerate(self._compare_annotations(ann_a, x)
-                for x in ann_b_candidates), lambda x: x[1])
+            ann_b = find(
+                enumerate(self._compare_annotations(ann_a, x) for x in ann_b_candidates),
+                lambda x: x[1],
+            )
             if ann_b is None:
-                unmatched.append({
-                    'item': a_id, 'source': 'a', 'ann': str(ann_a),
-                })
+                unmatched.append(
+                    {
+                        "item": a_id,
+                        "source": "a",
+                        "ann": str(ann_a),
+                    }
+                )
                 continue
             else:
                 ann_b = ann_b_candidates[ann_b[0]]
 
-            b_annotations.remove(ann_b) # avoid repeats
-            matched.append({'a_item': a_id, 'b_item': b_id,
-                'a': str(ann_a), 'b': str(ann_b)})
+            b_annotations.remove(ann_b)  # avoid repeats
+            matched.append({"a_item": a_id, "b_item": b_id, "a": str(ann_a), "b": str(ann_b)})
 
         for ann_b in b_annotations:
-            unmatched.append({'item': b_id, 'source': 'b', 'ann': str(ann_b)})
+            unmatched.append({"item": b_id, "source": "b", "ann": str(ann_b)})
 
         return matched, unmatched, errors
 
@@ -1749,16 +1831,15 @@ class ExactComparator:
 
         matches, a_unmatched, b_unmatched = self._match_items(a, b)
 
-        if a.categories().get(AnnotationType.label) != \
-           b.categories().get(AnnotationType.label):
+        if a.categories().get(AnnotationType.label) != b.categories().get(AnnotationType.label):
             return matched, unmatched, a_unmatched, b_unmatched, errors
 
         _dist = lambda s: len(s[1]) + len(s[2])
         for a_ids, b_ids in matches:
             # build distance matrix
-            match_status = {} # (a_id, b_id): [matched, unmatched, errors]
-            a_matches = { a_id: None for a_id in a_ids }
-            b_matches = { b_id: None for b_id in b_ids }
+            match_status = {}  # (a_id, b_id): [matched, unmatched, errors]
+            a_matches = {a_id: None for a_id in a_ids}
+            b_matches = {b_id: None for b_id in b_ids}
 
             for a_id in a_ids:
                 item_a = a.get(*a_id)

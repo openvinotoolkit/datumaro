@@ -1,28 +1,24 @@
 from __future__ import annotations
 
+import csv
 from collections import Counter, defaultdict
 from itertools import product
 from typing import Dict
 from unittest import TestCase, skipIf
-import csv
 
-from datumaro.components.annotation import (
-    AnnotationType, Label, LabelCategories,
-)
+from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
-from datumaro.plugins.sampler.random_sampler import (
-    LabelRandomSampler, RandomSampler,
-)
+from datumaro.plugins.sampler.random_sampler import LabelRandomSampler, RandomSampler
 from datumaro.util.test_utils import compare_datasets, compare_datasets_strict
 
 try:
     import pandas as pd
 
-    from datumaro.plugins.sampler.algorithm.entropy import \
-        SampleEntropy as entropy
+    from datumaro.plugins.sampler.algorithm.entropy import SampleEntropy as entropy
     from datumaro.plugins.sampler.relevancy_sampler import RelevancySampler
+
     has_libs = True
 except ImportError:
     has_libs = False
@@ -50,8 +46,9 @@ class TestRelevancySampler(TestCase):
                         probs.append(list(map(float, row[1:4])))
         return probs
 
-    def _generate_classification_dataset(self, config, subset=None,
-            empty_scores=False, out_range=False, no_attr=False, no_img=False):
+    def _generate_classification_dataset(
+        self, config, subset=None, empty_scores=False, out_range=False, no_attr=False, no_img=False
+    ):
         probs = self._get_probs(out_range)
         if subset is None:
             self.subset = ["train", "val", "test"]
@@ -337,9 +334,7 @@ class TestRelevancySampler(TestCase):
                 result = iter(result)
                 next(result)
 
-            with self.assertRaisesRegex(
-                Exception, "Invalid Data, ImageID not found in data"
-            ):
+            with self.assertRaisesRegex(Exception, "Invalid Data, ImageID not found in data"):
                 sub = source.get_subset("train")
 
                 data_df = defaultdict(list)
@@ -363,9 +358,7 @@ class TestRelevancySampler(TestCase):
 
                 entropy(data_df, infer_df)
 
-            with self.assertRaisesRegex(
-                Exception, "Invalid Data, ImageID not found in inference"
-            ):
+            with self.assertRaisesRegex(Exception, "Invalid Data, ImageID not found in inference"):
                 sub = source.get_subset("train")
 
                 data_df = defaultdict(list)
@@ -718,9 +711,7 @@ class TestRelevancySampler(TestCase):
             )
 
             self.assertEqual(len(result.get_subset("sample")), num_sample)
-            self.assertEqual(
-                len(result.get_subset("train")), num_pre_train_subset - num_sample
-            )
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - num_sample)
 
             result = RelevancySampler(
                 result,
@@ -734,9 +725,7 @@ class TestRelevancySampler(TestCase):
             )
 
             self.assertEqual(len(result.get_subset("sample")), num_sample * 2)
-            self.assertEqual(
-                len(result.get_subset("train")), num_pre_train_subset - num_sample * 2
-            )
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - num_sample * 2)
 
             result = RelevancySampler(
                 result,
@@ -750,9 +739,7 @@ class TestRelevancySampler(TestCase):
             )
 
             self.assertEqual(len(result.get_subset("sample")), num_sample * 3)
-            self.assertEqual(
-                len(result.get_subset("train")), num_pre_train_subset - num_sample * 3
-            )
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - num_sample * 3)
 
         with self.subTest("Same Subset, 2, 3, 4 sampling"):
             sample_subset_name = "sample"
@@ -815,9 +802,7 @@ class TestRelevancySampler(TestCase):
             )
 
             self.assertEqual(len(result.get_subset("sample")), num_sample)
-            self.assertEqual(
-                len(result.get_subset("train")), num_pre_train_subset - num_sample
-            )
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - num_sample)
 
             result = RelevancySampler(
                 result,
@@ -831,9 +816,7 @@ class TestRelevancySampler(TestCase):
             )
 
             self.assertEqual(len(result.get_subset("sample")), num_sample * 2)
-            self.assertEqual(
-                len(result.get_subset("val")), num_pre_val_subset - num_sample
-            )
+            self.assertEqual(len(result.get_subset("val")), num_pre_val_subset - num_sample)
 
             result = RelevancySampler(
                 result,
@@ -847,9 +830,7 @@ class TestRelevancySampler(TestCase):
             )
 
             self.assertEqual(len(result.get_subset("sample")), num_sample * 3)
-            self.assertEqual(
-                len(result.get_subset("test")), num_pre_test_subset - num_sample
-            )
+            self.assertEqual(len(result.get_subset("test")), num_pre_test_subset - num_sample)
 
         with self.subTest("Different Subset, 2, 3, 4 sampling"):
             sample_subset_name = "sample"
@@ -925,9 +906,7 @@ class TestRelevancySampler(TestCase):
             )
 
             self.assertEqual(len(result.get_subset("sample1")), num_sample)
-            self.assertEqual(
-                len(result.get_subset("train")), num_pre_train_subset - num_sample
-            )
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - num_sample)
 
             result = RelevancySampler(
                 result,
@@ -942,9 +921,7 @@ class TestRelevancySampler(TestCase):
 
             self.assertEqual(len(result.get_subset("sample1")), num_sample)
             self.assertEqual(len(result.get_subset("sample2")), num_sample)
-            self.assertEqual(
-                len(result.get_subset("train")), num_pre_train_subset - num_sample * 2
-            )
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - num_sample * 2)
 
             result = RelevancySampler(
                 result,
@@ -960,9 +937,7 @@ class TestRelevancySampler(TestCase):
             self.assertEqual(len(result.get_subset("sample1")), num_sample)
             self.assertEqual(len(result.get_subset("sample2")), num_sample)
             self.assertEqual(len(result.get_subset("sample3")), num_sample)
-            self.assertEqual(
-                len(result.get_subset("train")), num_pre_train_subset - num_sample * 3
-            )
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - num_sample * 3)
 
         with self.subTest("Same Subset, 2, 3, 4 sampling"):
             result = RelevancySampler(
@@ -1025,9 +1000,7 @@ class TestRelevancySampler(TestCase):
             )
 
             self.assertEqual(len(result.get_subset("sample1")), num_sample)
-            self.assertEqual(
-                len(result.get_subset("train")), num_pre_train_subset - num_sample
-            )
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - num_sample)
 
             result = RelevancySampler(
                 result,
@@ -1042,9 +1015,7 @@ class TestRelevancySampler(TestCase):
 
             self.assertEqual(len(result.get_subset("sample1")), num_sample)
             self.assertEqual(len(result.get_subset("sample2")), num_sample)
-            self.assertEqual(
-                len(result.get_subset("val")), num_pre_val_subset - num_sample
-            )
+            self.assertEqual(len(result.get_subset("val")), num_pre_val_subset - num_sample)
 
             result = RelevancySampler(
                 result,
@@ -1060,9 +1031,7 @@ class TestRelevancySampler(TestCase):
             self.assertEqual(len(result.get_subset("sample1")), num_sample)
             self.assertEqual(len(result.get_subset("sample2")), num_sample)
             self.assertEqual(len(result.get_subset("sample3")), num_sample)
-            self.assertEqual(
-                len(result.get_subset("test")), num_pre_test_subset - num_sample
-            )
+            self.assertEqual(len(result.get_subset("test")), num_pre_test_subset - num_sample)
 
         with self.subTest("Different Subset, 2, 3, 4 sampling"):
             result = RelevancySampler(
@@ -1120,11 +1089,13 @@ class TestRelevancySampler(TestCase):
 class TestRandomSampler(TestCase):
     @staticmethod
     def _make_dataset(config: Dict[str, int]):
-        return Dataset.from_iterable([
-            DatasetItem(i, subset=subset)
-            for subset, subset_size in config.items()
-            for i in range(subset_size)
-        ])
+        return Dataset.from_iterable(
+            [
+                DatasetItem(i, subset=subset)
+                for subset, subset_size in config.items()
+                for i in range(subset_size)
+            ]
+        )
 
     def test_can_sample_when_no_subsets(self):
         n = 10
@@ -1138,7 +1109,7 @@ class TestRandomSampler(TestCase):
 
     def test_can_sample_when_has_subsets(self):
         n = 10
-        source = self._make_dataset({'a': 7, 'b': 3})
+        source = self._make_dataset({"a": 7, "b": 3})
 
         for k in [5, 10, 15]:
             with self.subTest(k=k):
@@ -1147,20 +1118,18 @@ class TestRandomSampler(TestCase):
                 self.assertEqual(min(k, n), len(actual))
 
     def test_can_sample_when_subset_selected(self):
-        source = self._make_dataset({'a': 7, 'b': 3})
+        source = self._make_dataset({"a": 7, "b": 3})
 
-        s = 'a'
+        s = "a"
         for k in [5, 7, 15]:
             with self.subTest(k=k, s=s):
                 actual = RandomSampler(source, k, subset=s)
 
-                self.assertEqual(min(k, len(source.get_subset(s))),
-                    len(actual.get_subset(s)))
-                compare_datasets_strict(self,
-                    source.get_subset('b'), actual.get_subset('b'))
+                self.assertEqual(min(k, len(source.get_subset(s))), len(actual.get_subset(s)))
+                compare_datasets_strict(self, source.get_subset("b"), actual.get_subset("b"))
 
     def test_can_reproduce_sequence(self):
-        source = self._make_dataset({'a': 7, 'b': 3})
+        source = self._make_dataset({"a": 7, "b": 3})
 
         seed = 42
         actual1 = RandomSampler(source, 5, seed=seed)
@@ -1169,7 +1138,7 @@ class TestRandomSampler(TestCase):
         compare_datasets_strict(self, actual1, actual2)
 
     def test_can_change_sequence(self):
-        source = self._make_dataset({'a': 7, 'b': 3})
+        source = self._make_dataset({"a": 7, "b": 3})
 
         actual1 = RandomSampler(source, 5, seed=1)
         actual2 = RandomSampler(source, 5, seed=2)
@@ -1177,69 +1146,74 @@ class TestRandomSampler(TestCase):
         with self.assertRaises(AssertionError):
             compare_datasets_strict(self, actual1, actual2)
 
+
 class TestLabelRandomSampler(TestCase):
     def test_can_sample_with_common_count(self):
-        source = Dataset.from_iterable([
-            DatasetItem(i, subset=s, annotations=[Label(l)])
-            for i, (s, l, _) in enumerate(product(
-                ['a', 'b'], [0, 1, 2], [0, 1, 2]))
-        ], categories=['a', 'b', 'c'])
+        source = Dataset.from_iterable(
+            [
+                DatasetItem(i, subset=s, annotations=[Label(l)])
+                for i, (s, l, _) in enumerate(product(["a", "b"], [0, 1, 2], [0, 1, 2]))
+            ],
+            categories=["a", "b", "c"],
+        )
 
         actual = LabelRandomSampler(source, count=2)
 
-        counts_a = Counter(a.label
-            for item in actual.get_subset('a')
-            for a in item.annotations)
-        counts_b = Counter(a.label
-            for item in actual.get_subset('b')
-            for a in item.annotations)
+        counts_a = Counter(a.label for item in actual.get_subset("a") for a in item.annotations)
+        counts_b = Counter(a.label for item in actual.get_subset("b") for a in item.annotations)
         self.assertEqual(set(counts_a.values()), {2})
         self.assertEqual(set(counts_b.values()), {2})
 
     def test_can_sample_with_selective_count(self):
-        source = Dataset.from_iterable([
-            DatasetItem(i, subset=s, annotations=[Label(l)])
-            for i, (s, l, _) in enumerate(product(
-                ['a', 'b'], [0, 1, 2], [0, 1, 2]))
-        ], categories=['a', 'b', 'c'])
+        source = Dataset.from_iterable(
+            [
+                DatasetItem(i, subset=s, annotations=[Label(l)])
+                for i, (s, l, _) in enumerate(product(["a", "b"], [0, 1, 2], [0, 1, 2]))
+            ],
+            categories=["a", "b", "c"],
+        )
 
-        actual = LabelRandomSampler(source, count=2,
-            label_counts={'a': 0, 'b': 1})
+        actual = LabelRandomSampler(source, count=2, label_counts={"a": 0, "b": 1})
 
-        counts_a = Counter(a.label
-            for item in actual.get_subset('a')
-            for a in item.annotations)
-        counts_b = Counter(a.label
-            for item in actual.get_subset('b')
-            for a in item.annotations)
-        self.assertEqual(counts_a, {
-            actual.categories()[AnnotationType.label].find('b')[0]: 1,
-            actual.categories()[AnnotationType.label].find('c')[0]: 2
-        })
-        self.assertEqual(counts_b, {
-            actual.categories()[AnnotationType.label].find('b')[0]: 1,
-            actual.categories()[AnnotationType.label].find('c')[0]: 2
-        })
+        counts_a = Counter(a.label for item in actual.get_subset("a") for a in item.annotations)
+        counts_b = Counter(a.label for item in actual.get_subset("b") for a in item.annotations)
+        self.assertEqual(
+            counts_a,
+            {
+                actual.categories()[AnnotationType.label].find("b")[0]: 1,
+                actual.categories()[AnnotationType.label].find("c")[0]: 2,
+            },
+        )
+        self.assertEqual(
+            counts_b,
+            {
+                actual.categories()[AnnotationType.label].find("b")[0]: 1,
+                actual.categories()[AnnotationType.label].find("c")[0]: 2,
+            },
+        )
 
     def test_can_change_output_labels(self):
-        expected = Dataset.from_iterable([], categories=['a'])
+        expected = Dataset.from_iterable([], categories=["a"])
 
-        source = Dataset.from_iterable([], categories=['a', 'b', 'c'])
-        actual = LabelRandomSampler(source, label_counts={'a': 1, 'b': 0})
+        source = Dataset.from_iterable([], categories=["a", "b", "c"])
+        actual = LabelRandomSampler(source, label_counts={"a": 1, "b": 0})
 
         compare_datasets(self, expected, actual)
 
     def test_can_reiterate_sequence(self):
-        source = Dataset.from_iterable([
-            DatasetItem('1', subset='a', annotations=[Label(0), Label(1)]),
-            DatasetItem('2', subset='a', annotations=[Label(1)]),
-            DatasetItem('3', subset='a', annotations=[Label(2)]),
-            DatasetItem('4', subset='a', annotations=[Label(1), Label(2)]),
-            DatasetItem('5', subset='b', annotations=[Label(0)]),
-            DatasetItem('6', subset='b', annotations=[Label(0), Label(2)]),
-            DatasetItem('7', subset='b', annotations=[Label(1), Label(2)]),
-            DatasetItem('8', subset='b', annotations=[Label(2)]),
-        ], categories=['a', 'b', 'c'])
+        source = Dataset.from_iterable(
+            [
+                DatasetItem("1", subset="a", annotations=[Label(0), Label(1)]),
+                DatasetItem("2", subset="a", annotations=[Label(1)]),
+                DatasetItem("3", subset="a", annotations=[Label(2)]),
+                DatasetItem("4", subset="a", annotations=[Label(1), Label(2)]),
+                DatasetItem("5", subset="b", annotations=[Label(0)]),
+                DatasetItem("6", subset="b", annotations=[Label(0), Label(2)]),
+                DatasetItem("7", subset="b", annotations=[Label(1), Label(2)]),
+                DatasetItem("8", subset="b", annotations=[Label(2)]),
+            ],
+            categories=["a", "b", "c"],
+        )
 
         transformed = LabelRandomSampler(source, count=2)
 
@@ -1252,16 +1226,19 @@ class TestLabelRandomSampler(TestCase):
         compare_datasets_strict(self, actual1, actual2)
 
     def test_can_reproduce_sequence(self):
-        source = Dataset.from_iterable([
-            DatasetItem('1', subset='a', annotations=[Label(0), Label(1)]),
-            DatasetItem('2', subset='a', annotations=[Label(1)]),
-            DatasetItem('3', subset='a', annotations=[Label(2)]),
-            DatasetItem('4', subset='a', annotations=[Label(1), Label(2)]),
-            DatasetItem('5', subset='b', annotations=[Label(0)]),
-            DatasetItem('6', subset='b', annotations=[Label(0), Label(2)]),
-            DatasetItem('7', subset='b', annotations=[Label(1), Label(2)]),
-            DatasetItem('8', subset='b', annotations=[Label(2)]),
-        ], categories=['a', 'b', 'c'])
+        source = Dataset.from_iterable(
+            [
+                DatasetItem("1", subset="a", annotations=[Label(0), Label(1)]),
+                DatasetItem("2", subset="a", annotations=[Label(1)]),
+                DatasetItem("3", subset="a", annotations=[Label(2)]),
+                DatasetItem("4", subset="a", annotations=[Label(1), Label(2)]),
+                DatasetItem("5", subset="b", annotations=[Label(0)]),
+                DatasetItem("6", subset="b", annotations=[Label(0), Label(2)]),
+                DatasetItem("7", subset="b", annotations=[Label(1), Label(2)]),
+                DatasetItem("8", subset="b", annotations=[Label(2)]),
+            ],
+            categories=["a", "b", "c"],
+        )
 
         seed = 42
         actual1 = LabelRandomSampler(source, count=2, seed=seed)
@@ -1270,16 +1247,19 @@ class TestLabelRandomSampler(TestCase):
         compare_datasets_strict(self, actual1, actual2)
 
     def test_can_change_sequence(self):
-        source = Dataset.from_iterable([
-            DatasetItem('1', subset='a', annotations=[Label(0), Label(1)]),
-            DatasetItem('2', subset='a', annotations=[Label(1)]),
-            DatasetItem('3', subset='a', annotations=[Label(2)]),
-            DatasetItem('4', subset='a', annotations=[Label(1), Label(2)]),
-            DatasetItem('5', subset='b', annotations=[Label(0)]),
-            DatasetItem('6', subset='b', annotations=[Label(0), Label(2)]),
-            DatasetItem('7', subset='b', annotations=[Label(1), Label(2)]),
-            DatasetItem('8', subset='b', annotations=[Label(2)]),
-        ], categories=['a', 'b', 'c'])
+        source = Dataset.from_iterable(
+            [
+                DatasetItem("1", subset="a", annotations=[Label(0), Label(1)]),
+                DatasetItem("2", subset="a", annotations=[Label(1)]),
+                DatasetItem("3", subset="a", annotations=[Label(2)]),
+                DatasetItem("4", subset="a", annotations=[Label(1), Label(2)]),
+                DatasetItem("5", subset="b", annotations=[Label(0)]),
+                DatasetItem("6", subset="b", annotations=[Label(0), Label(2)]),
+                DatasetItem("7", subset="b", annotations=[Label(1), Label(2)]),
+                DatasetItem("8", subset="b", annotations=[Label(2)]),
+            ],
+            categories=["a", "b", "c"],
+        )
 
         actual1 = LabelRandomSampler(source, count=2, seed=1)
         actual2 = LabelRandomSampler(source, count=2, seed=2)

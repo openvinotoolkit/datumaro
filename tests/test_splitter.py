@@ -2,14 +2,19 @@ from unittest import TestCase
 
 import numpy as np
 
+import datumaro.plugins.splitter as splitter
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, Mask, Polygon,
+    AnnotationType,
+    Bbox,
+    Label,
+    LabelCategories,
+    Mask,
+    Polygon,
 )
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.operations import compute_ann_statistics
 from datumaro.components.project import Dataset
-import datumaro.plugins.splitter as splitter
 
 from .requirements import Requirements, mark_requirement
 
@@ -232,9 +237,7 @@ class SplitterTest(TestCase):
             r2 = splitter.Split(source, task, splits, seed=1234)
             r3 = splitter.Split(source, task, splits, seed=4321)
             self.assertEqual(list(r1.get_subset("test")), list(r2.get_subset("test")))
-            self.assertNotEqual(
-                list(r1.get_subset("test")), list(r3.get_subset("test"))
-            )
+            self.assertNotEqual(list(r1.get_subset("test")), list(r3.get_subset("test")))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_split_for_classification_zero_ratio(self):
@@ -540,9 +543,7 @@ class SplitterTest(TestCase):
                     group=kwargs["ann_id"],
                 )
             )
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         def append_bbox_voc(annotations, **kwargs):
             annotations.append(
@@ -557,9 +558,7 @@ class SplitterTest(TestCase):
                     group=kwargs["ann_id"],
                 )
             )  # obj
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
             annotations.append(
                 Bbox(
                     1,
@@ -570,15 +569,11 @@ class SplitterTest(TestCase):
                     group=kwargs["ann_id"],
                 )
             )  # part
-            annotations.append(
-                Label(kwargs["label_id"] + 3, attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"] + 3, attributes=kwargs["attributes"]))
 
         def append_bbox_yolo(annotations, **kwargs):
             annotations.append(Bbox(1, 1, 2, 2, label=kwargs["label_id"]))
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         def append_bbox_cvat(annotations, **kwargs):
             annotations.append(
@@ -594,9 +589,7 @@ class SplitterTest(TestCase):
                     z_order=kwargs["ann_id"],
                 )
             )
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         def append_bbox_labelme(annotations, **kwargs):
             annotations.append(
@@ -610,9 +603,7 @@ class SplitterTest(TestCase):
                     attributes=kwargs["attributes"],
                 )
             )
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         def append_bbox_mot(annotations, **kwargs):
             annotations.append(
@@ -625,9 +616,7 @@ class SplitterTest(TestCase):
                     attributes=kwargs["attributes"],
                 )
             )
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         def append_bbox_widerface(annotations, **kwargs):
             annotations.append(Bbox(1, 1, 2, 2, attributes=kwargs["attributes"]))
@@ -658,9 +647,7 @@ class SplitterTest(TestCase):
                     group=kwargs["ann_id"],
                 )
             )
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         def append_mask_voc(annotations, **kwargs):
             annotations.append(
@@ -672,9 +659,7 @@ class SplitterTest(TestCase):
                     group=kwargs["ann_id"],
                 )
             )  # obj
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
             annotations.append(
                 Mask(
                     np.array([[0, 0, 0, 1, 0]]),
@@ -682,9 +667,7 @@ class SplitterTest(TestCase):
                     group=kwargs["ann_id"],
                 )
             )  # part
-            annotations.append(
-                Label(kwargs["label_id"] + 3, attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"] + 3, attributes=kwargs["attributes"]))
 
         def append_mask_labelme(annotations, **kwargs):
             annotations.append(
@@ -695,9 +678,7 @@ class SplitterTest(TestCase):
                     attributes=kwargs["attributes"],
                 )
             )
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         def append_mask_mot(annotations, **kwargs):
             annotations.append(
@@ -707,9 +688,7 @@ class SplitterTest(TestCase):
                     attributes=kwargs["attributes"],
                 )
             )
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         functions = {
             "coco": append_mask_coco,
@@ -733,9 +712,7 @@ class SplitterTest(TestCase):
                     group=kwargs["ann_id"],
                 )
             )
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         def append_polygon_voc(annotations, **kwargs):
             annotations.append(
@@ -747,9 +724,7 @@ class SplitterTest(TestCase):
                     group=kwargs["ann_id"],
                 )
             )  # obj
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
             annotations.append(
                 Polygon(
                     [0, 0, 1, 0, 1, 2, 0, 2],
@@ -757,15 +732,11 @@ class SplitterTest(TestCase):
                     group=kwargs["ann_id"],
                 )
             )  # part
-            annotations.append(
-                Label(kwargs["label_id"] + 3, attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"] + 3, attributes=kwargs["attributes"]))
 
         def append_polygon_yolo(annotations, **kwargs):
             annotations.append(Bbox(1, 1, 2, 2, label=kwargs["label_id"]))
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         def append_polygon_cvat(annotations, **kwargs):
             annotations.append(
@@ -778,9 +749,7 @@ class SplitterTest(TestCase):
                     z_order=kwargs["ann_id"],
                 )
             )
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         def append_polygon_labelme(annotations, **kwargs):
             annotations.append(
@@ -791,9 +760,7 @@ class SplitterTest(TestCase):
                     attributes=kwargs["attributes"],
                 )
             )
-            annotations.append(
-                Label(kwargs["label_id"], attributes=kwargs["attributes"])
-            )
+            annotations.append(Label(kwargs["label_id"], attributes=kwargs["attributes"]))
 
         functions = {
             "coco": append_polygon_coco,
@@ -1009,9 +976,7 @@ class SplitterTest(TestCase):
             r2 = splitter.Split(source, task, splits, seed=1234)
             r3 = splitter.Split(source, task, splits, seed=4321)
             self.assertEqual(list(r1.get_subset("test")), list(r2.get_subset("test")))
-            self.assertNotEqual(
-                list(r1.get_subset("test")), list(r3.get_subset("test"))
-            )
+            self.assertNotEqual(list(r1.get_subset("test")), list(r3.get_subset("test")))
 
         with self.subTest("polygon annotation"):
             dtypes = ["coco", "voc", "labelme", "yolo", "cvat"]
@@ -1046,7 +1011,15 @@ class SplitterTest(TestCase):
                 ):
                     actual = splitter.Split(source, task, splits, seed=21)
 
-                    expected.append([dtype, with_attr, len(actual.get_subset("train")), len(actual.get_subset("val")), len(actual.get_subset("test"))])
+                    expected.append(
+                        [
+                            dtype,
+                            with_attr,
+                            len(actual.get_subset("train")),
+                            len(actual.get_subset("val")),
+                            len(actual.get_subset("test")),
+                        ]
+                    )
 
                     self.assertEqual(train, len(actual.get_subset("train")))
                     self.assertEqual(val, len(actual.get_subset("val")))
@@ -1064,9 +1037,7 @@ class SplitterTest(TestCase):
             r2 = splitter.Split(source, task, splits, seed=1234)
             r3 = splitter.Split(source, task, splits, seed=4321)
             self.assertEqual(list(r1.get_subset("test")), list(r2.get_subset("test")))
-            self.assertNotEqual(
-                list(r1.get_subset("test")), list(r3.get_subset("test"))
-            )
+            self.assertNotEqual(list(r1.get_subset("test")), list(r3.get_subset("test")))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_split_for_segmentation_with_unlabeled(self):

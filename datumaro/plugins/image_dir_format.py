@@ -20,16 +20,18 @@ class ImageDirImporter(Importer):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('--subset',
-            help="The name of the subset for the produced dataset items "
-                "(default: none)")
+        parser.add_argument(
+            "--subset",
+            help="The name of the subset for the produced dataset items " "(default: none)",
+        )
         return parser
 
     @classmethod
     def find_sources(cls, path):
         if not osp.isdir(path):
             return []
-        return [{ 'url': path, 'format': ImageDirExtractor.NAME }]
+        return [{"url": path, "format": ImageDirExtractor.NAME}]
+
 
 class ImageDirExtractor(SourceExtractor):
     def __init__(self, url, subset=None):
@@ -39,11 +41,11 @@ class ImageDirExtractor(SourceExtractor):
 
         for path in find_images(url, recursive=True):
             item_id = osp.relpath(osp.splitext(path)[0], url)
-            self._items.append(DatasetItem(id=item_id, subset=self._subset,
-                media=Image(path=path)))
+            self._items.append(DatasetItem(id=item_id, subset=self._subset, media=Image(path=path)))
+
 
 class ImageDirConverter(Converter):
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = ".jpg"
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
