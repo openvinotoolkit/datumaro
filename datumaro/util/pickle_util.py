@@ -9,13 +9,11 @@ import numpy.core.multiarray
 
 class RestrictedUnpickler(pickle.Unpickler):
     def find_class(self, module, name):
-        if module == "numpy.core.multiarray" and \
-                name in PickleLoader.safe_numpy:
+        if module == "numpy.core.multiarray" and name in PickleLoader.safe_numpy:
             return getattr(numpy.core.multiarray, name)
         elif module == 'numpy' and name in PickleLoader.safe_numpy:
             return getattr(numpy, name)
-        raise pickle.UnpicklingError("Global '%s.%s' is forbidden"
-            % (module, name))
+        raise pickle.UnpicklingError("Global '%s.%s' is forbidden" % (module, name))
 
 class PickleLoader:
     safe_numpy = {

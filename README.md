@@ -29,16 +29,21 @@ CVAT annotations                             ---> Publication, statistics etc.
 - Dataset reading, writing, conversion in any direction.
   - [CIFAR-10/100](https://www.cs.toronto.edu/~kriz/cifar.html) (`classification`)
   - [Cityscapes](https://www.cityscapes-dataset.com/)
-  - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
+  - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`,
+    `captions`, `labels`, `panoptic`, `stuff`)
   - [CVAT](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
   - [ImageNet](http://image-net.org/)
-  - [Kitti](http://www.cvlibs.net/datasets/kitti/index.php) (`segmentation`, `detection`, `3D raw` / `velodyne points`)
+  - [Kitti](http://www.cvlibs.net/datasets/kitti/index.php) (`segmentation`, `detection`,
+    `3D raw` / `velodyne points`)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
-  - [LFW](http://vis-www.cs.umass.edu/lfw/) (`classification`, `person re-identification`, `landmarks`)
+  - [LFW](http://vis-www.cs.umass.edu/lfw/) (`classification`, `person re-identification`,
+    `landmarks`)
   - [MNIST](http://yann.lecun.com/exdb/mnist/) (`classification`)
   - [Open Images](https://storage.googleapis.com/openimages/web/download.html)
-  - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
-  - [TF Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md) (`bboxes`, `masks`)
+  - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html)
+    (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
+  - [TF Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md)
+    (`bboxes`, `masks`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
 
   Other formats and documentation for them can be found [here](https://openvinotoolkit.github.io/datumaro/docs/user-manual/supported_formats).

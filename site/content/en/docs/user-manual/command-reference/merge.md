@@ -81,7 +81,8 @@ datum merge [-h] [-iou IOU_THRESH] [-oconf OUTPUT_CONF_THRESH]
 ```
 
 Parameters:
-- `<target>` (string) - Target [dataset revpaths](/docs/user-manual/how_to_use_datumaro/#revpath) (repeatable)
+- `<target>` (string) - Target [dataset revpaths](/docs/user-manual/how_to_use_datumaro/#revpath)
+  (repeatable)
 - `-iou`, `--iou-thresh` (number) - IoU matching threshold for spatial
   annotations (both maximum inter-cluster and pairwise). Default is 0.25.
 - `--quorum` (number) - Minimum count of votes for a label or attribute

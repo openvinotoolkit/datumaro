@@ -42,19 +42,19 @@ class Validator(CliPlugin):
 
         # generate statistics
         stats = self.compute_statistics(dataset)
-        validation_results['statistics'] = stats
+        validation_results["statistics"] = stats
 
         # generate validation reports and summary
         reports = self.generate_reports(stats)
         reports = list(map(lambda r: r.to_dict(), reports))
 
         summary = {
-            'errors': sum(map(lambda r: r['severity'] == 'error', reports)),
-            'warnings': sum(map(lambda r: r['severity'] == 'warning', reports))
+            "errors": sum(map(lambda r: r["severity"] == "error", reports)),
+            "warnings": sum(map(lambda r: r["severity"] == "warning", reports)),
         }
 
-        validation_results['validation_reports'] = reports
-        validation_results['summary'] = summary
+        validation_results["validation_reports"] = reports
+        validation_results["summary"] = summary
 
         return validation_results
 

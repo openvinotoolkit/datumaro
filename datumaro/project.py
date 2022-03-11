@@ -7,6 +7,15 @@
 # This module is a usability proxy for components.project
 
 from .components.project import (
-    BuildStageType, DiffStatus, IgnoreMode, ObjectId, Pipeline, Project,
-    ProjectBuilder, ProjectBuildTargets, ProjectSourceDataset, Revision, Tree,
+    BuildStageType,
+    DiffStatus,
+    IgnoreMode,
+    ObjectId,
+    Pipeline,
+    Project,
+    ProjectBuilder,
+    ProjectBuildTargets,
+    ProjectSourceDataset,
+    Revision,
+    Tree,
 )

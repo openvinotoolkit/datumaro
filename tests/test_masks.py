@@ -2,8 +2,8 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.annotation import CompiledMask
 import datumaro.util.mask_tools as mask_tools
+from datumaro.components.annotation import CompiledMask
 
 from .requirements import Requirements, mark_requirement
 
@@ -11,13 +11,15 @@ from .requirements import Requirements, mark_requirement
 class PolygonConversionsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mask_can_be_converted_to_polygon(self):
-        mask = np.array([
-            [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
-            [0, 0, 1, 1, 0, 1, 0, 1, 0, 0],
-            [0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ])
+        mask = np.array(
+            [
+                [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+                [0, 0, 1, 1, 0, 1, 0, 1, 0, 0],
+                [0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            ]
+        )
         expected = [
             [1, 0, 3, 0, 3, 2, 1, 0],
             [5, 0, 8, 0, 5, 3],
@@ -31,96 +33,104 @@ class PolygonConversionsTest(TestCase):
     def test_can_crop_covered_segments(self):
         image_size = [7, 7]
         initial = [
-            [1, 1, 6, 1, 6, 6, 1, 6], # rectangle
-            mask_tools.mask_to_rle(np.array([
-                [0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 1, 1, 0],
-                [0, 1, 1, 0, 1, 1, 0],
-                [0, 0, 0, 0, 0, 1, 0],
-                [0, 1, 1, 0, 0, 1, 0],
-                [0, 1, 1, 1, 1, 1, 0],
-                [0, 0, 0, 0, 0, 0, 0],
-            ])),
-            [1, 1, 6, 6, 1, 6], # lower-left triangle
+            [1, 1, 6, 1, 6, 6, 1, 6],  # rectangle
+            mask_tools.mask_to_rle(
+                np.array(
+                    [
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 1, 0, 1, 1, 0],
+                        [0, 1, 1, 0, 1, 1, 0],
+                        [0, 0, 0, 0, 0, 1, 0],
+                        [0, 1, 1, 0, 0, 1, 0],
+                        [0, 1, 1, 1, 1, 1, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                    ]
+                )
+            ),
+            [1, 1, 6, 6, 1, 6],  # lower-left triangle
         ]
         expected = [
-            np.array([
-                [0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0, 0],
-                [0, 0, 0, 0, 1, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0],
-            ]), # half-covered
-            np.array([
-                [0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 1, 1, 0],
-                [0, 0, 0, 0, 1, 1, 0],
-                [0, 0, 0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0],
-            ]), # half-covered
-            mask_tools.rles_to_mask([initial[2]], *image_size), # unchanged
+            np.array(
+                [
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 1, 0, 0, 0],
+                    [0, 0, 0, 1, 0, 0, 0],
+                    [0, 0, 0, 0, 1, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                ]
+            ),  # half-covered
+            np.array(
+                [
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 1, 0, 1, 1, 0],
+                    [0, 0, 0, 0, 1, 1, 0],
+                    [0, 0, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                ]
+            ),  # half-covered
+            mask_tools.rles_to_mask([initial[2]], *image_size),  # unchanged
         ]
 
-        computed = mask_tools.crop_covered_segments(initial, *image_size,
-            ratio_tolerance=0, return_masks=True)
+        computed = mask_tools.crop_covered_segments(
+            initial, *image_size, ratio_tolerance=0, return_masks=True
+        )
 
         self.assertEqual(len(initial), len(computed))
         for i, (e_mask, c_mask) in enumerate(zip(expected, computed)):
-            self.assertTrue(np.array_equal(e_mask, c_mask),
-                '#%s: %s\n%s\n' % (i, e_mask, c_mask))
+            self.assertTrue(np.array_equal(e_mask, c_mask), "#%s: %s\n%s\n" % (i, e_mask, c_mask))
 
     def _test_mask_to_rle(self, source_mask):
         rle_uncompressed = mask_tools.mask_to_rle(source_mask)
 
         from pycocotools import mask as mask_utils
-        resulting_mask = mask_utils.frPyObjects(
-            rle_uncompressed, *rle_uncompressed['size'])
+
+        resulting_mask = mask_utils.frPyObjects(rle_uncompressed, *rle_uncompressed["size"])
         resulting_mask = mask_utils.decode(resulting_mask)
 
-        self.assertTrue(np.array_equal(source_mask, resulting_mask),
-            '%s\n%s\n' % (source_mask, resulting_mask))
+        self.assertTrue(
+            np.array_equal(source_mask, resulting_mask), "%s\n%s\n" % (source_mask, resulting_mask)
+        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mask_to_rle_multi(self):
         cases = [
-            np.array([
-                [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
-                [0, 0, 1, 1, 0, 1, 0, 1, 0, 0],
-                [0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
-                [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            ]),
-
-            np.array([
-                [0]
-            ]),
-            np.array([
-                [1]
-            ]),
-
-            np.array([
-                [1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-                [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-                [1, 0, 1, 0, 1, 1, 1, 0, 0, 0],
-                [1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
-                [1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-                [1, 0, 0, 1, 0, 0, 0, 1, 0, 1],
-                [1, 1, 0, 0, 1, 1, 0, 0, 0, 1],
-                [0, 0, 1, 0, 0, 0, 1, 1, 1, 1],
-                [1, 1, 0, 0, 0, 0, 0, 1, 0, 0],
-                [1, 1, 1, 1, 1, 0, 1, 0, 1, 0],
-                [0, 1, 0, 1, 1, 1, 1, 1, 0, 0],
-                [0, 1, 0, 0, 0, 1, 0, 0, 1, 0],
-                [1, 1, 0, 1, 0, 0, 1, 1, 1, 1],
-            ])
+            np.array(
+                [
+                    [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+                    [0, 0, 1, 1, 0, 1, 0, 1, 0, 0],
+                    [0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ]
+            ),
+            np.array([[0]]),
+            np.array([[1]]),
+            np.array(
+                [
+                    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+                    [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+                    [1, 0, 1, 0, 1, 1, 1, 0, 0, 0],
+                    [1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+                    [1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+                    [1, 0, 0, 1, 0, 0, 0, 1, 0, 1],
+                    [1, 1, 0, 0, 1, 1, 0, 0, 0, 1],
+                    [0, 0, 1, 0, 0, 0, 1, 1, 1, 1],
+                    [1, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+                    [1, 1, 1, 1, 1, 0, 1, 0, 1, 0],
+                    [0, 1, 0, 1, 1, 1, 1, 1, 0, 0],
+                    [0, 1, 0, 0, 0, 1, 0, 0, 1, 0],
+                    [1, 1, 0, 1, 0, 0, 1, 1, 1, 1],
+                ]
+            ),
         ]
 
         for case in cases:
             self._test_mask_to_rle(case)
+
 
 class ColormapOperationsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -139,8 +149,7 @@ class ColormapOperationsTest(TestCase):
 
         actual = mask_tools.paint_mask(mask, colormap)
 
-        self.assertTrue(np.array_equal(expected, actual),
-            '%s\nvs.\n%s' % (expected, actual))
+        self.assertTrue(np.array_equal(expected, actual), "%s\nvs.\n%s" % (expected, actual))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_unpaint_mask(self):
@@ -159,8 +168,7 @@ class ColormapOperationsTest(TestCase):
 
         actual = mask_tools.unpaint_mask(mask, inverse_colormap)
 
-        self.assertTrue(np.array_equal(expected, actual),
-            '%s\nvs.\n%s' % (expected, actual))
+        self.assertTrue(np.array_equal(expected, actual), "%s\nvs.\n%s" % (expected, actual))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_remap_mask(self):
@@ -177,8 +185,7 @@ class ColormapOperationsTest(TestCase):
 
         actual = mask_tools.remap_mask(src, remap_fn)
 
-        self.assertTrue(np.array_equal(expected, actual),
-            '%s\nvs.\n%s' % (expected, actual))
+        self.assertTrue(np.array_equal(expected, actual), "%s\nvs.\n%s" % (expected, actual))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_merge_masks(self):
@@ -187,13 +194,11 @@ class ColormapOperationsTest(TestCase):
             np.array([0, 1, 1, 0, 2, 0]),
             np.array([0, 0, 2, 3, 0, 0]),
         ]
-        expected = \
-            np.array([0, 1, 2, 3, 2, 1])
+        expected = np.array([0, 1, 2, 3, 2, 1])
 
         actual = mask_tools.merge_masks(masks)
 
-        self.assertTrue(np.array_equal(expected, actual),
-            '%s\nvs.\n%s' % (expected, actual))
+        self.assertTrue(np.array_equal(expected, actual), "%s\nvs.\n%s" % (expected, actual))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_decode_compiled_mask(self):

@@ -2,17 +2,17 @@
 #
 # SPDX-License-Identifier: MIT
 
+
 class PointCloudPath:
-    BASE_DIR = 'ds0'
-    ANNNOTATION_DIR = 'ann'
+    BASE_DIR = "ds0"
+    ANNNOTATION_DIR = "ann"
 
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = ".jpg"
 
-    POINT_CLOUD_DIR = 'pointcloud'
-    RELATED_IMAGES_DIR = 'related_images'
+    POINT_CLOUD_DIR = "pointcloud"
+    RELATED_IMAGES_DIR = "related_images"
 
-    KEY_ID_FILE = 'key_id_map.json'
-    META_FILE = 'meta.json'
+    KEY_ID_FILE = "key_id_map.json"
+    META_FILE = "meta.json"
 
-    SPECIAL_ATTRS = {'description', 'track_id',
-        'labelerLogin', 'createdAt', 'updatedAt', 'frame'}
+    SPECIAL_ATTRS = {"description", "track_id", "labelerLogin", "createdAt", "updatedAt", "frame"}

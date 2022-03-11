@@ -3,16 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 from itertools import groupby
-from typing import (
-    Callable, Dict, Iterable, NewType, Optional, Sequence, Tuple, Union,
-)
+from typing import Callable, Dict, Iterable, NewType, Optional, Sequence, Tuple, Union
 
-from typing_extensions import Literal
 import numpy as np
+from typing_extensions import Literal
 
-from datumaro.components.annotation import (
-    AnnotationType, LabelCategories, Mask, RleMask, _Shape,
-)
+from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, RleMask, _Shape
 from datumaro.util.mask_tools import mask_to_rle
 
 
@@ -27,24 +23,26 @@ def find_instances(instance_anns):
 
     return ann_groups
 
+
 def find_group_leader(group):
     return max(group, key=lambda x: x.get_area())
 
+
 BboxCoords = Tuple[float, float, float, float]
-Shape = NewType('Shape', _Shape)
+Shape = NewType("Shape", _Shape)
 SpatialAnnotation = Union[Shape, Mask]
+
 
 def _get_bbox(ann: Union[Sequence, SpatialAnnotation]) -> BboxCoords:
     if isinstance(ann, (_Shape, Mask)):
         return ann.get_bbox()
-    elif hasattr(ann, '__len__') and len(ann) == 4:
+    elif hasattr(ann, "__len__") and len(ann) == 4:
         return ann
     else:
-        raise ValueError("The value of type '%s' can't be treated as a "
-            "bounding box" % type(ann))
+        raise ValueError("The value of type '%s' can't be treated as a " "bounding box" % type(ann))
 
-def max_bbox(annotations: Iterable[Union[BboxCoords, SpatialAnnotation]]) \
-        -> BboxCoords:
+
+def max_bbox(annotations: Iterable[Union[BboxCoords, SpatialAnnotation]]) -> BboxCoords:
     """
     Computes the maximum bbox for the set of spatial annotations and boxes.
 
@@ -59,8 +57,8 @@ def max_bbox(annotations: Iterable[Union[BboxCoords, SpatialAnnotation]]) \
     y1 = max((b[1] + b[3] for b in boxes), default=0)
     return [x0, y0, x1 - x0, y1 - y0]
 
-def mean_bbox(annotations: Iterable[Union[BboxCoords, SpatialAnnotation]]) \
-        -> BboxCoords:
+
+def mean_bbox(annotations: Iterable[Union[BboxCoords, SpatialAnnotation]]) -> BboxCoords:
     """
     Computes the mean bbox for the set of spatial annotations and boxes.
 
@@ -76,15 +74,17 @@ def mean_bbox(annotations: Iterable[Union[BboxCoords, SpatialAnnotation]]) \
     mbb = sum(b[1] + b[3] for b in boxes) / le
     return [mlb, mtb, mrb - mlb, mbb - mtb]
 
+
 def softmax(x):
     return np.exp(x) / sum(np.exp(x))
+
 
 def nms(segments, iou_thresh=0.5):
     """
     Non-maxima suppression algorithm.
     """
 
-    indices = np.argsort([b.attributes['score'] for b in segments])
+    indices = np.argsort([b.attributes["score"] for b in segments])
     ious = np.array([[segment_iou(a, b) for b in segments] for a in segments])
 
     predictions = []
@@ -99,6 +99,7 @@ def nms(segments, iou_thresh=0.5):
         indices = np.delete(indices, to_remove)
 
     return predictions
+
 
 def bbox_iou(a, b) -> Union[Literal[-1], float]:
     """
@@ -124,6 +125,7 @@ def bbox_iou(a, b) -> Union[Literal[-1], float]:
     b_area = bW * bH
     union = a_area + b_area - intersection
     return intersection / union
+
 
 def segment_iou(a, b):
     """
@@ -152,9 +154,11 @@ def segment_iou(a, b):
                 return mask_utils.frPyObjects([mask_to_rle(ann.image)], h, w)
             else:
                 raise TypeError("Unexpected arguments: %s, %s" % (a, b))
+
         a = _to_rle(a)
         b = _to_rle(b)
     return float(mask_utils.iou(a, b, [not is_bbox]))
+
 
 def PDJ(a, b, eps=None, ratio=0.05, bbox=None):
     """
@@ -179,6 +183,7 @@ def PDJ(a, b, eps=None, ratio=0.05, bbox=None):
     dists = np.linalg.norm(p1 - p2, axis=1)
     return np.sum(dists < eps) / len(p1)
 
+
 def OKS(a, b, sigma=None, bbox=None, scale=None):
     """
     Object Keypoint Similarity metric.
@@ -201,7 +206,8 @@ def OKS(a, b, sigma=None, bbox=None, scale=None):
         scale = bbox[2] * bbox[3]
 
     dists = np.linalg.norm(p1 - p2, axis=1)
-    return np.sum(np.exp(-(dists ** 2) / (2 * scale * (2 * sigma) ** 2)))
+    return np.sum(np.exp(-(dists**2) / (2 * scale * (2 * sigma) ** 2)))
+
 
 def approximate_line(points: Sequence[float], segments: int) -> np.ndarray:
     """
@@ -251,17 +257,12 @@ def approximate_line(points: Sequence[float], segments: int) -> np.ndarray:
 
         new_points[new_segment] = prev_p * (1 - r) + next_p * r
 
-    return np.reshape(new_points, (-1, ))
+    return np.reshape(new_points, (-1,))
+
 
 def make_label_id_mapping(
-        src_labels: LabelCategories, dst_labels: LabelCategories,
-        fallback: int = 0) \
-        -> Tuple[
-            Callable[[int], Optional[int]],
-            Dict[int, int],
-            Dict[int, str],
-            Dict[int, str]
-        ]:
+    src_labels: LabelCategories, dst_labels: LabelCategories, fallback: int = 0
+) -> Tuple[Callable[[int], Optional[int]], Dict[int, int], Dict[int, str], Dict[int, str]]:
     """
     Maps label ids from source to destination. Fallback id is used for missing
     labels.
@@ -274,16 +275,14 @@ def make_label_id_mapping(
     |   dst_labels (dict): dst id -> dst label
     """
 
-    source_labels = { id: label.name
-        for id, label in enumerate(src_labels or ())
-    }
-    target_labels = { label.name: id
-        for id, label in enumerate(dst_labels or ())
-    }
-    id_mapping = { src_id: target_labels.get(src_label, fallback)
+    source_labels = {id: label.name for id, label in enumerate(src_labels or ())}
+    target_labels = {label.name: id for id, label in enumerate(dst_labels or ())}
+    id_mapping = {
+        src_id: target_labels.get(src_label, fallback)
         for src_id, src_label in source_labels.items()
     }
 
     def map_id(src_id):
         return id_mapping.get(src_id, fallback)
+
     return map_id, id_mapping, source_labels, target_labels

@@ -4,10 +4,11 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional, Tuple, TypeVar
 import math
+from typing import Iterable, Optional, Tuple, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class ProgressReporter:
     """
@@ -39,11 +40,10 @@ class ProgressReporter:
 
     def finish(self):
         """Finishes the progress bar"""
-        pass # pylint: disable=unnecessary-pass
+        pass  # pylint: disable=unnecessary-pass
 
-    def iter(self, iterable: Iterable[T], *,
-            total: Optional[int] = None,
-            desc: Optional[str] = None
+    def iter(
+        self, iterable: Iterable[T], *, total: Optional[int] = None, desc: Optional[str] = None
     ) -> Iterable[T]:
         """
         Traverses the iterable and reports progress simultaneously.
@@ -60,7 +60,7 @@ class ProgressReporter:
             An iterable over elements of the input sequence
         """
 
-        if total is None and hasattr(iterable, '__len__'):
+        if total is None and hasattr(iterable, "__len__"):
             total = len(iterable)
 
         self.start(total, desc=desc)
@@ -86,6 +86,7 @@ class ProgressReporter:
         """
         raise NotImplementedError
 
+
 class NullProgressReporter(ProgressReporter):
     @property
     def period(self) -> float:
@@ -97,11 +98,10 @@ class NullProgressReporter(ProgressReporter):
     def report_status(self, progress: int):
         pass
 
-    def iter(self, iterable: Iterable[T], *,
-            total: Optional[int] = None,
-            desc: Optional[str] = None
+    def iter(
+        self, iterable: Iterable[T], *, total: Optional[int] = None, desc: Optional[str] = None
     ) -> Iterable[T]:
         yield from iterable
 
     def split(self, count: int) -> Tuple[ProgressReporter]:
-        return (self, ) * count
+        return (self,) * count

@@ -20,13 +20,18 @@ class AcLauncher(Launcher, CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-c', '--config', type=osp.abspath, required=True,
-            help="Path to the launcher configuration file (.yml)")
+        parser.add_argument(
+            "-c",
+            "--config",
+            type=osp.abspath,
+            required=True,
+            help="Path to the launcher configuration file (.yml)",
+        )
         return parser
 
     def __init__(self, config, model_dir=None):
-        model_dir = model_dir or ''
-        with open(osp.join(model_dir, config), 'r', encoding='utf-8') as f:
+        model_dir = model_dir or ""
+        with open(osp.join(model_dir, config), "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
         self._launcher = _GenericAcLauncher.from_config(config)
 
