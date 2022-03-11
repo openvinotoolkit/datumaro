@@ -54,7 +54,7 @@ class BratsExtractor(SourceExtractor):
         for image_path in glob.glob(osp.join(path, f"*{BratsPath.DATA_EXT}")):
             data = nib.load(image_path).get_fdata()
 
-            item_id = osp.basename(image_path)[: - len(BratsPath.DATA_EXT)]
+            item_id = osp.basename(image_path)[: -len(BratsPath.DATA_EXT)]
 
             images = [0] * data.shape[2]
             for i in range(data.shape[2]):

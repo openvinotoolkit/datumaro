@@ -6,12 +6,7 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import (
-    AnnotationType,
-    Cuboid3d,
-    LabelCategories,
-    Mask,
-)
+from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories, Mask
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import MultiframeImage

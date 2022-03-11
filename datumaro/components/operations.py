@@ -42,9 +42,7 @@ from datumaro.components.errors import (
     WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
-from datumaro.components.media import (
-    Image, MediaElement, MultiframeImage, PointCloud, Video,
-)
+from datumaro.components.media import Image, MediaElement, MultiframeImage, PointCloud, Video
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS,
@@ -190,7 +188,8 @@ class ExactMerge:
         ):
             media = cls._merge_videos(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, MultiframeImage)) and (
-                not item_b.media or isinstance(item_b.media, MultiframeImage)):
+            not item_b.media or isinstance(item_b.media, MultiframeImage)
+        ):
             media = cls._merge_multiframe_images(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, MediaElement)) and (
             not item_b.media or isinstance(item_b.media, MediaElement)
@@ -339,13 +338,11 @@ class ExactMerge:
     def _merge_multiframe_images(item_a: DatasetItem, item_b: DatasetItem) -> MultiframeImage:
         media = None
 
-        if isinstance(item_a.media, MultiframeImage) and \
-                isinstance(item_b.media, MultiframeImage):
-            if item_a.media.path and item_b.media.path and \
-                    item_a.media.path != item_b.media.path:
+        if isinstance(item_a.media, MultiframeImage) and isinstance(item_b.media, MultiframeImage):
+            if item_a.media.path and item_b.media.path and item_a.media.path != item_b.media.path:
                 raise MismatchingMediaPathError(
-                    (item_a.id, item_a.subset),
-                    item_a.media.path, item_b.media.path)
+                    (item_a.id, item_a.subset), item_a.media.path, item_b.media.path
+                )
 
             if item_a.media.path or item_a.media.data:
                 media = item_a.media
@@ -368,7 +365,6 @@ class ExactMerge:
             media = item_b.media
 
         return media
-
 
     @staticmethod
     def _merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) -> List[Annotation]:
@@ -1370,7 +1366,7 @@ class _MeanStdCounter:
         delta = mean_b - mean_a
         m_a = var_a * (count_a - 1)
         m_b = var_b * (count_b - 1)
-        M2 = m_a + m_b + delta**2 * (count_a * count_b / (count_a + count_b))
+        M2 = m_a + m_b + delta ** 2 * (count_a * count_b / (count_a + count_b))
 
         return (count_a + count_b, mean_a * 0.5 + mean_b * 0.5, M2 / (count_a + count_b - 1))
 
@@ -1449,10 +1445,7 @@ def compute_image_statistics(dataset: IDataset):
             )
         else:
             stats.update(
-                {
-                    "image mean": "n/a",
-                    "image std": "n/a",
-                }
+                {"image mean": "n/a", "image std": "n/a",}
             )
         return stats
 
@@ -1487,12 +1480,7 @@ def compute_ann_statistics(dataset: IDataset):
         "annotations count": 0,
         "unannotated images count": 0,
         "unannotated images": [],
-        "annotations by type": {
-            t.name: {
-                "count": 0,
-            }
-            for t in AnnotationType
-        },
+        "annotations by type": {t.name: {"count": 0,} for t in AnnotationType},
         "annotations": {},
     }
     by_type = stats["annotations by type"]
@@ -1778,24 +1766,21 @@ class ExactComparator:
         if AnnotationType.label in a:
             try:
                 test.assertEqual(
-                    a[AnnotationType.label].items,
-                    b[AnnotationType.label].items,
+                    a[AnnotationType.label].items, b[AnnotationType.label].items,
                 )
             except AssertionError as e:
                 errors.append({"type": "labels", "message": str(e)})
         if AnnotationType.mask in a:
             try:
                 test.assertEqual(
-                    a[AnnotationType.mask].colormap,
-                    b[AnnotationType.mask].colormap,
+                    a[AnnotationType.mask].colormap, b[AnnotationType.mask].colormap,
                 )
             except AssertionError as e:
                 errors.append({"type": "colormap", "message": str(e)})
         if AnnotationType.points in a:
             try:
                 test.assertEqual(
-                    a[AnnotationType.points].items,
-                    b[AnnotationType.points].items,
+                    a[AnnotationType.points].items, b[AnnotationType.points].items,
                 )
             except AssertionError as e:
                 errors.append({"type": "points", "message": str(e)})
@@ -1842,11 +1827,7 @@ class ExactComparator:
             )
             if ann_b is None:
                 unmatched.append(
-                    {
-                        "item": a_id,
-                        "source": "a",
-                        "ann": str(ann_a),
-                    }
+                    {"item": a_id, "source": "a", "ann": str(ann_a),}
                 )
                 continue
             else:

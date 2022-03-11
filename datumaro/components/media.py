@@ -201,10 +201,7 @@ class ByteImage(Image):
 
     @classmethod
     def _guess_ext(cls, data: bytes) -> Optional[str]:
-        return next(
-            (ext for magic, ext in cls._FORMAT_MAGICS if data.startswith(magic)),
-            None,
-        )
+        return next((ext for magic, ext in cls._FORMAT_MAGICS if data.startswith(magic)), None,)
 
     def get_bytes(self):
         if callable(self._bytes_data):
@@ -501,11 +498,14 @@ class PointCloud(MediaElement):
 
         self.extra_images: List[Image] = extra_images or []
 
+
 class MultiframeImage(MediaElement):
-    def __init__(self, images: Optional[Iterable[Union[
-                str, Image, np.ndarray, Callable[[str], np.ndarray]
-            ]]], *,
-            path: Optional[str] = None):
+    def __init__(
+        self,
+        images: Optional[Iterable[Union[str, Image, np.ndarray, Callable[[str], np.ndarray]]]],
+        *,
+        path: Optional[str] = None,
+    ):
         self._path = path
 
         self._images = [None] * len(images or [])
