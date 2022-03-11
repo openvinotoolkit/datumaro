@@ -105,9 +105,34 @@ class TestOperations(TestCase):
                     annotations=[
                         Caption("hello"),
                         Caption("world"),
-                        Label(2, attributes={"x": 1, "y": "2",},),
-                        Bbox(1, 2, 2, 2, label=2, attributes={"score": 0.5,},),
-                        Bbox(5, 6, 2, 2, attributes={"x": 1, "y": "3", "occluded": True,},),
+                        Label(
+                            2,
+                            attributes={
+                                "x": 1,
+                                "y": "2",
+                            },
+                        ),
+                        Bbox(
+                            1,
+                            2,
+                            2,
+                            2,
+                            label=2,
+                            attributes={
+                                "score": 0.5,
+                            },
+                        ),
+                        Bbox(
+                            5,
+                            6,
+                            2,
+                            2,
+                            attributes={
+                                "x": 1,
+                                "y": "3",
+                                "occluded": True,
+                            },
+                        ),
                         Points([1, 2, 2, 0, 1, 1], label=0),
                         Mask(
                             label=3,
@@ -127,9 +152,34 @@ class TestOperations(TestCase):
                     id=2,
                     media=Image(data=np.ones((2, 4, 3))),
                     annotations=[
-                        Label(2, attributes={"x": 2, "y": "2",},),
-                        Bbox(1, 2, 2, 2, label=3, attributes={"score": 0.5,},),
-                        Bbox(5, 6, 2, 2, attributes={"x": 2, "y": "3", "occluded": False,},),
+                        Label(
+                            2,
+                            attributes={
+                                "x": 2,
+                                "y": "2",
+                            },
+                        ),
+                        Bbox(
+                            1,
+                            2,
+                            2,
+                            2,
+                            label=3,
+                            attributes={
+                                "score": 0.5,
+                            },
+                        ),
+                        Bbox(
+                            5,
+                            6,
+                            2,
+                            2,
+                            attributes={
+                                "x": 2,
+                                "y": "3",
+                                "occluded": False,
+                            },
+                        ),
                     ],
                 ),
                 DatasetItem(id=3),
@@ -144,13 +194,27 @@ class TestOperations(TestCase):
             "unannotated images count": 2,
             "unannotated images": ["3", "2.2"],
             "annotations by type": {
-                "label": {"count": 2,},
-                "polygon": {"count": 0,},
-                "polyline": {"count": 0,},
-                "bbox": {"count": 4,},
-                "mask": {"count": 1,},
-                "points": {"count": 1,},
-                "caption": {"count": 2,},
+                "label": {
+                    "count": 2,
+                },
+                "polygon": {
+                    "count": 0,
+                },
+                "polyline": {
+                    "count": 0,
+                },
+                "bbox": {
+                    "count": 4,
+                },
+                "mask": {
+                    "count": 1,
+                },
+                "points": {
+                    "count": 1,
+                },
+                "caption": {
+                    "count": 2,
+                },
                 "cuboid_3d": {"count": 0},
             },
             "annotations": {
@@ -167,13 +231,18 @@ class TestOperations(TestCase):
                             "count": 2,  # annotations with no label are skipped
                             "values count": 2,
                             "values present": ["1", "2"],
-                            "distribution": {"1": [1, 1 / 2], "2": [1, 1 / 2],},
+                            "distribution": {
+                                "1": [1, 1 / 2],
+                                "2": [1, 1 / 2],
+                            },
                         },
                         "y": {
                             "count": 2,  # annotations with no label are skipped
                             "values count": 1,
                             "values present": ["2"],
-                            "distribution": {"2": [2, 2 / 2],},
+                            "distribution": {
+                                "2": [2, 2 / 2],
+                            },
                         },
                         # must not include "special" attributes like "occluded"
                     },
@@ -209,7 +278,11 @@ class TestOperations(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_stats_with_empty_dataset(self):
         dataset = Dataset.from_iterable(
-            [DatasetItem(id=1), DatasetItem(id=3),], categories=["label_%s" % i for i in range(4)],
+            [
+                DatasetItem(id=1),
+                DatasetItem(id=3),
+            ],
+            categories=["label_%s" % i for i in range(4)],
         )
 
         expected = {
@@ -218,13 +291,27 @@ class TestOperations(TestCase):
             "unannotated images count": 2,
             "unannotated images": ["1", "3"],
             "annotations by type": {
-                "label": {"count": 0,},
-                "polygon": {"count": 0,},
-                "polyline": {"count": 0,},
-                "bbox": {"count": 0,},
-                "mask": {"count": 0,},
-                "points": {"count": 0,},
-                "caption": {"count": 0,},
+                "label": {
+                    "count": 0,
+                },
+                "polygon": {
+                    "count": 0,
+                },
+                "polyline": {
+                    "count": 0,
+                },
+                "bbox": {
+                    "count": 0,
+                },
+                "mask": {
+                    "count": 0,
+                },
+                "points": {
+                    "count": 0,
+                },
+                "caption": {
+                    "count": 0,
+                },
                 "cuboid_3d": {"count": 0},
             },
             "annotations": {
@@ -287,22 +374,56 @@ class TestMultimerge(TestCase):
         # items 1 and 3 are unique, item 2 is common and should be merged
 
         source0 = Dataset.from_iterable(
-            [DatasetItem(1, annotations=[Label(0),],), DatasetItem(2, annotations=[Label(0),],),],
+            [
+                DatasetItem(
+                    1,
+                    annotations=[
+                        Label(0),
+                    ],
+                ),
+                DatasetItem(
+                    2,
+                    annotations=[
+                        Label(0),
+                    ],
+                ),
+            ],
             categories=["a", "b"],
         )
 
         source1 = Dataset.from_iterable(
-            [DatasetItem(2, annotations=[Label(1),],), DatasetItem(3, annotations=[Label(0),],),],
+            [
+                DatasetItem(
+                    2,
+                    annotations=[
+                        Label(1),
+                    ],
+                ),
+                DatasetItem(
+                    3,
+                    annotations=[
+                        Label(0),
+                    ],
+                ),
+            ],
             categories=["a", "b"],
         )
 
         source2 = Dataset.from_iterable(
-            [DatasetItem(2, annotations=[Label(0), Bbox(1, 2, 3, 4)]),], categories=["a", "b"],
+            [
+                DatasetItem(2, annotations=[Label(0), Bbox(1, 2, 3, 4)]),
+            ],
+            categories=["a", "b"],
         )
 
         expected = Dataset.from_iterable(
             [
-                DatasetItem(1, annotations=[Label(0, attributes={"score": 1 / 3}),],),
+                DatasetItem(
+                    1,
+                    annotations=[
+                        Label(0, attributes={"score": 1 / 3}),
+                    ],
+                ),
                 DatasetItem(
                     2,
                     annotations=[
@@ -311,7 +432,12 @@ class TestMultimerge(TestCase):
                         Bbox(1, 2, 3, 4, attributes={"score": 1.0}),
                     ],
                 ),
-                DatasetItem(3, annotations=[Label(0, attributes={"score": 1 / 3}),],),
+                DatasetItem(
+                    3,
+                    annotations=[
+                        Label(0, attributes={"score": 1 / 3}),
+                    ],
+                ),
             ],
             categories=["a", "b"],
         )
@@ -358,7 +484,12 @@ class TestMultimerge(TestCase):
                             label=2,
                             z_order=2,
                             image=np.array(
-                                [[0, 0, 0, 0], [0, 0, 0, 0], [1, 1, 1, 0], [1, 1, 1, 0],]
+                                [
+                                    [0, 0, 0, 0],
+                                    [0, 0, 0, 0],
+                                    [1, 1, 1, 0],
+                                    [1, 1, 1, 0],
+                                ]
                             ),
                         ),
                         Polygon([1, 0, 3, 2, 1, 2]),
@@ -382,7 +513,12 @@ class TestMultimerge(TestCase):
                         Mask(
                             label=2,
                             image=np.array(
-                                [[0, 0, 0, 0], [0, 1, 1, 1], [0, 1, 1, 1], [0, 1, 1, 1],]
+                                [
+                                    [0, 0, 0, 0],
+                                    [0, 1, 1, 1],
+                                    [0, 1, 1, 1],
+                                    [0, 1, 1, 1],
+                                ]
                             ),
                         ),
                         Polygon([0, 2, 2, 0, 2, 1]),
@@ -407,7 +543,12 @@ class TestMultimerge(TestCase):
                             label=2,
                             z_order=3,
                             image=np.array(
-                                [[0, 0, 1, 1], [0, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 0],]
+                                [
+                                    [0, 0, 1, 1],
+                                    [0, 1, 1, 1],
+                                    [1, 1, 1, 1],
+                                    [1, 1, 1, 0],
+                                ]
                             ),
                         ),
                         Polygon([3, 1, 2, 2, 0, 1]),
@@ -434,7 +575,12 @@ class TestMultimerge(TestCase):
                             label=2,
                             z_order=3,
                             image=np.array(
-                                [[0, 0, 0, 0], [0, 1, 1, 1], [0, 1, 1, 1], [0, 1, 1, 1],]
+                                [
+                                    [0, 0, 0, 0],
+                                    [0, 1, 1, 1],
+                                    [0, 1, 1, 1],
+                                    [0, 1, 1, 1],
+                                ]
                             ),
                         ),
                         Polygon([1, 0, 3, 2, 1, 2]),
@@ -475,13 +621,36 @@ class TestMultimerge(TestCase):
     @mark_requirement(Requirements.DATUM_BUG_219)
     def test_can_match_lines_when_line_not_approximated(self):
         source0 = Dataset.from_iterable(
-            [DatasetItem(1, annotations=[PolyLine([1, 1, 2, 1, 3, 5, 5, 5, 8, 3]),],),]
+            [
+                DatasetItem(
+                    1,
+                    annotations=[
+                        PolyLine([1, 1, 2, 1, 3, 5, 5, 5, 8, 3]),
+                    ],
+                ),
+            ]
         )
 
-        source1 = Dataset.from_iterable([DatasetItem(1, annotations=[PolyLine([1, 1, 8, 3]),],),])
+        source1 = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    1,
+                    annotations=[
+                        PolyLine([1, 1, 8, 3]),
+                    ],
+                ),
+            ]
+        )
 
         expected = Dataset.from_iterable(
-            [DatasetItem(1, annotations=[PolyLine([1, 1, 2, 1, 3, 5, 5, 5, 8, 3]),],),],
+            [
+                DatasetItem(
+                    1,
+                    annotations=[
+                        PolyLine([1, 1, 2, 1, 3, 5, 5, 5, 8, 3]),
+                    ],
+                ),
+            ],
             categories=[],
         )
 
@@ -536,14 +705,29 @@ class TestMultimerge(TestCase):
             [
                 DatasetItem(
                     1,
-                    annotations=[Label(2, attributes={"common_over_quorum": 3, "ignored": "q",},),],
+                    annotations=[
+                        Label(
+                            2,
+                            attributes={
+                                "common_over_quorum": 3,
+                                "ignored": "q",
+                            },
+                        ),
+                    ],
                 ),
             ],
             categories=["a", "b", "c"],
         )
 
         expected = Dataset.from_iterable(
-            [DatasetItem(1, annotations=[Label(2, attributes={"common_over_quorum": 3}),],),],
+            [
+                DatasetItem(
+                    1,
+                    annotations=[
+                        Label(2, attributes={"common_over_quorum": 3}),
+                    ],
+                ),
+            ],
             categories=["a", "b", "c"],
         )
 
@@ -584,7 +768,16 @@ class TestMultimerge(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_merge_classes(self):
         source0 = Dataset.from_iterable(
-            [DatasetItem(1, annotations=[Label(0), Label(1), Bbox(0, 0, 1, 1, label=1),],),],
+            [
+                DatasetItem(
+                    1,
+                    annotations=[
+                        Label(0),
+                        Label(1),
+                        Bbox(0, 0, 1, 1, label=1),
+                    ],
+                ),
+            ],
             categories=["a", "b"],
         )
 
@@ -627,35 +820,83 @@ class TestMultimerge(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_merge_categories(self):
         source0 = Dataset.from_iterable(
-            [DatasetItem(1, annotations=[Label(0),],),],
+            [
+                DatasetItem(
+                    1,
+                    annotations=[
+                        Label(0),
+                    ],
+                ),
+            ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(["a", "b"]),
                 AnnotationType.points: PointsCategories.from_iterable(
-                    [(0, ["l0", "l1"]), (1, ["l2", "l3"]),]
+                    [
+                        (0, ["l0", "l1"]),
+                        (1, ["l2", "l3"]),
+                    ]
                 ),
-                AnnotationType.mask: MaskCategories({0: (0, 1, 2), 1: (1, 2, 3),}),
+                AnnotationType.mask: MaskCategories(
+                    {
+                        0: (0, 1, 2),
+                        1: (1, 2, 3),
+                    }
+                ),
             },
         )
 
         source1 = Dataset.from_iterable(
-            [DatasetItem(1, annotations=[Label(0),],),],
+            [
+                DatasetItem(
+                    1,
+                    annotations=[
+                        Label(0),
+                    ],
+                ),
+            ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(["c", "b"]),
                 AnnotationType.points: PointsCategories.from_iterable(
-                    [(0, []), (1, ["l2", "l3"]),]
+                    [
+                        (0, []),
+                        (1, ["l2", "l3"]),
+                    ]
                 ),
-                AnnotationType.mask: MaskCategories({0: (0, 2, 4), 1: (1, 2, 3),}),
+                AnnotationType.mask: MaskCategories(
+                    {
+                        0: (0, 2, 4),
+                        1: (1, 2, 3),
+                    }
+                ),
             },
         )
 
         expected = Dataset.from_iterable(
-            [DatasetItem(1, annotations=[Label(0), Label(2),],),],
+            [
+                DatasetItem(
+                    1,
+                    annotations=[
+                        Label(0),
+                        Label(2),
+                    ],
+                ),
+            ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(["a", "b", "c"]),
                 AnnotationType.points: PointsCategories.from_iterable(
-                    [(0, ["l0", "l1"]), (1, ["l2", "l3"]), (2, []),]
+                    [
+                        (0, ["l0", "l1"]),
+                        (1, ["l2", "l3"]),
+                        (2, []),
+                    ]
                 ),
-                AnnotationType.mask: MaskCategories({0: (0, 1, 2), 1: (1, 2, 3), 2: (0, 2, 4),}),
+                AnnotationType.mask: MaskCategories(
+                    {
+                        0: (0, 1, 2),
+                        1: (1, 2, 3),
+                        2: (0, 2, 4),
+                    }
+                ),
             },
         )
 

@@ -201,7 +201,10 @@ class ByteImage(Image):
 
     @classmethod
     def _guess_ext(cls, data: bytes) -> Optional[str]:
-        return next((ext for magic, ext in cls._FORMAT_MAGICS if data.startswith(magic)), None,)
+        return next(
+            (ext for magic, ext in cls._FORMAT_MAGICS if data.startswith(magic)),
+            None,
+        )
 
     def get_bytes(self):
         if callable(self._bytes_data):
