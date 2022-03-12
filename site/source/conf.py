@@ -34,7 +34,7 @@ release = VERSION
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+# extensions coming with Sphinx (named "sphinx.ext.*") or your custom
 # ones.
 extensions = [
     "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
@@ -44,6 +44,7 @@ extensions = [
     "sphinx.ext.autosectionlabel",  # Refer sections its title
     "sphinx.ext.intersphinx",  # Generate links to the documentation
     # of objects in external projects
+    "sphinxcontrib.mermaid",  # allows Mermaid graphs
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -95,7 +96,7 @@ intersphinx_mapping = {
 }
 
 nitpick_ignore_regex = [
-    ("py:class", r"^(.*[\s\"(\._)]+.*)+$"),  # Hiding warnings contain ' ', '"' or '._'
+    ("py:class", r"^(.*[\s\"(\._)]+.*)+$"),  # Hiding warnings contain " ", """ or "._"
     ("py:class", ""),
 ]
 

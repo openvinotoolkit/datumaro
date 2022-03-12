@@ -70,8 +70,8 @@ dataset = dm.Dataset.import_from(path, format)
 
       If a path refers to `project` (i.e. target name is not set, or
       this target is exactly specified), the target dataset is the result of
-      [joining](/docs/developer_manual/#merging) all the project data sources.
-      Otherwise, if the path refers to a data source revision, the
+      [joining](/api/api/developer_manual.html#merging) all the project data
+      sources. Otherwise, if the path refers to a data source revision, the
       corresponding stage from the revision build tree will be used.
 
 - Dataset building concepts:
@@ -80,7 +80,7 @@ dataset = dm.Dataset.import_from(path, format)
     A stage is referred by a name.
   - Build tree - A directed graph (tree) with root nodes at data sources
     and a single top node called `project`, which represents
-    a [joined](/docs/developer_manual/#merging) dataset.
+    a [joined](/api/api/developer_manual.html#merging) dataset.
     Each data source has a starting `root` node, which corresponds to the
     original dataset. The internal graph nodes are stages.
   - Build target - A data source or a stage name. Data source names correspond

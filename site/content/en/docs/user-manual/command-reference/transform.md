@@ -15,7 +15,7 @@ This command allows to modify dataset images or annotations all at once.
 > This command is designed for batch dataset processing, so if you only
 > need to modify few elements of a dataset, you might want to use
 > other approaches for better performance. A possible solution can be
-> a simple script, which uses [Datumaro API](/docs/developer_manual/).
+> a simple script, which uses [Datumaro API](/api/api/developer_manual.html).
 
 The command can be applied to a dataset or a project build target,
 a stage or the combined `project` target, in which case all the project
