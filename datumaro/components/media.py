@@ -525,5 +525,5 @@ class MultiframeImage(MediaElement):
         assert self._path or self._images
 
     @property
-    def data(self) -> np.ndarray:
+    def data(self) -> List[Image]:
         return self._images
