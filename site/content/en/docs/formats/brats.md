@@ -8,7 +8,10 @@ weight: 1
 ## Format specification
 
 The original BraTS dataset is available
-[here](https://www.med.upenn.edu/sbia/brats2018/data.html).
+[here](https://www.med.upenn.edu/sbia/brats2017/data.html).
+The BraTS data provided since BraTS'17 differs significantly from the data
+provided during the previous BraTS challenges (i.e., 2016 and backwards).
+Datumaro supports BraTS'17-20.
 
 Supported annotation types:
 - `Mask`
@@ -49,6 +52,10 @@ dataset/
     │── <img2>.nii.gz
     └── ...
 ```
+
+The data in Datumaro is stored as multi-frame images (set of 2D images).
+Annotated images are stored as masks for each 2d image separately
+with an `image_id` attribute.
 
 ## Export to other formats
 

@@ -47,6 +47,10 @@ dataset/
 └── val_ids.p
 ```
 
+The data in Datumaro is stored as multi-frame images (set of 2D images).
+Annotated images are stored as masks for each 2d image separately
+with an `image_id` attribute.
+
 ## Export to other formats
 
 Datumaro can convert a BraTS Numpy dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
