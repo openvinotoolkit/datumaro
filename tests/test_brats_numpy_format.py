@@ -28,7 +28,7 @@ class BratsNumpyImporterTest(TestCase):
             [
                 DatasetItem(
                     id="HGG_val0",
-                    media=MultiframeImage([np.ones((1, 5, 3))] * 2),
+                    media=MultiframeImage(np.ones((2, 1, 5, 4))),
                     annotations=[
                         Mask(np.array([[0, 0, 1, 1, 1]]), label=0, attributes={"image_id": 0}),
                         Mask(np.array([[1, 1, 0, 0, 0]]), label=1, attributes={"image_id": 0}),
@@ -40,7 +40,7 @@ class BratsNumpyImporterTest(TestCase):
                 ),
                 DatasetItem(
                     id="HGG_val1",
-                    media=MultiframeImage([np.ones((1, 5, 3))] * 2),
+                    media=MultiframeImage(np.ones((2, 1, 5, 4))),
                     annotations=[
                         Mask(np.array([[0, 1, 1, 1, 0]]), label=0, attributes={"image_id": 0}),
                         Mask(np.array([[1, 0, 0, 0, 1]]), label=1, attributes={"image_id": 0}),

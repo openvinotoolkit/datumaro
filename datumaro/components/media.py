@@ -511,8 +511,11 @@ class MultiframeImage(MediaElement):
     ):
         self._path = path
 
-        self._images = [None] * len(images or [])
-        for i, image in enumerate(images or []):
+        if images is None:
+            images = []
+
+        self._images = [None] * len(images)
+        for i, image in enumerate(images):
             assert isinstance(image, (str, Image, np.ndarray)) or callable(image)
 
             if isinstance(image, str):

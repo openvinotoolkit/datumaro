@@ -29,7 +29,7 @@ class BratsImporterTest(TestCase):
                 DatasetItem(
                     id="BRATS_001",
                     subset="train",
-                    media=MultiframeImage([np.ones((1, 5, 3))] * 2),
+                    media=MultiframeImage(np.ones((2, 1, 5, 4))),
                     annotations=[
                         Mask(np.array([[0, 0, 1, 1, 1]]), label=0, attributes={"image_id": 0}),
                         Mask(np.array([[1, 1, 0, 0, 0]]), label=1, attributes={"image_id": 0}),
@@ -39,7 +39,7 @@ class BratsImporterTest(TestCase):
                     ],
                 ),
                 DatasetItem(
-                    id="BRATS_002", subset="test", media=MultiframeImage([np.ones((1, 5, 3))] * 2)
+                    id="BRATS_002", subset="test", media=MultiframeImage(np.ones((2, 1, 5, 4)))
                 ),
             ],
             categories=["overall tumor", "edema", "non-enhancing tumor", "enhancing tumor"],
