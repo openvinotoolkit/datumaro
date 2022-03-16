@@ -62,7 +62,7 @@ class BratsNumpyExtractor(SourceExtractor):
                 data = np.load(image_path)[0].transpose()
                 images = [0] * data.shape[2]
                 for j in range(data.shape[2]):
-                    images[j] = data[:, :, i]
+                    images[j] = data[:, :, j]
 
                 media = MultiframeImage(images, path=image_path)
 
@@ -70,10 +70,11 @@ class BratsNumpyExtractor(SourceExtractor):
             mask_path = osp.join(self._root_dir, item_id + BratsNumpyPath.LABEL_SUFFIX + ".npy")
             if osp.isfile(mask_path):
                 mask = np.load(mask_path)[0].transpose()
-                classes = np.unique(mask)
-
-                for class_id in classes:
-                    anno.append(Mask(image=self._lazy_extract_mask(mask, class_id), label=class_id))
+                for j in range(mask.shape[2]):
+                    classes = np.unique(mask[:, :, j])
+                    for class_id in classes:
+                        anno.append(Mask(image=self._lazy_extract_mask(mask[:, :, j], class_id),
+                            label=class_id, attributes={'image_id': j}))
 
             if boxes is not None:
                 box = boxes[i]

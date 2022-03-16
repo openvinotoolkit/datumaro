@@ -31,9 +31,12 @@ class BratsImporterTest(TestCase):
                     subset="train",
                     media=MultiframeImage([np.ones((1, 5, 3))] * 2),
                     annotations=[
-                        Mask(np.array([[[0, 0], [0, 1], [1, 1], [1, 0], [1, 0]]]), label=0),
-                        Mask(np.array([[[1, 1], [1, 0], [0, 0], [0, 0], [0, 0]]]), label=1),
-                        Mask(np.array([[[0, 0], [0, 0], [0, 0], [0, 1], [0, 1]]]), label=2),
+                        Mask(np.array([[0, 0, 1, 1, 1]]), label=0, attributes={'image_id': 0}),
+                        Mask(np.array([[1, 1, 0, 0, 0]]), label=1, attributes={'image_id': 0}),
+
+                        Mask(np.array([[0, 1, 1, 0, 0]]), label=0, attributes={'image_id': 1}),
+                        Mask(np.array([[1, 0, 0, 0, 0]]), label=1, attributes={'image_id': 1}),
+                        Mask(np.array([[0, 0, 0, 1, 1]]), label=2, attributes={'image_id': 1}),
                     ],
                 ),
                 DatasetItem(
