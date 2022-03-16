@@ -3,7 +3,7 @@ defusedxml>=0.7.0
 lxml>=4.4.1
 matplotlib>=3.3.1
 networkx>=2.5
-nibabel
+nibabel>=3.2.1
 numpy>=1.17.3
 orjson>=3.6.6
 Pillow>=6.1.0
