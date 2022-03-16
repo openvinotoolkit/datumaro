@@ -32,11 +32,9 @@ class BratsNumpyImporterTest(TestCase):
                     annotations=[
                         Mask(np.array([[0, 0, 1, 1, 1]]), label=0, attributes={'image_id': 0}),
                         Mask(np.array([[1, 1, 0, 0, 0]]), label=1, attributes={'image_id': 0}),
-
                         Mask(np.array([[0, 1, 1, 0, 0]]), label=0, attributes={'image_id': 1}),
                         Mask(np.array([[1, 0, 0, 0, 0]]), label=1, attributes={'image_id': 1}),
                         Mask(np.array([[0, 0, 0, 1, 1]]), label=2, attributes={'image_id': 1}),
-
                         Cuboid3d(position=[1, 1, 1], rotation=[2, 2, 2]),
                     ],
                 ),
@@ -46,11 +44,9 @@ class BratsNumpyImporterTest(TestCase):
                     annotations=[
                         Mask(np.array([[0, 1, 1, 1, 0]]), label=0, attributes={'image_id': 0}),
                         Mask(np.array([[1, 0, 0, 0, 1]]), label=1, attributes={'image_id': 0}),
-
                         Mask(np.array([[0, 0, 1, 1, 0]]), label=0, attributes={'image_id': 1}),
                         Mask(np.array([[1, 1, 0, 0, 0]]), label=1, attributes={'image_id': 1}),
                         Mask(np.array([[0, 0, 0, 0, 1]]), label=3, attributes={'image_id': 1}),
-
                         Cuboid3d(position=[0, 0, 0], rotation=[1, 1, 1]),
                     ],
                 ),

@@ -73,8 +73,13 @@ class BratsNumpyExtractor(SourceExtractor):
                 for j in range(mask.shape[2]):
                     classes = np.unique(mask[:, :, j])
                     for class_id in classes:
-                        anno.append(Mask(image=self._lazy_extract_mask(mask[:, :, j], class_id),
-                            label=class_id, attributes={'image_id': j}))
+                        anno.append(
+                            Mask(
+                                image=self._lazy_extract_mask(mask[:, :, j], class_id),
+                                label=class_id,
+                                attributes={"image_id": j},
+                            )
+                        )
 
             if boxes is not None:
                 box = boxes[i]

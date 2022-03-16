@@ -77,8 +77,13 @@ class BratsExtractor(SourceExtractor):
             for i in range(data.shape[2]):
                 classes = np.unique(data[:, :, i])
                 for class_id in classes:
-                    anno.append(Mask(image=self._lazy_extract_mask(data[:, :, i], class_id),
-                        label=class_id, attributes={'image_id': i}))
+                    anno.append(
+                        Mask(
+                            image=self._lazy_extract_mask(data[:, :, i], class_id),
+                            label=class_id,
+                            attributes={"image_id": i},
+                        )
+                    )
 
             items[item_id].annotations = anno
 
