@@ -121,7 +121,11 @@ class MnistImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(
-            path, ".gz", "mnist", file_filter=lambda p: osp.basename(p).split("-")[1] == "labels"
+            path,
+            ".gz",
+            "mnist",
+            file_filter=lambda p: 1 < len(osp.basename(p).split("-"))
+            and osp.basename(p).split("-")[1] == "labels",
         )
 
 

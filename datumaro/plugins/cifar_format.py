@@ -8,7 +8,6 @@ import pickle  # nosec - disable B403:import_pickle check - fixed
 from collections import OrderedDict
 
 import numpy as np
-import numpy.core.multiarray
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.converter import Converter
@@ -18,26 +17,7 @@ from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.media import Image
 from datumaro.util import cast
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
-
-
-class RestrictedUnpickler(pickle.Unpickler):
-    def find_class(self, module, name):
-        if module == "numpy.core.multiarray" and name in PickleLoader.safe_numpy:
-            return getattr(numpy.core.multiarray, name)
-        elif module == "numpy" and name in PickleLoader.safe_numpy:
-            return getattr(numpy, name)
-        raise pickle.UnpicklingError("Global '%s.%s' is forbidden" % (module, name))
-
-
-class PickleLoader:
-    safe_numpy = {
-        "dtype",
-        "ndarray",
-        "_reconstruct",
-    }
-
-    def restricted_load(s):
-        return RestrictedUnpickler(s, encoding="latin1").load()
+from datumaro.util.pickle_util import PickleLoader
 
 
 class CifarPath:

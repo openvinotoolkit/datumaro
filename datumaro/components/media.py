@@ -500,3 +500,33 @@ class PointCloud(MediaElement):
         self._path = path
 
         self.extra_images: List[Image] = extra_images or []
+
+
+class MultiframeImage(MediaElement):
+    def __init__(
+        self,
+        images: Optional[Iterable[Union[str, Image, np.ndarray, Callable[[str], np.ndarray]]]],
+        *,
+        path: Optional[str] = None,
+    ):
+        self._path = path
+
+        if images is None:
+            images = []
+
+        self._images = [None] * len(images)
+        for i, image in enumerate(images):
+            assert isinstance(image, (str, Image, np.ndarray)) or callable(image)
+
+            if isinstance(image, str):
+                image = Image(path=image)
+            elif isinstance(image, np.ndarray) or callable(image):
+                image = Image(data=image)
+
+            self._images[i] = image
+
+        assert self._path or self._images
+
+    @property
+    def data(self) -> List[Image]:
+        return self._images

@@ -42,7 +42,7 @@ from datumaro.components.errors import (
     WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
-from datumaro.components.media import Image, MediaElement, PointCloud, Video
+from datumaro.components.media import Image, MediaElement, MultiframeImage, PointCloud, Video
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS,
@@ -187,6 +187,10 @@ class ExactMerge:
             not item_b.media or isinstance(item_b.media, Video)
         ):
             media = cls._merge_videos(item_a, item_b)
+        elif (not item_a.media or isinstance(item_a.media, MultiframeImage)) and (
+            not item_b.media or isinstance(item_b.media, MultiframeImage)
+        ):
+            media = cls._merge_multiframe_images(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, MediaElement)) and (
             not item_b.media or isinstance(item_b.media, MediaElement)
         ):
@@ -324,6 +328,38 @@ class ExactMerge:
 
             media = item_a.media
         elif isinstance(item_a.media, Video):
+            media = item_a.media
+        else:
+            media = item_b.media
+
+        return media
+
+    @staticmethod
+    def _merge_multiframe_images(item_a: DatasetItem, item_b: DatasetItem) -> MultiframeImage:
+        media = None
+
+        if isinstance(item_a.media, MultiframeImage) and isinstance(item_b.media, MultiframeImage):
+            if item_a.media.path and item_b.media.path and item_a.media.path != item_b.media.path:
+                raise MismatchingMediaPathError(
+                    (item_a.id, item_a.subset), item_a.media.path, item_b.media.path
+                )
+
+            if item_a.media.path or item_a.media.data:
+                media = item_a.media
+
+                if item_b.media.data:
+                    for image in item_b.media.data:
+                        if image not in media.data:
+                            media.data.append(image)
+            else:
+                media = item_b.media
+
+                if item_a.media.data:
+                    for image in item_a.media.data:
+                        if image not in media.data:
+                            media.data.append(image)
+
+        elif isinstance(item_a.media, MultiframeImage):
             media = item_a.media
         else:
             media = item_b.media
