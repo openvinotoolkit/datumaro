@@ -209,7 +209,7 @@ class InvalidFieldError(InvalidAnnotationError):
     name: str
 
     def __str__(self) -> str:
-        return f"Invalid anotation field {self.name} value"
+        return f"Invalid anotation field '{self.name}' value"
 
 
 @define(auto_exc=False)
@@ -222,7 +222,7 @@ class InvalidFieldTypeError(InvalidFieldError):
             expected = self.expected[0]
         else:
             expected = "one of " + ", ".join(self.expected)
-        return f"Invalid anotation field {self.name} type {self.actual}. Expected {expected}"
+        return f"Invalid anotation field '{self.name}' type '{self.actual}'. Expected {expected}"
 
 
 @define(auto_exc=False)
@@ -230,7 +230,7 @@ class MissingFieldError(InvalidAnnotationError):
     name: str
 
     def __str__(self) -> str:
-        return f"Missing anotation field {self.name}"
+        return f"Missing anotation field '{self.name}'"
 
 
 @define(auto_exc=False)
