@@ -197,21 +197,66 @@ class DatasetImportError(DatumaroError):
     pass
 
 
+class InvalidAnnotationError(DatasetImportError):
+    """
+    A basic dataset parsing error. Should include the problem description in
+    the message.
+    """
+
+
+@define(auto_exc=False)
+class InvalidFieldError(InvalidAnnotationError):
+    name: str
+
+    def __str__(self) -> str:
+        return f"Invalid anotation field {self.name} value"
+
+
+@define(auto_exc=False)
+class InvalidFieldTypeError(InvalidFieldError):
+    actual: str
+    expected: Tuple[str]
+
+    def __str__(self) -> str:
+        if len(self.expected) == 1:
+            expected = self.expected[0]
+        else:
+            expected = "one of " + ", ".join(self.expected)
+        return f"Invalid anotation field {self.name} type {self.actual}. Expected {expected}"
+
+
+@define(auto_exc=False)
+class MissingFieldError(InvalidAnnotationError):
+    name: str
+
+    def __str__(self) -> str:
+        return f"Missing anotation field {self.name}"
+
+
+@define(auto_exc=False)
+class InvalidLabelError(InvalidAnnotationError):
+    id: str  # index or name
+
+    def __str__(self) -> str:
+        return f"Invalid label value {self.id}"
+
+
 @define(auto_exc=False)
 class ItemImportError(DatasetImportError):
     """
-    Represents additional item error info. The error itself is supposed to be
-    in the `__cause__` member.
+    Wraps a dataset parsing error and provides additional error context info.
+    The error itself is supposed to be in the `__cause__` member.
     """
 
     item_id: Tuple[str, str]
 
     def __str__(self):
-        return "Failed to import item %s" % (self.item_id,)
+        return f"Failed to import item {self.item_id}"
 
 
 class AnnotationImportError(ItemImportError):
-    pass
+    def __str__(self):
+        return f"Failed to import item {self.item_id} annotation"
 
 
 @define(auto_exc=False)

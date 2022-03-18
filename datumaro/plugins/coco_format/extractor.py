@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
 import os.path as osp
-from typing import Any
+from inspect import isclass
+from typing import Any, Dict, Tuple, Type, TypeVar, Union
 
 import pycocotools.mask as mask_utils
 from attrs import define
@@ -22,14 +22,23 @@ from datumaro.components.annotation import (
     Polygon,
     RleMask,
 )
+from datumaro.components.errors import (
+    DatasetImportError,
+    InvalidAnnotationError,
+    InvalidFieldTypeError,
+    InvalidLabelError,
+    MissingFieldError,
+)
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor
 from datumaro.components.media import Image
-from datumaro.util import parse_json_file, take_by
+from datumaro.util import NOTSET, parse_json_file, take_by
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import CocoPath, CocoTask
+
+T = TypeVar("T")
 
 
 class _CocoExtractor(SourceExtractor):
@@ -48,7 +57,9 @@ class _CocoExtractor(SourceExtractor):
         keep_original_category_ids=False,
         **kwargs,
     ):
-        assert osp.isfile(path), path
+        if not osp.isfile(path):
+            raise DatasetImportError(f"Can't find JSON file path at '{path}'")
+        self._path = path
 
         if not subset:
             parts = osp.splitext(osp.basename(path))[0].split(task.name + "_", maxsplit=1)
@@ -101,19 +112,31 @@ class _CocoExtractor(SourceExtractor):
             CocoTask.panoptic,
         ]:
             self._load_label_categories(
-                json_data["categories"],
+                self._parse_field(json_data, "categories", list),
                 keep_original_ids=keep_original_ids,
             )
 
         if self._task == CocoTask.person_keypoints:
-            self._load_person_kp_categories(json_data["categories"])
+            self._load_person_kp_categories(self._parse_field(json_data, "categories", list))
 
     def _load_label_categories(self, json_cat, *, keep_original_ids):
         categories = LabelCategories()
         label_map = {}
 
+        cats = sorted(
+            (
+                {
+                    "id": self._parse_field(c, "id", int),
+                    "name": self._parse_field(c, "name", str),
+                    "supercategory": c.get("supercategory"),
+                }
+                for c in json_cat
+            ),
+            key=lambda cat: cat["id"],
+        )
+
         if keep_original_ids:
-            for cat in sorted(json_cat, key=lambda cat: cat["id"]):
+            for cat in cats:
                 label_map[cat["id"]] = cat["id"]
 
                 while len(categories) < cat["id"]:
@@ -121,7 +144,7 @@ class _CocoExtractor(SourceExtractor):
 
                 categories.add(cat["name"], parent=cat.get("supercategory"))
         else:
-            for idx, cat in enumerate(sorted(json_cat, key=lambda cat: cat["id"])):
+            for idx, cat in enumerate(cats):
                 label_map[cat["id"]] = idx
                 categories.add(cat["name"], parent=cat.get("supercategory"))
 
@@ -131,8 +154,12 @@ class _CocoExtractor(SourceExtractor):
     def _load_person_kp_categories(self, json_cat):
         categories = PointsCategories()
         for cat in json_cat:
-            label_id = self._label_map[cat["id"]]
-            categories.add(label_id, labels=cat["keypoints"], joints=cat["skeleton"])
+            label_id = self._label_map[self._parse_field(cat, "id", int)]
+            categories.add(
+                label_id,
+                labels=self._parse_field(cat, "keypoints", list),
+                joints=self._parse_field(cat, "skeleton", list),
+            )
 
         self._categories[AnnotationType.points] = categories
 
@@ -140,25 +167,28 @@ class _CocoExtractor(SourceExtractor):
         pbars = self._ctx.progress_reporter.split(2)
         items = {}
         img_infos = {}
-        for img_info in pbars[0].iter(json_data["images"], desc="Parsing image info"):
+        for img_info in pbars[0].iter(
+            self._parse_field(json_data, "images", list),
+            desc=f"Parsing image info in '{osp.basename(self._path)}'",
+        ):
+            img_id = None
             try:
-                img_id = img_info.get("id")
-                if not isinstance(img_id, int):
-                    raise ValueError("Invalid image id value '%s'" % img_id)
-
+                img_id = self._parse_field(img_info, "id", int)
                 img_infos[img_id] = img_info
 
                 if img_info.get("height") and img_info.get("width"):
-                    image_size = (img_info["height"], img_info["width"])
+                    image_size = (
+                        self._parse_field(img_info, "height", int),
+                        self._parse_field(img_info, "width", int),
+                    )
                 else:
                     image_size = None
 
+                file_name = self._parse_field(img_info, "file_name", str)
                 items[img_id] = DatasetItem(
-                    id=osp.splitext(img_info["file_name"])[0],
+                    id=osp.splitext(file_name)[0],
                     subset=self._subset,
-                    media=Image(
-                        path=osp.join(self._images_dir, img_info["file_name"]), size=image_size
-                    ),
+                    media=Image(path=osp.join(self._images_dir, file_name), size=image_size),
                     annotations=[],
                     attributes={"id": img_id},
                 )
@@ -166,11 +196,15 @@ class _CocoExtractor(SourceExtractor):
                 self._ctx.error_policy.report_item_error(e, item_id=(img_id, self._subset))
 
         if self._task is not CocoTask.panoptic:
-            for ann in pbars[1].iter(json_data["annotations"], desc="Parsing annotations"):
+            for ann in pbars[1].iter(
+                self._parse_field(json_data, "annotations", list),
+                desc=f"Parsing annotations in '{osp.basename(self._path)}'",
+            ):
+                img_id = None
                 try:
-                    img_id = ann.get("image_id")
-                    if not isinstance(img_id, int):
-                        raise ValueError("Invalid image id value '%s'" % img_id)
+                    img_id = self._parse_field(ann, "image_id", int)
+                    if img_id not in img_infos:
+                        raise InvalidAnnotationError(f"Unknown image id '{img_id}'")
 
                     self._load_annotations(
                         ann, img_infos[img_id], parsed_annotations=items[img_id].annotations
@@ -180,11 +214,15 @@ class _CocoExtractor(SourceExtractor):
                         e, item_id=(img_id, self._subset)
                     )
         else:
-            for ann in pbars[1].iter(json_data["annotations"], desc="Parsing annotations"):
+            for ann in pbars[1].iter(
+                self._parse_field(json_data, "annotations", list),
+                desc=f"Parsing annotations in '{osp.basename(self._path)}'",
+            ):
+                img_id = None
                 try:
-                    img_id = ann.get("image_id")
-                    if not isinstance(img_id, int):
-                        raise ValueError("Invalid image id value '%s'" % img_id)
+                    img_id = self._parse_field(ann, "image_id", int)
+                    if img_id not in img_infos:
+                        raise InvalidAnnotationError(f"Unknown image id '{img_id}'")
 
                     self._load_panoptic_ann(ann, items[img_id].annotations)
                 except Exception as e:
@@ -200,13 +238,13 @@ class _CocoExtractor(SourceExtractor):
 
         # For the panoptic task, each annotation struct is a per-image
         # annotation rather than a per-object annotation.
-        mask_path = osp.join(self._mask_dir, ann["file_name"])
+        mask_path = osp.join(self._mask_dir, self._parse_field(ann, "file_name", str))
         mask = lazy_image(mask_path, loader=self._load_pan_mask)
         mask = CompiledMask(instance_mask=mask)
-        for segm_info in ann["segments_info"]:
+        for segm_info in self._parse_field(ann, "segments_info", list):
             cat_id = self._get_label_id(segm_info)
-            segm_id = segm_info["id"]
-            attributes = {"is_crowd": bool(segm_info["iscrowd"])}
+            segm_id = self._parse_field(segm_info, "id", int)
+            attributes = {"is_crowd": bool(self._parse_field(segm_info, "iscrowd", int))}
             parsed_annotations.append(
                 Mask(
                     image=mask.lazy_extract(segm_id),
@@ -236,19 +274,37 @@ class _CocoExtractor(SourceExtractor):
             return mask_utils.merge(rles)
 
     def _get_label_id(self, ann):
-        if not ann["category_id"]:
+        cat_id = self._parse_field(ann, "category_id", int)
+        if not cat_id:
             return None
-        return self._label_map[ann["category_id"]]
+
+        label_id = self._label_map.get(cat_id)
+        if label_id is None:
+            raise InvalidLabelError(str(cat_id))
+        return label_id
+
+    def _parse_field(
+        self, ann: Dict[str, Any], key: str, cls: Union[None, Type[T], Tuple[Type, ...]]
+    ) -> T:
+        value = ann.get(key, NOTSET)
+        if value is NOTSET:
+            raise MissingFieldError(key)
+        elif cls and not isinstance(value, cls):
+            cls = (cls,) if isclass(cls) else cls
+            raise InvalidFieldTypeError(
+                key, actual=str(type(value)), expected=tuple(str(t) for t in cls)
+            )
+        return value
 
     def _load_annotations(self, ann, image_info=None, parsed_annotations=None):
         if parsed_annotations is None:
             parsed_annotations = []
 
-        ann_id = ann["id"]
+        ann_id = self._parse_field(ann, "id", int)
 
         attributes = ann.get("attributes", {})
         if "score" in ann:
-            attributes["score"] = ann["score"]
+            attributes["score"] = self._parse_field(ann, "score", (int, float))
 
         group = ann_id  # make sure all tasks' annotations are merged
 
@@ -259,10 +315,16 @@ class _CocoExtractor(SourceExtractor):
         ):
             label_id = self._get_label_id(ann)
 
-            attributes["is_crowd"] = bool(ann["iscrowd"])
+            attributes["is_crowd"] = bool(self._parse_field(ann, "iscrowd", int))
 
             if self._task is CocoTask.person_keypoints:
-                keypoints = ann["keypoints"]
+                keypoints = self._parse_field(ann, "keypoints", list)
+                if len(keypoints) % 3 != 0:
+                    raise InvalidAnnotationError(
+                        "Keypoints have invalid value count %s, which is not divisible by 3. "
+                        "Expected (x, y, visibility) triplets." % (len(keypoints),)
+                    )
+
                 points = []
                 visibility = []
                 for x, y, v in take_by(keypoints, 3):
@@ -281,7 +343,7 @@ class _CocoExtractor(SourceExtractor):
                     )
                 )
 
-            segmentation = ann["segmentation"]
+            segmentation = self._parse_field(ann, "segmentation", (list, dict))
             if segmentation and segmentation != [[]]:
                 rle = None
 
@@ -289,6 +351,13 @@ class _CocoExtractor(SourceExtractor):
                     if not self._merge_instance_polygons:
                         # polygon - a single object can consist of multiple parts
                         for polygon_points in segmentation:
+                            if len(polygon_points) % 2 != 0 or len(polygon_points) < 6:
+                                raise InvalidAnnotationError(
+                                    "Polygon has invalid value count %s, "
+                                    "which is not divisible by 2. "
+                                    "Expected at least 3 (x, y) pairs." % (len(polygon_points),)
+                                )
+
                             parsed_annotations.append(
                                 Polygon(
                                     points=polygon_points,
@@ -300,26 +369,20 @@ class _CocoExtractor(SourceExtractor):
                             )
                     else:
                         # merge all parts into a single mask RLE
-                        rle = self._lazy_merged_mask(
-                            segmentation, image_info["height"], image_info["width"]
-                        )
+                        img_h = self._parse_field(image_info, "height", (int, float))
+                        img_w = self._parse_field(image_info, "width", (int, float))
+                        rle = self._lazy_merged_mask(segmentation, img_h, img_w)
                 elif isinstance(segmentation["counts"], list):
                     # uncompressed RLE
-                    img_h = image_info["height"]
-                    img_w = image_info["width"]
-                    mask_h, mask_w = segmentation["size"]
-                    if img_h == mask_h and img_w == mask_w:
-                        rle = self._lazy_merged_mask([segmentation], mask_h, mask_w)
-                    else:
-                        log.warning(
-                            "item #%s: mask #%s "
-                            "does not match image size: %s vs. %s. "
-                            "Skipping this annotation.",
-                            image_info["id"],
-                            ann_id,
-                            (mask_h, mask_w),
-                            (img_h, img_w),
+                    img_h = self._parse_field(image_info, "height", (int, float))
+                    img_w = self._parse_field(image_info, "width", (int, float))
+                    mask_h, mask_w = self._parse_field(segmentation, "size", list)
+                    if not ((img_h == mask_h) and (img_w == mask_w)):
+                        raise InvalidAnnotationError(
+                            "Mask #%s does not match image size: %s vs. %s"
+                            % (ann_id, (mask_h, mask_w), (img_h, img_w))
                         )
+                    rle = self._lazy_merged_mask([segmentation], mask_h, mask_w)
                 else:
                     # compressed RLE
                     rle = segmentation
@@ -331,7 +394,13 @@ class _CocoExtractor(SourceExtractor):
                         )
                     )
             else:
-                x, y, w, h = ann["bbox"]
+                bbox = self._parse_field(ann, "bbox", list)
+                if len(bbox) != 4:
+                    raise InvalidAnnotationError(
+                        "Bbox has wrong value count %s. Expected 4 values." % (len(bbox),)
+                    )
+
+                x, y, w, h = bbox
                 parsed_annotations.append(
                     Bbox(x, y, w, h, label=label_id, id=ann_id, attributes=attributes, group=group)
                 )
@@ -341,7 +410,7 @@ class _CocoExtractor(SourceExtractor):
                 Label(label=label_id, id=ann_id, attributes=attributes, group=group)
             )
         elif self._task is CocoTask.captions:
-            caption = ann["caption"]
+            caption = self._parse_field(ann, "caption", str)
             parsed_annotations.append(
                 Caption(caption, id=ann_id, attributes=attributes, group=group)
             )
