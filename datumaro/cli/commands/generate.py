@@ -2,9 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
+from shutil import rmtree
 import argparse
 import logging as log
+import os
+import os.path as osp
 
+from datumaro.cli.util.errors import CliException
 from datumaro.plugins.synthetic_data import ImageGenerator
 
 from ..util import MultilineFormatter
@@ -13,8 +17,8 @@ from ..util import MultilineFormatter
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Generate synthetic dataset",
         description="""
-        Create a synthetic dataset whose elements have the specified shape and
-        storing them in provided directory.|n
+        Creates a synthetic dataset with elements of the specified shape and
+        saves it in the provided directory.|n
         To create 3-channel images, you should provide height and width for them.|n
         |n
         Examples:|n
@@ -43,12 +47,20 @@ def get_sensitive_args():
 
 def generate_command(args):
     log.info("Generating dataset...")
+    output_dir = args.output_dir
+
+    if osp.isdir(output_dir) and os.listdir(output_dir):
+        if args.overwrite:
+            rmtree(output_dir)
+            os.mkdir(output_dir)
+        else:
+            raise CliException("Directory '%s' already exists "
+                "(pass --overwrite to overwrite)" % output_dir)
 
     ImageGenerator(
         count=args.count,
-        output_dir=args.output_dir,
-        shape=args.shape,
-        overwrite=args.overwrite
+        output_dir=output_dir,
+        shape=args.shape
     ).generate_dataset()
 
     log.info("Results have been saved to '%s'", args.output_dir)

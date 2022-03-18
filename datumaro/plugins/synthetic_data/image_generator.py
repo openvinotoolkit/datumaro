@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+from importlib_resources import files
 from multiprocessing import Pool
 from random import Random
-from shutil import rmtree
 from typing import List, Optional, Tuple
 import logging as log
 import os
@@ -13,7 +13,6 @@ import os.path as osp
 import cv2 as cv
 import numpy as np
 
-from datumaro.cli.util.errors import CliException
 from datumaro.components.cli_plugin import CliPlugin
 
 from .utils import IFSFunction, augment, colorize, download_colorization_model
@@ -21,7 +20,7 @@ from .utils import IFSFunction, augment, colorize, download_colorization_model
 
 class ImageGenerator(CliPlugin):
     """
-    ImageGenerator generates a 3-channel synthetic images with provided shape.
+    ImageGenerator generates 3-channel synthetic images with provided shape.
     """
 
     @classmethod
@@ -38,68 +37,31 @@ class ImageGenerator(CliPlugin):
 
         return parser
 
-    def __init__(self, output_dir: str, count: int,
-                 shape: Tuple[int, int], overwrite: bool = False):
+    def __init__(self, output_dir: str, count: int, shape: Tuple[int, int]):
         self._count = count
         self._output_dir = output_dir
         assert len(shape) == 2
         self._height, self._width = shape
 
         if not osp.exists(output_dir):
-            os.mkdir(output_dir)
-        elif osp.isdir(output_dir) and os.listdir(output_dir):
-            if overwrite:
-                rmtree(output_dir)
-                os.mkdir(output_dir)
-            else:
-                raise CliException("Directory '%s' already exists "
-                    "(pass --overwrite to overwrite)" % output_dir)
+            os.makedirs(output_dir)
 
-        self._rng = Random(0)
         self._cpu_count = min(os.cpu_count(), self._count)
-        self._weights = np.array([
-            0.2, 1, 1, 1, 1, 1,
-            0.6, 1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1, 1,
-            1.4, 1, 1, 1, 1, 1,
-            1.8, 1, 1, 1, 1, 1,
-            1, 0.2, 1, 1, 1, 1,
-            1, 0.6, 1, 1, 1, 1,
-            1, 1.4, 1, 1, 1, 1,
-            1, 1.8, 1, 1, 1, 1,
-            1, 1, 0.2, 1, 1, 1,
-            1, 1, 0.6, 1, 1, 1,
-            1, 1, 1.4, 1, 1, 1,
-            1, 1, 1.8, 1, 1, 1,
-            1, 1, 1, 0.2, 1, 1,
-            1, 1, 1, 0.6, 1, 1,
-            1, 1, 1, 1.4, 1, 1,
-            1, 1, 1, 1.8, 1, 1,
-            1, 1, 1, 1, 0.2, 1,
-            1, 1, 1, 1, 0.6, 1,
-            1, 1, 1, 1, 1.4, 1,
-            1, 1, 1, 1, 1.8, 1,
-            1, 1, 1, 1, 1, 0.2,
-            1, 1, 1, 1, 1, 0.6,
-            1, 1, 1, 1, 1, 1.4,
-            1, 1, 1, 1, 1, 1.8,
-        ]).reshape(-1, 6)
+        self._weights = self._create_weights(IFSFunction.NUM_PARAMS)
+
         self._threshold = 0.2
         self._iterations = 200000
-        self._num_of_points = None
-        self._instances = None
-        self._categories = None
 
-        path = osp.dirname(osp.abspath(__file__))
-        download_colorization_model(path)
+        self._path = os.getcwd()
+        download_colorization_model(self._path)
         self._initialize_params()
 
     def generate_dataset(self) -> None:
-        log.info("Generating 3-channel images with height = '%d' and width = '%d'" % \
-            (self._height, self._width))
+        log.info("Generating 3-channel images with height = '%d' and width = '%d'",
+            self._height, self._width)
 
         with Pool(processes=self._cpu_count) as pool:
-            params = pool.map(self._generate_category, [1e-5] * self._categories)
+            params = pool.map(self._generate_category, [Random(i) for i in range(self._categories)])
 
         instances_weights = np.repeat(self._weights, self._instances, axis=0)
         weight_per_img = np.tile(instances_weights, (self._categories, 1))
@@ -114,55 +76,65 @@ class ImageGenerator(CliPlugin):
 
         generation_params = []
         offset = 0
-        for param, w in zip(params_per_proc, weights_per_proc):
+        for i, (param, w) in enumerate(zip(params_per_proc, weights_per_proc)):
             indices = list(range(offset, offset + len(param)))
             offset += len(param)
-            generation_params.append((param, w, indices))
+            generation_params.append((Random(i), param, w, indices))
 
         with Pool(processes=self._cpu_count) as pool:
             pool.starmap(self._generate_image_batch, generation_params)
 
-    def _generate_image_batch(self, params: np.ndarray, weights: np.ndarray, indices: List[int]) -> None:
-        path = osp.dirname(osp.abspath(__file__))
-        proto = osp.join(path, 'colorization_deploy_v2.prototxt')
-        model = osp.join(path, 'colorization_release_v2.caffemodel')
-        npy = osp.join(path, 'pts_in_hull.npy')
+    def _generate_image_batch(self, rng: Random, params: np.ndarray, weights: np.ndarray, indices: List[int]) -> None:
+        proto = osp.join(self._path, 'colorization_deploy_v2.prototxt')
+        model = osp.join(self._path, 'colorization_release_v2.caffemodel')
+        npy = osp.join(self._path, 'pts_in_hull.npy')
         pts_in_hull = np.load(npy).transpose().reshape(2, 313, 1, 1).astype(np.float32)
+
+        back_path = files('datumaro.plugins.synthetic_data').joinpath('synthetic_background.txt')
+        source = back_path.read_text().replace(' ', '').split(',')
+        synthetic_background = np.array(list(map(float, source))).reshape(-1, 3)
+
         net = cv.dnn.readNetFromCaffe(proto, model)
         net.getLayer(net.getLayerId('class8_ab')).blobs = [pts_in_hull]
         net.getLayer(net.getLayerId('conv8_313_rh')).blobs = [np.full([1, 313], 2.606, np.float32)]
 
         for i, param, w in zip(indices, params, weights):
-            image = self._generator(param, self._iterations, self._height, self._width, draw_point=False, weight=w)
+            image = self._generate_image(rng,
+                                         param,
+                                         self._iterations,
+                                         self._height,
+                                         self._width,
+                                         draw_point=False,
+                                         weight=w)
             color_image = colorize(image, net)
-            aug_image = augment(self._rng, color_image)
+            aug_image = augment(rng, color_image, synthetic_background)
             cv.imwrite(osp.join(self._output_dir, "{:06d}.png".format(i)), aug_image)
 
-    def _generator(self, params: np.ndarray, iterations: int, height: int, width: int,
-                   draw_point: bool = True, weight: Optional[np.ndarray] = None) -> np.ndarray:
-        ifs_function = IFSFunction(self._rng, prev_x=0.0, prev_y=0.0)
+    def _generate_image(self, rng: Random, params: np.ndarray, iterations: int, height: int, width: int,
+                        draw_point: bool = True, weight: Optional[np.ndarray] = None) -> np.ndarray:
+        ifs_function = IFSFunction(rng, prev_x=0.0, prev_y=0.0)
         for param in params:
-            ifs_function.set_param(param[:6], param[6], weight)
+            ifs_function.add_param(param[:6], param[6], weight)
         ifs_function.calculate(iterations)
         img = ifs_function.draw(height, width, draw_point)
         return img
 
-    def _generate_category(self, eps: float, base_h: int = 512, base_w: int = 512) -> np.ndarray:
+    def _generate_category(self, rng: Random, base_h: int = 512, base_w: int = 512) -> np.ndarray:
         pixels = -1
         while pixels < self._threshold:
-            param_size = self._rng.randint(2, 7)
+            param_size = rng.randint(2, 7)
             params = np.zeros((param_size, 7), dtype=np.float32)
 
-            sum_proba = eps
+            sum_proba = 1e-5
             for i in range(param_size):
-                a, b, c, d, e, f = [self._rng.uniform(-1.0, 1.0) for _ in range(6)]
+                a, b, c, d, e, f = [rng.uniform(-1.0, 1.0) for _ in range(6)]
                 prob = abs(a * d - b * c)
                 sum_proba += prob
                 params[i] = a, b, c, d, e, f, prob
             params[:, 6] /= sum_proba
 
-            fracral_img = self._generator(params, self._num_of_points, base_h, base_w)
-            pixels = np.count_nonzero(fracral_img) / (base_h * base_w)
+            fractal_img = self._generate_image(rng, params, self._num_of_points, base_h, base_w)
+            pixels = np.count_nonzero(fractal_img) / (base_h * base_w)
         return params
 
     def _initialize_params(self) -> None:
@@ -170,10 +142,25 @@ class ImageGenerator(CliPlugin):
         points_coeff = max(1, int(np.round(self._height * self._width / default_img_size)))
         self._num_of_points = 100000 * points_coeff
 
-        if self._count < len(self._weights):
-            self._instances = 1
-            self._categories = 1
+        instances_categories = np.ceil(self._count / self._weights.shape[0])
+        self._instances = np.ceil(np.sqrt(instances_categories)).astype(np.int)
+        self._categories = np.floor(np.sqrt(instances_categories)).astype(np.int)
+
+        if self._count < self._weights.shape[0]:
             self._weights = self._weights[:self._count, :]
-        else:
-            self._instances = np.ceil(0.25 * self._count / self._weights.shape[0]).astype(int)
-            self._categories = np.ceil(self._count / (self._instances * self._weights.shape[0])).astype(int)
+
+    @staticmethod
+    def _create_weights(num_params):
+        # weights from https://openaccess.thecvf.com/content/ACCV2020/papers/Kataoka_Pre-training_without_Natural_Images_ACCV_2020_paper.pdf
+        BASE_WEIGHTS = np.ones((num_params,))
+        WEIGHT_INTERVAL = 0.4
+        INTERVAL_MULTIPLIERS = (-2, -1, 1, 2)
+        weight_vectors = [BASE_WEIGHTS]
+
+        for weight_index in range(num_params):
+            for multiplier in INTERVAL_MULTIPLIERS:
+                modified_weights = BASE_WEIGHTS.copy()
+                modified_weights[weight_index] += multiplier * WEIGHT_INTERVAL
+                weight_vectors.append(modified_weights)
+        weights = np.array(weight_vectors).reshape(-1, 6)
+        return weights

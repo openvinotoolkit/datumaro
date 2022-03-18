@@ -25,3 +25,17 @@ class ImageGeneratorTest(TestCase):
                 self.assertEqual(H, 224)
                 self.assertEqual(W, 256)
                 self.assertEqual(C, 3)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_generate_image(self):
+        ref_dir = osp.join(osp.dirname(__file__), 'assets', 'synthetic_dataset', 'images')
+        with TestDir() as test_dir:
+            dataset_size = 3
+            ImageGenerator(test_dir, dataset_size, shape=[24,36]).generate_dataset()
+            image_files = os.listdir(test_dir)
+            self.assertEqual(len(image_files), dataset_size)
+
+            for filename in image_files:
+                image = image_module.load_image(osp.join(test_dir, filename))
+                ref_image = image_module.load_image(osp.join(ref_dir, filename))
+                self.assertEqual(image.all(), ref_image.all())

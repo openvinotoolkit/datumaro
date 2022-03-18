@@ -2,15 +2,19 @@
 #
 # SPDX-License-Identifier: MIT
 
-from pathlib import Path
 import os.path as osp
 
 import cv2 as cv
 import numpy as np
 import requests
+import warnings
+
+warnings.filterwarnings("ignore", message=r"(invalid value|overflow) encountered")
 
 
 class IFSFunction:
+    NUM_PARAMS = 6
+
     def __init__(self, rng, prev_x, prev_y):
         self.function = []
         self.xs, self.ys = [prev_x], [prev_y]
@@ -18,7 +22,7 @@ class IFSFunction:
         self.cum_proba = 0.0
         self._rng = rng
 
-    def set_param(self, params, proba, weights=None):
+    def add_param(self, params, proba, weights=None):
         if weights is not None:
             params = list(np.array(params) * np.array(weights))
 
@@ -27,14 +31,14 @@ class IFSFunction:
         self.select_function.append(self.cum_proba)
 
     def calculate(self, iterations):
-        rand = [self._rng.random() for _ in range(iterations)]
-        prev_x, prev_y = 0, 0
-        next_x, next_y = 0, 0
+        prev_x, prev_y = self.xs[0], self.ys[0]
+        next_x, next_y = self.xs[0], self.ys[0]
 
-        for i in range(iterations):
+        for _ in range(iterations):
+            rand = self._rng.random()
             for func_params, select_func in zip(self.function, self.select_function):
                 a, b, c, d, e, f = func_params
-                if rand[i] <= select_func:
+                if rand <= select_func:
                     next_x = prev_x * a + prev_y * b + e
                     next_y = prev_x * c + prev_y * d + f
                     break
@@ -70,8 +74,8 @@ class IFSFunction:
             ys -= np.min(ys)
         xmax, xmin = np.max(xs), np.min(xs)
         ymax, ymin = np.max(ys), np.min(ys)
-        self.xs = np.uint16(xs / (xmax - xmin) * (image_x - 2 * pad_x) + pad_x)
-        self.ys = np.uint16(ys / (ymax - ymin) * (image_y - 2 * pad_y) + pad_y)
+        self.xs = np.uint16(xs / (xmax - xmin + 1e-5) * (image_x - 2 * pad_x) + pad_x)
+        self.ys = np.uint16(ys / (ymax - ymin + 1e-5) * (image_y - 2 * pad_y) + pad_y)
 
     def draw(self, image_x, image_y, draw_point, pad_x=6, pad_y=6):
         self.rescale(image_x, image_y, pad_x, pad_y)
@@ -135,7 +139,7 @@ def colorize(frame, net):
     return cv.resize(frame_normed, (W_orig, H_orig))
 
 
-def augment(rng, image):
+def augment(rng, image, synthetic_background):
     if rng.random() >= 0.5:
         image = cv.flip(image, 1)
 
@@ -147,17 +151,15 @@ def augment(rng, image):
     rotate_matrix = cv.getRotationMatrix2D(center=(width / 2, height / 2), angle=angle, scale=1)
     image = cv.warpAffine(src=image, M=rotate_matrix, dsize=(width, height))
 
-    image = fill_background(rng, image)
-
-    k_size = rng.choice(list(range(1, 16, 2)))
-    image = cv.GaussianBlur(image, (k_size, k_size), 0)
+    image = fill_background(rng, image, synthetic_background)
+    if rng.random() >= 0.3:
+        k_size = rng.choice(list(range(1, 16, 2)))
+        image = cv.GaussianBlur(image, (k_size, k_size), 0)
     return image
 
 
-def fill_background(rng, image):
-    synthetic_background = Path(__file__).parent / 'synthetic_background.npy'
-    imagenet_means = np.load(synthetic_background)
-    class_id = rng.randint(0, imagenet_means.shape[0] - 1)
+def fill_background(rng, image, synthetic_background):
+    class_id = rng.randint(0, synthetic_background.shape[0] - 1)
     rows, cols = np.where(~np.any(image, axis=-1))  # background color = [0, 0, 0]
-    image[rows, cols] = imagenet_means[class_id]
+    image[rows, cols] = synthetic_background[class_id]
     return image
