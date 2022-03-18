@@ -207,7 +207,7 @@ class LfwImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
         context.require_file(
-            f'*/{LfwPath.ANNOTATION_DIR}/{LfwPath.PAIRS_FILE}')
+            f'{LfwPath.ANNOTATION_DIR}/{LfwPath.PAIRS_FILE}')
 
     @classmethod
     def find_sources(cls, path):
