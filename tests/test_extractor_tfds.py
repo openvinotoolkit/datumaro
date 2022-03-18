@@ -8,7 +8,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.extractor_tfds import AVAILABLE_TFDS_DATASETS, TFDS_EXTRACTOR_AVAILABLE
-from datumaro.components.media import Image
+from datumaro.components.media import Image, MediaElement
 from datumaro.util.image import decode_image, encode_image
 from datumaro.util.test_utils import compare_datasets, mock_tfds_data
 
@@ -24,7 +24,41 @@ class TfdsDatasetsTest(TestCase):
         env = Environment()
 
         for dataset in AVAILABLE_TFDS_DATASETS.values():
+            assert isinstance(dataset.metadata.human_name, str)
+            assert dataset.metadata.human_name != ""
+
             assert dataset.metadata.default_output_format in env.converters
+
+            assert issubclass(dataset.metadata.media_type, MediaElement)
+
+            # The home URL is optional, but currently every dataset has one.
+            assert isinstance(dataset.metadata.home_url, str)
+            assert dataset.metadata.home_url != ""
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_remote_metadata(self):
+        with mock_tfds_data():
+            dataset = AVAILABLE_TFDS_DATASETS["mnist"]
+
+            remote_meta = dataset.query_remote_metadata()
+
+            # verify that the remote metadata contains a copy of the local metadata
+            for attribute in dataset.metadata.__attrs_attrs__:
+                assert getattr(dataset.metadata, attribute.name) == getattr(
+                    remote_meta, attribute.name
+                )
+
+            tfds_info = tfds.builder("mnist").info
+
+            assert remote_meta.description == tfds_info.description
+            assert remote_meta.download_size == tfds_info.download_size
+            assert remote_meta.num_classes == len(tfds_info.features["label"].names)
+            assert remote_meta.version == tfds_info.version
+
+            assert len(remote_meta.subsets) == len(tfds_info.splits)
+
+            for split_name, split in tfds_info.splits.items():
+                assert remote_meta.subsets[split_name].num_items == sum(split.shard_lengths)
 
 
 @skipIf(not TFDS_EXTRACTOR_AVAILABLE, reason="TFDS is not installed")
