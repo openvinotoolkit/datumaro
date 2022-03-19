@@ -132,7 +132,10 @@ class CommonSegmentationImporter(Importer):
         with context.require_any():
             with context.alternative():
                 context.require_file(
-                    f"**/{CommonSegmentationPath.IMAGES_DIR}/*{CommonSegmentationPath.IMAGE_EXT}"
+                    f"**/{CommonSegmentationPath.IMAGES_DIR}/*.*"
+                )
+                context.require_file(
+                    f"**/{CommonSegmentationPath.MASKS_DIR}/*.*"
                 )
 
     @classmethod
