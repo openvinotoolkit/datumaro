@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Tuple
 import os
 import os.path as osp
 from abc import ABC, abstractmethod
+from typing import Tuple
 
 from datumaro.components.cli_plugin import CliPlugin
 
@@ -18,12 +18,23 @@ class DatasetGenerator(ABC, CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-o', '--output-dir', type=osp.abspath, required=True,
-            help="Path to the directory where dataset are saved")
-        parser.add_argument('-k', '--count', type=int, required=True,
-            help="Number of data to generate")
-        parser.add_argument('--shape', nargs='+', type=int, required=True,
-            help="Data shape. For example, for image with height = 256 and width = 224: --shape 256 224")
+        parser.add_argument(
+            "-o",
+            "--output-dir",
+            type=osp.abspath,
+            required=True,
+            help="Path to the directory where dataset are saved",
+        )
+        parser.add_argument(
+            "-k", "--count", type=int, required=True, help="Number of data to generate"
+        )
+        parser.add_argument(
+            "--shape",
+            nargs="+",
+            type=int,
+            required=True,
+            help="Data shape. For example, for image with height = 256 and width = 224: --shape 256 224",
+        )
 
         return parser
 

@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
-from importlib_resources import files
-from multiprocessing import Pool
-from random import Random
-from typing import List, Optional, Tuple
 import logging as log
 import os
 import os.path as osp
+from importlib.resources import read_text
+from multiprocessing import Pool
+from random import Random
+from typing import List, Optional, Tuple
 
 import cv2 as cv
 import numpy as np
@@ -29,7 +29,9 @@ class ImageGenerator(DatasetGenerator):
         self._height, self._width = self._shape
 
         if self._height < 13 or self._width < 13:
-            raise ValueError('Image generation with height or width of less than 13 is not supported')
+            raise ValueError(
+                "Image generation with height or width of less than 13 is not supported"
+            )
 
         self._weights = self._create_weights(IFSFunction.NUM_PARAMS)
         self._threshold = 0.2
@@ -40,8 +42,11 @@ class ImageGenerator(DatasetGenerator):
         self._initialize_params()
 
     def generate_dataset(self) -> None:
-        log.info("Generating 3-channel images with height = '%d' and width = '%d'",
-            self._height, self._width)
+        log.info(
+            "Generating 3-channel images with height = '%d' and width = '%d'",
+            self._height,
+            self._width,
+        )
 
         with Pool(processes=self._cpu_count) as pool:
             params = pool.map(self._generate_category, [Random(i) for i in range(self._categories)])
@@ -49,8 +54,8 @@ class ImageGenerator(DatasetGenerator):
         instances_weights = np.repeat(self._weights, self._instances, axis=0)
         weight_per_img = np.tile(instances_weights, (self._categories, 1))
         repeated_params = np.repeat(params, self._weights.shape[0] * self._instances, axis=0)
-        repeated_params = repeated_params[:self._count]
-        weight_per_img = weight_per_img[:self._count]
+        repeated_params = repeated_params[: self._count]
+        weight_per_img = weight_per_img[: self._count]
         assert weight_per_img.shape[0] == len(repeated_params) == self._count
 
         splits = min(self._cpu_count, self._count)
@@ -67,34 +72,40 @@ class ImageGenerator(DatasetGenerator):
         with Pool(processes=self._cpu_count) as pool:
             pool.starmap(self._generate_image_batch, generation_params)
 
-    def _generate_image_batch(self, rng: Random, params: np.ndarray, weights: np.ndarray, indices: List[int]) -> None:
-        proto = osp.join(self._path, 'colorization_deploy_v2.prototxt')
-        model = osp.join(self._path, 'colorization_release_v2.caffemodel')
-        npy = osp.join(self._path, 'pts_in_hull.npy')
+    def _generate_image_batch(
+        self, rng: Random, params: np.ndarray, weights: np.ndarray, indices: List[int]
+    ) -> None:
+        proto = osp.join(self._path, "colorization_deploy_v2.prototxt")
+        model = osp.join(self._path, "colorization_release_v2.caffemodel")
+        npy = osp.join(self._path, "pts_in_hull.npy")
         pts_in_hull = np.load(npy).transpose().reshape(2, 313, 1, 1).astype(np.float32)
 
-        back_path = files('datumaro.plugins.synthetic_data').joinpath('synthetic_background.txt')
-        source = back_path.read_text().replace(' ', '').split(',')
+        content = read_text("datumaro.plugins.synthetic_data", "synthetic_background.txt")
+        source = content.replace(" ", "").split(",")
         synthetic_background = np.array(list(map(float, source))).reshape(-1, 3)
 
         net = cv.dnn.readNetFromCaffe(proto, model)
-        net.getLayer(net.getLayerId('class8_ab')).blobs = [pts_in_hull]
-        net.getLayer(net.getLayerId('conv8_313_rh')).blobs = [np.full([1, 313], 2.606, np.float32)]
+        net.getLayer(net.getLayerId("class8_ab")).blobs = [pts_in_hull]
+        net.getLayer(net.getLayerId("conv8_313_rh")).blobs = [np.full([1, 313], 2.606, np.float32)]
 
         for i, param, w in zip(indices, params, weights):
-            image = self._generate_image(rng,
-                                         param,
-                                         self._iterations,
-                                         self._height,
-                                         self._width,
-                                         draw_point=False,
-                                         weight=w)
+            image = self._generate_image(
+                rng, param, self._iterations, self._height, self._width, draw_point=False, weight=w
+            )
             color_image = colorize(image, net)
             aug_image = augment(rng, color_image, synthetic_background)
             cv.imwrite(osp.join(self._output_dir, "{:06d}.png".format(i)), aug_image)
 
-    def _generate_image(self, rng: Random, params: np.ndarray, iterations: int, height: int, width: int,
-                        draw_point: bool = True, weight: Optional[np.ndarray] = None) -> np.ndarray:
+    def _generate_image(
+        self,
+        rng: Random,
+        params: np.ndarray,
+        iterations: int,
+        height: int,
+        width: int,
+        draw_point: bool = True,
+        weight: Optional[np.ndarray] = None,
+    ) -> np.ndarray:
         ifs_function = IFSFunction(rng, prev_x=0.0, prev_y=0.0)
         for param in params:
             ifs_function.add_param(param[:6], param[6], weight)
@@ -130,7 +141,7 @@ class ImageGenerator(DatasetGenerator):
         self._categories = np.floor(np.sqrt(instances_categories)).astype(np.int)
 
         if self._count < self._weights.shape[0]:
-            self._weights = self._weights[:self._count, :]
+            self._weights = self._weights[: self._count, :]
 
     @staticmethod
     def _create_weights(num_params):

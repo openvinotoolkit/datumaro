@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+import warnings
 
 import cv2 as cv
 import numpy as np
 import requests
-import warnings
 
 warnings.filterwarnings("ignore", message=r"(invalid value|overflow) encountered")
 
@@ -50,7 +50,7 @@ class IFSFunction:
 
     @staticmethod
     def process_nans(data):
-        nan_index = np.where(np.isnan(data))
+        nan_index = np.nonzero(np.isnan(data))
         extend = np.array(range(nan_index[0][0] - 100, nan_index[0][0]))
         delete_row = np.append(extend, nan_index)
         return delete_row
@@ -84,30 +84,30 @@ class IFSFunction:
             if draw_point:
                 image[x, y] = 127
             else:
-                mask = '{:09b}'.format(self._rng.randint(1, 511))
+                mask = "{:09b}".format(self._rng.randint(1, 511))
                 patch = 127 * np.array(list(map(int, list(mask))), dtype=np.uint8).reshape(3, 3)
-                image[x+1:x+4, y+1:y+4] = patch
+                image[x + 1 : x + 4, y + 1 : y + 4] = patch
 
         return image
 
 
 def download_colorization_model(path):
-    proto_name = 'colorization_deploy_v2.prototxt'
-    model_name = 'colorization_release_v2.caffemodel'
-    npy_name = 'pts_in_hull.npy'
+    proto_name = "colorization_deploy_v2.prototxt"
+    model_name = "colorization_release_v2.caffemodel"
+    npy_name = "pts_in_hull.npy"
 
     if not osp.exists(osp.join(path, proto_name)):
-        url = 'https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/'
+        url = "https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/"
         proto = requests.get(url + proto_name)
-        open(osp.join(path, proto_name), 'wb').write(proto.content)
+        open(osp.join(path, proto_name), "wb").write(proto.content)
     if not osp.exists(osp.join(path, model_name)):
-        url = 'http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/'
+        url = "http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/"
         model = requests.get(url + model_name)
-        open(osp.join(path, model_name), 'wb').write(model.content)
+        open(osp.join(path, model_name), "wb").write(model.content)
     if not osp.exists(osp.join(path, npy_name)):
-        url = 'https://github.com/richzhang/colorization/raw/caffe/colorization/resources/'
+        url = "https://github.com/richzhang/colorization/raw/caffe/colorization/resources/"
         pts_in_hull = requests.get(url + npy_name)
-        open(osp.join(path, npy_name), 'wb').write(pts_in_hull.content)
+        open(osp.join(path, npy_name), "wb").write(pts_in_hull.content)
 
 
 def rgb2lab(frame):
@@ -119,20 +119,22 @@ def rgb2lab(frame):
 
 
 def colorize(frame, net):
-    H_orig, W_orig = frame.shape[:2] # original image size
+    H_orig, W_orig = frame.shape[:2]
     if len(frame.shape) == 2 or frame.shape[-1] == 1:
         frame = np.tile(frame.reshape(H_orig, W_orig, 1), (1, 1, 3))
 
     frame = frame.astype(np.float32) / 255
-    img_l = rgb2lab(frame) # get L from Lab image
-    img_rs = cv.resize(img_l, (224, 224)) # resize image to network input size
+    img_l = rgb2lab(frame)  # get L from Lab image
+    img_rs = cv.resize(img_l, (224, 224))  # resize image to network input size
     img_l_rs = img_rs - 50  # subtract 50 for mean-centering
 
     net.setInput(cv.dnn.blobFromImage(img_l_rs))
     ab_dec = net.forward()[0, :, :, :].transpose((1, 2, 0))
 
     ab_dec_us = cv.resize(ab_dec, (W_orig, H_orig))
-    img_lab_out = np.concatenate((img_l[..., np.newaxis], ab_dec_us), axis=2) # concatenate with original image L
+    img_lab_out = np.concatenate(
+        (img_l[..., np.newaxis], ab_dec_us), axis=2
+    )  # concatenate with original image L
     img_bgr_out = np.clip(cv.cvtColor(img_lab_out, cv.COLOR_Lab2BGR), 0, 1)
     frame_normed = 255 * (img_bgr_out - img_bgr_out.min()) / (img_bgr_out.max() - img_bgr_out.min())
     frame_normed = np.array(frame_normed, dtype=np.uint8)
@@ -160,6 +162,6 @@ def augment(rng, image, synthetic_background):
 
 def fill_background(rng, image, synthetic_background):
     class_id = rng.randint(0, synthetic_background.shape[0] - 1)
-    rows, cols = np.where(~np.any(image, axis=-1))  # background color = [0, 0, 0]
+    rows, cols = np.nonzero(~np.any(image, axis=-1))  # background color = [0, 0, 0]
     image[rows, cols] = synthetic_background[class_id]
     return image
