@@ -238,7 +238,7 @@ class InvalidLabelError(InvalidAnnotationError):
     id: str  # index or name
 
     def __str__(self) -> str:
-        return f"Invalid label value {self.id}"
+        return f"Invalid label value '{self.id}'"
 
 
 @define(auto_exc=False)
