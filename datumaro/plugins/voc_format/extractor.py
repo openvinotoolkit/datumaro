@@ -10,7 +10,13 @@ import numpy as np
 from defusedxml import ElementTree
 
 from datumaro.components.annotation import AnnotationType, Bbox, CompiledMask, Label, Mask
-from datumaro.components.errors import DatasetImportError, InvalidAnnotationError, InvalidFieldError, InvalidLabelError, MissingFieldError
+from datumaro.components.errors import (
+    DatasetImportError,
+    InvalidAnnotationError,
+    InvalidFieldError,
+    InvalidLabelError,
+    MissingFieldError,
+)
 from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
@@ -28,7 +34,8 @@ from .format import (
 
 _inverse_inst_colormap = invert_colormap(VocInstColormap)
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class _VocExtractor(SourceExtractor):
     def __init__(self, path, task, **kwargs):
@@ -183,6 +190,8 @@ class _VocXmlExtractor(_VocExtractor):
 
             try:
                 anns = []
+                image = None
+
                 ann_file = osp.join(anno_dir, item_id + ".xml")
                 if osp.isfile(ann_file):
                     root_elem = ElementTree.parse(ann_file)
@@ -198,8 +207,9 @@ class _VocXmlExtractor(_VocExtractor):
                     if filename_elem is not None:
                         image = osp.join(image_dir, filename_elem.text)
 
-                    anns = self._parse_annotations(root_elem)
-                else:
+                    anns = self._parse_annotations(root_elem, item_id=(item_id, self._subset))
+
+                if image is None:
                     image = images.pop(item_id, None)
 
                 if image or size:
@@ -207,19 +217,22 @@ class _VocXmlExtractor(_VocExtractor):
 
                 yield DatasetItem(id=item_id, subset=self._subset, media=image, annotations=anns)
             except ElementTree.ParseError as e:
-                readable_error = InvalidAnnotationError("Failed to parse XML file")
-                readable_error.__cause__ = e
-                self._ctx.error_policy.report_item_error(readable_error, item_id=(item_id, self._subset))
+                readable_wrapper = InvalidAnnotationError("Failed to parse XML file")
+                readable_wrapper.__cause__ = e
+                self._ctx.error_policy.report_item_error(
+                    readable_wrapper, item_id=(item_id, self._subset)
+                )
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
 
     @staticmethod
-    def _parse_field(root, xpath: str, cls: Union[None, Type[T], Tuple[Type, ...]] = None,
-            required: bool = True) -> Optional[Union[T, str]]:
+    def _parse_field(
+        root, xpath: str, cls: Union[None, Type[T], Tuple[Type, ...]] = None, required: bool = True
+    ) -> Optional[Union[T, str]]:
         elem = root.find(xpath)
         if elem is None:
             if required:
-                raise MissingFieldError(root.tag + '/' + xpath)
+                raise MissingFieldError(xpath)
             else:
                 return None
 
@@ -227,76 +240,87 @@ class _VocXmlExtractor(_VocExtractor):
             try:
                 value = cls(elem.text)
             except Exception as e:
-                raise InvalidFieldError(root.tag + '/' + xpath) from e
+                raise InvalidFieldError(xpath) from e
         else:
             value = elem.text
         return value
 
-    def _parse_annotations(self, root_elem):
+    def _parse_annotations(self, root_elem, *, item_id):
         item_annotations = []
 
         for obj_id, object_elem in enumerate(root_elem.iterfind("object")):
-            obj_id += 1
-            attributes = {}
-            group = obj_id
+            try:
+                obj_id += 1
+                attributes = {}
+                group = obj_id
 
-            obj_label_id = self._get_label_id(self._parse_field(object_elem, "name"))
+                obj_label_id = self._get_label_id(self._parse_field(object_elem, "name"))
 
-            obj_bbox = self._parse_bbox(object_elem)
+                obj_bbox = self._parse_bbox(object_elem)
 
-            difficult_elem = object_elem.find("difficult")
-            attributes["difficult"] = difficult_elem is not None and difficult_elem.text == "1"
+                difficult_elem = object_elem.find("difficult")
+                if difficult_elem is not None and difficult_elem.text not in ["0", "1"]:
+                    raise InvalidFieldError("difficult")
+                attributes["difficult"] = difficult_elem is not None and difficult_elem.text == "1"
 
-            truncated_elem = object_elem.find("truncated")
-            attributes["truncated"] = truncated_elem is not None and truncated_elem.text == "1"
+                truncated_elem = object_elem.find("truncated")
+                if truncated_elem is not None and truncated_elem.text not in ["0", "1"]:
+                    raise InvalidFieldError("truncated")
+                attributes["truncated"] = truncated_elem is not None and truncated_elem.text == "1"
 
-            occluded_elem = object_elem.find("occluded")
-            attributes["occluded"] = occluded_elem is not None and occluded_elem.text == "1"
+                occluded_elem = object_elem.find("occluded")
+                if occluded_elem is not None and occluded_elem.text not in ["0", "1"]:
+                    raise InvalidFieldError("occluded")
+                attributes["occluded"] = occluded_elem is not None and occluded_elem.text == "1"
 
-            pose_elem = object_elem.find("pose")
-            if pose_elem is not None:
-                attributes["pose"] = pose_elem.text
+                pose_elem = object_elem.find("pose")
+                if pose_elem is not None:
+                    attributes["pose"] = pose_elem.text
 
-            point_elem = object_elem.find("point")
-            if point_elem is not None:
-                point_x = self._parse_field(point_elem, "x", float)
-                point_y = self._parse_field(point_elem, "y", float)
-                attributes["point"] = (point_x, point_y)
+                point_elem = object_elem.find("point")
+                if point_elem is not None:
+                    point_x = self._parse_field(point_elem, "x", float)
+                    point_y = self._parse_field(point_elem, "y", float)
+                    attributes["point"] = (point_x, point_y)
 
-            actions_elem = object_elem.find("actions")
-            actions = {
-                a: False
-                for a in self._categories[AnnotationType.label].items[obj_label_id].attributes
-            }
-            if actions_elem is not None:
-                for action_elem in actions_elem:
-                    actions[action_elem.tag] = action_elem.text == "1"
-            for action, present in actions.items():
-                attributes[action] = present
+                actions_elem = object_elem.find("actions")
+                actions = {
+                    a: False
+                    for a in self._categories[AnnotationType.label].items[obj_label_id].attributes
+                }
+                if actions_elem is not None:
+                    for action_elem in actions_elem:
+                        actions[action_elem.tag] = action_elem.text == "1"
+                for action, present in actions.items():
+                    attributes[action] = present
 
-            has_parts = False
-            for part_elem in object_elem.findall("part"):
-                part_label_id = self._get_label_id(self._parse_field(part_elem, "name"))
-                part_bbox = self._parse_bbox(part_elem)
+                has_parts = False
+                for part_elem in object_elem.findall("part"):
+                    part_label_id = self._get_label_id(self._parse_field(part_elem, "name"))
+                    part_bbox = self._parse_bbox(part_elem)
 
-                if self._task is not VocTask.person_layout:
-                    break
-                has_parts = True
-                item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
+                    if self._task is not VocTask.person_layout:
+                        break
+                    has_parts = True
+                    item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
 
-            attributes_elem = object_elem.find("attributes")
-            if attributes_elem is not None:
-                for attr_elem in attributes_elem.iter("attribute"):
-                    attributes[attr_elem.find("name").text] = attr_elem.find("value").text
+                attributes_elem = object_elem.find("attributes")
+                if attributes_elem is not None:
+                    for attr_elem in attributes_elem.iter("attribute"):
+                        attributes[attr_elem.find("name").text] = attr_elem.find("value").text
 
-            if self._task is VocTask.person_layout and not has_parts:
-                continue
-            if self._task is VocTask.action_classification and not actions:
-                continue
+                if self._task is VocTask.person_layout and not has_parts:
+                    continue
+                if self._task is VocTask.action_classification and not actions:
+                    continue
 
-            item_annotations.append(
-                Bbox(*obj_bbox, label=obj_label_id, attributes=attributes, id=obj_id, group=group)
-            )
+                item_annotations.append(
+                    Bbox(
+                        *obj_bbox, label=obj_label_id, attributes=attributes, id=obj_id, group=group
+                    )
+                )
+            except Exception as e:
+                self._ctx.error_policy.report_annotation_error(e, item_id=item_id)
 
         return item_annotations
 
@@ -381,10 +405,10 @@ class VocSegmentationExtractor(_VocExtractor):
         if osp.isfile(inst_path):
             instances_mask = lazy_mask(inst_path, _inverse_inst_colormap)
 
+        label_cat = self._categories[AnnotationType.label]
+
         if instances_mask is not None:
             compiled_mask = CompiledMask(class_mask, instances_mask)
-
-            label_cat = self._categories[AnnotationType.label]
 
             if class_mask is not None:
                 instance_labels = compiled_mask.get_instance_labels()
@@ -393,8 +417,8 @@ class VocSegmentationExtractor(_VocExtractor):
 
             for instance_id, label_id in instance_labels.items():
                 if len(label_cat) <= label_id:
-                    raise InvalidAnnotationError(
-                        "Item %s: a mask has unexpected class number %s" % (item_id, label_id)
+                    self._ctx.error_policy.report_annotation_error(
+                        InvalidLabelError(str(label_id)), item_id=(item_id, self._subset)
                     )
 
                 image = compiled_mask.lazy_extract(instance_id)
@@ -406,6 +430,11 @@ class VocSegmentationExtractor(_VocExtractor):
             class_mask = class_mask()
             classes = np.unique(class_mask)
             for label_id in classes:
+                if len(label_cat) <= label_id:
+                    self._ctx.error_policy.report_annotation_error(
+                        InvalidLabelError(str(label_id)), item_id=(item_id, self._subset)
+                    )
+
                 image = self._lazy_extract_mask(class_mask, label_id)
                 item_annotations.append(Mask(image=image, label=label_id))
 
