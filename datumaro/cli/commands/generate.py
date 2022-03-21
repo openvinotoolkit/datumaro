@@ -27,6 +27,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('-t', '--type', required=True, choices=['image'],
+        help="Specify type of data to generate")
     parser.add_argument('-o', '--output-dir', required=True,
         help="Output directory to store generated dataset")
     parser.add_argument('-k', '--count', type=int, required=True,
@@ -42,7 +44,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_sensitive_args():
     return {
-        generate_command: ['output_dir', 'count', 'shape']
+        generate_command: ['type', 'output_dir', 'count', 'shape']
     }
 
 def generate_command(args):
@@ -57,11 +59,14 @@ def generate_command(args):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % output_dir)
 
-    ImageGenerator(
-        count=args.count,
-        output_dir=output_dir,
-        shape=args.shape
-    ).generate_dataset()
+    if args.type == 'image':
+        ImageGenerator(
+            count=args.count,
+            output_dir=output_dir,
+            shape=args.shape
+        ).generate_dataset()
+    else:
+        raise NotImplementedError(f'Data type: {args.type} is not supported')
 
     log.info("Results have been saved to '%s'", args.output_dir)
 

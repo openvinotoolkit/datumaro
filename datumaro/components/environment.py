@@ -82,6 +82,7 @@ class Environment:
         )
         from datumaro.components.launcher import Launcher
         from datumaro.components.validator import Validator
+        from datumaro.components.dataset_generator import DatasetGenerator
 
         _filter = self._make_filter
         self._extractors = PluginRegistry(_filter(Extractor, skip=SourceExtractor))
@@ -90,6 +91,7 @@ class Environment:
         self._converters = PluginRegistry(_filter(Converter))
         self._transforms = PluginRegistry(_filter(Transform, skip=ItemTransform))
         self._validators = PluginRegistry(_filter(Validator))
+        self._generators = PluginRegistry(_filter(DatasetGenerator))
         self._builtins_initialized = False
 
     def _get_plugin_registry(self, name):

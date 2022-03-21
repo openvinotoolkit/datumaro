@@ -448,6 +448,7 @@ def filter_command(args):
 
     return 0
 
+
 def build_transform_parser(parser_ctor=argparse.ArgumentParser):
     builtins = sorted(Environment().transforms)
 
@@ -1049,13 +1050,13 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     )
 
     subparsers = parser.add_subparsers()
-    add_subparser(subparsers, 'export', build_export_parser)
-    add_subparser(subparsers, 'filter', build_filter_parser)
-    add_subparser(subparsers, 'transform', build_transform_parser)
-    add_subparser(subparsers, 'info', build_info_parser)
-    add_subparser(subparsers, 'stats', build_stats_parser)
-    add_subparser(subparsers, 'validate', build_validate_parser)
-    add_subparser(subparsers, 'migrate', build_migrate_parser)
+    add_subparser(subparsers, "export", build_export_parser)
+    add_subparser(subparsers, "filter", build_filter_parser)
+    add_subparser(subparsers, "transform", build_transform_parser)
+    add_subparser(subparsers, "info", build_info_parser)
+    add_subparser(subparsers, "stats", build_stats_parser)
+    add_subparser(subparsers, "validate", build_validate_parser)
+    add_subparser(subparsers, "migrate", build_migrate_parser)
 
     return parser
 

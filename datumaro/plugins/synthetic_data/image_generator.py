@@ -13,42 +13,25 @@ import os.path as osp
 import cv2 as cv
 import numpy as np
 
-from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.dataset_generator import DatasetGenerator
 
 from .utils import IFSFunction, augment, colorize, download_colorization_model
 
 
-class ImageGenerator(CliPlugin):
+class ImageGenerator(DatasetGenerator):
     """
     ImageGenerator generates 3-channel synthetic images with provided shape.
     """
 
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-o', '--output-dir', type=osp.abspath, required=True,
-            help="Path to the directory where dataset are saved")
-        parser.add_argument('-k', '--count', type=int, required=True,
-            help="Number of images to generate")
-        parser.add_argument('--shape', nargs='+', type=int, required=True,
-            help="Image shape: height and width, for example --shape 256 224")
-        parser.add_argument('--overwrite', action='store_true',
-            help="Overwrite existing files in the save directory")
-
-        return parser
-
     def __init__(self, output_dir: str, count: int, shape: Tuple[int, int]):
-        self._count = count
-        self._output_dir = output_dir
-        assert len(shape) == 2
-        self._height, self._width = shape
+        super().__init__(output_dir, count, shape)
+        assert len(self._shape) == 2
+        self._height, self._width = self._shape
 
-        if not osp.exists(output_dir):
-            os.makedirs(output_dir)
+        if self._height < 13 or self._width < 13:
+            raise ValueError('Image generation with height or width of less than 13 is not supported')
 
-        self._cpu_count = min(os.cpu_count(), self._count)
         self._weights = self._create_weights(IFSFunction.NUM_PARAMS)
-
         self._threshold = 0.2
         self._iterations = 200000
 
