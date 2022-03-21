@@ -53,6 +53,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Path to which to save a JSON report describing detected "
         "and rejected formats. By default, no report is saved.",
     )
+    parser.add_argument('--depth',
+        help="The maximum depth for recursive search (default: 2) ")
     parser.set_defaults(command=detect_format_command)
 
     return parser
