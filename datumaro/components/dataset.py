@@ -1218,8 +1218,7 @@ class Dataset(IDataset):
         return dataset
 
     @staticmethod
-    def detect(path: str, *,
-            env: Optional[Environment] = None, depth: int = 2) -> str:
+    def detect(path: str, *, env: Optional[Environment] = None, depth: int = 2) -> str:
         """
         Attempts to detect dataset format of a given directory.
 

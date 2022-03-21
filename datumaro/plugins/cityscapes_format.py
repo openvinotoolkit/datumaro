@@ -303,15 +303,15 @@ class CityscapesImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
         patterns = [
-            f'{CityscapesPath.GT_FINE_DIR}/**/*{CityscapesPath.GT_INSTANCE_MASK_SUFFIX}',
-            f'{CityscapesPath.GT_FINE_DIR}/**/*{CityscapesPath.LABEL_TRAIN_IDS_SUFFIX}',
-            f'{CityscapesPath.IMGS_FINE_DIR}/{CityscapesPath.ORIGINAL_IMAGE_DIR}'\
-                f'/**/*{CityscapesPath.ORIGINAL_IMAGE}.*'
+            f"{CityscapesPath.GT_FINE_DIR}/**/*{CityscapesPath.GT_INSTANCE_MASK_SUFFIX}",
+            f"{CityscapesPath.GT_FINE_DIR}/**/*{CityscapesPath.LABEL_TRAIN_IDS_SUFFIX}",
+            f"{CityscapesPath.IMGS_FINE_DIR}/{CityscapesPath.ORIGINAL_IMAGE_DIR}"
+            f"/**/*{CityscapesPath.ORIGINAL_IMAGE}.*",
         ]
         with context.require_any():
             for pattern in patterns:
                 with context.alternative():
-                        context.require_file(pattern)
+                    context.require_file(pattern)
 
     @classmethod
     def find_sources(cls, path):
