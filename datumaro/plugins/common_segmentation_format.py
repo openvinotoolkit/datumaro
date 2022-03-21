@@ -61,7 +61,11 @@ def make_categories(label_map=None):
 
 class CommonSegmentationExtractor(SourceExtractor):
     def __init__(
-        self, path, subset=None, image_prefix="", mask_prefix="",
+        self,
+        path,
+        subset=None,
+        image_prefix="",
+        mask_prefix="",
     ):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
