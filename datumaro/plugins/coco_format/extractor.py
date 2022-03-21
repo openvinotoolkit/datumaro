@@ -58,7 +58,7 @@ class _CocoExtractor(SourceExtractor):
         **kwargs,
     ):
         if not osp.isfile(path):
-            raise DatasetImportError(f"Can't find JSON file path at '{path}'")
+            raise DatasetImportError(f"Can't find JSON file at '{path}'")
         self._path = path
 
         if not subset:
