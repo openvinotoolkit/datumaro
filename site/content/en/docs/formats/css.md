@@ -24,10 +24,6 @@ Extra options for adding a source in the COCO format:
   (by default '')
 - `--mask-prefix MASK_PREFIX` allow to import dataset with custom mask prefix
   (by default '')
-- `--images-dir IMAGES_DIR` allow to import dataset with custom directory for images
-  (by default `images`)
-- `--masks-dir MASKS_DIR` allow to import dataset with custom directory for masks
-  (by default `masks`)
 
 CSS dataset directory should have the following structure:
 

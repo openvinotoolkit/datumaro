@@ -32,15 +32,6 @@ def make_categories(label_map=None):
     if label_map is None:
         return {}
 
-    bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
-    if bg_label is None:
-        bg_label = "background"
-        if bg_label not in label_map:
-            has_colors = any(v is not None for v in label_map.values())
-            color = (0, 0, 0) if has_colors else None
-            label_map[bg_label] = color
-        label_map.move_to_end(bg_label, last=False)
-
     categories = {}
     label_categories = LabelCategories()
     for label in label_map:
