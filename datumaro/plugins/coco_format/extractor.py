@@ -284,7 +284,7 @@ class _CocoExtractor(SourceExtractor):
         return label_id
 
     def _parse_field(
-        self, ann: Dict[str, Any], key: str, cls: Union[None, Type[T], Tuple[Type, ...]]
+        self, ann: Dict[str, Any], key: str, cls: Union[Type[T], Tuple[Type, ...]]
     ) -> T:
         value = ann.get(key, NOTSET)
         if value is NOTSET:
