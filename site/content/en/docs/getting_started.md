@@ -88,7 +88,7 @@ project.close()
 
 [List of components](/api/api/datumaro.html) with the comfortable importing.
 
-> Check our [developer manual](/docs/developer_manual/) for additional
+> Check our [developer manual](/api/api/developer_manual.html) for additional
   information.
 
 ## Examples

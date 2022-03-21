@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
 import logging as log
 import os
 import os.path as osp
+from collections import OrderedDict
 
 from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.converter import Converter
@@ -27,16 +27,16 @@ def _make_yolo_bbox(img_size, box):
     h = (box[3] - box[1]) / img_size[1]
     return x, y, w, h
 
+
 class YoloConverter(Converter):
     # https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = ".jpg"
 
     def apply(self):
         extractor = self._extractor
         save_dir = self._save_dir
 
-        if self._extractor.media_type() and \
-                not issubclass(self._extractor.media_type(), Image):
+        if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         os.makedirs(save_dir, exist_ok=True)
@@ -45,11 +45,9 @@ class YoloConverter(Converter):
             self._save_meta_file(self._save_dir)
 
         label_categories = extractor.categories()[AnnotationType.label]
-        label_ids = {label.name: idx
-            for idx, label in enumerate(label_categories.items)}
-        with open(osp.join(save_dir, 'obj.names'), 'w', encoding='utf-8') as f:
-            f.writelines('%s\n' % l[0]
-                for l in sorted(label_ids.items(), key=lambda x: x[1]))
+        label_ids = {label.name: idx for idx, label in enumerate(label_categories.items)}
+        with open(osp.join(save_dir, "obj.names"), "w", encoding="utf-8") as f:
+            f.writelines("%s\n" % l[0] for l in sorted(label_ids.items(), key=lambda x: x[1]))
 
         subset_lists = OrderedDict()
 
@@ -59,75 +57,72 @@ class YoloConverter(Converter):
             if not subset_name or subset_name == DEFAULT_SUBSET_NAME:
                 subset_name = YoloPath.DEFAULT_SUBSET_NAME
             elif subset_name not in YoloPath.SUBSET_NAMES:
-                log.warning("Skipping subset export '%s'. "
-                    "If specified, the only valid names are %s" % \
-                    (subset_name, ', '.join(
-                        "'%s'" % s for s in YoloPath.SUBSET_NAMES)))
+                log.warning(
+                    "Skipping subset export '%s'. "
+                    "If specified, the only valid names are %s"
+                    % (subset_name, ", ".join("'%s'" % s for s in YoloPath.SUBSET_NAMES))
+                )
                 continue
 
-            subset_dir = osp.join(save_dir, 'obj_%s_data' % subset_name)
+            subset_dir = osp.join(save_dir, "obj_%s_data" % subset_name)
             os.makedirs(subset_dir, exist_ok=True)
 
             image_paths = OrderedDict()
             for item in pbar.iter(subset, desc=f"Exporting '{subset_name}'"):
                 try:
-                    if not item.media or not \
-                            (item.media.has_data or item.media.has_size):
-                        raise Exception("Failed to export item '%s': "
-                            "item has no image info" % item.id)
+                    if not item.media or not (item.media.has_data or item.media.has_size):
+                        raise Exception(
+                            "Failed to export item '%s': " "item has no image info" % item.id
+                        )
 
                     image_name = self._make_image_filename(item)
                     if self._save_media:
                         if item.media:
-                            self._save_image(item,
-                                osp.join(subset_dir, image_name))
+                            self._save_image(item, osp.join(subset_dir, image_name))
                         else:
                             log.warning("Item '%s' has no image" % item.id)
-                    image_paths[item.id] = osp.join('data',
-                        osp.basename(subset_dir), image_name)
+                    image_paths[item.id] = osp.join("data", osp.basename(subset_dir), image_name)
 
                     yolo_annotation = self._export_item_annotation(item)
-                    annotation_path = osp.join(subset_dir, '%s.txt' % item.id)
+                    annotation_path = osp.join(subset_dir, "%s.txt" % item.id)
                     os.makedirs(osp.dirname(annotation_path), exist_ok=True)
-                    with open(annotation_path, 'w', encoding='utf-8') as f:
+                    with open(annotation_path, "w", encoding="utf-8") as f:
                         f.write(yolo_annotation)
                 except Exception as e:
                     self._report_item_error(e, item_id=(item.id, item.subset))
 
-            subset_list_name = '%s.txt' % subset_name
+            subset_list_name = "%s.txt" % subset_name
             subset_list_path = osp.join(save_dir, subset_list_name)
-            if self._patch and subset_name in self._patch.updated_subsets and \
-                    not image_paths:
+            if self._patch and subset_name in self._patch.updated_subsets and not image_paths:
                 if osp.isfile(subset_list_path):
                     os.remove(subset_list_path)
                 continue
 
             subset_lists[subset_name] = subset_list_name
-            with open(subset_list_path, 'w', encoding='utf-8') as f:
-                f.writelines('%s\n' % s for s in image_paths.values())
+            with open(subset_list_path, "w", encoding="utf-8") as f:
+                f.writelines("%s\n" % s for s in image_paths.values())
 
-        with open(osp.join(save_dir, 'obj.data'), 'w', encoding='utf-8') as f:
-            f.write('classes = %s\n' % len(label_ids))
+        with open(osp.join(save_dir, "obj.data"), "w", encoding="utf-8") as f:
+            f.write("classes = %s\n" % len(label_ids))
 
             for subset_name, subset_list_name in subset_lists.items():
-                f.write('%s = %s\n' % (subset_name,
-                    osp.join('data', subset_list_name)))
+                f.write("%s = %s\n" % (subset_name, osp.join("data", subset_list_name)))
 
-            f.write('names = %s\n' % osp.join('data', 'obj.names'))
-            f.write('backup = backup/\n')
+            f.write("names = %s\n" % osp.join("data", "obj.names"))
+            f.write("backup = backup/\n")
 
     def _export_item_annotation(self, item):
         height, width = item.media.size
 
-        yolo_annotation = ''
+        yolo_annotation = ""
 
         for bbox in item.annotations:
             if not isinstance(bbox, Bbox) or bbox.label is None:
                 continue
 
             yolo_bb = _make_yolo_bbox((width, height), bbox.points)
-            yolo_bb = ' '.join('%.6f' % p for p in yolo_bb)
-            yolo_annotation += '%s %s\n' % (bbox.label, yolo_bb)
+            yolo_bb = " ".join("%.6f" % p for p in yolo_bb)
+            yolo_annotation += "%s %s\n" % (bbox.label, yolo_bb)
 
         return yolo_annotation
 
@@ -148,12 +143,12 @@ class YoloConverter(Converter):
 
             if subset == DEFAULT_SUBSET_NAME:
                 subset = YoloPath.DEFAULT_SUBSET_NAME
-            subset_dir = osp.join(save_dir, 'obj_%s_data' % subset)
+            subset_dir = osp.join(save_dir, "obj_%s_data" % subset)
 
             image_path = osp.join(subset_dir, conv._make_image_filename(item))
             if osp.isfile(image_path):
                 os.remove(image_path)
 
-            ann_path = osp.join(subset_dir, '%s.txt' % item.id)
+            ann_path = osp.join(subset_dir, "%s.txt" % item.id)
             if osp.isfile(ann_path):
                 os.remove(ann_path)

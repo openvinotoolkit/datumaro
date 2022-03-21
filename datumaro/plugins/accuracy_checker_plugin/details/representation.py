@@ -4,12 +4,12 @@
 
 from datumaro.util.tf_util import import_tf
 
-import_tf() # prevent TF loading and potential interpreter crash
+import_tf()  # prevent TF loading and potential interpreter crash
 
 import accuracy_checker.representation as ac
 
-from datumaro.util.annotation_util import softmax
 import datumaro.components.extractor as dm
+from datumaro.util.annotation_util import softmax
 
 
 def import_predictions(predictions):
@@ -22,27 +22,31 @@ def import_predictions(predictions):
 
     return anns
 
+
 def import_prediction(pred):
     if isinstance(pred, ac.ClassificationPrediction):
         scores = softmax(pred.scores)
-        return (dm.Label(label_id, attributes={'score': float(score)})
-            for label_id, score in enumerate(scores))
+        return (
+            dm.Label(label_id, attributes={"score": float(score)})
+            for label_id, score in enumerate(scores)
+        )
     elif isinstance(pred, ac.ArgMaxClassificationPrediction):
-        return (dm.Label(int(pred.label)), )
+        return (dm.Label(int(pred.label)),)
     elif isinstance(pred, ac.CharacterRecognitionPrediction):
-        return (dm.Label(int(pred.label)), )
+        return (dm.Label(int(pred.label)),)
     elif isinstance(pred, (ac.DetectionPrediction, ac.ActionDetectionPrediction)):
-        return (dm.Bbox(x0, y0, x1 - x0, y1 - y0, int(label_id),
-                attributes={'score': float(score)})
-            for label_id, score, x0, y0, x1, y1 in zip(pred.labels, pred.scores,
-                pred.x_mins, pred.y_mins, pred.x_maxs, pred.y_maxs)
+        return (
+            dm.Bbox(x0, y0, x1 - x0, y1 - y0, int(label_id), attributes={"score": float(score)})
+            for label_id, score, x0, y0, x1, y1 in zip(
+                pred.labels, pred.scores, pred.x_mins, pred.y_mins, pred.x_maxs, pred.y_maxs
+            )
         )
     elif isinstance(pred, ac.DepthEstimationPrediction):
-        return (dm.Mask(pred.depth_map), ) # 2d floating point mask
+        return (dm.Mask(pred.depth_map),)  # 2d floating point mask
     # elif isinstance(pred, ac.HitRatioPrediction):
     #     -
     elif isinstance(pred, ac.ImageInpaintingPrediction):
-        return (dm.Mask(pred.value), ) # an image
+        return (dm.Mask(pred.value),)  # an image
     # elif isinstance(pred, ac.MultiLabelRecognitionPrediction):
     #     -
     # elif isinstance(pred, ac.MachineTranslationPrediction):

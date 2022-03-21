@@ -4,16 +4,17 @@
 
 from __future__ import annotations
 
+import threading
 from contextlib import ExitStack, contextmanager
 from functools import partial, wraps
 from typing import Any, Callable, ContextManager, Dict, Optional, Tuple, TypeVar
-import threading
 
 from attrs import frozen
 
 from datumaro.util import optional_arg_decorator
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class Scope:
     """
@@ -38,17 +39,21 @@ class Scope:
     class _ErrorHandler(_ExitHandler):
         def __exit__(self, exc_type, exc_value, exc_traceback):
             if exc_type:
-                return super().__exit__(exc_type=exc_type, exc_value=exc_value,
-                    exc_traceback=exc_traceback)
-
+                return super().__exit__(
+                    exc_type=exc_type, exc_value=exc_value, exc_traceback=exc_traceback
+                )
 
     def __init__(self):
         self._stack = ExitStack()
         self.enabled = True
 
-    def on_error_do(self, callback: Callable,
-            *args, kwargs: Optional[Dict[str, Any]] = None,
-            ignore_errors: bool = False):
+    def on_error_do(
+        self,
+        callback: Callable,
+        *args,
+        kwargs: Optional[Dict[str, Any]] = None,
+        ignore_errors: bool = False,
+    ):
         """
         Registers a function to be called on scope exit because of an error.
 
@@ -56,24 +61,41 @@ class Scope:
         will be ignored.
         """
 
-        self._register_callback(self._ErrorHandler,
+        self._register_callback(
+            self._ErrorHandler,
             ignore_errors=ignore_errors,
-            callback=callback, args=args, kwargs=kwargs)
+            callback=callback,
+            args=args,
+            kwargs=kwargs,
+        )
 
-    def on_exit_do(self, callback: Callable,
-            *args, kwargs: Optional[Dict[str, Any]] = None,
-            ignore_errors: bool = False):
+    def on_exit_do(
+        self,
+        callback: Callable,
+        *args,
+        kwargs: Optional[Dict[str, Any]] = None,
+        ignore_errors: bool = False,
+    ):
         """
         Registers a function to be called on scope exit.
         """
 
-        self._register_callback(self._ExitHandler,
+        self._register_callback(
+            self._ExitHandler,
             ignore_errors=ignore_errors,
-            callback=callback, args=args, kwargs=kwargs)
+            callback=callback,
+            args=args,
+            kwargs=kwargs,
+        )
 
-    def _register_callback(self, handler_type, callback: Callable,
-            args: Tuple[Any] = None, kwargs: Dict[str, Any] = None,
-            ignore_errors: bool = False):
+    def _register_callback(
+        self,
+        handler_type,
+        callback: Callable,
+        args: Tuple[Any] = None,
+        kwargs: Dict[str, Any] = None,
+        ignore_errors: bool = False,
+    ):
         if args or kwargs:
             callback = partial(callback, *args, **(kwargs or {}))
 
@@ -105,7 +127,7 @@ class Scope:
             return
 
         self._stack.__exit__(exc_type, exc_value, exc_traceback)
-        self._stack.pop_all() # prevent issues on repetitive calls
+        self._stack.pop_all()  # prevent issues on repetitive calls
 
     @classmethod
     def current(cls) -> Scope:
@@ -113,12 +135,13 @@ class Scope:
 
     @contextmanager
     def as_current(self):
-        previous = getattr(self._thread_locals, 'current', None)
+        previous = getattr(self._thread_locals, "current", None)
         self._thread_locals.current = self
         try:
             yield
         finally:
             self._thread_locals.current = previous
+
 
 @optional_arg_decorator
 def scoped(func, arg_name=None):
@@ -140,14 +163,15 @@ def scoped(func, arg_name=None):
 
     return wrapped_func
 
+
 # Shorthands for common cases
 def on_error_do(callback, *args, ignore_errors=False, kwargs=None):
-    return Scope.current().on_error_do(callback, *args,
-        ignore_errors=ignore_errors, kwargs=kwargs)
+    return Scope.current().on_error_do(callback, *args, ignore_errors=ignore_errors, kwargs=kwargs)
+
 
 def on_exit_do(callback, *args, ignore_errors=False, kwargs=None):
-    return Scope.current().on_exit_do(callback, *args,
-        ignore_errors=ignore_errors, kwargs=kwargs)
+    return Scope.current().on_exit_do(callback, *args, ignore_errors=ignore_errors, kwargs=kwargs)
+
 
 def scope_add(cm: ContextManager[T]) -> T:
     return Scope.current().add(cm)

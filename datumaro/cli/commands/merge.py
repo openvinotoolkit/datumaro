@@ -2,17 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
 import argparse
 import logging as log
 import os
 import os.path as osp
+from collections import OrderedDict
 
 from datumaro.components.dataset import DEFAULT_FORMAT
 from datumaro.components.environment import Environment
-from datumaro.components.errors import (
-    DatasetMergeError, DatasetQualityError, ProjectNotFoundError,
-)
+from datumaro.components.errors import DatasetMergeError, DatasetQualityError, ProjectNotFoundError
 from datumaro.components.operations import IntersectMerge
 from datumaro.components.project import ProjectBuildTargets
 from datumaro.util import dump_json_file
@@ -20,13 +18,12 @@ from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter, join_cli_args
 from ..util.errors import CliException
-from ..util.project import (
-    generate_next_file_name, load_project, parse_full_revpath,
-)
+from ..util.project import generate_next_file_name, load_project, parse_full_revpath
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Merge few projects",
+    parser = parser_ctor(
+        help="Merge few projects",
         description="""
         Merges multiple datasets into one and produces a new dataset.
         The command can be useful if you have few annotations and wish
@@ -89,74 +86,108 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         - Merge datasets and save in different format:|n
         |s|s%(prog)s -f voc dataset1/:yolo path2/:coco -- --save-images
         """,
-        formatter_class=MultilineFormatter)
+        formatter_class=MultilineFormatter,
+    )
 
     def _group(s):
-        return s.split(',')
+        return s.split(",")
 
-    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
-        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
-    parser.add_argument('targets', nargs='+',
-        help="Target dataset revpaths (repeatable)")
-    parser.add_argument('-iou', '--iou-thresh', default=0.25, type=float,
-        help="IoU match threshold for segments (default: %(default)s)")
-    parser.add_argument('-oconf', '--output-conf-thresh',
-        default=0.0, type=float,
-        help="Confidence threshold for output "
-            "annotations (default: %(default)s)")
-    parser.add_argument('--quorum', default=0, type=int,
+    parser.add_argument(
+        "_positionals", nargs=argparse.REMAINDER, help=argparse.SUPPRESS
+    )  # workaround for -- eaten by positionals
+    parser.add_argument("targets", nargs="+", help="Target dataset revpaths (repeatable)")
+    parser.add_argument(
+        "-iou",
+        "--iou-thresh",
+        default=0.25,
+        type=float,
+        help="IoU match threshold for segments (default: %(default)s)",
+    )
+    parser.add_argument(
+        "-oconf",
+        "--output-conf-thresh",
+        default=0.0,
+        type=float,
+        help="Confidence threshold for output " "annotations (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--quorum",
+        default=0,
+        type=int,
         help="Minimum count for a label and attribute voting "
-            "results to be counted (default: %(default)s)")
-    parser.add_argument('-g', '--groups', action='append', type=_group,
+        "results to be counted (default: %(default)s)",
+    )
+    parser.add_argument(
+        "-g",
+        "--groups",
+        action="append",
+        type=_group,
         help="A comma-separated list of labels in "
-            "annotation groups to check. '?' postfix can be added to a label to "
-            "make it optional in the group (repeatable)")
-    parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
-        help="Output directory (default: generate a new one)")
-    parser.add_argument('--overwrite', action='store_true',
-        help="Overwrite existing files in the save directory")
-    parser.add_argument('-f', '--format', default=DEFAULT_FORMAT,
-        help="Output format (default: %(default)s)")
-    parser.add_argument('-p', '--project', dest='project_dir',
-        help="Directory of the 'current' project (default: current dir)")
-    parser.add_argument('extra_args', nargs=argparse.REMAINDER,
+        "annotation groups to check. '?' postfix can be added to a label to "
+        "make it optional in the group (repeatable)",
+    )
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        dest="dst_dir",
+        default=None,
+        help="Output directory (default: generate a new one)",
+    )
+    parser.add_argument(
+        "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
+    )
+    parser.add_argument(
+        "-f", "--format", default=DEFAULT_FORMAT, help="Output format (default: %(default)s)"
+    )
+    parser.add_argument(
+        "-p",
+        "--project",
+        dest="project_dir",
+        help="Directory of the 'current' project (default: current dir)",
+    )
+    parser.add_argument(
+        "extra_args",
+        nargs=argparse.REMAINDER,
         help="Additional arguments for converter (pass '-- -h' for help). "
-            "Must be specified after the main command arguments and after "
-            "the '--' separator")
+        "Must be specified after the main command arguments and after "
+        "the '--' separator",
+    )
     parser.set_defaults(command=merge_command)
 
     return parser
 
+
 def get_sensitive_args():
     return {
-        merge_command: ['targets', 'project_dir', 'dst_dir', 'groups'],
+        merge_command: ["targets", "project_dir", "dst_dir", "groups"],
     }
+
 
 @scoped
 def merge_command(args):
     # Workaround. Required positionals consume positionals from the end
-    args._positionals += join_cli_args(args, 'targets', 'extra_args')
+    args._positionals += join_cli_args(args, "targets", "extra_args")
 
-    has_sep = '--' in args._positionals
+    has_sep = "--" in args._positionals
     if has_sep:
-        pos = args._positionals.index('--')
+        pos = args._positionals.index("--")
         if pos == 0:
-            raise argparse.ArgumentError(None,
-                message="Expected at least 1 target argument")
+            raise argparse.ArgumentError(None, message="Expected at least 1 target argument")
     else:
         pos = len(args._positionals)
     args.targets = args._positionals[:pos] or [ProjectBuildTargets.MAIN_TARGET]
-    args.extra_args = args._positionals[pos + has_sep:]
+    args.extra_args = args._positionals[pos + has_sep :]
 
-    show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
+    show_plugin_help = "-h" in args.extra_args or "--help" in args.extra_args
 
     dst_dir = args.dst_dir
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % dst_dir)
+            raise CliException(
+                "Directory '%s' already exists " "(pass --overwrite to overwrite)" % dst_dir
+            )
     else:
-        dst_dir = generate_next_file_name('merged')
+        dst_dir = generate_next_file_name("merged")
     dst_dir = osp.abspath(dst_dir)
 
     project = None
@@ -174,8 +205,7 @@ def merge_command(args):
     try:
         converter = env.converters[args.format]
     except KeyError:
-        raise CliException("Converter for format '%s' is not found" % \
-            args.format)
+        raise CliException("Converter for format '%s' is not found" % args.format)
 
     export_args = converter.parse_cmdline(args.extra_args)
 
@@ -192,21 +222,26 @@ def merge_command(args):
     except Exception as e:
         raise CliException(str(e))
 
-    merger = IntersectMerge(conf=IntersectMerge.Conf(
-        pairwise_dist=args.iou_thresh, groups=args.groups or [],
-        output_conf_thresh=args.output_conf_thresh, quorum=args.quorum
-    ))
+    merger = IntersectMerge(
+        conf=IntersectMerge.Conf(
+            pairwise_dist=args.iou_thresh,
+            groups=args.groups or [],
+            output_conf_thresh=args.output_conf_thresh,
+            quorum=args.quorum,
+        )
+    )
     merged_dataset = merger(source_datasets)
 
     merged_dataset.export(save_dir=dst_dir, format=converter, **export_args)
 
-    report_path = osp.join(dst_dir, 'merge_report.json')
+    report_path = osp.join(dst_dir, "merge_report.json")
     save_merge_report(merger, report_path)
 
     log.info("Merge results have been saved to '%s'" % dst_dir)
     log.info("Report has been saved to '%s'" % report_path)
 
     return 0
+
 
 def save_merge_report(merger, path):
     item_errors = OrderedDict()
@@ -223,10 +258,12 @@ def save_merge_report(merger, path):
 
         all_errors.append(str(e))
 
-    errors = OrderedDict([
-        ('Item errors', item_errors),
-        ('Source errors', source_errors),
-        ('All errors', all_errors),
-    ])
+    errors = OrderedDict(
+        [
+            ("Item errors", item_errors),
+            ("Source errors", source_errors),
+            ("All errors", all_errors),
+        ]
+    )
 
     dump_json_file(path, errors, indent=True)

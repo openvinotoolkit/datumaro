@@ -2,17 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum, auto
-from io import BytesIO
-from typing import (
-    Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union,
-)
 import importlib
 import os
 import os.path as osp
 import shlex
 import warnings
 import weakref
+from enum import Enum, auto
+from io import BytesIO
+from typing import Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union
 
 import numpy as np
 
@@ -22,16 +20,20 @@ try:
 except ImportError:
     DTypeLike = Any
 
+
 class _IMAGE_BACKENDS(Enum):
     cv2 = auto()
     PIL = auto()
+
+
 _IMAGE_BACKEND = None
-_image_loading_errors = (FileNotFoundError, )
+_image_loading_errors = (FileNotFoundError,)
 try:
-    importlib.import_module('cv2')
+    importlib.import_module("cv2")
     _IMAGE_BACKEND = _IMAGE_BACKENDS.cv2
 except ModuleNotFoundError:
     import PIL
+
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
     _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
 
@@ -40,14 +42,19 @@ from datumaro.util.os_util import find_files
 
 
 def __getattr__(name: str):
-    if name in {'Image', 'ByteImage'}:
-        warnings.warn(f"Using {name} from 'util.image' is deprecated, "
-            "the class is moved to 'components.media'", DeprecationWarning,
-            stacklevel=2)
+    if name in {"Image", "ByteImage"}:
+        warnings.warn(
+            f"Using {name} from 'util.image' is deprecated, "
+            "the class is moved to 'components.media'",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         import datumaro.components.media as media_module
+
         return getattr(media_module, name)
     raise AttributeError(f"module {__name__} has no attribute {name}")
+
 
 def load_image(path: str, dtype: DTypeLike = np.float32):
     """
@@ -59,16 +66,17 @@ def load_image(path: str, dtype: DTypeLike = np.float32):
         # in the locale encoding on Windows, so we read the image bytes
         # ourselves.
 
-        with open(path, 'rb') as f:
+        with open(path, "rb") as f:
             image_bytes = f.read()
 
         return decode_image(image_bytes, dtype=dtype)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
+
         image = Image.open(path)
         image = np.asarray(image, dtype=dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
-            image[:, :, :3] = image[:, :, 2::-1] # RGB to BGR
+            image[:, :, :3] = image[:, :, 2::-1]  # RGB to BGR
     else:
         raise NotImplementedError()
 
@@ -77,8 +85,10 @@ def load_image(path: str, dtype: DTypeLike = np.float32):
         assert image.shape[2] in {3, 4}
     return image
 
-def save_image(path: str, image: np.ndarray, create_dir: bool = False,
-        dtype: DTypeLike = np.uint8, **kwargs) -> None:
+
+def save_image(
+    path: str, image: np.ndarray, create_dir: bool = False, dtype: DTypeLike = np.uint8, **kwargs
+) -> None:
     # NOTE: Check destination path for existence
     # OpenCV silently fails if target directory does not exist
     dst_dir = osp.dirname(path)
@@ -105,26 +115,26 @@ def save_image(path: str, image: np.ndarray, create_dir: bool = False,
         ext = osp.splitext(path)[1]
         image_bytes = encode_image(image, ext, dtype=dtype, **kwargs)
 
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             f.write(image_bytes)
     elif backend == _IMAGE_BACKENDS.PIL:
         from PIL import Image
 
         params = {}
-        params['quality'] = kwargs.get('jpeg_quality')
-        if kwargs.get('jpeg_quality') == 100:
-            params['subsampling'] = 0
+        params["quality"] = kwargs.get("jpeg_quality")
+        if kwargs.get("jpeg_quality") == 100:
+            params["subsampling"] = 0
 
         image = image.astype(dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
-            image[:, :, :3] = image[:, :, 2::-1] # BGR to RGB
+            image[:, :, :3] = image[:, :, 2::-1]  # BGR to RGB
         image = Image.fromarray(image)
         image.save(path, **params)
     else:
         raise NotImplementedError()
 
-def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8,
-        **kwargs) -> bytes:
+
+def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwargs) -> bytes:
     if not kwargs:
         kwargs = {}
 
@@ -133,13 +143,11 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8,
 
         params = []
 
-        if not ext.startswith('.'):
-            ext = '.' + ext
+        if not ext.startswith("."):
+            ext = "." + ext
 
-        if ext.upper() == '.JPG':
-            params = [
-                int(cv2.IMWRITE_JPEG_QUALITY), kwargs.get('jpeg_quality', 75)
-            ]
+        if ext.upper() == ".JPG":
+            params = [int(cv2.IMWRITE_JPEG_QUALITY), kwargs.get("jpeg_quality", 75)]
 
         image = image.astype(dtype)
         success, result = cv2.imencode(ext, image, params=params)
@@ -149,17 +157,17 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8,
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
 
-        if ext.startswith('.'):
+        if ext.startswith("."):
             ext = ext[1:]
 
         params = {}
-        params['quality'] = kwargs.get('jpeg_quality')
-        if kwargs.get('jpeg_quality') == 100:
-            params['subsampling'] = 0
+        params["quality"] = kwargs.get("jpeg_quality")
+        if kwargs.get("jpeg_quality") == 100:
+            params["subsampling"] = 0
 
         image = image.astype(dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
-            image[:, :, :3] = image[:, :, 2::-1] # BGR to RGB
+            image[:, :, :3] = image[:, :, 2::-1]  # BGR to RGB
         image = Image.fromarray(image)
         with BytesIO() as buffer:
             image.save(buffer, format=ext, **params)
@@ -167,19 +175,21 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8,
     else:
         raise NotImplementedError()
 
-def decode_image(image_bytes: bytes,
-        dtype: DTypeLike = np.float32) -> np.ndarray:
+
+def decode_image(image_bytes: bytes, dtype: DTypeLike = np.float32) -> np.ndarray:
     if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
         import cv2
+
         image = np.frombuffer(image_bytes, dtype=np.uint8)
         image = cv2.imdecode(image, cv2.IMREAD_UNCHANGED)
         image = image.astype(dtype)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
+
         image = Image.open(BytesIO(image_bytes))
         image = np.asarray(image, dtype=dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
-            image[:, :, :3] = image[:, :, 2::-1] # RGB to BGR
+            image[:, :, :3] = image[:, :, 2::-1]  # RGB to BGR
     else:
         raise NotImplementedError()
 
@@ -188,26 +198,56 @@ def decode_image(image_bytes: bytes,
         assert image.shape[2] in {3, 4}
     return image
 
+
 IMAGE_EXTENSIONS = {
-    '.jpg', '.jpeg', '.jpe', '.jp2',
-    '.png', '.bmp', '.dib', '.tif', '.tiff', '.tga', '.webp', '.pfm',
-    '.sr', '.ras', '.exr', '.hdr', '.pic',
-    '.pbm', '.pgm', '.ppm', '.pxm', '.pnm',
+    ".jpg",
+    ".jpeg",
+    ".jpe",
+    ".jp2",
+    ".png",
+    ".bmp",
+    ".dib",
+    ".tif",
+    ".tiff",
+    ".tga",
+    ".webp",
+    ".pfm",
+    ".sr",
+    ".ras",
+    ".exr",
+    ".hdr",
+    ".pic",
+    ".pbm",
+    ".pgm",
+    ".ppm",
+    ".pxm",
+    ".pnm",
 }
 
-def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
-        recursive: bool = False, max_depth: int = None) -> Iterator[str]:
-    yield from find_files(dirpath, exts=exts or IMAGE_EXTENSIONS,
-        recursive=recursive, max_depth=max_depth)
+
+def find_images(
+    dirpath: str,
+    exts: Union[str, Iterable[str]] = None,
+    recursive: bool = False,
+    max_depth: int = None,
+) -> Iterator[str]:
+    yield from find_files(
+        dirpath, exts=exts or IMAGE_EXTENSIONS, recursive=recursive, max_depth=max_depth
+    )
+
 
 def is_image(path: str) -> bool:
     trunk, ext = osp.splitext(osp.basename(path))
-    return trunk and ext.lower() in IMAGE_EXTENSIONS and \
-        osp.isfile(path)
+    return trunk and ext.lower() in IMAGE_EXTENSIONS and osp.isfile(path)
+
 
 class lazy_image:
-    def __init__(self, path: str, loader: Callable[[str], np.ndarray] = None,
-            cache: Union[bool, ImageCache] = True) -> None:
+    def __init__(
+        self,
+        path: str,
+        loader: Callable[[str], np.ndarray] = None,
+        cache: Union[bool, ImageCache] = True,
+    ) -> None:
         """
         Cache:
             - False: do not cache
@@ -246,9 +286,11 @@ class lazy_image:
             cache = self._cache
         return cache
 
-ImageMeta = Dict[str, Tuple[int, int]] # filename, height, width
 
-DEFAULT_IMAGE_META_FILE_NAME = 'images.meta'
+ImageMeta = Dict[str, Tuple[int, int]]  # filename, height, width
+
+DEFAULT_IMAGE_META_FILE_NAME = "images.meta"
+
 
 def load_image_meta_file(image_meta_path: str) -> ImageMeta:
     """
@@ -268,12 +310,11 @@ def load_image_meta_file(image_meta_path: str) -> ImageMeta:
     assert isinstance(image_meta_path, str)
 
     if not osp.isfile(image_meta_path):
-        raise FileNotFoundError("Can't read image meta file '%s'" % \
-            image_meta_path)
+        raise FileNotFoundError("Can't read image meta file '%s'" % image_meta_path)
 
     image_meta = {}
 
-    with open(image_meta_path, encoding='utf-8') as f:
+    with open(image_meta_path, encoding="utf-8") as f:
         for line in f:
             fields = shlex.split(line, comments=True)
             if not fields:
@@ -285,6 +326,7 @@ def load_image_meta_file(image_meta_path: str) -> ImageMeta:
 
     return image_meta
 
+
 def save_image_meta_file(image_meta: ImageMeta, image_meta_path: str) -> None:
     """
     Saves image_meta to the path specified by image_meta_path in the format
@@ -293,7 +335,7 @@ def save_image_meta_file(image_meta: ImageMeta, image_meta_path: str) -> None:
 
     assert isinstance(image_meta_path, str)
 
-    with open(image_meta_path, 'w', encoding='utf-8') as f:
+    with open(image_meta_path, "w", encoding="utf-8") as f:
         # Add a comment about file syntax
         print("# <image name> <height> <width>", file=f)
         print("", file=f)

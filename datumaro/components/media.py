@@ -4,18 +4,16 @@
 
 from __future__ import annotations
 
-from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
 import os
 import os.path as osp
 import shutil
 import weakref
+from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
 
 import cv2
 import numpy as np
 
-from datumaro.util.image import (
-    _image_loading_errors, decode_image, lazy_image, save_image,
-)
+from datumaro.util.image import _image_loading_errors, decode_image, lazy_image, save_image
 
 
 class MediaElement:
@@ -35,17 +33,20 @@ class MediaElement:
 
     def __eq__(self, other: object) -> bool:
         # We need to compare exactly with this type
-        if type(other) is not __class__: # pylint: disable=unidiomatic-typecheck
+        if type(other) is not __class__:  # pylint: disable=unidiomatic-typecheck
             return False
         return self._path == other._path
 
+
 class Image(MediaElement):
-    def __init__(self,
-            data: Union[np.ndarray, Callable[[str], np.ndarray], None] = None,
-            *,
-            path: Optional[str] = None,
-            ext: Optional[str] = None,
-            size: Optional[Tuple[int, int]] = None) -> None:
+    def __init__(
+        self,
+        data: Union[np.ndarray, Callable[[str], np.ndarray], None] = None,
+        *,
+        path: Optional[str] = None,
+        ext: Optional[str] = None,
+        size: Optional[Tuple[int, int]] = None,
+    ) -> None:
         """
         Creates an image.
 
@@ -66,22 +67,23 @@ class Image(MediaElement):
         """
 
         if size is not None:
-            assert len(size) == 2 and 0 < size[0] and 0 < size[1], \
-                f"Invalid image size info '{size}'"
+            assert (
+                len(size) == 2 and 0 < size[0] and 0 < size[1]
+            ), f"Invalid image size info '{size}'"
             size = tuple(map(int, size))
-        self._size = size # (H, W)
+        self._size = size  # (H, W)
 
         if path is None:
-            path = ''
+            path = ""
         elif path:
-            path = path.replace('\\', '/')
+            path = path.replace("\\", "/")
         self._path = path
 
         if ext:
             assert not path, "Can't specify both 'path' and 'ext' for image"
 
-            if not ext.startswith('.'):
-                ext = '.' + ext
+            if not ext.startswith("."):
+                ext = "." + ext
             ext = ext.lower()
         else:
             ext = None
@@ -89,8 +91,7 @@ class Image(MediaElement):
 
         if not isinstance(data, np.ndarray):
             assert path or callable(data) or size, "Image can not be empty"
-            assert data is None or callable(data), \
-                f"Image data has unexpected type '{type(data)}'"
+            assert data is None or callable(data), f"Image data has unexpected type '{type(data)}'"
             if data or path and osp.isfile(path):
                 data = lazy_image(path, loader=data)
         self._data = data
@@ -141,11 +142,11 @@ class Image(MediaElement):
     def __eq__(self, other):
         if not isinstance(other, __class__):
             return False
-        return \
-            (np.array_equal(self.size, other.size)) and \
-            (self.has_data == other.has_data) and \
-            (self.has_data and np.array_equal(self.data, other.data) or \
-                not self.has_data)
+        return (
+            (np.array_equal(self.size, other.size))
+            and (self.has_data == other.has_data)
+            and (self.has_data and np.array_equal(self.data, other.data) or not self.has_data)
+        )
 
     def save(self, path):
         cur_path = osp.abspath(self.path)
@@ -161,19 +162,22 @@ class Image(MediaElement):
         else:
             save_image(path, self.data)
 
+
 class ByteImage(Image):
     _FORMAT_MAGICS = (
-        (b'\x89PNG\r\n\x1a\n', '.png'),
-        (b'\xff\xd8\xff', '.jpg'),
-        (b'BM', '.bmp'),
+        (b"\x89PNG\r\n\x1a\n", ".png"),
+        (b"\xff\xd8\xff", ".jpg"),
+        (b"BM", ".bmp"),
     )
 
-    def __init__(self,
-            data: Union[bytes, Callable[[str], bytes], None] = None,
-            *,
-            path: Optional[str] = None,
-            ext: Optional[str] = None,
-            size: Optional[Tuple[int, int]] = None):
+    def __init__(
+        self,
+        data: Union[bytes, Callable[[str], bytes], None] = None,
+        *,
+        path: Optional[str] = None,
+        ext: Optional[str] = None,
+        size: Optional[Tuple[int, int]] = None,
+    ):
         if not isinstance(data, bytes):
             assert path or callable(data), "Image can not be empty"
             assert data is None or callable(data)
@@ -185,8 +189,9 @@ class ByteImage(Image):
         if ext is None and path is None and isinstance(data, bytes):
             ext = self._guess_ext(data)
 
-        super().__init__(path=path, ext=ext, size=size,
-            data=lambda _: decode_image(self.get_bytes()))
+        super().__init__(
+            path=path, ext=ext, size=size, data=lambda _: decode_image(self.get_bytes())
+        )
         if data is None:
             # We don't expect decoder to produce images from nothing,
             # otherwise using this class makes no sense. We undefine
@@ -197,8 +202,7 @@ class ByteImage(Image):
     @classmethod
     def _guess_ext(cls, data: bytes) -> Optional[str]:
         return next(
-            (ext for magic, ext in cls._FORMAT_MAGICS
-                if data.startswith(magic)),
+            (ext for magic, ext in cls._FORMAT_MAGICS if data.startswith(magic)),
             None,
         )
 
@@ -219,10 +223,11 @@ class ByteImage(Image):
             if cur_path != path:
                 shutil.copyfile(cur_path, path)
         elif cur_ext == new_ext:
-            with open(path, 'wb') as f:
+            with open(path, "wb") as f:
                 f.write(self.get_bytes())
         else:
             save_image(path, self.data)
+
 
 class VideoFrame(Image):
     def __init__(self, video: Video, index: int):
@@ -243,10 +248,12 @@ class VideoFrame(Image):
     def video(self) -> Video:
         return self._video
 
+
 class _VideoFrameIterator(Iterator[VideoFrame]):
     """
     Provides sequential access to the video frames.
     """
+
     _video: Video
     _iterator: Iterator[VideoFrame]
     _pos: int
@@ -319,14 +326,15 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
 
         return v
 
+
 class Video(MediaElement, Iterable[VideoFrame]):
     """
     Provides random access to the video frames.
     """
 
-    def __init__(self, path: str, *,
-            step: int = 1, start_frame: int = 0,
-            end_frame: Optional[int] = None) -> None:
+    def __init__(
+        self, path: str, *, step: int = 1, start_frame: int = 0, end_frame: Optional[int] = None
+    ) -> None:
         super().__init__(path)
 
         if end_frame:
@@ -352,6 +360,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
         self._length = None
 
         from .media_manager import MediaManager
+
         MediaManager.get_instance().push(weakref.ref(self), self)
 
     def close(self):
@@ -437,7 +446,6 @@ class Video(MediaElement, Iterable[VideoFrame]):
 
         return frame_size
 
-
     def _get_end_frame(self):
         if self._end_frame is not None and self._frame_count is not None:
             end_frame = min(self._end_frame, self._frame_count)
@@ -475,17 +483,50 @@ class Video(MediaElement, Iterable[VideoFrame]):
         if not isinstance(other, __class__):
             return False
 
-        return self.path == other.path and \
-            self._start_frame == other._start_frame and \
-            self._step == other._step and \
-            self._end_frame == other._end_frame
+        return (
+            self.path == other.path
+            and self._start_frame == other._start_frame
+            and self._step == other._step
+            and self._end_frame == other._end_frame
+        )
 
     def __hash__(self):
         # Required for caching
         return hash((self._path, self._step, self._start_frame, self._end_frame))
+
 
 class PointCloud(MediaElement):
     def __init__(self, path: str, extra_images: Optional[List[Image]] = None):
         self._path = path
 
         self.extra_images: List[Image] = extra_images or []
+
+
+class MultiframeImage(MediaElement):
+    def __init__(
+        self,
+        images: Optional[Iterable[Union[str, Image, np.ndarray, Callable[[str], np.ndarray]]]],
+        *,
+        path: Optional[str] = None,
+    ):
+        self._path = path
+
+        if images is None:
+            images = []
+
+        self._images = [None] * len(images)
+        for i, image in enumerate(images):
+            assert isinstance(image, (str, Image, np.ndarray)) or callable(image)
+
+            if isinstance(image, str):
+                image = Image(path=image)
+            elif isinstance(image, np.ndarray) or callable(image):
+                image = Image(data=image)
+
+            self._images[i] = image
+
+        assert self._path or self._images
+
+    @property
+    def data(self) -> List[Image]:
+        return self._images

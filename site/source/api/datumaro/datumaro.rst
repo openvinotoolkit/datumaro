@@ -1,5 +1,6 @@
-Datumaro
-########
+datumaro module
+===============
+.. _datumaro:
 
 The recommended way to use Datumaro API is:
 
