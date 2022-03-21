@@ -14,7 +14,12 @@ from datumaro.components.media import Image
 from datumaro.util import find
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import generate_colormap, lazy_mask
-from datumaro.util.meta_file_util import DATASET_META_FILE, has_meta_file, parse_meta_file
+from datumaro.util.meta_file_util import (
+    DATASET_META_FILE,
+    has_meta_file,
+    is_meta_file,
+    parse_meta_file,
+)
 
 
 class CommonSegmentationPath:
@@ -55,7 +60,9 @@ def make_categories(label_map=None):
 
 
 class CommonSegmentationExtractor(SourceExtractor):
-    def __init__(self, path, subset=None, image_prefix="", mask_prefix=""):
+    def __init__(
+        self, path, subset=None, image_prefix="", mask_prefix="",
+    ):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
@@ -67,32 +74,32 @@ class CommonSegmentationExtractor(SourceExtractor):
         if has_meta_file(path):
             label_map = parse_meta_file(path)
             self._categories = make_categories(label_map)
+        else:
+            meta_file = glob.glob(osp.join(path, "**", DATASET_META_FILE), recursive=True)
+            if is_meta_file(meta_file[0]):
+                label_map = parse_meta_file(meta_file[0])
+                self._categories = make_categories(label_map)
 
         self._items = list(self._load_items(path).values())
 
     def _load_items(self, path):
         items = {}
 
-        image_dir = osp.join(path, CommonSegmentationPath.IMAGES_DIR)
+        image_dir = osp.join(path, "**", CommonSegmentationPath.IMAGES_DIR)
 
         if osp.isdir(image_dir):
             images = {
                 osp.splitext(osp.relpath(p, image_dir))[0].replace("\\", "/")[
                     len(self._image_prefix) :
                 ]: p
-                for p in find_images(
-                    image_dir, exts=CommonSegmentationPath.IMAGE_EXT, recursive=True
-                )
+                for p in find_images(image_dir, recursive=True)
             }
         else:
             images = {}
 
         for mask_path in glob.glob(
-            osp.join(
-                path,
-                CommonSegmentationPath.MASKS_DIR,
-                f"{self._mask_prefix}*{CommonSegmentationPath.IMAGE_EXT}",
-            )
+            osp.join(path, "**", CommonSegmentationPath.MASKS_DIR, f"{self._mask_prefix}*.*"),
+            recursive=True,
         ):
             item_id = osp.splitext(osp.basename(mask_path))[0][len(self._mask_prefix) :]
 
@@ -129,14 +136,9 @@ class CommonSegmentationImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        with context.require_any():
-            with context.alternative():
-                context.require_file(
-                    f"**/{CommonSegmentationPath.IMAGES_DIR}/*.*"
-                )
-                context.require_file(
-                    f"**/{CommonSegmentationPath.MASKS_DIR}/*.*"
-                )
+        context.require_file(f"**/{CommonSegmentationPath.IMAGES_DIR}/**/*.*")
+        context.require_file(f"**/{CommonSegmentationPath.MASKS_DIR}/**/*.*")
+        context.require_file(f"**/{DATASET_META_FILE}")
 
     @classmethod
     def find_sources(cls, path):

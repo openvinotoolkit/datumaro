@@ -18,8 +18,11 @@ DUMMY_DATASET_DIR = osp.join(
     osp.dirname(__file__), "assets", "common_segmentation_dataset", "dataset"
 )
 
-DUMMY_DATASET_WITH_FILE_PREFIXES_DIR = osp.join(
-    osp.dirname(__file__), "assets", "common_segmentation_dataset", "dataset_with_file_prefixes"
+DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE = osp.join(
+    osp.dirname(__file__),
+    "assets",
+    "common_segmentation_dataset",
+    "dataset_with_non_standard_structure",
 )
 
 
@@ -30,8 +33,8 @@ class CommonSegmentationImporterTest(TestCase):
         self.assertEqual([CommonSegmentationImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect_with_file_prefixes(self):
-        detected_formats = Environment().detect_dataset(DUMMY_DATASET_WITH_FILE_PREFIXES_DIR)
+    def test_can_detect_non_standard_structure(self):
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE)
         self.assertEqual([CommonSegmentationImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -74,7 +77,7 @@ class CommonSegmentationImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_dataset(self):
+    def test_can_import_non_standard_structure(self):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -89,8 +92,9 @@ class CommonSegmentationImporterTest(TestCase):
                     id="0002",
                     media=Image(data=np.ones((1, 5, 3))),
                     annotations=[
-                        Mask(image=np.array([[1, 1, 1, 0, 0]]), label=1),
-                        Mask(image=np.array([[0, 0, 0, 1, 1]]), label=4),
+                        Mask(image=np.array([[1, 1, 0, 0, 0]]), label=1),
+                        Mask(image=np.array([[0, 0, 1, 0, 0]]), label=5),
+                        Mask(image=np.array([[0, 0, 0, 1, 1]]), label=7),
                     ],
                 ),
             ],
@@ -103,13 +107,15 @@ class CommonSegmentationImporterTest(TestCase):
                         ("Bicyclist", (0, 128, 192)),
                         ("Child", (192, 128, 64)),
                         ("Road", (128, 64, 128)),
+                        ("Pedestrian", (64, 64, 0)),
+                        ("SignSymbol", (128, 128, 128)),
                     ]
                 )
             ),
         )
 
         dataset = Dataset.import_from(
-            DUMMY_DATASET_WITH_FILE_PREFIXES_DIR,
+            DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE,
             "common_segmentation",
             image_prefix="image_",
             mask_prefix="gt_",

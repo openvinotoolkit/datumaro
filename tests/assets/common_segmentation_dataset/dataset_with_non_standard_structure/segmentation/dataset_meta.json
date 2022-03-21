@@ -5,7 +5,9 @@
     "Archway",
     "Bicyclist",
     "Child",
-    "Road"
+    "Road",
+    "Pedestrian",
+    "SignSymbol"
   ],
   "label_map": {
     "0": "Void",
@@ -13,7 +15,9 @@
     "2": "Archway",
     "3": "Bicyclist",
     "4": "Child",
-    "5": "Road"
+    "5": "Road",
+    "6": "Pedestrian",
+    "7": "SignSymbol"
   },
   "segmentation_colors": [
     [
@@ -44,6 +48,16 @@
     [
       128,
       64,
+      128
+    ],
+    [
+      64,
+      64,
+      0
+    ],
+    [
+      128,
+      128,
       128
     ]
   ],
