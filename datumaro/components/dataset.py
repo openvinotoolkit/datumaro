@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import glob
 import inspect
 import logging as log
 import os
