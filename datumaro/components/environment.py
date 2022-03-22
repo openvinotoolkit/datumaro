@@ -242,7 +242,7 @@ class Environment:
 
     def detect_dataset(self, path, rejection_callback=None, depth=1):
         ignore_dirs = {"__MSOSX", "__MACOSX"}
-        detected_formats = []
+        matched_formats = set()
         for _ in range(depth + 1):
             detected_formats = detect_dataset_format(
                 (
@@ -254,11 +254,13 @@ class Environment:
             )
 
             if detected_formats and len(detected_formats) == 1:
-                break
+                return detected_formats
+            elif detected_formats:
+                matched_formats |= set(detected_formats)
 
             paths = glob.glob(osp.join(path, "*"))
             path = "" if len(paths) != 1 else paths[0]
             if not osp.isdir(path) or osp.basename(path) in ignore_dirs:
                 break
 
-        return detected_formats
+        return list(matched_formats)
