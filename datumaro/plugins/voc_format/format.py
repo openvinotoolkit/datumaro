@@ -6,10 +6,12 @@ import os.path as osp
 from collections import OrderedDict
 from enum import Enum, auto
 from itertools import chain
+from typing import Dict, List, Tuple
 
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, LabelCategories, MaskCategories
+from datumaro.components.annotation import AnnotationType, LabelCategories, MaskCategories, RgbColor
+from datumaro.components.errors import InvalidAnnotationError
 from datumaro.util import dump_json_file, find, parse_json_file
 from datumaro.util.meta_file_util import get_meta_file
 
@@ -123,42 +125,55 @@ def make_voc_label_map():
     return label_map
 
 
-def parse_label_map(path):
-    if not path:
-        return None
+def parse_label_map(path: str) -> Dict[str, Tuple[RgbColor, List[str], List[str]]]:
+    """
+    Parses a label map file in the format:
+    'name : color (r, g, b) : parts (hand, feet, ...) : actions (siting, standing, ...)'
+
+    Parameters:
+        path: File path
+
+    Returns:
+        A dictionary: label -> (color, parts, actions)
+    """
 
     label_map = OrderedDict()
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
             # skip empty and commented lines
             line = line.strip()
-            if not line or line and line[0] == "#":
+            if not line or line[0] == "#":
                 continue
 
-            # name, color, parts, actions
+            # name : color : parts : actions
             label_desc = line.strip().split(":")
+            if len(label_desc) != 4:
+                raise InvalidAnnotationError(
+                    f"Label description has wrong number of fields '{len(label_desc)}'. "
+                    "Expected 4 ':'-separated fields."
+                )
             name = label_desc[0]
 
             if name in label_map:
-                raise ValueError("Label '%s' is already defined" % name)
+                raise InvalidAnnotationError(f"Label '{name}' is already defined in the label map")
 
-            if 1 < len(label_desc) and len(label_desc[1]) != 0:
+            if 1 < len(label_desc) and label_desc[1]:
                 color = label_desc[1].split(",")
-                assert len(color) == 3, "Label '%s' has wrong color, expected 'r,g,b', got '%s'" % (
-                    name,
-                    color,
-                )
-                color = tuple([int(c) for c in color])
+                if len(color) != 3:
+                    raise InvalidAnnotationError(
+                        f"Label '{name}' has wrong color '{color}'. " "Expected an 'r,g,b' triplet."
+                    )
+                color = tuple(int(c) for c in color)
             else:
                 color = None
 
-            if 2 < len(label_desc) and len(label_desc[2]) != 0:
-                parts = label_desc[2].split(",")
+            if 2 < len(label_desc) and label_desc[2]:
+                parts = [s.strip() for s in label_desc[2].split(",")]
             else:
                 parts = []
 
-            if 3 < len(label_desc) and len(label_desc[3]) != 0:
-                actions = label_desc[3].split(",")
+            if 3 < len(label_desc) and label_desc[3]:
+                actions = [s.strip() for s in label_desc[3].split(",")]
             else:
                 actions = []
 

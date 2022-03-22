@@ -108,6 +108,37 @@ class VocFormatTest(TestCase):
 
             self.assertEqual(src_label_map, dst_label_map)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_invalid_line_in_labelmap(self):
+        with TestDir() as test_dir:
+            path = osp.join(test_dir, "labelmap.txt")
+            with open(path, "w") as f:
+                f.write("a\n")
+
+            with self.assertRaisesRegex(InvalidAnnotationError, "Expected 4 ':'-separated fields"):
+                VOC.parse_label_map(path)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_repeated_label_in_labelmap(self):
+        with TestDir() as test_dir:
+            path = osp.join(test_dir, "labelmap.txt")
+            with open(path, "w") as f:
+                f.write("a:::\n")
+                f.write("a:::\n")
+
+            with self.assertRaisesRegex(InvalidAnnotationError, "already defined"):
+                VOC.parse_label_map(path)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_invalid_color_in_labelmap(self):
+        with TestDir() as test_dir:
+            path = osp.join(test_dir, "labelmap.txt")
+            with open(path, "w") as f:
+                f.write("a:10,20::\n")
+
+            with self.assertRaisesRegex(InvalidAnnotationError, "Expected an 'r,g,b' triplet"):
+                VOC.parse_label_map(path)
+
 
 class TestExtractorBase(Extractor):
     def _label(self, voc_label):
