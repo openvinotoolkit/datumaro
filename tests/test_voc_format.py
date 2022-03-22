@@ -505,6 +505,23 @@ class VocImportTest(TestCase):
 
                 compare_datasets_strict(self, source, parsed)
 
+
+class VocExtractorTest(TestCase):
+    # ?xml... must be in the file beginning
+    XML_ANNOTATION_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
+<annotation>
+<filename>a.jpg</filename>
+<size><width>20</width><height>10</height><depth>3</depth></size>
+<object>
+    <name>cat</name>
+    <bndbox><xmin>1</xmin><ymin>2</ymin><xmax>3</xmax><ymax>4</ymax></bndbox>
+    <difficult>1</difficult>
+    <truncated>1</truncated>
+    <occluded>1</occluded>
+</object>
+</annotation>
+    """
+
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_quotes_in_lists_of_layout_task(self):
         with TestDir() as test_dir:
@@ -537,16 +554,9 @@ class VocImportTest(TestCase):
                     ann_file = osp.join(test_dir, "Annotations", "a.xml")
                     os.makedirs(osp.dirname(ann_file))
                     with open(ann_file, "w") as f:
-                        f.write(
-                            """<?xml version="1.0" encoding="UTF-8"?>
-<annotation>
-  <object>
-    <name>test</name>
-    <bndbox><xmin>1</xmin><ymin>2</ymin><xmax>3</xmax><ymax>4</ymax></bndbox>
-  </object>
-</annotation>
-                        """
-                        )
+                        text = self.XML_ANNOTATION_TEMPLATE
+                        text = text.replace("<name>cat</name>", "<name>test</name>")
+                        f.write(text)
 
                     with self.assertRaises(AnnotationImportError) as capture:
                         Dataset.import_from(test_dir, format=fmt).init_cache()
@@ -566,14 +576,7 @@ class VocImportTest(TestCase):
                     ann_file = osp.join(test_dir, "Annotations", "a.xml")
                     os.makedirs(osp.dirname(ann_file))
                     with open(ann_file, "w") as f:
-                        text = """<?xml version="1.0" encoding="UTF-8"?>
-<annotation>
-  <object>
-    <name>cat</name>
-    <bndbox><xmin>1</xmin><ymin>2</ymin><xmax>3</xmax><ymax>4</ymax></bndbox>
-  </object>
-</annotation>
-                        """
+                        text = self.XML_ANNOTATION_TEMPLATE
                         text = re.sub(rf"<{key}>.*</{key}>", "", text, flags=re.DOTALL)
                         f.write(text)
 
@@ -605,18 +608,7 @@ class VocImportTest(TestCase):
                     ann_file = osp.join(test_dir, "Annotations", "a.xml")
                     os.makedirs(osp.dirname(ann_file))
                     with open(ann_file, "w") as f:
-                        text = """<?xml version="1.0" encoding="UTF-8"?>
-<annotation>
-  <size><width>20</width><height>10</height><depth>3</depth></size>
-  <object>
-    <name>cat</name>
-    <bndbox><xmin>1</xmin><ymin>2</ymin><xmax>3</xmax><ymax>4</ymax></bndbox>
-    <difficult>1</difficult>
-    <truncated>1</truncated>
-    <occluded>1</occluded>
-  </object>
-</annotation>
-                        """
+                        text = self.XML_ANNOTATION_TEMPLATE
                         text = re.sub(
                             rf"<{key}>.*</{key}>", f"<{key}>{value}</{key}>", text, flags=re.DOTALL
                         )
