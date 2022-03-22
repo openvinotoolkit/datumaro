@@ -373,11 +373,13 @@ class _CocoExtractor(SourceExtractor):
                             )
                     else:
                         # merge all parts into a single mask RLE
-                        img_h = self._parse_field(image_info, "height", (int, float))
-                        img_w = self._parse_field(image_info, "width", (int, float))
+                        img_h = self._parse_field(image_info, "height", int)
+                        img_w = self._parse_field(image_info, "width", int)
                         rle = self._lazy_merged_mask(segmentation, img_h, img_w)
                 elif isinstance(segmentation["counts"], list):
                     # uncompressed RLE
+                    img_h = self._parse_field(image_info, "height", int)
+                    img_w = self._parse_field(image_info, "width", int)
 
                     mask_size = self._parse_field(segmentation, "size", list)
                     if len(mask_size) != 2:
