@@ -42,6 +42,7 @@ class YoloConverter(Converter):
             type=str_to_bool,
             help="Add the 'data' prefix for paths in the dataset info (default: %(default)s)",
         )
+        return parser
 
     def __init__(
         self, extractor: IExtractor, save_dir: str, *, add_path_prefix: bool = True, **kwargs
