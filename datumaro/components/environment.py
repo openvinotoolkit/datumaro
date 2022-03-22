@@ -117,6 +117,10 @@ class Environment:
         return self._get_plugin_registry("_converters")
 
     @property
+    def generators(self) -> PluginRegistry:
+        return self._get_plugin_registry("_generators")
+
+    @property
     def transforms(self) -> PluginRegistry:
         return self._get_plugin_registry("_transforms")
 
@@ -218,6 +222,7 @@ class Environment:
         self.importers.batch_register(plugins)
         self.launchers.batch_register(plugins)
         self.converters.batch_register(plugins)
+        self.generators.batch_register(plugins)
         self.transforms.batch_register(plugins)
         self.validators.batch_register(plugins)
 
@@ -234,6 +239,12 @@ class Environment:
         result = self.converters.get(name)
         if isclass(result):
             result = result.convert
+        return partial(result, *args, **kwargs)
+
+    def make_generator(self, name, *args, **kwargs):
+        result = self.generators.get(name)
+        if isclass(result):
+            result = result.generate_dataset
         return partial(result, *args, **kwargs)
 
     def make_transform(self, name, *args, **kwargs):

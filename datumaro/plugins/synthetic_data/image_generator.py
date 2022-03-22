@@ -80,7 +80,7 @@ class ImageGenerator(DatasetGenerator):
         npy = osp.join(self._path, "pts_in_hull.npy")
         pts_in_hull = np.load(npy).transpose().reshape(2, 313, 1, 1).astype(np.float32)
 
-        content = read_text("datumaro.plugins.synthetic_data", "synthetic_background.txt")
+        content = read_text(__package__, "synthetic_background.txt")
         source = content.replace(" ", "").split(",")
         synthetic_background = np.array(list(map(float, source))).reshape(-1, 3)
 

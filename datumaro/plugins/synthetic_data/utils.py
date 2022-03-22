@@ -31,8 +31,8 @@ class IFSFunction:
         self.select_function.append(self.cum_proba)
 
     def calculate(self, iterations):
-        prev_x, prev_y = self.xs[0], self.ys[0]
-        next_x, next_y = self.xs[0], self.ys[0]
+        prev_x, prev_y = self.xs[-1], self.ys[-1]
+        next_x, next_y = self.xs[-1], self.ys[-1]
 
         for _ in range(iterations):
             rand = self._rng.random()
