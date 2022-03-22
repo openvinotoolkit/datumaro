@@ -1,14 +1,4 @@
 {
-  "labels": [
-    "Void",
-    "Animal",
-    "Archway",
-    "Bicyclist",
-    "Child",
-    "Road",
-    "Pedestrian",
-    "SignSymbol"
-  ],
   "label_map": {
     "0": "Void",
     "1": "Animal",

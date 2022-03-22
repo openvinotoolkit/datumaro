@@ -79,7 +79,14 @@ class CommonSegmentationExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        image_dir = osp.join(path, "**", CommonSegmentationPath.IMAGES_DIR)
+        image_dir = osp.join(path, CommonSegmentationPath.IMAGES_DIR)
+
+        if not osp.isdir(image_dir):
+            image_dir = glob.glob(
+                osp.join(path, "**", CommonSegmentationPath.IMAGES_DIR), recursive=True
+            )
+            if image_dir:
+                image_dir = image_dir[0]
 
         if osp.isdir(image_dir):
             images = {
@@ -87,12 +94,15 @@ class CommonSegmentationExtractor(SourceExtractor):
                     len(self._image_prefix) :
                 ]: p
                 for p in find_images(image_dir, recursive=True)
+                if osp.basename(p)[: len(self._image_prefix)] == self._image_prefix
             }
         else:
             images = {}
 
         for mask_path in glob.glob(
-            osp.join(path, "**", CommonSegmentationPath.MASKS_DIR, f"{self._mask_prefix}*.*"),
+            osp.join(
+                path, "**", CommonSegmentationPath.MASKS_DIR, f"{glob.escape(self._mask_prefix)}*.*"
+            ),
             recursive=True,
         ):
             item_id = osp.splitext(osp.basename(mask_path))[0][len(self._mask_prefix) :]
