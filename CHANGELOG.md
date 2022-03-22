@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   media type (<https://github.com/openvinotoolkit/datumaro/pull/628>)
 
 ### Changed
-- TBD
+- YOLO format now supports almost any subset names, except of
+  just `train` and `valid`
+  (<https://github.com/openvinotoolkit/datumaro/pull/688>)
 
 ### Deprecated
 - `--save-images` is replaced with `--save-media` in CLI and converter API
