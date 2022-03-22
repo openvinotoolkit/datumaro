@@ -2,9 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
-from attrs import define, field
+from attrs import define, field, validators
+
+from datumaro.util.attrs_util import has_length, not_empty
 
 
 class ImmutableObjectError(Exception):
@@ -206,39 +208,42 @@ class InvalidAnnotationError(DatasetImportError):
 
 @define(auto_exc=False)
 class InvalidFieldError(InvalidAnnotationError):
-    name: str
+    name: str = field(validator=[validators.instance_of(str), not_empty])
+    """Field name"""
 
     def __str__(self) -> str:
-        return f"Invalid anotation field '{self.name}' value"
+        return f"Invalid annotation field '{self.name}' value"
 
 
 @define(auto_exc=False)
 class InvalidFieldTypeError(InvalidFieldError):
-    actual: str
-    expected: Tuple[str]
+    actual: str = field(validator=[validators.instance_of(str), not_empty])
+    """Actual type of the field"""
+
+    expected: Tuple[str] = field(validator=[validators.instance_of(tuple), not_empty])
+    """The list of expected types of the field"""
 
     def __str__(self) -> str:
         if len(self.expected) == 1:
             expected = self.expected[0]
         else:
             expected = "one of " + ", ".join(self.expected)
-        return f"Invalid anotation field '{self.name}' type '{self.actual}'. Expected {expected}"
+        return f"Invalid annotation field '{self.name}' type '{self.actual}'. Expected {expected}"
 
 
 @define(auto_exc=False)
-class MissingFieldError(InvalidAnnotationError):
-    name: str
-
+class MissingFieldError(InvalidFieldError):
     def __str__(self) -> str:
-        return f"Missing anotation field '{self.name}'"
+        return f"Missing annotation field '{self.name}'"
 
 
 @define(auto_exc=False)
-class InvalidLabelError(InvalidAnnotationError):
-    id: str  # index or name
+class UndeclaredLabelError(InvalidAnnotationError):
+    id: str = field(validator=validators.instance_of(str))
+    """Index or name"""
 
     def __str__(self) -> str:
-        return f"Invalid label value '{self.id}'"
+        return f"Undeclared label '{self.id}'"
 
 
 @define(auto_exc=False)
@@ -248,7 +253,13 @@ class ItemImportError(DatasetImportError):
     The error itself is supposed to be in the `__cause__` member.
     """
 
-    item_id: Tuple[str, str]
+    item_id: Tuple[Optional[str], Optional[str]] = field(
+        validator=[validators.instance_of(tuple), has_length(2)]
+    )
+    """
+    (id, subset) of the item with problem.
+    If id or subset cannot be reported, such field is set to None.
+    """
 
     def __str__(self):
         return f"Failed to import item {self.item_id}"

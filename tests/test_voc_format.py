@@ -23,9 +23,9 @@ from datumaro.components.errors import (
     AnnotationImportError,
     InvalidAnnotationError,
     InvalidFieldError,
-    InvalidLabelError,
     ItemImportError,
     MissingFieldError,
+    UndeclaredLabelError,
 )
 from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.media import Image
@@ -550,7 +550,7 @@ class VocImportTest(TestCase):
 
                     with self.assertRaises(AnnotationImportError) as capture:
                         Dataset.import_from(test_dir, format=fmt).init_cache()
-                    self.assertIsInstance(capture.exception.__cause__, InvalidLabelError)
+                    self.assertIsInstance(capture.exception.__cause__, UndeclaredLabelError)
                     self.assertEqual(capture.exception.__cause__.id, "test")
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
@@ -671,7 +671,7 @@ class VocImportTest(TestCase):
 
             with self.assertRaises(AnnotationImportError) as capture:
                 Dataset.import_from(test_dir, format="voc_segmentation").init_cache()
-            self.assertIsInstance(capture.exception.__cause__, InvalidLabelError)
+            self.assertIsInstance(capture.exception.__cause__, UndeclaredLabelError)
             self.assertEqual(capture.exception.__cause__.id, "30")
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
@@ -692,7 +692,7 @@ class VocImportTest(TestCase):
 
             with self.assertRaises(AnnotationImportError) as capture:
                 Dataset.import_from(test_dir, format="voc_segmentation").init_cache()
-            self.assertIsInstance(capture.exception.__cause__, InvalidLabelError)
+            self.assertIsInstance(capture.exception.__cause__, UndeclaredLabelError)
             self.assertEqual(capture.exception.__cause__.id, "30")
 
 

@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check
+from copy import deepcopy
 from functools import partial
 from itertools import product
 from unittest import TestCase
@@ -25,9 +26,9 @@ from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
     InvalidFieldTypeError,
-    InvalidLabelError,
     ItemImportError,
     MissingFieldError,
+    UndeclaredLabelError,
 )
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
@@ -41,6 +42,7 @@ from datumaro.plugins.coco_format.converter import (
     CocoPersonKeypointsConverter,
     CocoStuffConverter,
 )
+from datumaro.plugins.coco_format.extractor import CocoInstancesExtractor
 from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util import dump_json_file
 from datumaro.util.test_utils import (
@@ -847,11 +849,39 @@ class CocoImporterTest(TestCase):
 
 
 class CocoExtractorTests(TestCase):
+    ANNOTATION_JSON_TEMPLATE = {
+        "images": [
+            {
+                "id": 5,
+                "width": 10,
+                "height": 5,
+                "file_name": "a.jpg",
+            }
+        ],
+        "annotations": [
+            {
+                "id": 1,
+                "image_id": 5,
+                "category_id": 1,
+                "segmentation": [],
+                "area": 3.0,
+                "bbox": [2, 2, 3, 1],
+                "iscrowd": 0,
+            }
+        ],
+        "categories": [
+            {
+                "id": 1,
+                "name": "test",
+            }
+        ],
+    }
+
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_unexpected_file(self):
         with TestDir() as test_dir:
             with self.assertRaisesRegex(DatasetImportError, "JSON file"):
-                Dataset.import_from(test_dir, "coco_instances")
+                CocoInstancesExtractor(test_dir)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_missing_item_field(self):
@@ -859,18 +889,7 @@ class CocoExtractorTests(TestCase):
             with self.subTest(field=field):
                 with TestDir() as test_dir:
                     ann_path = osp.join(test_dir, "ann.json")
-                    anns = {
-                        "images": [
-                            {
-                                "id": 5,
-                                "width": 10,
-                                "height": 5,
-                                "file_name": "a.jpg",
-                            }
-                        ],
-                        "annotations": [],
-                        "categories": [],
-                    }
+                    anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns["images"][0].pop(field)
                     dump_json_file(ann_path, anns)
 
@@ -885,28 +904,7 @@ class CocoExtractorTests(TestCase):
             with self.subTest(field=field):
                 with TestDir() as test_dir:
                     ann_path = osp.join(test_dir, "ann.json")
-                    anns = {
-                        "images": [
-                            {
-                                "id": 5,
-                                "width": 10,
-                                "height": 5,
-                                "file_name": "a.jpg",
-                            }
-                        ],
-                        "annotations": [
-                            {
-                                "id": 1,
-                                "image_id": 5,
-                                "category_id": 0,
-                                "segmentation": [],
-                                "area": 3.0,
-                                "bbox": [2, 2, 3, 1],
-                                "iscrowd": 0,
-                            }
-                        ],
-                        "categories": [],
-                    }
+                    anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns["annotations"][0].pop(field)
                     dump_json_file(ann_path, anns)
 
@@ -921,11 +919,7 @@ class CocoExtractorTests(TestCase):
             with self.subTest(field=field):
                 with TestDir() as test_dir:
                     ann_path = osp.join(test_dir, "ann.json")
-                    anns = {
-                        "images": [],
-                        "annotations": [],
-                        "categories": [],
-                    }
+                    anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns.pop(field)
                     dump_json_file(ann_path, anns)
 
@@ -939,16 +933,7 @@ class CocoExtractorTests(TestCase):
             with self.subTest(field=field):
                 with TestDir() as test_dir:
                     ann_path = osp.join(test_dir, "ann.json")
-                    anns = {
-                        "images": [],
-                        "annotations": [],
-                        "categories": [
-                            {
-                                "id": 1,
-                                "name": "test",
-                            }
-                        ],
-                    }
+                    anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns["categories"][0].pop(field)
                     dump_json_file(ann_path, anns)
 
@@ -957,64 +942,24 @@ class CocoExtractorTests(TestCase):
                     self.assertEqual(capture.exception.name, field)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
-    def test_can_report_invalid_label(self):
+    def test_can_report_undeclared_label(self):
         with TestDir() as test_dir:
             ann_path = osp.join(test_dir, "ann.json")
-            anns = {
-                "images": [
-                    {
-                        "id": 5,
-                        "width": 10,
-                        "height": 5,
-                        "file_name": "a.jpg",
-                    }
-                ],
-                "annotations": [
-                    {
-                        "id": 1,
-                        "image_id": 5,
-                        "category_id": 2,
-                        "segmentation": [],
-                        "area": 3.0,
-                        "bbox": [2, 2, 3, 1],
-                        "iscrowd": 0,
-                    }
-                ],
-                "categories": [],
-            }
+            anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
+            anns["annotations"][0]["category_id"] = 2
             dump_json_file(ann_path, anns)
 
             with self.assertRaises(AnnotationImportError) as capture:
                 Dataset.import_from(ann_path, "coco_instances")
-            self.assertIsInstance(capture.exception.__cause__, InvalidLabelError)
+            self.assertIsInstance(capture.exception.__cause__, UndeclaredLabelError)
             self.assertEqual(capture.exception.__cause__.id, "2")
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_bbox(self):
         with TestDir() as test_dir:
             ann_path = osp.join(test_dir, "ann.json")
-            anns = {
-                "images": [
-                    {
-                        "id": 5,
-                        "width": 10,
-                        "height": 5,
-                        "file_name": "a.jpg",
-                    }
-                ],
-                "annotations": [
-                    {
-                        "id": 1,
-                        "image_id": 5,
-                        "category_id": 0,
-                        "segmentation": [],
-                        "area": 3.0,
-                        "bbox": [2, 2, 3, 1, 5],
-                        "iscrowd": 0,
-                    }
-                ],
-                "categories": [],
-            }
+            anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
+            anns["annotations"][0]["bbox"] = [1, 2, 3, 4, 5]
             dump_json_file(ann_path, anns)
 
             with self.assertRaises(AnnotationImportError) as capture:
@@ -1023,64 +968,37 @@ class CocoExtractorTests(TestCase):
             self.assertIn("Bbox has wrong value count", str(capture.exception.__cause__))
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
-    def test_can_report_invalid_polygon(self):
+    def test_can_report_invalid_polygon_odd_points(self):
         with TestDir() as test_dir:
             ann_path = osp.join(test_dir, "ann.json")
-            anns = {
-                "images": [
-                    {
-                        "id": 5,
-                        "width": 10,
-                        "height": 5,
-                        "file_name": "a.jpg",
-                    }
-                ],
-                "annotations": [
-                    {
-                        "id": 1,
-                        "image_id": 5,
-                        "category_id": 0,
-                        "segmentation": [[1, 1]],
-                        "area": 3.0,
-                        "bbox": [],
-                        "iscrowd": 0,
-                    }
-                ],
-                "categories": [],
-            }
+            anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
+            anns["annotations"][0]["segmentation"] = [[1, 2, 3]]
             dump_json_file(ann_path, anns)
 
             with self.assertRaises(AnnotationImportError) as capture:
                 Dataset.import_from(ann_path, "coco_instances")
             self.assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
-            self.assertIn("Polygon has invalid value count", str(capture.exception.__cause__))
+            self.assertIn("not divisible by 2", str(capture.exception.__cause__))
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_polygon_less_than_3_points(self):
+        with TestDir() as test_dir:
+            ann_path = osp.join(test_dir, "ann.json")
+            anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
+            anns["annotations"][0]["segmentation"] = [[1, 2, 3, 4]]
+            dump_json_file(ann_path, anns)
+
+            with self.assertRaises(AnnotationImportError) as capture:
+                Dataset.import_from(ann_path, "coco_instances")
+            self.assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
+            self.assertIn("at least 3 (x, y) pairs", str(capture.exception.__cause__))
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_image_id(self):
         with TestDir() as test_dir:
             ann_path = osp.join(test_dir, "ann.json")
-            anns = {
-                "images": [
-                    {
-                        "id": 5,
-                        "width": 10,
-                        "height": 5,
-                        "file_name": "a.jpg",
-                    }
-                ],
-                "annotations": [
-                    {
-                        "id": 1,
-                        "image_id": 10,
-                        "category_id": 0,
-                        "segmentation": [],
-                        "area": 3.0,
-                        "bbox": [2, 2, 3, 1],
-                        "iscrowd": 0,
-                    }
-                ],
-                "categories": [],
-            }
+            anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
+            anns["annotations"][0]["image_id"] = 10
             dump_json_file(ann_path, anns)
 
             with self.assertRaises(AnnotationImportError) as capture:
@@ -1094,18 +1012,7 @@ class CocoExtractorTests(TestCase):
             for field, value in [("id", "q"), ("width", "q"), ("height", "q"), ("file_name", 0)]:
                 with self.subTest(field=field, value=value):
                     ann_path = osp.join(test_dir, "ann.json")
-                    anns = {
-                        "images": [
-                            {
-                                "id": 5,
-                                "width": 10,
-                                "height": 5,
-                                "file_name": "a.jpg",
-                            }
-                        ],
-                        "annotations": [],
-                        "categories": [],
-                    }
+                    anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns["images"][0][field] = value
                     dump_json_file(ann_path, anns)
 
@@ -1128,28 +1035,7 @@ class CocoExtractorTests(TestCase):
             ]:
                 with self.subTest(field=field):
                     ann_path = osp.join(test_dir, "ann.json")
-                    anns = {
-                        "images": [
-                            {
-                                "id": 5,
-                                "width": 10,
-                                "height": 5,
-                                "file_name": "a.jpg",
-                            }
-                        ],
-                        "annotations": [
-                            {
-                                "id": 1,
-                                "image_id": 5,
-                                "category_id": 0,
-                                "segmentation": [],
-                                "area": 3.0,
-                                "bbox": [2, 2, 3, 1],
-                                "iscrowd": 0,
-                            }
-                        ],
-                        "categories": [],
-                    }
+                    anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns["annotations"][0][field] = value
                     dump_json_file(ann_path, anns)
 

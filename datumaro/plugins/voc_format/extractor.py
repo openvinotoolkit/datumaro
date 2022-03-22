@@ -14,8 +14,8 @@ from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
     InvalidFieldError,
-    InvalidLabelError,
     MissingFieldError,
+    UndeclaredLabelError,
 )
 from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.media import Image
@@ -65,10 +65,10 @@ class _VocExtractor(SourceExtractor):
         )
         self._items = {item: None for item in self._load_subset_list(path)}
 
-    def _get_label_id(self, label):
+    def _get_label_id(self, label: str):
         label_id, _ = self._categories[AnnotationType.label].find(label)
         if label_id is None:
-            raise InvalidLabelError(label)
+            raise UndeclaredLabelError(label)
         return label_id
 
     def _load_categories(self, dataset_path):
@@ -418,7 +418,7 @@ class VocSegmentationExtractor(_VocExtractor):
             for instance_id, label_id in instance_labels.items():
                 if len(label_cat) <= label_id:
                     self._ctx.error_policy.report_annotation_error(
-                        InvalidLabelError(str(label_id)), item_id=(item_id, self._subset)
+                        UndeclaredLabelError(str(label_id)), item_id=(item_id, self._subset)
                     )
 
                 image = compiled_mask.lazy_extract(instance_id)
@@ -432,7 +432,7 @@ class VocSegmentationExtractor(_VocExtractor):
             for label_id in classes:
                 if len(label_cat) <= label_id:
                     self._ctx.error_policy.report_annotation_error(
-                        InvalidLabelError(str(label_id)), item_id=(item_id, self._subset)
+                        UndeclaredLabelError(str(label_id)), item_id=(item_id, self._subset)
                     )
 
                 image = self._lazy_extract_mask(class_mask, label_id)

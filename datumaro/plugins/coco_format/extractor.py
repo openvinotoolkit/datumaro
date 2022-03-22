@@ -26,8 +26,8 @@ from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
     InvalidFieldTypeError,
-    InvalidLabelError,
     MissingFieldError,
+    UndeclaredLabelError,
 )
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor
 from datumaro.components.media import Image
@@ -58,7 +58,7 @@ class _CocoExtractor(SourceExtractor):
         **kwargs,
     ):
         if not osp.isfile(path):
-            raise DatasetImportError(f"Can't find JSON file path at '{path}'")
+            raise DatasetImportError(f"Can't find JSON file at '{path}'")
         self._path = path
 
         if not subset:
@@ -280,11 +280,11 @@ class _CocoExtractor(SourceExtractor):
 
         label_id = self._label_map.get(cat_id)
         if label_id is None:
-            raise InvalidLabelError(str(cat_id))
+            raise UndeclaredLabelError(str(cat_id))
         return label_id
 
     def _parse_field(
-        self, ann: Dict[str, Any], key: str, cls: Union[None, Type[T], Tuple[Type, ...]]
+        self, ann: Dict[str, Any], key: str, cls: Union[Type[T], Tuple[Type, ...]]
     ) -> T:
         value = ann.get(key, NOTSET)
         if value is NOTSET:
@@ -321,8 +321,8 @@ class _CocoExtractor(SourceExtractor):
                 keypoints = self._parse_field(ann, "keypoints", list)
                 if len(keypoints) % 3 != 0:
                     raise InvalidAnnotationError(
-                        "Keypoints have invalid value count %s, which is not divisible by 3. "
-                        "Expected (x, y, visibility) triplets." % (len(keypoints),)
+                        f"Keypoints have invalid value count {len(keypoints)}, "
+                        "which is not divisible by 3. Expected (x, y, visibility) triplets."
                     )
 
                 points = []
@@ -351,11 +351,15 @@ class _CocoExtractor(SourceExtractor):
                     if not self._merge_instance_polygons:
                         # polygon - a single object can consist of multiple parts
                         for polygon_points in segmentation:
-                            if len(polygon_points) % 2 != 0 or len(polygon_points) < 6:
+                            if len(polygon_points) % 2 != 0:
                                 raise InvalidAnnotationError(
-                                    "Polygon has invalid value count %s, "
-                                    "which is not divisible by 2. "
-                                    "Expected at least 3 (x, y) pairs." % (len(polygon_points),)
+                                    f"Polygon has invalid value count {len(polygon_points)}, "
+                                    "which is not divisible by 2."
+                                )
+                            elif len(polygon_points) < 6:
+                                raise InvalidAnnotationError(
+                                    f"Polygon has invalid value count {len(polygon_points)}. "
+                                    "Expected at least 3 (x, y) pairs."
                                 )
 
                             parsed_annotations.append(
@@ -369,14 +373,21 @@ class _CocoExtractor(SourceExtractor):
                             )
                     else:
                         # merge all parts into a single mask RLE
-                        img_h = self._parse_field(image_info, "height", (int, float))
-                        img_w = self._parse_field(image_info, "width", (int, float))
+                        img_h = self._parse_field(image_info, "height", int)
+                        img_w = self._parse_field(image_info, "width", int)
                         rle = self._lazy_merged_mask(segmentation, img_h, img_w)
                 elif isinstance(segmentation["counts"], list):
                     # uncompressed RLE
-                    img_h = self._parse_field(image_info, "height", (int, float))
-                    img_w = self._parse_field(image_info, "width", (int, float))
-                    mask_h, mask_w = self._parse_field(segmentation, "size", list)
+                    img_h = self._parse_field(image_info, "height", int)
+                    img_w = self._parse_field(image_info, "width", int)
+
+                    mask_size = self._parse_field(segmentation, "size", list)
+                    if len(mask_size) != 2:
+                        raise InvalidAnnotationError(
+                            f"Mask size has wrong value count {len(mask_size)}. Expected 2 values."
+                        )
+                    mask_h, mask_w = mask_size
+
                     if not ((img_h == mask_h) and (img_w == mask_w)):
                         raise InvalidAnnotationError(
                             "Mask #%s does not match image size: %s vs. %s"
@@ -397,7 +408,7 @@ class _CocoExtractor(SourceExtractor):
                 bbox = self._parse_field(ann, "bbox", list)
                 if len(bbox) != 4:
                     raise InvalidAnnotationError(
-                        "Bbox has wrong value count %s. Expected 4 values." % (len(bbox),)
+                        f"Bbox has wrong value count {len(bbox)}. Expected 4 values."
                     )
 
                 x, y, w, h = bbox
