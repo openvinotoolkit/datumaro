@@ -55,12 +55,10 @@ YOLO dataset directory should have the following structure:
         ├── image102.jpg
         └── ...
 ```
-> YOLO dataset cannot contain a subset with a name other than `train` or `valid`.
-  If an imported dataset contains such subsets, they will be ignored.
-  If you are exporting a project into YOLO format,
-  all subsets different from `train` and `valid` will be skipped.
+> Note, that by default, the YOLO framework does not expect any subset names,
+  except `train` and `valid`, Datumaro supports this as an extension.
   If there is no subset separation in a project, the data
-  will be saved in `train` subset.
+  will be saved in the `train` subset.
 
 - `obj.data` should have the following content, it is not necessary to have both
   subsets, but necessary to have one of them:
