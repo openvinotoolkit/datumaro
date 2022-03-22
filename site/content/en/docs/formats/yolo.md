@@ -18,7 +18,12 @@ Supported annotation types:
 
 YOLO format doesn't support attributes for annotations.
 
-The format only supports subsets named `train` or `valid`.
+The format supports arbitrary subset names, except `classes` and `backup`.
+
+> Note, that by default, the YOLO framework does not expect any subset names,
+  except `train` and `valid`, Datumaro supports this as an extension.
+  If there is no subset separation in a project, the data
+  will be saved in the `train` subset.
 
 ## Import YOLO dataset
 
@@ -55,10 +60,6 @@ YOLO dataset directory should have the following structure:
         ├── image102.jpg
         └── ...
 ```
-> Note, that by default, the YOLO framework does not expect any subset names,
-  except `train` and `valid`, Datumaro supports this as an extension.
-  If there is no subset separation in a project, the data
-  will be saved in the `train` subset.
 
 - `obj.data` should have the following content, it is not necessary to have both
   subsets, but necessary to have one of them:
