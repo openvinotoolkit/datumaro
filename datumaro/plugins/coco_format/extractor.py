@@ -321,8 +321,8 @@ class _CocoExtractor(SourceExtractor):
                 keypoints = self._parse_field(ann, "keypoints", list)
                 if len(keypoints) % 3 != 0:
                     raise InvalidAnnotationError(
-                        "Keypoints have invalid value count %s, which is not divisible by 3. "
-                        "Expected (x, y, visibility) triplets." % (len(keypoints),)
+                        f"Keypoints have invalid value count {len(keypoints)}, "
+                        "which is not divisible by 3. Expected (x, y, visibility) triplets."
                     )
 
                 points = []
@@ -401,7 +401,7 @@ class _CocoExtractor(SourceExtractor):
                 bbox = self._parse_field(ann, "bbox", list)
                 if len(bbox) != 4:
                     raise InvalidAnnotationError(
-                        "Bbox has wrong value count %s. Expected 4 values." % (len(bbox),)
+                        f"Bbox has wrong value count {len(bbox)}. Expected 4 values."
                     )
 
                 x, y, w, h = bbox
