@@ -351,11 +351,15 @@ class _CocoExtractor(SourceExtractor):
                     if not self._merge_instance_polygons:
                         # polygon - a single object can consist of multiple parts
                         for polygon_points in segmentation:
-                            if len(polygon_points) % 2 != 0 or len(polygon_points) < 6:
+                            if len(polygon_points) % 2 != 0:
                                 raise InvalidAnnotationError(
-                                    "Polygon has invalid value count %s, "
-                                    "which is not divisible by 2. "
-                                    "Expected at least 3 (x, y) pairs." % (len(polygon_points),)
+                                    f"Polygon has invalid value count {len(polygon_points)}, "
+                                    "which is not divisible by 2."
+                                )
+                            elif len(polygon_points) < 6:
+                                raise InvalidAnnotationError(
+                                    f"Polygon has invalid value count {len(polygon_points)}. "
+                                    "Expected at least 3 (x, y) pairs."
                                 )
 
                             parsed_annotations.append(
