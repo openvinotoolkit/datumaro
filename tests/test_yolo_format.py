@@ -5,20 +5,27 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
+from datumaro.components.annotation import Bbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
+from datumaro.components.errors import (
+    AnnotationImportError,
+    DatasetImportError,
+    InvalidAnnotationError,
+    ItemImportError,
+    UndeclaredLabelError,
+)
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.yolo_format.converter import YoloConverter
-from datumaro.plugins.yolo_format.extractor import YoloImporter
+from datumaro.plugins.yolo_format.extractor import YoloExtractor, YoloImporter
 from datumaro.util.image import save_image
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 from .requirements import Requirements, mark_requirement
 
 
-class YoloFormatTest(TestCase):
+class YoloConvertertTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable(
@@ -54,11 +61,7 @@ class YoloFormatTest(TestCase):
                     ],
                 ),
             ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    "label_" + str(i) for i in range(10)
-                ),
-            },
+            categories=["label_" + str(i) for i in range(10)],
         )
 
         with TestDir() as test_dir:
@@ -81,11 +84,7 @@ class YoloFormatTest(TestCase):
                     ],
                 ),
             ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    "label_" + str(i) for i in range(10)
-                ),
-            },
+            categories=["label_" + str(i) for i in range(10)],
         )
 
         with TestDir() as test_dir:
@@ -112,11 +111,7 @@ class YoloFormatTest(TestCase):
                     ],
                 ),
             ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    "label_" + str(i) for i in range(10)
-                ),
-            },
+            categories=["label_" + str(i) for i in range(10)],
         )
 
         with TestDir() as test_dir:
@@ -140,11 +135,7 @@ class YoloFormatTest(TestCase):
                     ],
                 ),
             ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    "label_" + str(i) for i in range(10)
-                ),
-            },
+            categories=["label_" + str(i) for i in range(10)],
         )
 
         with TestDir() as test_dir:
@@ -261,11 +252,7 @@ class YoloFormatTest(TestCase):
                     ],
                 ),
             ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    "label_" + str(i) for i in range(10)
-                ),
-            },
+            categories=["label_" + str(i) for i in range(10)],
         )
 
         with TestDir() as test_dir:
@@ -299,11 +286,7 @@ class YoloImporterTest(TestCase):
                     ],
                 ),
             ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    "label_" + str(i) for i in range(10)
-                ),
-            },
+            categories=["label_" + str(i) for i in range(10)],
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "yolo")
@@ -317,3 +300,100 @@ class YoloImporterTest(TestCase):
         parsed = pickle.loads(pickle.dumps(source))  # nosec
 
         compare_datasets_strict(self, source, parsed)
+
+
+class YoloExtractorTest(TestCase):
+    def _prepare_dataset(self, path):
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    "a",
+                    subset="train",
+                    media=Image(np.ones((5, 10, 3))),
+                    annotations=[Bbox(1, 1, 2, 4, label=0)],
+                )
+            ],
+            categories=["test"],
+        )
+        dataset.export(path, "yolo", save_images=True)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_data_file(self):
+        with TestDir() as test_dir:
+            with self.assertRaisesRegex(DatasetImportError, "Can't read dataset"):
+                YoloExtractor(test_dir)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_ann_line_format(self):
+        with TestDir() as test_dir:
+            self._prepare_dataset(test_dir)
+            with open(osp.join(test_dir, "obj_train_data", "a.txt"), "w") as f:
+                f.write("1 2 3\n")
+
+            with self.assertRaises(AnnotationImportError) as capture:
+                Dataset.import_from(test_dir, "yolo").init_cache()
+            self.assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
+            self.assertIn("Unexpected field count", str(capture.exception.__cause__))
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_label(self):
+        with TestDir() as test_dir:
+            self._prepare_dataset(test_dir)
+            with open(osp.join(test_dir, "obj_train_data", "a.txt"), "w") as f:
+                f.write("10 0.5 0.5 0.5 0.5\n")
+
+            with self.assertRaises(AnnotationImportError) as capture:
+                Dataset.import_from(test_dir, "yolo").init_cache()
+            self.assertIsInstance(capture.exception.__cause__, UndeclaredLabelError)
+            self.assertEqual(capture.exception.__cause__.id, "10")
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_field_type(self):
+        for field, field_name in [
+            (1, "bbox center x"),
+            (2, "bbox center y"),
+            (3, "bbox width"),
+            (4, "bbox height"),
+        ]:
+            with self.subTest(field_name=field_name):
+                with TestDir() as test_dir:
+                    self._prepare_dataset(test_dir)
+                    with open(osp.join(test_dir, "obj_train_data", "a.txt"), "w") as f:
+                        values = [0, 0.5, 0.5, 0.5, 0.5]
+                        values[field] = "a"
+                        f.write(" ".join(str(v) for v in values))
+
+                    with self.assertRaises(AnnotationImportError) as capture:
+                        Dataset.import_from(test_dir, "yolo").init_cache()
+                    self.assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
+                    self.assertIn(field_name, str(capture.exception.__cause__))
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_missing_ann_file(self):
+        with TestDir() as test_dir:
+            self._prepare_dataset(test_dir)
+            os.remove(osp.join(test_dir, "obj_train_data", "a.txt"))
+
+            with self.assertRaises(ItemImportError) as capture:
+                Dataset.import_from(test_dir, "yolo").init_cache()
+            self.assertIsInstance(capture.exception.__cause__, FileNotFoundError)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_missing_image_info(self):
+        with TestDir() as test_dir:
+            self._prepare_dataset(test_dir)
+            os.remove(osp.join(test_dir, "obj_train_data", "a.jpg"))
+
+            with self.assertRaises(ItemImportError) as capture:
+                Dataset.import_from(test_dir, "yolo").init_cache()
+            self.assertIsInstance(capture.exception.__cause__, DatasetImportError)
+            self.assertIn("Can't find image info", str(capture.exception.__cause__))
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_missing_subset_info(self):
+        with TestDir() as test_dir:
+            self._prepare_dataset(test_dir)
+            os.remove(osp.join(test_dir, "train.txt"))
+
+            with self.assertRaisesRegex(InvalidAnnotationError, "subset list file"):
+                Dataset.import_from(test_dir, "yolo").init_cache()
