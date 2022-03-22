@@ -378,9 +378,14 @@ class _CocoExtractor(SourceExtractor):
                         rle = self._lazy_merged_mask(segmentation, img_h, img_w)
                 elif isinstance(segmentation["counts"], list):
                     # uncompressed RLE
-                    img_h = self._parse_field(image_info, "height", (int, float))
-                    img_w = self._parse_field(image_info, "width", (int, float))
-                    mask_h, mask_w = self._parse_field(segmentation, "size", list)
+
+                    mask_size = self._parse_field(segmentation, "size", list)
+                    if len(mask_size) != 2:
+                        raise InvalidAnnotationError(
+                            f"Mask size has wrong value count {len(mask_size)}. Expected 2 values."
+                        )
+                    mask_h, mask_w = mask_size
+
                     if not ((img_h == mask_h) and (img_w == mask_w)):
                         raise InvalidAnnotationError(
                             "Mask #%s does not match image size: %s vs. %s"
