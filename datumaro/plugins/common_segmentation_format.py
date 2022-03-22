@@ -24,7 +24,6 @@ from datumaro.util.meta_file_util import (
 class CommonSegmentationPath:
     MASKS_DIR = "masks"
     IMAGES_DIR = "images"
-    IMAGE_EXT = ".png"
 
 
 def make_categories(label_map=None):
