@@ -36,6 +36,7 @@ class Requirements:
     DATUM_497 = "Support import for SYNTHIA dataset"
     DATUM_542 = "Images missing after merging two datasets"
     DATUM_580 = "Import for MPII Human Pose Dataset"
+    DATUM_609 = "Allow not to prepend data/ prefix in YOLO export"
     DATUM_616 = "Import for BraTS dataset"
     DATUM_673 = "Pickling for Dataset and Annotations"
 

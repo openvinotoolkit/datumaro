@@ -11,8 +11,9 @@ from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, IExtractor
 from datumaro.components.media import Image
+from datumaro.util import str_to_bool
 
 from .format import YoloPath
 
@@ -31,6 +32,23 @@ def _make_yolo_bbox(img_size, box):
 class YoloConverter(Converter):
     # https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects
     DEFAULT_IMAGE_EXT = ".jpg"
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "--add-path-prefix",
+            default=True,
+            type=str_to_bool,
+            help="Add the 'data' prefix for paths in the dataset info (default: %(default)s)",
+        )
+
+    def __init__(
+        self, extractor: IExtractor, save_dir: str, *, add_path_prefix: bool = True, **kwargs
+    ) -> None:
+        super().__init__(extractor, save_dir, **kwargs)
+
+        self._prefix = "data" if add_path_prefix else ""
 
     def apply(self):
         extractor = self._extractor
@@ -81,7 +99,9 @@ class YoloConverter(Converter):
                             self._save_image(item, osp.join(subset_dir, image_name))
                         else:
                             log.warning("Item '%s' has no image" % item.id)
-                    image_paths[item.id] = osp.join("data", osp.basename(subset_dir), image_name)
+                    image_paths[item.id] = osp.join(
+                        self._prefix, osp.basename(subset_dir), image_name
+                    )
 
                     yolo_annotation = self._export_item_annotation(item)
                     annotation_path = osp.join(subset_dir, "%s.txt" % item.id)
@@ -91,7 +111,7 @@ class YoloConverter(Converter):
                 except Exception as e:
                     self._report_item_error(e, item_id=(item.id, item.subset))
 
-            subset_list_name = "%s.txt" % subset_name
+            subset_list_name = f"{subset_name}.txt"
             subset_list_path = osp.join(save_dir, subset_list_name)
             if self._patch and subset_name in self._patch.updated_subsets and not image_paths:
                 if osp.isfile(subset_list_path):
@@ -100,15 +120,15 @@ class YoloConverter(Converter):
 
             subset_lists[subset_name] = subset_list_name
             with open(subset_list_path, "w", encoding="utf-8") as f:
-                f.writelines("%s\n" % s for s in image_paths.values())
+                f.writelines(f"{s}\n" for s in image_paths.values())
 
         with open(osp.join(save_dir, "obj.data"), "w", encoding="utf-8") as f:
-            f.write("classes = %s\n" % len(label_ids))
+            f.write(f"classes = {len(label_ids)}\n")
 
             for subset_name, subset_list_name in subset_lists.items():
-                f.write("%s = %s\n" % (subset_name, osp.join("data", subset_list_name)))
+                f.write("%s = %s\n" % (subset_name, osp.join(self._prefix, subset_list_name)))
 
-            f.write("names = %s\n" % osp.join("data", "obj.names"))
+            f.write("names = %s\n" % osp.join(self._prefix, "obj.names"))
             f.write("backup = backup/\n")
 
     def _export_item_annotation(self, item):
