@@ -234,11 +234,12 @@ class MissingFieldError(InvalidAnnotationError):
 
 
 @define(auto_exc=False)
-class InvalidLabelError(InvalidAnnotationError):
-    id: str  # index or name
+class UndeclaredLabelError(InvalidAnnotationError):
+    id: str = field(validator=not_empty)
+    """index or name"""
 
     def __str__(self) -> str:
-        return f"Invalid label value '{self.id}'"
+        return f"Undeclared label '{self.id}'"
 
 
 @define(auto_exc=False)

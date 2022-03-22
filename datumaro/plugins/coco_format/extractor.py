@@ -26,8 +26,8 @@ from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
     InvalidFieldTypeError,
-    InvalidLabelError,
     MissingFieldError,
+    UndeclaredLabelError,
 )
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor
 from datumaro.components.media import Image
@@ -280,7 +280,7 @@ class _CocoExtractor(SourceExtractor):
 
         label_id = self._label_map.get(cat_id)
         if label_id is None:
-            raise InvalidLabelError(str(cat_id))
+            raise UndeclaredLabelError(str(cat_id))
         return label_id
 
     def _parse_field(

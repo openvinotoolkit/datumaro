@@ -1,7 +1,7 @@
-from copy import deepcopy
 import os
 import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check
+from copy import deepcopy
 from functools import partial
 from itertools import product
 from unittest import TestCase
@@ -26,9 +26,9 @@ from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
     InvalidFieldTypeError,
-    InvalidLabelError,
     ItemImportError,
     MissingFieldError,
+    UndeclaredLabelError,
 )
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
@@ -942,7 +942,7 @@ class CocoExtractorTests(TestCase):
                     self.assertEqual(capture.exception.name, field)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
-    def test_can_report_invalid_label(self):
+    def test_can_report_undeclared_label(self):
         with TestDir() as test_dir:
             ann_path = osp.join(test_dir, "ann.json")
             anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
@@ -951,7 +951,7 @@ class CocoExtractorTests(TestCase):
 
             with self.assertRaises(AnnotationImportError) as capture:
                 Dataset.import_from(ann_path, "coco_instances")
-            self.assertIsInstance(capture.exception.__cause__, InvalidLabelError)
+            self.assertIsInstance(capture.exception.__cause__, UndeclaredLabelError)
             self.assertEqual(capture.exception.__cause__.id, "2")
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
