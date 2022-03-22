@@ -67,28 +67,23 @@ class YoloExtractor(SourceExtractor):
 
         self._image_info = image_info
 
-        with open(config_path, "r", encoding="utf-8") as f:
-            config_lines = f.readlines()
+        config = self._parse_config(config_path)
 
-        subsets = OrderedDict()
-        names_path = None
-
-        for line in config_lines:
-            match = re.match(r"^\s*(\w+)\s*=\s*(.+)$", line)
-            if not match:
-                continue
-
-            key = match.group(1)
-            value = match.group(2)
-            if key == "names":
-                names_path = value
-            elif key in YoloPath.SUBSET_NAMES:
-                subsets[key] = value
-            else:
-                continue
-
+        names_path = config.get("names")
         if not names_path:
             raise InvalidAnnotationError(f"Failed to parse names file path from config")
+
+        # The original format is like this:
+        #
+        # classes = 2
+        # train  = data/train.txt
+        # valid  = data/test.txt
+        # names = data/obj.names
+        # backup = backup/
+        #
+        # To support more subset names, we disallow subsets
+        # called 'classes' and 'backup'.
+        subsets = {k: v for k, v in config.items() if k not in YoloPath.RESERVED_CONFIG_KEYS}
 
         for subset_name, list_path in subsets.items():
             list_path = osp.join(self._path, self.localize_path(list_path))
@@ -109,6 +104,24 @@ class YoloExtractor(SourceExtractor):
                 osp.join(self._path, self.localize_path(names_path))
             )
         }
+
+    @staticmethod
+    def _parse_config(path: str) -> Dict[str, str]:
+        with open(path, "r", encoding="utf-8") as f:
+            config_lines = f.readlines()
+
+        config = {}
+
+        for line in config_lines:
+            match = re.match(r"^\s*(\w+)\s*=\s*(.+)$", line)
+            if not match:
+                continue
+
+            key = match.group(1)
+            value = match.group(2)
+            config[key] = value
+
+        return config
 
     @staticmethod
     def localize_path(path: str) -> str:
