@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   media type (<https://github.com/openvinotoolkit/datumaro/pull/628>)
 - Common Semantic Segmentation dataset format (import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/685>)
+- New command `describe-downloads` to print information about downloadable datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/678>)
 
 ### Changed
 - TBD
