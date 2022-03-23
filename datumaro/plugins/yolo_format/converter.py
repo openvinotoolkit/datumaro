@@ -121,13 +121,16 @@ class YoloConverter(Converter):
 
             subset_lists[subset_name] = subset_list_name
             with open(subset_list_path, "w", encoding="utf-8") as f:
-                f.writelines(f"{s}\n" for s in image_paths.values())
+                f.writelines("%s\n" % s.replace("\\", "/") for s in image_paths.values())
 
         with open(osp.join(save_dir, "obj.data"), "w", encoding="utf-8") as f:
             f.write(f"classes = {len(label_ids)}\n")
 
             for subset_name, subset_list_name in subset_lists.items():
-                f.write("%s = %s\n" % (subset_name, osp.join(self._prefix, subset_list_name)))
+                f.write(
+                    "%s = %s\n"
+                    % (subset_name, osp.join(self._prefix, subset_list_name).replace("\\", "/"))
+                )
 
             f.write("names = %s\n" % osp.join(self._prefix, "obj.names"))
             f.write("backup = backup/\n")
