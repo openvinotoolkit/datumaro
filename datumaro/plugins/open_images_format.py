@@ -179,6 +179,7 @@ class OpenImagesExtractor(Extractor):
         if not osp.exists(self._annotation_dir):
             self._annotation_dir = path
         self._annotation_files = os.listdir(self._annotation_dir)
+
         self._categories = {}
         self._items = []
 
