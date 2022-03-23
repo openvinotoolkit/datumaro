@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
 - BraTS format (import-only) (.npy and .nii.gz), new `MultiframeImage`
   media type (<https://github.com/openvinotoolkit/datumaro/pull/628>)
-- CSS dataset format (import-only)
+- Common Semantic Segmentation dataset format (import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/685>)
 
 ### Changed
