@@ -24,14 +24,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Generate 300 3-channel synthetic images with H=224, W=256 and store to data_dir:|n
-        |s|s%(prog)s -o data_dir -k 300 --shape 224 256|n
+        |s|s%(prog)s -o data_dir -k 300 --shape 224 256
         """,
         formatter_class=MultilineFormatter,
     )
 
-    parser.add_argument(
-        "-t", "--type", required=True, choices=["image"], help="Specify type of data to generate"
-    )
     parser.add_argument(
         "-o", "--output-dir", required=True, help="Output directory to store generated dataset"
     )
@@ -40,6 +37,9 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     )
     parser.add_argument(
         "--shape", nargs="+", type=int, required=True, help="Dimensions of data to be generated"
+    )
+    parser.add_argument(
+        "-t", "--type", default="image", choices=["image"], help="Specify type of data to generate"
     )
     parser.add_argument(
         "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
@@ -51,7 +51,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 
 def get_sensitive_args():
-    return {generate_command: ["type", "output_dir", "count", "shape"]}
+    return {generate_command: ["output_dir", "count", "shape"]}
 
 
 def generate_command(args):
@@ -64,7 +64,7 @@ def generate_command(args):
             os.mkdir(output_dir)
         else:
             raise CliException(
-                "Directory '%s' already exists " "(pass --overwrite to overwrite)" % output_dir
+                "Directory '%s' already exists (pass --overwrite to overwrite)" % output_dir
             )
 
     if args.type == "image":

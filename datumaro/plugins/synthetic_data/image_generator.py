@@ -23,10 +23,38 @@ class ImageGenerator(DatasetGenerator):
     ImageGenerator generates 3-channel synthetic images with provided shape.
     """
 
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "-o",
+            "--output-dir",
+            type=osp.abspath,
+            required=True,
+            help="Path to the directory where dataset are saved",
+        )
+        parser.add_argument(
+            "-k", "--count", type=int, required=True, help="Number of data to generate"
+        )
+        parser.add_argument(
+            "--shape",
+            nargs="+",
+            type=int,
+            required=True,
+            help="Data shape. For example, for image with height = 256 and width = 224: --shape 256 224",
+        )
+
+        return parser
+
     def __init__(self, output_dir: str, count: int, shape: Tuple[int, int]):
-        super().__init__(output_dir, count, shape)
-        assert len(self._shape) == 2
-        self._height, self._width = self._shape
+        self._count = count
+        self._cpu_count = min(os.cpu_count(), self._count)
+        assert len(shape) == 2
+        self._height, self._width = shape
+
+        self._output_dir = output_dir
+        if not osp.exists(output_dir):
+            os.makedirs(output_dir)
 
         if self._height < 13 or self._width < 13:
             raise ValueError(
@@ -38,6 +66,10 @@ class ImageGenerator(DatasetGenerator):
         self._iterations = 200000
 
         self._path = os.getcwd()
+        log.info(
+            "Downloading colorization model to '%s'",
+            self._path,
+        )
         download_colorization_model(self._path)
         self._initialize_params()
 
@@ -81,8 +113,11 @@ class ImageGenerator(DatasetGenerator):
         pts_in_hull = np.load(npy).transpose().reshape(2, 313, 1, 1).astype(np.float32)
 
         content = read_text(__package__, "synthetic_background.txt")
-        source = content.replace(" ", "").split(",")
-        synthetic_background = np.array(list(map(float, source))).reshape(-1, 3)
+        synthetic_background = []
+        for line in content.split("\n"):
+            means = list(map(int, line.split()))
+            synthetic_background.append(means)
+        synthetic_background = np.array(synthetic_background)
 
         net = cv.dnn.readNetFromCaffe(proto, model)
         net.getLayer(net.getLayerId("class8_ab")).blobs = [pts_in_hull]
@@ -108,27 +143,31 @@ class ImageGenerator(DatasetGenerator):
     ) -> np.ndarray:
         ifs_function = IFSFunction(rng, prev_x=0.0, prev_y=0.0)
         for param in params:
-            ifs_function.add_param(param[:6], param[6], weight)
+            ifs_function.add_param(
+                param[:ifs_function.NUM_PARAMS], param[ifs_function.NUM_PARAMS], weight
+            )
         ifs_function.calculate(iterations)
         img = ifs_function.draw(height, width, draw_point)
         return img
 
     def _generate_category(self, rng: Random, base_h: int = 512, base_w: int = 512) -> np.ndarray:
         pixels = -1
-        while pixels < self._threshold:
+        i = 0
+        while pixels < self._threshold and i < self._iterations:
             param_size = rng.randint(2, 7)
             params = np.zeros((param_size, 7), dtype=np.float32)
 
             sum_proba = 1e-5
             for i in range(param_size):
-                a, b, c, d, e, f = [rng.uniform(-1.0, 1.0) for _ in range(6)]
+                a, b, c, d, e, f = [rng.uniform(-1.0, 1.0) for _ in range(IFSFunction.NUM_PARAMS)]
                 prob = abs(a * d - b * c)
                 sum_proba += prob
                 params[i] = a, b, c, d, e, f, prob
-            params[:, 6] /= sum_proba
+            params[:, IFSFunction.NUM_PARAMS] /= sum_proba
 
             fractal_img = self._generate_image(rng, params, self._num_of_points, base_h, base_w)
             pixels = np.count_nonzero(fractal_img) / (base_h * base_w)
+            i += 1
         return params
 
     def _initialize_params(self) -> None:
@@ -156,5 +195,5 @@ class ImageGenerator(DatasetGenerator):
                 modified_weights = BASE_WEIGHTS.copy()
                 modified_weights[weight_index] += multiplier * WEIGHT_INTERVAL
                 weight_vectors.append(modified_weights)
-        weights = np.array(weight_vectors).reshape(-1, 6)
+        weights = np.array(weight_vectors).reshape(-1, IFSFunction.NUM_PARAMS)
         return weights
