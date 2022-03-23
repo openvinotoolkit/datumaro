@@ -7,6 +7,8 @@ weight: 2
 
 ## Format specification
 
+CSS format specification is available [here](https://github.com/openvinotoolkit/open_model_zoo/blob/master/tools/accuracy_checker/openvino/tools/accuracy_checker/annotation_converters/README.md#supported-converters).
+
 Supported annotation types:
 - `Masks`
 

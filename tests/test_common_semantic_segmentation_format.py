@@ -9,7 +9,10 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.common_semantic_segmentation_format import CommonSemanticSegmentationImporter, make_categories
+from datumaro.plugins.common_semantic_segmentation_format import (
+    CommonSemanticSegmentationImporter,
+    make_categories,
+)
 from datumaro.util.test_utils import compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -34,7 +37,9 @@ class CommonSemanticSegmentationImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_non_standard_structure(self):
-        detected_formats = Environment().detect_dataset(DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE_DIR)
+        detected_formats = Environment().detect_dataset(
+            DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE_DIR
+        )
         self.assertEqual([CommonSemanticSegmentationImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

@@ -8,6 +8,7 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
@@ -64,28 +65,27 @@ class CommonSemanticSegmentationExtractor(SourceExtractor):
         self._image_prefix = image_prefix
         self._mask_prefix = mask_prefix
 
+        self._root_dir = path
+
         if has_meta_file(path):
             label_map = parse_meta_file(path)
             self._categories = make_categories(label_map)
         else:
             meta_file = glob.glob(osp.join(path, "**", DATASET_META_FILE), recursive=True)
             if is_meta_file(meta_file[0]):
+                self._root_dir = osp.dirname(meta_file[0])
+
                 label_map = parse_meta_file(meta_file[0])
                 self._categories = make_categories(label_map)
+            else:
+                raise DatasetImportError("Dataset meta info file was not found in %s" % path)
 
-        self._items = list(self._load_items(path).values())
+        self._items = list(self._load_items().values())
 
-    def _load_items(self, path):
+    def _load_items(self):
         items = {}
 
-        image_dir = osp.join(path, CommonSemanticSegmentationPath.IMAGES_DIR)
-
-        if not osp.isdir(image_dir):
-            image_dir = glob.glob(
-                osp.join(path, "**", CommonSemanticSegmentationPath.IMAGES_DIR), recursive=True
-            )
-            if image_dir:
-                image_dir = image_dir[0]
+        image_dir = osp.join(self._root_dir, CommonSemanticSegmentationPath.IMAGES_DIR)
 
         if osp.isdir(image_dir):
             images = {
@@ -98,12 +98,14 @@ class CommonSemanticSegmentationExtractor(SourceExtractor):
         else:
             images = {}
 
-        for mask_path in glob.glob(
-            osp.join(
-                path, "**", CommonSemanticSegmentationPath.MASKS_DIR, f"{glob.escape(self._mask_prefix)}*.*"
-            ),
-            recursive=True,
-        ):
+        mask_dir = osp.join(self._root_dir, CommonSemanticSegmentationPath.MASKS_DIR)
+        masks = [
+            mask_path
+            for mask_path in find_images(mask_dir, recursive=True)
+            if osp.basename(mask_path).startswith(self._mask_prefix)
+        ]
+
+        for mask_path in masks:
             item_id = osp.splitext(osp.basename(mask_path))[0][len(self._mask_prefix) :]
 
             image = images.get(item_id)
