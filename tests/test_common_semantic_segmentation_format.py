@@ -21,11 +21,8 @@ DUMMY_DATASET_DIR = osp.join(
     osp.dirname(__file__), "assets", "common_semantic_segmentation_dataset", "dataset"
 )
 
-DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE_DIR = osp.join(
-    osp.dirname(__file__),
-    "assets",
-    "common_semantic_segmentation_dataset",
-    "dataset_with_non_standard_structure",
+DUMMY_NON_STANDARD_DATASET_DIR = osp.join(
+    osp.dirname(__file__), "assets", "common_semantic_segmentation_dataset", "non_standard_dataset",
 )
 
 
@@ -37,9 +34,7 @@ class CommonSemanticSegmentationImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_non_standard_structure(self):
-        detected_formats = Environment().detect_dataset(
-            DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE_DIR
-        )
+        detected_formats = Environment().detect_dataset(DUMMY_NON_STANDARD_DATASET_DIR)
         self.assertEqual([CommonSemanticSegmentationImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -120,7 +115,7 @@ class CommonSemanticSegmentationImporterTest(TestCase):
         )
 
         dataset = Dataset.import_from(
-            DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE_DIR,
+            DUMMY_NON_STANDARD_DATASET_DIR,
             "common_semantic_segmentation",
             image_prefix="image_",
             mask_prefix="gt_",

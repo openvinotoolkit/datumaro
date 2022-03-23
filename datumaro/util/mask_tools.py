@@ -7,6 +7,7 @@ from itertools import chain
 from typing import Tuple
 
 import numpy as np
+from datumaro.components.errors import DatasetError
 
 from datumaro.util.image import lazy_image, load_image
 
@@ -64,14 +65,22 @@ def unpaint_mask(painted_mask, inverse_colormap=None):
     if callable(inverse_colormap):
         map_fn = lambda a: inverse_colormap((a >> 16) & 255, (a >> 8) & 255, a & 255)
     else:
-        map_fn = lambda a: inverse_colormap.get(((a >> 16) & 255, (a >> 8) & 255, a & 255), 0)
+        map_fn = lambda a: inverse_colormap.get(((a >> 16) & 255, (a >> 8) & 255, a & 255), None)
 
     painted_mask = painted_mask.astype(int)
     painted_mask = (
         painted_mask[:, :, 0] + (painted_mask[:, :, 1] << 8) + (painted_mask[:, :, 2] << 16)
     )
     uvals, unpainted_mask = np.unique(painted_mask, return_inverse=True)
-    palette = np.array([map_fn(v) for v in uvals], dtype=np.min_scalar_type(len(uvals)))
+    palette = []
+    for v in uvals:
+        color = map_fn(v)
+        if color is None:
+            raise DatasetError(
+                f"Unknown color {((v >> 16) & 255, (v >> 8) & 255, v & 255)} in the mask"
+            )
+        palette.append(color)
+    palette = np.array(palette, dtype=np.min_scalar_type(len(uvals)))
     unpainted_mask = palette[unpainted_mask].reshape(painted_mask.shape[:2])
 
     return unpainted_mask

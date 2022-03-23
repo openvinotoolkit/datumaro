@@ -52,7 +52,7 @@ run `datum project info`, which will display the project information.
 
 Datumaro can convert a CSS dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
-that support the segmentation task (e.g. PASCAL VOC, CamVid, CItyscapes, etc.)
+that support the segmentation task (e.g. PASCAL VOC, CamVid, Cityscapes, etc.)
 
 There are several ways to convert a CSS dataset to other dataset
 formats using CLI:
