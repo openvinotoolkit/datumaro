@@ -176,6 +176,10 @@ class DatasetExportError(DatumaroError):
     pass
 
 
+class AnnotationError(DatumaroError):
+    pass
+
+
 @define(auto_exc=False)
 class ItemExportError(DatasetExportError):
     """
