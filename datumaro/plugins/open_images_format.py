@@ -179,7 +179,6 @@ class OpenImagesExtractor(Extractor):
         if not osp.exists(self._annotation_dir):
             self._annotation_dir = path
         self._annotation_files = os.listdir(self._annotation_dir)
-
         self._categories = {}
         self._items = []
 
@@ -269,9 +268,7 @@ class OpenImagesExtractor(Extractor):
     def _load_label_category_parents(self):
         label_categories = self._categories[AnnotationType.label]
 
-        hierarchy_path = osp.join(
-            self._annotation_dir, OpenImagesPath.HIERARCHY_FILE_NAME
-        )
+        hierarchy_path = osp.join(self._annotation_dir, OpenImagesPath.HIERARCHY_FILE_NAME)
 
         try:
             root_node = parse_json_file(hierarchy_path)
