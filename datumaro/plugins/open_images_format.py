@@ -175,7 +175,10 @@ class OpenImagesExtractor(Extractor):
 
         self._dataset_dir = path
 
-        self._annotation_files = os.listdir(osp.join(path, OpenImagesPath.ANNOTATIONS_DIR))
+        self._annotation_dir = osp.join(path, OpenImagesPath.ANNOTATIONS_DIR)
+        if not osp.exists(self._annotation_dir):
+            self._annotation_dir = path
+        self._annotation_files = os.listdir(self._annotation_dir)
 
         self._categories = {}
         self._items = []
@@ -188,7 +191,7 @@ class OpenImagesExtractor(Extractor):
         elif image_meta is None:
             try:
                 self._image_meta = load_image_meta_file(
-                    osp.join(path, OpenImagesPath.ANNOTATIONS_DIR, DEFAULT_IMAGE_META_FILE_NAME)
+                    osp.join(self._annotation_dir, DEFAULT_IMAGE_META_FILE_NAME)
                 )
             except FileNotFoundError:
                 self._image_meta = {}
@@ -209,7 +212,7 @@ class OpenImagesExtractor(Extractor):
 
     @contextlib.contextmanager
     def _open_csv_annotation(self, file_name):
-        absolute_path = osp.join(self._dataset_dir, OpenImagesPath.ANNOTATIONS_DIR, file_name)
+        absolute_path = osp.join(self._annotation_dir, file_name)
 
         with open(absolute_path, "r", encoding="utf-8", newline="") as f:
             yield csv.DictReader(f)
@@ -267,7 +270,7 @@ class OpenImagesExtractor(Extractor):
         label_categories = self._categories[AnnotationType.label]
 
         hierarchy_path = osp.join(
-            self._dataset_dir, OpenImagesPath.ANNOTATIONS_DIR, OpenImagesPath.HIERARCHY_FILE_NAME
+            self._annotation_dir, OpenImagesPath.HIERARCHY_FILE_NAME
         )
 
         try:
@@ -590,17 +593,20 @@ class OpenImagesImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
+        ann_dirs = [f"{OpenImagesPath.ANNOTATIONS_DIR}/", ""]
+        ann_patterns = itertools.product(ann_dirs, cls.POSSIBLE_ANNOTATION_PATTERNS)
         with context.require_any():
-            for pattern in cls.POSSIBLE_ANNOTATION_PATTERNS:
+            for ann_dir, ann_file in ann_patterns:
                 with context.alternative():
-                    context.require_file(f"{OpenImagesPath.ANNOTATIONS_DIR}/{pattern}")
+                    context.require_file(ann_dir + ann_file)
 
     @classmethod
     def find_sources(cls, path):
         for pattern in cls.POSSIBLE_ANNOTATION_PATTERNS:
             if glob.glob(osp.join(glob.escape(path), OpenImagesPath.ANNOTATIONS_DIR, pattern)):
                 return [{"url": path, "format": OpenImagesExtractor.NAME}]
-
+            elif glob.glob(osp.join(glob.escape(path), pattern)):
+                return [{"url": path, "format": OpenImagesExtractor.NAME}]
         return []
 
 
