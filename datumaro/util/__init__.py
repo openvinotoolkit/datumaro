@@ -149,15 +149,14 @@ def parse_json_file(path: str):
         return parse_json(f.read())
 
 
-def dump_json_file(
-    path: str,
+def dump_json(
     data: Any,
     *,
     sort_keys: bool = False,
     allow_numpy: bool = True,
     indent: bool = False,
     append_newline: bool = False,
-):
+) -> bytes:
     flags = 0
     if sort_keys:
         flags |= orjson.OPT_SORT_KEYS
@@ -168,5 +167,25 @@ def dump_json_file(
     if append_newline:
         flags |= orjson.OPT_APPEND_NEWLINE
 
+    return orjson.dumps(data, option=flags)
+
+
+def dump_json_file(
+    path: str,
+    data: Any,
+    *,
+    sort_keys: bool = False,
+    allow_numpy: bool = True,
+    indent: bool = False,
+    append_newline: bool = False,
+) -> None:
     with open(path, "wb") as outfile:
-        outfile.write(orjson.dumps(data, option=flags))
+        outfile.write(
+            dump_json(
+                data,
+                sort_keys=sort_keys,
+                allow_numpy=allow_numpy,
+                indent=indent,
+                append_newline=append_newline,
+            )
+        )
