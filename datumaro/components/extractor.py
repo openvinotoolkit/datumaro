@@ -12,8 +12,10 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Iterable,
     Iterator,
     List,
+    Mapping,
     NoReturn,
     Optional,
     Sequence,
@@ -26,7 +28,7 @@ from typing import (
 
 import attr
 import numpy as np
-from attr import attrs, define, field
+from attr import define, field
 
 from datumaro.components.annotation import Annotation, AnnotationType, Categories
 from datumaro.components.cli_plugin import CliPlugin
@@ -40,49 +42,65 @@ from datumaro.components.format_detection import FormatDetectionConfidence, Form
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.util import is_method_redefined
-from datumaro.util.attrs_util import default_if_none, not_empty
 
 DEFAULT_SUBSET_NAME = "default"
 
 T = TypeVar("T", bound=MediaElement)
 
+_ImageLike = Union[str, Callable[[str], np.ndarray], np.ndarray, Image]
 
-@attrs(order=False, init=False, slots=True)
+
+@define
 class DatasetItem:
-    id: str = field(converter=lambda x: str(x).replace("\\", "/"), validator=not_empty)
-
-    subset: str = field(converter=lambda v: v or DEFAULT_SUBSET_NAME, default=None)
-
-    media: Optional[MediaElement] = field(
-        default=None, validator=attr.validators.optional(attr.validators.instance_of(MediaElement))
-    )
-
-    annotations: List[Annotation] = field(factory=list, validator=default_if_none(list))
-
-    attributes: Dict[str, Any] = field(factory=dict, validator=default_if_none(dict))
-
-    def wrap(item, **kwargs):
-        return attr.evolve(item, **kwargs)
-
-    def media_as(self, t: Type[T]) -> T:
-        assert issubclass(t, MediaElement)
-        return cast(t, self.media)
+    id: str
+    subset: str
+    media: Optional[MediaElement]
+    annotations: List[Annotation]
+    attributes: Dict[str, Any]
 
     def __init__(
         self,
-        id: str,
+        id: Union[int, str],
         *,
         subset: Optional[str] = None,
         media: Union[str, MediaElement, None] = None,
-        annotations: Optional[List[Annotation]] = None,
-        attributes: Dict[str, Any] = None,
-        image=None,
-        point_cloud=None,
-        related_images=None,
-    ):
+        annotations: Optional[Iterable[Annotation]] = None,
+        attributes: Optional[Mapping[str, Any]] = None,
+        # Deprecated members:
+        image: Optional[_ImageLike] = None,
+        point_cloud: Optional[str] = None,
+        related_images: Optional[Iterable[_ImageLike]] = None,
+    ) -> None:
+        if isinstance(id, int):
+            id = str(id)
+        else:
+            assert id and isinstance(id, str)
+        self.id = id.replace("\\", "/")
+
+        assert not subset or isinstance(subset, str)
+        self.subset = subset or DEFAULT_SUBSET_NAME
+
+        if annotations is None:
+            annotations = []
+        else:
+            assert isinstance(annotations, list)
+        self.annotations = annotations
+
+        if attributes is None:
+            attributes = {}
+        else:
+            assert isinstance(attributes, dict)
+        self.attributes = attributes
+
+        assert not (image is not None and point_cloud), "Can't set both image and point cloud info"
+        assert not related_images or point_cloud, "Related images require point cloud"
+        assert (media is None) or (media is not None) ^ (image is not None) ^ (
+            related_images is not None or point_cloud is not None
+        ), "'media' cannot be used together with 'image' or 'point_cloud'"
+
         if image is not None:
             warnings.warn(
-                "'image' is deprecated and will be " "removed in future. Use 'media' instead.",
+                "'image' is deprecated and will be removed in future. Use 'media' instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -110,10 +128,14 @@ class DatasetItem:
                 point_cloud = PointCloud(path=point_cloud, extra_images=related_images)
             assert isinstance(point_cloud, PointCloud)
             media = point_cloud
+        self.media = media
 
-        self.__attrs_init__(
-            id=id, subset=subset, media=media, annotations=annotations, attributes=attributes
-        )
+    def wrap(item, **kwargs):
+        return attr.evolve(item, **kwargs)
+
+    def media_as(self, t: Type[T]) -> T:
+        assert issubclass(t, MediaElement)
+        return cast(t, self.media)
 
     # Deprecated. Provided for backward compatibility.
     @property

@@ -143,7 +143,7 @@ class _AddLabelFromClassLabelFeature:
         state: namespace,
     ) -> None:
         item.annotations.append(
-            Label(tfds_example[self.feature_name].numpy()),
+            Label(int(tfds_example[self.feature_name].numpy())),
         )
 
 
@@ -201,7 +201,7 @@ class _AddObjectsFromFeature:
             )
 
             if tfds_labels is not None:
-                new_bbox.label = tfds_labels[i].numpy()
+                new_bbox.label = int(tfds_labels[i].numpy())
 
             for am_mapping in self.attribute_members:
                 attr_value = tfds_objects[am_mapping.member_name][i].numpy()

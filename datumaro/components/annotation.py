@@ -9,12 +9,41 @@ from functools import partial
 from itertools import zip_longest
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
 
-import attr
 import numpy as np
-from attr import asdict, attrs, field
+from attr import asdict, cmp_using, define, evolve, field
+from attr.setters import NO_OP
+from attr.validators import instance_of, optional
 from typing_extensions import Literal
 
-from datumaro.util.attrs_util import default_if_none, not_empty
+from datumaro.util.attrs_util import cast_with_default, not_empty
+
+# Annotations use strict type checking because it leads to better performance
+# comparing to conversions.
+#
+# There are some things to consider:
+# - there can be millions of annotations (for example,
+#   in COCO 2014 train + val has 1M polygons)
+# - 1M of single-argument function invocations
+#   can take about 0.05s:
+#
+# import timeit
+# v = 5
+# def f(v):
+#     pass
+#
+# print(timeit.timeit('f(v)', globals=globals(), number=1000000))
+#
+# With multiple args, time increases (as they need to be computed).
+#
+# - attrs allows to turn off validators:
+#
+# import attrs
+# attrs.validators.set_disabled(True)
+#
+# - attrs-generated c-tors are pretty slow due to lots of processing, so it's
+#  generally desired to have custom ones. However, it either turns off
+#  converters and validators for the class completely (with on_setattr=NO_OP),
+#  or runs converters and validators with your own c-tor.
 
 
 class AnnotationType(Enum):
@@ -33,7 +62,7 @@ COORDINATE_ROUNDING_DIGITS = 2
 NO_GROUP = 0
 
 
-@attrs(slots=True, kw_only=True, order=False)
+@define(on_setattr=NO_OP, kw_only=True)
 class Annotation:
     """
     A base annotation class.
@@ -44,7 +73,7 @@ class Annotation:
 
     # Describes an identifier of the annotation
     # Is not required to be unique within DatasetItem annotations or dataset
-    id: int = field(default=0, validator=default_if_none(int))
+    id: int = field(default=0, validator=instance_of(int))
 
     # Arbitrary annotation-specific attributes. Typically, includes
     # metainfo and properties that are not covered by other fields.
@@ -55,14 +84,15 @@ class Annotation:
     # - "occluded" (bool)
     # - "visible" (bool)
     # Possible dataset attributes can be described in Categories.attributes.
-    attributes: Dict[str, Any] = field(factory=dict, validator=default_if_none(dict))
+    attributes: Dict[str, Any] = field(factory=dict, validator=instance_of(dict))
 
     # Annotations can be grouped, which means they describe parts of a
     # single object. The value of 0 means there is no group.
-    group: int = field(default=NO_GROUP, validator=default_if_none(int))
+    group: int = field(default=NO_GROUP, validator=instance_of(int))
 
     @property
     def type(self) -> AnnotationType:
+        assert isinstance(self._type, AnnotationType)
         return self._type  # must be set in subclasses
 
     def as_dict(self) -> Dict[str, Any]:
@@ -71,10 +101,10 @@ class Annotation:
 
     def wrap(self, **kwargs):
         "Returns a modified copy of the object"
-        return attr.evolve(self, **kwargs)
+        return evolve(self, **kwargs)
 
 
-@attrs(slots=True, kw_only=True, order=False)
+@define(on_setattr=NO_OP, kw_only=True)
 class Categories:
     """
     A base class for annotation metainfo. It is supposed to include
@@ -84,18 +114,18 @@ class Categories:
 
     # Describes the list of possible annotation-type specific attributes
     # in a dataset.
-    attributes: Set[str] = field(factory=set, validator=default_if_none(set), eq=False)
+    attributes: Set[str] = field(factory=set, converter=cast_with_default(set), eq=False)
 
 
-@attrs(slots=True, order=False)
+@define
 class LabelCategories(Categories):
-    @attrs(slots=True, order=False)
+    @define
     class Category:
         name: str = field(converter=str, validator=not_empty)
-        parent: str = field(default="", validator=default_if_none(str))
-        attributes: Set[str] = field(factory=set, validator=default_if_none(set))
+        parent: str = field(default="", converter=cast_with_default(str))
+        attributes: Set[str] = field(factory=set, converter=cast_with_default(set))
 
-    items: List[str] = field(factory=list, validator=default_if_none(list))
+    items: List[str] = field(factory=list, converter=cast_with_default(list))
     _indices: Dict[str, int] = field(factory=dict, init=False, eq=False)
 
     @classmethod
@@ -175,17 +205,17 @@ class LabelCategories(Categories):
         return iter(self.items)
 
 
-@attrs(slots=True, order=False)
+@define
 class Label(Annotation):
     _type = AnnotationType.label
-    label: int = field(converter=int)
+    label: int = field(validator=instance_of(int))
 
 
 RgbColor = Tuple[int, int, int]
 Colormap = Dict[int, RgbColor]
 
 
-@attrs(slots=True, eq=False, order=False)
+@define(on_setattr=NO_OP, eq=False)
 class MaskCategories(Categories):
     """
     Describes a color map for segmentation masks.
@@ -203,9 +233,9 @@ class MaskCategories(Categories):
 
         return cls(generate_colormap(size, include_background=include_background))
 
-    colormap: Colormap = field(factory=dict, validator=default_if_none(dict))
+    colormap: Colormap = field(factory=dict, converter=cast_with_default(dict))
     _inverse_colormap: Optional[Dict[RgbColor, int]] = field(
-        default=None, validator=attr.validators.optional(dict)
+        default=None, validator=optional(instance_of(dict))
     )
 
     @property
@@ -242,22 +272,27 @@ BinaryMaskImage = np.ndarray  # 2d array of type bool
 IndexMaskImage = np.ndarray  # 2d array of type int
 
 
-@attrs(slots=True, eq=False, order=False)
+@define(on_setattr=NO_OP, eq=False)
 class Mask(Annotation):
     """
     Represents a 2d single-instance binary segmentation mask.
     """
 
     _type = AnnotationType.mask
-    _image = field()
-    label: Optional[int] = field(
-        converter=attr.converters.optional(int), default=None, kw_only=True
-    )
-    z_order: int = field(default=0, validator=default_if_none(int), kw_only=True)
 
-    def __attrs_post_init__(self):
-        if isinstance(self._image, np.ndarray):
-            self._image = self._image.astype(bool)
+    def _ensure_bool_array(img):
+        if isinstance(img, np.ndarray):
+            img = img.astype(bool)
+        return img
+
+    _image = field(converter=_ensure_bool_array)
+
+    label: Optional[int] = field(validator=optional(instance_of(int)), default=None, kw_only=True)
+    z_order: int = field(validator=instance_of(int), default=0, kw_only=True)
+
+    _area: Optional[int] = field(
+        default=None, validator=optional(instance_of((int, float))), kw_only=True, eq=False
+    )
 
     @property
     def image(self) -> BinaryMaskImage:
@@ -285,7 +320,9 @@ class Mask(Annotation):
         return make_index_mask(self.image, instance_id)
 
     def get_area(self) -> int:
-        return np.count_nonzero(self.image)
+        if self._area is None:
+            self._area = int(np.count_nonzero(self.image))
+        return self._area
 
     def get_bbox(self) -> Tuple[int, int, int, int]:
         """
@@ -317,7 +354,7 @@ class Mask(Annotation):
         )
 
 
-@attrs(slots=True, eq=False, order=False)
+@define(on_setattr=NO_OP, eq=False)
 class RleMask(Mask):
     """
     An RLE-encoded instance segmentation mask.
@@ -328,26 +365,24 @@ class RleMask(Mask):
     _image = field(init=False, default=None)
 
     @property
-    def image(self) -> BinaryMaskImage:
-        return self._decode(self.rle)
-
-    @property
     def rle(self):
         rle = self._rle
         if callable(rle):
             rle = rle()
         return rle
 
-    @staticmethod
-    def _decode(rle):
+    @property
+    def image(self) -> BinaryMaskImage:
         from pycocotools import mask as mask_utils
 
-        return mask_utils.decode(rle)
+        return mask_utils.decode(self.rle)
 
     def get_area(self) -> int:
-        from pycocotools import mask as mask_utils
+        if self._area is None:
+            from pycocotools import mask as mask_utils
 
-        return mask_utils.area(self.rle)
+            self._area = int(mask_utils.area(self.rle))
+        return self._area
 
     def get_bbox(self) -> Tuple[int, int, int, int]:
         from pycocotools import mask as mask_utils
@@ -499,18 +534,23 @@ class CompiledMask:
         return partial(self.extract, instance_id)
 
 
-@attrs(slots=True, order=False)
+def _rounding_cmp(a, b):
+    if COORDINATE_ROUNDING_DIGITS is not None:
+        return np.allclose(a, b, rtol=0, atol=10**-COORDINATE_ROUNDING_DIGITS)
+    else:
+        return np.array_equal(a, b)
+
+
+@define
 class _Shape(Annotation):
     # Flattened list of point coordinates
     points: List[float] = field(
-        converter=lambda x: np.around(x, COORDINATE_ROUNDING_DIGITS).tolist()
+        factory=list, validator=instance_of(list), eq=cmp_using(_rounding_cmp)
     )
 
-    label: Optional[int] = field(
-        converter=attr.converters.optional(int), default=None, kw_only=True
-    )
+    label: Optional[int] = field(validator=optional(instance_of(int)), default=None, kw_only=True)
 
-    z_order: int = field(default=0, validator=default_if_none(int), kw_only=True)
+    z_order: int = field(default=0, validator=instance_of(int), kw_only=True)
 
     def get_area(self):
         raise NotImplementedError()
@@ -531,7 +571,7 @@ class _Shape(Annotation):
         return [x0, y0, x1 - x0, y1 - y0]
 
 
-@attrs(slots=True, order=False)
+@define
 class PolyLine(_Shape):
     _type = AnnotationType.polyline
 
@@ -542,29 +582,27 @@ class PolyLine(_Shape):
         return 0
 
 
-@attrs(slots=True, init=False, order=False)
+@define(on_setattr=NO_OP, init=False)
 class Cuboid3d(Annotation):
     _type = AnnotationType.cuboid_3d
-    _points: List[float] = field(default=None)
-    label: Optional[int] = field(
-        converter=attr.converters.optional(int), default=None, kw_only=True
+
+    _points: List[float] = field(
+        factory=lambda: [0, 0, 0, 0, 0, 0, 1, 1, 1], eq=cmp_using(_rounding_cmp)
     )
 
+    label: Optional[int] = field(validator=optional(instance_of(int)), default=None, kw_only=True)
+
     @_points.validator
-    def _points_validator(self, attribute, points):
-        if points is None:
-            points = [0, 0, 0, 0, 0, 0, 1, 1, 1]
-        else:
-            assert len(points) == 3 + 3 + 3, points
-            points = np.around(points, COORDINATE_ROUNDING_DIGITS).tolist()
-        self._points = points
+    def _points_validator(self, attribute, value):
+        assert isinstance(value, list)
+        assert len(value) == 3 + 3 + 3, value
 
     def __init__(self, position, rotation=None, scale=None, **kwargs):
         assert len(position) == 3, position
         if not rotation:
-            rotation = [0] * 3
+            rotation = [0, 0, 0]
         if not scale:
-            scale = [1] * 3
+            scale = [1, 1, 1]
         kwargs.pop("points", None)
         self.__attrs_init__(points=[*position, *rotation, *scale], **kwargs)
 
@@ -573,52 +611,64 @@ class Cuboid3d(Annotation):
         """[x, y, z]"""
         return self._points[0:3]
 
-    @position.setter
-    def _set_poistion(self, value):
-        # TODO: fix the issue with separate coordinate rounding:
-        # self.position[0] = 12.345676
-        # - the number assigned won't be rounded.
-        self.position[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
-
     @property
     def rotation(self):
         """[rx, ry, rz]"""
         return self._points[3:6]
-
-    @rotation.setter
-    def _set_rotation(self, value):
-        self.rotation[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
     @property
     def scale(self):
         """[sx, sy, sz]"""
         return self._points[6:9]
 
-    @scale.setter
-    def _set_scale(self, value):
-        self.scale[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
-
-@attrs(slots=True, order=False)
+@define(on_setattr=NO_OP, init=False)
 class Polygon(_Shape):
     _type = AnnotationType.polygon
 
-    def __attrs_post_init__(self):
-        # keep the message on a single line to produce informative output
-        assert len(self.points) % 2 == 0 and 3 <= len(self.points) // 2, (
-            "Wrong polygon points: %s" % self.points
-        )
+    _area: Optional[int] = field(
+        default=None, validator=optional(instance_of(int)), kw_only=True, eq=False
+    )
+
+    def __init__(
+        self, points, *, label=None, z_order=None, id=None, group=None, attributes=None, area=None
+    ):
+        assert isinstance(points, list)
+        assert len(points) % 2 == 0 and 3 <= len(points) // 2, "Wrong polygon points: %s" % points
+        self.points = points
+
+        assert label is None or isinstance(label, int)
+        self.label = label
+
+        assert z_order is None or isinstance(z_order, int)
+        self.z_order = z_order or 0
+
+        assert id is None or isinstance(id, int)
+        self.id = id or 0
+
+        assert group is None or isinstance(group, int)
+        self.group = group or NO_GROUP
+
+        if attributes is None:
+            self.attributes = {}
+        else:
+            assert isinstance(attributes, dict)
+            self.attributes = attributes
+
+        assert area is None or isinstance(area, (int, float))
+        self._area = area
 
     def get_area(self):
-        import pycocotools.mask as mask_utils
+        if self._area is None:
+            import pycocotools.mask as mask_utils
 
-        x, y, w, h = self.get_bbox()
-        rle = mask_utils.frPyObjects([self.points], y + h, x + w)
-        area = mask_utils.area(rle)[0]
-        return area
+            x, y, w, h = self.get_bbox()
+            rle = mask_utils.frPyObjects([self.points], y + h, x + w)
+            self._area = mask_utils.area(rle)[0]
+        return self._area
 
 
-@attrs(slots=True, init=False, order=False)
+@define(on_setattr=NO_OP, init=False)
 class Bbox(_Shape):
     _type = AnnotationType.bbox
 
@@ -660,25 +710,25 @@ class Bbox(_Shape):
     def wrap(item, **kwargs):
         d = {"x": item.x, "y": item.y, "w": item.w, "h": item.h}
         d.update(kwargs)
-        return attr.evolve(item, **d)
+        return evolve(item, **d)
 
 
-@attrs(slots=True, order=False)
+@define
 class PointsCategories(Categories):
     """
     Describes (key-)point metainfo such as point names and joints.
     """
 
-    @attrs(slots=True, order=False)
+    @define
     class Category:
-        # Names for specific points, e.g. eye, hose, mouth etc.
+        # Names for specific points, e.g. eye, nose, mouth etc.
         # These labels are not required to be in LabelCategories
-        labels: List[str] = field(factory=list, validator=default_if_none(list))
+        labels: List[str] = field(factory=list, converter=cast_with_default(list))
 
         # Pairs of connected point indices
-        joints: Set[Tuple[int, int]] = field(factory=set, validator=default_if_none(set))
+        joints: Set[Tuple[int, int]] = field(factory=set, converter=cast_with_default(set))
 
-    items: Dict[int, Category] = field(factory=dict, validator=default_if_none(dict))
+    items: Dict[int, Category] = field(factory=dict, converter=cast_with_default(dict))
 
     @classmethod
     def from_iterable(
@@ -727,7 +777,7 @@ class PointsCategories(Categories):
         return len(self.items)
 
 
-@attrs(slots=True, order=False)
+@define
 class Points(_Shape):
     """
     Represents an ordered set of points.
@@ -740,21 +790,28 @@ class Points(_Shape):
 
     _type = AnnotationType.points
 
+    points: List[float] = field(factory=list)
+
+    @points.validator
+    def _points_validator(self, attribute, value):
+        assert isinstance(value, list)
+        assert len(self.points) % 2 == 0, self.points
+
     visibility: List[bool] = field(default=None)
 
     @visibility.validator
     def _visibility_validator(self, attribute, visibility):
         if visibility is None:
-            visibility = [self.Visibility.visible] * (len(self.points) // 2)
-        else:
-            for i, v in enumerate(visibility):
-                if not isinstance(v, self.Visibility):
-                    visibility[i] = self.Visibility(v)
+            return
+
+        for i, v in enumerate(visibility):
+            if not isinstance(v, self.Visibility):
+                visibility[i] = self.Visibility(v)
         assert len(visibility) == len(self.points) // 2
-        self.visibility = visibility
 
     def __attrs_post_init__(self):
-        assert len(self.points) % 2 == 0, self.points
+        if self.visibility is None:
+            self.visibility = [self.Visibility.visible] * (len(self.points) // 2)
 
     def get_area(self):
         return 0
@@ -777,11 +834,11 @@ class Points(_Shape):
         return [x0, y0, x1 - x0, y1 - y0]
 
 
-@attrs(slots=True, order=False)
+@define
 class Caption(Annotation):
     """
     Represents arbitrary text annotations.
     """
 
     _type = AnnotationType.caption
-    caption: str = field(converter=str)
+    caption: str = field(validator=instance_of(str))

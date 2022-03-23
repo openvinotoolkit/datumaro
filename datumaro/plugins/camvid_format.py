@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -219,7 +219,7 @@ class CamvidExtractor(SourceExtractor):
                     for label_id in classes:
                         if labels[label_id] in self._labels:
                             image = self._lazy_extract_mask(mask, label_id)
-                            item_annotations.append(Mask(image=image, label=label_id))
+                            item_annotations.append(Mask(image=image, label=int(label_id)))
 
                 items[item_id] = DatasetItem(
                     id=item_id,

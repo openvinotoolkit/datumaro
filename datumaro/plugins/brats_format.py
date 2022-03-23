@@ -80,8 +80,8 @@ class BratsExtractor(SourceExtractor):
                     anno.append(
                         Mask(
                             image=self._lazy_extract_mask(data[:, :, i], class_id),
-                            label=class_id,
-                            attributes={"image_id": i},
+                            label=int(class_id),
+                            attributes={"image_id": int(i)},
                         )
                     )
 

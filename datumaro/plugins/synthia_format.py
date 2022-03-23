@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -145,7 +145,7 @@ class SynthiaExtractor(SourceExtractor):
                     anno.append(
                         Mask(
                             image=self._lazy_extract_mask(labels_mask, segm_id),
-                            label=segm_id,
+                            label=int(segm_id),
                             attributes=attr,
                         )
                     )
@@ -169,7 +169,9 @@ class SynthiaExtractor(SourceExtractor):
                 classes = np.unique(color_mask)
                 for label_id in classes:
                     anno.append(
-                        Mask(image=self._lazy_extract_mask(color_mask, label_id), label=label_id)
+                        Mask(
+                            image=self._lazy_extract_mask(color_mask, label_id), label=int(label_id)
+                        )
                     )
 
                 image = images.get(item_id)

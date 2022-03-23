@@ -76,8 +76,8 @@ class BratsNumpyExtractor(SourceExtractor):
                         anno.append(
                             Mask(
                                 image=self._lazy_extract_mask(mask[:, :, j], class_id),
-                                label=class_id,
-                                attributes={"image_id": j},
+                                label=int(class_id),
+                                attributes={"image_id": int(j)},
                             )
                         )
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -441,7 +441,7 @@ class KittiRawConverter(Converter):
         if self._save_media and item.media:
             self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
 
-            images = sorted(item.media.extra_images, key=lambda img: img.path)
+            images = sorted(item.media.extra_images or [], key=lambda img: img.path)
             for i, image in enumerate(images):
                 if image.has_data:
                     image.save(

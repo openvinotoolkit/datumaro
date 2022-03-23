@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -53,7 +53,7 @@ from datumaro.util.annotation_util import (
     mean_bbox,
     segment_iou,
 )
-from datumaro.util.attrs_util import default_if_none, ensure_cls
+from datumaro.util.attrs_util import cast_with_default, ensure_type_kw
 
 
 def match_annotations_equal(a, b):
@@ -415,7 +415,7 @@ class IntersectMerge(MergingStrategy):
         groups = attrib(converter=_groups_converter, factory=list)
         close_distance = attrib(converter=float, default=0.75)
 
-    conf = attrib(converter=ensure_cls(Conf), factory=Conf)
+    conf = attrib(converter=ensure_type_kw(Conf), factory=Conf)
 
     # Error trackers:
     errors = attrib(factory=list, init=False)
@@ -1745,9 +1745,9 @@ def match_classes(a: CategoriesInfo, b: CategoriesInfo):
 @attrs
 class ExactComparator:
     match_images: bool = attrib(kw_only=True, default=False)
-    ignored_fields = attrib(kw_only=True, factory=set, validator=default_if_none(set))
-    ignored_attrs = attrib(kw_only=True, factory=set, validator=default_if_none(set))
-    ignored_item_attrs = attrib(kw_only=True, factory=set, validator=default_if_none(set))
+    ignored_fields = attrib(kw_only=True, factory=set, converter=cast_with_default(set))
+    ignored_attrs = attrib(kw_only=True, factory=set, converter=cast_with_default(set))
+    ignored_item_attrs = attrib(kw_only=True, factory=set, converter=cast_with_default(set))
 
     _test: TestCase = attrib(init=False)
     errors: list = attrib(init=False)

@@ -190,7 +190,11 @@ class _MapillaryVistasExtractor(SourceExtractor):
             for uval in np.unique(mask):
                 label_id, instance_id = uval >> 8, uval & 255
                 annotations.append(
-                    Mask(image=self._lazy_extract_mask(mask, uval), label=label_id, id=instance_id)
+                    Mask(
+                        image=self._lazy_extract_mask(mask, uval),
+                        label=int(label_id),
+                        id=int(instance_id),
+                    )
                 )
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset, annotations=annotations)
@@ -209,7 +213,7 @@ class _MapillaryVistasExtractor(SourceExtractor):
             annotations = []
             for label_id in classes:
                 annotations.append(
-                    Mask(label=label_id, image=self._lazy_extract_mask(class_mask, label_id))
+                    Mask(label=int(label_id), image=self._lazy_extract_mask(class_mask, label_id))
                 )
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset, annotations=annotations)

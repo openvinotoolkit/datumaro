@@ -109,36 +109,43 @@ class LabelMeExtractor(Extractor):
         return s
 
     @classmethod
-    def _parse_annotations(cls, xml_root, subset_root, categories):
-        def _parse_attributes(attr_str):
-            parsed = []
-            if not attr_str:
-                return parsed
-
-            for attr in [a.strip() for a in cls._escape(attr_str).split(",")]:
-                if not attr:
-                    continue
-
-                if "=" in attr:
-                    name, value = attr.split("=", maxsplit=1)
-                    if value.lower() in {"true", "false"}:
-                        value = value.lower() == "true"
-                    elif 1 < len(value) and value[0] == '"' and value[-1] == '"':
-                        value = value[1:-1]
-                    else:
-                        for t in [int, float]:
-                            casted = cast(value, t)
-                            if casted is not None and str(casted) == value:
-                                value = casted
-                                break
-                    if isinstance(value, str):
-                        value = cls._unescape(value)
-                    parsed.append((cls._unescape(name), value))
-                else:
-                    parsed.append((cls._unescape(attr), True))
-
+    def _parse_attributes(cls, attr_str):
+        parsed = {}
+        if not attr_str:
             return parsed
 
+        for attr in cls._escape(attr_str).split(","):
+            attr = attr.strip()
+            if not attr:
+                continue
+
+            if "=" in attr:
+                name, value = attr.split("=", maxsplit=1)
+
+                if value.lower() in {"true", "false"}:
+                    value = value.lower() == "true"
+                elif 1 < len(value) and value[0] == '"' and value[-1] == '"':
+                    value = value[1:-1]
+                else:
+                    for t in [int, float]:
+                        casted = cast(value, t)
+                        if casted is not None and str(casted) == value:
+                            value = casted
+                            break
+
+                if isinstance(value, str):
+                    value = cls._unescape(value)
+
+                name = cls._unescape(name)
+                assert name not in parsed
+                parsed[name] = value
+            else:
+                parsed[cls._unescape(attr)] = True
+
+        return parsed
+
+    @classmethod
+    def _parse_annotations(cls, xml_root, subset_root, categories):
         label_cat = categories[AnnotationType.label]
 
         def _get_label_id(label):
@@ -161,16 +168,16 @@ class LabelMeExtractor(Extractor):
 
             label = _get_label_id(obj_elem.find("name").text)
 
-            attributes = []
+            attributes = {}
             attributes_elem = obj_elem.find("attributes")
             if attributes_elem is not None and attributes_elem.text:
-                attributes = _parse_attributes(attributes_elem.text)
+                attributes = cls._parse_attributes(attributes_elem.text)
 
             occluded = False
             occluded_elem = obj_elem.find("occluded")
             if occluded_elem is not None and occluded_elem.text:
                 occluded = occluded_elem.text == "yes"
-            attributes.append(("occluded", occluded))
+            attributes["occluded"] = occluded
 
             deleted = False
             deleted_elem = obj_elem.find("deleted")
@@ -186,7 +193,7 @@ class LabelMeExtractor(Extractor):
                 user_elem = poly_elem.find("username")
                 if user_elem is not None and user_elem.text:
                     user = user_elem.text
-                attributes.append(("username", user))
+                attributes["username"] = user
 
                 points = []
                 for point_elem in poly_elem.iter("pt"):
@@ -224,7 +231,7 @@ class LabelMeExtractor(Extractor):
                 user_elem = segm_elem.find("username")
                 if user_elem is not None and user_elem.text:
                     user = user_elem.text
-                attributes.append(("username", user))
+                attributes["username"] = user
 
                 mask_path = osp.join(
                     subset_root, LabelMePath.MASKS_DIR, segm_elem.find("mask").text

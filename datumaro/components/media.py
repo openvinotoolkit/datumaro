@@ -66,18 +66,19 @@ class Image(MediaElement):
             size: A pair (H, W), which represents image size.
         """
 
-        if size is not None:
-            assert (
-                len(size) == 2 and 0 < size[0] and 0 < size[1]
-            ), f"Invalid image size info '{size}'"
-            size = tuple(map(int, size))
+        assert (
+            size is None
+            or len(size) == 2
+            and isinstance(size[0], int)
+            and isinstance(size[1], int)
+            and 0 < size[0]
+            and 0 < size[1]
+        ), f"Invalid image size info '{size}'"
         self._size = size  # (H, W)
 
-        if path is None:
-            path = ""
-        elif path:
+        if path:
             path = path.replace("\\", "/")
-        self._path = path
+        self._path = path or ""
 
         if ext:
             assert not path, "Can't specify both 'path' and 'ext' for image"
@@ -106,7 +107,7 @@ class Image(MediaElement):
             data = self._data
 
         if self._size is None and data is not None:
-            self._size = tuple(map(int, data.shape[:2]))
+            self._size = (int(data.shape[0]), int(data.shape[1]))
         return data
 
     @property
@@ -145,12 +146,11 @@ class Image(MediaElement):
         return (
             (np.array_equal(self.size, other.size))
             and (self.has_data == other.has_data)
-            and (self.has_data and np.array_equal(self.data, other.data) or not self.has_data)
+            and (not self.has_data or np.array_equal(self.data, other.data))
         )
 
     def save(self, path):
-        cur_path = osp.abspath(self.path)
-        path = osp.abspath(path)
+        cur_path = self.path
 
         cur_ext = self.ext.lower()
         new_ext = osp.splitext(osp.basename(path))[1].lower()

@@ -832,7 +832,7 @@ class SplitterTest(TestCase):
             nimages=10,
         )
         for i in range(10):
-            source.put(DatasetItem(i + 10, annotations={}))
+            source.put(DatasetItem(i + 10))
 
         splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
         task = splitter.SplitTask.detection.name
@@ -987,7 +987,6 @@ class SplitterTest(TestCase):
                     params.append((dtype, with_attr, 10, 5, 3, 2))
                     params.append((dtype, with_attr, 10, 7, 0, 3))
 
-            expected = []
             for dtype, with_attr, nimages, train, val, test in params:
                 source, _ = self._generate_detection_segmentation_dataset(
                     annotation_type=self._get_append_polygon(dtype),
@@ -1010,16 +1009,6 @@ class SplitterTest(TestCase):
                     task=task,
                 ):
                     actual = splitter.Split(source, task, splits, seed=21)
-
-                    expected.append(
-                        [
-                            dtype,
-                            with_attr,
-                            len(actual.get_subset("train")),
-                            len(actual.get_subset("val")),
-                            len(actual.get_subset("test")),
-                        ]
-                    )
 
                     self.assertEqual(train, len(actual.get_subset("train")))
                     self.assertEqual(val, len(actual.get_subset("val")))
@@ -1049,7 +1038,7 @@ class SplitterTest(TestCase):
                 nimages=10,
             )
             for i in range(10):
-                source.put(DatasetItem(i + 10, annotations={}))
+                source.put(DatasetItem(i + 10))
 
             splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
             task = splitter.SplitTask.segmentation.name
@@ -1065,7 +1054,7 @@ class SplitterTest(TestCase):
                 nimages=10,
             )
             for i in range(10):
-                source.put(DatasetItem(i + 10, annotations={}))
+                source.put(DatasetItem(i + 10))
 
             splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
             task = splitter.SplitTask.segmentation.name

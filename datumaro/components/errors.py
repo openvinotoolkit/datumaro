@@ -188,7 +188,7 @@ class ItemExportError(DatasetExportError):
     item_id: Tuple[str, str]
 
     def __str__(self):
-        return "Failed to export item %s" % (self.item_id,)
+        return f"Failed to export item {self.item_id}: {self.__cause__}"
 
 
 class AnnotationExportError(ItemExportError):

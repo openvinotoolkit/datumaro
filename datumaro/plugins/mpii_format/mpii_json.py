@@ -82,14 +82,12 @@ class MpiiJsonExtractor(SourceExtractor):
                 if i < visibility.shape[0]:
                     vis = visibility[i]
 
-            vis = [int(val) for val in vis]
-
             group_num = 1
 
             annotations = [
                 Points(
-                    points,
-                    vis,
+                    points.tolist(),
+                    vis.astype(np.int8).tolist(),
                     label=0,
                     group=group_num,
                     attributes={"center": center, "scale": scale},
@@ -125,8 +123,7 @@ class MpiiJsonExtractor(SourceExtractor):
                 for i in range(num_others):
                     keypoints = np.array(joint_others[i])
                     points = keypoints[:, 0:2].ravel()
-                    vis = keypoints[:, 2]
-                    vis = [int(val) for val in vis]
+                    vis = keypoints[:, 2].astype(np.int8)
 
                     attributes = {}
                     if i < len(center):
@@ -135,15 +132,25 @@ class MpiiJsonExtractor(SourceExtractor):
                         attributes["scale"] = scale[i]
 
                     annotations.append(
-                        Points(points, vis, label=0, group=group_num, attributes=attributes)
+                        Points(
+                            points.tolist(),
+                            vis.tolist(),
+                            label=0,
+                            group=group_num,
+                            attributes=attributes,
+                        )
                     )
 
                     group_num += 1
 
+            image = ann.get("img_paths", None)
+            if image:
+                image = Image(path=osp.join(root_dir, image))
+
             items[item_id] = DatasetItem(
                 id=item_id,
                 subset=self._subset,
-                media=Image(path=osp.join(root_dir, ann.get("img_paths", ""))),
+                media=image,
                 annotations=annotations,
             )
 

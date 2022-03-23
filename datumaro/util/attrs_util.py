@@ -2,13 +2,21 @@
 #
 # SPDX-License-Identifier: MIT
 
-import inspect
 
-import attrs
+def ensure_type(cls, conv=None):
+    """
+    Checks value type, and if it's wrong, tries to build a class
+    instance from the value, treating it as the c-tor (or converter) arg.
+    """
 
+    conv = conv or cls
 
-def not_empty(inst, attribute, x):
-    assert len(x) != 0, x
+    def _converter(v):
+        if not isinstance(v, cls):
+            v = conv(v)
+        return v
+
+    return _converter
 
 
 def has_length(n):
@@ -18,35 +26,68 @@ def has_length(n):
     return _validator
 
 
-def default_if_none(conv):
-    def _validator(inst, attribute, value):
-        default = attribute.default
-        if value is None:
-            if callable(default):
-                value = default()
-            elif isinstance(default, attrs.Factory):
-                value = default.factory()
-            else:
-                value = default
-        else:
-            dst_type = None
-            if attribute.type and inspect.isclass(attribute.type):
-                dst_type = attribute.type
-            elif conv and inspect.isclass(conv):
-                dst_type = conv
+def ensure_type_kw(cls):
+    """
+    Checks value type, and if it's wrong, tries to build a class
+    instance from the value, treating it as the c-tor kwargs.
+    """
 
-            if not dst_type or not isinstance(value, dst_type):
-                value = conv(value)
-        setattr(inst, attribute.name, value)
-
-    return _validator
-
-
-def ensure_cls(c):
     def _converter(arg):
-        if isinstance(arg, c):
+        if isinstance(arg, cls):
             return arg
         else:
-            return c(**arg)
+            return cls(**arg)
 
     return _converter
+
+
+def optional_cast(cls, *, conv=None):
+    """
+    Equivalent to:
+    attrs.converters.pipe(
+        attrs.converters.optional(ensure_type(t, c)),
+    )
+
+    But provides better performance (mostly, due to less function calls). It
+    may sound insignificant, but in datasets, there are millions of calls,
+    and function invocations start to hit.
+    """
+
+    conv = conv or cls
+
+    def _conv(v):
+        if v is not None and not isinstance(v, cls):
+            v = conv(v)
+        return v
+
+    return _conv
+
+
+def cast_with_default(cls, *, conv=None, factory=None):
+    """
+    Equivalent to:
+    attrs.converters.pipe(
+        attrs.converters.optional(ensure_type(t, c)),
+        attrs.converters.default_if_none(factory=f),
+    )
+
+    But provides better performance (mostly, due to less function calls). It
+    may sound insignificant, but in datasets, there are millions of calls,
+    and function invocations start to hit.
+    """
+
+    factory = factory or cls
+    conv = conv or cls
+
+    def _conv(v):
+        if v is None:
+            v = factory()
+        elif not isinstance(v, cls):
+            v = conv(v)
+        return v
+
+    return _conv
+
+
+def not_empty(inst, attribute, x):
+    assert len(x) != 0, x

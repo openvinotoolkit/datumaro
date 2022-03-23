@@ -1160,6 +1160,8 @@ class Dataset(IDataset):
         else:
             raise UnknownFormatError(format)
 
+        log.debug("Detected %s dataset sources: %s", len(detected_sources), detected_sources)
+
         # TODO: probably, should not be available in lazy mode, because it
         # becomes unreliable and error-prone. For progress reporting it
         # makes little sense, because loading stage is spread over other

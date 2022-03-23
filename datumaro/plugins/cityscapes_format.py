@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -271,8 +271,8 @@ class CityscapesExtractor(SourceExtractor):
                 anns.append(
                     Mask(
                         image=self._lazy_extract_mask(instances_mask, segm_id),
-                        label=label_id,
-                        id=ann_id,
+                        label=int(label_id),
+                        id=int(ann_id or 0),
                         attributes={"is_crowd": is_crowd},
                     )
                 )

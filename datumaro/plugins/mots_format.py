@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -118,9 +118,9 @@ class MotsPngExtractor(SourceExtractor):
             masks.append(
                 Mask(
                     self._lazy_extract_mask(combined_mask, obj_id),
-                    label=class_id,
+                    label=int(class_id),
                     z_order=z_order,
-                    attributes={"track_id": instance_id},
+                    attributes={"track_id": int(instance_id)},
                 )
             )
         return masks

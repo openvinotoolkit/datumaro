@@ -356,8 +356,14 @@ class _CocoExtractor(SourceExtractor):
                 rle = None
 
                 if isinstance(segmentation, list):
+                    if len(segmentation) == 1:
+                        area = ann.get("area")
+                    else:
+                        area = None
+
                     if not self._merge_instance_polygons:
                         # polygon - a single object can consist of multiple parts
+
                         for polygon_points in segmentation:
                             if len(polygon_points) % 2 != 0:
                                 raise InvalidAnnotationError(
@@ -377,6 +383,7 @@ class _CocoExtractor(SourceExtractor):
                                     id=ann_id,
                                     attributes=attributes,
                                     group=group,
+                                    area=area,
                                 )
                             )
                     else:
@@ -402,14 +409,21 @@ class _CocoExtractor(SourceExtractor):
                             % (ann_id, (mask_h, mask_w), (img_h, img_w))
                         )
                     rle = self._lazy_merged_mask([segmentation], mask_h, mask_w)
+                    area = ann.get("area")
                 else:
                     # compressed RLE
                     rle = segmentation
+                    area = ann.get("area")
 
                 if rle:
                     parsed_annotations.append(
                         RleMask(
-                            rle=rle, label=label_id, id=ann_id, attributes=attributes, group=group
+                            rle=rle,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            area=area,
                         )
                     )
             else:

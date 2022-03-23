@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -81,8 +81,8 @@ class _KittiExtractor(SourceExtractor):
                     anns.append(
                         Mask(
                             image=self._lazy_extract_mask(instances_mask, segm_id),
-                            label=semantic_id,
-                            id=ann_id,
+                            label=int(semantic_id),
+                            id=int(ann_id),
                             attributes={"is_crowd": isCrowd},
                         )
                     )

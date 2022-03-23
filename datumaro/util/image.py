@@ -260,7 +260,7 @@ class lazy_image:
         self._path = path
         self._loader = loader
 
-        assert isinstance(cache, (ImageCache, bool))
+        assert isinstance(cache, (bool, ImageCache))
         self._cache = cache
 
     def __call__(self) -> np.ndarray:

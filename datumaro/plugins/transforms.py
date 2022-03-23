@@ -292,7 +292,7 @@ class MasksToPolygons(ItemTransform, CliPlugin):
 
         return [
             Polygon(
-                points=p,
+                points=p.tolist(),
                 label=mask.label,
                 z_order=mask.z_order,
                 id=mask.id,
@@ -1142,7 +1142,7 @@ class RemoveAttributes(ItemTransform):
 
     def _filter_attrs(self, attrs):
         if not self._attributes:
-            return None
+            return {}
         else:
             return filter_dict(attrs, exclude_keys=self._attributes)
 

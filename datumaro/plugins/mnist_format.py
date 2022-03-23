@@ -92,11 +92,10 @@ class MnistExtractor(SourceExtractor):
                     images = images.reshape(len(labels), MnistPath.IMAGE_SIZE, MnistPath.IMAGE_SIZE)
 
         pix_num = 0
-        for i, annotation in enumerate(labels):
+        for i, label in enumerate(labels):
             annotations = []
-            label = annotation
             if label != MnistPath.NONE_LABEL:
-                annotations.append(Label(label))
+                annotations.append(Label(int(label)))
 
             image = None
             if images is not None:
