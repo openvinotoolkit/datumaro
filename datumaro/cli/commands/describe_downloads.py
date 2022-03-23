@@ -23,7 +23,9 @@ def build_parser(
     parser = parser_ctor(
         help="Print information about downloadable datasets",
         description="""
-        TBD
+        Reports information about datasets that can be downloaded with the
+        "datum download" command. The information is reported either as
+        human-readable text (the default) or as a JSON object.
         """,
         formatter_class=MultilineFormatter,
     )
@@ -32,7 +34,7 @@ def build_parser(
         "--report-format",
         choices=("text", "json"),
         default="text",
-        help="Format in which to report the information",
+        help="Format in which to report the information (default: text)",
     )
     parser.add_argument(
         "--report-file", help="File to which to write the report (default: standard output)"

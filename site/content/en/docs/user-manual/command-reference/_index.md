@@ -29,6 +29,7 @@ flowchart LR
     s===s_remove[remove]:::hideclass
   d====_add[add]:::filloneclass
   d====_create[create]:::filloneclass
+  d====_describe_downloads[describe-downloads]:::filloneclass
   d====_detect_format[detect-format]:::filloneclass
   d====_download[download]:::filloneclass
   d====_export[export]:::filloneclass

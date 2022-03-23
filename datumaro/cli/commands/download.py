@@ -36,7 +36,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Supported datasets: {}|n
         |n
-        For information about the datasets, see the TFDS Catalog:
+        For information about the datasets, run "datum describe-downloads".
+        More detailed information can be found in the TFDS Catalog:
         <https://www.tensorflow.org/datasets/catalog/overview>.|n
         |n
         Supported output formats: {}|n
