@@ -7,8 +7,8 @@ from itertools import chain
 from typing import Tuple
 
 import numpy as np
-from datumaro.components.errors import DatasetError
 
+from datumaro.components.errors import DatasetError
 from datumaro.util.image import lazy_image, load_image
 
 

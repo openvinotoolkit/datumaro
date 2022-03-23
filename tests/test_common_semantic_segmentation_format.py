@@ -22,7 +22,10 @@ DUMMY_DATASET_DIR = osp.join(
 )
 
 DUMMY_NON_STANDARD_DATASET_DIR = osp.join(
-    osp.dirname(__file__), "assets", "common_semantic_segmentation_dataset", "non_standard_dataset",
+    osp.dirname(__file__),
+    "assets",
+    "common_semantic_segmentation_dataset",
+    "non_standard_dataset",
 )
 
 
