@@ -16,7 +16,7 @@ A Datumaro project with a CSS source can be created in the following way:
 
 ``` bash
 datum create
-datum import --format common_segmentation <path/to/dataset>
+datum import --format common_semantic_segmentation <path/to/dataset>
 ```
 
 Extra options for adding a source in the COCO format:
@@ -50,19 +50,19 @@ run `datum project info`, which will display the project information.
 
 Datumaro can convert a CSS dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
-that support the segmentation task (e.g. Pascal VOC, CamVID, CItyscapes, etc.)
+that support the segmentation task (e.g. PASCAL VOC, CamVid, CItyscapes, etc.)
 
 There are several ways to convert a CSS dataset to other dataset
 formats using CLI:
 
 ``` bash
 datum create
-datum import -f common_segmentation <path/to/dataset>
+datum import -f common_semantic_segmentation <path/to/dataset>
 datum export -f voc -o <output/dir>
 ```
 or
 ``` bash
-datum convert -if common_segmentation -i <path/to/dataset> \
+datum convert -if common_semantic_segmentation -i <path/to/dataset> \
     -f cityscapes -o <output/dir> -- --save-media
 ```
 
@@ -71,11 +71,11 @@ Or, using Python API:
 ```python
 import datumaro as dm
 
-dataset = dm.Dataset.import_from('<path/to/dataset>', 'common_segmentation')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'common_semantic_segmentation')
 dataset.export('save_dir', 'camvid', save_media=True)
 ```
 
 ## Examples
 
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_common_segmentation_format.py)
+[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_common_semantic_segmentation_format.py)

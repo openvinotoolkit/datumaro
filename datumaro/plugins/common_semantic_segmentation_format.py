@@ -21,7 +21,7 @@ from datumaro.util.meta_file_util import (
 )
 
 
-class CommonSegmentationPath:
+class CommonSemanticSegmentationPath:
     MASKS_DIR = "masks"
     IMAGES_DIR = "images"
 
@@ -48,7 +48,7 @@ def make_categories(label_map=None):
     return categories
 
 
-class CommonSegmentationExtractor(SourceExtractor):
+class CommonSemanticSegmentationExtractor(SourceExtractor):
     def __init__(
         self,
         path,
@@ -78,11 +78,11 @@ class CommonSegmentationExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        image_dir = osp.join(path, CommonSegmentationPath.IMAGES_DIR)
+        image_dir = osp.join(path, CommonSemanticSegmentationPath.IMAGES_DIR)
 
         if not osp.isdir(image_dir):
             image_dir = glob.glob(
-                osp.join(path, "**", CommonSegmentationPath.IMAGES_DIR), recursive=True
+                osp.join(path, "**", CommonSemanticSegmentationPath.IMAGES_DIR), recursive=True
             )
             if image_dir:
                 image_dir = image_dir[0]
@@ -93,14 +93,14 @@ class CommonSegmentationExtractor(SourceExtractor):
                     len(self._image_prefix) :
                 ]: p
                 for p in find_images(image_dir, recursive=True)
-                if osp.basename(p)[: len(self._image_prefix)] == self._image_prefix
+                if osp.basename(p).startswith(self._image_prefix)
             }
         else:
             images = {}
 
         for mask_path in glob.glob(
             osp.join(
-                path, "**", CommonSegmentationPath.MASKS_DIR, f"{glob.escape(self._mask_prefix)}*.*"
+                path, "**", CommonSemanticSegmentationPath.MASKS_DIR, f"{glob.escape(self._mask_prefix)}*.*"
             ),
             recursive=True,
         ):
@@ -129,7 +129,7 @@ class CommonSegmentationExtractor(SourceExtractor):
         return lambda: mask == c
 
 
-class CommonSegmentationImporter(Importer):
+class CommonSemanticSegmentationImporter(Importer):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
@@ -139,10 +139,10 @@ class CommonSegmentationImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file(f"**/{CommonSegmentationPath.IMAGES_DIR}/**/*.*")
-        context.require_file(f"**/{CommonSegmentationPath.MASKS_DIR}/**/*.*")
+        context.require_file(f"**/{CommonSemanticSegmentationPath.IMAGES_DIR}/**/*.*")
+        context.require_file(f"**/{CommonSemanticSegmentationPath.MASKS_DIR}/**/*.*")
         context.require_file(f"**/{DATASET_META_FILE}")
 
     @classmethod
     def find_sources(cls, path):
-        return [{"url": path, "format": "common_segmentation"}]
+        return [{"url": path, "format": "common_semantic_segmentation"}]

@@ -9,33 +9,33 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.common_segmentation_format import CommonSegmentationImporter, make_categories
+from datumaro.plugins.common_semantic_segmentation_format import CommonSemanticSegmentationImporter, make_categories
 from datumaro.util.test_utils import compare_datasets
 
 from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(
-    osp.dirname(__file__), "assets", "common_segmentation_dataset", "dataset"
+    osp.dirname(__file__), "assets", "common_semantic_segmentation_dataset", "dataset"
 )
 
-DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE = osp.join(
+DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE_DIR = osp.join(
     osp.dirname(__file__),
     "assets",
-    "common_segmentation_dataset",
+    "common_semantic_segmentation_dataset",
     "dataset_with_non_standard_structure",
 )
 
 
-class CommonSegmentationImporterTest(TestCase):
+class CommonSemanticSegmentationImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertEqual([CommonSegmentationImporter.NAME], detected_formats)
+        self.assertEqual([CommonSemanticSegmentationImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_non_standard_structure(self):
-        detected_formats = Environment().detect_dataset(DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE)
-        self.assertEqual([CommonSegmentationImporter.NAME], detected_formats)
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE_DIR)
+        self.assertEqual([CommonSemanticSegmentationImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
@@ -72,7 +72,7 @@ class CommonSegmentationImporterTest(TestCase):
             ),
         )
 
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR, "common_segmentation")
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR, "common_semantic_segmentation")
 
         compare_datasets(self, expected_dataset, dataset, require_media=True)
 
@@ -115,8 +115,8 @@ class CommonSegmentationImporterTest(TestCase):
         )
 
         dataset = Dataset.import_from(
-            DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE,
-            "common_segmentation",
+            DUMMY_DATASET_WITH_NON_STANDARD_STRUCTURE_DIR,
+            "common_semantic_segmentation",
             image_prefix="image_",
             mask_prefix="gt_",
         )
