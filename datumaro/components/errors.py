@@ -178,10 +178,6 @@ class DatasetExportError(DatumaroError):
     pass
 
 
-class AnnotationError(DatumaroError):
-    pass
-
-
 @define(auto_exc=False)
 class ItemExportError(DatasetExportError):
     """
@@ -248,6 +244,15 @@ class UndeclaredLabelError(InvalidAnnotationError):
 
     def __str__(self) -> str:
         return f"Undeclared label '{self.id}'"
+
+
+@define(auto_exc=False)
+class UndeclaredColorError(InvalidAnnotationError):
+    color: tuple = field(validator=validators.instance_of(tuple))
+    """Color"""
+
+    def __str__(self) -> str:
+        return f"Undeclared color {self.color}"
 
 
 @define(auto_exc=False)
