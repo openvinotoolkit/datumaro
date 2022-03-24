@@ -80,8 +80,12 @@ class ImageGenerator(DatasetGenerator):
             self._width,
         )
 
-        with Pool(processes=self._cpu_count) as pool:
-            params = pool.map(self._generate_category, [Random(i) for i in range(self._categories)])
+        params = []
+        for i in range(self._categories):
+            params.append(self._generate_category(Random(i)))
+
+        # with Pool(processes=self._cpu_count) as pool:
+        #     params = pool.map(self._generate_category, [Random(i) for i in range(self._categories)])
 
         instances_weights = np.repeat(self._weights, self._instances, axis=0)
         weight_per_img = np.tile(instances_weights, (self._categories, 1))
@@ -101,8 +105,13 @@ class ImageGenerator(DatasetGenerator):
             offset += len(param)
             generation_params.append((Random(i), param, w, indices))
 
+        # for i, param in enumerate(generation_params):
+        #     self._generate_image_batch(*param)
+
         with Pool(processes=self._cpu_count) as pool:
             pool.starmap(self._generate_image_batch, generation_params)
+        pool.close()
+        pool.join()
 
     def _generate_image_batch(
         self, rng: Random, params: np.ndarray, weights: np.ndarray, indices: List[int]
