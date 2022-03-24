@@ -553,6 +553,41 @@ class VocExtractorTest(TestCase):
 </annotation>
     """
 
+    @classmethod
+    def _write_xml_dataset(cls, root_dir, fmt_dir="Main", mangle_list_file=None, mangle_xml=None):
+        subset_file = osp.join(root_dir, "ImageSets", fmt_dir, "test.txt")
+        os.makedirs(osp.dirname(subset_file))
+        with open(subset_file, "w") as f:
+            text = "a\n" if fmt_dir != "Layout" else "a 0\n"
+            if mangle_list_file:
+                text = mangle_list_file(text)
+            f.write(text)
+
+        ann_file = osp.join(root_dir, "Annotations", "a.xml")
+        os.makedirs(osp.dirname(ann_file))
+        with open(ann_file, "w") as f:
+            text = cls.XML_ANNOTATION_TEMPLATE
+            if mangle_xml:
+                text = mangle_xml(text)
+            f.write(text)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_parse_xml_without_errors(self):
+        formats = [
+            ("voc_detection", "Main"),
+            ("voc_layout", "Layout"),
+            ("voc_action", "Action"),
+        ]
+
+        for fmt, fmt_dir in formats:
+            with self.subTest(fmt=fmt):
+                with TestDir() as test_dir:
+                    self._write_xml_dataset(test_dir, fmt_dir=fmt_dir)
+
+                    dataset = Dataset.import_from(test_dir, fmt)
+                    dataset.init_cache()
+                    self.assertEqual(len(dataset), 1)
+
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_quotes_in_lists_of_layout_task(self):
         with TestDir() as test_dir:
@@ -577,17 +612,11 @@ class VocExtractorTest(TestCase):
         for fmt, fmt_dir in formats:
             with self.subTest(fmt=fmt):
                 with TestDir() as test_dir:
-                    subset_file = osp.join(test_dir, "ImageSets", fmt_dir, "test.txt")
-                    os.makedirs(osp.dirname(subset_file))
-                    with open(subset_file, "w") as f:
-                        f.write("a\n" if fmt != "voc_layout" else "a 0\n")
 
-                    ann_file = osp.join(test_dir, "Annotations", "a.xml")
-                    os.makedirs(osp.dirname(ann_file))
-                    with open(ann_file, "w") as f:
-                        text = self.XML_ANNOTATION_TEMPLATE
-                        text = text.replace("<name>cat</name>", "<name>test</name>")
-                        f.write(text)
+                    def mangle_xml(text: str):
+                        return text.replace("<name>cat</name>", "<name>test</name>")
+
+                    self._write_xml_dataset(test_dir, fmt_dir=fmt_dir, mangle_xml=mangle_xml)
 
                     with self.assertRaises(AnnotationImportError) as capture:
                         Dataset.import_from(test_dir, format=fmt).init_cache()
@@ -599,17 +628,11 @@ class VocExtractorTest(TestCase):
         for key in ["name", "bndbox", "xmin", "ymin", "xmax", "ymax"]:
             with self.subTest(key=key):
                 with TestDir() as test_dir:
-                    subset_file = osp.join(test_dir, "ImageSets", "Main", "test.txt")
-                    os.makedirs(osp.dirname(subset_file))
-                    with open(subset_file, "w") as f:
-                        f.write("a\n")
 
-                    ann_file = osp.join(test_dir, "Annotations", "a.xml")
-                    os.makedirs(osp.dirname(ann_file))
-                    with open(ann_file, "w") as f:
-                        text = self.XML_ANNOTATION_TEMPLATE
-                        text = re.sub(rf"<{key}>.*</{key}>", "", text, flags=re.DOTALL)
-                        f.write(text)
+                    def mangle_xml(text: str):
+                        return re.sub(rf"<{key}>.*</{key}>", "", text, flags=re.DOTALL)
+
+                    self._write_xml_dataset(test_dir, mangle_xml=mangle_xml)
 
                     with self.assertRaises(ItemImportError) as capture:
                         Dataset.import_from(test_dir, format="voc_detection").init_cache()
@@ -631,19 +654,13 @@ class VocExtractorTest(TestCase):
         ]:
             with self.subTest(key=key):
                 with TestDir() as test_dir:
-                    subset_file = osp.join(test_dir, "ImageSets", "Main", "test.txt")
-                    os.makedirs(osp.dirname(subset_file))
-                    with open(subset_file, "w") as f:
-                        f.write("a\n")
 
-                    ann_file = osp.join(test_dir, "Annotations", "a.xml")
-                    os.makedirs(osp.dirname(ann_file))
-                    with open(ann_file, "w") as f:
-                        text = self.XML_ANNOTATION_TEMPLATE
-                        text = re.sub(
+                    def mangle_xml(text: str):
+                        return re.sub(
                             rf"<{key}>.*</{key}>", f"<{key}>{value}</{key}>", text, flags=re.DOTALL
                         )
-                        f.write(text)
+
+                    self._write_xml_dataset(test_dir, mangle_xml=mangle_xml)
 
                     with self.assertRaises(ItemImportError) as capture:
                         Dataset.import_from(test_dir, format="voc_detection").init_cache()
