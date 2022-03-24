@@ -34,7 +34,7 @@ def build_parser(
         "--report-format",
         choices=("text", "json"),
         default="text",
-        help="Format in which to report the information (default: text)",
+        help="Format in which to report the information (default: %(default)s)",
     )
     parser.add_argument(
         "--report-file", help="File to which to write the report (default: standard output)"
@@ -46,7 +46,7 @@ def build_parser(
 
 def get_sensitive_args():
     return {
-        describe_downloads_command: [],
+        describe_downloads_command: ["report-file"],
     }
 
 

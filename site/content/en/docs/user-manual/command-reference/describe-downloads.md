@@ -33,7 +33,12 @@ When the JSON output format is selected, the output document has the following s
 ```
 
 `home_url` may be `null` if there is no suitable web page for the dataset.
+
 `num_classes` may be `null` if the dataset does not involve classification.
+
+`version` currently contains the version number supplied by TFDS.
+In future versions of Datumaro, datasets might come from other sources;
+the way version numbers will be set for those is to be determined.
 
 New object members may be added in future versions of Datumaro.
 

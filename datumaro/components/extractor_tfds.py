@@ -529,7 +529,7 @@ class TfdsDataset:
     def metadata(self) -> TfdsDatasetMetadata:
         return self._adapter.metadata
 
-    def make_extractor(self):
+    def make_extractor(self) -> IExtractor:
         return _TfdsExtractor(self._tfds_ds_name)
 
     def query_remote_metadata(self) -> TfdsDatasetRemoteMetadata:
