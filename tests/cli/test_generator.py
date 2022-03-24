@@ -32,7 +32,7 @@ class ImageGeneratorTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_save_image_can_overwrite_dir(self):
         with TestDir() as test_dir:
-            run(self, "generate", "-t", "image", "-o", test_dir, "-k", "1", "--shape", "14", "14")
+            run(self, "generate", "-o", test_dir, "-k", "1", "--shape", "14", "14")
 
             image_files = os.listdir(test_dir)
             self.assertEqual(len(image_files), 1)

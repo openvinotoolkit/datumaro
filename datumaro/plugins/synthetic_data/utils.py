@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging as log
+import os
 import os.path as osp
 import warnings
 
@@ -96,15 +98,36 @@ def download_colorization_model(path):
     model_name = "colorization_release_v2.caffemodel"
     npy_name = "pts_in_hull.npy"
 
+    if not (osp.exists(osp.join(path, proto_name)) and \
+            osp.exists(osp.join(path, model_name)) and \
+            osp.exists(osp.join(path, npy_name))) and \
+       not os.access(path, os.W_OK):
+           raise ValueError("Please provide path where colorization model is located or path to writable directory to save colorization model")
+
     if not osp.exists(osp.join(path, proto_name)):
+        log.warning(
+            "Downloading '%s' model for image coloring to '%s'",
+            proto_name,
+            path,
+        )
         url = "https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/"
         proto = requests.get(url + proto_name)
         open(osp.join(path, proto_name), "wb").write(proto.content)
     if not osp.exists(osp.join(path, model_name)):
+        log.warning(
+            "Downloading '%s' model for image coloring to '%s'",
+            model_name,
+            path,
+        )
         url = "http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/"
         model = requests.get(url + model_name)
         open(osp.join(path, model_name), "wb").write(model.content)
     if not osp.exists(osp.join(path, npy_name)):
+        log.warning(
+            "Downloading '%s' model for image coloring to '%s'",
+            npy_name,
+            path,
+        )
         url = "https://github.com/richzhang/colorization/raw/caffe/colorization/resources/"
         pts_in_hull = requests.get(url + npy_name)
         open(osp.join(path, npy_name), "wb").write(pts_in_hull.content)

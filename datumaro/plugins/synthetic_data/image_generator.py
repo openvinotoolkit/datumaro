@@ -5,7 +5,8 @@
 import logging as log
 import os
 import os.path as osp
-from importlib.resources import read_text
+import sys
+from importlib.resources import open_text
 from multiprocessing import Pool
 from random import Random
 from typing import List, Optional, Tuple
@@ -46,7 +47,7 @@ class ImageGenerator(DatasetGenerator):
 
         return parser
 
-    def __init__(self, output_dir: str, count: int, shape: Tuple[int, int]):
+    def __init__(self, output_dir: str, count: int, shape: Tuple[int, int], model_path: str = None):
         self._count = count
         self._cpu_count = min(os.cpu_count(), self._count)
         assert len(shape) == 2
@@ -65,17 +66,14 @@ class ImageGenerator(DatasetGenerator):
         self._threshold = 0.2
         self._iterations = 200000
 
-        self._path = os.getcwd()
-        log.info(
-            "Downloading colorization model to '%s'",
-            self._path,
-        )
+        self._path = model_path if model_path is not None else os.getcwd()
         download_colorization_model(self._path)
         self._initialize_params()
 
     def generate_dataset(self) -> None:
-        log.info(
-            "Generating 3-channel images with height = '%d' and width = '%d'",
+        log.warning(
+            "Generation of '%d' 3-channel images with height = '%d' and width = '%d'",
+            self._count,
             self._height,
             self._width,
         )
@@ -101,8 +99,13 @@ class ImageGenerator(DatasetGenerator):
             offset += len(param)
             generation_params.append((Random(i), param, w, indices))
 
-        with Pool(processes=self._cpu_count) as pool:
-            pool.starmap(self._generate_image_batch, generation_params)
+        use_multiprocessing = sys.platform != 'darwin' or sys.version_info > (3, 7)
+        if use_multiprocessing:
+            with Pool(processes=self._cpu_count) as pool:
+                pool.starmap(self._generate_image_batch, generation_params)
+        else:
+            for i, param in enumerate(generation_params):
+                self._generate_image_batch(*param)
 
     def _generate_image_batch(
         self, rng: Random, params: np.ndarray, weights: np.ndarray, indices: List[int]
@@ -112,12 +115,8 @@ class ImageGenerator(DatasetGenerator):
         npy = osp.join(self._path, "pts_in_hull.npy")
         pts_in_hull = np.load(npy).transpose().reshape(2, 313, 1, 1).astype(np.float32)
 
-        content = read_text(__package__, "synthetic_background.txt")
-        synthetic_background = []
-        for line in content.split("\n"):
-            means = list(map(int, line.split()))
-            synthetic_background.append(means)
-        synthetic_background = np.array(synthetic_background)
+        content = open_text(__package__, "synthetic_background.txt")
+        synthetic_background = np.loadtxt(content)
 
         net = cv.dnn.readNetFromCaffe(proto, model)
         net.getLayer(net.getLayerId("class8_ab")).blobs = [pts_in_hull]
@@ -155,14 +154,14 @@ class ImageGenerator(DatasetGenerator):
         i = 0
         while pixels < self._threshold and i < self._iterations:
             param_size = rng.randint(2, 7)
-            params = np.zeros((param_size, 7), dtype=np.float32)
+            params = np.zeros((param_size, IFSFunction.NUM_PARAMS + 1), dtype=np.float32)
 
             sum_proba = 1e-5
-            for i in range(param_size):
+            for p_idx in range(param_size):
                 a, b, c, d, e, f = [rng.uniform(-1.0, 1.0) for _ in range(IFSFunction.NUM_PARAMS)]
                 prob = abs(a * d - b * c)
                 sum_proba += prob
-                params[i] = a, b, c, d, e, f, prob
+                params[p_idx] = a, b, c, d, e, f, prob
             params[:, IFSFunction.NUM_PARAMS] /= sum_proba
 
             fractal_img = self._generate_image(rng, params, self._num_of_points, base_h, base_w)
@@ -175,12 +174,12 @@ class ImageGenerator(DatasetGenerator):
         points_coeff = max(1, int(np.round(self._height * self._width / default_img_size)))
         self._num_of_points = 100000 * points_coeff
 
-        instances_categories = np.ceil(self._count / self._weights.shape[0])
-        self._instances = np.ceil(np.sqrt(instances_categories)).astype(np.int)
-        self._categories = np.floor(np.sqrt(instances_categories)).astype(np.int)
-
         if self._count < self._weights.shape[0]:
             self._weights = self._weights[: self._count, :]
+
+        instances_categories = np.ceil(self._count / self._weights.shape[0])
+        self._instances = np.ceil(np.sqrt(instances_categories)).astype(np.int)
+        self._categories = np.ceil(instances_categories / self._instances).astype(np.int)
 
     @staticmethod
     def _create_weights(num_params):
@@ -195,5 +194,5 @@ class ImageGenerator(DatasetGenerator):
                 modified_weights = BASE_WEIGHTS.copy()
                 modified_weights[weight_index] += multiplier * WEIGHT_INTERVAL
                 weight_vectors.append(modified_weights)
-        weights = np.array(weight_vectors).reshape(-1, IFSFunction.NUM_PARAMS)
+        weights = np.array(weight_vectors)
         return weights
