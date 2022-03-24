@@ -8,6 +8,7 @@ import os.path as osp
 from importlib.resources import read_text
 from multiprocessing import Pool
 from random import Random
+from time import sleep
 from typing import List, Optional, Tuple
 
 import cv2 as cv
@@ -103,19 +104,21 @@ class ImageGenerator(DatasetGenerator):
         for i, (param, w) in enumerate(zip(params_per_proc, weights_per_proc)):
             indices = list(range(offset, offset + len(param)))
             offset += len(param)
-            generation_params.append((Random(i), param, w, indices))
+            generation_params.append((i, Random(i), param, w, indices))
 
         # for i, param in enumerate(generation_params):
         #     self._generate_image_batch(*param)
 
         with Pool(processes=self._cpu_count) as pool:
-            pool.starmap(self._generate_image_batch, generation_params)
-        pool.close()
-        pool.join()
+            r = pool.starmap_async(self._generate_image_batch, generation_params)
+
+            # FIXME: Workaround for hangs in py3.7 on mac 10.15
+            r.get(timeout=5) # terminate is called in __exit__
 
     def _generate_image_batch(
-        self, rng: Random, params: np.ndarray, weights: np.ndarray, indices: List[int]
+        self, job_id: int, rng: Random, params: np.ndarray, weights: np.ndarray, indices: List[int]
     ) -> None:
+        print(f"{job_id}: started")
         proto = osp.join(self._path, "colorization_deploy_v2.prototxt")
         model = osp.join(self._path, "colorization_release_v2.caffemodel")
         npy = osp.join(self._path, "pts_in_hull.npy")
@@ -128,17 +131,21 @@ class ImageGenerator(DatasetGenerator):
             synthetic_background.append(means)
         synthetic_background = np.array(synthetic_background)
 
+        print(f"Job {job_id}: loading caffe model")
         net = cv.dnn.readNetFromCaffe(proto, model)
         net.getLayer(net.getLayerId("class8_ab")).blobs = [pts_in_hull]
         net.getLayer(net.getLayerId("conv8_313_rh")).blobs = [np.full([1, 313], 2.606, np.float32)]
 
+        print(f"Job {job_id}: starting loop")
         for i, param, w in zip(indices, params, weights):
+            print(f"Job {job_id}: processing image #{i}")
             image = self._generate_image(
                 rng, param, self._iterations, self._height, self._width, draw_point=False, weight=w
             )
             color_image = colorize(image, net)
             aug_image = augment(rng, color_image, synthetic_background)
             cv.imwrite(osp.join(self._output_dir, "{:06d}.png".format(i)), aug_image)
+        print(f"Job {job_id}: finished")
 
     def _generate_image(
         self,
