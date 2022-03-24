@@ -12,6 +12,11 @@ class DatasetGenerator(ABC, CliPlugin):
     ImageGenerator generates synthetic data with provided shape.
     """
 
+    @classmethod
+    def generate(cls, output_dir, count, shape, **options):
+        generator = cls(output_dir, count, shape, **options)
+        return generator.generate_dataset()
+
     @abstractmethod
-    def generate_dataset(self) -> None:
+    def generate_dataset(self):
         pass

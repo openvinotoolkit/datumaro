@@ -144,7 +144,7 @@ class ImageGenerator(DatasetGenerator):
         ifs_function = IFSFunction(rng, prev_x=0.0, prev_y=0.0)
         for param in params:
             ifs_function.add_param(
-                param[:ifs_function.NUM_PARAMS], param[ifs_function.NUM_PARAMS], weight
+                param[: ifs_function.NUM_PARAMS], param[ifs_function.NUM_PARAMS], weight
             )
         ifs_function.calculate(iterations)
         img = ifs_function.draw(height, width, draw_point)
