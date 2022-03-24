@@ -16,7 +16,6 @@ from datumaro.util.image import find_images
 from datumaro.util.mask_tools import generate_colormap, lazy_mask
 from datumaro.util.meta_file_util import (
     DATASET_META_FILE,
-    has_meta_file,
     is_meta_file,
     parse_meta_file,
 )
@@ -116,7 +115,9 @@ class CommonSemanticSegmentationExtractor(SourceExtractor):
                     Mask(image=self._lazy_extract_mask(mask, label_id), label=label_id)
                 )
 
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset, media=image, annotations=annotations)
+            items[item_id] = DatasetItem(
+                id=item_id, subset=self._subset, media=image, annotations=annotations
+            )
 
         return items
 
