@@ -247,15 +247,6 @@ class UndeclaredLabelError(InvalidAnnotationError):
 
 
 @define(auto_exc=False)
-class UndeclaredColorError(InvalidAnnotationError):
-    color: tuple = field(validator=validators.instance_of(tuple))
-    """Color"""
-
-    def __str__(self) -> str:
-        return f"Undeclared color {self.color}"
-
-
-@define(auto_exc=False)
 class ItemImportError(DatasetImportError):
     """
     Wraps a dataset parsing error and provides additional error context info.

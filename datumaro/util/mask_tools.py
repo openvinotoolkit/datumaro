@@ -8,7 +8,6 @@ from typing import Tuple
 
 import numpy as np
 
-from datumaro.components.errors import UndeclaredColorError
 from datumaro.util.image import lazy_image, load_image
 
 
@@ -79,7 +78,7 @@ def unpaint_mask(painted_mask, inverse_colormap=None):
     for v in uvals:
         class_id = map_fn(v)
         if class_id is None:
-            raise UndeclaredColorError(((v >> 16) & 255, (v >> 8) & 255, v & 255))
+            raise KeyError(f"Undeclared color {((v >> 16) & 255, (v >> 8) & 255, v & 255)}")
         palette.append(class_id)
     palette = np.array(palette, dtype=np.min_scalar_type(len(uvals)))
     unpainted_mask = palette[unpainted_mask].reshape(painted_mask.shape[:2])
