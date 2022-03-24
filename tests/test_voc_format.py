@@ -625,47 +625,70 @@ class VocExtractorTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_missing_field_in_xml(self):
-        for key in ["name", "bndbox", "xmin", "ymin", "xmax", "ymax"]:
-            with self.subTest(key=key):
-                with TestDir() as test_dir:
+        formats = [
+            ("voc_detection", "Main"),
+            ("voc_layout", "Layout"),
+            ("voc_action", "Action"),
+        ]
 
-                    def mangle_xml(text: str):
-                        return re.sub(rf"<{key}>.*</{key}>", "", text, flags=re.DOTALL)
+        for fmt, fmt_dir in formats:
+            with self.subTest(fmt=fmt):
+                for key in ["name", "bndbox", "xmin", "ymin", "xmax", "ymax"]:
+                    with self.subTest(key=key):
+                        with TestDir() as test_dir:
 
-                    self._write_xml_dataset(test_dir, mangle_xml=mangle_xml)
+                            def mangle_xml(text: str):
+                                return re.sub(rf"<{key}>.*</{key}>", "", text, flags=re.DOTALL)
 
-                    with self.assertRaises(ItemImportError) as capture:
-                        Dataset.import_from(test_dir, format="voc_detection").init_cache()
-                    self.assertIsInstance(capture.exception.__cause__, MissingFieldError)
-                    self.assertIn(key, capture.exception.__cause__.name)
+                            self._write_xml_dataset(
+                                test_dir, fmt_dir=fmt_dir, mangle_xml=mangle_xml
+                            )
+
+                            with self.assertRaises(ItemImportError) as capture:
+                                Dataset.import_from(test_dir, format=fmt).init_cache()
+                            self.assertIsInstance(capture.exception.__cause__, MissingFieldError)
+                            self.assertIn(key, capture.exception.__cause__.name)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_field_in_xml(self):
-        for key, value in [
-            ("xmin", "a"),
-            ("ymin", "a"),
-            ("xmax", "a"),
-            ("ymax", "a"),
-            ("width", "a"),
-            ("height", "a"),
-            ("occluded", "a"),
-            ("difficult", "a"),
-            ("truncated", "a"),
-        ]:
-            with self.subTest(key=key):
-                with TestDir() as test_dir:
+        formats = [
+            ("voc_detection", "Main"),
+            ("voc_layout", "Layout"),
+            ("voc_action", "Action"),
+        ]
 
-                    def mangle_xml(text: str):
-                        return re.sub(
-                            rf"<{key}>.*</{key}>", f"<{key}>{value}</{key}>", text, flags=re.DOTALL
-                        )
+        for fmt, fmt_dir in formats:
+            with self.subTest(fmt=fmt):
+                for key, value in [
+                    ("xmin", "a"),
+                    ("ymin", "a"),
+                    ("xmax", "a"),
+                    ("ymax", "a"),
+                    ("width", "a"),
+                    ("height", "a"),
+                    ("occluded", "a"),
+                    ("difficult", "a"),
+                    ("truncated", "a"),
+                ]:
+                    with self.subTest(key=key):
+                        with TestDir() as test_dir:
 
-                    self._write_xml_dataset(test_dir, mangle_xml=mangle_xml)
+                            def mangle_xml(text: str):
+                                return re.sub(
+                                    rf"<{key}>.*</{key}>",
+                                    f"<{key}>{value}</{key}>",
+                                    text,
+                                    flags=re.DOTALL,
+                                )
 
-                    with self.assertRaises(ItemImportError) as capture:
-                        Dataset.import_from(test_dir, format="voc_detection").init_cache()
-                    self.assertIsInstance(capture.exception.__cause__, InvalidFieldError)
-                    self.assertIn(key, capture.exception.__cause__.name)
+                            self._write_xml_dataset(
+                                test_dir, fmt_dir=fmt_dir, mangle_xml=mangle_xml
+                            )
+
+                            with self.assertRaises(ItemImportError) as capture:
+                                Dataset.import_from(test_dir, format=fmt).init_cache()
+                            self.assertIsInstance(capture.exception.__cause__, InvalidFieldError)
+                            self.assertIn(key, capture.exception.__cause__.name)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_missing_field_in_classification(self):
