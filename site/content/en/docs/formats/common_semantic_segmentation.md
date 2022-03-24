@@ -21,7 +21,7 @@ datum create
 datum import --format common_semantic_segmentation <path/to/dataset>
 ```
 
-Extra options for adding a source in the COCO format:
+Extra import options:
 - `--image-prefix IMAGE_PREFIX` allow to import dataset with custom image prefix
   (by default '')
 - `--mask-prefix MASK_PREFIX` allow to import dataset with custom mask prefix
@@ -43,7 +43,7 @@ CSS dataset directory should have the following structure:
         └── ...
 ```
 
-To add classes, you should use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To describe classes and colors, you should use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 To make sure that the selected dataset has been added to the project, you can
 run `datum project info`, which will display the project information.

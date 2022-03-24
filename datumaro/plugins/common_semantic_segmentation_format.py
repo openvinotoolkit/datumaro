@@ -65,20 +65,14 @@ class CommonSemanticSegmentationExtractor(SourceExtractor):
         self._image_prefix = image_prefix
         self._mask_prefix = mask_prefix
 
-        self._root_dir = path
+        meta_file = glob.glob(osp.join(path, "**", DATASET_META_FILE), recursive=True)
+        if is_meta_file(meta_file[0]):
+            self._root_dir = osp.dirname(meta_file[0])
 
-        if has_meta_file(path):
-            label_map = parse_meta_file(path)
+            label_map = parse_meta_file(meta_file[0])
             self._categories = make_categories(label_map)
         else:
-            meta_file = glob.glob(osp.join(path, "**", DATASET_META_FILE), recursive=True)
-            if is_meta_file(meta_file[0]):
-                self._root_dir = osp.dirname(meta_file[0])
-
-                label_map = parse_meta_file(meta_file[0])
-                self._categories = make_categories(label_map)
-            else:
-                raise DatasetImportError("Dataset meta info file was not found in %s" % path)
+            raise DatasetImportError("Dataset meta info file was not found in %s" % path)
 
         self._items = list(self._load_items().values())
 
@@ -122,7 +116,7 @@ class CommonSemanticSegmentationExtractor(SourceExtractor):
                     Mask(image=self._lazy_extract_mask(mask, label_id), label=label_id)
                 )
 
-            items[item_id] = DatasetItem(id=item_id, media=image, annotations=annotations)
+            items[item_id] = DatasetItem(id=item_id, subset=self._subset, media=image, annotations=annotations)
 
         return items
 

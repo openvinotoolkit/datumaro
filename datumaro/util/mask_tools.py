@@ -54,10 +54,13 @@ _default_unpaint_colormap = invert_colormap(_default_colormap)
 
 
 def unpaint_mask(painted_mask, inverse_colormap=None):
-    # Convert color mask to index mask
+    """
+    Convert color mask to index mask
 
-    # mask: HWC BGR [0; 255]
-    # colormap: (R, G, B) -> index
+    mask: HWC BGR [0; 255]
+
+    colormap: (R, G, B) -> index
+    """
     assert len(painted_mask.shape) == 3
     if inverse_colormap is None:
         inverse_colormap = _default_unpaint_colormap
