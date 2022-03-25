@@ -183,7 +183,6 @@ class ColormapOperationsTest(TestCase):
         with self.assertRaises(KeyError):
             mask_tools.unpaint_mask(mask, inverse_colormap)
 
-
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_remap_mask(self):
         class_count = 10
