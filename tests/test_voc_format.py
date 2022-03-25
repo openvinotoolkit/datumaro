@@ -539,7 +539,8 @@ class VocImportTest(TestCase):
 
 class VocExtractorTest(TestCase):
     # ?xml... must be in the file beginning
-    XML_ANNOTATION_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
+    XML_ANNOTATION_TEMPLATE = """\
+<?xml version="1.0" encoding="UTF-8"?>
 <annotation>
 <filename>a.jpg</filename>
 <size><width>20</width><height>10</height><depth>3</depth></size>
