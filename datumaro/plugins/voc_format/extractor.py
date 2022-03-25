@@ -54,14 +54,14 @@ class _VocExtractor(SourceExtractor):
             label_idx, None
         )
         log.debug(
-            "Loaded labels: %s"
-            % ", ".join(
+            "Loaded labels: %s",
+            ", ".join(
                 "'%s' %s" % (l.name, ("(%s, %s, %s)" % c) if c else "")
                 for i, l, c in (
                     (i, l, label_color(i))
                     for i, l in enumerate(self._categories[AnnotationType.label].items)
                 )
-            )
+            ),
         )
         self._items = {item: None for item in self._load_subset_list(path)}
 
@@ -127,7 +127,7 @@ class VocClassificationExtractor(_VocExtractor):
         for item_id in self._ctx.progress_reporter.iter(
             self._items, desc=f"Parsing labels in '{self._subset}'"
         ):
-            log.debug("Reading item '%s'" % item_id)
+            log.debug("Reading item '%s'", item_id)
             image = images.get(item_id)
             if image:
                 image = Image(path=image)
@@ -369,7 +369,7 @@ class VocSegmentationExtractor(_VocExtractor):
         for item_id in self._ctx.progress_reporter.iter(
             self._items, desc=f"Parsing segmentation in '{self._subset}'"
         ):
-            log.debug("Reading item '%s'" % item_id)
+            log.debug("Reading item '%s'", item_id)
 
             image = images.get(item_id)
             if image:
@@ -425,7 +425,7 @@ class VocSegmentationExtractor(_VocExtractor):
 
                 item_annotations.append(Mask(image=image, label=label_id, group=instance_id))
         elif class_mask is not None:
-            log.warning(f"Item {item_id}: only class segmentations available")
+            log.warning("Item %s: only class segmentations available", item_id)
 
             class_mask = class_mask()
             classes = np.unique(class_mask)
