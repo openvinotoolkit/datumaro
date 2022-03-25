@@ -72,7 +72,7 @@ class _VocExtractor(SourceExtractor):
         )
         self._items = {item: None for item in self._load_subset_list(path)}
 
-    def _get_label_id(self, label: str) -> Optional[int]:
+    def _get_label_id(self, label: str) -> int:
         label_id, _ = self._categories[AnnotationType.label].find(label)
         if label_id is None:
             raise UndeclaredLabelError(label)
