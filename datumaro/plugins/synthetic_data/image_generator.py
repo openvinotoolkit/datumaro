@@ -9,6 +9,7 @@ import sys
 from importlib.resources import open_text
 from multiprocessing import Pool
 from random import Random
+from time import sleep
 from typing import List, Optional, Tuple
 
 import cv2 as cv
@@ -78,8 +79,12 @@ class ImageGenerator(DatasetGenerator):
             self._width,
         )
 
-        with Pool(processes=self._cpu_count) as pool:
-            params = pool.map(self._generate_category, [Random(i) for i in range(self._categories)])
+        params = []
+        for i in range(self._categories):
+            params.append(self._generate_category(Random(i)))
+
+        # with Pool(processes=self._cpu_count) as pool:
+        #     params = pool.map(self._generate_category, [Random(i) for i in range(self._categories)])
 
         instances_weights = np.repeat(self._weights, self._instances, axis=0)
         weight_per_img = np.tile(instances_weights, (self._categories, 1))
@@ -97,7 +102,10 @@ class ImageGenerator(DatasetGenerator):
         for i, (param, w) in enumerate(zip(params_per_proc, weights_per_proc)):
             indices = list(range(offset, offset + len(param)))
             offset += len(param)
-            generation_params.append((Random(i), param, w, indices))
+            generation_params.append((i, Random(i), param, w, indices))
+
+        # for i, param in enumerate(generation_params):
+        #     self._generate_image_batch(*param)
 
         use_multiprocessing = sys.platform != 'darwin' or sys.version_info > (3, 7)
         if use_multiprocessing:
@@ -108,8 +116,9 @@ class ImageGenerator(DatasetGenerator):
                 self._generate_image_batch(*param)
 
     def _generate_image_batch(
-        self, rng: Random, params: np.ndarray, weights: np.ndarray, indices: List[int]
+        self, job_id: int, rng: Random, params: np.ndarray, weights: np.ndarray, indices: List[int]
     ) -> None:
+        print(f"{job_id}: started")
         proto = osp.join(self._path, "colorization_deploy_v2.prototxt")
         model = osp.join(self._path, "colorization_release_v2.caffemodel")
         npy = osp.join(self._path, "pts_in_hull.npy")
@@ -118,17 +127,21 @@ class ImageGenerator(DatasetGenerator):
         content = open_text(__package__, "synthetic_background.txt")
         synthetic_background = np.loadtxt(content)
 
+        print(f"Job {job_id}: loading caffe model")
         net = cv.dnn.readNetFromCaffe(proto, model)
         net.getLayer(net.getLayerId("class8_ab")).blobs = [pts_in_hull]
         net.getLayer(net.getLayerId("conv8_313_rh")).blobs = [np.full([1, 313], 2.606, np.float32)]
 
+        print(f"Job {job_id}: starting loop")
         for i, param, w in zip(indices, params, weights):
+            print(f"Job {job_id}: processing image #{i}")
             image = self._generate_image(
                 rng, param, self._iterations, self._height, self._width, draw_point=False, weight=w
             )
             color_image = colorize(image, net)
             aug_image = augment(rng, color_image, synthetic_background)
             cv.imwrite(osp.join(self._output_dir, "{:06d}.png".format(i)), aug_image)
+        print(f"Job {job_id}: finished")
 
     def _generate_image(
         self,
