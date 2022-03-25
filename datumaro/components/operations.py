@@ -984,8 +984,7 @@ class _ShapeMatcher(AnnotationMatcher):
 
         return clusters
 
-    @staticmethod
-    def distance(a, b):
+    def distance(self, a, b):
         return segment_iou(a, b)
 
     def label_matcher(self, a, b):
@@ -1025,8 +1024,7 @@ class PointsMatcher(_ShapeMatcher):
 
 @attrs
 class LineMatcher(_ShapeMatcher):
-    @staticmethod
-    def distance(a, b):
+    def distance(self, a, b):
         # Compute inter-line area by using the Trapezoid formulae
         # https://en.wikipedia.org/wiki/Trapezoidal_rule
         # Normalize by common bbox and get the bbox fill ratio
@@ -1078,8 +1076,7 @@ class CaptionsMatcher(AnnotationMatcher):
 
 @attrs
 class Cuboid3dMatcher(_ShapeMatcher):
-    @staticmethod
-    def distance(a, b):
+    def distance(self, a, b):
         raise NotImplementedError()
 
 
