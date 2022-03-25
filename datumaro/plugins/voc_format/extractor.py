@@ -4,12 +4,19 @@
 
 import logging as log
 import os.path as osp
-from typing import Optional, Tuple, Type, TypeVar, Union
+from typing import List, Optional, Tuple, Type, TypeVar
 
 import numpy as np
 from defusedxml import ElementTree
 
-from datumaro.components.annotation import AnnotationType, Bbox, CompiledMask, Label, Mask
+from datumaro.components.annotation import (
+    Annotation,
+    AnnotationType,
+    Bbox,
+    CompiledMask,
+    Label,
+    Mask,
+)
 from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
@@ -65,7 +72,7 @@ class _VocExtractor(SourceExtractor):
         )
         self._items = {item: None for item in self._load_subset_list(path)}
 
-    def _get_label_id(self, label: str):
+    def _get_label_id(self, label: str) -> Optional[int]:
         label_id, _ = self._categories[AnnotationType.label].find(label)
         if label_id is None:
             raise UndeclaredLabelError(label)
@@ -226,9 +233,7 @@ class _VocXmlExtractor(_VocExtractor):
                 self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
 
     @staticmethod
-    def _parse_field(
-        root, xpath: str, cls: Union[None, Type[T], Tuple[Type, ...]] = None, required: bool = True
-    ) -> Optional[Union[T, str]]:
+    def _parse_field(root, xpath: str, cls: Type[T] = str, required: bool = True) -> Optional[T]:
         elem = root.find(xpath)
         if elem is None:
             if required:
@@ -236,7 +241,7 @@ class _VocXmlExtractor(_VocExtractor):
             else:
                 return None
 
-        if cls:
+        if not issubclass(cls, str):
             try:
                 value = cls(elem.text)
             except Exception as e:
@@ -245,7 +250,7 @@ class _VocXmlExtractor(_VocExtractor):
             value = elem.text
         return value
 
-    def _parse_annotations(self, root_elem, *, item_id):
+    def _parse_annotations(self, root_elem, *, item_id: Tuple[str, str]) -> List[Annotation]:
         item_annotations = []
 
         for obj_id, object_elem in enumerate(root_elem.iterfind("object")):
@@ -298,7 +303,9 @@ class _VocXmlExtractor(_VocExtractor):
                 attributes_elem = object_elem.find("attributes")
                 if attributes_elem is not None:
                     for attr_elem in attributes_elem.iter("attribute"):
-                        attributes[attr_elem.find("name").text] = attr_elem.find("value").text
+                        attributes[self._parse_field(attr_elem, "name")] = self._parse_field(
+                            attr_elem, "value"
+                        )
 
                 if self._task is VocTask.person_layout and not has_parts:
                     continue
