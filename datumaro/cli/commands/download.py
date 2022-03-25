@@ -68,6 +68,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
     )
+    parser.add_argument("-s", "--subset", help="Save only the specified subset")
     parser.add_argument(
         "extra_args",
         nargs=argparse.REMAINDER,
@@ -132,6 +133,12 @@ def download_command(args):
 
     log.info("Downloading the dataset")
     extractor = extractor_factory()
+
+    if args.subset:
+        try:
+            extractor = extractor.subsets()[args.subset]
+        except KeyError:
+            raise CliException("Subset '%s' is not present in the dataset" % args.subset)
 
     log.info("Exporting the dataset")
     converter.convert(extractor, dst_dir, default_image_ext=".png", **extra_args)
