@@ -58,6 +58,11 @@ class IFSFunction:
         return delete_row
 
     def rescale(self, image_x, image_y, pad_x, pad_y):
+        if image_x < 2 * pad_x or image_y < 2 * pad_y:
+            raise ValueError(
+                f"Image generation with height < {2 * pad_x} or width < {2 * pad_y} is not supported"
+            )
+
         xs = np.array(self.xs)
         ys = np.array(self.ys)
         if np.any(np.isnan(xs)):
@@ -98,11 +103,14 @@ def download_colorization_model(path):
     model_name = "colorization_release_v2.caffemodel"
     npy_name = "pts_in_hull.npy"
 
-    if not (osp.exists(osp.join(path, proto_name)) and \
-            osp.exists(osp.join(path, model_name)) and \
-            osp.exists(osp.join(path, npy_name))) and \
-       not os.access(path, os.W_OK):
-           raise ValueError("Please provide path where colorization model is located or path to writable directory to save colorization model")
+    if not (
+        osp.exists(osp.join(path, proto_name))
+        and osp.exists(osp.join(path, model_name))
+        and osp.exists(osp.join(path, npy_name))
+    ) and not os.access(path, os.W_OK):
+        raise ValueError(
+            "Please provide path where colorization model is located or path to writable directory to save colorization model"
+        )
 
     if not osp.exists(osp.join(path, proto_name)):
         log.warning(
@@ -178,7 +186,7 @@ def augment(rng, image, synthetic_background):
 
     image = fill_background(rng, image, synthetic_background)
     if rng.random() >= 0.3:
-        k_size = rng.choice(list(range(1, 16, 2)))
+        k_size = rng.choice(list(range(3, 16, 2)))
         image = cv.GaussianBlur(image, (k_size, k_size), 0)
     return image
 

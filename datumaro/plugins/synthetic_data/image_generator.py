@@ -9,7 +9,6 @@ import sys
 from importlib.resources import open_text
 from multiprocessing import Pool
 from random import Random
-from time import sleep
 from typing import List, Optional, Tuple
 
 import cv2 as cv
@@ -46,6 +45,12 @@ class ImageGenerator(DatasetGenerator):
             help="Data shape. For example, for image with height = 256 and width = 224: --shape 256 224",
         )
 
+        parser.add_argument(
+            "--model-path",
+            type=osp.abspath,
+            help="Path where colorization model is located or path to save model",
+        )
+
         return parser
 
     def __init__(self, output_dir: str, count: int, shape: Tuple[int, int], model_path: str = None):
@@ -58,14 +63,10 @@ class ImageGenerator(DatasetGenerator):
         if not osp.exists(output_dir):
             os.makedirs(output_dir)
 
-        if self._height < 13 or self._width < 13:
-            raise ValueError(
-                "Image generation with height or width of less than 13 is not supported"
-            )
-
         self._weights = self._create_weights(IFSFunction.NUM_PARAMS)
         self._threshold = 0.2
         self._iterations = 200000
+        self._num_of_points = 100000
 
         self._path = model_path if model_path is not None else os.getcwd()
         download_colorization_model(self._path)
@@ -78,13 +79,17 @@ class ImageGenerator(DatasetGenerator):
             self._height,
             self._width,
         )
-
-        params = []
-        for i in range(self._categories):
-            params.append(self._generate_category(Random(i)))
-
-        # with Pool(processes=self._cpu_count) as pool:
-        #     params = pool.map(self._generate_category, [Random(i) for i in range(self._categories)])
+        use_multiprocessing = sys.platform != "darwin" or sys.version_info > (3, 7)
+        if use_multiprocessing:
+            with Pool(processes=self._cpu_count) as pool:
+                params = pool.map(
+                    self._generate_category, [Random(i) for i in range(self._categories)]
+                )
+        else:
+            params = []
+            for i in range(self._categories):
+                param = self._generate_category(Random(i))
+                params.append(param)
 
         instances_weights = np.repeat(self._weights, self._instances, axis=0)
         weight_per_img = np.tile(instances_weights, (self._categories, 1))
@@ -104,10 +109,6 @@ class ImageGenerator(DatasetGenerator):
             offset += len(param)
             generation_params.append((i, Random(i), param, w, indices))
 
-        # for i, param in enumerate(generation_params):
-        #     self._generate_image_batch(*param)
-
-        use_multiprocessing = sys.platform != 'darwin' or sys.version_info > (3, 7)
         if use_multiprocessing:
             with Pool(processes=self._cpu_count) as pool:
                 pool.starmap(self._generate_image_batch, generation_params)
@@ -183,10 +184,6 @@ class ImageGenerator(DatasetGenerator):
         return params
 
     def _initialize_params(self) -> None:
-        default_img_size = 362 * 362
-        points_coeff = max(1, int(np.round(self._height * self._width / default_img_size)))
-        self._num_of_points = 100000 * points_coeff
-
         if self._count < self._weights.shape[0]:
             self._weights = self._weights[: self._count, :]
 

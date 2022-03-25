@@ -45,7 +45,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
     )
     parser.add_argument(
-        "--model-path", default=None, help="Path where colorization model is located or path to save model"
+        "--model-path", help="Path where colorization model is located or path to save model"
     )
 
     parser.set_defaults(command=generate_command)
@@ -72,10 +72,7 @@ def generate_command(args):
 
     if args.type == "image":
         ImageGenerator(
-            count=args.count,
-            output_dir=output_dir,
-            shape=args.shape,
-            model_path=args.model_path
+            count=args.count, output_dir=output_dir, shape=args.shape, model_path=args.model_path
         ).generate_dataset()
     else:
         raise NotImplementedError(f"Data type: {args.type} is not supported")
