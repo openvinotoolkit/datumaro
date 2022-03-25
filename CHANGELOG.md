@@ -30,7 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
-- TBD
+- Formats detection CLI command for nested folders
+  (https://github.com/openvinotoolkit/datumaro/pull/680)
 
 ### Security
 - TBD
