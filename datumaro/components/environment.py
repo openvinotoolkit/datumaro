@@ -8,10 +8,10 @@ import logging as log
 import os.path as osp
 from functools import partial
 from inspect import isclass
-from typing import Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar
+from typing import Callable, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
-from datumaro.components.format_detection import detect_dataset_format
+from datumaro.components.format_detection import RejectionReason, detect_dataset_format
 from datumaro.util.os_util import import_foreign_module, split_path
 
 T = TypeVar("T")
@@ -241,7 +241,10 @@ class Environment:
         return name in self.importers or name in self.extractors
 
     def detect_dataset(
-        self, path: str, rejection_callback: Optional[RejectionCallback] = None, depth: int = 1
+        self,
+        path: str,
+        depth: int = 1,
+        rejection_callback: Optional[Callable[[str, RejectionReason, str], None]] = None,
     ) -> List[str]:
         ignore_dirs = {"__MSOSX", "__MACOSX"}
         matched_formats = set()
