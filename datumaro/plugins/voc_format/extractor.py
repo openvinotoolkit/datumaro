@@ -97,7 +97,7 @@ class _VocExtractor(SourceExtractor):
                             line = objects[1]
                         else:
                             raise InvalidAnnotationError(
-                                f"{osp.basename(subset_path)}:{i}: "
+                                f"{osp.basename(subset_path)}:{i+1}: "
                                 "unexpected number of quotes in filename, expected 0 or 2"
                             )
                     else:
@@ -152,14 +152,14 @@ class VocClassificationExtractor(_VocExtractor):
                     parts = line.rsplit(maxsplit=1)
                     if len(parts) != 2:
                         raise InvalidAnnotationError(
-                            f"{osp.basename(ann_file)}:{i}: "
+                            f"{osp.basename(ann_file)}:{i+1}: "
                             "invalid number of fields in line, expected 2"
                         )
 
                     item, present = parts
                     if present not in ["-1", "1"]:
                         raise InvalidAnnotationError(
-                            f"{osp.basename(ann_file)}:{i}: "
+                            f"{osp.basename(ann_file)}:{i+1}: "
                             f"unexpected class existence value '{present}', expected -1 or 1"
                         )
 
