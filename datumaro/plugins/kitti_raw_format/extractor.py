@@ -132,7 +132,7 @@ class KittiRawExtractor(SourceExtractor):
                     attr = None
 
         if track is not None or shape is not None or attr is not None:
-            raise Exception("Failed to parse anotations from '%s'" % path)
+            raise Exception("Failed to parse annotations from '%s'" % path)
 
         special_attrs = KittiRawPath.SPECIAL_ATTRS
         common_attrs = ["occluded"]

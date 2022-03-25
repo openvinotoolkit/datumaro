@@ -53,10 +53,13 @@ _default_unpaint_colormap = invert_colormap(_default_colormap)
 
 
 def unpaint_mask(painted_mask, inverse_colormap=None):
-    # Convert color mask to index mask
+    """
+    Convert color mask to index mask
 
-    # mask: HWC BGR [0; 255]
-    # colormap: (R, G, B) -> index
+    mask: HWC BGR [0; 255]
+
+    colormap: (R, G, B) -> index
+    """
     assert len(painted_mask.shape) == 3
     if inverse_colormap is None:
         inverse_colormap = _default_unpaint_colormap
@@ -64,14 +67,20 @@ def unpaint_mask(painted_mask, inverse_colormap=None):
     if callable(inverse_colormap):
         map_fn = lambda a: inverse_colormap((a >> 16) & 255, (a >> 8) & 255, a & 255)
     else:
-        map_fn = lambda a: inverse_colormap[((a >> 16) & 255, (a >> 8) & 255, a & 255)]
+        map_fn = lambda a: inverse_colormap.get(((a >> 16) & 255, (a >> 8) & 255, a & 255), None)
 
     painted_mask = painted_mask.astype(int)
     painted_mask = (
         painted_mask[:, :, 0] + (painted_mask[:, :, 1] << 8) + (painted_mask[:, :, 2] << 16)
     )
     uvals, unpainted_mask = np.unique(painted_mask, return_inverse=True)
-    palette = np.array([map_fn(v) for v in uvals], dtype=np.min_scalar_type(len(uvals)))
+    palette = []
+    for v in uvals:
+        class_id = map_fn(v)
+        if class_id is None:
+            raise KeyError(f"Undeclared color {((v >> 16) & 255, (v >> 8) & 255, v & 255)}")
+        palette.append(class_id)
+    palette = np.array(palette, dtype=np.min_scalar_type(len(uvals)))
     unpainted_mask = palette[unpainted_mask].reshape(painted_mask.shape[:2])
 
     return unpainted_mask
