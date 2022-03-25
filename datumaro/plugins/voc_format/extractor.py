@@ -241,14 +241,13 @@ class _VocXmlExtractor(_VocExtractor):
             else:
                 return None
 
-        if not issubclass(cls, str):
-            try:
-                value = cls(elem.text)
-            except Exception as e:
-                raise InvalidFieldError(xpath) from e
-        else:
-            value = elem.text
-        return value
+        if cls is str:
+            return elem.text
+
+        try:
+            return cls(elem.text)
+        except Exception as e:
+            raise InvalidFieldError(xpath) from e
 
     def _parse_annotations(self, root_elem, *, item_id: Tuple[str, str]) -> List[Annotation]:
         item_annotations = []
