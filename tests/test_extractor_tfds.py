@@ -65,22 +65,23 @@ class TfdsDatasetsTest(TestCase):
 class TfdsExtractorTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_data_access(self):
-        with mock_tfds_data():
+        with mock_tfds_data(subsets=("train", "val")):
             extractor = AVAILABLE_TFDS_DATASETS["mnist"].make_extractor()
-            self.assertEqual(len(extractor), 1)
+            self.assertEqual(len(extractor), 2)
 
-            train_subset = extractor.get_subset("train")
-            compare_datasets(self, Dataset(extractor), Dataset(train_subset))
+            expected_train_subset = Dataset(extractor).filter("/item[subset = 'train']")
+
+            compare_datasets(self, expected_train_subset, Dataset(extractor.get_subset("train")))
 
             self.assertRaises(KeyError, extractor.get_subset, "test")
 
             subsets = extractor.subsets()
-            self.assertEqual(len(subsets), 1)
-            self.assertIn("train", subsets)
-            compare_datasets(self, Dataset(extractor), Dataset(subsets["train"]))
+            self.assertEqual(["train", "val"], sorted(subsets))
+            compare_datasets(self, expected_train_subset, Dataset(subsets["train"]))
 
             self.assertIsNotNone(extractor.get("0"))
             self.assertIsNotNone(extractor.get("0", subset="train"))
+            self.assertIsNotNone(extractor.get("0", subset="val"))
             self.assertIsNone(extractor.get("x"))
             self.assertIsNone(extractor.get("0", subset="test"))
 
