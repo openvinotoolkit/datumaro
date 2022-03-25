@@ -249,6 +249,16 @@ class _VocXmlExtractor(_VocExtractor):
         except Exception as e:
             raise InvalidFieldError(xpath) from e
 
+    @staticmethod
+    def _parse_bool_field(root, xpath: str, default: bool = False) -> Optional[bool]:
+        elem = root.find(xpath)
+        if elem is None:
+            return default
+
+        if elem.text not in ["0", "1"]:
+            raise InvalidFieldError(xpath)
+        return elem.text == "1"
+
     def _parse_annotations(self, root_elem, *, item_id: Tuple[str, str]) -> List[Annotation]:
         item_annotations = []
 
@@ -262,11 +272,8 @@ class _VocXmlExtractor(_VocExtractor):
 
                 obj_bbox = self._parse_bbox(object_elem)
 
-                for attr_name in ["difficult", "truncated", "occluded"]:
-                    attr_elem = object_elem.find(attr_name)
-                    if attr_elem is not None and attr_elem.text not in ["0", "1"]:
-                        raise InvalidFieldError(attr_name)
-                    attributes[attr_name] = attr_elem is not None and attr_elem.text == "1"
+                for key in ["difficult", "truncated", "occluded"]:
+                    attributes[key] = self._parse_bool_field(object_elem, key, default=False)
 
                 pose_elem = object_elem.find("pose")
                 if pose_elem is not None:
@@ -285,7 +292,9 @@ class _VocXmlExtractor(_VocExtractor):
                 }
                 if actions_elem is not None:
                     for action_elem in actions_elem:
-                        actions[action_elem.tag] = action_elem.text == "1"
+                        actions[action_elem.tag] = self._parse_bool_field(
+                            actions_elem, action_elem.tag
+                        )
                 for action, present in actions.items():
                     attributes[action] = present
 
