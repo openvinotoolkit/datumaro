@@ -194,8 +194,8 @@ class _VocXmlExtractor(_VocExtractor):
 
                 ann_file = osp.join(anno_dir, item_id + ".xml")
                 if osp.isfile(ann_file):
-                    root_elem = ElementTree.parse(ann_file)
-                    if root_elem.getroot().tag != "annotation":
+                    root_elem = ElementTree.parse(ann_file).getroot()
+                    if root_elem.tag != "annotation":
                         raise MissingFieldError("annotation")
 
                     height = self._parse_field(root_elem, "size/height", int, required=False)
