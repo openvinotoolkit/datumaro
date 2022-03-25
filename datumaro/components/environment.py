@@ -240,7 +240,7 @@ class Environment:
     def is_format_known(self, name):
         return name in self.importers or name in self.extractors
 
-    def detect_dataset(self, path, rejection_callback=None, depth=1):
+    def detect_dataset(self, path: str, rejection_callback: Optional[RejectionCallback] = None, depth: int = 1) -> List[str]:
         ignore_dirs = {"__MSOSX", "__MACOSX"}
         matched_formats = set()
         for _ in range(depth + 1):
