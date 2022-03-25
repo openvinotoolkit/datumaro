@@ -16,7 +16,7 @@ $ ln -sv ../../dev/pre-commit.py ./.git/hooks/pre-commit
 
 import sys
 import tempfile
-from subprocess import call, check_call, check_output
+from subprocess import call, check_call, check_output  # nosec B404
 
 
 def main():
@@ -25,12 +25,12 @@ def main():
     def try_call(args, **kwargs):
         nonlocal success
 
-        if call(args, **kwargs) != 0:
+        if call(args, **kwargs) != 0:  # nosec B603
             success = False
 
     try_call(["git", "diff-index", "--check", "--cached", "HEAD"])
 
-    diff_index_output = check_output(
+    diff_index_output = check_output(  # nosec B603, B607
         ["git", "diff-index", "-z", "--name-only", "--diff-filter=AM", "--cached", "HEAD"]
     )
 
@@ -42,7 +42,7 @@ def main():
 
     if changed_python_files:
         with tempfile.TemporaryDirectory() as temp_dir:
-            check_call(["git", "checkout-index", "-a", f"--prefix={temp_dir}/"])
+            check_call(["git", "checkout-index", "-a", f"--prefix={temp_dir}/"])  # nosec B603, B607
 
             try_call(["isort", "--check", "--", *changed_python_files], cwd=temp_dir)
             try_call(["black", "--check", "--", *changed_python_files], cwd=temp_dir)
