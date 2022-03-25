@@ -258,20 +258,11 @@ class _VocXmlExtractor(_VocExtractor):
 
                 obj_bbox = self._parse_bbox(object_elem)
 
-                difficult_elem = object_elem.find("difficult")
-                if difficult_elem is not None and difficult_elem.text not in ["0", "1"]:
-                    raise InvalidFieldError("difficult")
-                attributes["difficult"] = difficult_elem is not None and difficult_elem.text == "1"
-
-                truncated_elem = object_elem.find("truncated")
-                if truncated_elem is not None and truncated_elem.text not in ["0", "1"]:
-                    raise InvalidFieldError("truncated")
-                attributes["truncated"] = truncated_elem is not None and truncated_elem.text == "1"
-
-                occluded_elem = object_elem.find("occluded")
-                if occluded_elem is not None and occluded_elem.text not in ["0", "1"]:
-                    raise InvalidFieldError("occluded")
-                attributes["occluded"] = occluded_elem is not None and occluded_elem.text == "1"
+                for attr_name in ["difficult", "truncated", "occluded"]:
+                    attr_elem = object_elem.find(attr_name)
+                    if attr_elem is not None and attr_elem.text not in ["0", "1"]:
+                        raise InvalidFieldError(attr_name)
+                    attributes[attr_name] = attr_elem is not None and attr_elem.text == "1"
 
                 pose_elem = object_elem.find("pose")
                 if pose_elem is not None:
