@@ -182,7 +182,9 @@ class Label(Annotation):
 
 
 RgbColor = Tuple[int, int, int]
+
 Colormap = Dict[int, RgbColor]
+"""Represents { index -> color } mapping for segmentation masks"""
 
 
 @attrs(slots=True, eq=False, order=False)

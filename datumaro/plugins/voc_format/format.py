@@ -6,10 +6,19 @@ import os.path as osp
 from collections import OrderedDict
 from enum import Enum, auto
 from itertools import chain
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, LabelCategories, MaskCategories
+from datumaro.components.annotation import (
+    AnnotationType,
+    Colormap,
+    LabelCategories,
+    MaskCategories,
+    RgbColor,
+)
+from datumaro.components.errors import InvalidAnnotationError
+from datumaro.components.extractor import CategoriesInfo
 from datumaro.util import dump_json_file, find, parse_json_file
 from datumaro.util.meta_file_util import get_meta_file
 
@@ -75,7 +84,7 @@ class VocAction(Enum):
     walking = auto()
 
 
-def generate_colormap(length=256):
+def generate_colormap(length: int = 256) -> Colormap:
     def get_bit(number, index):
         return (number >> index) & 1
 
@@ -90,8 +99,8 @@ def generate_colormap(length=256):
     return OrderedDict((id, tuple(color)) for id, color in enumerate(colormap))
 
 
-VocColormap = {
-    id: color for id, color in generate_colormap(256).items() if id in [l.value for l in VocLabel]
+VocColormap: Colormap = {
+    id: color for id, color in generate_colormap(256).items() if id in {l.value for l in VocLabel}
 }
 VocInstColormap = generate_colormap(256)
 
@@ -115,7 +124,14 @@ class VocPath:
     }
 
 
-def make_voc_label_map():
+LabelMapConfig = Dict[str, Tuple[Optional[RgbColor], List[str], List[str]]]
+"""A type representing a label map config"""
+# Not totally type-correct, tuple elements are supposed to support modification.
+# Therefore, the tuple is typically a list
+# TODO: refactor, make type annotations conform with actual usage
+
+
+def make_voc_label_map() -> LabelMapConfig:
     labels = sorted(VocLabel, key=lambda l: l.value)
     label_map = OrderedDict((label.name, [VocColormap[label.value], [], []]) for label in labels)
     label_map[VocLabel.person.name][1] = [p.name for p in VocBodyPart]
@@ -123,42 +139,55 @@ def make_voc_label_map():
     return label_map
 
 
-def parse_label_map(path):
-    if not path:
-        return None
+def parse_label_map(path: str) -> LabelMapConfig:
+    """
+    Parses a label map file in the format:
+    'name : color (r, g, b) : parts (hand, feet, ...) : actions (siting, standing, ...)'
+
+    Parameters:
+        path: File path
+
+    Returns:
+        A dictionary: label -> (color, parts, actions)
+    """
 
     label_map = OrderedDict()
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
             # skip empty and commented lines
             line = line.strip()
-            if not line or line and line[0] == "#":
+            if not line or line[0] == "#":
                 continue
 
-            # name, color, parts, actions
+            # name : color : parts : actions
             label_desc = line.strip().split(":")
+            if len(label_desc) != 4:
+                raise InvalidAnnotationError(
+                    f"Label description has wrong number of fields '{len(label_desc)}'. "
+                    "Expected 4 ':'-separated fields."
+                )
             name = label_desc[0]
 
             if name in label_map:
-                raise ValueError("Label '%s' is already defined" % name)
+                raise InvalidAnnotationError(f"Label '{name}' is already defined in the label map")
 
-            if 1 < len(label_desc) and len(label_desc[1]) != 0:
+            if 1 < len(label_desc) and label_desc[1]:
                 color = label_desc[1].split(",")
-                assert len(color) == 3, "Label '%s' has wrong color, expected 'r,g,b', got '%s'" % (
-                    name,
-                    color,
-                )
-                color = tuple([int(c) for c in color])
+                if len(color) != 3:
+                    raise InvalidAnnotationError(
+                        f"Label '{name}' has wrong color '{color}'. Expected an 'r,g,b' triplet."
+                    )
+                color = tuple(int(c) for c in color)
             else:
                 color = None
 
-            if 2 < len(label_desc) and len(label_desc[2]) != 0:
-                parts = label_desc[2].split(",")
+            if 2 < len(label_desc) and label_desc[2]:
+                parts = [s.strip() for s in label_desc[2].split(",")]
             else:
                 parts = []
 
-            if 3 < len(label_desc) and len(label_desc[3]) != 0:
-                actions = label_desc[3].split(",")
+            if 3 < len(label_desc) and label_desc[3]:
+                actions = [s.strip() for s in label_desc[3].split(",")]
             else:
                 actions = []
 
@@ -166,7 +195,7 @@ def parse_label_map(path):
     return label_map
 
 
-def parse_meta_file(path):
+def parse_meta_file(path: str) -> LabelMapConfig:
     # Uses custom format with extra fields
     meta_file = path
     if osp.isdir(path):
@@ -193,7 +222,7 @@ def parse_meta_file(path):
     return label_map
 
 
-def write_label_map(path, label_map):
+def write_label_map(path: str, label_map: LabelMapConfig):
     with open(path, "w", encoding="utf-8") as f:
         f.write("# label:color_rgb:parts:actions\n")
         for label_name, label_desc in label_map.items():
@@ -208,7 +237,7 @@ def write_label_map(path, label_map):
             f.write("%s\n" % ":".join([label_name, color_rgb, parts, actions]))
 
 
-def write_meta_file(path, label_map):
+def write_meta_file(path: str, label_map: LabelMapConfig):
     # Uses custom format with extra fields
     dataset_meta = {}
 
@@ -248,7 +277,7 @@ def write_meta_file(path, label_map):
     dump_json_file(get_meta_file(path), dataset_meta)
 
 
-def make_voc_categories(label_map=None):
+def make_voc_categories(label_map: Optional[LabelMapConfig] = None) -> CategoriesInfo:
     if label_map is None:
         label_map = make_voc_label_map()
 

@@ -171,6 +171,19 @@ class ColormapOperationsTest(TestCase):
         self.assertTrue(np.array_equal(expected, actual), "%s\nvs.\n%s" % (expected, actual))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_unpaint_incorrect_mask(self):
+        colormap = mask_tools.generate_colormap(3)
+        inverse_colormap = mask_tools.invert_colormap(colormap)
+
+        mask = np.zeros((1, 3, 3), dtype=np.uint8)
+        mask[:, 0] = colormap[0][::-1]
+        mask[:, 1] = colormap[1][::-1]
+        mask[:, 2] = (255, 255, 255)
+
+        with self.assertRaises(KeyError):
+            mask_tools.unpaint_mask(mask, inverse_colormap)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_remap_mask(self):
         class_count = 10
         remap_fn = lambda c: class_count - c

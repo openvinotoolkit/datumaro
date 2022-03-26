@@ -268,7 +268,7 @@ def check_save_and_load(
     target_dataset=None,
     importer_args=None,
     compare=None,
-    **kwargs,
+    **cmp_kwargs,
 ):
     converter(source_dataset, test_dir)
 
@@ -279,12 +279,12 @@ def check_save_and_load(
     if target_dataset is None:
         target_dataset = source_dataset
 
-    if not compare and kwargs.get("dimension") is Dimensions.dim_3d:
+    if not compare and cmp_kwargs.get("dimension") is Dimensions.dim_3d:
         compare = compare_datasets_3d
-        del kwargs["dimension"]
+        del cmp_kwargs["dimension"]
     elif not compare:
         compare = compare_datasets
-    compare(test, expected=target_dataset, actual=parsed_dataset, **kwargs)
+    compare(test, expected=target_dataset, actual=parsed_dataset, **cmp_kwargs)
 
 
 def compare_dirs(test, expected: str, actual: str):

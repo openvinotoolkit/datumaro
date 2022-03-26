@@ -6,6 +6,7 @@ from functools import partial
 from unittest import TestCase
 
 import numpy as np
+from lxml import etree as ElementTree  # nosec
 
 import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.annotation import (
@@ -18,6 +19,14 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
+from datumaro.components.errors import (
+    AnnotationImportError,
+    InvalidAnnotationError,
+    InvalidFieldError,
+    ItemImportError,
+    MissingFieldError,
+    UndeclaredLabelError,
+)
 from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.media import Image
 from datumaro.plugins.voc_format.converter import (
@@ -29,6 +38,7 @@ from datumaro.plugins.voc_format.converter import (
     VocSegmentationConverter,
 )
 from datumaro.plugins.voc_format.importer import VocImporter
+from datumaro.util.image import save_image
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (
     TestDir,
@@ -97,6 +107,37 @@ class VocFormatTest(TestCase):
             dst_label_map = VOC.parse_meta_file(test_dir)
 
             self.assertEqual(src_label_map, dst_label_map)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_invalid_line_in_labelmap(self):
+        with TestDir() as test_dir:
+            path = osp.join(test_dir, "labelmap.txt")
+            with open(path, "w") as f:
+                f.write("a\n")
+
+            with self.assertRaisesRegex(InvalidAnnotationError, "Expected 4 ':'-separated fields"):
+                VOC.parse_label_map(path)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_repeated_label_in_labelmap(self):
+        with TestDir() as test_dir:
+            path = osp.join(test_dir, "labelmap.txt")
+            with open(path, "w") as f:
+                f.write("a:::\n")
+                f.write("a:::\n")
+
+            with self.assertRaisesRegex(InvalidAnnotationError, "already defined"):
+                VOC.parse_label_map(path)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_invalid_color_in_labelmap(self):
+        with TestDir() as test_dir:
+            path = osp.join(test_dir, "labelmap.txt")
+            with open(path, "w") as f:
+                f.write("a:10,20::\n")
+
+            with self.assertRaisesRegex(InvalidAnnotationError, "Expected an 'r,g,b' triplet"):
+                VOC.parse_label_map(path)
 
 
 class TestExtractorBase(Extractor):
@@ -494,6 +535,252 @@ class VocImportTest(TestCase):
                 parsed = pickle.loads(pickle.dumps(source))  # nosec
 
                 compare_datasets_strict(self, source, parsed)
+
+
+class VocExtractorTest(TestCase):
+    # ?xml... must be in the file beginning
+    XML_ANNOTATION_TEMPLATE = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<annotation>
+<filename>a.jpg</filename>
+<size><width>20</width><height>10</height><depth>3</depth></size>
+<object>
+    <name>person</name>
+    <bndbox><xmin>1</xmin><ymin>2</ymin><xmax>3</xmax><ymax>4</ymax></bndbox>
+    <difficult>1</difficult>
+    <truncated>1</truncated>
+    <occluded>1</occluded>
+    <point><x>1</x><y>1</y></point>
+    <attributes><attribute><name>a</name><value>42</value></attribute></attributes>
+    <actions><jumping>1</jumping></actions>
+    <part>
+        <name>head</name>
+        <bndbox><xmin>1</xmin><ymin>2</ymin><xmax>3</xmax><ymax>4</ymax></bndbox>
+    </part>
+</object>
+</annotation>
+    """
+
+    @classmethod
+    def _write_xml_dataset(cls, root_dir, fmt_dir="Main", mangle_xml=None):
+        subset_file = osp.join(root_dir, "ImageSets", fmt_dir, "test.txt")
+        os.makedirs(osp.dirname(subset_file))
+        with open(subset_file, "w") as f:
+            f.write("a\n" if fmt_dir != "Layout" else "a 0\n")
+
+        ann_file = osp.join(root_dir, "Annotations", "a.xml")
+        os.makedirs(osp.dirname(ann_file))
+        with open(ann_file, "wb") as f:
+            xml = ElementTree.fromstring(cls.XML_ANNOTATION_TEMPLATE.encode())
+            if mangle_xml:
+                mangle_xml(xml)
+            f.write(ElementTree.tostring(xml))
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_parse_xml_without_errors(self):
+        formats = [
+            ("voc_detection", "Main"),
+            ("voc_layout", "Layout"),
+            ("voc_action", "Action"),
+        ]
+
+        for fmt, fmt_dir in formats:
+            with self.subTest(fmt=fmt):
+                with TestDir() as test_dir:
+                    self._write_xml_dataset(test_dir, fmt_dir=fmt_dir)
+
+                    dataset = Dataset.import_from(test_dir, fmt)
+                    dataset.init_cache()
+                    self.assertEqual(len(dataset), 1)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_quotes_in_lists_of_layout_task(self):
+        with TestDir() as test_dir:
+            subset_file = osp.join(test_dir, "ImageSets", "Layout", "test.txt")
+            os.makedirs(osp.dirname(subset_file))
+            with open(subset_file, "w") as f:
+                f.write('"qwe 1\n')
+
+            with self.assertRaisesRegex(
+                InvalidAnnotationError, "unexpected number of quotes in filename"
+            ):
+                Dataset.import_from(test_dir, format="voc_layout")
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_label_in_xml(self):
+        formats = [
+            ("voc_detection", "Main"),
+            ("voc_layout", "Layout"),
+            ("voc_action", "Action"),
+        ]
+
+        for fmt, fmt_dir in formats:
+            with self.subTest(fmt=fmt):
+                with TestDir() as test_dir:
+
+                    def mangle_xml(xml: ElementTree.ElementBase):
+                        xml.find("object/name").text = "test"
+
+                    self._write_xml_dataset(test_dir, fmt_dir=fmt_dir, mangle_xml=mangle_xml)
+
+                    with self.assertRaises(AnnotationImportError) as capture:
+                        Dataset.import_from(test_dir, format=fmt).init_cache()
+                    self.assertIsInstance(capture.exception.__cause__, UndeclaredLabelError)
+                    self.assertEqual(capture.exception.__cause__.id, "test")
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_missing_field_in_xml(self):
+        formats = [
+            ("voc_detection", "Main"),
+            ("voc_layout", "Layout"),
+            ("voc_action", "Action"),
+        ]
+
+        for fmt, fmt_dir in formats:
+            with self.subTest(fmt=fmt):
+                for key in [
+                    "object/name",
+                    "object/bndbox",
+                    "object/bndbox/xmin",
+                    "object/bndbox/ymin",
+                    "object/bndbox/xmax",
+                    "object/bndbox/ymax",
+                    "object/part/name",
+                    "object/part/bndbox/xmin",
+                    "object/part/bndbox/ymin",
+                    "object/part/bndbox/xmax",
+                    "object/part/bndbox/ymax",
+                    "object/point/x",
+                    "object/point/y",
+                    "object/attributes/attribute/name",
+                    "object/attributes/attribute/value",
+                ]:
+                    with self.subTest(key=key):
+                        with TestDir() as test_dir:
+
+                            def mangle_xml(xml: ElementTree.ElementBase):
+                                for elem in xml.findall(key):
+                                    elem.getparent().remove(elem)
+
+                            self._write_xml_dataset(
+                                test_dir, fmt_dir=fmt_dir, mangle_xml=mangle_xml
+                            )
+
+                            with self.assertRaises(ItemImportError) as capture:
+                                Dataset.import_from(test_dir, format=fmt).init_cache()
+                            self.assertIsInstance(capture.exception.__cause__, MissingFieldError)
+                            self.assertIn(osp.basename(key), capture.exception.__cause__.name)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_field_in_xml(self):
+        formats = [
+            ("voc_detection", "Main"),
+            ("voc_layout", "Layout"),
+            ("voc_action", "Action"),
+        ]
+
+        for fmt, fmt_dir in formats:
+            with self.subTest(fmt=fmt):
+                for key, value in [
+                    ("object/bndbox/xmin", "a"),
+                    ("object/bndbox/ymin", "a"),
+                    ("object/bndbox/xmax", "a"),
+                    ("object/bndbox/ymax", "a"),
+                    ("object/part/bndbox/xmin", "a"),
+                    ("object/part/bndbox/ymin", "a"),
+                    ("object/part/bndbox/xmax", "a"),
+                    ("object/part/bndbox/ymax", "a"),
+                    ("size/width", "a"),
+                    ("size/height", "a"),
+                    ("object/occluded", "a"),
+                    ("object/difficult", "a"),
+                    ("object/truncated", "a"),
+                    ("object/point/x", "a"),
+                    ("object/point/y", "a"),
+                    ("object/actions/jumping", "a"),
+                ]:
+                    with self.subTest(key=key):
+                        with TestDir() as test_dir:
+
+                            def mangle_xml(xml: ElementTree.ElementBase):
+                                xml.find(key).text = value
+
+                            self._write_xml_dataset(
+                                test_dir, fmt_dir=fmt_dir, mangle_xml=mangle_xml
+                            )
+
+                            with self.assertRaises(ItemImportError) as capture:
+                                Dataset.import_from(test_dir, format=fmt).init_cache()
+                            self.assertIsInstance(capture.exception.__cause__, InvalidFieldError)
+                            self.assertIn(osp.basename(key), capture.exception.__cause__.name)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_missing_field_in_classification(self):
+        with TestDir() as test_dir:
+            subset_file = osp.join(test_dir, "ImageSets", "Main", "test.txt")
+            os.makedirs(osp.dirname(subset_file))
+            with open(subset_file, "w") as f:
+                f.write("a\n")
+
+            ann_file = osp.join(test_dir, "ImageSets", "Main", "cat_test.txt")
+            with open(ann_file, "w") as f:
+                f.write("a\n")
+
+            with self.assertRaisesRegex(InvalidAnnotationError, "invalid number of fields"):
+                Dataset.import_from(test_dir, format="voc_classification").init_cache()
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_annotation_value_in_classification(self):
+        with TestDir() as test_dir:
+            subset_file = osp.join(test_dir, "ImageSets", "Main", "test.txt")
+            os.makedirs(osp.dirname(subset_file))
+            with open(subset_file, "w") as f:
+                f.write("a\n")
+
+            ann_file = osp.join(test_dir, "ImageSets", "Main", "cat_test.txt")
+            with open(ann_file, "w") as f:
+                f.write("a 3\n")
+
+            with self.assertRaisesRegex(InvalidAnnotationError, "unexpected class existence value"):
+                Dataset.import_from(test_dir, format="voc_classification").init_cache()
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_label_in_segmentation_cls_mask(self):
+        with TestDir() as test_dir:
+            subset_file = osp.join(test_dir, "ImageSets", "Segmentation", "test.txt")
+            os.makedirs(osp.dirname(subset_file))
+            with open(subset_file, "w") as f:
+                f.write("a\n")
+
+            ann_file = osp.join(test_dir, "SegmentationClass", "a.png")
+            os.makedirs(osp.dirname(ann_file))
+            save_image(ann_file, np.array([[30]], dtype=np.uint8))
+
+            with self.assertRaises(AnnotationImportError) as capture:
+                Dataset.import_from(test_dir, format="voc_segmentation").init_cache()
+            self.assertIsInstance(capture.exception.__cause__, UndeclaredLabelError)
+            self.assertEqual(capture.exception.__cause__.id, "30")
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_report_invalid_label_in_segmentation_both_masks(self):
+        with TestDir() as test_dir:
+            subset_file = osp.join(test_dir, "ImageSets", "Segmentation", "test.txt")
+            os.makedirs(osp.dirname(subset_file))
+            with open(subset_file, "w") as f:
+                f.write("a\n")
+
+            cls_file = osp.join(test_dir, "SegmentationClass", "a.png")
+            os.makedirs(osp.dirname(cls_file))
+            save_image(cls_file, np.array([[30]], dtype=np.uint8))
+
+            inst_file = osp.join(test_dir, "SegmentationObject", "a.png")
+            os.makedirs(osp.dirname(inst_file))
+            save_image(inst_file, np.array([[1]], dtype=np.uint8))
+
+            with self.assertRaises(AnnotationImportError) as capture:
+                Dataset.import_from(test_dir, format="voc_segmentation").init_cache()
+            self.assertIsInstance(capture.exception.__cause__, UndeclaredLabelError)
+            self.assertEqual(capture.exception.__cause__.id, "30")
 
 
 class VocConverterTest(TestCase):
