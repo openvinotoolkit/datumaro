@@ -14,7 +14,7 @@ from ..requirements import Requirements, mark_requirement
 class DownloadTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_download(self):
-        with TestDir() as test_dir, mock_tfds_data():
+        with TestDir() as test_dir, mock_tfds_data(subsets=("train", "val")):
             expected_dataset = Dataset(AVAILABLE_TFDS_DATASETS["mnist"].make_extractor())
 
             run(self, "download", "-i", "tfds:mnist", "-o", test_dir, "--", "--save-media")
@@ -79,4 +79,48 @@ class DownloadTest(TestCase):
                 "--overwrite",
                 "--",
                 "--save-media",
+            )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_download_subset(self):
+        with TestDir() as test_dir, mock_tfds_data(subsets=("train", "val")):
+            expected_dataset = Dataset(
+                AVAILABLE_TFDS_DATASETS["mnist"].make_extractor().get_subset("train")
+            )
+
+            run(
+                self,
+                "download",
+                "-i",
+                "tfds:mnist",
+                "-f",
+                "datumaro",
+                "-o",
+                test_dir,
+                "-s",
+                "train",
+                "--",
+                "--save-media",
+            )
+
+            actual_dataset = Dataset.load(test_dir)
+            compare_datasets(self, expected_dataset, actual_dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_download_invalid_subset(self):
+        with TestDir() as test_dir, mock_tfds_data(subsets=("train", "val")):
+            run(
+                self,
+                "download",
+                "-i",
+                "tfds:mnist",
+                "-f",
+                "datumaro",
+                "-o",
+                test_dir,
+                "-s",
+                "test",
+                "--",
+                "--save-media",
+                expected_code=1,
             )
