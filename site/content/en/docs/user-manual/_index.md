@@ -25,6 +25,7 @@ weight: 3
   - [Commit](./command-reference/commit)
   - [Convert](./command-reference/convert)
   - [Create](./command-reference/create)
+  - [Describe downloads](./command-reference/describe-downloads)
   - [Detect format](./command-reference/detect-format)
   - [Diff](./command-reference/diff)
   - [Download](./command-reference/download)

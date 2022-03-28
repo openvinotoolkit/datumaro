@@ -15,8 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
 - BraTS format (import-only) (.npy and .nii.gz), new `MultiframeImage`
   media type (<https://github.com/openvinotoolkit/datumaro/pull/628>)
+- Common Semantic Segmentation dataset format (import-only)
+  (<https://github.com/openvinotoolkit/datumaro/pull/685>)
 - An option to disable `data/` prefix inclusion in YOLO export
   (<https://github.com/openvinotoolkit/datumaro/pull/689>)
+- New command `describe-downloads` to print information about downloadable datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/678>)
 
 ### Changed
 - TBD

@@ -340,6 +340,15 @@ class DatasetStorage(IDataset):
                 pass
 
     def _iter_init_cache(self) -> Iterable[DatasetItem]:
+        try:
+            # Can't just return from the method, because it won't add exception handling
+            # It covers cases when we save the null error handler in the source
+            for item in self._iter_init_cache_unchecked():
+                yield item
+        except _ImportFail as e:
+            raise e.__cause__
+
+    def _iter_init_cache_unchecked(self) -> Iterable[DatasetItem]:
         # Merges the source, source transforms and patch, caches the result
         # and provides an iterator for the resulting item sequence.
         #

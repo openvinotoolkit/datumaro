@@ -4,11 +4,26 @@
 
 import logging as log
 import os.path as osp
+from typing import List, Optional, Tuple, Type, TypeVar
 
 import numpy as np
 from defusedxml import ElementTree
 
-from datumaro.components.annotation import AnnotationType, Bbox, CompiledMask, Label, Mask
+from datumaro.components.annotation import (
+    Annotation,
+    AnnotationType,
+    Bbox,
+    CompiledMask,
+    Label,
+    Mask,
+)
+from datumaro.components.errors import (
+    DatasetImportError,
+    InvalidAnnotationError,
+    InvalidFieldError,
+    MissingFieldError,
+    UndeclaredLabelError,
+)
 from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
@@ -26,12 +41,16 @@ from .format import (
 
 _inverse_inst_colormap = invert_colormap(VocInstColormap)
 
+T = TypeVar("T")
+
 
 class _VocExtractor(SourceExtractor):
     def __init__(self, path, task, **kwargs):
-        assert osp.isfile(path), path
+        if not osp.isfile(path):
+            raise DatasetImportError(f"Can't find txt subset list file at '{path}'")
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(osp.dirname(path)))
+
         self._task = task
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0], **kwargs)
@@ -42,20 +61,21 @@ class _VocExtractor(SourceExtractor):
             label_idx, None
         )
         log.debug(
-            "Loaded labels: %s"
-            % ", ".join(
+            "Loaded labels: %s",
+            ", ".join(
                 "'%s' %s" % (l.name, ("(%s, %s, %s)" % c) if c else "")
                 for i, l, c in (
                     (i, l, label_color(i))
                     for i, l in enumerate(self._categories[AnnotationType.label].items)
                 )
-            )
+            ),
         )
         self._items = {item: None for item in self._load_subset_list(path)}
 
-    def _get_label_id(self, label):
+    def _get_label_id(self, label: str) -> int:
         label_id, _ = self._categories[AnnotationType.label].find(label)
-        assert label_id is not None, label
+        if label_id is None:
+            raise UndeclaredLabelError(label)
         return label_id
 
     def _load_categories(self, dataset_path):
@@ -72,9 +92,9 @@ class _VocExtractor(SourceExtractor):
     def _load_subset_list(self, subset_path):
         subset_list = []
         with open(subset_path, encoding="utf-8") as f:
-            for line in f:
+            for i, line in enumerate(f):
                 line = line.strip()
-                if not line or line and line[0] == "#":
+                if not line or line[0] == "#":
                     continue
 
                 if self._task == VocTask.person_layout:
@@ -83,8 +103,9 @@ class _VocExtractor(SourceExtractor):
                         if len(objects) == 3:
                             line = objects[1]
                         else:
-                            raise ValueError(
-                                "Line %s: unexpected number " "of quotes in filename" % line
+                            raise InvalidAnnotationError(
+                                f"{osp.basename(subset_path)}:{i+1}: "
+                                "unexpected number of quotes in filename, expected 0 or 2"
                             )
                     else:
                         line = line.split()[0]
@@ -113,7 +134,7 @@ class VocClassificationExtractor(_VocExtractor):
         for item_id in self._ctx.progress_reporter.iter(
             self._items, desc=f"Parsing labels in '{self._subset}'"
         ):
-            log.debug("Reading item '%s'" % item_id)
+            log.debug("Reading item '%s'", item_id)
             image = images.get(item_id)
             if image:
                 image = Image(path=image)
@@ -130,12 +151,25 @@ class VocClassificationExtractor(_VocExtractor):
                 continue
 
             with open(ann_file, encoding="utf-8") as f:
-                for line in f:
+                for i, line in enumerate(f):
                     line = line.strip()
                     if not line or line[0] == "#":
                         continue
 
-                    item, present = line.rsplit(maxsplit=1)
+                    parts = line.rsplit(maxsplit=1)
+                    if len(parts) != 2:
+                        raise InvalidAnnotationError(
+                            f"{osp.basename(ann_file)}:{i+1}: "
+                            "invalid number of fields in line, expected 2"
+                        )
+
+                    item, present = parts
+                    if present not in ["-1", "1"]:
+                        raise InvalidAnnotationError(
+                            f"{osp.basename(ann_file)}:{i+1}: "
+                            f"unexpected class existence value '{present}', expected -1 or 1"
+                        )
+
                     if present == "1":
                         annotations.setdefault(item, []).append(Label(label_id))
 
@@ -163,116 +197,149 @@ class _VocXmlExtractor(_VocExtractor):
 
             try:
                 anns = []
+                image = None
+
                 ann_file = osp.join(anno_dir, item_id + ".xml")
                 if osp.isfile(ann_file):
-                    root_elem = ElementTree.parse(ann_file)
-                    height = root_elem.find("size/height")
-                    if height is not None:
-                        height = int(height.text)
-                    width = root_elem.find("size/width")
-                    if width is not None:
-                        width = int(width.text)
+                    root_elem = ElementTree.parse(ann_file).getroot()
+                    if root_elem.tag != "annotation":
+                        raise MissingFieldError("annotation")
+
+                    height = self._parse_field(root_elem, "size/height", int, required=False)
+                    width = self._parse_field(root_elem, "size/width", int, required=False)
                     if height and width:
                         size = (height, width)
+
                     filename_elem = root_elem.find("filename")
                     if filename_elem is not None:
                         image = osp.join(image_dir, filename_elem.text)
-                    anns = self._parse_annotations(root_elem)
-                else:
+
+                    anns = self._parse_annotations(root_elem, item_id=(item_id, self._subset))
+
+                if image is None:
                     image = images.pop(item_id, None)
 
                 if image or size:
                     image = Image(path=image, size=size)
 
                 yield DatasetItem(id=item_id, subset=self._subset, media=image, annotations=anns)
+            except ElementTree.ParseError as e:
+                readable_wrapper = InvalidAnnotationError("Failed to parse XML file")
+                readable_wrapper.__cause__ = e
+                self._ctx.error_policy.report_item_error(
+                    readable_wrapper, item_id=(item_id, self._subset)
+                )
             except Exception as e:
-                self._report_item_error(e, item_id=(item_id, self._subset))
+                self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
 
-    def _parse_annotations(self, root_elem):
+    @staticmethod
+    def _parse_field(root, xpath: str, cls: Type[T] = str, required: bool = True) -> Optional[T]:
+        elem = root.find(xpath)
+        if elem is None:
+            if required:
+                raise MissingFieldError(xpath)
+            else:
+                return None
+
+        if cls is str:
+            return elem.text
+
+        try:
+            return cls(elem.text)
+        except Exception as e:
+            raise InvalidFieldError(xpath) from e
+
+    @staticmethod
+    def _parse_bool_field(root, xpath: str, default: bool = False) -> Optional[bool]:
+        elem = root.find(xpath)
+        if elem is None:
+            return default
+
+        if elem.text not in ["0", "1"]:
+            raise InvalidFieldError(xpath)
+        return elem.text == "1"
+
+    def _parse_annotations(self, root_elem, *, item_id: Tuple[str, str]) -> List[Annotation]:
         item_annotations = []
 
-        for obj_id, object_elem in enumerate(root_elem.findall("object")):
-            obj_id += 1
-            attributes = {}
-            group = obj_id
+        for obj_id, object_elem in enumerate(root_elem.iterfind("object")):
+            try:
+                obj_id += 1
+                attributes = {}
+                group = obj_id
 
-            obj_label_id = None
-            label_elem = object_elem.find("name")
-            if label_elem is not None:
-                obj_label_id = self._get_label_id(label_elem.text)
+                obj_label_id = self._get_label_id(self._parse_field(object_elem, "name"))
 
-            obj_bbox = self._parse_bbox(object_elem)
+                obj_bbox = self._parse_bbox(object_elem)
 
-            if obj_label_id is None or obj_bbox is None:
-                continue
+                for key in ["difficult", "truncated", "occluded"]:
+                    attributes[key] = self._parse_bool_field(object_elem, key, default=False)
 
-            difficult_elem = object_elem.find("difficult")
-            attributes["difficult"] = difficult_elem is not None and difficult_elem.text == "1"
+                pose_elem = object_elem.find("pose")
+                if pose_elem is not None:
+                    attributes["pose"] = pose_elem.text
 
-            truncated_elem = object_elem.find("truncated")
-            attributes["truncated"] = truncated_elem is not None and truncated_elem.text == "1"
+                point_elem = object_elem.find("point")
+                if point_elem is not None:
+                    point_x = self._parse_field(point_elem, "x", float)
+                    point_y = self._parse_field(point_elem, "y", float)
+                    attributes["point"] = (point_x, point_y)
 
-            occluded_elem = object_elem.find("occluded")
-            attributes["occluded"] = occluded_elem is not None and occluded_elem.text == "1"
+                actions_elem = object_elem.find("actions")
+                actions = {
+                    a: False
+                    for a in self._categories[AnnotationType.label].items[obj_label_id].attributes
+                }
+                if actions_elem is not None:
+                    for action_elem in actions_elem:
+                        actions[action_elem.tag] = self._parse_bool_field(
+                            actions_elem, action_elem.tag
+                        )
+                for action, present in actions.items():
+                    attributes[action] = present
 
-            pose_elem = object_elem.find("pose")
-            if pose_elem is not None:
-                attributes["pose"] = pose_elem.text
+                has_parts = False
+                for part_elem in object_elem.findall("part"):
+                    part_label_id = self._get_label_id(self._parse_field(part_elem, "name"))
+                    part_bbox = self._parse_bbox(part_elem)
 
-            point_elem = object_elem.find("point")
-            if point_elem is not None:
-                point_x = point_elem.find("x")
-                point_y = point_elem.find("y")
-                point = [float(point_x.text), float(point_y.text)]
-                attributes["point"] = point
+                    if self._task is not VocTask.person_layout:
+                        break
+                    has_parts = True
+                    item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
 
-            actions_elem = object_elem.find("actions")
-            actions = {
-                a: False
-                for a in self._categories[AnnotationType.label].items[obj_label_id].attributes
-            }
-            if actions_elem is not None:
-                for action_elem in actions_elem:
-                    actions[action_elem.tag] = action_elem.text == "1"
-            for action, present in actions.items():
-                attributes[action] = present
+                attributes_elem = object_elem.find("attributes")
+                if attributes_elem is not None:
+                    for attr_elem in attributes_elem.iter("attribute"):
+                        attributes[self._parse_field(attr_elem, "name")] = self._parse_field(
+                            attr_elem, "value"
+                        )
 
-            has_parts = False
-            for part_elem in object_elem.findall("part"):
-                part = part_elem.find("name").text
-                part_label_id = self._get_label_id(part)
-                part_bbox = self._parse_bbox(part_elem)
-
-                if self._task is not VocTask.person_layout:
-                    break
-                if part_bbox is None:
+                if self._task is VocTask.person_layout and not has_parts:
                     continue
-                has_parts = True
-                item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
+                if self._task is VocTask.action_classification and not actions:
+                    continue
 
-            attributes_elem = object_elem.find("attributes")
-            if attributes_elem is not None:
-                for attr_elem in attributes_elem.iter("attribute"):
-                    attributes[attr_elem.find("name").text] = attr_elem.find("value").text
-
-            if self._task is VocTask.person_layout and not has_parts:
-                continue
-            if self._task is VocTask.action_classification and not actions:
-                continue
-
-            item_annotations.append(
-                Bbox(*obj_bbox, label=obj_label_id, attributes=attributes, id=obj_id, group=group)
-            )
+                item_annotations.append(
+                    Bbox(
+                        *obj_bbox, label=obj_label_id, attributes=attributes, id=obj_id, group=group
+                    )
+                )
+            except Exception as e:
+                self._ctx.error_policy.report_annotation_error(e, item_id=item_id)
 
         return item_annotations
 
-    @staticmethod
-    def _parse_bbox(object_elem):
+    @classmethod
+    def _parse_bbox(cls, object_elem):
         bbox_elem = object_elem.find("bndbox")
-        xmin = float(bbox_elem.find("xmin").text)
-        xmax = float(bbox_elem.find("xmax").text)
-        ymin = float(bbox_elem.find("ymin").text)
-        ymax = float(bbox_elem.find("ymax").text)
+        if not bbox_elem:
+            raise MissingFieldError("bndbox")
+
+        xmin = cls._parse_field(bbox_elem, "xmin", float)
+        xmax = cls._parse_field(bbox_elem, "xmax", float)
+        ymin = cls._parse_field(bbox_elem, "ymin", float)
+        ymax = cls._parse_field(bbox_elem, "ymax", float)
         return [xmin, ymin, xmax - xmin, ymax - ymin]
 
 
@@ -308,7 +375,7 @@ class VocSegmentationExtractor(_VocExtractor):
         for item_id in self._ctx.progress_reporter.iter(
             self._items, desc=f"Parsing segmentation in '{self._subset}'"
         ):
-            log.debug("Reading item '%s'" % item_id)
+            log.debug("Reading item '%s'", item_id)
 
             image = images.get(item_id)
             if image:
@@ -322,7 +389,7 @@ class VocSegmentationExtractor(_VocExtractor):
                     annotations=self._load_annotations(item_id),
                 )
             except Exception as e:
-                self._report_item_error(e, item_id=(item_id, self._subset))
+                self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
 
     @staticmethod
     def _lazy_extract_mask(mask, c):
@@ -344,10 +411,10 @@ class VocSegmentationExtractor(_VocExtractor):
         if osp.isfile(inst_path):
             instances_mask = lazy_mask(inst_path, _inverse_inst_colormap)
 
+        label_cat = self._categories[AnnotationType.label]
+
         if instances_mask is not None:
             compiled_mask = CompiledMask(class_mask, instances_mask)
-
-            label_cat = self._categories[AnnotationType.label]
 
             if class_mask is not None:
                 instance_labels = compiled_mask.get_instance_labels()
@@ -356,19 +423,24 @@ class VocSegmentationExtractor(_VocExtractor):
 
             for instance_id, label_id in instance_labels.items():
                 if len(label_cat) <= label_id:
-                    raise Exception(
-                        "Item %s: a mask has unexpected class number %s" % (item_id, label_id)
+                    self._ctx.error_policy.report_annotation_error(
+                        UndeclaredLabelError(str(label_id)), item_id=(item_id, self._subset)
                     )
 
                 image = compiled_mask.lazy_extract(instance_id)
 
                 item_annotations.append(Mask(image=image, label=label_id, group=instance_id))
         elif class_mask is not None:
-            log.warning("Item %s: only class segmentations available" % item_id)
+            log.warning("Item %s: only class segmentations available", item_id)
 
             class_mask = class_mask()
             classes = np.unique(class_mask)
             for label_id in classes:
+                if len(label_cat) <= label_id:
+                    self._ctx.error_policy.report_annotation_error(
+                        UndeclaredLabelError(str(label_id)), item_id=(item_id, self._subset)
+                    )
+
                 image = self._lazy_extract_mask(class_mask, label_id)
                 item_annotations.append(Mask(image=image, label=label_id))
 
