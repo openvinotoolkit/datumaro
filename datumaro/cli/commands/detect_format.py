@@ -8,7 +8,7 @@ from datumaro.cli.util import MultilineFormatter
 from datumaro.cli.util.project import load_project
 from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.components.format_detection import RejectionReason, detect_dataset_format
+from datumaro.components.format_detection import RejectionReason
 from datumaro.util import dump_json_file
 from datumaro.util.scope import scope_add, scoped
 
@@ -53,6 +53,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Path to which to save a JSON report describing detected "
         "and rejected formats. By default, no report is saved.",
     )
+    parser.add_argument("--depth", help="The maximum depth for recursive search (default: 2) ")
     parser.set_defaults(command=detect_format_command)
 
     return parser
@@ -90,10 +91,9 @@ def detect_format_command(args):
             "message": human_message,
         }
 
-    detected_formats = detect_dataset_format(
-        ((format_name, importer.detect) for format_name, importer in env.importers.items.items()),
-        args.url,
-        rejection_callback=rejection_callback,
+    depth = 2 if not args.depth else int(args.depth)
+    detected_formats = env.detect_dataset(
+        args.url, rejection_callback=rejection_callback, depth=depth
     )
     report["detected_formats"] = detected_formats
 

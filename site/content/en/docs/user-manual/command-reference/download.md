@@ -25,8 +25,8 @@ To use a proxy for downloading, configure it with the conventional
 Usage:
 
 ``` bash
-datum download [-h] -i DATASET_ID [-f OUTPUT_FORMAT] [-o DST_DIR] [--overwrite]
-  [-- EXTRA_EXPORT_ARGS]
+datum download [-h] -i DATASET_ID [-f OUTPUT_FORMAT] [-o DST_DIR]
+               [--overwrite] [-s SUBSET] [-- EXTRA_EXPORT_ARGS]
 ```
 
 Parameters:
@@ -39,6 +39,9 @@ Parameters:
   in the current directory is used.
 - `--overwrite` - Allows overwriting existing files in the output directory,
   when it is not empty.
+- `--subset` (string) - Which subset of the dataset to save. By default, all
+  subsets are saved. Note that due to limitations of TFDS, all subsets are
+  downloaded even if this option is specified.
 - `-- <extra export args>` - Additional arguments for the format writer
   (use `-- -h` for help). Must be specified after the main command arguments.
 

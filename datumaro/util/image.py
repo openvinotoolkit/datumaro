@@ -287,7 +287,8 @@ class lazy_image:
         return cache
 
 
-ImageMeta = Dict[str, Tuple[int, int]]  # filename, height, width
+ImageMeta = Dict[str, Tuple[int, int]]
+"""filename -> height, width"""
 
 DEFAULT_IMAGE_META_FILE_NAME = "images.meta"
 

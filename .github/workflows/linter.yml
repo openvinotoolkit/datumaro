@@ -50,7 +50,7 @@ jobs:
         run: |
           pip install --user -r <(grep "^pylint" ./requirements.txt)
           echo "Pylint version: "`pylint --version | head -1`
-          git ls-files -z '*.py' | xargs -0 pylint -j 0 -r n
+          git ls-files -z '*.py' | xargs -0 pylint
   remark:
     runs-on: ubuntu-latest
     steps:
