@@ -14,11 +14,7 @@ from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import generate_colormap, lazy_mask
-from datumaro.util.meta_file_util import (
-    DATASET_META_FILE,
-    is_meta_file,
-    parse_meta_file,
-)
+from datumaro.util.meta_file_util import DATASET_META_FILE, is_meta_file, parse_meta_file
 
 
 class CommonSemanticSegmentationPath:

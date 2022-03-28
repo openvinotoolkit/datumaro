@@ -3,7 +3,7 @@ from unittest import TestCase
 from unittest.case import skipIf
 
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor_tfds import TFDS_EXTRACTOR_AVAILABLE, make_tfds_extractor
+from datumaro.components.extractor_tfds import AVAILABLE_TFDS_DATASETS, TFDS_EXTRACTOR_AVAILABLE
 from datumaro.util.test_utils import TestDir, compare_datasets, mock_tfds_data
 from datumaro.util.test_utils import run_datum as run
 
@@ -15,7 +15,7 @@ class DownloadTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_download(self):
         with TestDir() as test_dir, mock_tfds_data():
-            expected_dataset = Dataset(make_tfds_extractor("mnist"))
+            expected_dataset = Dataset(AVAILABLE_TFDS_DATASETS["mnist"].make_extractor())
 
             run(self, "download", "-i", "tfds:mnist", "-o", test_dir, "--", "--save-media")
 
@@ -25,7 +25,7 @@ class DownloadTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_download_custom_format(self):
         with TestDir() as test_dir, mock_tfds_data():
-            expected_dataset = Dataset(make_tfds_extractor("mnist"))
+            expected_dataset = Dataset(AVAILABLE_TFDS_DATASETS["mnist"].make_extractor())
 
             run(
                 self,

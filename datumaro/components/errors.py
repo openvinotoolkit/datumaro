@@ -228,7 +228,7 @@ class InvalidFieldTypeError(InvalidFieldError):
             expected = self.expected[0]
         else:
             expected = "one of " + ", ".join(self.expected)
-        return f"Invalid annotation field '{self.name}' type '{self.actual}'. Expected '{expected}'"
+        return f"Invalid annotation field '{self.name}' type '{self.actual}'. Expected {expected}"
 
 
 @define(auto_exc=False)
@@ -262,12 +262,12 @@ class ItemImportError(DatasetImportError):
     """
 
     def __str__(self):
-        return f"Failed to import item {self.item_id}"
+        return f"Failed to import item {self.item_id}: {self.__cause__}"
 
 
 class AnnotationImportError(ItemImportError):
     def __str__(self):
-        return f"Failed to import item {self.item_id} annotation"
+        return f"Failed to import item {self.item_id} annotation: {self.__cause__}"
 
 
 @define(auto_exc=False)
