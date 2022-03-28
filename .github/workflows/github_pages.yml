@@ -30,9 +30,15 @@ jobs:
         run: |
           npm ci
 
-      - name: Build docs
+      # The pip upgrade must be in a separate step, because otherwise bash will
+      # remember where the system-installed pip was, and will use it in any following
+      # commands instead of the newly-installed pip.
+      - name: Upgrade pip
         run: |
           pip install --upgrade pip
+
+      - name: Build docs
+        run: |
           pip install gitpython packaging toml Sphinx==4.2.0 sphinx-rtd-theme==1.0.0 sphinx-copybutton==0.4.0 \
             tensorflow openvino-dev sphinxcontrib-mermaid
           pip install -r requirements.txt
