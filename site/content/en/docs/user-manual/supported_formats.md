@@ -118,6 +118,9 @@ List of supported formats:
   - [Format specification](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/voc_dataset)
   - [Format documentation](/docs/formats/pascal_voc)
+- Super Resolution
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/super_resolution_dataset)
+  - [Format documentation](/docs/formats/super_resolution)
 - Supervisely (`pointcloud`)
   - [Format specification](https://docs.supervise.ly/data-organization/00_ann_format_navi)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/sly_pointcloud_dataset)
