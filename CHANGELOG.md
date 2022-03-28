@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/680>)
 - Maximum recursion `--depth` parameter for `detect-dataset` CLI command
   (<https://github.com/openvinotoolkit/datumaro/pull/680>)
-  
+
 ### Changed
 - `env.detect_dataset()` now returns a list of detected formats at all recursion levels
   instead of just the lowest one
