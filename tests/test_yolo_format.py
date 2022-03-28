@@ -262,6 +262,36 @@ class YoloConvertertTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_609)
+    def test_can_save_and_load_without_path_prefix(self):
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=3,
+                    subset="valid",
+                    media=Image(data=np.ones((8, 8, 3))),
+                    annotations=[
+                        Bbox(0, 1, 5, 2, label=2),
+                    ],
+                ),
+            ],
+            categories=["a", "b"],
+        )
+
+        with TestDir() as test_dir:
+            YoloConverter.convert(source_dataset, test_dir, save_media=True, add_path_prefix=False)
+            parsed_dataset = Dataset.import_from(test_dir, "yolo")
+
+            with open(osp.join(test_dir, "obj.data"), "r") as f:
+                lines = f.readlines()
+                self.assertIn("valid = valid.txt\n", lines)
+
+            with open(osp.join(test_dir, "valid.txt"), "r") as f:
+                lines = f.readlines()
+                self.assertIn("obj_valid_data/3.jpg\n", lines)
+
+            compare_datasets(self, source_dataset, parsed_dataset)
+
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "yolo_dataset")
 
