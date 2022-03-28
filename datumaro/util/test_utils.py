@@ -314,7 +314,7 @@ def run_datum(test, *args, expected_code=0):
 
 
 @contextlib.contextmanager
-def mock_tfds_data(example=None):
+def mock_tfds_data(example=None, subsets=("train",)):
     import tensorflow as tf
     import tensorflow_datasets as tfds
 
@@ -341,8 +341,9 @@ def mock_tfds_data(example=None):
                 tfds.core.SplitDict(
                     [
                         tfds.core.SplitInfo(
-                            name="train", shard_lengths=[NUM_EXAMPLES], num_bytes=1234
-                        ),
+                            name=subset_name, shard_lengths=[NUM_EXAMPLES], num_bytes=1234
+                        )
+                        for subset_name in subsets
                     ],
                     dataset_name=self.name,
                 ),
