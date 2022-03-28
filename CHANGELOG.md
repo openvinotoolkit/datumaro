@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/680>)
 - An option to save a single subset in the `download` command
   (<https://github.com/openvinotoolkit/datumaro/pull/697>)
+- Super resolution dataset format (import-only)
+  (<https://github.com/openvinotoolkit/datumaro/pull/700>)
 
 ### Changed
 - `env.detect_dataset()` now returns a list of detected formats at all recursion levels
