@@ -303,7 +303,7 @@ class YoloImporterTest(TestCase):
 
 
 class YoloExtractorTest(TestCase):
-    def _prepare_dataset(self, path):
+    def _prepare_dataset(self, path: str) -> Dataset:
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -317,10 +317,20 @@ class YoloExtractorTest(TestCase):
         )
         dataset.export(path, "yolo", save_images=True)
 
+        return dataset
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_parse(self):
+        with TestDir() as test_dir:
+            expected = self._prepare_dataset(test_dir)
+
+            actual = Dataset.import_from(test_dir, "yolo")
+            compare_datasets(self, expected, actual)
+
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_data_file(self):
         with TestDir() as test_dir:
-            with self.assertRaisesRegex(DatasetImportError, "Can't read dataset"):
+            with self.assertRaisesRegex(DatasetImportError, "Can't read dataset descriptor file"):
                 YoloExtractor(test_dir)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
