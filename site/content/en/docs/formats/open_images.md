@@ -191,6 +191,8 @@ The mask images must be extracted from the ZIP archives linked above.
 
 To use per-subset image description files instead of `image_ids_and_rotation.csv`,
 place them in the `annotations` subdirectory.
+The `annotations` directory is optional and you can store all annotation files
+in the root of input path.
 
 To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
