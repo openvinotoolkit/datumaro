@@ -116,7 +116,7 @@ class YoloExtractor(SourceExtractor):
         Removes the "data/" prefix from the path
         """
 
-        path = osp.normpath(path.strip()).replace('\\', '/')
+        path = osp.normpath(path.strip()).replace("\\", "/")
         default_base = "data/"
         if path.startswith(default_base):
             path = path[len(default_base) :]
