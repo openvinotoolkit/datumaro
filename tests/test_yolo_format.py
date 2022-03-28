@@ -271,7 +271,7 @@ class YoloConvertertTest(TestCase):
                     subset="valid",
                     media=Image(data=np.ones((8, 8, 3))),
                     annotations=[
-                        Bbox(0, 1, 5, 2, label=2),
+                        Bbox(0, 1, 5, 2, label=1),
                     ],
                 ),
             ],
