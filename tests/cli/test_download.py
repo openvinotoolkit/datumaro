@@ -17,7 +17,14 @@ class DownloadTest(TestCase):
         with TestDir() as test_dir, mock_tfds_data(subsets=("train", "val")):
             expected_dataset = Dataset(AVAILABLE_TFDS_DATASETS["mnist"].make_extractor())
 
-            run(self, "download", "-i", "tfds:mnist", "-o", test_dir, "--", "--save-media")
+            run(
+                self,
+                "download",
+                "--dataset-id=tfds:mnist",
+                f"--output-dir={test_dir}",
+                "--",
+                "--save-media",
+            )
 
             actual_dataset = Dataset.import_from(test_dir, "mnist")
             compare_datasets(self, expected_dataset, actual_dataset, require_media=True)
@@ -30,12 +37,9 @@ class DownloadTest(TestCase):
             run(
                 self,
                 "download",
-                "-i",
-                "tfds:mnist",
-                "-f",
-                "datumaro",
-                "-o",
-                test_dir,
+                "--dataset-id=tfds:mnist",
+                "--output-format=datumaro",
+                f"--output-dir={test_dir}",
                 "--",
                 "--save-media",
             )
@@ -52,12 +56,9 @@ class DownloadTest(TestCase):
             run(
                 self,
                 "download",
-                "-i",
-                "tfds:mnist",
-                "-f",
-                "datumaro",
-                "-o",
-                test_dir,
+                "--dataset-id=tfds:mnist",
+                "--output-format=datumaro",
+                f"--output-dir={test_dir}",
                 expected_code=1,
             )
 
@@ -70,12 +71,9 @@ class DownloadTest(TestCase):
             run(
                 self,
                 "download",
-                "-i",
-                "tfds:mnist",
-                "-f",
-                "datumaro",
-                "-o",
-                test_dir,
+                "--dataset-id=tfds:mnist",
+                "--output-format=datumaro",
+                f"--output-dir={test_dir}",
                 "--overwrite",
                 "--",
                 "--save-media",
@@ -91,14 +89,10 @@ class DownloadTest(TestCase):
             run(
                 self,
                 "download",
-                "-i",
-                "tfds:mnist",
-                "-f",
-                "datumaro",
-                "-o",
-                test_dir,
-                "-s",
-                "train",
+                "--dataset-id=tfds:mnist",
+                "--output-format=datumaro",
+                f"--output-dir={test_dir}",
+                "--subset=train",
                 "--",
                 "--save-media",
             )
@@ -112,15 +106,9 @@ class DownloadTest(TestCase):
             run(
                 self,
                 "download",
-                "-i",
-                "tfds:mnist",
-                "-f",
-                "datumaro",
-                "-o",
-                test_dir,
-                "-s",
-                "test",
-                "--",
-                "--save-media",
+                "--dataset-id=tfds:mnist",
+                "--output-format=datumaro",
+                f"--output-dir={test_dir}",
+                "--subset=test",
                 expected_code=1,
             )
