@@ -1,24 +1,18 @@
 import os.path as osp
-from collections import OrderedDict
 from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.annotation import Mask
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.super_resolution_format import (
-    SuperResolutionImporter,
-)
+from datumaro.plugins.super_resolution_format import SuperResolutionImporter
 from datumaro.util.test_utils import compare_datasets
 
 from .requirements import Requirements, mark_requirement
 
-DUMMY_DATASET_DIR = osp.join(
-    osp.dirname(__file__), "assets", "super_resolution_dataset"
-)
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "super_resolution_dataset")
 
 
 class SuperResolutionImporterTest(TestCase):
@@ -35,17 +29,17 @@ class SuperResolutionImporterTest(TestCase):
                     id="1",
                     media=Image(data=np.ones((3, 4, 3))),
                     attributes={
-                        "hr": Image(data=np.ones((3, 4, 3))),
-                        "upsampled": Image(data=np.ones((3, 4, 3))),
-                    }
+                        "hr": Image(data=np.ones((10, 20, 3))),
+                        "upsampled": Image(data=np.ones((10, 20, 3))),
+                    },
                 ),
                 DatasetItem(
                     id="2",
                     media=Image(data=np.ones((3, 4, 3))),
                     attributes={
-                        "hr": Image(data=np.ones((3, 4, 3))),
-                        "upsampled": Image(data=np.ones((3, 4, 3))),
-                    }
+                        "hr": Image(data=np.ones((10, 20, 3))),
+                        "upsampled": Image(data=np.ones((10, 20, 3))),
+                    },
                 ),
             ]
         )
