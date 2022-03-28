@@ -21,7 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/678>)
 
 ### Changed
-- TBD
+- Improved parsing error messages in COCO, VOC and YOLO formats
+  (<https://github.com/openvinotoolkit/datumaro/pull/684>,
+   <https://github.com/openvinotoolkit/datumaro/pull/686>,
+   <https://github.com/openvinotoolkit/datumaro/pull/687>)
 
 ### Deprecated
 - `--save-images` is replaced with `--save-media` in CLI and converter API
