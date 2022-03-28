@@ -4,7 +4,7 @@
 
 import os.path as osp
 from inspect import isclass
-from typing import Any, Dict, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, Tuple, Type, TypeVar, Union, overload
 
 import pycocotools.mask as mask_utils
 from attrs import define
@@ -283,13 +283,21 @@ class _CocoExtractor(SourceExtractor):
             raise UndeclaredLabelError(str(cat_id))
         return label_id
 
+    @overload
+    def _parse_field(self, ann: Dict[str, Any], key: str, cls: Type[T]) -> T:
+        ...
+
+    @overload
+    def _parse_field(self, ann: Dict[str, Any], key: str, cls: Tuple[Type, ...]) -> Any:
+        ...
+
     def _parse_field(
         self, ann: Dict[str, Any], key: str, cls: Union[Type[T], Tuple[Type, ...]]
-    ) -> T:
+    ) -> Any:
         value = ann.get(key, NOTSET)
         if value is NOTSET:
             raise MissingFieldError(key)
-        elif cls and not isinstance(value, cls):
+        elif not isinstance(value, cls):
             cls = (cls,) if isclass(cls) else cls
             raise InvalidFieldTypeError(
                 key, actual=str(type(value)), expected=tuple(str(t) for t in cls)

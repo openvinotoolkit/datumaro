@@ -1032,6 +1032,7 @@ class CocoExtractorTests(TestCase):
                 ("iscrowd", "a"),
                 ("category_id", "a"),
                 ("bbox", "a"),
+                ("score", "a"),
             ]:
                 with self.subTest(field=field):
                     ann_path = osp.join(test_dir, "ann.json")
