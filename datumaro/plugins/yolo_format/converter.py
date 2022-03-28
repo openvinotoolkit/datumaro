@@ -40,7 +40,7 @@ class YoloConverter(Converter):
             "--add-path-prefix",
             default=True,
             type=str_to_bool,
-            help="Add the 'data' prefix for paths in the dataset info (default: %(default)s)",
+            help="Add the 'data/' prefix for paths in the dataset info (default: %(default)s)",
         )
         return parser
 

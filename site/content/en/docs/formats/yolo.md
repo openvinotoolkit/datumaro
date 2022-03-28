@@ -147,8 +147,8 @@ Extra options for exporting to YOLO format:
   (default: `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting dataset (default: use original or `.jpg`, if none)
-- `--add-path-prefix` whether to include the `data/` path prefix
-  in the annotation files of not (default: `True`)
+- `--add-path-prefix` allows to specify, whether to include the
+  `data/` path prefix in the annotation files or not (default: `True`)
 
 ## Examples
 
