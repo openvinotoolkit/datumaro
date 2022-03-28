@@ -9,9 +9,8 @@ from functools import partial
 from itertools import zip_longest
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
 
-import attr
 import numpy as np
-from attr import asdict, attrs, field
+from attr import asdict, attrs, cmp_using, converters, evolve, field, validators
 from typing_extensions import Literal
 
 from datumaro.util.attrs_util import default_if_none, not_empty
@@ -71,7 +70,7 @@ class Annotation:
 
     def wrap(self, **kwargs):
         "Returns a modified copy of the object"
-        return attr.evolve(self, **kwargs)
+        return evolve(self, **kwargs)
 
 
 @attrs(slots=True, kw_only=True, order=False)
@@ -206,8 +205,9 @@ class MaskCategories(Categories):
         return cls(generate_colormap(size, include_background=include_background))
 
     colormap: Colormap = field(factory=dict, validator=default_if_none(dict))
+
     _inverse_colormap: Optional[Dict[RgbColor, int]] = field(
-        default=None, validator=attr.validators.optional(dict)
+        default=None, validator=validators.optional(dict)
     )
 
     @property
@@ -252,9 +252,7 @@ class Mask(Annotation):
 
     _type = AnnotationType.mask
     _image = field()
-    label: Optional[int] = field(
-        converter=attr.converters.optional(int), default=None, kw_only=True
-    )
+    label: Optional[int] = field(converter=converters.optional(int), default=None, kw_only=True)
     z_order: int = field(default=0, validator=default_if_none(int), kw_only=True)
 
     def __attrs_post_init__(self):
@@ -501,20 +499,24 @@ class CompiledMask:
         return partial(self.extract, instance_id)
 
 
+def _rounding_cmp(a: Iterable[float], b: Iterable[float]) -> bool:
+    if COORDINATE_ROUNDING_DIGITS is not None:
+        return np.allclose(a, b, rtol=0, atol=10**-COORDINATE_ROUNDING_DIGITS)
+    else:
+        return np.array_equal(a, b)
+
+
 @attrs(slots=True, order=False)
 class _Shape(Annotation):
-    # Flattened list of point coordinates
-    points: List[float] = field(
-        converter=lambda x: np.around(x, COORDINATE_ROUNDING_DIGITS).tolist()
-    )
+    points: List[float] = field(converter=list, factory=list, eq=cmp_using(_rounding_cmp))
+    """Flat list of point coordinates [x1,y1, x2,y2, ...]"""
 
-    label: Optional[int] = field(
-        converter=attr.converters.optional(int), default=None, kw_only=True
-    )
+    label: Optional[int] = field(converter=converters.optional(int), default=None, kw_only=True)
 
     z_order: int = field(default=0, validator=default_if_none(int), kw_only=True)
 
-    def get_area(self):
+    def get_area(self) -> float:
+        "Returns the internal area of the figure"
         raise NotImplementedError()
 
     def get_bbox(self) -> Tuple[float, float, float, float]:
@@ -547,26 +549,24 @@ class PolyLine(_Shape):
 @attrs(slots=True, init=False, order=False)
 class Cuboid3d(Annotation):
     _type = AnnotationType.cuboid_3d
-    _points: List[float] = field(default=None)
-    label: Optional[int] = field(
-        converter=attr.converters.optional(int), default=None, kw_only=True
+
+    _points: List[float] = field(
+        factory=lambda: [0, 0, 0, 0, 0, 0, 1, 1, 1], eq=cmp_using(_rounding_cmp)
     )
 
+    label: Optional[int] = field(converter=converters.optional(int), default=None, kw_only=True)
+
     @_points.validator
-    def _points_validator(self, attribute, points):
-        if points is None:
-            points = [0, 0, 0, 0, 0, 0, 1, 1, 1]
-        else:
-            assert len(points) == 3 + 3 + 3, points
-            points = np.around(points, COORDINATE_ROUNDING_DIGITS).tolist()
-        self._points = points
+    def _points_validator(self, attribute, value):
+        assert isinstance(value, list)
+        assert len(value) == 3 + 3 + 3, value
 
     def __init__(self, position, rotation=None, scale=None, **kwargs):
         assert len(position) == 3, position
         if not rotation:
-            rotation = [0] * 3
+            rotation = [0, 0, 0]
         if not scale:
-            scale = [1] * 3
+            scale = [1, 1, 1]
         kwargs.pop("points", None)
         self.__attrs_init__(points=[*position, *rotation, *scale], **kwargs)
 
@@ -576,11 +576,8 @@ class Cuboid3d(Annotation):
         return self._points[0:3]
 
     @position.setter
-    def _set_poistion(self, value):
-        # TODO: fix the issue with separate coordinate rounding:
-        # self.position[0] = 12.345676
-        # - the number assigned won't be rounded.
-        self.position[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
+    def position(self, value):
+        self.position[:] = value
 
     @property
     def rotation(self):
@@ -588,8 +585,8 @@ class Cuboid3d(Annotation):
         return self._points[3:6]
 
     @rotation.setter
-    def _set_rotation(self, value):
-        self.rotation[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
+    def rotation(self, value):
+        self.rotation[:] = value
 
     @property
     def scale(self):
@@ -597,8 +594,8 @@ class Cuboid3d(Annotation):
         return self._points[6:9]
 
     @scale.setter
-    def _set_scale(self, value):
-        self.scale[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
+    def scale(self, value):
+        self.scale[:] = value
 
 
 @attrs(slots=True, order=False)
@@ -606,7 +603,6 @@ class Polygon(_Shape):
     _type = AnnotationType.polygon
 
     def __attrs_post_init__(self):
-        # keep the message on a single line to produce informative output
         assert len(self.points) % 2 == 0 and 3 <= len(self.points) // 2, (
             "Wrong polygon points: %s" % self.points
         )
@@ -662,7 +658,7 @@ class Bbox(_Shape):
     def wrap(item, **kwargs):
         d = {"x": item.x, "y": item.y, "w": item.w, "h": item.h}
         d.update(kwargs)
-        return attr.evolve(item, **d)
+        return evolve(item, **d)
 
 
 @attrs(slots=True, order=False)
@@ -747,16 +743,18 @@ class Points(_Shape):
     @visibility.validator
     def _visibility_validator(self, attribute, visibility):
         if visibility is None:
-            visibility = [self.Visibility.visible] * (len(self.points) // 2)
-        else:
-            for i, v in enumerate(visibility):
-                if not isinstance(v, self.Visibility):
-                    visibility[i] = self.Visibility(v)
+            return
+
+        for i, v in enumerate(visibility):
+            if not isinstance(v, self.Visibility):
+                visibility[i] = self.Visibility(v)
+
         assert len(visibility) == len(self.points) // 2
-        self.visibility = visibility
 
     def __attrs_post_init__(self):
         assert len(self.points) % 2 == 0, self.points
+        if self.visibility is None:
+            self.visibility = [self.Visibility.visible] * (len(self.points) // 2)
 
     def get_area(self):
         return 0
