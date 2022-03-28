@@ -19,9 +19,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/685>)
 - New command `describe-downloads` to print information about downloadable datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/678>)
+- Detection for Cityscapes format
+  (<https://github.com/openvinotoolkit/datumaro/pull/680>)
+- Maximum recursion `--depth` parameter for `detect-dataset` CLI command
+  (<https://github.com/openvinotoolkit/datumaro/pull/680>)
 
 ### Changed
-- TBD
+- `env.detect_dataset()` now returns a list of detected formats at all recursion levels
+  instead of just the lowest one
+  (<https://github.com/openvinotoolkit/datumaro/pull/680>)
+- Open Images: allowed to store annotations file in root path as well
+  (<https://github.com/openvinotoolkit/datumaro/pull/680>)
 
 ### Deprecated
 - `--save-images` is replaced with `--save-media` in CLI and converter API
@@ -34,7 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
-- TBD
+- Detection for LFW format
+  (<https://github.com/openvinotoolkit/datumaro/pull/680>)
 
 ### Security
 - TBD

@@ -9,6 +9,7 @@ from unittest.case import TestCase
 from datumaro.plugins.ade20k2017_format import Ade20k2017Importer
 from datumaro.plugins.ade20k2020_format import Ade20k2020Importer
 from datumaro.plugins.image_dir_format import ImageDirImporter
+from datumaro.plugins.lfw_format import LfwImporter
 from datumaro.util.os_util import suppress_output
 from datumaro.util.test_utils import TestDir
 from datumaro.util.test_utils import run_datum as run
@@ -17,6 +18,7 @@ from tests.requirements import Requirements, mark_requirement
 
 ADE20K2017_DIR = osp.join(osp.dirname(__file__), "../assets/ade20k2017_dataset/dataset")
 ADE20K2020_DIR = osp.join(osp.dirname(__file__), "../assets/ade20k2020_dataset/dataset")
+LFW_DIR = osp.join(osp.dirname(__file__), "../assets/lfw_dataset")
 
 
 class DetectFormatTest(TestCase):
@@ -31,6 +33,38 @@ class DetectFormatTest(TestCase):
 
         self.assertIn(Ade20k2017Importer.NAME, output)
         self.assertNotIn(Ade20k2020Importer.NAME, output)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_deep_nested_folders(self):
+        with TestDir() as test_dir:
+            output_file = io.StringIO()
+
+            annotation_dir = osp.join(test_dir, "a", "b", "c", "annotations")
+            os.makedirs(annotation_dir)
+            shutil.copy(osp.join(LFW_DIR, "test", "annotations", "pairs.txt"), annotation_dir)
+
+            with contextlib.redirect_stdout(output_file):
+                run(self, "detect-format", test_dir, "--depth", "3")
+
+            output = output_file.getvalue()
+
+            self.assertIn(LfwImporter.NAME, output)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_nested_folders(self):
+        with TestDir() as test_dir:
+            output_file = io.StringIO()
+
+            annotation_dir = osp.join(test_dir, "a", "training/street")
+            os.makedirs(annotation_dir)
+            shutil.copy(osp.join(ADE20K2020_DIR, "training/street/1.json"), annotation_dir)
+
+            with contextlib.redirect_stdout(output_file):
+                run(self, "detect-format", test_dir)
+
+            output = output_file.getvalue()
+
+            self.assertIn(Ade20k2020Importer.NAME, output)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ambiguous(self):
