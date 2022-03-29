@@ -27,7 +27,7 @@ class AnnotationType(Enum):
     bbox = auto()
     caption = auto()
     cuboid_3d = auto()
-    resolution = auto()
+    image_resolution = auto()
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -797,6 +797,6 @@ class ImageResolution(Annotation):
     Represents high and low resolution images.
     """
 
-    _type = AnnotationType.resolution
+    _type = AnnotationType.image_resolution
     hr_image = field()
     upsampled_image: Optional[Image] = field(default=None)
