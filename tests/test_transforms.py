@@ -10,6 +10,8 @@ import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
+    Caption,
+    Cuboid3d,
     Label,
     LabelCategories,
     Mask,
@@ -974,6 +976,7 @@ class RemoveAttributesTest(TestCase):
 
         compare_datasets(self, expected, actual)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_remove_attrs_by_name_from_all_items(self):
         expected = Dataset.from_iterable(
             [
@@ -997,6 +1000,7 @@ class RemoveAttributesTest(TestCase):
 
         compare_datasets(self, expected, actual)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_remove_attrs_by_name_from_specific_items(self):
         expected = Dataset.from_iterable(
             [
@@ -1019,3 +1023,37 @@ class RemoveAttributesTest(TestCase):
         actual = transforms.RemoveAttributes(self.source, ids=[("1", "val")], attributes=["x"])
 
         compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_702)
+    def test_can_round_annotation_coordinates(self):
+        original_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    "1",
+                    annotations=[
+                        Bbox(1.1111, 2.2222, 3.3333, 4.4444),
+                        Polygon([1.1111] * 6),
+                        PolyLine([1.1111] * 6),
+                        Points([1.1111] * 6),
+                        Cuboid3d([1.1111] * 3, rotation=[1.1111] * 3, scale=[1.1111] * 3),
+                        Caption("text"),
+                    ],
+                )
+            ]
+        )
+
+        actual_dataset = Dataset(transforms.RoundCoordinates(original_dataset, digits=3))
+
+        actual_item = actual_dataset.get("1")
+        self.assertEqual(len(actual_item.annotations), 6)
+        self.assertEqual(actual_item.annotations[0].points, [1.111, 2.222, 4.444, 6.667])
+
+        self.assertEqual(actual_item.annotations[1].points, [1.111] * 6)
+
+        self.assertEqual(actual_item.annotations[2].points, [1.111] * 6)
+
+        self.assertEqual(actual_item.annotations[3].points, [1.111] * 6)
+
+        self.assertEqual(actual_item.annotations[4].position, [1.111] * 3)
+        self.assertEqual(actual_item.annotations[4].rotation, [1.1111] * 3)  # unaffected
+        self.assertEqual(actual_item.annotations[4].scale, [1.1111] * 3)  # unaffected

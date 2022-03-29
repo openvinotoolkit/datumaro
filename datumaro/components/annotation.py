@@ -577,7 +577,7 @@ class Cuboid3d(Annotation):
 
     @position.setter
     def position(self, value):
-        self.position[:] = value
+        self._points[0:3] = value
 
     @property
     def rotation(self):
@@ -586,7 +586,7 @@ class Cuboid3d(Annotation):
 
     @rotation.setter
     def rotation(self, value):
-        self.rotation[:] = value
+        self._points[3:6] = value
 
     @property
     def scale(self):
@@ -595,7 +595,7 @@ class Cuboid3d(Annotation):
 
     @scale.setter
     def scale(self, value):
-        self.scale[:] = value
+        self._points[6:9] = value
 
 
 @attrs(slots=True, order=False)

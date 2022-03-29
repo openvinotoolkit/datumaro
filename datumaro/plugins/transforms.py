@@ -35,6 +35,7 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
     RleMask,
+    _Shape,
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import DatumaroError
@@ -47,7 +48,7 @@ from datumaro.components.extractor import (
 )
 from datumaro.components.media import Image
 from datumaro.util import NOTSET, around, filter_dict, parse_str_enum_value, take_by
-from datumaro.util.annotation_util import Shape, find_group_leader, find_instances
+from datumaro.util.annotation_util import find_group_leader, find_instances
 
 
 class CropCoveredSegments(ItemTransform, CliPlugin):
@@ -1202,7 +1203,7 @@ class RoundCoordinates(ItemTransform):
         updated_anns = []
         has_updates = False
         for ann in item.annotations:
-            if isinstance(ann, Shape):
+            if isinstance(ann, _Shape):
                 ann.points = around(ann.points, self._digits).tolist()
                 has_updates = True
             elif isinstance(ann, Cuboid3d):

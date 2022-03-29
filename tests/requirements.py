@@ -39,6 +39,7 @@ class Requirements:
     DATUM_609 = "Allow not to prepend data/ prefix in YOLO export"
     DATUM_616 = "Import for BraTS dataset"
     DATUM_673 = "Pickling for Dataset and Annotations"
+    DATUM_702 = "Coordinate rounding"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
