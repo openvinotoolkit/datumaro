@@ -70,4 +70,4 @@ class CommonSuperResolutionImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        return [{"url": path, "format": "super_resolution"}]
+        return [{"url": path, "format": "common_super_resolution"}]
