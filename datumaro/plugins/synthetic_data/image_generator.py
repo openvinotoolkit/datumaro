@@ -15,6 +15,7 @@ import cv2 as cv
 import numpy as np
 
 from datumaro.components.dataset_generator import DatasetGenerator
+from datumaro.util.image import save_image
 
 from .utils import IFSFunction, augment, colorize, download_colorization_model
 
@@ -55,13 +56,10 @@ class ImageGenerator(DatasetGenerator):
 
     def __init__(self, output_dir: str, count: int, shape: Tuple[int, int], model_path: str = None):
         self._count = count
+        self._output_dir = output_dir
         self._cpu_count = min(os.cpu_count(), self._count)
         assert len(shape) == 2
         self._height, self._width = shape
-
-        self._output_dir = output_dir
-        if not osp.exists(output_dir):
-            os.makedirs(output_dir)
 
         self._weights = self._create_weights(IFSFunction.NUM_PARAMS)
         self._threshold = 0.2
@@ -79,7 +77,7 @@ class ImageGenerator(DatasetGenerator):
             self._height,
             self._width,
         )
-        use_multiprocessing = sys.platform != "darwin" or sys.version_info > (3, 7)
+        use_multiprocessing = sys.platform != "darwin" or sys.version_info >= (3, 8)
         if use_multiprocessing:
             with Pool(processes=self._cpu_count) as pool:
                 params = pool.map(
@@ -93,6 +91,7 @@ class ImageGenerator(DatasetGenerator):
 
         instances_weights = np.repeat(self._weights, self._instances, axis=0)
         weight_per_img = np.tile(instances_weights, (self._categories, 1))
+        params = np.array(params, dtype=object)
         repeated_params = np.repeat(params, self._weights.shape[0] * self._instances, axis=0)
         repeated_params = repeated_params[: self._count]
         weight_per_img = weight_per_img[: self._count]
@@ -107,7 +106,7 @@ class ImageGenerator(DatasetGenerator):
         for i, (param, w) in enumerate(zip(params_per_proc, weights_per_proc)):
             indices = list(range(offset, offset + len(param)))
             offset += len(param)
-            generation_params.append((i, Random(i), param, w, indices))
+            generation_params.append((param, w, indices))
 
         if use_multiprocessing:
             with Pool(processes=self._cpu_count) as pool:
@@ -117,32 +116,35 @@ class ImageGenerator(DatasetGenerator):
                 self._generate_image_batch(*param)
 
     def _generate_image_batch(
-        self, job_id: int, rng: Random, params: np.ndarray, weights: np.ndarray, indices: List[int]
+        self, params: np.ndarray, weights: np.ndarray, indices: List[int]
     ) -> None:
-        print(f"{job_id}: started")
         proto = osp.join(self._path, "colorization_deploy_v2.prototxt")
         model = osp.join(self._path, "colorization_release_v2.caffemodel")
         npy = osp.join(self._path, "pts_in_hull.npy")
         pts_in_hull = np.load(npy).transpose().reshape(2, 313, 1, 1).astype(np.float32)
 
-        content = open_text(__package__, "synthetic_background.txt")
-        synthetic_background = np.loadtxt(content)
+        with open_text(__package__, "synthetic_background.txt") as synthetic_background_file:
+            synthetic_background = np.loadtxt(synthetic_background_file)
 
-        print(f"Job {job_id}: loading caffe model")
         net = cv.dnn.readNetFromCaffe(proto, model)
         net.getLayer(net.getLayerId("class8_ab")).blobs = [pts_in_hull]
         net.getLayer(net.getLayerId("conv8_313_rh")).blobs = [np.full([1, 313], 2.606, np.float32)]
 
-        print(f"Job {job_id}: starting loop")
         for i, param, w in zip(indices, params, weights):
-            print(f"Job {job_id}: processing image #{i}")
             image = self._generate_image(
-                rng, param, self._iterations, self._height, self._width, draw_point=False, weight=w
+                Random(i),
+                param,
+                self._iterations,
+                self._height,
+                self._width,
+                draw_point=False,
+                weight=w,
             )
             color_image = colorize(image, net)
-            aug_image = augment(rng, color_image, synthetic_background)
-            cv.imwrite(osp.join(self._output_dir, "{:06d}.png".format(i)), aug_image)
-        print(f"Job {job_id}: finished")
+            aug_image = augment(Random(i), color_image, synthetic_background)
+            save_image(
+                osp.join(self._output_dir, "{:06d}.png".format(i)), aug_image, create_dir=True
+            )
 
     def _generate_image(
         self,
