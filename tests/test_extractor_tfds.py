@@ -18,6 +18,7 @@ if TFDS_EXTRACTOR_AVAILABLE:
     import tensorflow_datasets as tfds
 
 
+@skipIf(not TFDS_EXTRACTOR_AVAILABLE, reason="TFDS is not installed")
 class TfdsDatasetsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_metadata(self):
