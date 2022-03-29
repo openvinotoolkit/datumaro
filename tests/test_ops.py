@@ -492,7 +492,7 @@ class TestMultimerge(TestCase):
                                 ]
                             ),
                         ),
-                        Polygon([1, 0, 3, 2, 1, 2]),
+                        Polygon([0, 0, 0, 3, 3, 0]),
                         # an instance with keypoints
                         Bbox(4, 5, 2, 4, label=2, z_order=1, group=1),
                         Points([5, 6], label=0, group=1),
@@ -521,7 +521,7 @@ class TestMultimerge(TestCase):
                                 ]
                             ),
                         ),
-                        Polygon([0, 2, 2, 0, 2, 1]),
+                        Polygon([0, 0, 0, 2.5, 2.5, 0]),
                         # an instance with keypoints
                         Bbox(4, 4, 2, 5, label=2, z_order=1, group=2),
                         Points([5.5, 6.5], label=0, group=2),
@@ -551,7 +551,7 @@ class TestMultimerge(TestCase):
                                 ]
                             ),
                         ),
-                        Polygon([3, 1, 2, 2, 0, 1]),
+                        Polygon([0, 0, 0, 2, 2, 0]),
                         # an instance with keypoints, one is missing
                         Bbox(3, 6, 2, 3, label=2, z_order=4, group=3),
                         Points([4.5, 5.5], label=0, group=3),
@@ -583,7 +583,7 @@ class TestMultimerge(TestCase):
                                 ]
                             ),
                         ),
-                        Polygon([1, 0, 3, 2, 1, 2]),
+                        Polygon([0, 0, 0, 2.5, 2.5, 0]),
                         # an instance with keypoints
                         Bbox(4, 5, 2, 4, label=2, z_order=4, group=1),
                         Points([5, 6], label=0, group=1),
