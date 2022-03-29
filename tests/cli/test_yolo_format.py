@@ -51,7 +51,7 @@ class YoloIntegrationScenarios(TestCase):
                 "-f",
                 "yolo",
                 "--",
-                "--save-images",
+                "--save-media",
             )
 
             parsed_dataset = Dataset.import_from(export_dir, format="yolo")
@@ -73,7 +73,7 @@ class YoloIntegrationScenarios(TestCase):
             run(self, "import", "-p", test_dir, "-f", "mot_seq", mot_dir)
 
             yolo_dir = osp.join(test_dir, "yolo_dir")
-            run(self, "export", "-p", test_dir, "-o", yolo_dir, "-f", "yolo", "--", "--save-images")
+            run(self, "export", "-p", test_dir, "-o", yolo_dir, "-f", "yolo", "--", "--save-media")
 
             parsed_dataset = Dataset.import_from(yolo_dir, format="yolo")
             compare_datasets(self, target_dataset, parsed_dataset)
@@ -121,7 +121,7 @@ class YoloIntegrationScenarios(TestCase):
                 "-o",
                 yolo_dir,
                 "--",
-                "--save-images",
+                "--save-media",
             )
 
             parsed_dataset = Dataset.import_from(yolo_dir, format="yolo")
