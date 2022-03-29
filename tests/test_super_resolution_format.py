@@ -2,6 +2,7 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
+from datumaro.components.annotation import ImageResolution
 
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
@@ -28,18 +29,22 @@ class SuperResolutionImporterTest(TestCase):
                 DatasetItem(
                     id="1",
                     media=Image(data=np.ones((3, 4, 3))),
-                    attributes={
-                        "hr": Image(data=np.ones((10, 20, 3))),
-                        "upsampled": Image(data=np.ones((10, 20, 3))),
-                    },
+                    annotations=[
+                        ImageResolution(
+                            Image(data=np.ones((10, 20, 3))),
+                            upsampled_image=Image(data=np.ones((10, 20, 3))),
+                        )
+                    ],
                 ),
                 DatasetItem(
                     id="2",
                     media=Image(data=np.ones((3, 4, 3))),
-                    attributes={
-                        "hr": Image(data=np.ones((10, 20, 3))),
-                        "upsampled": Image(data=np.ones((10, 20, 3))),
-                    },
+                    annotations=[
+                        ImageResolution(
+                            Image(data=np.ones((10, 20, 3))),
+                            upsampled_image=Image(data=np.ones((10, 20, 3))),
+                        )
+                    ],
                 ),
             ]
         )

@@ -7,6 +7,7 @@ from __future__ import annotations
 from enum import Enum, auto
 from functools import partial
 from itertools import zip_longest
+from tkinter import Image
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
 
 import attr
@@ -26,6 +27,7 @@ class AnnotationType(Enum):
     bbox = auto()
     caption = auto()
     cuboid_3d = auto()
+    resolution = auto()
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -787,3 +789,14 @@ class Caption(Annotation):
 
     _type = AnnotationType.caption
     caption: str = field(converter=str)
+
+
+@attrs(slots=True, order=False)
+class ImageResolution(Annotation):
+    """
+    Represents high and low resolution images.
+    """
+
+    _type = AnnotationType.resolution
+    hr_image = field()
+    upsampled_image: Optional[Image] = field(default=None)

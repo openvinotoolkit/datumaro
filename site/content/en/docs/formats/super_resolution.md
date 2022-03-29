@@ -9,9 +9,8 @@ weight: 2
 
 Super resolution format specification is available [here](https://github.com/openvinotoolkit/open_model_zoo/blob/master/tools/accuracy_checker/openvino/tools/accuracy_checker/annotation_converters/README.md#supported-converters).
 
-Supported attributes:
-- `HR` (`Image`): high resolution image
-- `upsampled` (`Image`): upsampled image
+Supported annotation types:
+- `ImageResolution`
 
 ## Import Super Resolution dataset
 
