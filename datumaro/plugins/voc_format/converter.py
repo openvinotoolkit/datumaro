@@ -234,7 +234,7 @@ class VocConverter(Converter):
 
                     self._export_annotations(item, image_filename=image_filename, lists=lists)
                 except Exception as e:
-                    self._report_item_error(e, item_id=(item.id, item.subset))
+                    self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
 
             if self._tasks & {
                 VocTask.classification,
