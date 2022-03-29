@@ -7,12 +7,23 @@ import os
 import os.path as osp
 from enum import Enum, auto
 from itertools import chain, groupby
+from typing import List, overload
 
+import numpy as np
 import pycocotools.mask as mask_utils
 
+import datumaro.components.annotation as ann_module
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
-from datumaro.components.annotation import COORDINATE_ROUNDING_DIGITS, AnnotationType, Points
+from datumaro.components.annotation import (
+    AnnotationType,
+    Bbox,
+    Caption,
+    Label,
+    Mask,
+    Points,
+    Polygon,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
@@ -22,6 +33,21 @@ from datumaro.util import cast, dump_json_file, find, str_to_bool
 from datumaro.util.image import save_image
 
 from .format import CocoPath, CocoTask
+
+
+def _round(v: float, digits: int) -> float:
+    ...
+
+
+@overload
+def _round(v: List[float], digits: int) -> List[float]:
+    ...
+
+
+def _round(v, digits):
+    if digits:
+        return np.around(v, digits)
+    return v
 
 
 class SegmentationMode(Enum):
@@ -87,7 +113,7 @@ class _TaskConverter:
                 ann["id"] = next_id
                 next_id += 1
 
-        dump_json_file(path, self._data)
+        dump_json_file(path, self._data, allow_numpy=True)
 
     @property
     def annotations(self):
@@ -105,7 +131,7 @@ class _TaskConverter:
 
     @staticmethod
     def _convert_attributes(ann):
-        return {k: v for k, v in ann.attributes.items() if k not in {"is_crowd", "score"}}
+        return {k: v for k, v in ann.attributes.items() if k not in ["is_crowd", "score"]}
 
 
 class _ImageInfoConverter(_TaskConverter):
@@ -125,7 +151,7 @@ class _CaptionsConverter(_TaskConverter):
 
     def save_annotations(self, item):
         for ann_idx, ann in enumerate(item.annotations):
-            if ann.type != AnnotationType.caption:
+            if not isinstance(ann, Caption):
                 continue
 
             elem = {
@@ -198,9 +224,9 @@ class _InstancesConverter(_TaskConverter):
         return instances
 
     def find_instance_parts(self, group, img_width, img_height):
-        boxes = [a for a in group if a.type == AnnotationType.bbox]
-        polygons = [a for a in group if a.type == AnnotationType.polygon]
-        masks = [a for a in group if a.type == AnnotationType.mask]
+        boxes = [a for a in group if isinstance(a, Bbox)]
+        polygons = [a for a in group if isinstance(a, Polygon)]
+        masks = [a for a in group if isinstance(a, Mask)]
 
         anns = boxes + polygons + masks
         leader = anno_tools.find_group_leader(anns)
@@ -244,11 +270,7 @@ class _InstancesConverter(_TaskConverter):
 
     @staticmethod
     def find_instance_anns(annotations):
-        return [
-            a
-            for a in annotations
-            if a.type in {AnnotationType.bbox, AnnotationType.polygon, AnnotationType.mask}
-        ]
+        return [a for a in annotations if isinstance(a, (Bbox, Polygon, Mask))]
 
     @classmethod
     def find_instances(cls, annotations):
@@ -281,11 +303,11 @@ class _InstancesConverter(_TaskConverter):
         is_crowd = mask is not None
         if is_crowd:
             segmentation = {
-                "counts": list(int(c) for c in mask["counts"]),
-                "size": list(int(c) for c in mask["size"]),
+                "counts": np.asarray(mask["counts"], dtype=int),
+                "size": [int(mask["size"][0]), int(mask["size"][1])],
             }
         else:
-            segmentation = [list(map(float, p)) for p in polygons]
+            segmentation = [_round(v, self._context._round_digits) for v in polygons]
 
         area = 0
         if segmentation:
@@ -313,8 +335,8 @@ class _InstancesConverter(_TaskConverter):
             "image_id": self._get_image_id(item),
             "category_id": cast(ann.label, int, -1) + 1,
             "segmentation": segmentation,
-            "area": float(area),
-            "bbox": [round(float(n), COORDINATE_ROUNDING_DIGITS) for n in bbox],
+            "area": _round(area, self._context._round_digits),
+            "bbox": _round(bbox, self._context._round_digits),
             "iscrowd": int(is_crowd),
         }
         if "score" in ann.attributes:
@@ -358,13 +380,12 @@ class _KeypointsConverter(_InstancesConverter):
             self.categories.append(cat)
 
     def save_annotations(self, item):
-        point_annotations = [a for a in item.annotations if a.type == AnnotationType.points]
-        if not point_annotations:
+        if not any(isinstance(a, Points) for a in item.annotations):
             return
 
         # Create annotations for solitary keypoints annotations
         for points in self.find_solitary_points(item.annotations):
-            instance = [points, [], None, points.get_bbox()]
+            instance = [points, [], None, points.get_bbox(), points.get_area()]
             elem = super().convert_instance(instance, item)
             elem.update(self.convert_points_object(points))
             self.annotations.append(elem)
@@ -379,8 +400,7 @@ class _KeypointsConverter(_InstancesConverter):
 
         for g_id, group in groupby(annotations, lambda a: a.group):
             if not g_id or g_id and not cls.find_instance_anns(group):
-                group = [a for a in group if a.type == AnnotationType.points]
-                solitary_points.extend(group)
+                solitary_points += [a for a in group if isinstance(a, Points)]
 
         return solitary_points
 
@@ -434,7 +454,7 @@ class _LabelsConverter(_TaskConverter):
 
     def save_annotations(self, item):
         for ann in item.annotations:
-            if ann.type != AnnotationType.label:
+            if not isinstance(ann, Label):
                 continue
 
             elem = {
@@ -463,7 +483,7 @@ class _StuffConverter(_InstancesConverter):
 
 class _PanopticConverter(_TaskConverter):
     def write(self, path):
-        dump_json_file(path, self._data)
+        dump_json_file(path, self._data, allow_numpy=True)
 
     def save_categories(self, dataset):
         label_categories = dataset.categories().get(AnnotationType.label)
@@ -490,7 +510,7 @@ class _PanopticConverter(_TaskConverter):
         masks = []
         next_id = self._min_ann_id
         for ann in item.annotations:
-            if ann.type != AnnotationType.mask:
+            if not isinstance(ann, Mask):
                 continue
 
             if not ann.id:
@@ -500,8 +520,8 @@ class _PanopticConverter(_TaskConverter):
             segment_info = {}
             segment_info["id"] = ann.id
             segment_info["category_id"] = cast(ann.label, int, -1) + 1
-            segment_info["area"] = float(ann.get_area())
-            segment_info["bbox"] = [float(p) for p in ann.get_bbox()]
+            segment_info["area"] = _round(ann.get_area(), self._context._round_digits)
+            segment_info["bbox"] = _round(ann.get_bbox(), self._context._round_digits)
             segment_info["iscrowd"] = cast(ann.attributes.get("is_crowd"), int, 0)
             segments_info.append(segment_info)
             masks.append(ann)
@@ -592,6 +612,14 @@ class CocoConverter(Converter):
             help="Save all images into a single " "directory (default: %(default)s)",
         )
         parser.add_argument(
+            "--round-digits",
+            type=int,
+            default=0,
+            help="Round coordinates to this number of decimal digits. "
+            "Useful to make output files smaller. 0 means no rounding "
+            "(default: %(default)s",
+        )
+        parser.add_argument(
             "--tasks",
             type=cls._split_tasks_string,
             help="COCO task filter, comma-separated list of {%s} "
@@ -621,6 +649,7 @@ class CocoConverter(Converter):
         allow_attributes=True,
         reindex=False,
         merge_images=False,
+        round_digits=0,
         **kwargs,
     ):
         super().__init__(extractor, save_dir, **kwargs)
@@ -657,6 +686,10 @@ class CocoConverter(Converter):
         self._merge_images = merge_images
 
         self._image_ids = {}
+
+        if round_digits is None:
+            round_digits = ann_module.COORDINATE_ROUNDING_DIGITS
+        self._round_digits = round_digits
 
         self._patch = None
 
@@ -729,9 +762,11 @@ class CocoConverter(Converter):
                             task_conv.save_image_info(item, self._make_image_filename(item))
                             task_conv.save_annotations(item)
                         except Exception as e:
-                            self._report_annotation_error(e, item_id=(item.id, item.subset))
+                            self._ctx.error_policy.report_annotation_error(
+                                e, item_id=(item.id, item.subset)
+                            )
                 except Exception as e:
-                    self._report_item_error(e, item_id=(item.id, item.subset))
+                    self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
 
             for task, task_conv in task_converters.items():
                 ann_file = osp.join(self._ann_dir, "%s_%s.json" % (task.name, subset_name))
