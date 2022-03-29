@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -19,11 +19,13 @@ import cv2
 import numpy as np
 import pycocotools.mask as mask_utils
 
+import datumaro.components.annotation as ann_module
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
     Caption,
+    Cuboid3d,
     Label,
     LabelCategories,
     Mask,
@@ -44,8 +46,8 @@ from datumaro.components.extractor import (
     Transform,
 )
 from datumaro.components.media import Image
-from datumaro.util import NOTSET, filter_dict, parse_str_enum_value, take_by
-from datumaro.util.annotation_util import find_group_leader, find_instances
+from datumaro.util import NOTSET, around, filter_dict, parse_str_enum_value, take_by
+from datumaro.util.annotation_util import Shape, find_group_leader, find_instances
 
 
 class CropCoveredSegments(ItemTransform, CliPlugin):
@@ -1156,3 +1158,61 @@ class RemoveAttributes(ItemTransform):
                 attributes=self._filter_attrs(item.attributes), annotations=filtered_annotations
             )
         return item
+
+
+class RoundCoordinates(ItemTransform):
+    """
+    Allows to round spatial annotation coordinates in a dataset.|n
+    |n
+    Can be useful to reduce dataset size on disk (in textual formats),
+    to simplify file or annotation comparison, or to make annotations
+    more human-readable.|n
+    |n
+    Examples:|n
+        - Round polygon coordinates in the dataset to 3 digits|n
+
+        .. code-block::
+
+        |s|s%(prog)s --digits 3
+    """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "--digits",
+            default=ann_module.COORDINATE_ROUNDING_DIGITS,
+            type=int,
+            help="The number of decimal digits after rounding (default: %(default)s)",
+        )
+        return parser
+
+    def __init__(self, extractor: IExtractor, digits: Optional[int] = None):
+        super().__init__(extractor)
+
+        if digits is None:
+            # Refer to the module variable directly instead of plain import
+            # to use the actual value, it it was changed manually since
+            # the plugin import
+            digits = ann_module.COORDINATE_ROUNDING_DIGITS
+
+        self._digits = digits
+
+    def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
+        updated_anns = []
+        has_updates = False
+        for ann in item.annotations:
+            if isinstance(ann, Shape):
+                ann.points = around(ann.points, self._digits).tolist()
+                has_updates = True
+            elif isinstance(ann, Cuboid3d):
+                # Scale and rotation may require different handling, depending on their use
+                ann.position = around(ann.position, self._digits).tolist()
+                has_updates = True
+
+            updated_anns.append(ann)
+
+        if not has_updates:
+            return item
+
+        return item.wrap(annotations=updated_anns)

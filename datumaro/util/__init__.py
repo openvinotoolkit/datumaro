@@ -5,9 +5,10 @@
 from functools import wraps
 from inspect import isclass
 from itertools import islice
-from typing import Any, Iterable, Optional, Tuple, Union
+from typing import Any, Iterable, List, Tuple, Union, overload
 
 import attrs
+import numpy as np
 import orjson
 
 NOTSET = object()
@@ -189,3 +190,24 @@ def dump_json_file(
                 append_newline=append_newline,
             )
         )
+
+
+@overload
+def around(v: float, digits: int) -> np.float_:
+    ...
+
+
+@overload
+def around(v: Iterable[float], digits: int) -> np.array:
+    ...
+
+
+def around(v: Union[float, Iterable[float]], digits: int) -> Union[np.float_, np.array]:
+    """
+    Rounds a number or an array to few decimal digits.
+    A negative value of digits means no rounding.
+    """
+
+    if digits < 0:
+        return v
+    return np.around(v, digits)
