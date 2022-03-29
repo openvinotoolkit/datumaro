@@ -285,6 +285,36 @@ class YoloConvertertTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_609)
+    def test_can_save_and_load_without_path_prefix(self):
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=3,
+                    subset="valid",
+                    media=Image(data=np.ones((8, 8, 3))),
+                    annotations=[
+                        Bbox(0, 1, 5, 2, label=1),
+                    ],
+                ),
+            ],
+            categories=["a", "b"],
+        )
+
+        with TestDir() as test_dir:
+            YoloConverter.convert(source_dataset, test_dir, save_media=True, add_path_prefix=False)
+            parsed_dataset = Dataset.import_from(test_dir, "yolo")
+
+            with open(osp.join(test_dir, "obj.data"), "r") as f:
+                lines = f.readlines()
+                self.assertIn("valid = valid.txt\n", lines)
+
+            with open(osp.join(test_dir, "valid.txt"), "r") as f:
+                lines = f.readlines()
+                self.assertIn("obj_valid_data/3.jpg\n", lines)
+
+            compare_datasets(self, source_dataset, parsed_dataset)
+
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "yolo_dataset")
 
@@ -326,7 +356,7 @@ class YoloImporterTest(TestCase):
 
 
 class YoloExtractorTest(TestCase):
-    def _prepare_dataset(self, path):
+    def _prepare_dataset(self, path: str) -> Dataset:
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -340,10 +370,20 @@ class YoloExtractorTest(TestCase):
         )
         dataset.export(path, "yolo", save_images=True)
 
+        return dataset
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_parse(self):
+        with TestDir() as test_dir:
+            expected = self._prepare_dataset(test_dir)
+
+            actual = Dataset.import_from(test_dir, "yolo")
+            compare_datasets(self, expected, actual)
+
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_data_file(self):
         with TestDir() as test_dir:
-            with self.assertRaisesRegex(DatasetImportError, "Can't read dataset"):
+            with self.assertRaisesRegex(DatasetImportError, "Can't read dataset descriptor file"):
                 YoloExtractor(test_dir)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)

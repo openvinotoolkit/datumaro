@@ -2,10 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 import os.path as osp
 import re
 from collections import OrderedDict
-from typing import Dict, List, Tuple, Type, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
 from datumaro.components.errors import (
@@ -27,7 +29,7 @@ T = TypeVar("T")
 
 class YoloExtractor(SourceExtractor):
     class Subset(Extractor):
-        def __init__(self, name, parent):
+        def __init__(self, name: str, parent: YoloExtractor):
             super().__init__()
             self._name = name
             self._parent = parent
@@ -35,7 +37,9 @@ class YoloExtractor(SourceExtractor):
 
         def __iter__(self):
             for item_id in self.items:
-                yield self._parent._get(item_id, self._name)
+                item = self._parent._get(item_id, self._name)
+                if item is not None:
+                    yield item
 
         def __len__(self):
             return len(self.items)
@@ -129,9 +133,9 @@ class YoloExtractor(SourceExtractor):
         Removes the "data/" prefix from the path
         """
 
-        path = osp.normpath(path).strip()
-        default_base = "data" + osp.sep
-        if path.startswith(default_base):  # default path
+        path = osp.normpath(path.strip()).replace("\\", "/")
+        default_base = "data/"
+        if path.startswith(default_base):
             path = path[len(default_base) :]
         return path
 
@@ -152,7 +156,7 @@ class YoloExtractor(SourceExtractor):
 
         return osp.splitext(path)[0]
 
-    def _get(self, item_id: str, subset_name: str):
+    def _get(self, item_id: str, subset_name: str) -> Optional[DatasetItem]:
         subset = self._subsets[subset_name]
         item = subset.items[item_id]
 
@@ -169,10 +173,11 @@ class YoloExtractor(SourceExtractor):
                 item = DatasetItem(
                     id=item_id, subset=subset_name, media=image, annotations=annotations
                 )
+                subset.items[item_id] = item
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(item_id, subset_name))
-
-            subset.items[item_id] = item
+                subset.items.pop(item_id)
+                item = None
 
         return item
 

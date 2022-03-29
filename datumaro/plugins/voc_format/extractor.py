@@ -4,12 +4,19 @@
 
 import logging as log
 import os.path as osp
-from typing import Optional, Tuple, Type, TypeVar, Union
+from typing import List, Optional, Tuple, Type, TypeVar
 
 import numpy as np
 from defusedxml import ElementTree
 
-from datumaro.components.annotation import AnnotationType, Bbox, CompiledMask, Label, Mask
+from datumaro.components.annotation import (
+    Annotation,
+    AnnotationType,
+    Bbox,
+    CompiledMask,
+    Label,
+    Mask,
+)
 from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
@@ -54,18 +61,18 @@ class _VocExtractor(SourceExtractor):
             label_idx, None
         )
         log.debug(
-            "Loaded labels: %s"
-            % ", ".join(
+            "Loaded labels: %s",
+            ", ".join(
                 "'%s' %s" % (l.name, ("(%s, %s, %s)" % c) if c else "")
                 for i, l, c in (
                     (i, l, label_color(i))
                     for i, l in enumerate(self._categories[AnnotationType.label].items)
                 )
-            )
+            ),
         )
         self._items = {item: None for item in self._load_subset_list(path)}
 
-    def _get_label_id(self, label: str):
+    def _get_label_id(self, label: str) -> int:
         label_id, _ = self._categories[AnnotationType.label].find(label)
         if label_id is None:
             raise UndeclaredLabelError(label)
@@ -97,7 +104,7 @@ class _VocExtractor(SourceExtractor):
                             line = objects[1]
                         else:
                             raise InvalidAnnotationError(
-                                f"{osp.basename(subset_path)}:{i}: "
+                                f"{osp.basename(subset_path)}:{i+1}: "
                                 "unexpected number of quotes in filename, expected 0 or 2"
                             )
                     else:
@@ -127,7 +134,7 @@ class VocClassificationExtractor(_VocExtractor):
         for item_id in self._ctx.progress_reporter.iter(
             self._items, desc=f"Parsing labels in '{self._subset}'"
         ):
-            log.debug("Reading item '%s'" % item_id)
+            log.debug("Reading item '%s'", item_id)
             image = images.get(item_id)
             if image:
                 image = Image(path=image)
@@ -152,14 +159,14 @@ class VocClassificationExtractor(_VocExtractor):
                     parts = line.rsplit(maxsplit=1)
                     if len(parts) != 2:
                         raise InvalidAnnotationError(
-                            f"{osp.basename(ann_file)}:{i}: "
+                            f"{osp.basename(ann_file)}:{i+1}: "
                             "invalid number of fields in line, expected 2"
                         )
 
                     item, present = parts
                     if present not in ["-1", "1"]:
                         raise InvalidAnnotationError(
-                            f"{osp.basename(ann_file)}:{i}: "
+                            f"{osp.basename(ann_file)}:{i+1}: "
                             f"unexpected class existence value '{present}', expected -1 or 1"
                         )
 
@@ -194,8 +201,8 @@ class _VocXmlExtractor(_VocExtractor):
 
                 ann_file = osp.join(anno_dir, item_id + ".xml")
                 if osp.isfile(ann_file):
-                    root_elem = ElementTree.parse(ann_file)
-                    if root_elem.getroot().tag != "annotation":
+                    root_elem = ElementTree.parse(ann_file).getroot()
+                    if root_elem.tag != "annotation":
                         raise MissingFieldError("annotation")
 
                     height = self._parse_field(root_elem, "size/height", int, required=False)
@@ -226,9 +233,7 @@ class _VocXmlExtractor(_VocExtractor):
                 self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
 
     @staticmethod
-    def _parse_field(
-        root, xpath: str, cls: Union[None, Type[T], Tuple[Type, ...]] = None, required: bool = True
-    ) -> Optional[Union[T, str]]:
+    def _parse_field(root, xpath: str, cls: Type[T] = str, required: bool = True) -> Optional[T]:
         elem = root.find(xpath)
         if elem is None:
             if required:
@@ -236,16 +241,25 @@ class _VocXmlExtractor(_VocExtractor):
             else:
                 return None
 
-        if cls:
-            try:
-                value = cls(elem.text)
-            except Exception as e:
-                raise InvalidFieldError(xpath) from e
-        else:
-            value = elem.text
-        return value
+        if cls is str:
+            return elem.text
 
-    def _parse_annotations(self, root_elem, *, item_id):
+        try:
+            return cls(elem.text)
+        except Exception as e:
+            raise InvalidFieldError(xpath) from e
+
+    @staticmethod
+    def _parse_bool_field(root, xpath: str, default: bool = False) -> Optional[bool]:
+        elem = root.find(xpath)
+        if elem is None:
+            return default
+
+        if elem.text not in ["0", "1"]:
+            raise InvalidFieldError(xpath)
+        return elem.text == "1"
+
+    def _parse_annotations(self, root_elem, *, item_id: Tuple[str, str]) -> List[Annotation]:
         item_annotations = []
 
         for obj_id, object_elem in enumerate(root_elem.iterfind("object")):
@@ -258,20 +272,8 @@ class _VocXmlExtractor(_VocExtractor):
 
                 obj_bbox = self._parse_bbox(object_elem)
 
-                difficult_elem = object_elem.find("difficult")
-                if difficult_elem is not None and difficult_elem.text not in ["0", "1"]:
-                    raise InvalidFieldError("difficult")
-                attributes["difficult"] = difficult_elem is not None and difficult_elem.text == "1"
-
-                truncated_elem = object_elem.find("truncated")
-                if truncated_elem is not None and truncated_elem.text not in ["0", "1"]:
-                    raise InvalidFieldError("truncated")
-                attributes["truncated"] = truncated_elem is not None and truncated_elem.text == "1"
-
-                occluded_elem = object_elem.find("occluded")
-                if occluded_elem is not None and occluded_elem.text not in ["0", "1"]:
-                    raise InvalidFieldError("occluded")
-                attributes["occluded"] = occluded_elem is not None and occluded_elem.text == "1"
+                for key in ["difficult", "truncated", "occluded"]:
+                    attributes[key] = self._parse_bool_field(object_elem, key, default=False)
 
                 pose_elem = object_elem.find("pose")
                 if pose_elem is not None:
@@ -290,7 +292,9 @@ class _VocXmlExtractor(_VocExtractor):
                 }
                 if actions_elem is not None:
                     for action_elem in actions_elem:
-                        actions[action_elem.tag] = action_elem.text == "1"
+                        actions[action_elem.tag] = self._parse_bool_field(
+                            actions_elem, action_elem.tag
+                        )
                 for action, present in actions.items():
                     attributes[action] = present
 
@@ -307,7 +311,9 @@ class _VocXmlExtractor(_VocExtractor):
                 attributes_elem = object_elem.find("attributes")
                 if attributes_elem is not None:
                     for attr_elem in attributes_elem.iter("attribute"):
-                        attributes[attr_elem.find("name").text] = attr_elem.find("value").text
+                        attributes[self._parse_field(attr_elem, "name")] = self._parse_field(
+                            attr_elem, "value"
+                        )
 
                 if self._task is VocTask.person_layout and not has_parts:
                     continue
@@ -369,7 +375,7 @@ class VocSegmentationExtractor(_VocExtractor):
         for item_id in self._ctx.progress_reporter.iter(
             self._items, desc=f"Parsing segmentation in '{self._subset}'"
         ):
-            log.debug("Reading item '%s'" % item_id)
+            log.debug("Reading item '%s'", item_id)
 
             image = images.get(item_id)
             if image:
@@ -425,7 +431,7 @@ class VocSegmentationExtractor(_VocExtractor):
 
                 item_annotations.append(Mask(image=image, label=label_id, group=instance_id))
         elif class_mask is not None:
-            log.warning(f"Item {item_id}: only class segmentations available")
+            log.warning("Item %s: only class segmentations available", item_id)
 
             class_mask = class_mask()
             classes = np.unique(class_mask)

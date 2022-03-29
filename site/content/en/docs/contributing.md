@@ -71,6 +71,9 @@ The project uses Black for code formatting and isort for sorting import statemen
 You can find corresponding configurations in `pyproject.toml` in the repository root.
 No trailing whitespaces, at most 100 characters per line.
 
+Datumaro includes a Git pre-commit hook, `dev/pre-commit.py` that can help you
+follow the style requirements. See the comment at the top of that file for more information.
+
 ## Environment
 
 The recommended editor is VS Code with the Python language plugin.

@@ -78,19 +78,19 @@ def info_command(args):
         if args.project_dir:
             raise
 
+    dataset = None
+    dataset_problem = ""
     try:
         # TODO: avoid computing working tree hashes
         dataset, target_project = parse_full_revpath(args.target, project)
         if target_project:
             scope_add(target_project)
     except DatasetMergeError as e:
-        dataset = None
         dataset_problem = (
-            "Can't merge project sources automatically: %s "
-            "Conflicting sources are: %s" % (e, ", ".join(e.sources))
+            "Can't merge project sources automatically: %s. "
+            "The conflicting sources are: %s" % (e, ", ".join(e.sources))
         )
     except MissingObjectError as e:
-        dataset = None
         dataset_problem = str(e)
 
     def print_dataset_info(dataset, indent=""):

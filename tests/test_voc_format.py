@@ -7,6 +7,7 @@ from functools import partial
 from unittest import TestCase
 
 import numpy as np
+from lxml import etree as ElementTree  # nosec
 
 import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.annotation import (
@@ -539,19 +540,59 @@ class VocImportTest(TestCase):
 
 class VocExtractorTest(TestCase):
     # ?xml... must be in the file beginning
-    XML_ANNOTATION_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
+    XML_ANNOTATION_TEMPLATE = """\
+<?xml version="1.0" encoding="UTF-8"?>
 <annotation>
 <filename>a.jpg</filename>
 <size><width>20</width><height>10</height><depth>3</depth></size>
 <object>
-    <name>cat</name>
+    <name>person</name>
     <bndbox><xmin>1</xmin><ymin>2</ymin><xmax>3</xmax><ymax>4</ymax></bndbox>
     <difficult>1</difficult>
     <truncated>1</truncated>
     <occluded>1</occluded>
+    <point><x>1</x><y>1</y></point>
+    <attributes><attribute><name>a</name><value>42</value></attribute></attributes>
+    <actions><jumping>1</jumping></actions>
+    <part>
+        <name>head</name>
+        <bndbox><xmin>1</xmin><ymin>2</ymin><xmax>3</xmax><ymax>4</ymax></bndbox>
+    </part>
 </object>
 </annotation>
     """
+
+    @classmethod
+    def _write_xml_dataset(cls, root_dir, fmt_dir="Main", mangle_xml=None):
+        subset_file = osp.join(root_dir, "ImageSets", fmt_dir, "test.txt")
+        os.makedirs(osp.dirname(subset_file))
+        with open(subset_file, "w") as f:
+            f.write("a\n" if fmt_dir != "Layout" else "a 0\n")
+
+        ann_file = osp.join(root_dir, "Annotations", "a.xml")
+        os.makedirs(osp.dirname(ann_file))
+        with open(ann_file, "wb") as f:
+            xml = ElementTree.fromstring(cls.XML_ANNOTATION_TEMPLATE.encode())
+            if mangle_xml:
+                mangle_xml(xml)
+            f.write(ElementTree.tostring(xml))
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_parse_xml_without_errors(self):
+        formats = [
+            ("voc_detection", "Main"),
+            ("voc_layout", "Layout"),
+            ("voc_action", "Action"),
+        ]
+
+        for fmt, fmt_dir in formats:
+            with self.subTest(fmt=fmt):
+                with TestDir() as test_dir:
+                    self._write_xml_dataset(test_dir, fmt_dir=fmt_dir)
+
+                    dataset = Dataset.import_from(test_dir, fmt)
+                    dataset.init_cache()
+                    self.assertEqual(len(dataset), 1)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_quotes_in_lists_of_layout_task(self):
@@ -577,17 +618,11 @@ class VocExtractorTest(TestCase):
         for fmt, fmt_dir in formats:
             with self.subTest(fmt=fmt):
                 with TestDir() as test_dir:
-                    subset_file = osp.join(test_dir, "ImageSets", fmt_dir, "test.txt")
-                    os.makedirs(osp.dirname(subset_file))
-                    with open(subset_file, "w") as f:
-                        f.write("a\n" if fmt != "voc_layout" else "a 0\n")
 
-                    ann_file = osp.join(test_dir, "Annotations", "a.xml")
-                    os.makedirs(osp.dirname(ann_file))
-                    with open(ann_file, "w") as f:
-                        text = self.XML_ANNOTATION_TEMPLATE
-                        text = text.replace("<name>cat</name>", "<name>test</name>")
-                        f.write(text)
+                    def mangle_xml(xml: ElementTree.ElementBase):
+                        xml.find("object/name").text = "test"
+
+                    self._write_xml_dataset(test_dir, fmt_dir=fmt_dir, mangle_xml=mangle_xml)
 
                     with self.assertRaises(AnnotationImportError) as capture:
                         Dataset.import_from(test_dir, format=fmt).init_cache()
@@ -596,59 +631,89 @@ class VocExtractorTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_missing_field_in_xml(self):
-        for key in ["name", "bndbox", "xmin", "ymin", "xmax", "ymax"]:
-            with self.subTest(key=key):
-                with TestDir() as test_dir:
-                    subset_file = osp.join(test_dir, "ImageSets", "Main", "test.txt")
-                    os.makedirs(osp.dirname(subset_file))
-                    with open(subset_file, "w") as f:
-                        f.write("a\n")
+        formats = [
+            ("voc_detection", "Main"),
+            ("voc_layout", "Layout"),
+            ("voc_action", "Action"),
+        ]
 
-                    ann_file = osp.join(test_dir, "Annotations", "a.xml")
-                    os.makedirs(osp.dirname(ann_file))
-                    with open(ann_file, "w") as f:
-                        text = self.XML_ANNOTATION_TEMPLATE
-                        text = re.sub(rf"<{key}>.*</{key}>", "", text, flags=re.DOTALL)
-                        f.write(text)
+        for fmt, fmt_dir in formats:
+            with self.subTest(fmt=fmt):
+                for key in [
+                    "object/name",
+                    "object/bndbox",
+                    "object/bndbox/xmin",
+                    "object/bndbox/ymin",
+                    "object/bndbox/xmax",
+                    "object/bndbox/ymax",
+                    "object/part/name",
+                    "object/part/bndbox/xmin",
+                    "object/part/bndbox/ymin",
+                    "object/part/bndbox/xmax",
+                    "object/part/bndbox/ymax",
+                    "object/point/x",
+                    "object/point/y",
+                    "object/attributes/attribute/name",
+                    "object/attributes/attribute/value",
+                ]:
+                    with self.subTest(key=key):
+                        with TestDir() as test_dir:
 
-                    with self.assertRaises(ItemImportError) as capture:
-                        Dataset.import_from(test_dir, format="voc_detection").init_cache()
-                    self.assertIsInstance(capture.exception.__cause__, MissingFieldError)
-                    self.assertIn(key, capture.exception.__cause__.name)
+                            def mangle_xml(xml: ElementTree.ElementBase):
+                                for elem in xml.findall(key):
+                                    elem.getparent().remove(elem)
+
+                            self._write_xml_dataset(
+                                test_dir, fmt_dir=fmt_dir, mangle_xml=mangle_xml
+                            )
+
+                            with self.assertRaises(ItemImportError) as capture:
+                                Dataset.import_from(test_dir, format=fmt).init_cache()
+                            self.assertIsInstance(capture.exception.__cause__, MissingFieldError)
+                            self.assertIn(osp.basename(key), capture.exception.__cause__.name)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_field_in_xml(self):
-        for key, value in [
-            ("xmin", "a"),
-            ("ymin", "a"),
-            ("xmax", "a"),
-            ("ymax", "a"),
-            ("width", "a"),
-            ("height", "a"),
-            ("occluded", "a"),
-            ("difficult", "a"),
-            ("truncated", "a"),
-        ]:
-            with self.subTest(key=key):
-                with TestDir() as test_dir:
-                    subset_file = osp.join(test_dir, "ImageSets", "Main", "test.txt")
-                    os.makedirs(osp.dirname(subset_file))
-                    with open(subset_file, "w") as f:
-                        f.write("a\n")
+        formats = [
+            ("voc_detection", "Main"),
+            ("voc_layout", "Layout"),
+            ("voc_action", "Action"),
+        ]
 
-                    ann_file = osp.join(test_dir, "Annotations", "a.xml")
-                    os.makedirs(osp.dirname(ann_file))
-                    with open(ann_file, "w") as f:
-                        text = self.XML_ANNOTATION_TEMPLATE
-                        text = re.sub(
-                            rf"<{key}>.*</{key}>", f"<{key}>{value}</{key}>", text, flags=re.DOTALL
-                        )
-                        f.write(text)
+        for fmt, fmt_dir in formats:
+            with self.subTest(fmt=fmt):
+                for key, value in [
+                    ("object/bndbox/xmin", "a"),
+                    ("object/bndbox/ymin", "a"),
+                    ("object/bndbox/xmax", "a"),
+                    ("object/bndbox/ymax", "a"),
+                    ("object/part/bndbox/xmin", "a"),
+                    ("object/part/bndbox/ymin", "a"),
+                    ("object/part/bndbox/xmax", "a"),
+                    ("object/part/bndbox/ymax", "a"),
+                    ("size/width", "a"),
+                    ("size/height", "a"),
+                    ("object/occluded", "a"),
+                    ("object/difficult", "a"),
+                    ("object/truncated", "a"),
+                    ("object/point/x", "a"),
+                    ("object/point/y", "a"),
+                    ("object/actions/jumping", "a"),
+                ]:
+                    with self.subTest(key=key):
+                        with TestDir() as test_dir:
 
-                    with self.assertRaises(ItemImportError) as capture:
-                        Dataset.import_from(test_dir, format="voc_detection").init_cache()
-                    self.assertIsInstance(capture.exception.__cause__, InvalidFieldError)
-                    self.assertIn(key, capture.exception.__cause__.name)
+                            def mangle_xml(xml: ElementTree.ElementBase):
+                                xml.find(key).text = value
+
+                            self._write_xml_dataset(
+                                test_dir, fmt_dir=fmt_dir, mangle_xml=mangle_xml
+                            )
+
+                            with self.assertRaises(ItemImportError) as capture:
+                                Dataset.import_from(test_dir, format=fmt).init_cache()
+                            self.assertIsInstance(capture.exception.__cause__, InvalidFieldError)
+                            self.assertIn(osp.basename(key), capture.exception.__cause__.name)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_missing_field_in_classification(self):

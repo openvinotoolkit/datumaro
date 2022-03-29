@@ -10,6 +10,7 @@ import os.path as osp
 from types import SimpleNamespace as namespace
 from typing import Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Type, Union
 
+import attrs
 from attrs import field, frozen
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
@@ -30,10 +31,23 @@ else:
     TFDS_EXTRACTOR_AVAILABLE = True
 
 
-@frozen
+@frozen(kw_only=True)
 class TfdsDatasetMetadata:
-    default_converter_name: str
+    # If you add attributes to this class, make sure to update the reporting logic
+    # in the `describe-downloads` command to include them.
+
+    human_name: str
+    default_output_format: str
     media_type: Type[MediaElement]
+
+    # Every TFDS dataset has a home page (the TFDS documentation page), but
+    # this field is still optional for a couple of reasons:
+    # * We might want to reuse this class later if we implement downloading
+    #   without the use of TFDS, and at that point it might happen that a dataset
+    #   has no home page (e.g. it's been taken down).
+    # * It's convenient to initially leave this field blank and mass-update it later,
+    #   and in order for us to not break typing, it should be optional.
+    home_url: Optional[str] = None
 
 
 @frozen
@@ -251,7 +265,11 @@ _MNIST_ADAPTER = _TfdsAdapter(
         _SetImageFromImageFeature("image"),
         _AddLabelFromClassLabelFeature("label"),
     ],
-    metadata=TfdsDatasetMetadata(default_converter_name="mnist", media_type=Image),
+    metadata=TfdsDatasetMetadata(
+        human_name="MNIST",
+        default_output_format="mnist",
+        media_type=Image,
+    ),
 )
 
 _CIFAR_ADAPTER = _TfdsAdapter(
@@ -261,7 +279,9 @@ _CIFAR_ADAPTER = _TfdsAdapter(
         _AddLabelFromClassLabelFeature("label"),
     ],
     id_generator=_GenerateIdFromTextFeature("id"),
-    metadata=TfdsDatasetMetadata(default_converter_name="cifar", media_type=Image),
+    metadata=TfdsDatasetMetadata(
+        human_name="CIFAR", default_output_format="cifar", media_type=Image
+    ),
 )
 
 _COCO_ADAPTER = _TfdsAdapter(
@@ -276,7 +296,9 @@ _COCO_ADAPTER = _TfdsAdapter(
         _SetAttributeFromFeature("image/id", "id"),
     ],
     id_generator=_GenerateIdFromFilenameFeature("image/filename"),
-    metadata=TfdsDatasetMetadata(default_converter_name="coco_instances", media_type=Image),
+    metadata=TfdsDatasetMetadata(
+        human_name="COCO", default_output_format="coco_instances", media_type=Image
+    ),
 )
 
 _IMAGENET_ADAPTER = _TfdsAdapter(
@@ -286,7 +308,9 @@ _IMAGENET_ADAPTER = _TfdsAdapter(
         _AddLabelFromClassLabelFeature("label"),
     ],
     id_generator=_GenerateIdFromFilenameFeature("file_name"),
-    metadata=TfdsDatasetMetadata(default_converter_name="imagenet_txt", media_type=Image),
+    metadata=TfdsDatasetMetadata(
+        human_name="ImageNet", default_output_format="imagenet_txt", media_type=Image
+    ),
 )
 
 
@@ -328,16 +352,32 @@ _VOC_ADAPTER = _TfdsAdapter(
         ),
     ],
     id_generator=_GenerateIdFromFilenameFeature("image/filename"),
-    metadata=TfdsDatasetMetadata(default_converter_name="voc", media_type=Image),
+    metadata=TfdsDatasetMetadata(
+        human_name="PASCAL VOC", default_output_format="voc", media_type=Image
+    ),
 )
 
+
+def _evolve_adapter_meta(adapter: _TfdsAdapter, **kwargs):
+    return attrs.evolve(adapter, metadata=attrs.evolve(adapter.metadata, **kwargs))
+
+
 _TFDS_ADAPTERS = {
-    "cifar10": _CIFAR_ADAPTER,
-    "cifar100": _CIFAR_ADAPTER,
-    "coco/2014": _COCO_ADAPTER,
-    "imagenet_v2": _IMAGENET_ADAPTER,
+    "cifar10": _evolve_adapter_meta(_CIFAR_ADAPTER, human_name="CIFAR-10"),
+    "cifar100": _evolve_adapter_meta(_CIFAR_ADAPTER, human_name="CIFAR-100"),
+    "coco/2014": _evolve_adapter_meta(_COCO_ADAPTER, human_name="COCO (2014-2015)"),
+    "imagenet_v2": _evolve_adapter_meta(_IMAGENET_ADAPTER, human_name="ImageNetV2"),
     "mnist": _MNIST_ADAPTER,
-    "voc/2012": _VOC_ADAPTER,
+    "voc/2012": _evolve_adapter_meta(_VOC_ADAPTER, human_name="PASCAL VOC 2012"),
+}
+
+# Assign the TFDS catalog page as the documentation URL for all datasets.
+_TFDS_ADAPTERS = {
+    name: _evolve_adapter_meta(
+        adapter,
+        home_url="https://www.tensorflow.org/datasets/catalog/" + name.split("/", maxsplit=1)[0],
+    )
+    for name, adapter in _TFDS_ADAPTERS.items()
 }
 
 
@@ -451,10 +491,71 @@ class _TfdsExtractor(IExtractor):
         return self._media_type
 
 
-AVAILABLE_TFDS_DATASETS: Mapping[str, TfdsDatasetMetadata] = {
-    name: adapter.metadata for name, adapter in _TFDS_ADAPTERS.items()
+# Some dataset metadata elements are either inconvenient to hardcode, or may change
+# depending on the version of TFDS. We fetch them from the attributes of the `tfds.Builder`
+# object. However, creating the builder may be time-consuming, because if the dataset
+# is not already downloaded, TFDS fetches some data from its Google Cloud bucket.
+# We therefore only fetch this metadata (which we call _remote_ metadata) when
+# we actually need it.
+
+# If you add attributes to either of these metadata classes, make sure to update
+# the reporting logic in the `describe-downloads` command to include them.
+
+
+@frozen(kw_only=True)
+class TfdsSubsetRemoteMetadata:
+    num_items: int
+
+
+@frozen(kw_only=True)
+class TfdsDatasetRemoteMetadata(TfdsDatasetMetadata):
+    # For convenience, the remote metadata also includes the local metadata.
+    description: str
+    download_size: int
+    subsets: Mapping[str, TfdsSubsetRemoteMetadata]
+
+    # the dataset might not have the notion of classes, so `num_classes` may
+    # be None.
+    num_classes: Optional[int]
+    version: str
+
+
+class TfdsDataset:
+    def __init__(self, tfds_ds_name: str):
+        self._tfds_ds_name = tfds_ds_name
+        self._adapter = _TFDS_ADAPTERS[tfds_ds_name]
+
+    @property
+    def metadata(self) -> TfdsDatasetMetadata:
+        return self._adapter.metadata
+
+    def make_extractor(self) -> IExtractor:
+        return _TfdsExtractor(self._tfds_ds_name)
+
+    def query_remote_metadata(self) -> TfdsDatasetRemoteMetadata:
+        tfds_builder = tfds.builder(self._tfds_ds_name)
+
+        categories = {}
+        state = namespace()
+        self._adapter.transform_categories(tfds_builder, categories, state)
+
+        num_classes = None
+        if AnnotationType.label in categories:
+            num_classes = len(categories[AnnotationType.label])
+
+        return TfdsDatasetRemoteMetadata(
+            **attrs.asdict(self._adapter.metadata),
+            description=tfds_builder.info.description,
+            download_size=int(tfds_builder.info.download_size),
+            num_classes=num_classes,
+            subsets={
+                name: TfdsSubsetRemoteMetadata(num_items=split_info.num_examples)
+                for name, split_info in tfds_builder.info.splits.items()
+            },
+            version=str(tfds_builder.info.version),
+        )
+
+
+AVAILABLE_TFDS_DATASETS: Mapping[str, TfdsDataset] = {
+    name: TfdsDataset(name) for name in _TFDS_ADAPTERS
 }
-
-
-def make_tfds_extractor(tfds_ds_name: str) -> IExtractor:
-    return _TfdsExtractor(tfds_ds_name)
