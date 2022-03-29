@@ -11,13 +11,13 @@ from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
 
-class SuperResolutionPath:
+class CommonSuperResolutionPath:
     HR_IMAGES_DIR = "HR"
     LR_IMAGES_DIR = "LR"
     UPSAMPLED_IMAGES_DIR = "upsampled"
 
 
-class SuperResolutionExtractor(SourceExtractor):
+class CommonSuperResolutionExtractor(SourceExtractor):
     def __init__(self, path, subset=None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
@@ -29,14 +29,14 @@ class SuperResolutionExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        lr_image_dir = osp.join(path, SuperResolutionPath.LR_IMAGES_DIR)
+        lr_image_dir = osp.join(path, CommonSuperResolutionPath.LR_IMAGES_DIR)
         for lr_image in find_images(lr_image_dir, recursive=True):
             item_id = osp.splitext(osp.relpath(lr_image, lr_image_dir))[0].replace("\\", "/")
             items[item_id] = DatasetItem(
                 id=item_id, subset=self._subset, media=Image(path=lr_image)
             )
 
-        upsampled_image_dir = osp.join(path, SuperResolutionPath.UPSAMPLED_IMAGES_DIR)
+        upsampled_image_dir = osp.join(path, CommonSuperResolutionPath.UPSAMPLED_IMAGES_DIR)
         if osp.isdir(upsampled_image_dir):
             upsampled_images = {
                 osp.splitext(osp.relpath(p, upsampled_image_dir))[0].replace("\\", "/"): p
@@ -45,7 +45,7 @@ class SuperResolutionExtractor(SourceExtractor):
         else:
             upsampled_images = {}
 
-        hr_image_dir = osp.join(path, SuperResolutionPath.HR_IMAGES_DIR)
+        hr_image_dir = osp.join(path, CommonSuperResolutionPath.HR_IMAGES_DIR)
         for hr_image in find_images(hr_image_dir, recursive=True):
             item_id = osp.splitext(osp.relpath(hr_image, hr_image_dir))[0].replace("\\", "/")
             if item_id not in items:
@@ -62,11 +62,11 @@ class SuperResolutionExtractor(SourceExtractor):
         return items
 
 
-class SuperResolutionImporter(Importer):
+class CommonSuperResolutionImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file(osp.join(SuperResolutionPath.HR_IMAGES_DIR, "**", "*"))
-        context.require_file(osp.join(SuperResolutionPath.LR_IMAGES_DIR, "**", "*"))
+        context.require_file(osp.join(CommonSuperResolutionPath.HR_IMAGES_DIR, "**", "*"))
+        context.require_file(osp.join(CommonSuperResolutionPath.LR_IMAGES_DIR, "**", "*"))
 
     @classmethod
     def find_sources(cls, path):
