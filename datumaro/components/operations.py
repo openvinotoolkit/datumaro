@@ -1081,10 +1081,12 @@ class Cuboid3dMatcher(_ShapeMatcher):
     def distance(self, a, b):
         raise NotImplementedError()
 
+
 @attrs
 class ImageResolutionMatcher(AnnotationMatcher):
     def match_annotations(self, sources):
         raise NotImplementedError()
+
 
 @attrs(kw_only=True)
 class AnnotationMerger:
@@ -1223,9 +1225,11 @@ class Cuboid3dMerger(_ShapeMerger, Cuboid3dMatcher):
 
         return shape
 
+
 @attrs
 class ImageResolutionMerger(AnnotationMerger, ImageResolutionMatcher):
     pass
+
 
 def match_segments(
     a_segms,
