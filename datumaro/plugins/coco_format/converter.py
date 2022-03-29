@@ -7,12 +7,10 @@ import os
 import os.path as osp
 from enum import Enum, auto
 from itertools import chain, groupby
-from typing import List, overload
 
 import numpy as np
 import pycocotools.mask as mask_utils
 
-import datumaro.components.annotation as ann_module
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import (
@@ -29,25 +27,10 @@ from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.util import cast, dump_json_file, find, str_to_bool
+from datumaro.util import around, cast, dump_json_file, find, str_to_bool
 from datumaro.util.image import save_image
 
 from .format import CocoPath, CocoTask
-
-
-def _round(v: float, digits: int) -> float:
-    ...
-
-
-@overload
-def _round(v: List[float], digits: int) -> List[float]:
-    ...
-
-
-def _round(v, digits):
-    if digits:
-        return np.around(v, digits)
-    return v
 
 
 class SegmentationMode(Enum):
@@ -307,7 +290,7 @@ class _InstancesConverter(_TaskConverter):
                 "size": [int(mask["size"][0]), int(mask["size"][1])],
             }
         else:
-            segmentation = [_round(v, self._context._round_digits) for v in polygons]
+            segmentation = [around(v, self._context._round_digits) for v in polygons]
 
         area = 0
         if segmentation:
@@ -335,8 +318,8 @@ class _InstancesConverter(_TaskConverter):
             "image_id": self._get_image_id(item),
             "category_id": cast(ann.label, int, -1) + 1,
             "segmentation": segmentation,
-            "area": _round(area, self._context._round_digits),
-            "bbox": _round(bbox, self._context._round_digits),
+            "area": around(area, self._context._round_digits),
+            "bbox": around(bbox, self._context._round_digits),
             "iscrowd": int(is_crowd),
         }
         if "score" in ann.attributes:
@@ -385,7 +368,7 @@ class _KeypointsConverter(_InstancesConverter):
 
         # Create annotations for solitary keypoints annotations
         for points in self.find_solitary_points(item.annotations):
-            instance = [points, [], None, points.get_bbox(), points.get_area()]
+            instance = [points, [], None, points.get_bbox()]
             elem = super().convert_instance(instance, item)
             elem.update(self.convert_points_object(points))
             self.annotations.append(elem)
@@ -520,8 +503,8 @@ class _PanopticConverter(_TaskConverter):
             segment_info = {}
             segment_info["id"] = ann.id
             segment_info["category_id"] = cast(ann.label, int, -1) + 1
-            segment_info["area"] = _round(ann.get_area(), self._context._round_digits)
-            segment_info["bbox"] = _round(ann.get_bbox(), self._context._round_digits)
+            segment_info["area"] = around(ann.get_area(), self._context._round_digits)
+            segment_info["bbox"] = around(ann.get_bbox(), self._context._round_digits)
             segment_info["iscrowd"] = cast(ann.attributes.get("is_crowd"), int, 0)
             segments_info.append(segment_info)
             masks.append(ann)
@@ -614,10 +597,10 @@ class CocoConverter(Converter):
         parser.add_argument(
             "--round-digits",
             type=int,
-            default=0,
+            default=-1,
             help="Round coordinates to this number of decimal digits. "
-            "Useful to make output files smaller. 0 means no rounding "
-            "(default: %(default)s",
+            "Useful to make output files smaller. -1 means no rounding "
+            "(default: %(default)s)",
         )
         parser.add_argument(
             "--tasks",
@@ -649,7 +632,7 @@ class CocoConverter(Converter):
         allow_attributes=True,
         reindex=False,
         merge_images=False,
-        round_digits=0,
+        round_digits=-1,
         **kwargs,
     ):
         super().__init__(extractor, save_dir, **kwargs)
@@ -684,14 +667,9 @@ class CocoConverter(Converter):
         self._allow_attributes = allow_attributes
         self._reindex = reindex
         self._merge_images = merge_images
-
-        self._image_ids = {}
-
-        if round_digits is None:
-            round_digits = ann_module.COORDINATE_ROUNDING_DIGITS
         self._round_digits = round_digits
 
-        self._patch = None
+        self._image_ids = {}
 
     def _make_dirs(self):
         self._images_dir = osp.join(self._save_dir, CocoPath.IMAGES_DIR)
