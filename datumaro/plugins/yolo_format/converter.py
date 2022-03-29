@@ -77,7 +77,7 @@ class YoloConverter(Converter):
                 subset_name = YoloPath.DEFAULT_SUBSET_NAME
             elif subset_name in YoloPath.RESERVED_CONFIG_KEYS:
                 raise DatasetExportError(
-                    f"Can't export '{subset_name}' subset in YOLO format, this word " "is reserved."
+                    f"Can't export '{subset_name}' subset in YOLO format, this word is reserved."
                 )
 
             subset_dir = osp.join(save_dir, "obj_%s_data" % subset_name)

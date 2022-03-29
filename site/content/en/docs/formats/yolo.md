@@ -18,7 +18,7 @@ Supported annotation types:
 
 YOLO format doesn't support attributes for annotations.
 
-The format supports arbitrary subset names, except `classes` and `backup`.
+The format supports arbitrary subset names, except `classes`, `names` and `backup`.
 
 > Note, that by default, the YOLO framework does not expect any subset names,
   except `train` and `valid`, Datumaro supports this as an extension.
