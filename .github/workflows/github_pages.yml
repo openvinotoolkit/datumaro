@@ -37,10 +37,11 @@ jobs:
         run: |
           pip install --upgrade pip
 
+      # click 8.1.0 fails https://github.com/streamlit/streamlit/issues/4555
       - name: Build docs
         run: |
           pip install \
-            'click!=8.1.0' # 8.1.0 fails https://github.com/streamlit/streamlit/issues/4555 \
+            'click!=8.1.0' \
             gitpython packaging toml Sphinx==4.2.0 sphinx-rtd-theme==1.0.0 sphinx-copybutton==0.4.0 \
             tensorflow openvino-dev sphinxcontrib-mermaid
           pip install -r requirements.txt
