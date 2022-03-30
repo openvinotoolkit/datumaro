@@ -6,3 +6,4 @@
 class YoloPath:
     DEFAULT_SUBSET_NAME = "train"
     SUBSET_NAMES = ["train", "valid"]
+    RESERVED_CONFIG_KEYS = ["backup", "classes", "names"]

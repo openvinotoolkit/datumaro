@@ -11,8 +11,15 @@ def not_empty(inst, attribute, x):
     assert len(x) != 0, x
 
 
+def has_length(n):
+    def _validator(inst, attribute, x):
+        assert len(x) != 0, x
+
+    return _validator
+
+
 def default_if_none(conv):
-    def validator(inst, attribute, value):
+    def _validator(inst, attribute, value):
         default = attribute.default
         if value is None:
             if callable(default):
@@ -32,14 +39,14 @@ def default_if_none(conv):
                 value = conv(value)
         setattr(inst, attribute.name, value)
 
-    return validator
+    return _validator
 
 
 def ensure_cls(c):
-    def converter(arg):
+    def _converter(arg):
         if isinstance(arg, c):
             return arg
         else:
             return c(**arg)
 
-    return converter
+    return _converter
