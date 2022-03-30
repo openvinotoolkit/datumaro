@@ -2,7 +2,7 @@
 title: 'Image zip'
 linkTitle: 'Image zip'
 description: ''
-weight: 4
+weight: 1
 ---
 
 ## Format specification

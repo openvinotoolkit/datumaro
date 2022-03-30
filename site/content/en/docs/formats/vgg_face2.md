@@ -2,7 +2,7 @@
 title: 'Vgg Face2 CSV'
 linkTitle: 'Vgg Face2 CSV'
 description: ''
-weight: 24
+weight: 1
 ---
 
 ## Format specification

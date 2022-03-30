@@ -2,7 +2,7 @@
 title: 'MNIST'
 linkTitle: 'MNIST'
 description: ''
-weight: 7
+weight: 1
 ---
 
 ## Format specification

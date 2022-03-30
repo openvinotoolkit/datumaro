@@ -2,7 +2,7 @@
 title: 'COCO'
 linkTitle: 'COCO'
 description: ''
-weight: 3
+weight: 1
 ---
 
 ## Format specification

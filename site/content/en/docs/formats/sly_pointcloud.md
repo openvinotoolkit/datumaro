@@ -2,7 +2,7 @@
 title: 'Supervisely Point Cloud'
 linkTitle: 'Supervisely Point Cloud'
 description: ''
-weight: 10
+weight: 1
 ---
 
 ## Format specification

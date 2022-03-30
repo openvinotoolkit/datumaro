@@ -2,7 +2,7 @@
 title: 'Open Images'
 linkTitle: 'Open Images'
 description: ''
-weight: 8
+weight: 1
 ---
 
 ## Format specification

@@ -2,7 +2,7 @@
 title: 'Mapillary Vistas'
 linkTitle: 'Mapillary Vistas'
 description: ''
-weight: 6
+weight: 1
 ---
 
 ## Format specification
