@@ -10,7 +10,7 @@ and saves it in the provided directory.
 Currently, can only generate fractal images, useful for network compression.
 To create 3-channel images, you should provide the number of images, height and width.
 The images are colorized with a model, which will be downloaded automatically.
-Uses the algorithm from the article: https://arxiv.org/abs/2103.13023
+Uses the algorithm from the article: <https://arxiv.org/abs/2103.13023>
 
 Usage:
 
