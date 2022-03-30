@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -9,7 +9,7 @@ import os.path as osp
 from shutil import rmtree
 
 from datumaro.cli.util.errors import CliException
-from datumaro.plugins.synthetic_data import ImageGenerator
+from datumaro.plugins.synthetic_data import FractalImageGenerator
 
 from ..util import MultilineFormatter
 
@@ -18,13 +18,17 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(
         help="Generate synthetic dataset",
         description="""
-        Creates a synthetic dataset with elements of the specified type (default: image),
-        shape and saves it in the provided directory.|n
-        To create 3-channel images, you should provide number of images, height and width for them.|n
+        Creates a synthetic dataset with elements of the specified type and shape,
+        and saves it in the provided directory.|n
+        |n
+        Currently, can only generate fractal images, useful for network compression.|n
+        To create 3-channel images, you should provide the number of images, height and width.|n
+        The images are colorized with a model, which will be downloaded automatically.|n
+        Uses the algorithm from the article: https://arxiv.org/abs/2103.13023 |n
         |n
         Examples:|n
-        - Generate 300 3-channel synthetic images with H=224, W=256 and store to data_dir:|n
-        |s|s%(prog)s -o data_dir -k 300 --shape 224 256 -t image
+        - Generate 300 3-channel images with H=224, W=256 and store to data_dir:|n
+        |s|s%(prog)s -o data_dir -k 300 --shape 224 256
         """,
         formatter_class=MultilineFormatter,
     )
@@ -36,16 +40,27 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "-k", "--count", type=int, required=True, help="Number of images to be generated"
     )
     parser.add_argument(
-        "--shape", nargs="+", type=int, required=True, help="Dimensions of data to be generated"
+        "--shape",
+        nargs=2,
+        metavar="DIM",
+        type=int,
+        required=True,
+        help="Dimensions of data to be generated (height, width)",
     )
     parser.add_argument(
-        "-t", "--type", default="image", choices=["image"], help="Specify type of data to generate"
+        "-t",
+        "--type",
+        default="image",
+        choices=["image"],
+        help="Specify type of data to generate (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--model-dir",
+        help="Path to load the colorization model from. "
+        "If no model is found, the model will be downloaded (default: current dir)",
     )
     parser.add_argument(
         "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
-    )
-    parser.add_argument(
-        "--model-path", help="Path where colorization model is located or path to save model"
     )
 
     parser.set_defaults(command=generate_command)
@@ -54,7 +69,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 
 def get_sensitive_args():
-    return {generate_command: ["output_dir", "count", "shape"]}
+    return {generate_command: ["output_dir", "model_dir"]}
 
 
 def generate_command(args):
@@ -67,16 +82,16 @@ def generate_command(args):
             os.mkdir(output_dir)
         else:
             raise CliException(
-                "Directory '%s' already exists (pass --overwrite to overwrite)" % output_dir
+                f"Directory '{output_dir}' already exists (pass --overwrite to overwrite)"
             )
 
     if args.type == "image":
-        ImageGenerator(
-            count=args.count, output_dir=output_dir, shape=args.shape, model_path=args.model_path
+        FractalImageGenerator(
+            count=args.count, output_dir=output_dir, shape=args.shape, model_path=args.model_dir
         ).generate_dataset()
     else:
         raise NotImplementedError(f"Data type: {args.type} is not supported")
 
-    log.info("Results have been saved to '%s'", args.output_dir)
+    log.info(f"Results have been saved to '{output_dir}'")
 
     return 0

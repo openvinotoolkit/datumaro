@@ -13,51 +13,36 @@ from typing import List, Optional, Tuple
 
 import cv2 as cv
 import numpy as np
+import requests
 
 from datumaro.components.dataset_generator import DatasetGenerator
 from datumaro.util.image import save_image
 
-from .utils import IFSFunction, augment, colorize, download_colorization_model
+from .utils import IFSFunction, augment, colorize
 
 
-class ImageGenerator(DatasetGenerator):
+class FractalImageGenerator(DatasetGenerator):
     """
     ImageGenerator generates 3-channel synthetic images with provided shape.
+    Uses the algorithm from the article: https://arxiv.org/abs/2103.13023
     """
 
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument(
-            "-o",
-            "--output-dir",
-            type=osp.abspath,
-            required=True,
-            help="Path to the directory where dataset are saved",
-        )
-        parser.add_argument(
-            "-k", "--count", type=int, required=True, help="Number of data to generate"
-        )
-        parser.add_argument(
-            "--shape",
-            nargs="+",
-            type=int,
-            required=True,
-            help="Data shape. For example, for image with height = 256 and width = 224: --shape 256 224",
-        )
+    _MODEL_PROTO_NAME = "colorization_deploy_v2.prototxt"
+    _MODEL_CONFIG_NAME = "colorization_release_v2.caffemodel"
+    _HULL_PTS_FILE_NAME = "pts_in_hull.npy"
+    _COLORS_FILE = "background_colors.txt"
 
-        parser.add_argument(
-            "--model-path",
-            type=osp.abspath,
-            help="Path where colorization model is located or path to save model",
-        )
-
-        return parser
-
-    def __init__(self, output_dir: str, count: int, shape: Tuple[int, int], model_path: str = None):
+    def __init__(
+        self, output_dir: str, count: int, shape: Tuple[int, int], model_path: Optional[str] = None
+    ) -> None:
+        assert 0 < count, "Image count cannot be lesser than 1"
         self._count = count
+
         self._output_dir = output_dir
+        self._model_dir = model_path if model_path else os.getcwd()
+
         self._cpu_count = min(os.cpu_count(), self._count)
+
         assert len(shape) == 2
         self._height, self._width = shape
 
@@ -66,17 +51,19 @@ class ImageGenerator(DatasetGenerator):
         self._iterations = 200000
         self._num_of_points = 100000
 
-        self._path = model_path if model_path is not None else os.getcwd()
-        download_colorization_model(self._path)
+        self._download_colorization_model(self._model_dir)
+
         self._initialize_params()
 
     def generate_dataset(self) -> None:
-        log.warning(
+        log.info(
             "Generation of '%d' 3-channel images with height = '%d' and width = '%d'",
             self._count,
             self._height,
             self._width,
         )
+
+        # On Mac 10.15 and Python 3.7 the use of multiprocessing leads to hangs
         use_multiprocessing = sys.platform != "darwin" or sys.version_info >= (3, 8)
         if use_multiprocessing:
             with Pool(processes=self._cpu_count) as pool:
@@ -118,13 +105,13 @@ class ImageGenerator(DatasetGenerator):
     def _generate_image_batch(
         self, params: np.ndarray, weights: np.ndarray, indices: List[int]
     ) -> None:
-        proto = osp.join(self._path, "colorization_deploy_v2.prototxt")
-        model = osp.join(self._path, "colorization_release_v2.caffemodel")
-        npy = osp.join(self._path, "pts_in_hull.npy")
+        proto = osp.join(self._model_dir, self._MODEL_PROTO_NAME)
+        model = osp.join(self._model_dir, self._MODEL_CONFIG_NAME)
+        npy = osp.join(self._model_dir, self._HULL_PTS_FILE_NAME)
         pts_in_hull = np.load(npy).transpose().reshape(2, 313, 1, 1).astype(np.float32)
 
-        with open_text(__package__, "synthetic_background.txt") as synthetic_background_file:
-            synthetic_background = np.loadtxt(synthetic_background_file)
+        with open_text(__package__, self._COLORS_FILE) as f:
+            background_colors = np.loadtxt(f)
 
         net = cv.dnn.readNetFromCaffe(proto, model)
         net.getLayer(net.getLayerId("class8_ab")).blobs = [pts_in_hull]
@@ -141,7 +128,7 @@ class ImageGenerator(DatasetGenerator):
                 weight=w,
             )
             color_image = colorize(image, net)
-            aug_image = augment(Random(i), color_image, synthetic_background)
+            aug_image = augment(Random(i), color_image, background_colors)
             save_image(
                 osp.join(self._output_dir, "{:06d}.png".format(i)), aug_image, create_dir=True
             )
@@ -190,8 +177,8 @@ class ImageGenerator(DatasetGenerator):
             self._weights = self._weights[: self._count, :]
 
         instances_categories = np.ceil(self._count / self._weights.shape[0])
-        self._instances = np.ceil(np.sqrt(instances_categories)).astype(np.int)
-        self._categories = np.ceil(instances_categories / self._instances).astype(np.int)
+        self._instances = np.ceil(np.sqrt(instances_categories)).astype(int)
+        self._categories = np.ceil(instances_categories / self._instances).astype(int)
 
     @staticmethod
     def _create_weights(num_params):
@@ -208,3 +195,53 @@ class ImageGenerator(DatasetGenerator):
                 weight_vectors.append(modified_weights)
         weights = np.array(weight_vectors)
         return weights
+
+    @classmethod
+    def _download_colorization_model(cls, path: str) -> None:
+        proto_file_name = cls._MODEL_PROTO_NAME
+        config_file_name = cls._MODEL_CONFIG_NAME
+        hull_file_name = cls._HULL_PTS_FILE_NAME
+        proto_path = osp.join(path, proto_file_name)
+        config_path = osp.join(path, config_file_name)
+        hull_path = osp.join(path, hull_file_name)
+
+        if not (
+            osp.exists(proto_path) and osp.exists(config_path) and osp.exists(hull_path)
+        ) and not os.access(path, os.W_OK):
+            raise ValueError(
+                "Please provide a path to a colorization model or "
+                "a path to a writable directory to download the model"
+            )
+
+        if not osp.exists(proto_path):
+            log.info(
+                "Downloading the '%s' file for image colorization model to '%s'",
+                proto_file_name,
+                path,
+            )
+            url = "https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/"
+            data = requests.get(url + proto_file_name)
+            with open(proto_path, "wb") as f:
+                f.write(data.content)
+
+        if not osp.exists(config_path):
+            log.info(
+                "Downloading the '%s' file config for image colorization model to '%s'",
+                config_file_name,
+                path,
+            )
+            url = "http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/"
+            data = requests.get(url + config_file_name)
+            with open(config_path, "wb") as f:
+                f.write(data.content)
+
+        if not osp.exists(hull_path):
+            log.info(
+                "Downloading the '%s' file for image colorization to '%s'",
+                hull_file_name,
+                path,
+            )
+            url = "https://github.com/richzhang/colorization/raw/caffe/colorization/resources/"
+            data = requests.get(url + hull_file_name)
+            with open(hull_path, "wb") as f:
+                f.write(data.content)

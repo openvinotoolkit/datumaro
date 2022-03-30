@@ -2,14 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
-import os
-import os.path as osp
 import warnings
+from random import Random
 
 import cv2 as cv
 import numpy as np
-import requests
 
 warnings.filterwarnings("ignore", message=r"(invalid value|overflow) encountered")
 
@@ -60,7 +57,8 @@ class IFSFunction:
     def rescale(self, image_x, image_y, pad_x, pad_y):
         if image_x < 2 * pad_x or image_y < 2 * pad_y:
             raise ValueError(
-                f"Image generation with height < {2 * pad_x} or width < {2 * pad_y} is not supported"
+                f"Image generation with height < {2 * pad_x} or "
+                f"width < {2 * pad_y} is not supported"
             )
 
         xs = np.array(self.xs)
@@ -98,50 +96,8 @@ class IFSFunction:
         return image
 
 
-def download_colorization_model(path):
-    proto_name = "colorization_deploy_v2.prototxt"
-    model_name = "colorization_release_v2.caffemodel"
-    npy_name = "pts_in_hull.npy"
-
-    if not (
-        osp.exists(osp.join(path, proto_name))
-        and osp.exists(osp.join(path, model_name))
-        and osp.exists(osp.join(path, npy_name))
-    ) and not os.access(path, os.W_OK):
-        raise ValueError(
-            "Please provide path where colorization model is located or path to writable directory to save colorization model"
-        )
-
-    if not osp.exists(osp.join(path, proto_name)):
-        log.warning(
-            "Downloading '%s' model for image coloring to '%s'",
-            proto_name,
-            path,
-        )
-        url = "https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/"
-        proto = requests.get(url + proto_name)
-        open(osp.join(path, proto_name), "wb").write(proto.content)
-    if not osp.exists(osp.join(path, model_name)):
-        log.warning(
-            "Downloading '%s' model for image coloring to '%s'",
-            model_name,
-            path,
-        )
-        url = "http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/"
-        model = requests.get(url + model_name)
-        open(osp.join(path, model_name), "wb").write(model.content)
-    if not osp.exists(osp.join(path, npy_name)):
-        log.warning(
-            "Downloading '%s' model for image coloring to '%s'",
-            npy_name,
-            path,
-        )
-        url = "https://github.com/richzhang/colorization/raw/caffe/colorization/resources/"
-        pts_in_hull = requests.get(url + npy_name)
-        open(osp.join(path, npy_name), "wb").write(pts_in_hull.content)
-
-
-def rgb2lab(frame):
+def rgb2lab(frame: np.ndarray) -> np.ndarray:
+    # Use of the OpenCV version sometimes leads to hangs
     y_coeffs = np.array([0.212671, 0.715160, 0.072169], dtype=np.float32)
     frame = np.where(frame > 0.04045, np.power((frame + 0.055) / 1.055, 2.4), frame / 12.92)
     y = frame @ y_coeffs.T
@@ -172,7 +128,7 @@ def colorize(frame, net):
     return cv.resize(frame_normed, (W_orig, H_orig))
 
 
-def augment(rng, image, synthetic_background):
+def augment(rng: Random, image: np.ndarray, colors: np.ndarray) -> np.ndarray:
     if rng.random() >= 0.5:
         image = cv.flip(image, 1)
 
@@ -184,15 +140,14 @@ def augment(rng, image, synthetic_background):
     rotate_matrix = cv.getRotationMatrix2D(center=(width / 2, height / 2), angle=angle, scale=1)
     image = cv.warpAffine(src=image, M=rotate_matrix, dsize=(width, height))
 
-    image = fill_background(rng, image, synthetic_background)
+    image = fill_background(rng, image, colors)
     if rng.random() >= 0.3:
         k_size = rng.choice(list(range(3, 16, 2)))
         image = cv.GaussianBlur(image, (k_size, k_size), 0)
     return image
 
 
-def fill_background(rng, image, synthetic_background):
-    class_id = rng.randint(0, synthetic_background.shape[0] - 1)
+def fill_background(rng: Random, image: np.ndarray, colors: np.ndarray) -> np.ndarray:
     rows, cols = np.nonzero(~np.any(image, axis=-1))  # background color = [0, 0, 0]
-    image[rows, cols] = synthetic_background[class_id]
+    image[rows, cols] = rng.choice(colors)
     return image

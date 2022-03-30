@@ -19,4 +19,4 @@ class DatasetGenerator(ABC, CliPlugin):
 
     @abstractmethod
     def generate_dataset(self):
-        pass
+        ...
