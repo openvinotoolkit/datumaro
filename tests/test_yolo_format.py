@@ -10,6 +10,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AnnotationImportError,
+    DatasetExportError,
     DatasetImportError,
     InvalidAnnotationError,
     ItemImportError,
@@ -261,6 +262,48 @@ class YoloConvertertTest(TestCase):
 
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
             compare_datasets(self, source_dataset, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_565)
+    def test_can_save_and_load_with_custom_subset_name(self):
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=3,
+                    subset="anything",
+                    media=Image(data=np.ones((8, 8, 3))),
+                    annotations=[
+                        Bbox(0, 1, 5, 2, label=2),
+                        Bbox(0, 2, 3, 2, label=5),
+                    ],
+                ),
+            ],
+            categories=["label_" + str(i) for i in range(10)],
+        )
+
+        with TestDir() as test_dir:
+            YoloConverter.convert(source_dataset, test_dir, save_media=True)
+            parsed_dataset = Dataset.import_from(test_dir, "yolo")
+
+            compare_datasets(self, source_dataset, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_565)
+    def test_cant_save_with_reserved_subset_name(self):
+        for subset in ["backup", "classes"]:
+
+            dataset = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        id=3,
+                        subset=subset,
+                        media=Image(data=np.ones((8, 8, 3))),
+                    ),
+                ],
+                categories=["a"],
+            )
+
+            with TestDir() as test_dir:
+                with self.assertRaisesRegex(DatasetExportError, f"Can't export '{subset}' subset"):
+                    YoloConverter.convert(dataset, test_dir)
 
     @mark_requirement(Requirements.DATUM_609)
     def test_can_save_and_load_without_path_prefix(self):

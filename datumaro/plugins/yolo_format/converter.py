@@ -10,7 +10,7 @@ from collections import OrderedDict
 from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import DatasetExportError, MediaTypeError
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, IExtractor
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
@@ -75,13 +75,10 @@ class YoloConverter(Converter):
         for (subset_name, subset), pbar in zip(subsets.items(), pbars):
             if not subset_name or subset_name == DEFAULT_SUBSET_NAME:
                 subset_name = YoloPath.DEFAULT_SUBSET_NAME
-            elif subset_name not in YoloPath.SUBSET_NAMES:
-                log.warning(
-                    "Skipping subset export '%s'. "
-                    "If specified, the only valid names are %s"
-                    % (subset_name, ", ".join("'%s'" % s for s in YoloPath.SUBSET_NAMES))
+            elif subset_name in YoloPath.RESERVED_CONFIG_KEYS:
+                raise DatasetExportError(
+                    f"Can't export '{subset_name}' subset in YOLO format, this word is reserved."
                 )
-                continue
 
             subset_dir = osp.join(save_dir, "obj_%s_data" % subset_name)
             os.makedirs(subset_dir, exist_ok=True)

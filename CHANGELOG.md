@@ -40,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/684>,
    <https://github.com/openvinotoolkit/datumaro/pull/686>,
    <https://github.com/openvinotoolkit/datumaro/pull/687>)
+- YOLO format now supports almost any subset names, except `backup`, `names` and `classes`
+  (instead of just `train` and `valid`). The reserved names now raise an error on exporting.
+  (<https://github.com/openvinotoolkit/datumaro/pull/688>)
 
 ### Deprecated
 - `--save-images` is replaced with `--save-media` in CLI and converter API
