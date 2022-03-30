@@ -7,7 +7,6 @@ from __future__ import annotations
 from enum import Enum, auto
 from functools import partial
 from itertools import zip_longest
-from tkinter import Image
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
 
 import attr
@@ -15,6 +14,7 @@ import numpy as np
 from attr import asdict, attrs, field
 from typing_extensions import Literal
 
+from datumaro.components.media import Image
 from datumaro.util.attrs_util import default_if_none, not_empty
 
 
@@ -27,7 +27,7 @@ class AnnotationType(Enum):
     bbox = auto()
     caption = auto()
     cuboid_3d = auto()
-    image_resolution = auto()
+    super_resolution_annotation = auto()
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -792,11 +792,10 @@ class Caption(Annotation):
 
 
 @attrs(slots=True, order=False)
-class ImageResolution(Annotation):
+class SuperResolutionAnnotation(Annotation):
     """
-    Represents high and low resolution images.
+    Represents high resolution images.
     """
 
-    _type = AnnotationType.image_resolution
-    hr_image = field()
-    upsampled_image: Optional[Image] = field(default=None)
+    _type = AnnotationType.super_resolution_annotation
+    image: Image = field()

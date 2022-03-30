@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.annotation import ImageResolution
+from datumaro.components.annotation import SuperResolutionAnnotation
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
@@ -30,21 +30,17 @@ class CommonSuperResolutionImporterTest(TestCase):
                     id="1",
                     media=Image(data=np.ones((3, 4, 3))),
                     annotations=[
-                        ImageResolution(
-                            Image(data=np.ones((10, 20, 3))),
-                            upsampled_image=Image(data=np.ones((10, 20, 3))),
-                        )
+                        SuperResolutionAnnotation(Image(data=np.ones((10, 20, 3)))),
                     ],
+                    attributes={"upsampled": Image(data=np.ones((10, 20, 3)))},
                 ),
                 DatasetItem(
                     id="2",
                     media=Image(data=np.ones((3, 4, 3))),
                     annotations=[
-                        ImageResolution(
-                            Image(data=np.ones((10, 20, 3))),
-                            upsampled_image=Image(data=np.ones((10, 20, 3))),
-                        )
+                        SuperResolutionAnnotation(Image(data=np.ones((10, 20, 3)))),
                     ],
+                    attributes={"upsampled": Image(data=np.ones((10, 20, 3)))},
                 ),
             ]
         )

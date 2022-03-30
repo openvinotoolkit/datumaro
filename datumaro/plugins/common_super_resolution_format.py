@@ -4,7 +4,7 @@
 
 import os.path as osp
 
-from datumaro.components.annotation import ImageResolution
+from datumaro.components.annotation import SuperResolutionAnnotation
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
@@ -29,13 +29,6 @@ class CommonSuperResolutionExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        lr_image_dir = osp.join(path, CommonSuperResolutionPath.LR_IMAGES_DIR)
-        for lr_image in find_images(lr_image_dir, recursive=True):
-            item_id = osp.splitext(osp.relpath(lr_image, lr_image_dir))[0].replace("\\", "/")
-            items[item_id] = DatasetItem(
-                id=item_id, subset=self._subset, media=Image(path=lr_image)
-            )
-
         upsampled_image_dir = osp.join(path, CommonSuperResolutionPath.UPSAMPLED_IMAGES_DIR)
         if osp.isdir(upsampled_image_dir):
             upsampled_images = {
@@ -45,19 +38,31 @@ class CommonSuperResolutionExtractor(SourceExtractor):
         else:
             upsampled_images = {}
 
+        lr_image_dir = osp.join(path, CommonSuperResolutionPath.LR_IMAGES_DIR)
+        for lr_image in find_images(lr_image_dir, recursive=True):
+            item_id = osp.splitext(osp.relpath(lr_image, lr_image_dir))[0].replace("\\", "/")
+
+            attributes = {}
+            upsampled_image = upsampled_images.get(item_id)
+            if upsampled_image:
+                attributes["upsampled"] = Image(path=upsampled_image)
+
+            items[item_id] = DatasetItem(
+                id=item_id, subset=self._subset, media=Image(path=lr_image), attributes=attributes
+            )
+
         hr_image_dir = osp.join(path, CommonSuperResolutionPath.HR_IMAGES_DIR)
         for hr_image in find_images(hr_image_dir, recursive=True):
             item_id = osp.splitext(osp.relpath(hr_image, hr_image_dir))[0].replace("\\", "/")
             if item_id not in items:
-                items[item_id] = DatasetItem(id=item_id, subset=self._subset)
+                attributes = {}
+                upsampled_image = upsampled_images.get(item_id)
+                if upsampled_image:
+                    attributes["upsampled"] = Image(path=upsampled_image)
 
-            upsampled_image = upsampled_images.get(item_id)
-            if upsampled_image:
-                upsampled_image = Image(path=upsampled_image)
+                items[item_id] = DatasetItem(id=item_id, subset=self._subset, attributes=attributes)
 
-            items[item_id].annotations = [
-                ImageResolution(Image(path=hr_image), upsampled_image=upsampled_image)
-            ]
+            items[item_id].annotations = [SuperResolutionAnnotation(Image(path=hr_image))]
 
         return items
 

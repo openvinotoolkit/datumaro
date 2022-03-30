@@ -7,10 +7,13 @@ weight: 2
 
 ## Format specification
 
-CSR format specification is available [here](https://github.com/openvinotoolkit/open_model_zoo/blob/master/tools/accuracy_checker/openvino/tools/accuracy_checker/annotation_converters/README.md#supported-converters).
+CSR format specification is available [here](https://github.com/openvinotoolkit/workbench/blob/9b096b92ea875e3582af3120e40b5a80535e40cf/docs/Workbench_DG/Dataset_Types.md#common-super-resolution-csr).
 
 Supported annotation types:
-- `ImageResolution`
+- `SuperResolutionAnnotation`
+
+Supported attributes:
+- `upsampled` (`Image`): upsampled image
 
 ## Import Common Super Resolution dataset
 

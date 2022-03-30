@@ -216,7 +216,7 @@ class TestOperations(TestCase):
                     "count": 2,
                 },
                 "cuboid_3d": {"count": 0},
-                "image_resolution": {"count": 0},
+                "super_resolution_annotation": {"count": 0},
             },
             "annotations": {
                 "labels": {
@@ -314,7 +314,7 @@ class TestOperations(TestCase):
                     "count": 0,
                 },
                 "cuboid_3d": {"count": 0},
-                "image_resolution": {"count": 0},
+                "super_resolution_annotation": {"count": 0},
             },
             "annotations": {
                 "labels": {
