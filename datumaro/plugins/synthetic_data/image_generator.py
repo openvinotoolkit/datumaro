@@ -5,9 +5,8 @@
 import logging as log
 import os
 import os.path as osp
-import sys
 from importlib.resources import open_text
-from multiprocessing import Pool
+from multiprocessing import get_context
 from random import Random
 from typing import List, Optional, Tuple
 
@@ -64,17 +63,16 @@ class FractalImageGenerator(DatasetGenerator):
         )
 
         # On Mac 10.15 and Python 3.7 the use of multiprocessing leads to hangs
-        use_multiprocessing = sys.platform != "darwin" or sys.version_info >= (3, 8)
-        if use_multiprocessing:
-            with Pool(processes=self._cpu_count) as pool:
-                params = pool.map(
-                    self._generate_category, [Random(i) for i in range(self._categories)]
-                )
-        else:
-            params = []
-            for i in range(self._categories):
-                param = self._generate_category(Random(i))
-                params.append(param)
+        # use_multiprocessing = sys.platform != "darwin" or sys.version_info >= (3, 8)
+        # if use_multiprocessing:
+        mp_ctx = get_context("spawn")
+        with mp_ctx.Pool(processes=self._cpu_count) as pool:
+            params = pool.map(self._generate_category, [Random(i) for i in range(self._categories)])
+        # else:
+        #     params = []
+        #     for i in range(self._categories):
+        #         param = self._generate_category(Random(i))
+        #         params.append(param)
 
         instances_weights = np.repeat(self._weights, self._instances, axis=0)
         weight_per_img = np.tile(instances_weights, (self._categories, 1))
@@ -95,12 +93,12 @@ class FractalImageGenerator(DatasetGenerator):
             offset += len(param)
             generation_params.append((param, w, indices))
 
-        if use_multiprocessing:
-            with Pool(processes=self._cpu_count) as pool:
-                pool.starmap(self._generate_image_batch, generation_params)
-        else:
-            for i, param in enumerate(generation_params):
-                self._generate_image_batch(*param)
+        # if use_multiprocessing:
+        with mp_ctx.Pool(processes=self._cpu_count) as pool:
+            pool.starmap(self._generate_image_batch, generation_params)
+        # else:
+        #     for i, param in enumerate(generation_params):
+        #         self._generate_image_batch(*param)
 
     def _generate_image_batch(
         self, params: np.ndarray, weights: np.ndarray, indices: List[int]
