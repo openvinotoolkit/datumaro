@@ -86,7 +86,7 @@ class YoloExtractor(SourceExtractor):
         # backup = backup/
         #
         # To support more subset names, we disallow subsets
-        # called 'classes' and 'backup'.
+        # called 'classes', 'names' and 'backup'.
         subsets = {k: v for k, v in config.items() if k not in YoloPath.RESERVED_CONFIG_KEYS}
 
         for subset_name, list_path in subsets.items():
