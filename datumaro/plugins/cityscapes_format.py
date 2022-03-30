@@ -22,6 +22,7 @@ from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
@@ -299,6 +300,19 @@ class CityscapesExtractor(SourceExtractor):
 
 
 class CityscapesImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        patterns = [
+            f"{CityscapesPath.GT_FINE_DIR}/**/*{CityscapesPath.GT_INSTANCE_MASK_SUFFIX}",
+            f"{CityscapesPath.GT_FINE_DIR}/**/*{CityscapesPath.LABEL_TRAIN_IDS_SUFFIX}",
+            f"{CityscapesPath.IMGS_FINE_DIR}/{CityscapesPath.ORIGINAL_IMAGE_DIR}"
+            f"/**/*{CityscapesPath.ORIGINAL_IMAGE}.*",
+        ]
+        with context.require_any():
+            for pattern in patterns:
+                with context.alternative():
+                    context.require_file(pattern)
+
     @classmethod
     def find_sources(cls, path):
         sources = cls._find_sources_recursive(

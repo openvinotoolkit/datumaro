@@ -10,6 +10,7 @@ from . import (
     commit,
     convert,
     create,
+    describe_downloads,
     detect_format,
     diff,
     download,

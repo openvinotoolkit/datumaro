@@ -8,10 +8,10 @@ import logging as log
 import os.path as osp
 from functools import partial
 from inspect import isclass
-from typing import Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar
+from typing import Callable, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
-from datumaro.components.format_detection import detect_dataset_format
+from datumaro.components.format_detection import RejectionReason, detect_dataset_format
 from datumaro.util.os_util import import_foreign_module, split_path
 
 T = TypeVar("T")
@@ -253,11 +253,32 @@ class Environment:
     def is_format_known(self, name):
         return name in self.importers or name in self.extractors
 
-    def detect_dataset(self, path):
-        return detect_dataset_format(
-            (
-                (format_name, importer.detect)
-                for format_name, importer in self.importers.items.items()
-            ),
-            path,
-        )
+    def detect_dataset(
+        self,
+        path: str,
+        depth: int = 1,
+        rejection_callback: Optional[Callable[[str, RejectionReason, str], None]] = None,
+    ) -> List[str]:
+        ignore_dirs = {"__MSOSX", "__MACOSX"}
+        matched_formats = set()
+        for _ in range(depth + 1):
+            detected_formats = detect_dataset_format(
+                (
+                    (format_name, importer.detect)
+                    for format_name, importer in self.importers.items.items()
+                ),
+                path,
+                rejection_callback=rejection_callback,
+            )
+
+            if detected_formats and len(detected_formats) == 1:
+                return detected_formats
+            elif detected_formats:
+                matched_formats |= set(detected_formats)
+
+            paths = glob.glob(osp.join(path, "*"))
+            path = "" if len(paths) != 1 else paths[0]
+            if not osp.isdir(path) or osp.basename(path) in ignore_dirs:
+                break
+
+        return list(matched_formats)

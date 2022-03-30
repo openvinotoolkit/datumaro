@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import glob
 import inspect
 import logging as log
 import os
@@ -340,6 +339,15 @@ class DatasetStorage(IDataset):
                 pass
 
     def _iter_init_cache(self) -> Iterable[DatasetItem]:
+        try:
+            # Can't just return from the method, because it won't add exception handling
+            # It covers cases when we save the null error handler in the source
+            for item in self._iter_init_cache_unchecked():
+                yield item
+        except _ImportFail as e:
+            raise e.__cause__
+
+    def _iter_init_cache_unchecked(self) -> Iterable[DatasetItem]:
         # Merges the source, source transforms and patch, caches the result
         # and provides an iterator for the resulting item sequence.
         #
@@ -1218,7 +1226,7 @@ class Dataset(IDataset):
         return dataset
 
     @staticmethod
-    def detect(path: str, *, env: Optional[Environment] = None, depth: int = 1) -> str:
+    def detect(path: str, *, env: Optional[Environment] = None, depth: int = 2) -> str:
         """
         Attempts to detect dataset format of a given directory.
 
@@ -1238,21 +1246,13 @@ class Dataset(IDataset):
         if depth < 0:
             raise ValueError("Depth cannot be less than zero")
 
-        for _ in range(depth + 1):
-            matches = env.detect_dataset(path)
-            if matches and len(matches) == 1:
-                return matches[0]
-
-            paths = glob.glob(osp.join(path, "*"))
-            path = "" if len(paths) != 1 else paths[0]
-            ignore_dirs = {"__MSOSX", "__MACOSX"}
-            if not osp.isdir(path) or osp.basename(path) in ignore_dirs:
-                break
-
+        matches = env.detect_dataset(path, depth=depth)
         if not matches:
             raise NoMatchingFormatsError()
-        if 1 < len(matches):
+        elif 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
+        else:
+            return matches[0]
 
 
 @contextmanager

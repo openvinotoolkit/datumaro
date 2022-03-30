@@ -697,6 +697,8 @@ class IntersectMerge(MergingStrategy):
                 return _make(CaptionsMerger, **kwargs)
             elif t is AnnotationType.cuboid_3d:
                 return _make(Cuboid3dMerger, **kwargs)
+            elif t is AnnotationType.super_resolution_annotation:
+                return _make(SuperResolutionAnnotationMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 
@@ -984,8 +986,7 @@ class _ShapeMatcher(AnnotationMatcher):
 
         return clusters
 
-    @staticmethod
-    def distance(a, b):
+    def distance(self, a, b):
         return segment_iou(a, b)
 
     def label_matcher(self, a, b):
@@ -1025,8 +1026,7 @@ class PointsMatcher(_ShapeMatcher):
 
 @attrs
 class LineMatcher(_ShapeMatcher):
-    @staticmethod
-    def distance(a, b):
+    def distance(self, a, b):
         # Compute inter-line area by using the Trapezoid formulae
         # https://en.wikipedia.org/wiki/Trapezoidal_rule
         # Normalize by common bbox and get the bbox fill ratio
@@ -1078,8 +1078,13 @@ class CaptionsMatcher(AnnotationMatcher):
 
 @attrs
 class Cuboid3dMatcher(_ShapeMatcher):
-    @staticmethod
-    def distance(a, b):
+    def distance(self, a, b):
+        raise NotImplementedError()
+
+
+@attrs
+class SuperResolutionAnnotationMatcher(AnnotationMatcher):
+    def match_annotations(self, sources):
         raise NotImplementedError()
 
 
@@ -1219,6 +1224,11 @@ class Cuboid3dMerger(_ShapeMerger, Cuboid3dMatcher):
         shape.attributes["score"] = label_score * shape_score if label is not None else shape_score
 
         return shape
+
+
+@attrs
+class SuperResolutionAnnotationMerger(AnnotationMerger, SuperResolutionAnnotationMatcher):
+    pass
 
 
 def match_segments(

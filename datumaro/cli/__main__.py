@@ -93,6 +93,11 @@ def _get_known_commands():
         ("", None, ""),
         ("Dataset operations:", None, ""),
         ("convert", commands.convert, "Convert dataset between formats"),
+        (
+            "describe-downloads",
+            commands.describe_downloads,
+            "Print information about downloadable datasets",
+        ),
         ("detect-format", commands.detect_format, "Detect the format of a dataset"),
         ("diff", commands.diff, "Compare datasets"),
         ("download", commands.download, "Download a publicly available dataset"),

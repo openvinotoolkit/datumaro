@@ -42,6 +42,12 @@ List of supported formats:
   - [Format specification](https://www.cityscapes-dataset.com/dataset-overview/)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cityscapes_dataset)
   - [Format documentation](/docs/formats/cityscapes)
+- Common Semantic Segmentation (`segmentation`)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/common_semantic_segmentation_dataset)
+  - [Format documentation](/docs/formats/common_semantic_segmentation)
+- Common Super Resolution
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/common_super_resolution_dataset)
+  - [Format documentation](/docs/formats/common_super_resolution)
 - CVAT (`for images`, `for video` (import-only))
   - [Format specification](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cvat_dataset)
@@ -158,6 +164,7 @@ List of supported formats:
 - (Key-)Points
 - Captions
 - 3D cuboids
+- Super Resolution Annotation
 
 Datumaro does not separate datasets by tasks like classification, detection
 etc. Instead, datasets can have any annotations. When a dataset is exported
