@@ -14,6 +14,7 @@ import numpy as np
 from attr import asdict, attrs, field
 from typing_extensions import Literal
 
+from datumaro.components.media import Image
 from datumaro.util.attrs_util import default_if_none, not_empty
 
 
@@ -26,6 +27,7 @@ class AnnotationType(Enum):
     bbox = auto()
     caption = auto()
     cuboid_3d = auto()
+    super_resolution_annotation = auto()
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -787,3 +789,13 @@ class Caption(Annotation):
 
     _type = AnnotationType.caption
     caption: str = field(converter=str)
+
+
+@attrs(slots=True, order=False)
+class SuperResolutionAnnotation(Annotation):
+    """
+    Represents high resolution images.
+    """
+
+    _type = AnnotationType.super_resolution_annotation
+    image: Image = field()
