@@ -23,5 +23,8 @@ tensorboardX>=1.8,!=2.3
 # NDR
 scipy
 
+# Image generator
+requests
+
 # Sampler
 pandas>=1.1.5
