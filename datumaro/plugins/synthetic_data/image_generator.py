@@ -209,39 +209,31 @@ class FractalImageGenerator(DatasetGenerator):
             osp.exists(proto_path) and osp.exists(config_path) and osp.exists(hull_path)
         ) and not os.access(path, os.W_OK):
             raise ValueError(
-                "Please provide a path to a colorization model or "
+                "Please provide a path to a colorization model directory or "
                 "a path to a writable directory to download the model"
             )
 
-        if not osp.exists(proto_path):
-            log.info(
-                "Downloading the '%s' file for image colorization model to '%s'",
-                proto_file_name,
-                path,
-            )
-            url = "https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/"
-            data = requests.get(url + proto_file_name)
-            with open(proto_path, "wb") as f:
-                f.write(data.content)
+        def _download_file(url, output_path, timeout=60):
+            response = requests.get(url, timeout=timeout)
+            response.raise_for_status()
+            with open(output_path, "wb") as fd:
+                for chunk in response.iter_content(chunk_size=128):
+                    fd.write(chunk)
 
-        if not osp.exists(config_path):
-            log.info(
-                "Downloading the '%s' file config for image colorization model to '%s'",
-                config_file_name,
-                path,
-            )
-            url = "http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/"
-            data = requests.get(url + config_file_name)
-            with open(config_path, "wb") as f:
-                f.write(data.content)
-
-        if not osp.exists(hull_path):
-            log.info(
-                "Downloading the '%s' file for image colorization to '%s'",
-                hull_file_name,
-                path,
-            )
-            url = "https://github.com/richzhang/colorization/raw/caffe/colorization/resources/"
-            data = requests.get(url + hull_file_name)
-            with open(hull_path, "wb") as f:
-                f.write(data.content)
+        for url, save_path in [
+            (
+                f"https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/{proto_file_name}",
+                proto_path,
+            ),
+            (
+                f"http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/{config_file_name}",
+                config_path,
+            ),
+            (
+                f"https://github.com/richzhang/colorization/raw/caffe/colorization/resources/{hull_file_name}",
+                hull_path,
+            ),
+        ]:
+            if not osp.exists(save_path):
+                log.info("Downloading the '%s' file to '%s'", *osp.split(save_path))
+                _download_file(url, save_path)
