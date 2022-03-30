@@ -1,0 +1,14 @@
+{
+    "3": {
+        "annotations": {
+            "label": "label_2",
+            "segment": [
+                0.0,
+                2.0
+            ]
+        },
+        "duration": 2.0,
+        "subset": "train",
+        "url": "https://www.youtube.com/watch?v="
+    }
+}
