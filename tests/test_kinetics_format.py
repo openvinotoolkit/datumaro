@@ -6,10 +6,11 @@ from datumaro.util.test_utils import compare_datasets
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "kinetics_dataset")
 
+from datumaro.components.annotation import Label
+from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.plugins.kinetics_format import KineticsImporter
-from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.components.annotation import Label
+
 from .requirements import Requirements, mark_requirement
 
 
