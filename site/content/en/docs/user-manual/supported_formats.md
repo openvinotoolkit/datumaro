@@ -164,7 +164,7 @@ List of supported formats:
 - (Key-)Points
 - Captions
 - 3D cuboids
-- Image Resolution
+- Super Resolution Annotation
 
 Datumaro does not separate datasets by tasks like classification, detection
 etc. Instead, datasets can have any annotations. When a dataset is exported
