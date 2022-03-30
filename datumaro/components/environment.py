@@ -241,12 +241,6 @@ class Environment:
             result = result.convert
         return partial(result, *args, **kwargs)
 
-    def make_generator(self, name, *args, **kwargs):
-        result = self.generators.get(name)
-        if isclass(result):
-            result = result.generate
-        return partial(result, *args, **kwargs)
-
     def make_transform(self, name, *args, **kwargs):
         return partial(self.transforms.get(name), *args, **kwargs)
 
