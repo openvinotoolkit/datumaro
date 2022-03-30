@@ -12,7 +12,7 @@ from .requirements import Requirements, mark_requirement
 
 
 class FractalImageGeneratorTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_677)
     def test_save_image_can_create_dir(self):
         with TestDir() as test_dir:
             dataset_size = 2
@@ -28,7 +28,7 @@ class FractalImageGeneratorTest(TestCase):
                 self.assertEqual(W, 25)
                 self.assertEqual(C, 3)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_677)
     def test_can_generate_image(self):
         ref_dir = osp.join(osp.dirname(__file__), "assets", "synthetic_dataset", "images")
         with TestDir() as test_dir:
