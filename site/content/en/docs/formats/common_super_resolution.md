@@ -1,27 +1,27 @@
 ---
-title: 'Super Resolution'
-linkTitle: 'Super Resolution'
+title: 'Common Super Resolution'
+linkTitle: 'Common Super Resolution'
 description: ''
 weight: 2
 ---
 
 ## Format specification
 
-Super resolution format specification is available [here](https://github.com/openvinotoolkit/open_model_zoo/blob/master/tools/accuracy_checker/openvino/tools/accuracy_checker/annotation_converters/README.md#supported-converters).
+CSR format specification is available [here](https://github.com/openvinotoolkit/open_model_zoo/blob/master/tools/accuracy_checker/openvino/tools/accuracy_checker/annotation_converters/README.md#supported-converters).
 
 Supported annotation types:
 - `ImageResolution`
 
-## Import Super Resolution dataset
+## Import Common Super Resolution dataset
 
-A Datumaro project with a Super Resolution source can be created in the following way:
+A Datumaro project with a CSR source can be created in the following way:
 
 ``` bash
 datum create
-datum import --format super_resolution <path/to/dataset>
+datum import --format common_super_resolution <path/to/dataset>
 ```
 
-Super Resolution dataset directory should have the following structure:
+CSR dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
 ```
