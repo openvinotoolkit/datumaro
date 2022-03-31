@@ -2,11 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 import logging as log
 import os
 import os.path as osp
 from enum import Enum, auto
 from itertools import chain, groupby
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pycocotools.mask as mask_utils
@@ -14,6 +17,7 @@ import pycocotools.mask as mask_utils
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import (
+    COORDINATE_ROUNDING_DIGITS,
     AnnotationType,
     Bbox,
     Caption,
@@ -25,7 +29,7 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.extractor import DatasetItem, IExtractor
 from datumaro.components.media import Image
 from datumaro.util import around, cast, dump_json_file, find, str_to_bool
 from datumaro.util.image import save_image
@@ -40,7 +44,7 @@ class SegmentationMode(Enum):
 
 
 class _TaskConverter:
-    def __init__(self, context):
+    def __init__(self, context: CocoConverter) -> None:
         self._min_ann_id = 1
         self._context = context
 
@@ -387,10 +391,9 @@ class _KeypointsConverter(_InstancesConverter):
 
         return solitary_points
 
-    @staticmethod
-    def convert_points_object(ann):
+    def convert_points_object(self, ann: Points):
         keypoints = []
-        points = ann.points
+        points = around(ann.points, self._context._round_digits)
         visibility = ann.visibility
         for index in range(0, len(points), 2):
             kp = points[index : index + 2]
@@ -597,7 +600,7 @@ class CocoConverter(Converter):
         parser.add_argument(
             "--round-digits",
             type=int,
-            default=-1,
+            default=COORDINATE_ROUNDING_DIGITS,
             help="Round coordinates to this number of decimal digits. "
             "Useful to make output files smaller. -1 means no rounding "
             "(default: %(default)s)",
@@ -624,17 +627,17 @@ class CocoConverter(Converter):
 
     def __init__(
         self,
-        extractor,
-        save_dir,
-        tasks=None,
-        segmentation_mode=None,
-        crop_covered=False,
-        allow_attributes=True,
-        reindex=False,
-        merge_images=False,
-        round_digits=-1,
+        extractor: IExtractor,
+        save_dir: str,
+        tasks: Optional[List[Union[str, CocoTask]]] = None,
+        segmentation_mode: Optional[Union[str, SegmentationMode]] = None,
+        crop_covered: bool = False,
+        allow_attributes: bool = True,
+        reindex: bool = False,
+        merge_images: bool = False,
+        round_digits: int = COORDINATE_ROUNDING_DIGITS,
         **kwargs,
-    ):
+    ) -> None:
         super().__init__(extractor, save_dir, **kwargs)
 
         assert tasks is None or isinstance(tasks, (CocoTask, list, str))
@@ -652,11 +655,7 @@ class CocoConverter(Converter):
             tasks = set()
         self._tasks = tasks
 
-        assert (
-            segmentation_mode is None
-            or isinstance(segmentation_mode, str)
-            or segmentation_mode in SegmentationMode
-        )
+        assert segmentation_mode is None or isinstance(segmentation_mode, (SegmentationMode, str))
         if segmentation_mode is None:
             segmentation_mode = SegmentationMode.guess
         if isinstance(segmentation_mode, str):
@@ -669,7 +668,7 @@ class CocoConverter(Converter):
         self._merge_images = merge_images
         self._round_digits = round_digits
 
-        self._image_ids = {}
+        self._image_ids: Dict[str, int] = {}
 
     def _make_dirs(self):
         self._images_dir = osp.join(self._save_dir, CocoPath.IMAGES_DIR)

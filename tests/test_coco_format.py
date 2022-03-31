@@ -44,7 +44,7 @@ from datumaro.plugins.coco_format.converter import (
 )
 from datumaro.plugins.coco_format.extractor import CocoInstancesExtractor
 from datumaro.plugins.coco_format.importer import CocoImporter
-from datumaro.util import dump_json_file
+from datumaro.util import dump_json_file, find
 from datumaro.util.test_utils import (
     TestDir,
     check_save_and_load,
@@ -2253,3 +2253,35 @@ class CocoConverterTest(TestCase):
                 require_media=True,
             )
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
+
+    @mark_requirement(Requirements.DATUM_702)
+    def test_can_round_coordinates_on_export(self):
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="1",
+                    media=Image(data=np.ones((4, 4, 3))),
+                    annotations=[
+                        Polygon([1.1111] * 6, id=1),
+                        Points([1.1111] * 6, id=2),
+                        Bbox(*([1.1111] * 4), id=3),
+                    ],
+                ),
+            ],
+        )
+
+        with TestDir() as test_dir:
+            dataset.export(test_dir, "coco", round_digits=3)
+
+            # Once label merging for different tasks is implemented, can just use 'coco'
+            actual_dataset = Dataset.from_extractors(
+                Dataset.import_from(test_dir, "coco_instances"),
+                Dataset.import_from(test_dir, "coco_person_keypoints"),
+            )
+            actual_item = actual_dataset.get("1")
+            actual_polygon: Polygon = find(actual_item.annotations, lambda ann: ann.id == 1)
+            actual_points: Points = find(actual_item.annotations, lambda ann: ann.id == 2)
+            actual_bbox: Bbox = find(actual_item.annotations, lambda ann: ann.id == 3)
+            self.assertEqual(actual_polygon.points, [1.111] * 6)
+            self.assertEqual(actual_points.points, [1.111] * 6)
+            self.assertEqual(actual_bbox.points, [1.111, 1.111, 2.222, 2.222])
