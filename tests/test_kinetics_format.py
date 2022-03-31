@@ -28,27 +28,27 @@ class KineticsImporterTest(TestCase):
                 DatasetItem(
                     id="1",
                     subset="test",
-                    annotations=[Label(1, attributes={"time_start": 0, "time_end": 2})],
+                    annotations=[Label(0, attributes={"time_start": 0, "time_end": 2})],
                     media=Video("./video_1.avi"),
                 ),
                 DatasetItem(
                     id="2",
                     subset="test",
-                    annotations=[Label(1, attributes={"time_start": 5, "time_end": 7})],
+                    annotations=[Label(0, attributes={"time_start": 5, "time_end": 7})],
                 ),
                 DatasetItem(
                     id="4",
                     subset="test",
-                    annotations=[Label(2, attributes={"time_start": 10, "time_end": 15})],
+                    annotations=[Label(1, attributes={"time_start": 10, "time_end": 15})],
                 ),
                 DatasetItem(
                     id="3",
                     subset="train",
-                    annotations=[Label(0, attributes={"time_start": 0, "time_end": 2})],
+                    annotations=[Label(2, attributes={"time_start": 0, "time_end": 2})],
                     media=Video("./train/3.avi"),
                 ),
             ],
-            categories=["label_2", "label_0", "label_1"],
+            categories=["label_0", "label_1", "label_2"],
             media_type=Video,
         )
 
