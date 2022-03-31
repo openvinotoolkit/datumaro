@@ -22,7 +22,6 @@ class KineticsImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_with_video(self):
-        attributes = {"time_start": 0, "time_end": 2}
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
