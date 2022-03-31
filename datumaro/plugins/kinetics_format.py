@@ -36,7 +36,7 @@ class KineticsExtractor(Extractor):
         self._categories = {AnnotationType.label: LabelCategories()}
         self._items = []
 
-        for ann_file in self._annotation_files.values():
+        for ann_file in sorted(self._annotation_files.values()):
             if ann_file.endswith("csv"):
                 self._load_items_from_csv(ann_file)
             else:
