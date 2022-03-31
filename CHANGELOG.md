@@ -34,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/680>)
 - Open Images: allowed to store annotations file in root path as well
   (<https://github.com/openvinotoolkit/datumaro/pull/680>)
+- Disabled automatic annotation coordinate rounding on dataset import
+  due to high impact on performance. Annotation comparisons still use rounding
+  (<https://github.com/openvinotoolkit/datumaro/pull/702>)
 
 ### Deprecated
 - `--save-images` is replaced with `--save-media` in CLI and converter API
@@ -41,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - \[API\] `image`, `point_cloud` and `related_images` of `DatasetItem` are
   replaced with `media` and `media_as(type)` members and c-tor parameters
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
+- Automatic annotation coordinate rounding to 2 digits on dataset export
+  will be disabled in future releases due to high impact on performance.
+  Corresponding formats have a new export parameter to control rounding.
+  (<https://github.com/openvinotoolkit/datumaro/pull/702>)
 
 ### Removed
 - TBD
