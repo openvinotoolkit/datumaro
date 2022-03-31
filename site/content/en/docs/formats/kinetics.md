@@ -52,7 +52,8 @@ Kinetics dataset has two equivalent annotation file formats: `.csv` and
 `.json`. Datumaro supports both, but in case when two annotation files have
 same names but different extensions Datumaro will use `.csv`.
 
-> Note: name of each video file must contain youtube_id of this video, that specified in annotation file.
-> And to speed up the import, you can leave only the youtube_id in the video filename.
+> Note: name of each video file must contain youtube_id of this video,
+> that specified in annotation file. And to speed up the import, you can leave
+> only the youtube_id in the video filename.
 
 See the full list of supported video extensions [here](/docs/user-manual/media_formats.md).
