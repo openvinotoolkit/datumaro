@@ -203,7 +203,7 @@ class FractalImageGenerator(DatasetGenerator):
 
         for url, filename, size, md5_checksum in [
             (
-                f"https://github.com/richzhang/colorization/blob/a1642d6ac6fc80fe08885edba34c166da09465f6/colorization/models/{prototxt_file_name}",
+                f"https://raw.githubusercontent.com/richzhang/colorization/a1642d6ac6fc80fe08885edba34c166da09465f6/colorization/models/{prototxt_file_name}",
                 prototxt_file_name,
                 9945,
                 "7229f469d24645a7f1e3c47c67e7bd15",
@@ -215,7 +215,7 @@ class FractalImageGenerator(DatasetGenerator):
                 "6ef9d30cefd880baabeb5e1847fb20be",
             ),
             (
-                f"https://github.com/richzhang/colorization/blob/a1642d6ac6fc80fe08885edba34c166da09465f6/colorization/resources/{hull_file_name}",
+                f"https://raw.githubusercontent.com/richzhang/colorization/a1642d6ac6fc80fe08885edba34c166da09465f6/colorization/resources/{hull_file_name}",
                 hull_file_name,
                 5088,
                 "05c2729d850b5e4143b6fe53326066b5",
