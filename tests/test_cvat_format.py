@@ -20,6 +20,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.plugins.cvat_format.extractor import CvatImporter
+from datumaro.util import find
 from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -595,3 +596,39 @@ class CvatConverterTest(TestCase):
                 require_media=True,
                 ignored_attrs={"frame"},
             )
+
+    @mark_requirement(Requirements.DATUM_702)
+    def test_can_round_coordinates_on_export(self):
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="1",
+                    media=Image(data=np.ones((4, 4, 3))),
+                    annotations=[
+                        Polygon([1.1111] * 6, label=0),
+                        Points([1.1111] * 6, label=0),
+                        Bbox(*([1.1111] * 4), label=0),
+                        PolyLine([1.1111] * 6, label=0),
+                    ],
+                ),
+            ],
+            categories=["a"],
+        )
+
+        with TestDir() as test_dir:
+            dataset.export(test_dir, "cvat", round_digits=3)
+
+            actual_dataset = Dataset.import_from(test_dir, "cvat")
+            actual_item = actual_dataset.get("1")
+            actual_polygon: Polygon = find(
+                actual_item.annotations, lambda a: isinstance(a, Polygon)
+            )
+            actual_points: Points = find(actual_item.annotations, lambda a: isinstance(a, Points))
+            actual_bbox: Bbox = find(actual_item.annotations, lambda a: isinstance(a, Bbox))
+            actual_polyline: PolyLine = find(
+                actual_item.annotations, lambda a: isinstance(a, PolyLine)
+            )
+            self.assertEqual(actual_polygon.points, [1.111] * 6)
+            self.assertEqual(actual_points.points, [1.111] * 6)
+            self.assertEqual(actual_bbox.points, [1.111, 1.111, 2.222, 2.222])
+            self.assertEqual(actual_polyline.points, [1.111] * 6)

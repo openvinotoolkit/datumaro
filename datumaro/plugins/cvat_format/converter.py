@@ -1,21 +1,32 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict
 from itertools import chain
+from typing import IO
 
 # Disable B406: import_xml_sax - the library is used for writing
 from xml.sax.saxutils import XMLGenerator  # nosec
 
-from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.annotation import (
+    COORDINATE_ROUNDING_DIGITS,
+    AnnotationType,
+    Bbox,
+    Label,
+    LabelCategories,
+    Points,
+    Polygon,
+    PolyLine,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.extractor import DatasetItem, IExtractor
 from datumaro.components.media import Image
 from datumaro.util import cast, pairs
 
@@ -49,7 +60,7 @@ class XmlAnnotationWriter:
     def _add_meta(self, meta):
         self._level += 1
         for k, v in meta.items():
-            if isinstance(v, OrderedDict):
+            if isinstance(v, dict):
                 self._indent()
                 self.xmlgen.startElement(k, {})
                 self._add_meta(v)
@@ -59,7 +70,7 @@ class XmlAnnotationWriter:
                 self._indent()
                 self.xmlgen.startElement(k, {})
                 for tup in v:
-                    self._add_meta(OrderedDict([tup]))
+                    self._add_meta(dict([tup]))
                 self._indent()
                 self.xmlgen.endElement(k)
             else:
@@ -106,15 +117,15 @@ class XmlAnnotationWriter:
         self.xmlgen.startElement("points", points)
         self._level += 1
 
-    def open_tag(self, tag):
+    def open_tag(self, tag_data: dict[str, str]):
         self._indent()
-        self.xmlgen.startElement("tag", tag)
+        self.xmlgen.startElement("tag", tag_data)
         self._level += 1
 
-    def add_attribute(self, attribute):
+    def add_attribute(self, name: str, value: str):
         self._indent()
-        self.xmlgen.startElement("attribute", {"name": attribute["name"]})
-        self.xmlgen.characters(attribute["value"])
+        self.xmlgen.startElement("attribute", {"name": name})
+        self.xmlgen.characters(value)
         self.xmlgen.endElement("attribute")
 
     def _close_element(self, element):
@@ -149,7 +160,7 @@ class XmlAnnotationWriter:
 
 
 class _SubsetWriter:
-    def __init__(self, file, name, extractor, context):
+    def __init__(self, file: IO, name: str, extractor: IExtractor, context: CvatConverter) -> None:
         self._writer = XmlAnnotationWriter(file)
         self._name = name
         self._extractor = extractor
@@ -171,11 +182,7 @@ class _SubsetWriter:
     def _write_item(self, item, index):
         if not self._context._reindex:
             index = cast(item.attributes.get("frame"), int, index)
-        image_info = OrderedDict(
-            [
-                ("id", str(index)),
-            ]
-        )
+        image_info = {"id": str(index)}
         filename = self._context._make_image_filename(item)
         image_info["name"] = filename
         if item.media:
@@ -192,14 +199,9 @@ class _SubsetWriter:
         self._writer.open_image(image_info)
 
         for ann in item.annotations:
-            if ann.type in {
-                AnnotationType.points,
-                AnnotationType.polyline,
-                AnnotationType.polygon,
-                AnnotationType.bbox,
-            }:
+            if isinstance(ann, (Points, PolyLine, Polygon, Bbox)):
                 self._write_shape(ann, item)
-            elif ann.type == AnnotationType.label:
+            elif isinstance(ann, Label):
                 self._write_tag(ann, item)
             else:
                 continue
@@ -210,65 +212,48 @@ class _SubsetWriter:
 
     def _write_meta(self):
         label_cat = self._extractor.categories().get(AnnotationType.label, LabelCategories())
-        meta = OrderedDict(
-            [
-                (
-                    "task",
-                    OrderedDict(
-                        [
-                            ("id", ""),
-                            ("name", self._name),
-                            ("size", str(len(self._extractor))),
-                            ("mode", "annotation"),
-                            ("overlap", ""),
-                            ("start_frame", "0"),
-                            ("stop_frame", str(len(self._extractor))),
-                            ("frame_filter", ""),
-                            ("z_order", "True"),
-                            (
-                                "labels",
-                                [
-                                    (
-                                        "label",
-                                        OrderedDict(
-                                            [
-                                                ("name", label.name),
-                                                (
-                                                    "attributes",
-                                                    [
-                                                        (
-                                                            "attribute",
-                                                            OrderedDict(
-                                                                [
-                                                                    ("name", attr),
-                                                                    ("mutable", "True"),
-                                                                    ("input_type", "text"),
-                                                                    ("default_value", ""),
-                                                                    ("values", ""),
-                                                                ]
-                                                            ),
-                                                        )
-                                                        for attr in self._get_label_attrs(label)
-                                                    ],
-                                                ),
-                                            ]
-                                        ),
-                                    )
-                                    for label in label_cat.items
-                                ],
-                            ),
-                        ]
-                    ),
-                ),
-            ]
-        )
+        meta = {
+            "task": {
+                "id": "",
+                "name": self._name,
+                "size": str(len(self._extractor)),
+                "mode": "annotation",
+                "overlap": "",
+                "start_frame": "0",
+                "stop_frame": str(len(self._extractor)),
+                "frame_filter": "",
+                "z_order": "True",
+                "labels": [
+                    (
+                        "label",
+                        {
+                            "name": label.name,
+                            "attributes": [
+                                (
+                                    "attribute",
+                                    {
+                                        "name": attr,
+                                        "mutable": "True",
+                                        "input_type": "text",
+                                        "default_value": "",
+                                        "values": "",
+                                    },
+                                )
+                                for attr in self._get_label_attrs(label)
+                            ],
+                        },
+                    )
+                    for label in label_cat.items
+                ],
+            }
+        }
         self._writer.write_meta(meta)
 
-    def _get_label(self, label_id):
+    def _get_label(self, label_id: int) -> str:
         if label_id is None:
             return ""
         label_cat = self._extractor.categories().get(AnnotationType.label, LabelCategories())
-        return label_cat.items[label_id]
+        return label_cat.items[label_id].name
 
     def _get_label_attrs(self, label):
         label_cat = self._extractor.categories().get(AnnotationType.label, LabelCategories())
@@ -276,58 +261,42 @@ class _SubsetWriter:
             label = label_cat[label]
         return set(chain(label.attributes, label_cat.attributes)) - self._context._builtin_attrs
 
+    def _serialize_number_rounded(self, value: float) -> str:
+        return f"%.{self._context._round_digits}f" % (value,)
+
     def _write_shape(self, shape, item):
         if shape.label is None:
             log.warning("Item %s: skipping a %s with no label", item.id, shape.type.name)
             return
 
-        label_name = self._get_label(shape.label).name
-        shape_data = OrderedDict(
-            [
-                ("label", label_name),
-                ("occluded", str(int(shape.attributes.get("occluded", False)))),
-            ]
-        )
+        label_name = self._get_label(shape.label)
+        shape_data = {
+            "label": label_name,
+            "occluded": str(int(shape.attributes.get("occluded", False))),
+        }
 
-        if shape.type == AnnotationType.bbox:
-            shape_data.update(
-                OrderedDict(
-                    [
-                        ("xtl", "{:.2f}".format(shape.points[0])),
-                        ("ytl", "{:.2f}".format(shape.points[1])),
-                        ("xbr", "{:.2f}".format(shape.points[2])),
-                        ("ybr", "{:.2f}".format(shape.points[3])),
-                    ]
-                )
-            )
+        if isinstance(shape, Bbox):
+            shape_data["xtl"] = self._serialize_number_rounded(shape.points[0])
+            shape_data["ytl"] = self._serialize_number_rounded(shape.points[1])
+            shape_data["xbr"] = self._serialize_number_rounded(shape.points[2])
+            shape_data["ybr"] = self._serialize_number_rounded(shape.points[3])
         else:
-            shape_data.update(
-                OrderedDict(
-                    [
-                        (
-                            "points",
-                            ";".join(
-                                (
-                                    ",".join(("{:.2f}".format(x), "{:.2f}".format(y)))
-                                    for x, y in pairs(shape.points)
-                                )
-                            ),
-                        ),
-                    ]
-                )
+            shape_data["points"] = ";".join(
+                ",".join((self._serialize_number_rounded(x), self._serialize_number_rounded(y)))
+                for x, y in pairs(shape.points)
             )
 
         shape_data["z_order"] = str(int(shape.z_order))
         if shape.group:
             shape_data["group_id"] = str(shape.group)
 
-        if shape.type == AnnotationType.bbox:
+        if isinstance(shape, Bbox):
             self._writer.open_box(shape_data)
-        elif shape.type == AnnotationType.polygon:
+        elif isinstance(shape, Polygon):
             self._writer.open_polygon(shape_data)
-        elif shape.type == AnnotationType.polyline:
+        elif isinstance(shape, PolyLine):
             self._writer.open_polyline(shape_data)
-        elif shape.type == AnnotationType.points:
+        elif isinstance(shape, Points):
             self._writer.open_points(shape_data)
         else:
             raise NotImplementedError("unknown shape type")
@@ -340,14 +309,7 @@ class _SubsetWriter:
             if self._context._allow_undeclared_attrs or attr_name in self._get_label_attrs(
                 shape.label
             ):
-                self._writer.add_attribute(
-                    OrderedDict(
-                        [
-                            ("name", str(attr_name)),
-                            ("value", str(attr_value)),
-                        ]
-                    )
-                )
+                self._writer.add_attribute(name=str(attr_name), value=str(attr_value))
             else:
                 log.warning(
                     "Item %s: skipping undeclared "
@@ -358,13 +320,13 @@ class _SubsetWriter:
                     label_name,
                 )
 
-        if shape.type == AnnotationType.bbox:
+        if isinstance(shape, Bbox):
             self._writer.close_box()
-        elif shape.type == AnnotationType.polygon:
+        elif isinstance(shape, Polygon):
             self._writer.close_polygon()
-        elif shape.type == AnnotationType.polyline:
+        elif isinstance(shape, PolyLine):
             self._writer.close_polyline()
-        elif shape.type == AnnotationType.points:
+        elif isinstance(shape, Points):
             self._writer.close_points()
         else:
             raise NotImplementedError("unknown shape type")
@@ -374,12 +336,8 @@ class _SubsetWriter:
             log.warning("Item %s: skipping a %s with no label", item.id, label.type.name)
             return
 
-        label_name = self._get_label(label.label).name
-        tag_data = OrderedDict(
-            [
-                ("label", label_name),
-            ]
-        )
+        label_name = self._get_label(label.label)
+        tag_data = {"label": label_name}
         if label.group:
             tag_data["group_id"] = str(label.group)
         self._writer.open_tag(tag_data)
@@ -392,14 +350,7 @@ class _SubsetWriter:
             if self._context._allow_undeclared_attrs or attr_name in self._get_label_attrs(
                 label.label
             ):
-                self._writer.add_attribute(
-                    OrderedDict(
-                        [
-                            ("name", str(attr_name)),
-                            ("value", str(attr_value)),
-                        ]
-                    )
-                )
+                self._writer.add_attribute(name=str(attr_name), value=str(attr_value))
             else:
                 log.warning(
                     "Item %s: skipping undeclared "
@@ -430,14 +381,31 @@ class CvatConverter(Converter):
             help="Write annotation attributes even if they are not present in "
             "the input dataset metainfo (default: %(default)s)",
         )
+        parser.add_argument(
+            "--round-digits",
+            type=int,
+            default=COORDINATE_ROUNDING_DIGITS,
+            help="Round coordinates to this number of decimal digits. "
+            "Useful to make output files smaller. -1 means no rounding "
+            "(default: %(default)s)",
+        )
         return parser
 
-    def __init__(self, extractor, save_dir, reindex=False, allow_undeclared_attrs=False, **kwargs):
+    def __init__(
+        self,
+        extractor: IExtractor,
+        save_dir: str,
+        reindex: bool = False,
+        allow_undeclared_attrs: bool = False,
+        round_digits: int = COORDINATE_ROUNDING_DIGITS,
+        **kwargs,
+    ) -> None:
         super().__init__(extractor, save_dir, **kwargs)
 
         self._reindex = reindex
         self._builtin_attrs = CvatPath.BUILTIN_ATTRS
         self._allow_undeclared_attrs = allow_undeclared_attrs
+        self._round_digits = round_digits
 
     def apply(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
