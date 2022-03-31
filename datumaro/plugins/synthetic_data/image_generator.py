@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import hashlib
 import logging as log
 import os
 import os.path as osp
@@ -16,6 +17,7 @@ import requests
 
 from datumaro.components.dataset_generator import DatasetGenerator
 from datumaro.util.image import save_image
+from datumaro.util.scope import on_error_do, scoped
 
 from .utils import IFSFunction, augment, colorize
 
@@ -26,8 +28,8 @@ class FractalImageGenerator(DatasetGenerator):
     Uses the algorithm from the article: https://arxiv.org/abs/2103.13023
     """
 
-    _MODEL_PROTO_NAME = "colorization_deploy_v2.prototxt"
-    _MODEL_CONFIG_NAME = "colorization_release_v2.caffemodel"
+    _MODEL_PROTO_FILENAME = "colorization_deploy_v2.prototxt"
+    _MODEL_WEIGHTS_FILENAME = "colorization_release_v2.caffemodel"
     _HULL_PTS_FILE_NAME = "pts_in_hull.npy"
     _COLORS_FILE = "background_colors.txt"
 
@@ -91,8 +93,8 @@ class FractalImageGenerator(DatasetGenerator):
     def _generate_image_batch(
         self, params: np.ndarray, weights: np.ndarray, indices: List[int]
     ) -> None:
-        proto = osp.join(self._model_dir, self._MODEL_PROTO_NAME)
-        model = osp.join(self._model_dir, self._MODEL_CONFIG_NAME)
+        proto = osp.join(self._model_dir, self._MODEL_PROTO_FILENAME)
+        model = osp.join(self._model_dir, self._MODEL_WEIGHTS_FILENAME)
         npy = osp.join(self._model_dir, self._HULL_PTS_FILE_NAME)
         pts_in_hull = np.load(npy).transpose().reshape(2, 313, 1, 1).astype(np.float32)
 
@@ -183,43 +185,84 @@ class FractalImageGenerator(DatasetGenerator):
         return weights
 
     @classmethod
-    def _download_colorization_model(cls, path: str) -> None:
-        proto_file_name = cls._MODEL_PROTO_NAME
-        config_file_name = cls._MODEL_CONFIG_NAME
+    def _download_colorization_model(cls, save_dir: str) -> None:
+        prototxt_file_name = cls._MODEL_PROTO_FILENAME
+        caffemodel_file_name = cls._MODEL_WEIGHTS_FILENAME
         hull_file_name = cls._HULL_PTS_FILE_NAME
-        proto_path = osp.join(path, proto_file_name)
-        config_path = osp.join(path, config_file_name)
-        hull_path = osp.join(path, hull_file_name)
 
+        proto_path = osp.join(save_dir, prototxt_file_name)
+        model_path = osp.join(save_dir, caffemodel_file_name)
+        hull_path = osp.join(save_dir, hull_file_name)
         if not (
-            osp.exists(proto_path) and osp.exists(config_path) and osp.exists(hull_path)
-        ) and not os.access(path, os.W_OK):
+            osp.exists(proto_path) and osp.exists(model_path) and osp.exists(hull_path)
+        ) and not os.access(save_dir, os.W_OK):
             raise ValueError(
                 "Please provide a path to a colorization model directory or "
                 "a path to a writable directory to download the model"
             )
 
-        def _download_file(url, output_path, timeout=60):
-            response = requests.get(url, timeout=timeout)
-            response.raise_for_status()
-            with open(output_path, "wb") as fd:
-                for chunk in response.iter_content(chunk_size=128):
-                    fd.write(chunk)
-
-        for url, save_path in [
+        for url, filename, size, md5_checksum in [
             (
-                f"https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/{proto_file_name}",
-                proto_path,
+                f"https://raw.githubusercontent.com/richzhang/colorization/caffe/colorization/models/{prototxt_file_name}",
+                prototxt_file_name,
+                9945,
+                "7229f469d24645a7f1e3c47c67e7bd15",
             ),
             (
-                f"http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/{config_file_name}",
-                config_path,
+                f"http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/{caffemodel_file_name}",
+                caffemodel_file_name,
+                128946764,
+                "6ef9d30cefd880baabeb5e1847fb20be",
             ),
             (
                 f"https://github.com/richzhang/colorization/raw/caffe/colorization/resources/{hull_file_name}",
-                hull_path,
+                hull_file_name,
+                5088,
+                "05c2729d850b5e4143b6fe53326066b5",
             ),
         ]:
-            if not osp.exists(save_path):
-                log.info("Downloading the '%s' file to '%s'", *osp.split(save_path))
-                _download_file(url, save_path)
+            save_path = osp.join(save_dir, filename)
+            if osp.exists(save_path):
+                continue
+
+            log.info("Downloading the '%s' file to '%s'", filename, save_dir)
+            try:
+                cls._download_file(
+                    url, save_path, expected_size=size, expected_checksum=md5_checksum
+                )
+            except Exception as e:
+                raise Exception(f"Failed to download the '{filename}' file: {str(e)}")
+
+    @staticmethod
+    @scoped
+    def _download_file(
+        url: str, output_path: str, *, timeout: int = 60, expected_size: int, expected_checksum: str
+    ) -> None:
+        BLOCK_SIZE = 2**20
+
+        response = requests.get(url, timeout=timeout, stream=True)
+        response.raise_for_status()
+
+        checksum_counter = hashlib.md5()  # nosec B303 - not a security context
+        actual_size = 0
+
+        on_error_do(os.unlink, output_path)
+
+        with open(output_path, "wb") as fd:
+            for chunk in response.iter_content(chunk_size=BLOCK_SIZE):
+                actual_size += len(chunk)
+                if actual_size > expected_size:
+                    # There is also the context-length header, but it can be corrupted or invalid
+                    # for different reasons
+                    raise Exception(
+                        f"The downloaded file has unexpected size {actual_size}. "
+                        f"Expected {expected_size}."
+                    )
+
+                checksum_counter.update(chunk)
+
+                fd.write(chunk)
+
+        actual_checksum = checksum_counter.hexdigest()
+        if actual_checksum != expected_checksum:
+            raise Exception("The downloaded file has unexpected checksum")
