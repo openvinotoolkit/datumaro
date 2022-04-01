@@ -55,35 +55,28 @@ reading, exporting and iteration capabilities, simplifying integration of custom
 formats and providing high performance operations:
 
 ``` python
-from datumaro.project import Project
+import datumaro as dm
 
-# load a Datumaro project
-project = Project('directory')
-
-# create a dataset
-dataset = project.working_tree.make_dataset()
+dataset = dm.Dataset.import_from('path/', 'voc')
 
 # keep only annotated images
 dataset.select(lambda item: len(item.annotations) != 0)
 
-# change dataset labels
+# change dataset labels and corresponding annotations
 dataset.transform('remap_labels',
     mapping={
-        'cat': 'dog', # rename cat to dog
-        'truck': 'car', # rename truck to car
-        'person': '', # remove this label
+      'cat': 'dog', # rename cat to dog
+      'truck': 'car', # rename truck to car
+      'person': '', # remove this label
     },
     default='delete') # remove everything else
 
-# iterate over dataset elements
+# iterate over the dataset elements
 for item in dataset:
     print(item.id, item.annotations)
 
 # export the resulting dataset in COCO format
-dataset.export('dst/dir', 'coco')
-
-# optionally, release the project resources
-project.close()
+dataset.export('dst/dir', 'coco', save_images=True)
 ```
 
 [List of components](/api/api/datumaro.html) with the comfortable importing.
