@@ -334,7 +334,7 @@ Select subset of 20 images, modify only `train` subset
 datum transform -t random_sampler -- -k 20 -s train
 ```
 
-##### `random_label_sampler` <a id="random_label_sampler-transform"></a>
+##### `random_label_sampler` <a id="label_random_sampler-transform"></a>
 
 Sampler that keeps at least the required number of annotations of
 each class in the dataset for each subset separately.
