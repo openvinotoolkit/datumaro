@@ -12,6 +12,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.media import Image
+from datumaro.components.operations import IntersectMerge
 from datumaro.plugins.cityscapes_format import (
     TRAIN_CITYSCAPES_LABEL_MAP,
     CityscapesConverter,
@@ -771,3 +772,15 @@ class CityscapesConverterTest(TestCase):
                 ignored_attrs={"id"},
                 externally_comparison=True,
             )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_filter_by_subsets(self):
+        source_dataset = Dataset.import_from(MANGLING_DATASET_DIR, "cityscapes")
+
+        train_dataset = source_dataset.filter("/item[subset='train']")
+        test_dataset = source_dataset.filter("/item[subset='test']")
+
+        merger = IntersectMerge()
+        merged_dataset = merger([train_dataset, test_dataset])
+
+        compare_datasets(self, source_dataset, merged_dataset, require_media=True)
