@@ -57,8 +57,8 @@ def dataset_mangling(dataset, count=-1, image_size=(3, 1, 3)):
 
                 mask_cat = dataset.categories()[AnnotationType.mask]
 
-                for i in range(len(mask)):
-                    mask[i] = randint(0, 100) % len(mask_cat)
+                for i in mask:
+                    i = randint(0, 100) % len(mask_cat)
                 mask = mask.reshape(mask_size)
 
                 segm_ids = np.unique(mask)
