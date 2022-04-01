@@ -17,7 +17,7 @@ import requests
 
 from datumaro.components.dataset_generator import DatasetGenerator
 from datumaro.util.image import save_image
-from datumaro.util.scope import on_error_do, scoped
+from datumaro.util.scope import on_error_do, on_exit_do, scoped
 
 from .utils import IFSFunction, augment, colorize
 
@@ -52,8 +52,6 @@ class FractalImageGenerator(DatasetGenerator):
         self._iterations = 200000
         self._num_of_points = 100000
 
-        self._download_colorization_model(self._model_dir)
-
         self._initialize_params()
 
     def generate_dataset(self) -> None:
@@ -63,6 +61,8 @@ class FractalImageGenerator(DatasetGenerator):
             self._height,
             self._width,
         )
+
+        self._download_colorization_model(self._model_dir)
 
         mp_ctx = get_context("spawn")  # On Mac 10.15 and Python 3.7 fork leads to hangs
         with mp_ctx.Pool(processes=self._cpu_count) as pool:
@@ -201,24 +201,24 @@ class FractalImageGenerator(DatasetGenerator):
                 "a path to a writable directory to download the model"
             )
 
-        for url, filename, size, md5_checksum in [
+        for url, filename, size, sha512_checksum in [
             (
                 f"https://raw.githubusercontent.com/richzhang/colorization/a1642d6ac6fc80fe08885edba34c166da09465f6/colorization/models/{prototxt_file_name}",
                 prototxt_file_name,
                 9945,
-                "7229f469d24645a7f1e3c47c67e7bd15",
+                "e3dd9188771202bd296623510bcf527b41c130fc9bae584e61dcdf66917b8c4d147b7b838fec0685568f7f287235c34e8b8e9c0482b555774795be89f0442820",
             ),
             (
                 f"http://eecs.berkeley.edu/~rich.zhang/projects/2016_colorization/files/demo_v2/{caffemodel_file_name}",
                 caffemodel_file_name,
                 128946764,
-                "6ef9d30cefd880baabeb5e1847fb20be",
+                "3d773dd83cfcf8e846e3a9722a4d302a3b7a0f95a0a7ae1a3d3ef5fe62eecd617f4f30eefb1d8d6123be4a8f29f7c6e64f07b36193f45710b549f3e4796570f1",
             ),
             (
                 f"https://raw.githubusercontent.com/richzhang/colorization/a1642d6ac6fc80fe08885edba34c166da09465f6/colorization/resources/{hull_file_name}",
                 hull_file_name,
                 5088,
-                "05c2729d850b5e4143b6fe53326066b5",
+                "bf59a8a4e74b18948e4aeaa430f71eb8603bd9dbbce207ea086dd0fb976a34672beaeea6f1233a21687da710e0f8d36e86133a8532265dfda52994a7d6f0dbf5",
             ),
         ]:
             save_path = osp.join(save_dir, filename)
@@ -228,10 +228,10 @@ class FractalImageGenerator(DatasetGenerator):
             log.info("Downloading the '%s' file to '%s'", filename, save_dir)
             try:
                 cls._download_file(
-                    url, save_path, expected_size=size, expected_checksum=md5_checksum
+                    url, save_path, expected_size=size, expected_checksum=sha512_checksum
                 )
             except Exception as e:
-                raise Exception(f"Failed to download the '{filename}' file: {str(e)}")
+                raise Exception(f"Failed to download the '{filename}' file: {str(e)}") from e
 
     @staticmethod
     @scoped
@@ -240,23 +240,30 @@ class FractalImageGenerator(DatasetGenerator):
     ) -> None:
         BLOCK_SIZE = 2**20
 
+        assert not osp.exists(output_path)
+
+        tmp_path = output_path + ".tmp"
+        if osp.exists(tmp_path):
+            raise Exception(f"Can't write temporary file '{tmp_path}' - file exists")
+
         response = requests.get(url, timeout=timeout, stream=True)
+        on_exit_do(response.close)
+
         response.raise_for_status()
 
-        checksum_counter = hashlib.md5()  # nosec B303 - not a security context
+        checksum_counter = hashlib.sha512()
         actual_size = 0
 
-        on_error_do(os.unlink, output_path)
+        with open(tmp_path, "wb") as fd:
+            on_error_do(os.unlink, tmp_path)
 
-        with open(output_path, "wb") as fd:
             for chunk in response.iter_content(chunk_size=BLOCK_SIZE):
                 actual_size += len(chunk)
                 if actual_size > expected_size:
                     # There is also the context-length header, but it can be corrupted or invalid
                     # for different reasons
                     raise Exception(
-                        f"The downloaded file has unexpected size {actual_size}. "
-                        f"Expected {expected_size}."
+                        f"The downloaded file has unexpected size, expected {expected_size}."
                     )
 
                 checksum_counter.update(chunk)
@@ -264,5 +271,7 @@ class FractalImageGenerator(DatasetGenerator):
                 fd.write(chunk)
 
         actual_checksum = checksum_counter.hexdigest()
-        if actual_checksum != expected_checksum:
+        if actual_checksum.lower() != expected_checksum.lower():
             raise Exception("The downloaded file has unexpected checksum")
+
+        os.rename(tmp_path, output_path)
