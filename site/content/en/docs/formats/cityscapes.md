@@ -2,7 +2,6 @@
 title: 'Cityscapes'
 linkTitle: 'Cityscapes'
 description: ''
-weight: 2
 ---
 
 ## Format specification

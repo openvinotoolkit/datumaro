@@ -2,7 +2,6 @@
 title: 'MPII Human Pose Dataset (JSON)'
 linkTitle: 'MPII Human Pose Dataset (JSON)'
 description: ''
-weight: 1
 ---
 
 ## Format specification

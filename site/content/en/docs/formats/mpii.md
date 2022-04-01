@@ -2,7 +2,6 @@
 title: 'MPII Human Pose Dataset'
 linkTitle: 'MPII Human Pose Dataset'
 description: ''
-weight: 1
 ---
 
 ## Format specification

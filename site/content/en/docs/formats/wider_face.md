@@ -2,7 +2,6 @@
 title: WIDER Face
 linkTitle: WIDER Face
 description: ''
-weight: 19
 ---
 
 ## Format specification

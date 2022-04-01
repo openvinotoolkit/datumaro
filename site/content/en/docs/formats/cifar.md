@@ -2,7 +2,6 @@
 title: 'CIFAR'
 linkTitle: 'CIFAR'
 description: ''
-weight: 1
 ---
 
 ## Format specification

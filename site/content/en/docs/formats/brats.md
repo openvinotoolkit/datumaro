@@ -2,7 +2,6 @@
 title: 'BraTS'
 linkTitle: 'BraTS'
 description: ''
-weight: 1
 ---
 
 ## Format specification

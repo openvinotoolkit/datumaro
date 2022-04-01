@@ -2,7 +2,6 @@
 title: 'Velodyne Points / KITTI Raw 3D'
 linkTitle: 'Velodyne Points / KITTI Raw 3D'
 description: ''
-weight: 5
 ---
 
 ## Format specification

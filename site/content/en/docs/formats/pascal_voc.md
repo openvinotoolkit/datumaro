@@ -2,7 +2,6 @@
 title: 'Pascal VOC'
 linkTitle: 'Pascal VOC'
 description: ''
-weight: 9
 ---
 
 ## Format specification

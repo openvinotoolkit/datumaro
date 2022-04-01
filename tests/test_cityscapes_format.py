@@ -184,7 +184,7 @@ class CityscapesImportTest(TestCase):
     @mark_requirement(Requirements.DATUM_267)
     def test_can_detect_cityscapes(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertEquals([CityscapesImporter.NAME], detected_formats)
+        self.assertEqual([CityscapesImporter.NAME], detected_formats)
 
 
 class TestExtractorBase(Extractor):

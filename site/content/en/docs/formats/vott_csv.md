@@ -2,7 +2,6 @@
 title: 'VoTT CSV'
 linkTitle: 'VoTT CSV'
 description: ''
-weight: 1
 ---
 
 ## Format specification

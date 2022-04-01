@@ -2,7 +2,6 @@
 title: 'ImageNet'
 linkTitle: 'ImageNet'
 description: ''
-weight: 9
 ---
 
 ## Format specification

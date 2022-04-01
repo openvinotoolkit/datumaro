@@ -2,7 +2,6 @@
 title: 'Common Semantic Segmentation'
 linkTitle: 'Common Semantic Segmentation'
 description: ''
-weight: 2
 ---
 
 ## Format specification

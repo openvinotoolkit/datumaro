@@ -2,7 +2,6 @@
 title: 'BraTS Numpy'
 linkTitle: 'BraTS Numpy'
 description: ''
-weight: 1
 ---
 
 ## Format specification

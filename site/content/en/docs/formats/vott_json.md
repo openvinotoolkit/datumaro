@@ -2,7 +2,6 @@
 title: 'VoTT JSON'
 linkTitle: 'VoTT JSON'
 description: ''
-weight: 1
 ---
 
 ## Format specification

@@ -2,7 +2,6 @@
 title: 'ICDAR'
 linkTitle: 'ICDAR'
 description: ''
-weight: 8
 ---
 
 
