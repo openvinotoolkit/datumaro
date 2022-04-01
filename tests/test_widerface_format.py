@@ -9,10 +9,15 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
+from datumaro.components.operations import IntersectMerge
 from datumaro.plugins.widerface_format import WiderFaceConverter, WiderFaceImporter
 from datumaro.util.test_utils import IGNORE_ALL, TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
+
+MANGLING_DATASET_DIR = osp.join(
+    osp.dirname(__file__), "assets", "widerface_dataset", "mangling_dataset"
+)
 
 
 class WiderFaceFormatTest(TestCase):
@@ -398,8 +403,50 @@ class WiderFaceFormatTest(TestCase):
                 ignored_attrs=IGNORE_ALL,
             )
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_convert_to_widerface(self):
+        source_dataset = Dataset.import_from(MANGLING_DATASET_DIR, "wider_face")
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "widerface_dataset")
+        with TestDir() as test_dir:
+            source_dataset.export(test_dir, "wider_face", save_media=True)
+            parsed_dataset = Dataset.import_from(test_dir, "wider_face")
+
+            compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_convert_to_pascal_voc(self):
+        source_dataset = Dataset.import_from(MANGLING_DATASET_DIR, "wider_face")
+
+        with TestDir() as test_dir:
+            source_dataset.export(test_dir, "voc", save_media=True)
+            parsed_dataset = Dataset.import_from(test_dir, "voc")
+            parsed_dataset.transform("remap_labels", mapping={"background": ""})
+
+            compare_datasets(
+                self,
+                source_dataset,
+                parsed_dataset,
+                require_media=True,
+                ignored_attrs={"difficult", "truncated", "occluded"},
+                externally_comparison=True,
+            )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_filter_by_subsets(self):
+        source_dataset = Dataset.import_from(MANGLING_DATASET_DIR, "wider_face")
+
+        first_dataset = source_dataset.filter("/item/annotation[label='face']")
+        second_dataset = source_dataset.filter("/item/annotation[label!='face']")
+
+        merger = IntersectMerge()
+        merged_dataset = merger([first_dataset, second_dataset])
+
+        compare_datasets(
+            self, source_dataset, merged_dataset, require_media=True, ignored_attrs={"score"}
+        )
+
+
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "widerface_dataset", "dummy_dataset")
 
 
 class WiderFaceImporterTest(TestCase):

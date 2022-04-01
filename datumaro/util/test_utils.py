@@ -92,20 +92,23 @@ class TestDir(FileRemover):
         return path
 
 
-def compare_categories(test, expected, actual):
-    test.assertEqual(sorted(expected, key=lambda t: t.value), sorted(actual, key=lambda t: t.value))
+def compare_categories(test, expected, actual, externally_comparison=False):
+    if not externally_comparison:
+        test.assertEqual(
+            sorted(expected, key=lambda t: t.value), sorted(actual, key=lambda t: t.value)
+        )
 
-    if AnnotationType.label in expected:
+    if AnnotationType.label in expected and AnnotationType.label in actual:
         test.assertEqual(
             expected[AnnotationType.label].items,
             actual[AnnotationType.label].items,
         )
-    if AnnotationType.mask in expected:
+    if AnnotationType.mask in expected and AnnotationType.mask in actual:
         test.assertEqual(
             expected[AnnotationType.mask].colormap,
             actual[AnnotationType.mask].colormap,
         )
-    if AnnotationType.points in expected:
+    if AnnotationType.points in expected and AnnotationType.points in actual:
         test.assertEqual(
             expected[AnnotationType.points].items,
             actual[AnnotationType.points].items,
@@ -137,6 +140,39 @@ def _compare_annotations(expected, actual, ignored_attrs=None):
     return r
 
 
+def _compare_annotations_externally(expected, actual, ignored_attrs=None):
+    a_attr = expected.attributes
+    b_attr = actual.attributes
+
+    if ignored_attrs != IGNORE_ALL:
+        expected.attributes = filter_dict(a_attr, exclude_keys=ignored_attrs)
+        actual.attributes = filter_dict(b_attr, exclude_keys=ignored_attrs)
+    elif ignored_attrs:
+        expected.attributes = {}
+        actual.attributes = {}
+
+    a_id = expected.id
+    b_id = actual.id
+    a_group = expected.group
+    b_group = actual.group
+
+    expected.id = 0
+    actual.id = 0
+    expected.group = 0
+    actual.group = 0
+
+    r = expected == actual
+
+    expected.attributes = a_attr
+    actual.attributes = b_attr
+    expected.id = a_id
+    actual.id = b_id
+    expected.group = a_group
+    actual.group = b_group
+
+    return r
+
+
 def compare_datasets(
     test,
     expected: IDataset,
@@ -144,8 +180,9 @@ def compare_datasets(
     ignored_attrs: Union[None, Literal["*"], Collection[str]] = None,
     require_media: bool = False,
     require_images: bool = False,
+    externally_comparison=False,
 ):
-    compare_categories(test, expected.categories(), actual.categories())
+    compare_categories(test, expected.categories(), actual.categories(), externally_comparison)
 
     test.assertTrue(issubclass(actual.media_type(), expected.media_type()))
 
@@ -187,9 +224,19 @@ def compare_datasets(
             ann_b_matches = [x for x in item_b.annotations if x.type == ann_a.type]
             test.assertFalse(len(ann_b_matches) == 0, "ann id: %s" % ann_a.id)
 
-            ann_b = find(
-                ann_b_matches, lambda x: _compare_annotations(x, ann_a, ignored_attrs=ignored_attrs)
-            )
+            if externally_comparison:
+                ann_b = find(
+                    ann_b_matches,
+                    lambda x: _compare_annotations_externally(
+                        x, ann_a, ignored_attrs=ignored_attrs
+                    ),
+                )
+            else:
+                ann_b = find(
+                    ann_b_matches,
+                    lambda x: _compare_annotations(x, ann_a, ignored_attrs=ignored_attrs),
+                )
+
             if ann_b is None:
                 test.fail("ann %s, candidates %s" % (ann_a, ann_b_matches))
             item_b.annotations.remove(ann_b)  # avoid repeats
