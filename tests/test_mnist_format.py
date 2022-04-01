@@ -8,10 +8,15 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
+from datumaro.components.operations import IntersectMerge
 from datumaro.plugins.mnist_format import MnistConverter, MnistImporter
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
+
+MANGLING_DATASET_DIR = osp.join(
+    osp.dirname(__file__), "assets", "mnist_dataset", "mangling_dataset"
+)
 
 
 class MnistFormatTest(TestCase):
@@ -188,8 +193,40 @@ class MnistFormatTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_convert_to_mnist(self):
+        source_dataset = Dataset.import_from(MANGLING_DATASET_DIR, "mnist")
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "mnist_dataset")
+        with TestDir() as test_dir:
+            source_dataset.export(test_dir, "mnist", save_media=True)
+            parsed_dataset = Dataset.import_from(test_dir, "mnist")
+
+            compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_convert_to_imagenet_txt(self):
+        source_dataset = Dataset.import_from(MANGLING_DATASET_DIR, "mnist")
+
+        with TestDir() as test_dir:
+            source_dataset.export(test_dir, "imagenet_txt", save_media=True)
+            parsed_dataset = Dataset.import_from(test_dir, "imagenet_txt")
+
+            compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_filter_by_subsets(self):
+        source_dataset = Dataset.import_from(MANGLING_DATASET_DIR, "mnist")
+
+        train_dataset = source_dataset.filter("/item[subset='train']")
+        test_dataset = source_dataset.filter("/item[subset='test']")
+
+        merger = IntersectMerge()
+        merged_dataset = merger([train_dataset, test_dataset])
+
+        compare_datasets(self, source_dataset, merged_dataset, require_media=True)
+
+
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "mnist_dataset", "dummy_dataset")
 
 
 class MnistImporterTest(TestCase):
