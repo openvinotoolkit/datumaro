@@ -78,7 +78,8 @@ follow the style requirements. See the comment at the top of that file for more 
 
 The recommended editor is VS Code with the Python language plugin.
 
-## Testing <a id="testing"></a>
+## Testing
+<a id="testing"></a>
 
 It is expected that all Datumaro functionality is covered and checked by
 unit tests. Tests are placed in the `tests/` directory. Additional
@@ -98,9 +99,11 @@ or
 python -m pytest -v
 ```
 
-### Test cases <a id="Test_case_description"></a>
+### Test cases
+<a id="Test_case_description"></a>
 
-### Test marking <a id="Test_marking"></a>
+### Test marking
+<a id="Test_marking"></a>
 
 For better integration with CI and requirements tracking,
 we use special annotations for tests.
@@ -131,7 +134,8 @@ class MyTests(TestCase):
         ... do stuff ...
 ```
 
-#### Requirements <a id="Requirements"></a>
+#### Requirements
+<a id="Requirements"></a>
 
 Requirements and other links need to be added to [`tests/requirements.py`](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/requirements.py):
 
@@ -193,7 +197,8 @@ Parameters are used for running the same test with different parameters e.g.
 ])
 ```
 
-### Test documentation <a id="TestDoc"></a>
+### Test documentation
+<a id="TestDoc"></a>
 
 Tests are documented with docs strings. Test descriptions must contain
 the following: sections: `Description`, `Expected results` and `Steps`.

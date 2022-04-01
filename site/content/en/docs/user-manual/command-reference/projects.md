@@ -4,7 +4,8 @@ linkTitle: 'project (context)'
 description: ''
 ---
 
-### Migrate project <a id="project-migrate"></a>
+### Migrate project
+<a id="project-migrate"></a>
 
 Updates the project from an old version to the current one and saves the
 resulting project in the output directory. Projects cannot be updated
@@ -33,7 +34,8 @@ Examples:
 - Migrate a project from v1 to v2, save the new project in other dir:
 `datum project migrate -o <output/dir>`
 
-### Print project info <a id="project-info"></a>
+### Print project info
+<a id="project-info"></a>
 
 Prints project configuration info such as available plugins, registered models,
 imported sources and build tree.

@@ -4,7 +4,8 @@ linkTitle: 'util'
 description: ''
 ---
 
-### Split video into frames <a id="split-video"></a>
+### Split video into frames
+<a id="split-video"></a>
 
 Splits a video into separate frames and saves them in a directory.
 After the splitting, the images can be added into a project using
