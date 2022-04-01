@@ -15,13 +15,11 @@ def dataset_mangling(dataset, count=-1, image_size=(3, 1, 3)):
         dataset = RandomSampler(dataset, count)
         dataset = Dataset.from_extractors(dataset)
 
+    id = 1
     for subset in dataset.subsets().values():
         for item in subset:
-            item_id = ""
-            for i in range(len(item.id)):
-                num = 97 + np.random.randint(0, 25)
-                item_id += chr(num)
-            item.id = item_id
+            item.id = str(id)
+            id += 1
 
             item.media = Image(data=np.ones(image_size))
 
@@ -51,13 +49,10 @@ def dataset_mangling(dataset, count=-1, image_size=(3, 1, 3)):
             masks = [anno for anno in item.annotations if anno.type == AnnotationType.mask]
             if masks:
                 mask_size = image_size[:2]
-                mask = np.ones(mask_size[0] * mask_size[1])
 
-                mask_cat = dataset.categories()[AnnotationType.mask]
-
-                for i in mask:
-                    i = np.random.randint(0, 100) % len(mask_cat)
-                mask = mask.reshape(mask_size)
+                mask = np.random.randint(
+                    0, len(dataset.categories()[AnnotationType.mask]), size=mask_size
+                )
 
                 segm_ids = np.unique(mask)
                 for segm_id in segm_ids:
