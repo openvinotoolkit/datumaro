@@ -67,6 +67,10 @@ List of supported formats:
   - [Format specification](http://www.cvlibs.net/datasets/kitti/raw_data.php)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/kitti_dataset/kitti_raw)
   - [Format documentation](/docs/formats/kitti_raw)
+- Kinetics 400/600/700
+  - [Format specification](https://www.deepmind.com/open-source/kinetics)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/kinetics_dataset)
+  - [Format documentation](/docs/formats/kinetics)
 - LabelMe (`labels`, `boxes`, `masks`)
   - [Format specification](http://labelme.csail.mit.edu/Release3.0)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/labelme_dataset)
