@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from random import randint, uniform
-
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Mask
@@ -21,7 +19,7 @@ def dataset_mangling(dataset, count=-1, image_size=(3, 1, 3)):
         for item in subset:
             item_id = ""
             for i in range(len(item.id)):
-                num = 97 + randint(0, 25)
+                num = 97 + np.random.randint(0, 25)
                 item_id += chr(num)
             item.id = item_id
 
@@ -31,7 +29,7 @@ def dataset_mangling(dataset, count=-1, image_size=(3, 1, 3)):
 
             labels = [anno for anno in item.annotations if anno.type == AnnotationType.label]
             for label in labels:
-                label.label = (label.label + randint(0, 10)) % len(
+                label.label = (label.label + np.random.randint(0, 10)) % len(
                     dataset.categories()[AnnotationType.label]
                 )
 
@@ -40,13 +38,13 @@ def dataset_mangling(dataset, count=-1, image_size=(3, 1, 3)):
             bboxes = [anno for anno in item.annotations if anno.type == AnnotationType.bbox]
             for bbox in bboxes:
                 x0 = bbox.points[0]
-                bbox.points[0] = uniform(max(x0 - x0 / 2, 0), x0 + x0 / 2)
+                bbox.points[0] = np.random.uniform(max(x0 - x0 / 2, 0), x0 + x0 / 2)
                 y0 = bbox.points[1]
-                bbox.points[1] = uniform(max(y0 - y0 / 2, 0), y0 + y0 / 2)
+                bbox.points[1] = np.random.uniform(max(y0 - y0 / 2, 0), y0 + y0 / 2)
                 x1 = bbox.points[2]
-                bbox.points[2] = uniform(max(x1 - x1 / 2, 0), x1 + x1 / 2)
+                bbox.points[2] = np.random.uniform(max(x1 - x1 / 2, 0), x1 + x1 / 2)
                 y1 = bbox.points[3]
-                bbox.points[3] = uniform(max(y1 - y1 / 2, 0), y1 + y1 / 2)
+                bbox.points[3] = np.random.uniform(max(y1 - y1 / 2, 0), y1 + y1 / 2)
 
             annotations += bboxes
 
@@ -58,7 +56,7 @@ def dataset_mangling(dataset, count=-1, image_size=(3, 1, 3)):
                 mask_cat = dataset.categories()[AnnotationType.mask]
 
                 for i in mask:
-                    i = randint(0, 100) % len(mask_cat)
+                    i = np.random.randint(0, 100) % len(mask_cat)
                 mask = mask.reshape(mask_size)
 
                 segm_ids = np.unique(mask)
