@@ -8,7 +8,7 @@ weight: 1
 ### Dependencies
 
 - Python (3.7+)
-- Optional: OpenVINO, TensorFlow, PyTorch, MxNet, Caffe, Accuracy Checker
+- Optional: OpenVINO, TensorFlow, PyTorch, MxNet, Caffe, Accuracy Checker, Git
 
 ### Installation steps
 
@@ -49,6 +49,10 @@ plugin dependencies in the [plugins](/docs/user-manual/extending) section.
   In restricted installation environments, where some dependencies are
   not available, or if you need only the core library functionality,
   you can install Datumaro without extra plugins.
+
+  The CLI variant (`datumaro[default]`) requires Git to be installed and
+  available to work with Datumaro projects and dataset versioning features.
+  You can find installation instructions for your platform [here](https://git-scm.com/downloads).
 
   In some cases, installing just the core library may be not enough,
   because there can be limited options of installing graphical libraries
