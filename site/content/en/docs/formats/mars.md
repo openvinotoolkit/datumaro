@@ -2,7 +2,6 @@
 title: 'MARS'
 linkTitle: 'MARS'
 description: ''
-weight: 1
 ---
 
 ## Format specification

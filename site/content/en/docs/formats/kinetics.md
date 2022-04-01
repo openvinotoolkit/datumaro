@@ -2,7 +2,6 @@
 title: 'Kinetics'
 linkTitle: 'Kinetics'
 description: ''
-weight: 1
 ---
 
 ## Format specification

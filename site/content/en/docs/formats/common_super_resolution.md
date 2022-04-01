@@ -2,7 +2,6 @@
 title: 'Common Super Resolution'
 linkTitle: 'Common Super Resolution'
 description: ''
-weight: 2
 ---
 
 ## Format specification

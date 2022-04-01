@@ -2,7 +2,6 @@
 title: 'SYNTHIA'
 linkTitle: 'SYNTHIA'
 description: ''
-weight: 1
 ---
 
 ## Format specification

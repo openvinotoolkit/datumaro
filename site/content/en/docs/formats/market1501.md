@@ -2,7 +2,6 @@
 title: 'Market-1501'
 linkTitle: 'Market-1501'
 description: ''
-weight: 1
 ---
 
 ## Format specification

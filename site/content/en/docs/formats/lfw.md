@@ -2,7 +2,6 @@
 title: 'LFW'
 linkTitle: 'LFW'
 description: ''
-weight: 1
 ---
 
 ## Format specification

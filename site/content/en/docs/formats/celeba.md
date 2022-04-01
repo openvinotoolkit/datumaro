@@ -2,7 +2,6 @@
 title: 'CelebA'
 linkTitle: 'CelebA'
 description: ''
-weight: 1
 ---
 
 ## Format specification
