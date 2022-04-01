@@ -11,11 +11,15 @@ Kinetics 400/600/700 is a video datasets for action recognition task.
 Dataset is available for downloading
 [here](https://www.deepmind.com/open-source/kinetics)
 
-Supported media type: `Video`
+Supported media type:
+- `Video`
 
-Supported type of annotations: `Label`
+Supported type of annotations:
+- `Label`
 
-Supported attributes for labels: `time_start`, `time_end`
+Supported attributes for labels:
+- `time_start` (integer) - time (in seconds) of the start of recognized action
+- `time_end` (integer) - time (in seconds) of the end of recognized action
 
 ## Import Kinetics dataset
 
