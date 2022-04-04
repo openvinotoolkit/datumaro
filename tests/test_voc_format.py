@@ -730,6 +730,27 @@ class VocExtractorTest(TestCase):
                 Dataset.import_from(test_dir, format="voc_classification").init_cache()
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_can_parse_classification_without_errors(self):
+        with TestDir() as test_dir:
+            subset_file = osp.join(test_dir, "ImageSets", "Main", "test.txt")
+            os.makedirs(osp.dirname(subset_file))
+            with open(subset_file, "w") as f:
+                f.write("a\n")
+                f.write("b\n")
+                f.write("c\n")
+
+            ann_file = osp.join(test_dir, "ImageSets", "Main", "cat_test.txt")
+            with open(ann_file, "w") as f:
+                f.write("a -1\n")
+                f.write("b 0\n")
+                f.write("c 1\n")
+
+            parsed = Dataset.import_from(test_dir, format="voc_classification")
+            parsed.init_cache()
+
+            self.assertEqual(len(parsed), 3)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_annotation_value_in_classification(self):
         with TestDir() as test_dir:
             subset_file = osp.join(test_dir, "ImageSets", "Main", "test.txt")
