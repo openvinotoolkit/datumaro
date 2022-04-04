@@ -17,9 +17,9 @@ import requests
 
 from datumaro.components.dataset_generator import DatasetGenerator
 from datumaro.util.image import save_image
-from datumaro.util.scope import on_error_do, on_exit_do, scoped
+from datumaro.util.scope import on_error_do, on_exit_do, scope_add, scoped
 
-from .utils import IFSFunction, augment, colorize
+from .utils import IFSFunction, augment, colorize, suppress_computation_warnings
 
 
 class FractalImageGenerator(DatasetGenerator):
@@ -90,9 +90,12 @@ class FractalImageGenerator(DatasetGenerator):
         with mp_ctx.Pool(processes=self._cpu_count) as pool:
             pool.starmap(self._generate_image_batch, generation_params)
 
+    @scoped
     def _generate_image_batch(
         self, params: np.ndarray, weights: np.ndarray, indices: List[int]
     ) -> None:
+        scope_add(suppress_computation_warnings())
+
         proto = osp.join(self._model_dir, self._MODEL_PROTO_FILENAME)
         model = osp.join(self._model_dir, self._MODEL_WEIGHTS_FILENAME)
         npy = osp.join(self._model_dir, self._HULL_PTS_FILE_NAME)
@@ -140,7 +143,10 @@ class FractalImageGenerator(DatasetGenerator):
         img = ifs_function.draw(height, width, draw_point)
         return img
 
+    @scoped
     def _generate_category(self, rng: Random, base_h: int = 512, base_w: int = 512) -> np.ndarray:
+        scope_add(suppress_computation_warnings())
+
         pixels = -1
         i = 0
         while pixels < self._threshold and i < self._iterations:

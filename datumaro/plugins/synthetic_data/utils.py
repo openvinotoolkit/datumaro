@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 import warnings
+from contextlib import contextmanager
 from random import Random
+from typing import ContextManager
 
 import cv2 as cv
 import numpy as np
-
-warnings.filterwarnings("ignore", message=r"(invalid value|overflow) encountered")
 
 
 class IFSFunction:
@@ -151,3 +151,15 @@ def fill_background(rng: Random, image: np.ndarray, colors: np.ndarray) -> np.nd
     rows, cols = np.nonzero(~np.any(image, axis=-1))  # background color = [0, 0, 0]
     image[rows, cols] = rng.choice(colors)
     return image
+
+
+@contextmanager
+def suppress_computation_warnings() -> ContextManager:
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=r"(invalid value|overflow) encountered",
+            module=__package__,
+            append=True,
+        )
+        yield
