@@ -59,4 +59,4 @@ same names but different extensions Datumaro will use `.csv`.
 > that specified in annotation file. And to speed up the import, you can leave
 > only the youtube_id in the video filename.
 
-See the full list of supported video extensions [here](/docs/user-manual/media_formats.md).
+See the full list of supported video extensions [here](/docs/user-manual/media_formats).

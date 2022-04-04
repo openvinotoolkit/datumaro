@@ -33,7 +33,8 @@ pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
 Read more about choosing between `datumaro` and `datumaro[default]`
 [here](#core-install).
 
-#### Plugins <a id="installation-plugins"></a>
+<a id="installation-plugins"></a>
+#### Plugins
 
 Datumaro has many plugins, which are responsible for dataset formats,
 model launchers and other optional components. If a plugin has dependencies,
