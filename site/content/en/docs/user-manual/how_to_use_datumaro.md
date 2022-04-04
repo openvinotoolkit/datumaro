@@ -130,8 +130,8 @@ first using the [`model add`](/docs/user-manual/command-reference/models/#regist
 A typical way to obtain Datumaro projects is to export tasks in
 [CVAT](https://github.com/openvinotoolkit/cvat) UI.
 
-### Project data model
 <a id="data-model"></a>
+### Project data model
 
 ![project model](/images/project_model.svg)
 
@@ -217,8 +217,8 @@ project/
     └── <source data>
 ```
 
-### Datasets and Data Sources
 <a id="data-sources"></a>
+### Datasets and Data Sources
 
 A project can contain an arbitrary number of Data Sources. Each Data Source
 describes a dataset in a specific format. A project acts as a manager for
@@ -396,8 +396,8 @@ or data sources contain the same images, there will only be a single copy
 of the related media files. This helps to keep storage use reasonable and
 avoid unnecessary data copies.
 
-### Examples
 <a id="cli-examples"></a>
+### Examples
 
 Example: create a project, add dataset, modify, restore an old version
 

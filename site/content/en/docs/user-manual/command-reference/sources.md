@@ -6,8 +6,8 @@ description: ''
 
 These commands are specific for Data Sources. Read more about them [here](/docs/user-manual/how_to_use_datumaro#data-sources).
 
-### Import Dataset
 <a id="source-import"></a>
+### Import Dataset
 
 Datasets can be added to a Datumaro project with the `import` command,
 which adds a dataset link into the project and downloads (or copies)
@@ -73,8 +73,8 @@ datum import -f image_dir <path/to/images/dir>
 datum export -f tf_detection_api -- --save-images
 ```
 
-### Add Dataset
 <a id="source-add"></a>
+### Add Dataset
 
 Existing datasets can be added to a Datumaro project with the `add` command.
 The command adds a project-local directory as a data source in the project.
@@ -150,8 +150,8 @@ mv ~/my_coco/ proj/my_coco/ # move the dataset into the project directory
 datum add -p proj/ -f coco proj/my_coco/
 ```
 
-### Remove Datasets
 <a id="source-remove"></a>
+### Remove Datasets
 
 To remove a data source from a project, use the `remove` command.
 
