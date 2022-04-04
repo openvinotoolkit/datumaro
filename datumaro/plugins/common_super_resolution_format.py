@@ -4,7 +4,7 @@
 
 import os.path as osp
 
-from datumaro.components.annotation import SuperResolutionAnnotation
+from datumaro.components.annotation import ImageAnnotation
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
@@ -62,7 +62,7 @@ class CommonSuperResolutionExtractor(SourceExtractor):
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset, attributes=attributes)
 
-            items[item_id].annotations = [SuperResolutionAnnotation(Image(path=hr_image))]
+            items[item_id].annotations = [ImageAnnotation(Image(path=hr_image))]
 
         return items
 

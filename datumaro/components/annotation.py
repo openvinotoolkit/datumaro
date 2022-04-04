@@ -27,7 +27,7 @@ class AnnotationType(Enum):
     bbox = auto()
     caption = auto()
     cuboid_3d = auto()
-    super_resolution_annotation = auto()
+    image_annotation = auto()
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -792,10 +792,10 @@ class Caption(Annotation):
 
 
 @attrs(slots=True, order=False)
-class SuperResolutionAnnotation(Annotation):
+class ImageAnnotation(Annotation):
     """
     Represents high resolution images.
     """
 
-    _type = AnnotationType.super_resolution_annotation
+    _type = AnnotationType.image_annotation
     image: Image = field()
