@@ -170,8 +170,8 @@ Add subset prefix to images:
 datum transform -t rename -- -e '|(.*)|{item.subset}_\1|'
 ```
 
-##### `id_from_image_name`
 <a id="id_from_image_name-transform"></a>
+##### `id_from_image_name`
 
 Renames items in the dataset using image file name (without extension).
 
@@ -197,8 +197,8 @@ Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 - `-s`, `--start` (int) - Start value for item ids (default: 1)
 
-##### `ndr`
 <a id="ndr-transform"></a>
+##### `ndr`
 
 Removes near-duplicated images in subset.
 
@@ -307,8 +307,8 @@ datum transform -t relevancy_sampler -- \
   --sampling_method topk -k 20
 ```
 
-##### `random_sampler`
 <a id="random_sampler-transform"></a>
+##### `random_sampler`
 
 Sampler that keeps no more than required number of items in the dataset.
 
@@ -412,8 +412,8 @@ Resize all images to 256x256 size
 datum transform -t resize -- -dw 256 -dh 256
 ```
 
-##### `remove_images`
 <a id="remove_images-transform"></a>
+##### `remove_images`
 
 Removes specific dataset items by their ids.
 
@@ -512,8 +512,8 @@ Split a dataset randomly to `train` and `test` subsets, ratio is 2:1
 datum transform -t random_split -- --subset train:.67 --subset test:.33
 ```
 
-##### `split`
 <a id="split-transform"></a>
+##### `split`
 
 Splits a dataset for model training, using task information:
 
@@ -604,8 +604,8 @@ Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 - `-s`, `--subset` (str; repeatable) - Subset mapping of the form: `src:dst`
 
-##### `remap_labels`
 <a id="remap_labels-transform"></a>
+##### `remap_labels`
 
 Changes labels in the dataset.
 

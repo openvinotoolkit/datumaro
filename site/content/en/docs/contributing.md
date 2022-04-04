@@ -134,8 +134,8 @@ class MyTests(TestCase):
         ... do stuff ...
 ```
 
-#### Requirements
 <a id="Requirements"></a>
+#### Requirements
 
 Requirements and other links need to be added to [`tests/requirements.py`](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/requirements.py):
 
