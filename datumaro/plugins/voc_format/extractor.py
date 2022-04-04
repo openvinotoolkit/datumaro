@@ -164,10 +164,10 @@ class VocClassificationExtractor(_VocExtractor):
                         )
 
                     item, present = parts
-                    if present not in ["-1", "1"]:
+                    if present not in ["-1", "0", "1"]:
                         raise InvalidAnnotationError(
                             f"{osp.basename(ann_file)}:{i+1}: "
-                            f"unexpected class existence value '{present}', expected -1 or 1"
+                            f"unexpected class existence value '{present}', expected -1, 0 or 1"
                         )
 
                     if present == "1":
