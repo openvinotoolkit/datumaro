@@ -9,7 +9,7 @@ import re
 from collections import OrderedDict
 from typing import Dict, List, Optional, Tuple, Type, TypeVar, Union
 
-from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
+from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories
 from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
@@ -22,7 +22,7 @@ from datumaro.util.image import DEFAULT_IMAGE_META_FILE_NAME, ImageMeta, load_im
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import split_path
 
-from .format import YoloPath
+from .format import RelativeCoordBbox, YoloPath
 
 T = TypeVar("T")
 
@@ -201,15 +201,6 @@ class YoloExtractor(SourceExtractor):
                     lines.append(line)
 
         annotations = []
-
-        if lines:
-            # Use image info as late as possible to avoid unnecessary image loading
-            if image.size is None:
-                raise DatasetImportError(
-                    f"Can't find image info for '{self.localize_path(image.path)}'"
-                )
-            image_height, image_width = image.size
-
         for line in lines:
             try:
                 parts = line.split()
@@ -228,15 +219,7 @@ class YoloExtractor(SourceExtractor):
                 h = self._parse_field(h, float, "bbox height")
                 x = self._parse_field(xc, float, "bbox center x") - w * 0.5
                 y = self._parse_field(yc, float, "bbox center y") - h * 0.5
-                annotations.append(
-                    Bbox(
-                        x * image_width,
-                        y * image_height,
-                        w * image_width,
-                        h * image_height,
-                        label=label_id,
-                    )
-                )
+                annotations.append(RelativeCoordBbox(x, y, w, h, label=label_id, image=image))
             except Exception as e:
                 self._ctx.error_policy.report_annotation_error(e, item_id=item_id)
 
