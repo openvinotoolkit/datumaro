@@ -746,9 +746,16 @@ class VocExtractorTest(TestCase):
                 f.write("c 1\n")
 
             parsed = Dataset.import_from(test_dir, format="voc_classification")
-            parsed.init_cache()
 
-            self.assertEqual(len(parsed), 3)
+            expected = Dataset.from_iterable(
+                [
+                    DatasetItem("a", subset="test"),
+                    DatasetItem("b", subset="test"),
+                    DatasetItem("c", subset="test", annotations=[Label(VOC.VocLabel.cat.value)]),
+                ],
+                categories=VOC.make_voc_categories(),
+            )
+            compare_datasets(self, expected, parsed)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_annotation_value_in_classification(self):
