@@ -698,7 +698,9 @@ class IntersectMerge(MergingStrategy):
             elif t is AnnotationType.cuboid_3d:
                 return _make(Cuboid3dMerger, **kwargs)
             elif t is AnnotationType.super_resolution_annotation:
-                return _make(SuperResolutionAnnotationMerger, **kwargs)
+                return _make(ImageAnnotationMerger, **kwargs)
+            elif t is AnnotationType.depth_annotation:
+                return _make(ImageAnnotationMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 
@@ -1083,7 +1085,7 @@ class Cuboid3dMatcher(_ShapeMatcher):
 
 
 @attrs
-class SuperResolutionAnnotationMatcher(AnnotationMatcher):
+class ImageAnnotationMatcher(AnnotationMatcher):
     def match_annotations(self, sources):
         raise NotImplementedError()
 
@@ -1227,7 +1229,7 @@ class Cuboid3dMerger(_ShapeMerger, Cuboid3dMatcher):
 
 
 @attrs
-class SuperResolutionAnnotationMerger(AnnotationMerger, SuperResolutionAnnotationMatcher):
+class ImageAnnotationMerger(AnnotationMerger, ImageAnnotationMatcher):
     pass
 
 

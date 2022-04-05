@@ -116,6 +116,10 @@ List of supported formats:
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/coco_dataset)
   - `labels` are our extension - like `instances` with only `category_id`
   - [Format documentation](/docs/formats/coco)
+- NYU Depth Dataset V2 (`depth estimation`) (import-only)
+  - [Format specification](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/nyu_depth_v2_dataset)
+  - [Format documentation](/docs/formats/nyu_depth_v2)
 - Open Images (`classification`, `detection`, `segmentation`)
   - [Format specification](https://storage.googleapis.com/openimages/web/download.html)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/open_images_dataset)
@@ -170,6 +174,7 @@ List of supported formats:
 - Captions
 - 3D cuboids
 - Super Resolution Annotation
+- Depth Annotation
 
 Datumaro does not separate datasets by tasks like classification, detection
 etc. Instead, datasets can have any annotations. When a dataset is exported

@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/700>)
 - Kinetics 400/600/700 dataset format (import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/706>)
+- NYU Depth Dataset V2 format (import-only)
+  (<https://github.com/openvinotoolkit/datumaro/pull/712>)
 
 ### Changed
 - `env.detect_dataset()` now returns a list of detected formats at all recursion levels
