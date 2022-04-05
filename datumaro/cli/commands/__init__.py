@@ -17,6 +17,7 @@ from . import (
     explain,
     export,
     filter,
+    generate,
     import_,
     info,
     log,

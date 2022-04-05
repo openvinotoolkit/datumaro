@@ -73,6 +73,7 @@ class Environment:
 
     def __init__(self):
         from datumaro.components.converter import Converter
+        from datumaro.components.dataset_generator import DatasetGenerator
         from datumaro.components.extractor import (
             Extractor,
             Importer,
@@ -88,6 +89,7 @@ class Environment:
         self._importers = PluginRegistry(_filter(Importer))
         self._launchers = PluginRegistry(_filter(Launcher))
         self._converters = PluginRegistry(_filter(Converter))
+        self._generators = PluginRegistry(_filter(DatasetGenerator))
         self._transforms = PluginRegistry(_filter(Transform, skip=ItemTransform))
         self._validators = PluginRegistry(_filter(Validator))
         self._builtins_initialized = False
@@ -113,6 +115,10 @@ class Environment:
     @property
     def converters(self) -> PluginRegistry:
         return self._get_plugin_registry("_converters")
+
+    @property
+    def generators(self) -> PluginRegistry:
+        return self._get_plugin_registry("_generators")
 
     @property
     def transforms(self) -> PluginRegistry:
@@ -216,6 +222,7 @@ class Environment:
         self.importers.batch_register(plugins)
         self.launchers.batch_register(plugins)
         self.converters.batch_register(plugins)
+        self.generators.batch_register(plugins)
         self.transforms.batch_register(plugins)
         self.validators.batch_register(plugins)
 

@@ -36,6 +36,7 @@ flowchart LR
   d====_import[import]:::filloneclass
   d====_info[info]:::filloneclass
   d====_remove[remove]:::filloneclass
+  d====_generate[generate]:::filloneclass
   d====_filter[filter]:::filltwoclass
   d====_transform[transform]:::filltwoclass
   d====_diff[diff]:::fillthreeclass
