@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.annotation import ImageAnnotation
+from datumaro.components.annotation import DepthAnnotation
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
@@ -29,12 +29,12 @@ class NyuDepthV2ImporterTest(TestCase):
                 DatasetItem(
                     id="1",
                     media=Image(data=np.ones((6, 4, 3))),
-                    annotations=[ImageAnnotation(Image(data=np.ones((6, 4))))],
+                    annotations=[DepthAnnotation(Image(data=np.ones((6, 4))))],
                 ),
                 DatasetItem(
                     id="2",
                     media=Image(data=np.ones((4, 3, 3))),
-                    annotations=[ImageAnnotation(Image(data=np.ones((4, 3))))],
+                    annotations=[DepthAnnotation(Image(data=np.ones((4, 3))))],
                 ),
             ]
         )

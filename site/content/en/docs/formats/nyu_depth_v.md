@@ -11,7 +11,7 @@ The original NYU Depth Dataset V2 is available
 [here](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html).
 
 Supported annotation types:
-- `ImageAnnotation`
+- `DepthAnnotation`
 
 ## Import NYU Depth Dataset V2
 

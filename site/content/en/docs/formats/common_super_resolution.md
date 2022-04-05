@@ -9,7 +9,7 @@ description: ''
 CSR format specification is available [here](https://github.com/openvinotoolkit/workbench/blob/master/docs/Workbench_DG/Dataset_Types.md#common-super-resolution-csr).
 
 Supported annotation types:
-- `ImageAnnotation`
+- `SuperResolutionAnnotation`
 
 Supported attributes:
 - `upsampled` (`Image`): upsampled image
