@@ -29,6 +29,7 @@ class AnnotationType(Enum):
     cuboid_3d = auto()
     super_resolution_annotation = auto()
     depth_annotation = auto()
+    skeleton = auto()
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -813,3 +814,73 @@ class DepthAnnotation(_ImageAnnotation):
     """
 
     _type = AnnotationType.depth_annotation
+
+@attrs
+class _SkeletonShape(Annotation):
+    # Flattened list of point coordinates
+    points: List[float] = field(converter=lambda x:
+        [round(p, COORDINATE_ROUNDING_DIGITS) for p in x])
+
+    label: Optional[int] = field(converter=attr.converters.optional(int),
+        default=None, kw_only=True)
+
+    def get_area(self):
+        raise NotImplementedError()
+
+    def get_bbox(self) -> Tuple[float, float, float, float]:
+        "Returns [x, y, w, h]"
+
+        points = self.points
+        if not points:
+            return None
+
+        xs = [p for p in points[0::2]]
+        ys = [p for p in points[1::2]]
+        x0 = min(xs)
+        x1 = max(xs)
+        y0 = min(ys)
+        y1 = max(ys)
+        return [x0, y0, x1 - x0, y1 - y0]
+
+@attrs
+class Skeleton(_SkeletonShape):
+    """
+    Represents a skeleton.
+    """
+
+    class Visibility(Enum):
+        absent = 0
+        hidden = 1
+        visible = 2
+
+    _type = AnnotationType.skeleton
+    elements: List[Union[Points, Polygon, PolyLine, Bbox]] = field(default=None)
+
+    visibility: List[bool] = field(default=None)
+    @visibility.validator
+    def _visibility_validator(self, attribute, visibility):
+        if visibility is None:
+            visibility = [self.Visibility.visible] * (len(self.points) // 2)
+        else:
+            for i, v in enumerate(visibility):
+                if not isinstance(v, self.Visibility):
+                    visibility[i] = self.Visibility(v)
+        assert len(visibility) == len(self.points) // 2
+        self.visibility = visibility
+
+    def __attrs_post_init__(self):
+        assert len(self.points) % 2 == 0, self.points
+
+    def get_area(self):
+        return 0
+
+    def get_bbox(self):
+        xs = [p for p, v in zip(self.points[0::2], self.visibility)
+            if v != __class__.Visibility.absent]
+        ys = [p for p, v in zip(self.points[1::2], self.visibility)
+            if v != __class__.Visibility.absent]
+        x0 = min(xs, default=0)
+        x1 = max(xs, default=0)
+        y0 = min(ys, default=0)
+        y1 = max(ys, default=0)
+        return [x0, y0, x1 - x0, y1 - y0]
