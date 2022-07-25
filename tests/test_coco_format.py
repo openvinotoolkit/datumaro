@@ -413,15 +413,16 @@ class CocoImporterTest(TestCase):
                 ),
             ),
         ]
-        for format, (subset, path) in product(formats, paths):
-            if subset:
-                expected = expected_dataset.get_subset(subset)
-            else:
-                expected = expected_dataset
+        # for format, (subset, path) in product(formats, paths):
+        #     if subset:
+        #         expected = expected_dataset.get_subset(subset)
+        #     else:
+        #         expected = expected_dataset
 
-            with self.subTest(path=path, format=format, subset=subset):
-                dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_media=True)
+        #     with self.subTest(path=path, format=format, subset=subset):
+        #         dataset = Dataset.import_from(path, format)
+        #         compare_datasets(self, expected, dataset, require_media=True)
+        dataset = Dataset.import_from("/home/anastasia/Downloads/annotations_trainval2014", "coco_person_keypoints")
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_keypoints_with_any_annotation_filename(self):

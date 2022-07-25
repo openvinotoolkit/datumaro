@@ -21,6 +21,7 @@ from datumaro.components.annotation import (
     PointsCategories,
     Polygon,
     RleMask,
+    Skeleton,
 )
 from datumaro.components.errors import (
     DatasetImportError,
@@ -152,16 +153,22 @@ class _CocoExtractor(SourceExtractor):
         self._label_map = label_map
 
     def _load_person_kp_categories(self, json_cat):
-        categories = PointsCategories()
+        point_categories = PointsCategories()
+        label_categories = self._categories[AnnotationType.label]
+
         for cat in json_cat:
             label_id = self._label_map[self._parse_field(cat, "id", int)]
-            categories.add(
+            labels = self._parse_field(cat, "keypoints", list)
+            point_categories.add(
                 label_id,
-                labels=self._parse_field(cat, "keypoints", list),
+                labels=labels,
                 joints=self._parse_field(cat, "skeleton", list),
             )
 
-        self._categories[AnnotationType.points] = categories
+            for label in labels:
+                label_categories.add(label, cat.get("name"))
+
+        self._categories[AnnotationType.points] = point_categories
 
     def _load_items(self, json_data):
         pbars = self._ctx.progress_reporter.split(2)
@@ -334,16 +341,15 @@ class _CocoExtractor(SourceExtractor):
                     )
 
                 points = []
-                visibility = []
+                sublabels = self.categories()[AnnotationType.points][0].labels
+                i = 0
                 for x, y, v in take_by(keypoints, 3):
-                    points.append(x)
-                    points.append(y)
-                    visibility.append(v)
+                    points.append(Points([x, y], [v], label=self.categories()[AnnotationType.label].find(sublabels[i])[0]))
+                    i += 1
 
                 parsed_annotations.append(
-                    Points(
+                    Skeleton(
                         points,
-                        visibility,
                         label=label_id,
                         id=ann_id,
                         attributes=attributes,
