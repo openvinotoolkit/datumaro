@@ -27,7 +27,7 @@ pip install datumaro[default]
 ```
 ``` bash
 # From the GitHub repository:
-pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
+pip install 'git+https://github.com/cvat-ai/datumaro[default]'
 ```
 
 Read more about choosing between `datumaro` and `datumaro[default]`

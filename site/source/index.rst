@@ -35,7 +35,7 @@ Navigation
 
 .. toctree::
 
-   Back to main documentation <https://openvinotoolkit.github.io/datumaro/docs/>
+   Back to main documentation <https://cvat-ai.github.io/datumaro/docs/>
 
 Indices and tables
 ******************

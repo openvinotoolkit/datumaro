@@ -55,7 +55,7 @@ anchor = "smart"
 [[menu.main]]
     name = "GitHub"
     weight = 50
-    url = "https://github.com/openvinotoolkit/datumaro"
+    url = "https://github.com/cvat-ai/datumaro"
     pre = "<i class='fab fa-github'></i>"
 
 [services]
@@ -115,9 +115,9 @@ version = "0.0"
 url_latest_version = "https://example.com"
 
 # Repository configuration (URLs for in-page links to opening issues and suggesting changes)
-github_repo = "https://github.com/openvinotoolkit/datumaro"
+github_repo = "https://github.com/cvat-ai/datumaro"
 # An optional link to a related project repo. For example, the sibling repository where your product code lives.
-github_project_repo = "https://github.com/openvinotoolkit/datumaro"
+github_project_repo = "https://github.com/cvat-ai/datumaro"
 
 # Specify a value here if your content directory is not in your repo's root directory
 github_subdir = "site"
@@ -127,7 +127,7 @@ github_subdir = "site"
 github_branch = "develop"
 
 # Github links
-repo_link= "https://github.com/openvinotoolkit/datumaro/tree/develop/"
+repo_link= "https://github.com/cvat-ai/datumaro/tree/develop/"
 
 # Google Custom Search Engine ID. Remove or comment out to disable search.
 # gcs_engine_id = "d72aa9b2712488cc3"
@@ -177,6 +177,6 @@ enable = false
 # Developer relevant links. These will show up on right side of footer and in the community page if you have one.
 [[params.links.developer]]
     name = "GitHub"
-    url = "https://github.com/openvinotoolkit/datumaro"
+    url = "https://github.com/cvat-ai/datumaro"
     icon = "fab fa-github"
         desc = "Development takes place here!"

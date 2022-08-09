@@ -6,7 +6,7 @@ description: ''
 
 ## Format specification
 
-CSS format specification is available [here](https://github.com/openvinotoolkit/open_model_zoo/blob/master/tools/accuracy_checker/openvino/tools/accuracy_checker/annotation_converters/README.md#supported-converters).
+CSS format specification is available [here](https://github.com/cvat-ai/open_model_zoo/blob/master/tools/accuracy_checker/openvino/tools/accuracy_checker/annotation_converters/README.md#supported-converters).
 
 Supported annotation types:
 - `Masks`
@@ -79,4 +79,4 @@ dataset.export('save_dir', 'camvid', save_media=True)
 ## Examples
 
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_common_semantic_segmentation_format.py)
+[the format tests](https://github.com/cvat-ai/datumaro/blob/develop/tests/test_common_semantic_segmentation_format.py)

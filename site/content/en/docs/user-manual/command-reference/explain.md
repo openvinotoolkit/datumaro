@@ -84,7 +84,7 @@ datum explain -t image.png -m mymodel \
 > _all_ (or a _reasonable_ amount) the outputs and confidences unfiltered,
 > i.e. all the `Label` annotations for classification models and
 > all the `Bbox`es for detection models.
-> You can find examples of the expected model outputs in [`tests/test_RISE.py`](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_RISE.py)
+> You can find examples of the expected model outputs in [`tests/test_RISE.py`](https://github.com/cvat-ai/datumaro/tree/develop/tests/test_RISE.py)
 
 For OpenVINO models the output processing script would look like this:
 

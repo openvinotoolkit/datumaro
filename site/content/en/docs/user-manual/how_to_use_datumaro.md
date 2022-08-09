@@ -128,7 +128,7 @@ If you want to interact with models, you need to add them to the project
 first using the [`model add`](/docs/user-manual/command-reference/models/#register-model) command.
 
 A typical way to obtain Datumaro projects is to export tasks in
-[CVAT](https://github.com/openvinotoolkit/cvat) UI.
+[CVAT](https://github.com/cvat-ai/cvat) UI.
 
 <a id="data-model"></a>
 ### Project data model

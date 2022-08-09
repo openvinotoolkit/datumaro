@@ -50,4 +50,4 @@ run `datum project info`, which will display the project information.
 ## Examples
 
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_nyu_depth_v2_format.py)
+[the format tests](https://github.com/cvat-ai/datumaro/blob/develop/tests/test_nyu_depth_v2_format.py)

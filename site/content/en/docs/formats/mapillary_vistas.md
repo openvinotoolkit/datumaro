@@ -167,4 +167,4 @@ dataset
 To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 See examples of annotation files in
-[test assets](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mapillary_vistas_dataset).
+[test assets](https://github.com/cvat-ai/datumaro/tree/develop/tests/assets/mapillary_vistas_dataset).

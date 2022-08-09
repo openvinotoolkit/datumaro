@@ -205,4 +205,4 @@ datum convert --input-format mnist --input-path <path/to/mnist> \
 ```
 
 Examples of using this format from the code can be found in
-the [binary format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_mnist_format.py) and [csv format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_mnist_csv_format.py)
+the [binary format tests](https://github.com/cvat-ai/datumaro/tree/develop/tests/test_mnist_format.py) and [csv format tests](https://github.com/cvat-ai/datumaro/tree/develop/tests/test_mnist_csv_format.py)

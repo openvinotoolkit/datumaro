@@ -101,7 +101,7 @@ dataset.export('dst/dir', 'coco', save_images=True)
   ```
 
 - Convert only non-`occluded` annotations from a
-  [CVAT](https://github.com/openvinotoolkit/cvat) project to TFrecord:
+  [CVAT](https://github.com/cvat-ai/cvat) project to TFrecord:
   ```bash
   # export Datumaro dataset in CVAT UI, extract somewhere, go to the project dir
   datum filter -e '/item/annotation[occluded="False"]' --mode items+anno
@@ -109,7 +109,7 @@ dataset.export('dst/dir', 'coco', save_images=True)
   ```
 
 - Annotate MS COCO dataset, extract image subset, re-annotate it in
-  [CVAT](https://github.com/openvinotoolkit/cvat), update old dataset:
+  [CVAT](https://github.com/cvat-ai/cvat), update old dataset:
   ```bash
   # Download COCO dataset http://cocodataset.org/#download
   # Put images to coco/images/ and annotations to coco/annotations/
@@ -123,7 +123,7 @@ dataset.export('dst/dir', 'coco', save_images=True)
   ```
 
 - Annotate instance polygons in
-  [CVAT](https://github.com/openvinotoolkit/cvat), export as masks in COCO:
+  [CVAT](https://github.com/cvat-ai/cvat), export as masks in COCO:
   ```bash
   datum convert --input-format cvat --input-path <path/to/cvat.xml> \
                 --output-format coco -- --segmentation-mode masks

@@ -77,7 +77,7 @@ documentation)
 
 ### CVAT integration
 
-Datumaro needs to be integrated with [CVAT](https://github.com/openvinotoolkit/cvat),
+Datumaro needs to be integrated with [CVAT](https://github.com/cvat-ai/cvat),
 extending CVAT UI capabilities regarding task and project operations.
 It should be capable of downloading and processing data from CVAT.
 

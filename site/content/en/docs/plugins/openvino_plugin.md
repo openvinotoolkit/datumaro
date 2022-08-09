@@ -3,7 +3,7 @@
 title: 'OpenVINO™ Inference Interpreter'
 linkTitle: 'OpenVINO™ Inference Interpreter'
 description: 'Interpreter samples to parse OpenVINO™ inference outputs.
-  This section on [GitHub](https://github.com/openvinotoolkit/datumaro/tree/develop/datumaro/plugins/openvino_plugin)'
+  This section on [GitHub](https://github.com/cvat-ai/datumaro/tree/develop/datumaro/plugins/openvino_plugin)'
 weight: 49
 
 ---
@@ -15,33 +15,33 @@ There are detection and image classification examples.
 
 - Detection (SSD-based)
   - Intel Pre-trained Models > Object Detection
-    - [face-detection-0200](https://docs.openvinotoolkit.org/latest/omz_models_intel_face_detection_0200_description_face_detection_0200.html)
-    - [face-detection-0202](https://docs.openvinotoolkit.org/latest/omz_models_intel_face_detection_0202_description_face_detection_0202.html)
-    - [face-detection-0204](https://docs.openvinotoolkit.org/latest/omz_models_intel_face_detection_0204_description_face_detection_0204.html)
-    - [person-detection-0200](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_detection_0200_description_person_detection_0200.html)
-    - [person-detection-0201](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_detection_0201_description_person_detection_0201.html)
-    - [person-detection-0202](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_detection_0202_description_person_detection_0202.html)
-    - [person-vehicle-bike-detection-2000](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_vehicle_bike_detection_2000_description_person_vehicle_bike_detection_2000.html)
-    - [person-vehicle-bike-detection-2001](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_vehicle_bike_detection_2001_description_person_vehicle_bike_detection_2001.html)
-    - [person-vehicle-bike-detection-2002](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_vehicle_bike_detection_2002_description_person_vehicle_bike_detection_2002.html)
-    - [vehicle-detection-0200](https://docs.openvinotoolkit.org/latest/omz_models_intel_vehicle_detection_0200_description_vehicle_detection_0200.html)
-    - [vehicle-detection-0201](https://docs.openvinotoolkit.org/latest/omz_models_intel_vehicle_detection_0201_description_vehicle_detection_0201.html)
-    - [vehicle-detection-0202](https://docs.openvinotoolkit.org/latest/omz_models_intel_vehicle_detection_0202_description_vehicle_detection_0202.html)
+    - [face-detection-0200](https://docs.cvat-ai.org/latest/omz_models_intel_face_detection_0200_description_face_detection_0200.html)
+    - [face-detection-0202](https://docs.cvat-ai.org/latest/omz_models_intel_face_detection_0202_description_face_detection_0202.html)
+    - [face-detection-0204](https://docs.cvat-ai.org/latest/omz_models_intel_face_detection_0204_description_face_detection_0204.html)
+    - [person-detection-0200](https://docs.cvat-ai.org/latest/omz_models_intel_person_detection_0200_description_person_detection_0200.html)
+    - [person-detection-0201](https://docs.cvat-ai.org/latest/omz_models_intel_person_detection_0201_description_person_detection_0201.html)
+    - [person-detection-0202](https://docs.cvat-ai.org/latest/omz_models_intel_person_detection_0202_description_person_detection_0202.html)
+    - [person-vehicle-bike-detection-2000](https://docs.cvat-ai.org/latest/omz_models_intel_person_vehicle_bike_detection_2000_description_person_vehicle_bike_detection_2000.html)
+    - [person-vehicle-bike-detection-2001](https://docs.cvat-ai.org/latest/omz_models_intel_person_vehicle_bike_detection_2001_description_person_vehicle_bike_detection_2001.html)
+    - [person-vehicle-bike-detection-2002](https://docs.cvat-ai.org/latest/omz_models_intel_person_vehicle_bike_detection_2002_description_person_vehicle_bike_detection_2002.html)
+    - [vehicle-detection-0200](https://docs.cvat-ai.org/latest/omz_models_intel_vehicle_detection_0200_description_vehicle_detection_0200.html)
+    - [vehicle-detection-0201](https://docs.cvat-ai.org/latest/omz_models_intel_vehicle_detection_0201_description_vehicle_detection_0201.html)
+    - [vehicle-detection-0202](https://docs.cvat-ai.org/latest/omz_models_intel_vehicle_detection_0202_description_vehicle_detection_0202.html)
 
   - Public Pre-Trained Models(OMZ) > Object Detection
-    - [ssd_mobilenet_v1_coco](https://docs.openvinotoolkit.org/latest/omz_models_public_ssd_mobilenet_v1_coco_ssd_mobilenet_v1_coco.html)
-    - [ssd_mobilenet_v2_coco](https://docs.openvinotoolkit.org/latest/omz_models_public_ssd_mobilenet_v2_coco_ssd_mobilenet_v2_coco.html)
+    - [ssd_mobilenet_v1_coco](https://docs.cvat-ai.org/latest/omz_models_public_ssd_mobilenet_v1_coco_ssd_mobilenet_v1_coco.html)
+    - [ssd_mobilenet_v2_coco](https://docs.cvat-ai.org/latest/omz_models_public_ssd_mobilenet_v2_coco_ssd_mobilenet_v2_coco.html)
 
 - Image Classification
   - Public Pre-Trained Models(OMZ) > Classification
-    - [mobilenet-v2-pytorch](https://docs.openvinotoolkit.org/latest/omz_models_public_mobilenet_v2_pytorch_mobilenet_v2_pytorch.html)
+    - [mobilenet-v2-pytorch](https://docs.cvat-ai.org/latest/omz_models_public_mobilenet_v2_pytorch_mobilenet_v2_pytorch.html)
 
 You can find more OpenVINO™ Trained Models
-[here](https://docs.openvinotoolkit.org/latest/omz_models_intel_index.html)
+[here](https://docs.cvat-ai.org/latest/omz_models_intel_index.html)
 To run the inference with OpenVINO™, the model format should be Intermediate
 Representation(IR).
 For the Caffe/TensorFlow/MXNet/Kaldi/ONNX models, please see the
-[Model Conversion Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_MO_DG_prepare_model_convert_model_Converting_Model.html)
+[Model Conversion Instruction](https://docs.cvat-ai.org/latest/openvino_docs_MO_DG_prepare_model_convert_model_Converting_Model.html)
 
 You need to implement your own interpreter samples to support the other
 OpenVINO™ Trained Models.
@@ -50,8 +50,8 @@ OpenVINO™ Trained Models.
 
 Prerequisites:
 - OpenVINO™ (To install OpenVINO™, please see the
-  [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
-- OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
+  [OpenVINO™ Installation Instruction](https://docs.cvat-ai.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
+- OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.cvat-ai.org/latest/omz_tools_downloader_README.html))
 - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
 
 Open Model Zoo models can be downloaded with the Model Downloader tool
@@ -72,9 +72,9 @@ cd /opt/intel/openvino/deployment_tools/open_model_zoo/tools/downloader
 
 Prerequisites:
 - OpenVINO™ (To install OpenVINO™, please see the
-  [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
+  [OpenVINO™ Installation Instruction](https://docs.cvat-ai.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
 - Datumaro (To install Datumaro, please see the [User Manual](/docs/user-manual/))
-- OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
+- OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.cvat-ai.org/latest/omz_tools_downloader_README.html))
 - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
 
 
