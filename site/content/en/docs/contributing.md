@@ -17,7 +17,7 @@ weight: 50
 - Python (3.7+)
 
 ``` bash
-git clone https://github.com/openvinotoolkit/datumaro
+git clone https://github.com/cvat-ai/datumaro
 ```
 
 Optionally, install a virtual environment (recommended):
@@ -137,7 +137,7 @@ class MyTests(TestCase):
 <a id="Requirements"></a>
 #### Requirements
 
-Requirements and other links need to be added to [`tests/requirements.py`](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/requirements.py):
+Requirements and other links need to be added to [`tests/requirements.py`](https://github.com/cvat-ai/datumaro/tree/develop/tests/requirements.py):
 
 ```python
 DATUM_244 = "Add Snyk integration"
@@ -155,7 +155,7 @@ DATUM_BUG_219 = "Return format is not uniform"
 
 ##### Available annotations for tests and requirements
 
-Markings are defined in [`tests/conftest.py`](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/conftest.py).
+Markings are defined in [`tests/conftest.py`](https://github.com/cvat-ai/datumaro/tree/develop/tests/conftest.py).
 
 **A list of requirements and bugs**
 ```python

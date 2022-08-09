@@ -6,7 +6,7 @@ description: ''
 
 ## Format specification
 
-CSR format specification is available [here](https://github.com/openvinotoolkit/workbench/blob/master/docs/Workbench_DG/Dataset_Types.md#common-super-resolution-csr).
+CSR format specification is available [here](https://github.com/cvat-ai/workbench/blob/master/docs/Workbench_DG/Dataset_Types.md#common-super-resolution-csr).
 
 Supported annotation types:
 - `SuperResolutionAnnotation`
@@ -48,4 +48,4 @@ run `datum project info`, which will display the project information.
 ## Examples
 
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_common_super_resolution_format.py)
+[the format tests](https://github.com/cvat-ai/datumaro/blob/develop/tests/test_common_super_resolution_format.py)

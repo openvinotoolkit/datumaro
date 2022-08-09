@@ -201,4 +201,4 @@ datum convert --input-format cifar --input-path <path/to/cifar> \
 ```
 
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_cifar_format.py)
+[the format tests](https://github.com/cvat-ai/datumaro/blob/develop/tests/test_cifar_format.py)

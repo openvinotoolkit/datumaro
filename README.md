@@ -1,8 +1,8 @@
 # Dataset Management Framework (Datumaro)
 
-[![Build status](https://github.com/openvinotoolkit/datumaro/actions/workflows/health_check.yml/badge.svg)](https://github.com/openvinotoolkit/datumaro/actions/workflows/health_check.yml)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/759d2d873b59495aa3d3f8c51b786246)](https://app.codacy.com/gh/openvinotoolkit/datumaro?utm_source=github.com&utm_medium=referral&utm_content=openvinotoolkit/datumaro&utm_campaign=Badge_Grade_Dashboard)
-[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/9511b691ff134e739ea6fc524f7cc760)](https://www.codacy.com/gh/openvinotoolkit/datumaro?utm_source=github.com&utm_medium=referral&utm_content=openvinotoolkit/datumaro&utm_campaign=Badge_Coverage)
+[![Build status](https://github.com/cvat-ai/datumaro/actions/workflows/health_check.yml/badge.svg)](https://github.com/cvat-ai/datumaro/actions/workflows/health_check.yml)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/759d2d873b59495aa3d3f8c51b786246)](https://app.codacy.com/gh/cvat-ai/datumaro?utm_source=github.com&utm_medium=referral&utm_content=cvat-ai/datumaro&utm_campaign=Badge_Grade_Dashboard)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/9511b691ff134e739ea6fc524f7cc760)](https://www.codacy.com/gh/cvat-ai/datumaro?utm_source=github.com&utm_medium=referral&utm_content=cvat-ai/datumaro&utm_campaign=Badge_Coverage)
 
 A framework and CLI tool to build, transform, and analyze datasets.
 
@@ -16,11 +16,11 @@ CVAT annotations                             ---> Publication, statistics etc.
 ```
 <!--lint enable fenced-code-flag-->
 
-- [Getting started](https://openvinotoolkit.github.io/datumaro/docs/getting_started)
-- [Examples](https://openvinotoolkit.github.io/datumaro/docs/getting_started/#examples)
+- [Getting started](https://cvat-ai.github.io/datumaro/docs/getting_started)
+- [Examples](https://cvat-ai.github.io/datumaro/docs/getting_started/#examples)
 - [Features](#features)
-- [User manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual)
-- [Developer manual](https://openvinotoolkit.github.io/datumaro/api)
+- [User manual](https://cvat-ai.github.io/datumaro/docs/user-manual)
+- [Developer manual](https://cvat-ai.github.io/datumaro/api)
 - [Contributing](#contributing)
 
 ## Features
@@ -32,7 +32,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [Cityscapes](https://www.cityscapes-dataset.com/)
   - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`,
     `captions`, `labels`, `panoptic`, `stuff`)
-  - [CVAT](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
+  - [CVAT](https://cvat-ai.github.io/cvat/docs/manual/advanced/xml_format)
   - [ImageNet](http://image-net.org/)
   - [Kitti](http://www.cvlibs.net/datasets/kitti/index.php) (`segmentation`, `detection`,
     `3D raw` / `velodyne points`)
@@ -47,7 +47,7 @@ CVAT annotations                             ---> Publication, statistics etc.
     (`bboxes`, `masks`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
 
-  Other formats and documentation for them can be found [here](https://openvinotoolkit.github.io/datumaro/docs/user-manual/supported_formats).
+  Other formats and documentation for them can be found [here](https://cvat-ai.github.io/datumaro/docs/user-manual/supported_formats).
 - Dataset building
   - Merging multiple datasets into one
   - Dataset filtering by a custom criteria:
@@ -87,10 +87,10 @@ CVAT annotations                             ---> Publication, statistics etc.
     - RISE for object detection
 
 > Check
-  [the design document](https://openvinotoolkit.github.io/datumaro/docs/design)
+  [the design document](https://cvat-ai.github.io/datumaro/docs/design)
   for a full list of features.
 > Check
-  [the user manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual)
+  [the user manual](https://cvat-ai.github.io/datumaro/docs/user-manual)
   for usage instructions.
 
 ## Contributing
@@ -98,16 +98,16 @@ CVAT annotations                             ---> Publication, statistics etc.
 [(Back to top)](#dataset-management-framework-datumaro)
 
 Feel free to
-[open an Issue](https://github.com/openvinotoolkit/datumaro/issues/new), if you
+[open an Issue](https://github.com/cvat-ai/datumaro/issues/new), if you
 think something needs to be changed. You are welcome to participate in
 development, instructions are available in our
-[contribution guide](https://openvinotoolkit.github.io/datumaro/docs/contributing).
+[contribution guide](https://cvat-ai.github.io/datumaro/docs/contributing).
 
 
 ## Telemetry data collection note
 
-The [OpenVINO™ telemetry library](https://github.com/openvinotoolkit/telemetry/)
+The [OpenVINO™ telemetry library](https://github.com/cvat-ai/telemetry/)
 is used to collect basic information about Datumaro usage.
 
 To enable/disable telemetry data collection please see the
-[guide](https://openvinotoolkit.github.io/datumaro/docs/user-manual/how_to_control_tm_data_collection/).
+[guide](https://cvat-ai.github.io/datumaro/docs/user-manual/how_to_control_tm_data_collection/).
