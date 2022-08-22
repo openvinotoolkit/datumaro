@@ -365,9 +365,9 @@ class _KeypointsConverter(_InstancesConverter):
 
         # Create annotations for solitary keypoints annotations
         for skeleton in self.find_solitary_points(item.annotations):
-            instance = [skeleton, [], None, points.get_bbox()]
+            instance = [skeleton, [], None, skeleton.get_bbox()]
             elem = super().convert_instance(instance, item)
-            elem.update(self.convert_points_object(points))
+            elem.update(self.convert_points_object(skeleton))
             self.annotations.append(elem)
 
         # Create annotations for complete instance + keypoints annotations
@@ -388,8 +388,13 @@ class _KeypointsConverter(_InstancesConverter):
     @staticmethod
     def convert_points_object(ann):
         keypoints = []
-        points = ann.points
-        visibility = ann.visibility
+        points = []
+        visibility = []
+
+        for element in ann.elements:
+            points.extend(element.points)
+            visibility.extend(element.visibility)
+
         for index in range(0, len(points), 2):
             kp = points[index : index + 2]
             state = visibility[index // 2].value

@@ -18,6 +18,7 @@ from datumaro.components.annotation import (
     Points,
     PointsCategories,
     Polygon,
+    Skeleton,
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
@@ -335,9 +336,10 @@ class CocoImporterTest(TestCase):
                     media=Image(data=np.ones((5, 10, 3))),
                     attributes={"id": 5},
                     annotations=[
-                        Points(
-                            [0, 0, 0, 2, 4, 1],
-                            [0, 1, 2],
+                        Skeleton([
+                            Points([0, 0], [0], label=5),
+                            Points([0, 2], [1], label=6),
+                            Points([4, 1], [2], label=7)],
                             label=1,
                             id=1,
                             group=1,
@@ -352,8 +354,10 @@ class CocoImporterTest(TestCase):
                     media=Image(data=np.ones((10, 5, 3))),
                     attributes={"id": 40},
                     annotations=[
-                        Points(
-                            [1, 2, 3, 4, 2, 3],
+                        Skeleton([
+                            Points([1, 2], label=2),
+                            Points([3, 4], label=3),
+                            Points([2, 3], label=4)],
                             label=0,
                             id=1,
                             group=1,
@@ -366,8 +370,10 @@ class CocoImporterTest(TestCase):
                             group=1,
                             attributes={"is_crowd": False, "x": 1, "y": "hello"},
                         ),
-                        Points(
-                            [2, 4, 4, 4, 4, 2],
+                        Skeleton([
+                            Points([2, 4], label=5),
+                            Points([4, 4], label=6),
+                            Points([4, 2], label=7)],
                             label=1,
                             id=2,
                             group=2,
@@ -384,7 +390,7 @@ class CocoImporterTest(TestCase):
                 ),
             ],
             categories={
-                AnnotationType.label: LabelCategories.from_iterable(["a", "b"]),
+                AnnotationType.label: LabelCategories.from_iterable(["a", "b", "a_0", "a_1", "a_2", "b_0", "b_1", "b_2"]),
                 AnnotationType.points: PointsCategories.from_iterable(
                     (i, None, [[0, 1], [1, 2]]) for i in range(2)
                 ),
@@ -413,16 +419,15 @@ class CocoImporterTest(TestCase):
                 ),
             ),
         ]
-        # for format, (subset, path) in product(formats, paths):
-        #     if subset:
-        #         expected = expected_dataset.get_subset(subset)
-        #     else:
-        #         expected = expected_dataset
+        for format, (subset, path) in product(formats, paths):
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
 
-        #     with self.subTest(path=path, format=format, subset=subset):
-        #         dataset = Dataset.import_from(path, format)
-        #         compare_datasets(self, expected, dataset, require_media=True)
-        dataset = Dataset.import_from("/home/anastasia/Downloads/annotations_trainval2014", "coco_person_keypoints")
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
+                compare_datasets(self, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_keypoints_with_any_annotation_filename(self):
