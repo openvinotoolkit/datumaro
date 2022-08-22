@@ -98,9 +98,6 @@ class LabelCategories(Categories):
         name: str = field(converter=str, validator=not_empty)
         parent: str = field(default="", validator=default_if_none(str))
         attributes: Set[str] = field(factory=set, validator=default_if_none(set))
-        type: str = field(default="any", validator=default_if_none(str))
-        elements: List[Dict[str, int]] = field(default=[])
-        edges: List[Dict[str, int]] = field(default=[])
 
     items: List[str] = field(factory=list, validator=default_if_none(list))
     _indices: Dict[str, int] = field(factory=dict, init=False, eq=False)
@@ -150,13 +147,13 @@ class LabelCategories(Categories):
         self._indices = indices
 
     def add(
-        self, name: str, parent: Optional[str] = None, attributes: Optional[Set[str]] = None, type: str = "any",
+        self, name: str, parent: Optional[str] = None, attributes: Optional[Set[str]] = None
     ) -> int:
         assert name
         assert name not in self._indices, name
 
         index = len(self.items)
-        self.items.append(self.Category(name, parent, attributes, type))
+        self.items.append(self.Category(name, parent, attributes))
         self._indices[name] = index
         return index
 
