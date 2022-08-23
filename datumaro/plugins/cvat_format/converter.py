@@ -234,60 +234,44 @@ class _SubsetWriter:
                             ("stop_frame", str(len(self._extractor))),
                             ("frame_filter", ""),
                             ("z_order", "True"),
+                            (
+                                "labels",
+                                [
+                                    (
+                                        "label",
+                                        OrderedDict(
+                                            [
+                                                ("name", label.name),
+                                                (
+                                                    "attributes",
+                                                    [
+                                                        (
+                                                            "attribute",
+                                                            OrderedDict(
+                                                                [
+                                                                    ("name", attr),
+                                                                    ("mutable", "True"),
+                                                                    ("input_type", "text"),
+                                                                    ("default_value", ""),
+                                                                    ("values", ""),
+                                                                ]
+                                                            ),
+                                                        )
+                                                        for attr in self._get_label_attrs(label)
+                                                    ],
+                                                ),
+                                            ]
+                                        ),
+                                    )
+                                    for label in label_cat.items
+                                ],
+                            ),
                         ]
                     ),
                 ),
             ]
         )
 
-        labels = []
-        for label in label_cat.items:
-            label_for_meta = OrderedDict([
-                ("name", label.name),
-                ("type", label.type),
-                (
-                    "attributes",
-                    [
-                        (
-                            "attribute",
-                            OrderedDict(
-                                [
-                                    ("name", attr),
-                                    ("mutable", "True"),
-                                    ("input_type", "text"),
-                                    ("default_value", ""),
-                                    ("values", ""),
-                                ]
-                            ),
-                        )
-                        for attr in self._get_label_attrs(label)
-                    ],
-                ),
-            ])
-            if label.type == "skeleton":
-                edges = []
-                for edge in label.edges:
-                    edges.append(('edge', OrderedDict([
-                        ('from', str(edge['from'])),
-                        ('to', str(edge['to']))
-                    ])))
-
-                elements = []
-                for elem in label.elements:
-                    elements.append(('element', OrderedDict([
-                        ('label', str(elem['label'])),
-                        ('element_id', str(elem['element_id']))
-                    ])))
-
-                label_for_meta["structure"] = OrderedDict([
-                    ("edges", edges),
-                    ("elements", elements),
-                    # ("svg", label.skeleton.svg)
-                ])
-
-            labels.append(('label', label_for_meta))
-
-        meta["task"]['labels'] = labels
         self._writer.write_meta(meta)
 
     def _get_label(self, label_id):
@@ -357,118 +341,8 @@ class _SubsetWriter:
             self._writer.open_points(shape_data)
         elif shape.type == AnnotationType.skeleton:
             self._writer.open_skeleton(shape_data)
-
-            for elem in shape.elements:
-                data = OrderedDict(
-                    [
-                        ("label", self._get_label(elem.label).name),
-                        ("occluded", str(int(elem.attributes.get("occluded", False)))),
-                        ("outside", str(int(elem.attributes.get("outside", False)))),
-                    ]
-                )
-
-                if elem.type == AnnotationType.bbox:
-                    data.update(
-                        OrderedDict(
-                            [
-                                ("xtl", "{:.2f}".format(elem.points[0])),
-                                ("ytl", "{:.2f}".format(elem.points[1])),
-                                ("xbr", "{:.2f}".format(elem.points[2])),
-                                ("ybr", "{:.2f}".format(elem.points[3])),
-                            ]
-                        )
-                    )
-                    self._writer.open_box(data)
-                elif elem.type == AnnotationType.polygon:
-                    data.update(
-                        OrderedDict(
-                            [
-                                (
-                                    "points",
-                                    ";".join(
-                                        (
-                                            ",".join(("{:.2f}".format(x), "{:.2f}".format(y)))
-                                            for x, y in pairs(elem.points)
-                                        )
-                                    ),
-                                ),
-                            ]
-                        )
-                    )
-                    self._writer.open_polygon(data)
-                elif elem.type == AnnotationType.polyline:
-                    data.update(
-                        OrderedDict(
-                            [
-                                (
-                                    "points",
-                                    ";".join(
-                                        (
-                                            ",".join(("{:.2f}".format(x), "{:.2f}".format(y)))
-                                            for x, y in pairs(elem.points)
-                                        )
-                                    ),
-                                ),
-                            ]
-                        )
-                    )
-                    self._writer.open_polyline(data)
-                elif elem.type == AnnotationType.points:
-                    data.update(
-                        OrderedDict(
-                            [
-                                (
-                                    "points",
-                                    ";".join(
-                                        (
-                                            ",".join(("{:.2f}".format(x), "{:.2f}".format(y)))
-                                            for x, y in pairs(elem.points)
-                                        )
-                                    ),
-                                ),
-                            ]
-                        )
-                    )
-                    self._writer.open_points(data)
-                else:
-                    raise NotImplementedError("unknown shape type")
-
-                for attr_name, attr_value in elem.attributes.items():
-                    if attr_name in self._context._builtin_attrs:
-                        continue
-                    if isinstance(attr_value, bool):
-                        attr_value = "true" if attr_value else "false"
-                    if self._context._allow_undeclared_attrs or attr_name in self._get_label_attrs(
-                        elem.label
-                    ):
-                        self._writer.add_attribute(
-                            OrderedDict(
-                                [
-                                    ("name", str(attr_name)),
-                                    ("value", str(attr_value)),
-                                ]
-                            )
-                        )
-                    else:
-                        log.warning(
-                            "Item %s: skipping undeclared "
-                            "attribute '%s' for label '%s' "
-                            "(allow with --allow-undeclared-attrs option)",
-                            item.id,
-                            attr_name,
-                            label_name,
-                        )
-
-                if elem.type == AnnotationType.bbox:
-                    self._writer.close_box()
-                elif elem.type == AnnotationType.polygon:
-                    self._writer.close_polygon()
-                elif elem.type == AnnotationType.polyline:
-                    self._writer.close_polyline()
-                elif elem.type == AnnotationType.points:
-                    self._writer.close_points()
-                else:
-                    raise NotImplementedError("unknown shape type")
+            for element in shape.elements:
+                self._write_shape(element, item)
         else:
             raise NotImplementedError("unknown shape type")
 
