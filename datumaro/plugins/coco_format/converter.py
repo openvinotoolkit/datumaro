@@ -410,7 +410,7 @@ class _KeypointsConverter(_InstancesConverter):
     def convert_instance(self, instance, item):
         points_ann = find(
             item.annotations,
-            lambda x: x.type == AnnotationType.points
+            lambda x: x.type == AnnotationType.skeleton
             and instance[0].group
             and x.group == instance[0].group,
         )

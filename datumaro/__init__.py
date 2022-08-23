@@ -28,6 +28,7 @@ from .components.annotation import (
     PolyLine,
     RgbColor,
     RleMask,
+    Skeleton,
 )
 from .components.cli_plugin import CliPlugin
 from .components.converter import Converter, ExportErrorPolicy, FailingExportErrorPolicy

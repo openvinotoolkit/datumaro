@@ -815,7 +815,7 @@ class DepthAnnotation(_ImageAnnotation):
 
     _type = AnnotationType.depth_annotation
 
-@attrs
+@attrs(slots=True, order=False)
 class Skeleton(Annotation):
     """
     Represents a skeleton.
@@ -841,9 +841,11 @@ class Skeleton(Annotation):
         xs = []
         ys = []
         for element in self.elements:
-            bbox = element.get_bbox()
-            xs.extend([bbox[0], bbox[2] + bbox[0]])
-            ys.extend([bbox[1], bbox[3] + bbox[1]])
+            if element.type is not AnnotationType.points or element.type is AnnotationType.points \
+                    and [v for v in element.visibility if v != element.Visibility.absent]:
+                bbox = element.get_bbox()
+                xs.extend([bbox[0], bbox[2] + bbox[0]])
+                ys.extend([bbox[1], bbox[3] + bbox[1]])
 
         x0 = min(xs, default=0)
         x1 = max(xs, default=0)

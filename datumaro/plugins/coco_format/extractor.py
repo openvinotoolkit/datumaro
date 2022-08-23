@@ -341,10 +341,15 @@ class _CocoExtractor(SourceExtractor):
                     )
 
                 points = []
-                sublabels = self.categories()[AnnotationType.points][0].labels
+                sublabels = []
+                if label_id:
+                    sublabels = self.categories()[AnnotationType.points].items[label_id].labels
                 i = 0
                 for x, y, v in take_by(keypoints, 3):
-                    points.append(Points([x, y], [v], label=self.categories()[AnnotationType.label].find(sublabels[i])[0]))
+                    sublabel = None
+                    if i < len(sublabels):
+                        sublabel = self.categories()[AnnotationType.label].find(sublabels[i])[0]
+                    points.append(Points([x, y], [v], label=sublabel))
                     i += 1
 
                 parsed_annotations.append(
