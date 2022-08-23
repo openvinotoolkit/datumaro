@@ -49,7 +49,7 @@ List of supported formats:
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/common_super_resolution_dataset)
   - [Format documentation](/docs/formats/common_super_resolution)
 - CVAT (`for images`, `for video` (import-only))
-  - [Format specification](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
+  - [Format specification](https://opencv.github.io/cvat/docs/manual/advanced/xml_format)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cvat_dataset)
 - ICDAR13/15 (`word_recognition`, `text_localization`, `text_segmentation`)
   - [Format specification](https://rrc.cvc.uab.es/?ch=2)
