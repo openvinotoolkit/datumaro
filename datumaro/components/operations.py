@@ -701,6 +701,8 @@ class IntersectMerge(MergingStrategy):
                 return _make(ImageAnnotationMerger, **kwargs)
             elif t is AnnotationType.depth_annotation:
                 return _make(ImageAnnotationMerger, **kwargs)
+            elif t is AnnotationType.skeleton:
+                return _make(ImageAnnotationMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 
