@@ -220,7 +220,7 @@ class CvatExtractor(SourceExtractor):
                     else:
                         frame_desc = items.get(shape["frame"], {"annotations": []})
                         frame_desc["annotations"].append(
-                            cls._parse_shape_ann(track_shape, categories)
+                            cls._parse_shape_ann(shape, categories)
                         )
                         items[shape["frame"]] = frame_desc
 
