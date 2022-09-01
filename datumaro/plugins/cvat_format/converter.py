@@ -11,7 +11,7 @@ from itertools import chain
 # Disable B406: import_xml_sax - the library is used for writing
 from xml.sax.saxutils import XMLGenerator  # nosec
 
-from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.annotation import AnnotationType, LabelCategories, PointsCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
@@ -219,6 +219,7 @@ class _SubsetWriter:
 
     def _write_meta(self):
         label_cat = self._extractor.categories().get(AnnotationType.label, LabelCategories())
+        points_cat = self._extractor.categories().get(AnnotationType.points, PointsCategories())
         meta = OrderedDict(
             [
                 (
@@ -233,44 +234,40 @@ class _SubsetWriter:
                             ("start_frame", "0"),
                             ("stop_frame", str(len(self._extractor))),
                             ("frame_filter", ""),
-                            ("z_order", "True"),
-                            (
-                                "labels",
-                                [
-                                    (
-                                        "label",
-                                        OrderedDict(
-                                            [
-                                                ("name", label.name),
-                                                (
-                                                    "attributes",
-                                                    [
-                                                        (
-                                                            "attribute",
-                                                            OrderedDict(
-                                                                [
-                                                                    ("name", attr),
-                                                                    ("mutable", "True"),
-                                                                    ("input_type", "text"),
-                                                                    ("default_value", ""),
-                                                                    ("values", ""),
-                                                                ]
-                                                            ),
-                                                        )
-                                                        for attr in self._get_label_attrs(label)
-                                                    ],
-                                                ),
-                                            ]
-                                        ),
-                                    )
-                                    for label in label_cat.items
-                                ],
-                            ),
+                            ("z_order", "True")
                         ]
                     ),
                 ),
             ]
         )
+
+        labels = []
+        for l_id, l in enumerate(label_cat.items):
+            label = OrderedDict([
+                ("name", l.name),
+                ("attributes", [
+                    ("attribute", OrderedDict([
+                        ("name", attr),
+                        ("mutable", "True"),
+                        ("input_type", "text"),
+                        ("default_value", ""),
+                        ("values", "")]))
+                    for attr in self._get_label_attrs(l)])
+            ])
+
+            if l.parent:
+                label["parent"] = l.parent
+
+            if points_cat.items.get(l_id):
+                label["type"] = "skeleton"
+                label["svg"] = ""
+                for label_from, label_to in points_cat.items[l_id].joints:
+                    label["svg"] += f"<line x1=\"0\" y1=\"0\" x2=\"0\" y2=\"0\"data-type=\"edge\" data-node-from=\"{label_from + 1}\" stroke-width=\"0.5\" data-node-to=\"{label_to + 1}\"></line>"
+                for i, sublabel in enumerate(points_cat.items[l_id].labels):
+                    label["svg"] += f"<circle r=\"1.5\" stroke=\"black\" fill=\"#b3b3b3\" cx=\"0\" cy=\"0\" stroke-width=\"0.1\" data-type=\"element node\" data-element-id=\"{i + 1}\" data-node-id=\"{i + 1}\" data-label-name=\"{sublabel}\"></circle>"
+            labels.append(('label', label))
+
+            meta["task"]['labels'] = labels
 
         self._writer.write_meta(meta)
 
@@ -310,6 +307,10 @@ class _SubsetWriter:
                     ]
                 )
             )
+        elif shape.type == AnnotationType.skeleton:
+            shape_data.update(OrderedDict([
+                ("points", ''),
+            ]))
         else:
             shape_data.update(
                 OrderedDict(

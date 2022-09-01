@@ -37,6 +37,46 @@
         <label>
           <name>label2</name>
         </label>
+        <label>
+          <name>skeleton</name>
+          <color>#0c81b5</color>
+          <type>skeleton</type>
+          <attributes>
+          </attributes>
+          <svg>&lt;line x1="69.69805145263672" y1="25.447099685668945" x2="17.69015884399414" y2="58.55823516845703" stroke="black" data-type="edge" data-node-from="3" stroke-width="0.5" data-node-to="2"&gt;&lt;/line&gt;&lt;line x1="15.014512062072754" y1="22.436996459960938" x2="74.21321105957031" y2="59.05991744995117" stroke="black" data-type="edge" data-node-from="1" stroke-width="0.5" data-node-to="4"&gt;&lt;/line&gt;&lt;circle r="1.5" stroke="black" fill="#b3b3b3" cx="15.014512062072754" cy="22.436996459960938" stroke-width="0.1" data-type="element node" data-element-id="1" data-node-id="1" data-label-name="1"&gt;&lt;/circle&gt;&lt;circle r="1.5" stroke="black" fill="#b3b3b3" cx="17.69015884399414" cy="58.55823516845703" stroke-width="0.1" data-type="element node" data-element-id="2" data-node-id="2" data-label-name="2"&gt;&lt;/circle&gt;&lt;circle r="1.5" stroke="black" fill="#b3b3b3" cx="69.69805145263672" cy="25.447099685668945" stroke-width="0.1" data-type="element node" data-element-id="3" data-node-id="3" data-label-name="3"&gt;&lt;/circle&gt;&lt;circle r="1.5" stroke="black" fill="#b3b3b3" cx="74.21321105957031" cy="59.05991744995117" stroke-width="0.1" data-type="element node" data-element-id="4" data-node-id="4" data-label-name="4"&gt;&lt;/circle&gt;</svg>
+        </label>
+        <label>
+          <name>1</name>
+          <color>#d12345</color>
+          <type>points</type>
+          <attributes>
+          </attributes>
+          <parent>skeleton</parent>
+        </label>
+        <label>
+          <name>2</name>
+          <color>#350dea</color>
+          <type>points</type>
+          <attributes>
+          </attributes>
+          <parent>skeleton</parent>
+        </label>
+        <label>
+          <name>3</name>
+          <color>#479ffe</color>
+          <type>points</type>
+          <attributes>
+          </attributes>
+          <parent>skeleton</parent>
+        </label>
+        <label>
+          <name>4</name>
+          <color>#4a649f</color>
+          <type>points</type>
+          <attributes>
+          </attributes>
+          <parent>skeleton</parent>
+        </label>
       </labels>
     </task>
   </meta>
@@ -48,9 +88,29 @@
       <attribute name="a4">2.4</attribute>
     </box>
     <polyline label="" points="1.0,2;3,4;5,6;7,8"/>
+    <skeleton label="skeleton" occluded="0" source="manual" points="" rotation="0.00" z_order="0">
+      <points label="1" occluded="0" source="manual" outside="1" points="1,1" z_order="0">
+      </points>
+      <points label="2" occluded="0" source="manual" outside="0" points="2,2" z_order="0">
+      </points>
+      <points label="3" occluded="0" source="manual" outside="0" points="3,3" z_order="0">
+      </points>
+      <points label="4" occluded="0" source="manual" outside="0" points="4,4" z_order="0">
+      </points>
+    </skeleton>
   </image>
   <image height="10" id="1" name="img1.jpg" width="10">
     <polygon label="" points="1,2;3,4;6,5" z_order="1"/>
     <points label="label2" points="1,2;3,4;5,6" z_order="2"/>
+    <skeleton label="skeleton" occluded="0" source="manual" points="" rotation="0.00" z_order="0">
+      <points label="1" occluded="0" source="manual" outside="0" points="3,3" z_order="0">
+      </points>
+      <points label="2" occluded="0" source="manual" outside="0" points="4,4" z_order="0">
+      </points>
+      <points label="3" occluded="0" source="manual" outside="1" points="5,5" z_order="0">
+      </points>
+      <points label="4" occluded="0" source="manual" outside="0" points="6,6" z_order="0">
+      </points>
+    </skeleton>
   </image>
 </annotations>

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+import re
 from collections import OrderedDict
 
 from defusedxml import ElementTree
@@ -13,8 +14,10 @@ from datumaro.components.annotation import (
     Label,
     LabelCategories,
     Points,
+    PointsCategories,
     Polygon,
     PolyLine,
+    Skeleton,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
@@ -53,6 +56,8 @@ class CvatExtractor(SourceExtractor):
         items = OrderedDict()
 
         track = None
+        track_element = None
+        track_shapes = None
         shape = None
         shape_element = None
         tag = None
@@ -62,13 +67,20 @@ class CvatExtractor(SourceExtractor):
         for ev, el in context:
             if ev == "start":
                 if el.tag == "track":
-                    track = {
-                        "id": el.attrib["id"],
-                        "label": el.attrib.get("label"),
-                        "group": int(el.attrib.get("group_id", 0)),
-                        "height": frame_size[0],
-                        "width": frame_size[1],
-                    }
+                    if track:
+                        track_element = {
+                            'id': el.attrib['id'],
+                            'label': el.attrib.get('label'),
+                        }
+                    else:
+                        track = {
+                            "id": el.attrib["id"],
+                            "label": el.attrib.get("label"),
+                            "group": int(el.attrib.get("group_id", 0)),
+                            "height": frame_size[0],
+                            "width": frame_size[1],
+                        }
+                        track_shapes = {}
                 elif el.tag == "image":
                     image = {
                         "name": el.attrib.get("name"),
@@ -80,17 +92,20 @@ class CvatExtractor(SourceExtractor):
                     if shape and shape["type"] == "skeleton":
                         element_attributes = {}
                         shape_element = {
-                            "type": None,
+                            "type": "rectangle" if el.tag == 'box' else el.tag,
                             "attributes": element_attributes,
                         }
                         shape_element.update(image)
                     else:
                         attributes = {}
                         shape = {
-                            "type": None,
+                            "type": "rectangle" if el.tag == 'box' else el.tag,
                             "attributes": attributes,
                         }
-                        if track:
+                        shape['elements'] = []
+                        if track_element:
+                            shape.update(track_element)
+                        elif track:
                             shape.update(track)
                             shape["track_id"] = int(track["id"])
                         if image:
@@ -135,6 +150,7 @@ class CvatExtractor(SourceExtractor):
 
                     shape_element["type"] = el.tag
                     shape_element["occluded"] = el.attrib.get("occluded") == "1"
+                    shape_element["outside"] = el.attrib.get("outside") == "1"
                     shape_element["z_order"] = int(el.attrib.get("z_order", 0))
 
                     if el.tag == "box":
@@ -189,9 +205,15 @@ class CvatExtractor(SourceExtractor):
                         for pair in el.attrib["points"].split(";"):
                             shape["points"].extend(map(float, pair.split(",")))
 
-                    frame_desc = items.get(shape["frame"], {"annotations": []})
-                    frame_desc["annotations"].append(cls._parse_shape_ann(shape, categories))
-                    items[shape["frame"]] = frame_desc
+                    if track_element:
+                        track_shapes[shape['frame']]['elements'].append(shape)
+                    elif track:
+                        track_shapes[shape['frame']] = shape
+                    else:
+                        frame_desc = items.get(shape["frame"], {"annotations": []})
+                        frame_desc["annotations"].append(cls._parse_shape_ann(shape, categories))
+                        items[shape["frame"]] = frame_desc
+
                     shape = None
 
                 elif el.tag == "tag":
@@ -200,7 +222,14 @@ class CvatExtractor(SourceExtractor):
                     items[tag["frame"]] = frame_desc
                     tag = None
                 elif el.tag == "track":
-                    track = None
+                    if track_element:
+                        track_element = None
+                    else:
+                        for track_shape in track_shapes.values():
+                            frame_desc = items.get(track_shape["frame"], {"annotations": []})
+                            frame_desc["annotations"].append(cls._parse_shape_ann(track_shape, categories))
+                            items[track_shape["frame"]] = frame_desc
+                        track = None
                 elif el.tag == "image":
                     frame_desc = items.get(image["frame"], {"annotations": []})
                     frame_desc.update(
@@ -266,10 +295,14 @@ class CvatExtractor(SourceExtractor):
                 elif accepted("task", "labels"):
                     pass
                 elif accepted("labels", "label"):
-                    label = {"name": None, "attributes": []}
+                    label = {"name": None, "attributes": [], "svg": None, "parent": None}
                 elif accepted("label", "name", next_state="label_name"):
                     pass
                 elif accepted("label", "attributes"):
+                    pass
+                elif accepted("label", "svg", next_state="label_svg"):
+                    pass
+                elif accepted("label", "parent", next_state="label_parent"):
                     pass
                 elif accepted("attributes", "attribute"):
                     pass
@@ -300,6 +333,10 @@ class CvatExtractor(SourceExtractor):
                     frame_size[1] = int(el.text)
                 elif consumed("label_name", "name"):
                     label["name"] = el.text
+                elif consumed("label_svg", "svg"):
+                    label["svg"] = el.text
+                elif consumed("label_parent", "parent"):
+                    label["parent"] = el.text
                 elif consumed("attr_name", "name"):
                     label["attributes"].append({"name": el.text})
                 elif consumed("attr_type", "input_type"):
@@ -309,7 +346,7 @@ class CvatExtractor(SourceExtractor):
                 elif consumed("attributes", "attributes"):
                     pass
                 elif consumed("label", "label"):
-                    labels[label["name"]] = label["attributes"]
+                    labels[label["name"]] = (label["attributes"], label["svg"], label["parent"])
                     label = None
                 elif consumed("labels", "labels"):
                     pass
@@ -327,14 +364,25 @@ class CvatExtractor(SourceExtractor):
             common_attrs.append("track_id")
 
         label_cat = LabelCategories(attributes=common_attrs)
+        points_cat = PointsCategories()
         attribute_types = {}
-        for label, attrs in labels.items():
-            attr_names = {v["name"] for v in attrs}
-            label_cat.add(label, attributes=attr_names)
-            for attr in attrs:
+        for label, info in labels.items():
+            attr_names = {v["name"] for v in info[0]}
+            label_id = label_cat.add(label, info[2], attributes=attr_names)
+            for attr in info[0]:
                 attribute_types[attr["name"]] = attr["input_type"]
 
+            if info[1]:
+                labels_from = [int(l) - 1 for l in re.findall(r'data-node-from="(\d+)"', info[1])]
+                labels_to = [int(l) - 1 for l in re.findall(r'data-node-to="(\d+)"', info[1])]
+                sublabels = re.findall(r'data-label-name="(\w+)"', info[1])
+                joints = zip(labels_from, labels_to)
+
+                points_cat.add(label_id, sublabels, joints)
+
         categories[AnnotationType.label] = label_cat
+        if len(points_cat.items):
+            categories[AnnotationType.points] = points_cat
         return categories, frame_size, attribute_types
 
     @classmethod
@@ -404,6 +452,14 @@ class CvatExtractor(SourceExtractor):
                 attributes=attributes,
                 group=group,
             )
+
+        elif ann_type == 'skeleton':
+            elements = []
+            for element in ann.get('elements', []):
+                elements.append(cls._parse_shape_ann(element, categories))
+
+            return Skeleton(elements, label=label_id, z_order=z_order,
+                id=ann_id, attributes=attributes, group=group)
 
         else:
             raise NotImplementedError("Unknown annotation type '%s'" % ann_type)

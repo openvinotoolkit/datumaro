@@ -11,8 +11,10 @@ from datumaro.components.annotation import (
     Label,
     LabelCategories,
     Points,
+    PointsCategories,
     Polygon,
     PolyLine,
+    Skeleton,
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
@@ -65,6 +67,12 @@ class CvatImporterTest(TestCase):
                             },
                         ),
                         PolyLine([1, 2, 3, 4, 5, 6, 7, 8], attributes={"occluded": False}),
+                        Skeleton([
+                            Points([1, 1], label=3, attributes={"occluded": False, "outside": True}),
+                            Points([2, 2], label=4, attributes={"occluded": False, "outside": False}),
+                            Points([3, 3], label=5, attributes={"occluded": False, "outside": False}),
+                            Points([4, 4], label=6, attributes={"occluded": False, "outside": False}),
+                        ], label=2, attributes={"occluded": False}),
                     ],
                     attributes={"frame": 0},
                 ),
@@ -77,6 +85,12 @@ class CvatImporterTest(TestCase):
                         Points(
                             [1, 2, 3, 4, 5, 6], label=1, z_order=2, attributes={"occluded": False}
                         ),
+                        Skeleton([
+                            Points([3, 3], label=3, attributes={"occluded": False, "outside": False}),
+                            Points([4, 4], label=4, attributes={"occluded": False, "outside": False}),
+                            Points([5, 5], label=5, attributes={"occluded": False, "outside": True}),
+                            Points([6, 6], label=6, attributes={"occluded": False, "outside": False}),
+                        ], label=2, attributes={"occluded": False}),
                     ],
                     attributes={"frame": 1},
                 ),
@@ -86,8 +100,16 @@ class CvatImporterTest(TestCase):
                     [
                         ["label1", "", {"a1", "a2", "a3", "a4"}],
                         ["label2"],
+                        ["skeleton", ""],
+                        ["1", "skeleton"],
+                        ["2", "skeleton"],
+                        ["3", "skeleton"],
+                        ["4", "skeleton"],
                     ]
-                )
+                ),
+                AnnotationType.points: PointsCategories.from_iterable(
+                    [(2, ["1", "2", "3", "4"], [[2, 1], [0, 3]])]
+                ),
             },
         )
 
@@ -130,6 +152,12 @@ class CvatImporterTest(TestCase):
                                 "hgl": "hgkf",
                             },
                         ),
+                        Skeleton([
+                            Points([48.80, 111.77], id=0, label=4, attributes={"occluded": False, "outside": False, "keyframe": True}),
+                            Points([48.80, 156.28], id=1, label=5, attributes={"occluded": False, "outside": False, "keyframe": True}),
+                            Points([83.27, 106.61], id=2, label=6, attributes={"occluded": False, "outside": False, "keyframe": True}),
+                            Points([89.11, 159.91], id=3, label=7, attributes={"occluded": False, "outside": False, "keyframe": True}),
+                        ], id=3, label=3, attributes={"track_id": 3, "occluded": False, "outside": False, "keyframe": True}),
                     ],
                     attributes={"frame": 10},
                 ),
@@ -175,6 +203,12 @@ class CvatImporterTest(TestCase):
                                 "track_id": 2,
                             },
                         ),
+                        Skeleton([
+                            Points([48.80, 111.77], id=0, label=4, attributes={"occluded": False, "outside": False, "keyframe": False}),
+                            Points([48.80, 156.28], id=1, label=5, attributes={"occluded": False, "outside": False, "keyframe": False}),
+                            Points([83.27, 106.61], id=2, label=6, attributes={"occluded": False, "outside": True, "keyframe": True}),
+                            Points([89.11, 159.91], id=3, label=7, attributes={"occluded": False, "outside": False, "keyframe": False}),
+                        ], label=3, id=3, attributes={"track_id": 3, "occluded": False, "outside": False, "keyframe": False}),
                     ],
                     attributes={"frame": 13},
                 ),
@@ -208,13 +242,26 @@ class CvatImporterTest(TestCase):
                                 "track_id": 2,
                             },
                         ),
+                        Skeleton([
+                            Points([48.80, 111.77], id=0, label=4, attributes={"occluded": False, "outside": False, "keyframe": False}),
+                            Points([48.80, 156.28], id=1, label=5, attributes={"occluded": False, "outside": False, "keyframe": False}),
+                            Points([89.11, 159.91], id=3, label=7, attributes={"occluded": False, "outside": False, "keyframe": False}),
+                        ], label=3, id=3, attributes={"track_id": 3, "occluded": False, "outside": False, "keyframe": False}),
                     ],
                     attributes={"frame": 16},
                 ),
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(
-                    [["klhg", "", {"hgl"}], ["z U k"], ["II"]]
+                    [["klhg", "", {"hgl"}], ["z U k"], ["II"],
+                        ["skeleton", ""],
+                        ["1", "skeleton"],
+                        ["2", "skeleton"],
+                        ["3", "skeleton"],
+                        ["4", "skeleton"]]
+                ),
+                AnnotationType.points: PointsCategories.from_iterable(
+                    [(3, ["1", "2", "3", "4"], [[2, 1], [0, 3]])]
                 ),
             },
         )
@@ -245,6 +292,13 @@ class CvatConverterTest(TestCase):
         for i in range(10):
             src_label_cat.add(str(i))
         src_label_cat.items[2].attributes.update(["a1", "a2", "empty"])
+        src_label_cat.add("skeleton")
+        src_label_cat.add("s_1", "skeleton")
+        src_label_cat.add("s_2", "skeleton")
+        src_label_cat.add("s_3", "skeleton")
+
+        src_points_cat = PointsCategories()
+        src_points_cat.add(10, ["s_1", "s_2", "s_3"], [[0, 1], [0, 2]])
 
         source_dataset = Dataset.from_iterable(
             [
@@ -266,6 +320,11 @@ class CvatConverterTest(TestCase):
                         ),
                         Label(1),
                         Label(2, attributes={"a1": "y", "a2": 44}),
+                        Skeleton([
+                            Points([1, 1], label=11, attributes={"occluded": True, "outside": False}),
+                            Points([2, 2], label=12, attributes={"occluded": False, "outside": False}),
+                            Points([3, 3], label=13, attributes={"occluded": False, "outside": False}),
+                        ], label=10, attributes={"occluded": False}),
                     ],
                 ),
                 DatasetItem(
@@ -289,11 +348,17 @@ class CvatConverterTest(TestCase):
                             attributes={"occluded": False},
                         ),
                         PolyLine([5, 0, 9, 0, 5, 5]),  # will be skipped as no label
+                        Skeleton([
+                            Points([5, 5], label=11, attributes={"occluded": False, "outside": False}),
+                            Points([6, 6], label=12, attributes={"occluded": False, "outside": False}),
+                            Points([7, 7], label=13, attributes={"occluded": True, "outside": False}),
+                        ], label=10, attributes={"occluded": False})
                     ],
                 ),
                 DatasetItem(id=3, subset="s3", media=Image(path="3.jpg", size=(2, 4))),
             ],
-            categories={AnnotationType.label: src_label_cat},
+            categories={AnnotationType.label: src_label_cat,
+                AnnotationType.points: src_points_cat},
         )
 
         target_label_cat = LabelCategories(
@@ -302,6 +367,13 @@ class CvatConverterTest(TestCase):
         for i in range(10):
             target_label_cat.add(str(i), attributes={"common"})
         target_label_cat.items[2].attributes.update(["a1", "a2", "empty", "common"])
+        target_label_cat.add("skeleton", attributes={"common"})
+        target_label_cat.add("s_1", "skeleton", attributes={"common"})
+        target_label_cat.add("s_2", "skeleton", attributes={"common"})
+        target_label_cat.add("s_3", "skeleton", attributes={"common"})
+
+        target_points_cat = PointsCategories()
+        target_points_cat.add(10, ["s_1", "s_2", "s_3"], [[0, 1], [0, 2]])
         target_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -322,6 +394,11 @@ class CvatConverterTest(TestCase):
                         ),
                         Label(1),
                         Label(2, attributes={"a1": "y", "a2": "44"}),
+                        Skeleton([
+                            Points([1, 1], label=11, attributes={"occluded": True, "outside": False}),
+                            Points([2, 2], label=12, attributes={"occluded": False, "outside": False}),
+                            Points([3, 3], label=13, attributes={"occluded": False, "outside": False}),
+                        ], label=10, attributes={"occluded": False}),
                     ],
                     attributes={"frame": 0},
                 ),
@@ -348,6 +425,11 @@ class CvatConverterTest(TestCase):
                             group=4,
                             attributes={"occluded": False},
                         ),
+                        Skeleton([
+                            Points([5, 5], label=11, attributes={"occluded": False, "outside": False}),
+                            Points([6, 6], label=12, attributes={"occluded": False, "outside": False}),
+                            Points([7, 7], label=13, attributes={"occluded": True, "outside": False}),
+                        ], label=10, attributes={"occluded": False})
                     ],
                     attributes={"frame": 0},
                 ),
@@ -358,7 +440,8 @@ class CvatConverterTest(TestCase):
                     attributes={"frame": 0},
                 ),
             ],
-            categories={AnnotationType.label: target_label_cat},
+            categories={AnnotationType.label: target_label_cat,
+                AnnotationType.points: target_points_cat},
         )
 
         with TestDir() as test_dir:
