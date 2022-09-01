@@ -490,7 +490,23 @@ class CvatConverterTest(TestCase):
                         Label(1),
                         Label(2, attributes={"a1": "y", "a2": 44}),
                         Skeleton(
-                            [Points([0, 0], [0]), Points([1, 2], [1]), Points([3, 4], [2])],
+                            [
+                                Points(
+                                    [1, 1],
+                                    label=11,
+                                    attributes={"occluded": True, "outside": False},
+                                ),
+                                Points(
+                                    [2, 2],
+                                    label=12,
+                                    attributes={"occluded": False, "outside": False},
+                                ),
+                                Points(
+                                    [3, 3],
+                                    label=13,
+                                    attributes={"occluded": False, "outside": False},
+                                ),
+                            ],
                             label=10,
                             attributes={"occluded": False},
                         ),
