@@ -220,8 +220,8 @@ class CvatExtractor(SourceExtractor):
                     else:
                         frame_desc = items.get(shape["frame"], {"annotations": []})
                         frame_desc["annotations"].append(
-                                cls._parse_shape_ann(track_shape, categories)
-                            )
+                            cls._parse_shape_ann(track_shape, categories)
+                        )
                         items[shape["frame"]] = frame_desc
 
                     shape = None
@@ -237,7 +237,9 @@ class CvatExtractor(SourceExtractor):
                     else:
                         for track_shape in track_shapes.values():
                             frame_desc = items.get(track_shape["frame"], {"annotations": []})
-                            frame_desc["annotations"].append(cls._parse_shape_ann(track_shape, categories))
+                            frame_desc["annotations"].append(
+                                cls._parse_shape_ann(track_shape, categories)
+                            )
                             items[track_shape["frame"]] = frame_desc
                         track = None
                 elif el.tag == "image":
