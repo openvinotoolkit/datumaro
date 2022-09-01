@@ -1,4 +1,5 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -283,10 +284,7 @@ class _SubsetWriter:
                     ] += f'<circle r="1.5" stroke="black" fill="#b3b3b3" cx="0" cy="0" stroke-width="0.1" data-type="element node" data-element-id="{i + 1}" data-node-id="{i + 1}" data-label-name="{sublabel}"></circle>'
             labels.append(("label", label))
 
-            meta["task"]["labels"] = labels
-            labels.append(('label', label))
-
-            meta["task"]['labels'] = labels
+        meta["task"]["labels"] = labels
 
         self._writer.write_meta(meta)
 

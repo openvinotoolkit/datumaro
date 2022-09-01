@@ -1,4 +1,5 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -219,9 +220,7 @@ class CvatExtractor(SourceExtractor):
                         track_shapes[shape["frame"]] = shape
                     else:
                         frame_desc = items.get(shape["frame"], {"annotations": []})
-                        frame_desc["annotations"].append(
-                            cls._parse_shape_ann(shape, categories)
-                        )
+                        frame_desc["annotations"].append(cls._parse_shape_ann(shape, categories))
                         items[shape["frame"]] = frame_desc
 
                     shape = None
