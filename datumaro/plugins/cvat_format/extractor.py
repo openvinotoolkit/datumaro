@@ -69,8 +69,8 @@ class CvatExtractor(SourceExtractor):
                 if el.tag == "track":
                     if track:
                         track_element = {
-                            'id': el.attrib['id'],
-                            'label': el.attrib.get('label'),
+                            "id": el.attrib["id"],
+                            "label": el.attrib.get("label"),
                         }
                     else:
                         track = {
@@ -92,24 +92,24 @@ class CvatExtractor(SourceExtractor):
                     if shape and shape["type"] == "skeleton":
                         element_attributes = {}
                         shape_element = {
-                            "type": "rectangle" if el.tag == 'box' else el.tag,
+                            "type": "rectangle" if el.tag == "box" else el.tag,
                             "attributes": element_attributes,
                         }
                         shape_element.update(image)
                     else:
                         attributes = {}
                         shape = {
-                            "type": "rectangle" if el.tag == 'box' else el.tag,
+                            "type": "rectangle" if el.tag == "box" else el.tag,
                             "attributes": attributes,
                         }
-                        shape['elements'] = []
+                        shape["elements"] = []
                         if track_element:
                             shape.update(track_element)
                         elif track:
                             shape.update(track)
                             shape["track_id"] = int(track["id"])
                         if image:
-                            shape['elements'] = []
+                            shape["elements"] = []
                             shape.update(image)
                 elif el.tag == "tag" and image:
                     attributes = {}
@@ -120,7 +120,11 @@ class CvatExtractor(SourceExtractor):
                         "label": el.attrib["label"],
                     }
             elif ev == "end":
-                if el.tag == "attribute" and element_attributes is not None and shape_element is not None:
+                if (
+                    el.tag == "attribute"
+                    and element_attributes is not None
+                    and shape_element is not None
+                ):
                     attr_value = el.text or ""
                     attr_type = attribute_types.get(el.attrib["name"])
                     if el.text in ["true", "false"]:
@@ -144,7 +148,11 @@ class CvatExtractor(SourceExtractor):
                             pass
                     attributes[el.attrib["name"]] = attr_value
 
-                elif el.tag in cls._SUPPORTED_SHAPES and shape["type"] == "skeleton" and el.tag != "skeleton":
+                elif (
+                    el.tag in cls._SUPPORTED_SHAPES
+                    and shape["type"] == "skeleton"
+                    and el.tag != "skeleton"
+                ):
                     shape_element["label"] = el.attrib.get("label")
                     shape_element["group"] = int(el.attrib.get("group_id", 0))
 
@@ -206,12 +214,14 @@ class CvatExtractor(SourceExtractor):
                             shape["points"].extend(map(float, pair.split(",")))
 
                     if track_element:
-                        track_shapes[shape['frame']]['elements'].append(shape)
+                        track_shapes[shape["frame"]]["elements"].append(shape)
                     elif track:
-                        track_shapes[shape['frame']] = shape
+                        track_shapes[shape["frame"]] = shape
                     else:
                         frame_desc = items.get(shape["frame"], {"annotations": []})
-                        frame_desc["annotations"].append(cls._parse_shape_ann(shape, categories))
+                        frame_desc["annotations"].append(
+                                cls._parse_shape_ann(track_shape, categories)
+                            )
                         items[shape["frame"]] = frame_desc
 
                     shape = None
@@ -453,13 +463,19 @@ class CvatExtractor(SourceExtractor):
                 group=group,
             )
 
-        elif ann_type == 'skeleton':
+        elif ann_type == "skeleton":
             elements = []
-            for element in ann.get('elements', []):
+            for element in ann.get("elements", []):
                 elements.append(cls._parse_shape_ann(element, categories))
 
-            return Skeleton(elements, label=label_id, z_order=z_order,
-                id=ann_id, attributes=attributes, group=group)
+            return Skeleton(
+                elements,
+                label=label_id,
+                z_order=z_order,
+                id=ann_id,
+                attributes=attributes,
+                group=group,
+            )
 
         else:
             raise NotImplementedError("Unknown annotation type '%s'" % ann_type)

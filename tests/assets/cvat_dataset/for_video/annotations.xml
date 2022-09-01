@@ -39,6 +39,46 @@ hgkf</values>
           <attributes>
           </attributes>
         </label>
+        <label>
+          <name>skeleton</name>
+          <color>#0c81b5</color>
+          <type>skeleton</type>
+          <attributes>
+          </attributes>
+          <svg>&lt;line x1="69.69805145263672" y1="25.447099685668945" x2="17.69015884399414" y2="58.55823516845703" stroke="black" data-type="edge" data-node-from="3" stroke-width="0.5" data-node-to="2"&gt;&lt;/line&gt;&lt;line x1="15.014512062072754" y1="22.436996459960938" x2="74.21321105957031" y2="59.05991744995117" stroke="black" data-type="edge" data-node-from="1" stroke-width="0.5" data-node-to="4"&gt;&lt;/line&gt;&lt;circle r="1.5" stroke="black" fill="#b3b3b3" cx="15.014512062072754" cy="22.436996459960938" stroke-width="0.1" data-type="element node" data-element-id="1" data-node-id="1" data-label-name="1"&gt;&lt;/circle&gt;&lt;circle r="1.5" stroke="black" fill="#b3b3b3" cx="17.69015884399414" cy="58.55823516845703" stroke-width="0.1" data-type="element node" data-element-id="2" data-node-id="2" data-label-name="2"&gt;&lt;/circle&gt;&lt;circle r="1.5" stroke="black" fill="#b3b3b3" cx="69.69805145263672" cy="25.447099685668945" stroke-width="0.1" data-type="element node" data-element-id="3" data-node-id="3" data-label-name="3"&gt;&lt;/circle&gt;&lt;circle r="1.5" stroke="black" fill="#b3b3b3" cx="74.21321105957031" cy="59.05991744995117" stroke-width="0.1" data-type="element node" data-element-id="4" data-node-id="4" data-label-name="4"&gt;&lt;/circle&gt;</svg>
+        </label>
+        <label>
+          <name>1</name>
+          <color>#d12345</color>
+          <type>points</type>
+          <attributes>
+          </attributes>
+          <parent>skeleton</parent>
+        </label>
+        <label>
+          <name>2</name>
+          <color>#350dea</color>
+          <type>points</type>
+          <attributes>
+          </attributes>
+          <parent>skeleton</parent>
+        </label>
+        <label>
+          <name>3</name>
+          <color>#479ffe</color>
+          <type>points</type>
+          <attributes>
+          </attributes>
+          <parent>skeleton</parent>
+        </label>
+        <label>
+          <name>4</name>
+          <color>#4a649f</color>
+          <type>points</type>
+          <attributes>
+          </attributes>
+          <parent>skeleton</parent>
+        </label>
       </labels>
       <segments>
         <segment>
@@ -88,5 +128,43 @@ hgkf</values>
     </polyline>
     <polyline frame="16" outside="1" occluded="0" keyframe="1" points="7.85,13.88;3.50,6.67;15.90,2.00;13.31,7.21" z_order="0">
     </polyline>
+  </track>
+  <track id="3" label="skeleton" source="manual">
+    <skeleton frame="10" outside="0" occluded="0" keyframe="1" points="48.80,111.77;48.80,156.28;83.27,106.61;89.11,159.91" z_order="0">
+    </skeleton>
+    <skeleton frame="13" outside="0" occluded="0" keyframe="0" points="48.80,111.77;48.80,156.28;83.27,106.61;89.11,159.91" z_order="0">
+    </skeleton>
+    <skeleton frame="16" outside="0" occluded="0" keyframe="0" points="48.80,111.77;48.80,156.28;83.27,106.61;89.11,159.91" z_order="0">
+    </skeleton>
+    <track id="0" label="1" source="manual">
+      <points frame="10" outside="0" occluded="0" keyframe="1" points="48.80,111.77" z_order="0">
+      </points>
+      <points frame="13" outside="0" occluded="0" keyframe="0" points="48.80,111.77" z_order="0">
+      </points>
+      <points frame="16" outside="0" occluded="0" keyframe="0" points="48.80,111.77" z_order="0">
+      </points>
+    </track>
+    <track id="1" label="2" source="manual">
+      <points frame="10" outside="0" occluded="0" keyframe="1" points="48.80,156.28" z_order="0">
+      </points>
+      <points frame="13" outside="0" occluded="0" keyframe="0" points="48.80,156.28" z_order="0">
+      </points>
+      <points frame="16" outside="0" occluded="0" keyframe="0" points="48.80,156.28" z_order="0">
+      </points>
+    </track>
+    <track id="2" label="3" source="manual">
+      <points frame="10" outside="0" occluded="0" keyframe="1" points="83.27,106.61" z_order="0">
+      </points>
+      <points frame="13" outside="1" occluded="0" keyframe="1" points="83.27,106.61" z_order="0">
+      </points>
+    </track>
+    <track id="3" label="4" source="manual">
+      <points frame="10" outside="0" occluded="0" keyframe="1" points="89.11,159.91" z_order="0">
+      </points>
+      <points frame="13" outside="0" occluded="0" keyframe="0" points="89.11,159.91" z_order="0">
+      </points>
+      <points frame="16" outside="0" occluded="0" keyframe="0" points="89.11,159.91" z_order="0">
+      </points>
+    </track>
   </track>
 </annotations>

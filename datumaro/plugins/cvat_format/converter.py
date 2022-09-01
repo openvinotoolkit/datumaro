@@ -234,7 +234,7 @@ class _SubsetWriter:
                             ("start_frame", "0"),
                             ("stop_frame", str(len(self._extractor))),
                             ("frame_filter", ""),
-                            ("z_order", "True")
+                            ("z_order", "True"),
                         ]
                     ),
                 ),
@@ -243,17 +243,29 @@ class _SubsetWriter:
 
         labels = []
         for l_id, l in enumerate(label_cat.items):
-            label = OrderedDict([
-                ("name", l.name),
-                ("attributes", [
-                    ("attribute", OrderedDict([
-                        ("name", attr),
-                        ("mutable", "True"),
-                        ("input_type", "text"),
-                        ("default_value", ""),
-                        ("values", "")]))
-                    for attr in self._get_label_attrs(l)])
-            ])
+            label = OrderedDict(
+                [
+                    ("name", l.name),
+                    (
+                        "attributes",
+                        [
+                            (
+                                "attribute",
+                                OrderedDict(
+                                    [
+                                        ("name", attr),
+                                        ("mutable", "True"),
+                                        ("input_type", "text"),
+                                        ("default_value", ""),
+                                        ("values", ""),
+                                    ]
+                                ),
+                            )
+                            for attr in self._get_label_attrs(l)
+                        ],
+                    ),
+                ]
+            )
 
             if l.parent:
                 label["parent"] = l.parent
@@ -262,9 +274,16 @@ class _SubsetWriter:
                 label["type"] = "skeleton"
                 label["svg"] = ""
                 for label_from, label_to in points_cat.items[l_id].joints:
-                    label["svg"] += f"<line x1=\"0\" y1=\"0\" x2=\"0\" y2=\"0\"data-type=\"edge\" data-node-from=\"{label_from + 1}\" stroke-width=\"0.5\" data-node-to=\"{label_to + 1}\"></line>"
+                    label[
+                        "svg"
+                    ] += f'<line x1="0" y1="0" x2="0" y2="0"data-type="edge" data-node-from="{label_from + 1}" stroke-width="0.5" data-node-to="{label_to + 1}"></line>'
                 for i, sublabel in enumerate(points_cat.items[l_id].labels):
-                    label["svg"] += f"<circle r=\"1.5\" stroke=\"black\" fill=\"#b3b3b3\" cx=\"0\" cy=\"0\" stroke-width=\"0.1\" data-type=\"element node\" data-element-id=\"{i + 1}\" data-node-id=\"{i + 1}\" data-label-name=\"{sublabel}\"></circle>"
+                    label[
+                        "svg"
+                    ] += f'<circle r="1.5" stroke="black" fill="#b3b3b3" cx="0" cy="0" stroke-width="0.1" data-type="element node" data-element-id="{i + 1}" data-node-id="{i + 1}" data-label-name="{sublabel}"></circle>'
+            labels.append(("label", label))
+
+            meta["task"]["labels"] = labels
             labels.append(('label', label))
 
             meta["task"]['labels'] = labels
@@ -308,9 +327,13 @@ class _SubsetWriter:
                 )
             )
         elif shape.type == AnnotationType.skeleton:
-            shape_data.update(OrderedDict([
-                ("points", ''),
-            ]))
+            shape_data.update(
+                OrderedDict(
+                    [
+                        ("points", ""),
+                    ]
+                )
+            )
         else:
             shape_data.update(
                 OrderedDict(

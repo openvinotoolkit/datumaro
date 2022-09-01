@@ -336,10 +336,8 @@ class CocoImporterTest(TestCase):
                     media=Image(data=np.ones((5, 10, 3))),
                     attributes={"id": 5},
                     annotations=[
-                        Skeleton([
-                            Points([0, 0], [0]),
-                            Points([0, 2], [1]),
-                            Points([4, 1], [2])],
+                        Skeleton(
+                            [Points([0, 0], [0]), Points([0, 2], [1]), Points([4, 1], [2])],
                             label=1,
                             id=1,
                             group=1,
@@ -354,10 +352,8 @@ class CocoImporterTest(TestCase):
                     media=Image(data=np.ones((10, 5, 3))),
                     attributes={"id": 40},
                     annotations=[
-                        Skeleton([
-                            Points([1, 2]),
-                            Points([3, 4]),
-                            Points([2, 3])],
+                        Skeleton(
+                            [Points([1, 2]), Points([3, 4]), Points([2, 3])],
                             label=0,
                             id=1,
                             group=1,
@@ -370,10 +366,8 @@ class CocoImporterTest(TestCase):
                             group=1,
                             attributes={"is_crowd": False, "x": 1, "y": "hello"},
                         ),
-                        Skeleton([
-                            Points([2, 4]),
-                            Points([4, 4]),
-                            Points([4, 2])],
+                        Skeleton(
+                            [Points([2, 4]), Points([4, 4]), Points([4, 2])],
                             label=1,
                             id=2,
                             group=2,
@@ -439,10 +433,8 @@ class CocoImporterTest(TestCase):
                     media=Image(data=np.ones((5, 10, 3))),
                     attributes={"id": 5},
                     annotations=[
-                        Skeleton([
-                            Points([0, 0], [0]),
-                            Points([0, 2], [1]),
-                            Points([4, 1], [2])],
+                        Skeleton(
+                            [Points([0, 0], [0]), Points([0, 2], [1]), Points([4, 1], [2])],
                             label=1,
                             id=1,
                             group=1,
@@ -482,10 +474,8 @@ class CocoImporterTest(TestCase):
                     media=Image(data=np.ones((5, 10, 3))),
                     attributes={"id": 5},
                     annotations=[
-                        Skeleton([
-                            Points([0, 0], [0]),
-                            Points([0, 2], [1]),
-                            Points([4, 1], [2])],
+                        Skeleton(
+                            [Points([0, 0], [0]), Points([0, 2], [1]), Points([4, 1], [2])],
                             label=2,
                             id=1,
                             group=1,
@@ -1707,36 +1697,23 @@ class CocoConverterTest(TestCase):
                     media=Image(data=np.zeros((5, 5, 3))),
                     annotations=[
                         # Full instance annotations: polygon + keypoints
-                        Skeleton([
-                            Points([0, 0], [0]),
-                            Points([0, 2], [1]),
-                            Points([4, 1], [2])],
-                            label=3, group=1, id=1
+                        Skeleton(
+                            [Points([0, 0], [0]), Points([0, 2], [1]), Points([4, 1], [2])],
+                            label=3,
+                            group=1,
+                            id=1,
                         ),
                         Polygon([0, 0, 4, 0, 4, 4], label=3, group=1, id=1),
                         # Full instance annotations: bbox + keypoints
-                        Skeleton([
-                            Points([1, 2]),
-                            Points([3, 4]),
-                            Points([2, 3])],
-                            group=2, id=2
-                        ),
+                        Skeleton([Points([1, 2]), Points([3, 4]), Points([2, 3])], group=2, id=2),
                         Bbox(1, 2, 2, 2, group=2, id=2),
                         # Solitary keypoints
-                        Skeleton([
-                            Points([1, 2]),
-                            Points([0, 2]),
-                            Points([4, 1])],
-                            label=5, id=3
-                        ),
+                        Skeleton([Points([1, 2]), Points([0, 2]), Points([4, 1])], label=5, id=3),
                         # Some other solitary annotations (bug #1387)
                         Polygon([0, 0, 4, 0, 4, 4], label=3, id=4),
                         # Solitary keypoints with no label
-                        Skeleton([
-                            Points([0, 0], [0]),
-                            Points([1, 2], [1]),
-                            Points([3, 4], [2])],
-                            id=5
+                        Skeleton(
+                            [Points([0, 0], [0]), Points([1, 2], [1]), Points([3, 4], [2])], id=5
                         ),
                     ],
                 ),
@@ -1756,11 +1733,11 @@ class CocoConverterTest(TestCase):
                     subset="train",
                     media=Image(data=np.zeros((5, 5, 3))),
                     annotations=[
-                        Skeleton([
-                            Points([0, 0], [0]),
-                            Points([0, 2], [1]),
-                            Points([4, 1], [2])],
-                            label=3, group=1, id=1,
+                        Skeleton(
+                            [Points([0, 0], [0]), Points([0, 2], [1]), Points([4, 1], [2])],
+                            label=3,
+                            group=1,
+                            id=1,
                             attributes={"is_crowd": False},
                         ),
                         Polygon(
@@ -1770,28 +1747,23 @@ class CocoConverterTest(TestCase):
                             id=1,
                             attributes={"is_crowd": False},
                         ),
-                        Skeleton([
-                            Points([1, 2]),
-                            Points([3, 4]),
-                            Points([2, 3])],
-                            group=2, id=2,
-                            attributes={"is_crowd": False}
+                        Skeleton(
+                            [Points([1, 2]), Points([3, 4]), Points([2, 3])],
+                            group=2,
+                            id=2,
+                            attributes={"is_crowd": False},
                         ),
                         Bbox(1, 2, 2, 2, group=2, id=2, attributes={"is_crowd": False}),
-                        Skeleton([
-                            Points([1, 2]),
-                            Points([0, 2]),
-                            Points([4, 1])],
+                        Skeleton(
+                            [Points([1, 2]), Points([0, 2]), Points([4, 1])],
                             label=5,
                             group=3,
                             id=3,
                             attributes={"is_crowd": False},
                         ),
                         Bbox(0, 1, 4, 1, label=5, group=3, id=3, attributes={"is_crowd": False}),
-                        Skeleton([
-                            Points([0, 0], [0]),
-                            Points([1, 2], [1]),
-                            Points([3, 4], [2])],
+                        Skeleton(
+                            [Points([0, 0], [0]), Points([1, 2], [1]), Points([3, 4], [2])],
                             group=5,
                             id=5,
                             attributes={"is_crowd": False},
