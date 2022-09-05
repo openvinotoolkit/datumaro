@@ -65,7 +65,7 @@ class DatasetItemEncoder:
 
         for k, v in annotation.attributes.items():
             if k.isdigit():
-                k = '_' + k
+                k = "_" + k
             ET.SubElement(ann_elem, k.replace(" ", "-")).text = str(v)
 
         ET.SubElement(ann_elem, "group").text = str(annotation.group)

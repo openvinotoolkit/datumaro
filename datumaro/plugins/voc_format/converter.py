@@ -344,7 +344,7 @@ class VocConverter(Converter):
                     if action in attr:
                         present = _convert_attr(action, attr, lambda v: int(v is True), 0)
                         if action.isdigit():
-                            action = '_' + action
+                            action = "_" + action
                         ET.SubElement(actions_elem, action).text = "%d" % present
 
                     objects_with_actions[new_obj_id][action] = present
