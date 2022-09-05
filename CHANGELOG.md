@@ -83,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://jira.devtools.intel.com/browse/CVS-84321>)
 - Adding to handle the numerical labels in task chains properly
   (<https://jira.devtools.intel.com/browse/CVS-85120>)
-- Fixing the issue that annotations inside another annotation (polygon) 
+- Fixing the issue that annotations inside another annotation (polygon)
   are duplicated during import for VOC format
   (<https://jira.devtools.intel.com/browse/CVS-86848>)
 
