@@ -189,7 +189,7 @@ def mask_to_polygons(mask, area_threshold=1):
     polygons = []
 
     contours, _ = cv2.findContours(
-        mask.astype(np.uint8), mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_TC89_KCOS
+        mask.astype(np.uint8), mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_TC89_KCOS
     )
 
     for contour in contours:
