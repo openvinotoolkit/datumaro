@@ -283,7 +283,10 @@ class VocConverter(Converter):
                 size_elem = ET.SubElement(root_elem, "size")
                 ET.SubElement(size_elem, "width").text = str(w)
                 ET.SubElement(size_elem, "height").text = str(h)
-                ET.SubElement(size_elem, "depth").text = ""
+                depth = ""
+                if item.media.data is not None:
+                    depth = str(item.media.data.shape[-1])
+                ET.SubElement(size_elem, "depth").text = depth
 
             item_segmented = 0 < len(masks)
             ET.SubElement(root_elem, "segmented").text = str(int(item_segmented))
