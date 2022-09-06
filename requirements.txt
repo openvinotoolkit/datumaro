@@ -16,3 +16,6 @@ isort~=5.9
 pylint>=2.7.0
 coverage
 black>=22.1.0
+
+# docs
+markupsafe==2.0.1
