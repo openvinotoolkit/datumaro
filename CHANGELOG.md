@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## \[Unreleased\]
+N/A
+
+## 06/09/2022 - Release v0.3.1
 ### Added
 - Support for custom media types, new `PointCloud` media type,
   `DatasetItem.media` and `.media_as(type)` members
@@ -56,29 +59,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
 
 ### Removed
-- TBD
+- N/A
 
 ### Fixed
 - Detection for LFW format
   (<https://github.com/openvinotoolkit/datumaro/pull/680>)
-
-### Security
-- TBD
-
-## 06/09/2022 - Release v0.3.1 (hotfix)
-### Added
-- N/A
-
-### Changed
-- N/A
-
-### Deprecated
-- N/A
-
-### Removed
-- N/A
-
-### Fixed
 - Adding depth value of image when dataset is exported in VOC format
   (<https://github.com/openvinotoolkit/datumaro/pull/726>)
 - Adding to handle the numerical labels in task chains properly
