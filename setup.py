@@ -58,7 +58,7 @@ setuptools.setup(
     name="datumaro",
     version=find_version(here),
     author="Intel",
-    author_email="maxim.zhiltsov@intel.com",
+    author_email="emily.chun@intel.com",
     description="Dataset Management Framework (Datumaro)",
     long_description=long_description,
     long_description_content_type="text/markdown",
