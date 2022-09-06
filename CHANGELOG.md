@@ -65,30 +65,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - TBD
 
-## 05/09/2022 - Release v0.3.1 (hotfix)
+## 06/09/2022 - Release v0.3.1 (hotfix)
 ### Added
-- TBD
+- N/A
 
 ### Changed
-- TBD
+- N/A
 
 ### Deprecated
-- TBD
+- N/A
 
 ### Removed
-- TBD
+- N/A
 
 ### Fixed
 - Adding depth value of image when dataset is exported in VOC format
-  (<https://jira.devtools.intel.com/browse/CVS-84321>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/726>)
 - Adding to handle the numerical labels in task chains properly
-  (<https://jira.devtools.intel.com/browse/CVS-85120>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/726>)
 - Fixing the issue that annotations inside another annotation (polygon)
   are duplicated during import for VOC format
-  (<https://jira.devtools.intel.com/browse/CVS-86848>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/726>)
 
 ### Security
-- TBD
+- N/A
 
 ## 21/02/2022 - Release v0.3
 ### Added
