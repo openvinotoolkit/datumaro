@@ -731,7 +731,7 @@ class CocoConverter(Converter):
                         except Exception as e:
                             self._report_annotation_error(e, item_id=(item.id, item.subset))
                 except Exception as e:
-                    self._report_item_error(e, item_id=(item.id, item.subset))
+                    self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
 
             for task, task_conv in task_converters.items():
                 ann_file = osp.join(self._ann_dir, "%s_%s.json" % (task.name, subset_name))

@@ -65,6 +65,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - TBD
 
+## 06/09/2022 - Release v0.3.1 (hotfix)
+### Added
+- N/A
+
+### Changed
+- N/A
+
+### Deprecated
+- N/A
+
+### Removed
+- N/A
+
+### Fixed
+- Adding depth value of image when dataset is exported in VOC format
+  (<https://github.com/openvinotoolkit/datumaro/pull/726>)
+- Adding to handle the numerical labels in task chains properly
+  (<https://github.com/openvinotoolkit/datumaro/pull/726>)
+- Fixing the issue that annotations inside another annotation (polygon)
+  are duplicated during import for VOC format
+  (<https://github.com/openvinotoolkit/datumaro/pull/726>)
+
+### Security
+- N/A
+
 ## 21/02/2022 - Release v0.3
 ### Added
 - Ability to import a video as frames with the `video_frames` format and

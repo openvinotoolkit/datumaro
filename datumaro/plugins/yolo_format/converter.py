@@ -107,7 +107,7 @@ class YoloConverter(Converter):
                     with open(annotation_path, "w", encoding="utf-8") as f:
                         f.write(yolo_annotation)
                 except Exception as e:
-                    self._report_item_error(e, item_id=(item.id, item.subset))
+                    self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
 
             subset_list_name = f"{subset_name}.txt"
             subset_list_path = osp.join(save_dir, subset_list_name)

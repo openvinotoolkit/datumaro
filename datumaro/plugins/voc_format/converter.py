@@ -234,7 +234,7 @@ class VocConverter(Converter):
 
                     self._export_annotations(item, image_filename=image_filename, lists=lists)
                 except Exception as e:
-                    self._report_item_error(e, item_id=(item.id, item.subset))
+                    self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
 
             if self._tasks & {
                 VocTask.classification,
@@ -283,7 +283,10 @@ class VocConverter(Converter):
                 size_elem = ET.SubElement(root_elem, "size")
                 ET.SubElement(size_elem, "width").text = str(w)
                 ET.SubElement(size_elem, "height").text = str(h)
-                ET.SubElement(size_elem, "depth").text = ""
+                depth = ""
+                if item.media.data is not None:
+                    depth = str(item.media.data.shape[-1])
+                ET.SubElement(size_elem, "depth").text = depth
 
             item_segmented = 0 < len(masks)
             ET.SubElement(root_elem, "segmented").text = str(int(item_segmented))
@@ -340,6 +343,8 @@ class VocConverter(Converter):
                     present = 0
                     if action in attr:
                         present = _convert_attr(action, attr, lambda v: int(v is True), 0)
+                        if action.isdigit():
+                            action = "_" + action
                         ET.SubElement(actions_elem, action).text = "%d" % present
 
                     objects_with_actions[new_obj_id][action] = present
@@ -458,7 +463,7 @@ class VocConverter(Converter):
             if not objs:
                 return
             for obj_id, obj_actions in objs.items():
-                presented = obj_actions[action]
+                presented = obj_actions.get(action)
                 f.write("%s %s % d\n" % (item, 1 + obj_id, 1 if presented else -1))
 
         all_actions = {
