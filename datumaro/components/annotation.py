@@ -510,7 +510,7 @@ class CompiledMask:
 class _Shape(Annotation):
     # Flattened list of point coordinates
     points: List[float] = field(
-        converter=lambda x: np.around(x, COORDINATE_ROUNDING_DIGITS).tolist(), default=[]
+        converter=lambda x: np.around(x, COORDINATE_ROUNDING_DIGITS).tolist(), factory=list
     )
 
     label: Optional[int] = field(
