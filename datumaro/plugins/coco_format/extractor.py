@@ -343,7 +343,7 @@ class _CocoExtractor(SourceExtractor):
 
                 points = []
                 sublabels = []
-                if label_id:
+                if label_id is not None:
                     sublabels = self.categories()[AnnotationType.points].items[label_id].labels
                 i = 0
                 for x, y, v in take_by(keypoints, 3):

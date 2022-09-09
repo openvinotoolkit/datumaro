@@ -353,7 +353,7 @@ class CocoImporterTest(TestCase):
                     attributes={"id": 40},
                     annotations=[
                         Skeleton(
-                            [Points([1, 2]), Points([3, 4]), Points([2, 3])],
+                            [Points([1, 2], label=2), Points([3, 4], label=3), Points([2, 3], label=4)],
                             label=0,
                             id=1,
                             group=1,
@@ -384,9 +384,10 @@ class CocoImporterTest(TestCase):
                 ),
             ],
             categories={
-                AnnotationType.label: LabelCategories.from_iterable(["a", "b"]),
+                AnnotationType.label: LabelCategories.from_iterable([["a"], ["b"], ["a_1", "a"], ["a_2", "a"], ["a_3", "a"]]),
                 AnnotationType.points: PointsCategories.from_iterable(
-                    (i, None, [[0, 1], [1, 2]]) for i in range(2)
+                    [(0, ["a_1", "a_2", "a_3"], [[0, 1], [1, 2]]),
+                    (1, None, [[0, 1], [1, 2]])]
                 ),
             },
         )
@@ -445,9 +446,10 @@ class CocoImporterTest(TestCase):
                 ),
             ],
             categories={
-                AnnotationType.label: LabelCategories.from_iterable(["a", "b"]),
+                AnnotationType.label: LabelCategories.from_iterable([["a"], ["b"], ["a_1", "a"], ["a_2", "a"], ["a_3", "a"]]),
                 AnnotationType.points: PointsCategories.from_iterable(
-                    (i, None, [[0, 1], [1, 2]]) for i in range(2)
+                    [(0, ["a_1", "a_2", "a_3"], [[0, 1], [1, 2]]),
+                    (1, None, [[0, 1], [1, 2]])]
                 ),
             },
         )
@@ -486,9 +488,10 @@ class CocoImporterTest(TestCase):
                 ),
             ],
             categories={
-                AnnotationType.label: LabelCategories.from_iterable(["class-0", "a", "b"]),
+                AnnotationType.label: LabelCategories.from_iterable([["class-0"], ["a"], ["b"], ["a_1", "a"], ["a_2", "a"], ["a_3", "a"]]),
                 AnnotationType.points: PointsCategories.from_iterable(
-                    [(i, None, [[0, 1], [1, 2]]) for i in range(1, 3)],
+                    [(1, ["a_1", "a_2", "a_3"], [[0, 1], [1, 2]]),
+                    (2, None, [[0, 1], [1, 2]])]
                 ),
             },
         )

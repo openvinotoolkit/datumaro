@@ -136,7 +136,7 @@ class CvatImporterTest(TestCase):
                     [
                         ["label1", "", {"a1", "a2", "a3", "a4"}],
                         ["label2"],
-                        ["skeleton", ""],
+                        ["skeleton"],
                         ["1", "skeleton"],
                         ["2", "skeleton"],
                         ["3", "skeleton"],
@@ -422,7 +422,7 @@ class CvatImporterTest(TestCase):
                         ["klhg", "", {"hgl"}],
                         ["z U k"],
                         ["II"],
-                        ["skeleton", ""],
+                        ["skeleton"],
                         ["1", "skeleton"],
                         ["2", "skeleton"],
                         ["3", "skeleton"],

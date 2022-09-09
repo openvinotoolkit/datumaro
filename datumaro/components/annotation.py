@@ -825,7 +825,7 @@ class Skeleton(Annotation):
 
     _type = AnnotationType.skeleton
 
-    elements: List[Points] = field(default=None)
+    elements: List[Points] = field(factory=list)
 
     label: Optional[int] = field(
         converter=attr.converters.optional(int), default=None, kw_only=True
