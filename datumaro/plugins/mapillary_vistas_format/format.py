@@ -17,11 +17,13 @@ def parse_config_file(config_path):
         label_map[label["name"]] = tuple(map(int, label["color"]))
     return label_map
 
+
 def get_parent_label(label):
     parent = label.split("--")[0]
     if parent == label:
         parent = ""
     return parent
+
 
 def make_mapillary_instance_categories(label_map):
     label_cat = LabelCategories()
@@ -32,7 +34,10 @@ def make_mapillary_instance_categories(label_map):
     if not has_colors:
         colormap = generate_colormap(len(label_map))
     else:
-        colormap = {label_cat.find(label, get_parent_label(label))[0]: color for label, color in label_map.items()}
+        colormap = {
+            label_cat.find(label, get_parent_label(label))[0]: color
+            for label, color in label_map.items()
+        }
 
     mask_cat = MaskCategories(colormap)
     mask_cat.inverse_colormap  # pylint: disable=pointless-statement

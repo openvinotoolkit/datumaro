@@ -747,7 +747,11 @@ class ProjectLabels(ItemTransform):
         )
         return parser
 
-    def __init__(self, extractor: IExtractor, dst_labels: Union[Iterable[Union[str, Tuple[str, str]]], LabelCategories]):
+    def __init__(
+        self,
+        extractor: IExtractor,
+        dst_labels: Union[Iterable[Union[str, Tuple[str, str]]], LabelCategories],
+    ):
         super().__init__(extractor)
 
         self._categories = {}
