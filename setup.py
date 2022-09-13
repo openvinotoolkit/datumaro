@@ -84,5 +84,6 @@ setuptools.setup(
             "datum=datumaro.cli.__main__:main",
         ],
     },
+    package_data={"datumaro.plugins.synthetic_data": ["background_colors.txt"]},
     include_package_data=True,
 )
