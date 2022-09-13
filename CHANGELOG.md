@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/712>)
 - Skeleton annotation type
   (<https://github.com/cvat-ai/datumaro/pull/6>)
+- Storing labels with the same name but with a different parent
+  (<https://github.com/cvat-ai/datumaro/pull/8>)
 
 ### Changed
 - `env.detect_dataset()` now returns a list of detected formats at all recursion levels
