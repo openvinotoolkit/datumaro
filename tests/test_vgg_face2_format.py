@@ -69,7 +69,7 @@ class VggFace2FormatTest(TestCase):
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(
-                    [("label_%s" % i, "class_%s" % i) for i in range(5)]
+                    [f"label_{i}" for i in range(5)]
                 ),
             },
         )
@@ -328,7 +328,7 @@ class VggFace2ImporterTest(TestCase):
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(
-                    [("n000001", "Karl"), ("n000002", "Jay"), ("n000003", "Pol")]
+                    ["n000001", "n000002", "n000003"]
                 ),
             },
         )
@@ -353,7 +353,7 @@ class VggFace2ImporterTest(TestCase):
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(
-                    [("n000001", "Karl"), ("n000002", "Jay"), ("n000003", "Pol")]
+                    ["n000001", "n000002", "n000003"]
                 ),
             },
         )

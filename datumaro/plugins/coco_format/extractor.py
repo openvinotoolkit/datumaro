@@ -341,6 +341,7 @@ class _CocoExtractor(SourceExtractor):
                         "which is not divisible by 3. Expected (x, y, visibility) triplets."
                     )
 
+                label_cat = self.categories()[AnnotationType.label]
                 points = []
                 sublabels = []
                 if label_id is not None:
@@ -349,7 +350,7 @@ class _CocoExtractor(SourceExtractor):
                 for x, y, v in take_by(keypoints, 3):
                     sublabel = None
                     if i < len(sublabels):
-                        sublabel = self.categories()[AnnotationType.label].find(sublabels[i])[0]
+                        sublabel = label_cat.find(label_cat.items[label_id].name + sublabels[i])[0]
                     points.append(Points([x, y], [v], label=sublabel))
                     i += 1
 

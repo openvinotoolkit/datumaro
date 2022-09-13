@@ -32,7 +32,11 @@ class MapillaryVistasImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_v1_2(self):
         label_cat = LabelCategories.from_iterable(
-            ["animal--bird", "construction--barrier--curb", "human--person"]
+            [
+                ("animal--bird", "animal"),
+                ("construction--barrier--curb", "construction"),
+                ("human--person", "human"),
+            ]
         )
         mask_cat = MaskCategories({0: (10, 50, 90), 1: (20, 30, 80), 2: (30, 70, 40)})
 
@@ -130,7 +134,11 @@ class MapillaryVistasImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_v2_0_instances(self):
         label_cat = LabelCategories.from_iterable(
-            ["animal--bird", "construction--barrier--separator", "object--vehicle--bicycle"]
+            [
+                ("animal--bird", "animal"),
+                ("construction--barrier--separator", "construction"),
+                ("object--vehicle--bicycle", "object"),
+            ]
         )
 
         mask_cat = MaskCategories({0: (165, 42, 42), 1: (128, 128, 128), 2: (119, 11, 32)})
@@ -508,7 +516,11 @@ class MapillaryVistasImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_with_meta_file(self):
         label_cat = LabelCategories.from_iterable(
-            ["animal--bird", "construction--barrier--curb", "human--person"]
+            [
+                ("animal--bird", "animal"),
+                ("construction--barrier--curb", "construction"),
+                ("human--person", "human"),
+            ]
         )
         mask_cat = MaskCategories({0: (10, 50, 90), 1: (20, 30, 80), 2: (30, 70, 40)})
 

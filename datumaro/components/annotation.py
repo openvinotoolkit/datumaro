@@ -143,23 +143,23 @@ class LabelCategories(Categories):
     def _reindex(self):
         indices = {}
         for index, item in enumerate(self.items):
-            assert item.name not in self._indices
-            indices[item.name] = index
+            assert (item.parent + item.name) not in self._indices
+            indices[item.parent + item.name] = index
         self._indices = indices
 
     def add(
         self, name: str, parent: Optional[str] = None, attributes: Optional[Set[str]] = None
     ) -> int:
         assert name
-        assert name not in self._indices, name
+        assert (parent if parent else "") + name not in self._indices, name
 
         index = len(self.items)
         self.items.append(self.Category(name, parent, attributes))
-        self._indices[name] = index
+        self._indices[(parent if parent else "") + name] = index
         return index
 
-    def find(self, name: str) -> Tuple[Optional[int], Optional[Category]]:
-        index = self._indices.get(name)
+    def find(self, name: str, parent: str = "") -> Tuple[Optional[int], Optional[Category]]:
+        index = self._indices.get(parent + name)
         if index is not None:
             return index, self.items[index]
         return index, None

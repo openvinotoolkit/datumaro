@@ -397,7 +397,7 @@ class CvatExtractor(SourceExtractor):
         return categories, frame_size, attribute_types
 
     @classmethod
-    def _parse_shape_ann(cls, ann, categories):
+    def _parse_shape_ann(cls, ann, categories, parent_label=""):
         ann_id = ann.get("id", 0)
         ann_type = ann["type"]
 
@@ -414,7 +414,7 @@ class CvatExtractor(SourceExtractor):
         group = ann.get("group")
 
         label = ann.get("label")
-        label_id = categories[AnnotationType.label].find(label)[0]
+        label_id = categories[AnnotationType.label].find(label, parent_label)[0]
 
         z_order = ann.get("z_order", 0)
         points = ann.get("points", [])
@@ -467,7 +467,7 @@ class CvatExtractor(SourceExtractor):
         elif ann_type == "skeleton":
             elements = []
             for element in ann.get("elements", []):
-                elements.append(cls._parse_shape_ann(element, categories))
+                elements.append(cls._parse_shape_ann(element, categories, label))
 
             return Skeleton(
                 elements,
