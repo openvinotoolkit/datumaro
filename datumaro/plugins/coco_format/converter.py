@@ -1,4 +1,5 @@
 # Copyright (C) 2020-2022 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -338,35 +339,36 @@ class _KeypointsConverter(_InstancesConverter):
         point_categories = dataset.categories().get(AnnotationType.points)
 
         for idx, label_cat in enumerate(label_categories.items):
-            cat = {
-                "id": 1 + idx,
-                "name": cast(label_cat.name, str, ""),
-                "supercategory": cast(label_cat.parent, str, ""),
-                "keypoints": [],
-                "skeleton": [],
-            }
+            if not label_cat.parent:
+                cat = {
+                    "id": 1 + idx,
+                    "name": cast(label_cat.name, str, ""),
+                    "supercategory": cast(label_cat.parent, str, ""),
+                    "keypoints": [],
+                    "skeleton": [],
+                }
 
-            if point_categories is not None:
-                kp_cat = point_categories.items.get(idx)
-                if kp_cat is not None:
-                    cat.update(
-                        {
-                            "keypoints": [str(l) for l in kp_cat.labels],
-                            "skeleton": [list(map(int, j)) for j in kp_cat.joints],
-                        }
-                    )
-            self.categories.append(cat)
+                if point_categories is not None:
+                    kp_cat = point_categories.items.get(idx)
+                    if kp_cat is not None:
+                        cat.update(
+                            {
+                                "keypoints": [str(l) for l in kp_cat.labels],
+                                "skeleton": [list(map(int, j)) for j in kp_cat.joints],
+                            }
+                        )
+                self.categories.append(cat)
 
     def save_annotations(self, item):
-        point_annotations = [a for a in item.annotations if a.type == AnnotationType.points]
-        if not point_annotations:
+        skeleton_annotations = [a for a in item.annotations if a.type == AnnotationType.skeleton]
+        if not skeleton_annotations:
             return
 
         # Create annotations for solitary keypoints annotations
-        for points in self.find_solitary_points(item.annotations):
-            instance = [points, [], None, points.get_bbox()]
+        for skeleton in self.find_solitary_points(item.annotations):
+            instance = [skeleton, [], None, skeleton.get_bbox()]
             elem = super().convert_instance(instance, item)
-            elem.update(self.convert_points_object(points))
+            elem.update(self.convert_points_object(skeleton))
             self.annotations.append(elem)
 
         # Create annotations for complete instance + keypoints annotations
@@ -379,7 +381,7 @@ class _KeypointsConverter(_InstancesConverter):
 
         for g_id, group in groupby(annotations, lambda a: a.group):
             if not g_id or g_id and not cls.find_instance_anns(group):
-                group = [a for a in group if a.type == AnnotationType.points]
+                group = [a for a in group if a.type == AnnotationType.skeleton]
                 solitary_points.extend(group)
 
         return solitary_points
@@ -387,8 +389,13 @@ class _KeypointsConverter(_InstancesConverter):
     @staticmethod
     def convert_points_object(ann):
         keypoints = []
-        points = ann.points
-        visibility = ann.visibility
+        points = []
+        visibility = []
+
+        for element in ann.elements:
+            points.extend(element.points)
+            visibility.extend(element.visibility)
+
         for index in range(0, len(points), 2):
             kp = points[index : index + 2]
             state = visibility[index // 2].value
@@ -404,7 +411,7 @@ class _KeypointsConverter(_InstancesConverter):
     def convert_instance(self, instance, item):
         points_ann = find(
             item.annotations,
-            lambda x: x.type == AnnotationType.points
+            lambda x: x.type == AnnotationType.skeleton
             and instance[0].group
             and x.group == instance[0].group,
         )

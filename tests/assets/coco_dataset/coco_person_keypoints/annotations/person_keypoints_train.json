@@ -20,7 +20,9 @@
         "name":"a",
         "supercategory":"",
         "keypoints":[
-
+          "a_1",
+          "a_2",
+          "a_3"
         ],
         "skeleton":[
           [

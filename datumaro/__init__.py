@@ -1,4 +1,5 @@
 # Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -28,6 +29,7 @@ from .components.annotation import (
     PolyLine,
     RgbColor,
     RleMask,
+    Skeleton,
 )
 from .components.cli_plugin import CliPlugin
 from .components.converter import Converter, ExportErrorPolicy, FailingExportErrorPolicy
