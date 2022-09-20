@@ -151,11 +151,12 @@ class LabelCategories(Categories):
         self, name: str, parent: Optional[str] = "", attributes: Optional[Set[str]] = None
     ) -> int:
         assert name
-        assert parent + name not in self._indices
+        key = (parent or "") + name
+        assert key not in self._indices
 
         index = len(self.items)
         self.items.append(self.Category(name, parent, attributes))
-        self._indices[parent + name] = index
+        self._indices[key] = index
         return index
 
     def find(self, name: str, parent: str = "") -> Tuple[Optional[int], Optional[Category]]:
