@@ -1,4 +1,5 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -747,7 +748,11 @@ class ProjectLabels(ItemTransform):
         )
         return parser
 
-    def __init__(self, extractor: IExtractor, dst_labels: Union[Iterable[str], LabelCategories]):
+    def __init__(
+        self,
+        extractor: IExtractor,
+        dst_labels: Union[Iterable[Union[str, Tuple[str, str]]], LabelCategories],
+    ):
         super().__init__(extractor)
 
         self._categories = {}
@@ -765,14 +770,17 @@ class ProjectLabels(ItemTransform):
                 dst_label_cat = LabelCategories(attributes=deepcopy(src_label_cat.attributes))
 
                 for dst_label in dst_labels:
-                    assert isinstance(dst_label, str)
-                    src_label = src_label_cat.find(dst_label)[1]
+                    assert isinstance(dst_label, str) or isinstance(dst_label, tuple)
+                    dst_parent = ""
+                    if isinstance(dst_label, tuple):
+                        dst_label, dst_parent = dst_label
+                    src_label = src_label_cat.find(dst_label, dst_parent)[1]
                     if src_label is not None:
                         dst_label_cat.add(
                             dst_label, src_label.parent, deepcopy(src_label.attributes)
                         )
                     else:
-                        dst_label_cat.add(dst_label)
+                        dst_label_cat.add(dst_label, dst_parent)
             else:
                 dst_label_cat = LabelCategories.from_iterable(dst_labels)
 
@@ -824,7 +832,7 @@ class ProjectLabels(ItemTransform):
 
     def _make_label_id_map(self, src_label_cat, dst_label_cat):
         id_mapping = {
-            src_id: dst_label_cat.find(src_label_cat[src_id].name)[0]
+            src_id: dst_label_cat.find(src_label_cat[src_id].name, src_label_cat[src_id].parent)[0]
             for src_id in range(len(src_label_cat or ()))
         }
         self._map_id = lambda src_id: id_mapping.get(src_id, None)

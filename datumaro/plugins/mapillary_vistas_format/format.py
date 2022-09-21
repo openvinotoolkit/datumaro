@@ -1,4 +1,5 @@
 # Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -18,16 +19,26 @@ def parse_config_file(config_path):
     return label_map
 
 
+def get_parent_label(label):
+    parent = label.split("--")[0]
+    if parent == label:
+        parent = ""
+    return parent
+
+
 def make_mapillary_instance_categories(label_map):
     label_cat = LabelCategories()
     for label, _ in label_map.items():
-        label_cat.add(label)
+        label_cat.add(label, get_parent_label(label))
 
     has_colors = any([len(color) == 3 for color in label_map.values()])
     if not has_colors:
         colormap = generate_colormap(len(label_map))
     else:
-        colormap = {label_cat.find(label)[0]: color for label, color in label_map.items()}
+        colormap = {
+            label_cat.find(label, get_parent_label(label))[0]: color
+            for label, color in label_map.items()
+        }
 
     mask_cat = MaskCategories(colormap)
     mask_cat.inverse_colormap  # pylint: disable=pointless-statement

@@ -1,4 +1,5 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -82,10 +83,7 @@ class VggFace2Extractor(Extractor):
             for line in lines:
                 objects = line.split()
                 label = objects[0]
-                class_name = None
-                if 1 < len(objects):
-                    class_name = objects[1]
-                label_cat.add(label, parent=class_name)
+                label_cat.add(label)
         else:
             for subset in self._subsets:
                 subset_path = osp.join(self._dataset_dir, subset)

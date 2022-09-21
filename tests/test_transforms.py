@@ -700,7 +700,6 @@ class TransformsTest(TestCase):
                     [
                         ("c", "a"),  # must keep parent
                         "a",
-                        "d",  # must drop parent because it was removed
                     ]
                 ),
                 AnnotationType.points: PointsCategories.from_iterable([(0, ["c"]), (1, ["a"])]),
@@ -709,7 +708,7 @@ class TransformsTest(TestCase):
                         i: v
                         for i, v in {
                             {2: 0, 0: 1, 3: 2}.get(k): v
-                            for k, v in mask_tools.generate_colormap(4).items()
+                            for k, v in mask_tools.generate_colormap(3).items()
                         }.items()
                         if i is not None
                     }
@@ -717,7 +716,7 @@ class TransformsTest(TestCase):
             },
         )
 
-        actual = transforms.ProjectLabels(source, dst_labels=["c", "a", "d"])
+        actual = transforms.ProjectLabels(source, dst_labels=[("c", "a"), "a"])
 
         compare_datasets(self, expected, actual)
 

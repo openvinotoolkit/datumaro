@@ -1,6 +1,8 @@
 # Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
+
 import glob
 import logging as log
 import os
@@ -27,6 +29,7 @@ from .format import (
     MapillaryVistasLabelMaps,
     MapillaryVistasPath,
     MapillaryVistasTask,
+    get_parent_label,
     make_mapillary_instance_categories,
     parse_config_file,
 )
@@ -241,9 +244,10 @@ class _MapillaryVistasExtractor(SourceExtractor):
             annotations = []
             for polygon in polygons:
                 label = polygon["label"]
-                label_id = self._categories[AnnotationType.label].find(label)[0]
+                parent = get_parent_label(label)
+                label_id = self._categories[AnnotationType.label].find(label, parent)[0]
                 if label_id is None:
-                    label_id = self._categories[AnnotationType.label].add(label)
+                    label_id = self._categories[AnnotationType.label].add(label, parent)
 
                 points = [coord for point in polygon["polygon"] for coord in point]
                 annotations.append(Polygon(label=label_id, points=points))
