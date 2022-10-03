@@ -12,7 +12,7 @@ import unittest.mock
 import warnings
 from enum import Enum, auto
 from glob import glob
-from typing import Collection, Optional, Union
+from typing import Any, Collection, Optional, Union
 
 from typing_extensions import Literal
 
@@ -307,10 +307,15 @@ def compare_dirs(test, expected: str, actual: str):
             test.assertEqual(a_file.read(), b_file.read(), rel_path)
 
 
-def run_datum(test, *args, expected_code=0):
+def run_datum(test: Union[unittest.TestCase, Any], *args, expected_code: int = 0):
     from datumaro.cli.__main__ import main
 
-    test.assertEqual(expected_code, main(args), str(args))
+    status = main(args)
+
+    if isinstance(test, unittest.TestCase):
+        test.assertEqual(expected_code, status, str(args))
+    else:
+        assert status == expected_code
 
 
 @contextlib.contextmanager

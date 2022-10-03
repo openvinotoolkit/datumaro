@@ -51,6 +51,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - YOLO format now supports almost any subset names, except `backup`, `names` and `classes`
   (instead of just `train` and `valid`). The reserved names now raise an error on exporting.
   (<https://github.com/openvinotoolkit/datumaro/pull/688>)
+- \[CLI\] Removed the `--all` flag in `datum info`, added the `--json` flag,
+  added `format` and `media type` fields in the `info` command output
+  (<https://github.com/cvat-ai/datumaro/pull/5>)
 
 ### Deprecated
 - `--save-images` is replaced with `--save-media` in CLI and converter API

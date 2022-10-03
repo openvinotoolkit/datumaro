@@ -94,6 +94,12 @@ class Categories:
 
 @attrs(slots=True, order=False)
 class LabelCategories(Categories):
+    """
+    The list of labels defined for the dataset. Other categories provide additional info
+    for these basic declarations. Indices in other category types must reference labels
+    defined here. Supposed to be always defined for a dataset.
+    """
+
     @attrs(slots=True, order=False)
     class Category:
         name: str = field(converter=str, validator=not_empty)

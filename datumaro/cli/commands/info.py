@@ -1,11 +1,17 @@
 # Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import argparse
+from typing import Any, Dict, Type, cast
 
+from datumaro.components.annotation import LabelCategories
+from datumaro.components.dataset import Dataset
 from datumaro.components.errors import DatasetMergeError, MissingObjectError, ProjectNotFoundError
 from datumaro.components.extractor import AnnotationType
+from datumaro.components.media import Image, MediaElement, MultiframeImage, PointCloud, Video
+from datumaro.util import dump_json
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
@@ -39,8 +45,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         - Print dataset info for a path and a format name:|n
         |s|s%(prog)s path/to/dataset:voc|n
         |n
-        - Print dataset info for a source from a past revision:|n
-        |s|s%(prog)s HEAD~2:source-2
+        - Print dataset info for a source from a past revision in JSON format:|n
+        |s|s%(prog)s --json HEAD~2:source-2
         """,
         formatter_class=MultilineFormatter,
     )
@@ -48,7 +54,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "target", nargs="?", default="project", metavar="revpath", help="Target dataset revpath"
     )
-    parser.add_argument("--all", action="store_true", help="Print all information")
+    parser.add_argument("--json", action="store_true", help="Print output data in JSON format")
     parser.add_argument(
         "-p",
         "--project",
@@ -93,34 +99,84 @@ def info_command(args):
     except MissingObjectError as e:
         dataset_problem = str(e)
 
-    def print_dataset_info(dataset, indent=""):
-        print("%slength:" % indent, len(dataset))
+    def render_media_type(t: Type[MediaElement]) -> str:
+        mapping = {
+            Image: "image",
+            Video: "video",
+            PointCloud: "point_cloud",
+            MultiframeImage: "multiframe_image",
+        }
+        for k, v in mapping.items():
+            if issubclass(t, k):
+                return v
+        return "unknown"
+
+    def render_dataset_info(dataset: Dataset) -> Dict[str, Any]:
+        result = {}
+
+        result["format"] = dataset.format or "unknown"
+        result["media type"] = render_media_type(dataset.media_type())
+        result["length"] = len(dataset)
 
         categories = dataset.categories()
-        print("%scategories:" % indent, ", ".join(c.name for c in categories))
+        result["categories"] = {}
 
-        for cat_type, cat in categories.items():
-            print("%s  %s:" % (indent, cat_type.name))
-            if cat_type == AnnotationType.label:
-                print("%s    count:" % indent, len(cat.items))
+        if AnnotationType.label in categories:
+            labels_info = cast(LabelCategories, categories[AnnotationType.label])
+            result["categories"]["count"] = len(labels_info)
+            result["categories"]["labels"] = [
+                {
+                    "id": idx,
+                    "name": label.name,
+                    "parent": label.parent,
+                    "attributes": list(label.attributes),
+                }
+                for idx, label in enumerate(labels_info)
+            ]
+        else:
+            result["categories"]["count"] = 0
+            result["categories"]["labels"] = []
 
-                count_threshold = 10
-                if args.all:
-                    count_threshold = len(cat.items)
-                labels = ", ".join(c.name for c in cat.items[:count_threshold])
-                if count_threshold < len(cat.items):
-                    labels += " (and %s more)" % (len(cat.items) - count_threshold)
-                print("%s    labels:" % indent, labels)
+        result["subsets"] = []
+        for subset_name, subset in dataset.subsets().items():
+            result["subsets"].append({"name": subset_name, "length": len(subset)})
+
+        return result
+
+    DEFAULT_INDENT = 4 * " "
+    LIST_COUNT_THRESHOLD = 10
+
+    def print_dataset_info(data: Dict[str, Any], *, indent: str = ""):
+        def _print_basic_type(key: str, data: Dict[str, Any], *, indent: str = indent):
+            print(f"{indent}{key}:", data[key])
+
+        if "format" in data:
+            _print_basic_type("format", data)
+
+        _print_basic_type("media type", data)
+        _print_basic_type("length", data)
+
+        print(indent + "categories:")
+        count_threshold = LIST_COUNT_THRESHOLD
+        labels = data["categories"]["labels"]
+        labels_repr = ", ".join(label["name"] for label in labels[:count_threshold])
+        if count_threshold < len(labels):
+            labels_repr += " (and %s more)" % (len(labels) - count_threshold)
+        print(DEFAULT_INDENT + indent + "labels:", labels_repr)
+
+        subsets = data["subsets"]
+        if subsets:
+            print("subsets:")
+        for subset_info in subsets:
+            print(DEFAULT_INDENT + indent + subset_info["name"] + ":")
+            _print_basic_type("length", subset_info, indent=2 * DEFAULT_INDENT + indent)
 
     if dataset is not None:
-        print_dataset_info(dataset)
-
-        subsets = dataset.subsets()
-        print("subsets:", ", ".join(subsets))
-        for subset_name in subsets:
-            subset = dataset.get_subset(subset_name)
-            print("  '%s':" % subset_name)
-            print_dataset_info(subset, indent="    ")
+        output_data = render_dataset_info(dataset)
+        if args.json:
+            print(dump_json(output_data, indent=True, append_newline=True).decode())
+        else:
+            print_dataset_info(output_data)
     else:
         print("Dataset info is not available: ", dataset_problem)
 
