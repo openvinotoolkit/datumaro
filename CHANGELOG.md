@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## \[Unreleased\]
-N/A
+### Added
+- Add jupyter sample introducing how to merge datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/738>)
 
 ## 06/09/2022 - Release v0.3.1
 ### Added
