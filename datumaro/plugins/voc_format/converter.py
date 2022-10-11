@@ -1,11 +1,12 @@
 # Copyright (C) 2020-2022 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from enum import Enum, auto
 from itertools import chain
 from typing import Dict, Optional, Set
@@ -28,23 +29,13 @@ from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.util import find, str_to_bool
+from datumaro.util import str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
-from datumaro.util.mask_tools import paint_mask, remap_mask
+from datumaro.util.mask_tools import paint_mask
 from datumaro.util.meta_file_util import has_meta_file
 
-from .format import (
-    VocInstColormap,
-    VocPath,
-    VocTask,
-    make_voc_categories,
-    make_voc_label_map,
-    parse_label_map,
-    parse_meta_file,
-    write_label_map,
-    write_meta_file,
-)
+from .format import VocInstColormap, VocLabelMap, VocPath, VocTask, make_voc_categories
 
 
 def _convert_attr(name, attributes, type_conv, default=None):
@@ -111,7 +102,7 @@ class VocConverter(Converter):
             "--apply-colormap",
             type=str_to_bool,
             default=True,
-            help="Use colormap for class and instance masks " "(default: %(default)s)",
+            help="Use colormap for class and instance masks (default: %(default)s)",
         )
         parser.add_argument(
             "--label-map",
@@ -129,7 +120,7 @@ class VocConverter(Converter):
             "--keep-empty",
             type=str_to_bool,
             default=False,
-            help="Write subset lists even if they are empty " "(default: %(default)s)",
+            help="Write subset lists even if they are empty (default: %(default)s)",
         )
         parser.add_argument(
             "--tasks",
@@ -212,7 +203,7 @@ class VocConverter(Converter):
         self._inst_dir = inst_dir
         self._images_dir = images_dir
 
-    def get_label(self, label_id):
+    def get_label_name(self, label_id: int) -> str:
         return self._extractor.categories()[AnnotationType.label].items[label_id].name
 
     def save_subsets(self):
@@ -294,7 +285,7 @@ class VocConverter(Converter):
             main_bboxes = []
             layout_bboxes = []
             for bbox in bboxes:
-                label = self.get_label(bbox.label)
+                label = self.get_label_name(bbox.label)
                 if self._is_part(label):
                     layout_bboxes.append(bbox)
                 elif self._is_label(label):
@@ -305,7 +296,7 @@ class VocConverter(Converter):
 
                 obj_elem = ET.SubElement(root_elem, "object")
 
-                obj_label = self.get_label(obj.label)
+                obj_label = self.get_label_name(obj.label)
                 ET.SubElement(obj_elem, "name").text = obj_label
 
                 if "pose" in attr:
@@ -329,7 +320,7 @@ class VocConverter(Converter):
                     lambda x: obj.group and obj.group == x.group, layout_bboxes
                 ):
                     part_elem = ET.SubElement(obj_elem, "part")
-                    ET.SubElement(part_elem, "name").text = self.get_label(part_bbox.label)
+                    ET.SubElement(part_elem, "name").text = self.get_label_name(part_bbox.label)
                     _write_xml_bbox(part_bbox.get_bbox(), part_elem)
 
                     objects_with_parts.append(new_obj_id)
@@ -379,7 +370,7 @@ class VocConverter(Converter):
                 lists.action_list[item.id] = objects_with_actions
 
         for label_ann in labels:
-            label = self.get_label(label_ann.label)
+            label = self.get_label_name(label_ann.label)
             if not self._is_label(label):
                 continue
             class_list = lists.class_lists.get(item.id, set())
@@ -390,7 +381,9 @@ class VocConverter(Converter):
 
         if masks and VocTask.segmentation in self._tasks:
             compiled_mask = CompiledMask.from_instance_masks(
-                masks, instance_labels=[self._label_id_mapping(m.label) for m in masks]
+                masks,
+                instance_labels=[self._label_id_mapping(m.label) for m in masks],
+                background_label_id=self._label_id_mapping(None),
             )
 
             self.save_segm(
@@ -486,7 +479,7 @@ class VocConverter(Converter):
         def _write_item(f, item, item_labels):
             if not item_labels:
                 return
-            item_labels = [self.get_label(l) for l in item_labels]
+            item_labels = [self.get_label_name(l) for l in item_labels]
             presented = label in item_labels
             f.write("%s % d\n" % (item, 1 if presented else -1))
 
@@ -574,101 +567,74 @@ class VocConverter(Converter):
     def save_segm(self, path, mask, colormap=None):
         if self._apply_colormap:
             if colormap is None:
-                colormap = self._categories[AnnotationType.mask].colormap
+                colormap = self._output_categories[AnnotationType.mask].colormap
             mask = paint_mask(mask, colormap)
         save_image(path, mask, create_dir=True)
 
     def save_label_map(self):
         if self._save_dataset_meta:
-            write_meta_file(self._save_dir, self._label_map)
+            self._label_map.dump_to_meta_file(self._save_dir)
         else:
-            path = osp.join(self._save_dir, VocPath.LABELMAP_FILE)
-            write_label_map(path, self._label_map)
+            self._label_map.dump_to_file(osp.join(self._save_dir, VocPath.LABELMAP_FILE))
 
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.voc.name:
             # use the default VOC colormap
-            label_map = make_voc_label_map()
+            label_map = VocLabelMap.make_default()
 
-        elif (
-            label_map_source == LabelmapType.source.name
-            and AnnotationType.mask not in self._extractor.categories()
-        ):
-            # generate colormap for input labels
-            labels = self._extractor.categories().get(AnnotationType.label, LabelCategories())
-            label_map = OrderedDict((item.name, [None, [], []]) for item in labels.items)
-
-        elif (
-            label_map_source == LabelmapType.source.name
-            and AnnotationType.mask in self._extractor.categories()
-        ):
-            # use source colormap
-            labels = self._extractor.categories()[AnnotationType.label]
-            colors = self._extractor.categories()[AnnotationType.mask]
-            label_map = OrderedDict()
-            for idx, item in enumerate(labels.items):
-                color = colors.colormap.get(idx)
-                if color is not None:
-                    label_map[item.name] = [color, [], []]
+        elif label_map_source == LabelmapType.source.name:
+            label_map = VocLabelMap.from_categories(self._extractor.categories())
 
         elif isinstance(label_map_source, dict):
-            label_map = OrderedDict(sorted(label_map_source.items(), key=lambda e: e[0]))
+            # TODO: move sorting to CVAT
+            label_map = VocLabelMap(sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
             if has_meta_file(label_map_source):
-                label_map = parse_meta_file(label_map_source)
+                label_map = VocLabelMap.parse_from_meta_file(label_map_source)
             else:
-                label_map = parse_label_map(label_map_source)
+                label_map = VocLabelMap.parse_from_file(label_map_source)
 
         else:
-            raise Exception(
-                "Wrong labelmap specified: '%s', "
-                "expected one of %s or a file path"
+            raise ValueError(
+                "Wrong labelmap specified: '%s', expected one of %s or a file path"
                 % (label_map_source, ", ".join(t.name for t in LabelmapType))
             )
 
-        bg_label = find(label_map.items(), lambda x: x[1][0] == (0, 0, 0))
-        if bg_label is None:
-            bg_label = "background"
-            if bg_label not in label_map:
-                has_colors = any(v[0] is not None for v in label_map.values())
-                color = (0, 0, 0) if has_colors else None
-                label_map[bg_label] = [color, [], []]
-            label_map.move_to_end(bg_label, last=False)
-
-        self._categories = make_voc_categories(label_map)
+        bg_label = label_map.find_or_create_background_label()
+        output_categories = make_voc_categories(label_map)
 
         # Update colors with assigned values
-        colormap = self._categories[AnnotationType.mask].colormap
+        colormap = output_categories[AnnotationType.mask].colormap
         for label_id, color in colormap.items():
-            label_desc = label_map[self._categories[AnnotationType.label].items[label_id].name]
-            label_desc[0] = color
+            label_desc = label_map[output_categories[AnnotationType.label].items[label_id].name]
+            label_desc.color = color
 
+        self._output_categories = output_categories
         self._label_map = label_map
+        self._bg_label = bg_label
         self._label_id_mapping = self._make_label_id_map()
 
     def _is_label(self, s):
-        return self._label_map.get(s) is not None
+        return self._label_map.is_label(s)
 
     def _is_part(self, s):
-        for label_desc in self._label_map.values():
-            if s in label_desc[1]:
-                return True
-        return False
+        return self._label_map.is_part(s)
 
     def _is_action(self, label, s):
-        return s in self._get_actions(label)
+        return self._label_map.is_action(label, s)
 
     def _get_actions(self, label):
-        label_desc = self._label_map.get(label)
-        if not label_desc:
-            return []
-        return label_desc[2]
+        return self._label_map.get_actions(label)
 
     def _make_label_id_map(self):
+        src_cat: LabelCategories = self._extractor.categories().get(AnnotationType.label)
+        dst_cat: LabelCategories = self._output_categories[AnnotationType.label]
+        bg_label_id = dst_cat.find(self._bg_label)[0]
         map_id, id_mapping, src_labels, dst_labels = make_label_id_mapping(
-            self._extractor.categories().get(AnnotationType.label),
-            self._categories[AnnotationType.label],
+            src_cat,
+            dst_cat,
+            fallback=bg_label_id,
         )
 
         void_labels = [
@@ -687,7 +653,9 @@ class VocConverter(Converter):
                         src_id,
                         src_label,
                         id_mapping[src_id],
-                        self._categories[AnnotationType.label].items[id_mapping[src_id]].name,
+                        self._output_categories[AnnotationType.label]
+                        .items[id_mapping[src_id]]
+                        .name,
                     )
                     for src_id, src_label in src_labels.items()
                 ]
@@ -695,9 +663,6 @@ class VocConverter(Converter):
         )
 
         return map_id
-
-    def _remap_mask(self, mask):
-        return remap_mask(mask, self._label_id_mapping)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):

@@ -68,6 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Detection for LFW format
   (<https://github.com/openvinotoolkit/datumaro/pull/680>)
+- Export of masks with background class with id != 0 in the VOC format
+  (<https://github.com/cvat-ai/datumaro/pull/9>)
 
 ### Security
 - TBD

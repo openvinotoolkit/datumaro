@@ -84,27 +84,27 @@ class VocFormatTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_write_and_parse_labelmap(self):
-        src_label_map = VOC.make_voc_label_map()
-        src_label_map["qq"] = [None, ["part1", "part2"], ["act1", "act2"]]
-        src_label_map["ww"] = [(10, 20, 30), [], ["act3"]]
+        src_label_map = VOC.VocLabelMap.make_default()
+        src_label_map["qq"] = VOC.VocLabelInfo(None, ["part1", "part2"], ["act1", "act2"])
+        src_label_map["ww"] = VOC.VocLabelInfo((10, 20, 30), [], ["act3"])
 
         with TestDir() as test_dir:
             file_path = osp.join(test_dir, "test.txt")
 
-            VOC.write_label_map(file_path, src_label_map)
-            dst_label_map = VOC.parse_label_map(file_path)
+            src_label_map.dump_to_file(file_path)
+            dst_label_map = VOC.VocLabelMap.parse_from_file(file_path)
 
             self.assertEqual(src_label_map, dst_label_map)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_write_and_parse_dataset_meta_file(self):
-        src_label_map = VOC.make_voc_label_map()
-        src_label_map["qq"] = [None, ["part1", "part2"], ["act1", "act2"]]
-        src_label_map["ww"] = [(10, 20, 30), [], ["act3"]]
+        src_label_map = VOC.VocLabelMap.make_default()
+        src_label_map["qq"] = VOC.VocLabelInfo(None, ["part1", "part2"], ["act1", "act2"])
+        src_label_map["ww"] = VOC.VocLabelInfo((10, 20, 30), [], ["act3"])
 
         with TestDir() as test_dir:
-            VOC.write_meta_file(test_dir, src_label_map)
-            dst_label_map = VOC.parse_meta_file(test_dir)
+            src_label_map.dump_to_meta_file(test_dir)
+            dst_label_map = VOC.VocLabelMap.parse_from_meta_file(test_dir)
 
             self.assertEqual(src_label_map, dst_label_map)
 
@@ -116,7 +116,7 @@ class VocFormatTest(TestCase):
                 f.write("a\n")
 
             with self.assertRaisesRegex(InvalidAnnotationError, "Expected 4 ':'-separated fields"):
-                VOC.parse_label_map(path)
+                VOC.VocLabelMap.parse_from_file(path)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_repeated_label_in_labelmap(self):
@@ -127,7 +127,7 @@ class VocFormatTest(TestCase):
                 f.write("a:::\n")
 
             with self.assertRaisesRegex(InvalidAnnotationError, "already defined"):
-                VOC.parse_label_map(path)
+                VOC.VocLabelMap.parse_from_file(path)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_invalid_color_in_labelmap(self):
@@ -137,7 +137,7 @@ class VocFormatTest(TestCase):
                 f.write("a:10,20::\n")
 
             with self.assertRaisesRegex(InvalidAnnotationError, "Expected an 'r,g,b' triplet"):
-                VOC.parse_label_map(path)
+                VOC.VocLabelMap.parse_from_file(path)
 
 
 class TestExtractorBase(Extractor):
@@ -287,7 +287,7 @@ class VocImportTest(TestCase):
                                 **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
                             },
                         ),
-                        Bbox(5.5, 6.0, 2.0, 2.0, label=22, group=2),
+                        Bbox(5.5, 6.0, 2.0, 2.0, label=24, group=2),
                     ],
                 ),
                 DatasetItem(
@@ -1665,6 +1665,34 @@ class VocConverterTest(TestCase):
             inst_mask = load_mask(osp.join(test_dir, "SegmentationObject", "1.png"))
             self.assertTrue(np.array_equal([0, 1], np.unique(cls_mask)))
             self.assertTrue(np.array_equal([0, 1], np.unique(inst_mask)))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_export_masks_with_non_0_background_color(self):
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    1,
+                    media=Image(data=np.zeros((4, 1, 1))),
+                    annotations=[
+                        Mask([[1, 1, 0, 0]], label=0, attributes={"z_order": 1}),
+                    ],
+                )
+            ],
+            categories=["fg"],
+        )
+
+        label_map = OrderedDict(
+            fg=[(20, 20, 20), [], []],
+            background=[(0, 0, 0), [], []],
+        )
+
+        with TestDir() as test_dir:
+            VocConverter.convert(dataset, test_dir, apply_colormap=False, label_map=label_map)
+
+            cls_mask = load_mask(osp.join(test_dir, "SegmentationClass", "1.png"))
+            inst_mask = load_mask(osp.join(test_dir, "SegmentationObject", "1.png"))
+            self.assertTrue(np.array_equal([[1, 1, 0, 0]], cls_mask))
+            self.assertTrue(np.array_equal([[1, 1, 0, 0]], inst_mask))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_image_info(self):

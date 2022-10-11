@@ -89,7 +89,7 @@ class YoloIntegrationScenarios(TestCase):
                     annotations=[
                         Bbox(1.0, 2.0, 2.0, 2.0, label=8),
                         Bbox(4.0, 5.0, 2.0, 2.0, label=15),
-                        Bbox(5.5, 6, 2, 2, label=22),
+                        Bbox(5.5, 6, 2, 2, label=24),
                     ],
                 ),
                 DatasetItem(

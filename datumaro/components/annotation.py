@@ -388,6 +388,7 @@ class CompiledMask:
         instance_masks: Iterable[Mask],
         instance_ids: Optional[Iterable[int]] = None,
         instance_labels: Optional[Iterable[int]] = None,
+        background_label_id: int = 0,
     ) -> CompiledMask:
         """
         Joins instance masks into a single mask. Masks are sorted by
@@ -398,6 +399,9 @@ class CompiledMask:
                 By default, mask positions are used.
             instance_labels: Instance label id values for the produced class
                 mask. By default, mask labels are used.
+            background_label_id: The background label index. Masks with label None or
+                with this label are mapped to the same instance id 0.
+                By default, the background label is 0.
         """
 
         from datumaro.util.mask_tools import make_index_mask
@@ -427,28 +431,31 @@ class CompiledMask:
 
         it = iter(masks)
 
+        # Generate an index mask
+        index_mask = None
         instance_map = [0]
-        class_map = [0]
-
-        m, idx, instance_id, class_id = next(it)
-        if not class_id:
-            idx = 0
-        index_mask = make_index_mask(m.image, idx, dtype=index_dtype)
-        instance_map.append(instance_id)
-        class_map.append(class_id)
-
+        class_map = [background_label_id]
         for m, idx, instance_id, class_id in it:
-            if not class_id:
+            if class_id in [background_label_id, None]:
+                # Optimization A: map all background masks to the same idx 0
                 idx = 0
-            index_mask = np.where(m.image, idx, index_mask)
+
+            if index_mask is not None:
+                index_mask = np.where(m.image, idx, index_mask)
+            else:
+                index_mask = make_index_mask(m.image, idx, dtype=index_dtype)
+
             instance_map.append(instance_id)
             class_map.append(class_id)
 
         # Generate compiled masks
+        # Map the index mask to segmentation masks
 
         if np.array_equal(instance_map, range(max_index)):
+            # Optimization B: can reuse the index mask generated in the Optimization A
             merged_instance_mask = index_mask
         else:
+            # TODO: squash spaces in the instance indices?
             merged_instance_mask = np.array(instance_map, dtype=np.min_scalar_type(instance_map))[
                 index_mask
             ]

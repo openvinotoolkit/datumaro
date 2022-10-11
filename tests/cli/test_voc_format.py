@@ -375,7 +375,7 @@ class VocIntegrationScenarios(TestCase):
                                 "pose": "Unspecified",
                             },
                         ),
-                        Bbox(5.5, 6.0, 2.0, 2.0, label=22, id=0, group=1),
+                        Bbox(5.5, 6.0, 2.0, 2.0, label=24, id=0, group=1),
                         Mask(image=np.ones([10, 20]), label=2, group=1),
                     ],
                 ),
@@ -414,7 +414,7 @@ class VocIntegrationScenarios(TestCase):
                                 **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
                             },
                         ),
-                        Bbox(5.5, 6.0, 2.0, 2.0, label=22, id=0, group=1),
+                        Bbox(5.5, 6.0, 2.0, 2.0, label=24, id=0, group=1),
                     ],
                 ),
                 DatasetItem(

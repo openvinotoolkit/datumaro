@@ -30,14 +30,7 @@ from datumaro.util.image import find_images
 from datumaro.util.mask_tools import invert_colormap, lazy_mask
 from datumaro.util.meta_file_util import has_meta_file
 
-from .format import (
-    VocInstColormap,
-    VocPath,
-    VocTask,
-    make_voc_categories,
-    parse_label_map,
-    parse_meta_file,
-)
+from .format import VocInstColormap, VocLabelMap, VocPath, VocTask, make_voc_categories
 
 _inverse_inst_colormap = invert_colormap(VocInstColormap)
 
@@ -81,11 +74,11 @@ class _VocExtractor(SourceExtractor):
     def _load_categories(self, dataset_path):
         label_map = None
         if has_meta_file(dataset_path):
-            label_map = parse_meta_file(dataset_path)
+            label_map = VocLabelMap.parse_from_meta_file(dataset_path)
         else:
             label_map_path = osp.join(dataset_path, VocPath.LABELMAP_FILE)
             if osp.isfile(label_map_path):
-                label_map = parse_label_map(label_map_path)
+                label_map = VocLabelMap.parse_from_file(label_map_path)
 
         return make_voc_categories(label_map)
 

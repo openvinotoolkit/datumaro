@@ -1,11 +1,12 @@
 # Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from functools import wraps
 from inspect import isclass
 from itertools import islice
-from typing import Any, Iterable, Optional, Tuple, Union
+from typing import Any, Callable, Iterable, Tuple, TypeVar, Union
 
 import attrs
 import orjson
@@ -14,8 +15,13 @@ NOTSET = object()
 
 str_to_bool = attrs.converters.to_bool
 
+T = TypeVar("T")
+U = TypeVar("U")
 
-def find(iterable, pred=lambda x: True, default=None):
+
+def find(
+    iterable: Iterable[T], pred: Callable[[T], bool] = lambda x: True, *, default: U = None
+) -> Union[T, U]:
     return next((x for x in iterable if pred(x)), default)
 
 
@@ -28,7 +34,7 @@ def cast(value, type_conv, default=None):
         return default
 
 
-def to_snake_case(s):
+def to_snake_case(s: str) -> str:
     if not s:
         return ""
 
@@ -46,7 +52,7 @@ def to_snake_case(s):
     return "".join(name)
 
 
-def pairs(iterable):
+def pairs(iterable: Iterable[T]) -> Iterable[Tuple[T, T]]:
     a = iter(iterable)
     return zip(a, a)
 
