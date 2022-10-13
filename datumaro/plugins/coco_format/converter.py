@@ -736,7 +736,9 @@ class CocoConverter(Converter):
                             task_conv.save_image_info(item, self._make_image_filename(item))
                             task_conv.save_annotations(item)
                         except Exception as e:
-                            self._report_annotation_error(e, item_id=(item.id, item.subset))
+                            self._ctx.error_policy.report_annotation_error(
+                                e, item_id=(item.id, item.subset)
+                            )
 
                 except Exception as e:
                     self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
