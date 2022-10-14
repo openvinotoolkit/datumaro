@@ -8,12 +8,18 @@ import os
 import os.path as osp
 from enum import Enum, auto
 from itertools import chain, groupby
+from typing import Dict
 
 import pycocotools.mask as mask_utils
 
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
-from datumaro.components.annotation import COORDINATE_ROUNDING_DIGITS, AnnotationType, Points
+from datumaro.components.annotation import (
+    COORDINATE_ROUNDING_DIGITS,
+    AnnotationType,
+    Points,
+    Skeleton,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
@@ -338,6 +344,9 @@ class _KeypointsConverter(_InstancesConverter):
             return
         point_categories = dataset.categories().get(AnnotationType.points)
 
+        # point label -> position of the point in the skeleton
+        self._point_label_to_position: Dict[int, int] = {}
+
         for idx, label_cat in enumerate(label_categories.items):
             if not label_cat.parent:
                 cat = {
@@ -357,6 +366,14 @@ class _KeypointsConverter(_InstancesConverter):
                                 "skeleton": [list(map(int, j)) for j in kp_cat.joints],
                             }
                         )
+
+                        for point_pos, point_name in enumerate(kp_cat.labels):
+                            label_index, _ = label_categories.find(
+                                point_name, parent=label_cat.name
+                            )
+                            if label_index is not None:
+                                self._point_label_to_position[label_index] = point_pos
+
                 self.categories.append(cat)
 
     def save_annotations(self, item):
@@ -386,13 +403,23 @@ class _KeypointsConverter(_InstancesConverter):
 
         return solitary_points
 
-    @staticmethod
-    def convert_points_object(ann):
+    def convert_points_object(self, ann: Skeleton) -> None:
         keypoints = []
         points = []
         visibility = []
 
-        for element in ann.elements:
+        # If elements have labels...
+        if any(element.label is not None for element in ann.elements):
+            # ... arrange them in order corresponding to
+            # the order of those labels in the skeleton.
+            elements = [None] * len(ann.elements)
+            for element in ann.elements:
+                elements[self._point_label_to_position[element.label]] = element
+        else:
+            # otherwise, keep the order as-is.
+            elements = ann.elements
+
+        for element in elements:
             points.extend(element.points)
             visibility.extend(element.visibility)
 

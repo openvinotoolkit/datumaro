@@ -1800,6 +1800,100 @@ class CocoConverterTest(TestCase):
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_keypoints_in_skeleton_order(self):
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    subset="train",
+                    media=Image(data=np.zeros((5, 5, 3))),
+                    annotations=[
+                        Skeleton(
+                            [
+                                Points([0, 0], [0], label=3),
+                                Points([0, 2], [1], label=2),
+                                Points([4, 1], [2], label=4),
+                                Points([2, 3], [2], label=1),
+                            ],
+                            label=0,
+                            group=1,
+                            id=1,
+                        ),
+                        Bbox(0, 1, 4, 2, label=0, group=1, id=1),
+                    ],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(
+                    [
+                        "obj",
+                        ("alpha", "obj"),
+                        ("beta", "obj"),
+                        ("gamma", "obj"),
+                        ("delta", "obj"),
+                    ]
+                ),
+                AnnotationType.points: PointsCategories.from_iterable(
+                    [
+                        (0, ["alpha", "beta", "gamma", "delta"], [[0, 1], [1, 2], [2, 3]]),
+                    ]
+                ),
+            },
+        )
+
+        target_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    subset="train",
+                    media=Image(data=np.zeros((5, 5, 3))),
+                    annotations=[
+                        Skeleton(
+                            [
+                                # The points will be reordered to skeleton order,
+                                # since the format doesn't preserve the original order.
+                                Points([2, 3], [2], label=1),
+                                Points([0, 2], [1], label=2),
+                                Points([0, 0], [0], label=3),
+                                Points([4, 1], [2], label=4),
+                            ],
+                            label=0,
+                            group=1,
+                            id=1,
+                            attributes={"is_crowd": False},
+                        ),
+                        Bbox(0, 1, 4, 2, label=0, group=1, id=1, attributes={"is_crowd": False}),
+                    ],
+                    attributes={"id": 1},
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(
+                    [
+                        "obj",
+                        ("alpha", "obj"),
+                        ("beta", "obj"),
+                        ("gamma", "obj"),
+                        ("delta", "obj"),
+                    ]
+                ),
+                AnnotationType.points: PointsCategories.from_iterable(
+                    [
+                        (0, ["alpha", "beta", "gamma", "delta"], [[0, 1], [1, 2], [2, 3]]),
+                    ]
+                ),
+            },
+        )
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                source_dataset,
+                CocoPersonKeypointsConverter.convert,
+                test_dir,
+                target_dataset=target_dataset,
+            )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_subsets(self):
         test_dataset = Dataset.from_iterable(
             [
