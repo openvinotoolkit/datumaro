@@ -35,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/712>)
 - Skeleton annotation type
   (<https://github.com/cvat-ai/datumaro/pull/6>,
-  <https://github.com/cvat-ai/datumaro/pull/14>)
+  <https://github.com/cvat-ai/datumaro/pull/14>,
+  <https://github.com/cvat-ai/datumaro/pull/15>)
 - Storing labels with the same name but with a different parent
   (<https://github.com/cvat-ai/datumaro/pull/8>)
 

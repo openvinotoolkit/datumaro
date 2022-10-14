@@ -397,6 +397,7 @@ class _KeypointsConverter(_InstancesConverter):
         solitary_points = []
 
         for g_id, group in groupby(annotations, lambda a: a.group):
+            group = list(group)  # we'll need to iterate over these multiple times
             if not g_id or g_id and not cls.find_instance_anns(group):
                 group = [a for a in group if a.type == AnnotationType.skeleton]
                 solitary_points.extend(group)

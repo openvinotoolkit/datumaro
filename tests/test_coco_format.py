@@ -1717,13 +1717,17 @@ class CocoConverterTest(TestCase):
                         # Full instance annotations: bbox + keypoints
                         Skeleton([Points([1, 2]), Points([3, 4]), Points([2, 3])], group=2, id=2),
                         Bbox(1, 2, 2, 2, group=2, id=2),
-                        # Solitary keypoints
+                        # Solitary keypoints without group
                         Skeleton([Points([1, 2]), Points([0, 2]), Points([4, 1])], label=5, id=3),
+                        # Solitary keypoints with group
+                        Skeleton(
+                            [Points([1, 2]), Points([2, 1]), Points([3, 4])], label=4, group=3, id=4
+                        ),
                         # Some other solitary annotations (bug #1387)
-                        Polygon([0, 0, 4, 0, 4, 4], label=3, id=4),
+                        Polygon([0, 0, 4, 0, 4, 4], label=3, id=5),
                         # Solitary keypoints with no label
                         Skeleton(
-                            [Points([0, 0], [0]), Points([1, 2], [1]), Points([3, 4], [2])], id=5
+                            [Points([0, 0], [0]), Points([1, 2], [1]), Points([3, 4], [2])], id=6
                         ),
                     ],
                 ),
@@ -1773,12 +1777,20 @@ class CocoConverterTest(TestCase):
                         ),
                         Bbox(0, 1, 4, 1, label=5, group=3, id=3, attributes={"is_crowd": False}),
                         Skeleton(
-                            [Points([0, 0], [0]), Points([1, 2], [1]), Points([3, 4], [2])],
-                            group=5,
-                            id=5,
+                            [Points([1, 2]), Points([2, 1]), Points([3, 4])],
+                            label=4,
+                            group=4,
+                            id=4,
                             attributes={"is_crowd": False},
                         ),
-                        Bbox(1, 2, 2, 2, group=5, id=5, attributes={"is_crowd": False}),
+                        Bbox(1, 1, 2, 3, label=4, group=4, id=4, attributes={"is_crowd": False}),
+                        Skeleton(
+                            [Points([0, 0], [0]), Points([1, 2], [1]), Points([3, 4], [2])],
+                            group=6,
+                            id=6,
+                            attributes={"is_crowd": False},
+                        ),
+                        Bbox(1, 2, 2, 2, group=6, id=6, attributes={"is_crowd": False}),
                     ],
                     attributes={"id": 1},
                 ),
