@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Iterable, List, Optional, Tuple, Union
 import warnings
+from typing import Iterable, List, Optional, Tuple, Union
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
@@ -11,7 +11,7 @@ import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
-from datumaro.components.annotation import AnnotationType, Bbox, Annotation, LabelCategories
+from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import DatasetItem
 
