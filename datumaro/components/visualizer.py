@@ -35,16 +35,16 @@ class Visualizer:
     def __init__(
         self,
         dataset: IDataset,
-        ignored_types: Iterable[AnnotationType] = [],
+        ignored_types: Optional[Iterable[AnnotationType]] = None,
         figsize: Tuple[float, float] = (8, 6),
-        color_cycles: List[str] = DEFAULT_COLOR_CYCLES,
+        color_cycles: Optional[List[str]] = None,
         bbox_linewidth: float = 1.0,
         text_y_offset: float = 1.5,
     ) -> None:
         self.dataset = dataset
         self.figsize = figsize
-        self.ignored_types = set(ignored_types)
-        self.color_cycles = color_cycles
+        self.ignored_types = set(ignored_types) if ignored_types is not None else set()
+        self.color_cycles = color_cycles if color_cycles is not None else DEFAULT_COLOR_CYCLES
         self.bbox_linewidth = bbox_linewidth
         self.text_y_offset = text_y_offset
 
