@@ -38,7 +38,7 @@ class Registry(Generic[T]):
     def __contains__(self, key) -> bool:
         return key in self.items
 
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[str]:
         return iter(self.items)
 
 
