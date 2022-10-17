@@ -51,7 +51,7 @@ class BboxVisualizerTest(TestCase):
                 assert mocked.call_count == len(item.annotations)
 
                 # Check z-order
-                called_z_order = [call.args[0].z_order for call in mocked.call_args_list]
+                called_z_order = [call[0][0].z_order for call in mocked.call_args_list]
                 assert sorted(called_z_order) == called_z_order
 
         # Unknown id
