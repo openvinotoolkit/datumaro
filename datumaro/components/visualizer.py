@@ -12,7 +12,17 @@ import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
-from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
+from datumaro.components.annotation import (
+    Annotation,
+    AnnotationType,
+    Bbox,
+    Label,
+    LabelCategories,
+    Mask,
+    Points,
+    PolyLine,
+    Polygon,
+)
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import DatasetItem
 
@@ -65,6 +75,7 @@ class Visualizer:
         color_cycles: Optional[List[str]] = None,
         bbox_linewidth: float = 1.0,
         text_y_offset: float = 1.5,
+        alpha: float = 1.0,
     ) -> None:
         self.dataset = dataset
         self.figsize = figsize
@@ -72,6 +83,23 @@ class Visualizer:
         self.color_cycles = color_cycles if color_cycles is not None else DEFAULT_COLOR_CYCLES
         self.bbox_linewidth = bbox_linewidth
         self.text_y_offset = text_y_offset
+        self.alpha = alpha
+
+        def _not_implmented(ann: Annotation, *args, **kwargs):
+            raise NotImplementedError(f"{ann.type} is not implemented yet.")
+
+        self._draw_func = {
+            AnnotationType.label: self._draw_label,
+            AnnotationType.mask: self._draw_mask,
+            AnnotationType.points: self._draw_points,
+            AnnotationType.polygon: self._draw_polygon,
+            AnnotationType.polyline: self._draw_polygon,
+            AnnotationType.bbox: self._draw_bbox,
+            AnnotationType.caption: _not_implmented,
+            AnnotationType.cuboid_3d: _not_implmented,
+            AnnotationType.super_resolution_annotation: _not_implmented,
+            AnnotationType.depth_annotation: _not_implmented,
+        }
 
     def _sort_by_z_order(self, annotations: List[Annotation]) -> List[Annotation]:
         def _sort_key(ann: Annotation):
@@ -123,17 +151,76 @@ class Visualizer:
                 warnings.warn(f"{ann.type} in self.ignored_types. Skip it.")
                 continue
 
-            if ann.type == AnnotationType.bbox:
-                self._draw_bbox(ann, label_categories, ax)
+            if ann.type in self._draw_func:
+                self._draw_func[ann.type](ann, label_categories, ax)
             else:
-                raise NotImplementedError(f"{ann.type} is not implemented yet.")
+                raise
 
         ax.set_title(f"ID: {id}, Subset={subset}")
         ax.set_axis_off()
 
         return fig
 
-    def _draw_bbox(self, ann: Bbox, label_categories: Optional[LabelCategories], ax: Axes):
+    def _draw_label(
+        self, ann: Label, label_categories: Optional[LabelCategories], ax: Axes
+    ) -> None:
+        label_text = label_categories[ann.label].name if label_categories is not None else ann.label
+        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        ax.text(0, 0, label_text, ha="left", va="top", color=color, transform=ax.transAxes)
+
+    def _draw_mask(self, ann: Mask, label_categories: Optional[LabelCategories], ax: Axes) -> None:
+        pass
+
+    def _draw_points(
+        self, ann: Points, label_categories: Optional[LabelCategories], ax: Axes
+    ) -> None:
+        label_text = label_categories[ann.label].name if label_categories is not None else ann.label
+        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        points = np.array(ann.points)
+        n_points = len(points) // 2
+        points = points.reshape(n_points, 2)
+        visible = [viz == Points.Visibility.visible for viz in ann.visibility]
+        points = points[visible]
+
+        ax.scatter(points[:, 0], points[:, 1], color=color)
+
+        if len(points) > 0:
+            x, y, _, _ = ann.get_bbox()
+            ax.text(x, y - self.text_y_offset, label_text, color=color)
+
+    def _draw_polygon(
+        self,
+        ann: Union[Polygon, PolyLine],
+        label_categories: Optional[LabelCategories],
+        ax: Axes,
+    ) -> None:
+        label_text = label_categories[ann.label].name if label_categories is not None else ann.label
+        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        points = np.array(ann.points)
+        n_points = len(points) // 2
+        points = points.reshape(n_points, 2)
+
+        polyline = patches.Polygon(
+            points,
+            fill=False,
+            linewidth=self.bbox_linewidth,
+            edgecolor=color,
+        )
+        ax.add_patch(polyline)
+
+        if isinstance(ann, Polygon):
+            polygon = patches.Polygon(
+                points,
+                fill=True,
+                facecolor=color if isinstance(ann, Polygon) else "none",
+                alpha=self.alpha,
+            )
+            ax.add_patch(polygon)
+
+        x, y, _, _ = ann.get_bbox()
+        ax.text(x, y - self.text_y_offset, label_text, color=color)
+
+    def _draw_bbox(self, ann: Bbox, label_categories: Optional[LabelCategories], ax: Axes) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self.color_cycles[ann.label % len(self.color_cycles)]
         rect = patches.Rectangle(
