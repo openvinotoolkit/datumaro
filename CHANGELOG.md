@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add jupyter sample introducing how to merge datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/738>)
+- Add Visualization Python API
+  - Bbox
+    (<https://github.com/openvinotoolkit/datumaro/pull/744>)
 
 ### Changed
 - N/A
