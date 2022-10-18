@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import math
 import warnings
 from typing import Iterable, List, Optional, Tuple, Union
 
@@ -27,6 +28,32 @@ DEFAULT_COLOR_CYCLES: List[str] = [
     "#bcbd22",
     "#17becf",
 ]
+
+
+def _infer_grid_size(length: int, grid_size: Tuple[Optional[int], Optional[int]]):
+    nrows, ncols = grid_size
+
+    if nrows is None and ncols is None:
+        nrows = ncols = int(math.sqrt(length))
+
+        while nrows * ncols < length:
+            nrows += 1
+    elif nrows is None and ncols > 0:
+        nrows = int(length / ncols)
+
+        while nrows * ncols < length:
+            nrows += 1
+    elif nrows > 0 and ncols is None:
+        ncols = int(length / nrows)
+
+        while nrows * ncols < length:
+            ncols += 1
+
+    assert nrows > 0, "nrows should be a positive integer."
+    assert ncols > 0, "ncols should be a positive integer."
+    assert length <= nrows * ncols, "The number of ids should less then or equal to nrows * ncols."
+
+    return nrows, ncols
 
 
 class Visualizer:
@@ -56,16 +83,10 @@ class Visualizer:
     def vis_gallery(
         self,
         ids: List[Union[str, DatasetItem]],
-        nrows: int,
-        ncols: int,
         subset: Optional[str] = None,
+        grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
     ) -> Figure:
-        assert nrows > 0, "nrows should be a positive integer."
-        assert ncols > 0, "ncols should be a positive integer."
-        assert (
-            len(ids) <= nrows * ncols
-        ), "The number of ids should less then or equal to nrows * ncols."
-
+        nrows, ncols = _infer_grid_size(len(ids), grid_size)
         fig, axs = plt.subplots(nrows, ncols, figsize=self.figsize)
 
         for dataset_id, ax in zip(ids, axs.flatten()):

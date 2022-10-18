@@ -1,6 +1,7 @@
 from unittest import TestCase, mock
 
 import numpy as np
+from matplotlib.figure import Figure
 
 from datumaro.components.annotation import Bbox
 from datumaro.components.dataset import Dataset
@@ -75,4 +76,22 @@ class BboxVisualizerTest(TestCase):
             cnt += 1
 
         with self.assertRaises(Exception):
-            visualizer.vis_gallery(ids, cnt - 1, cnt - 1)
+            small_grid_size = (cnt - 1, cnt - 1)
+            visualizer.vis_gallery(ids, self.subset, small_grid_size)
+
+        # Infer grid size for 5 items
+        def _check(infer_grid_size, expected_nrows, expected_ncols):
+            fig = visualizer.vis_gallery(ids, self.subset, infer_grid_size)
+            self.assertIsInstance(fig, Figure)
+            grid_spec = fig.axes[0].get_gridspec()
+            self.assertEqual(grid_spec.nrows, expected_nrows)
+            self.assertEqual(grid_spec.ncols, expected_ncols)
+
+        _check((None, None), 3, 2)
+        _check((3, None), 3, 2)
+        _check((None, 2), 3, 2)
+        _check((3, 2), 3, 2)
+
+        _check((None, 5), 1, 5)
+        _check((5, 1), 5, 1)
+        _check((5, 1), 5, 1)
