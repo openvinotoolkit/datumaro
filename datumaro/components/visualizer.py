@@ -28,8 +28,6 @@ DEFAULT_COLOR_CYCLES: List[str] = [
     "#17becf",
 ]
 
-TEXT_Y_OFFSET = 1.0
-
 
 class Visualizer:
     def __init__(
@@ -109,7 +107,7 @@ class Visualizer:
             else:
                 raise NotImplementedError(f"{ann.type} is not implemented yet.")
 
-        ax.set_title(f"DatasetItem ID: {item.id}, Subset={subset}")
+        ax.set_title(f"ID: {id}, Subset={subset}")
         ax.set_axis_off()
 
         return fig
