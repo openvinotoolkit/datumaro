@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add jupyter sample introducing how to merge datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/738>)
 
+### Changed
+- N/A
+
+### Deprecated
+- N/A
+
+### Removed
+- N/A
+
+### Fixed
+- Fix static type checking
+  (<https://github.com/openvinotoolkit/datumaro/pull/743>)
+
+### Security
+- N/A
+
 ## 06/09/2022 - Release v0.3.1
 ### Added
 - Support for custom media types, new `PointCloud` media type,
