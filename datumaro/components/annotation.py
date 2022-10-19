@@ -98,7 +98,14 @@ class LabelCategories(Categories):
         parent: str = field(default="", validator=default_if_none(str))
         attributes: Set[str] = field(factory=set, validator=default_if_none(set))
 
+    @attrs(slots=True, order=False)
+    class LabelGroup:
+        name: str = field(converter=str, validator=not_empty)
+        labels: List[str] = field(default=[], validator=default_if_none(list))
+        group_type: str = field(default="exclusive", validator=default_if_none(str))
+
     items: List[str] = field(factory=list, validator=default_if_none(list))
+    label_groups: List[str] = field(factory=list, validator=default_if_none(list))
     _indices: Dict[str, int] = field(factory=dict, init=False, eq=False)
 
     @classmethod
@@ -146,7 +153,10 @@ class LabelCategories(Categories):
         self._indices = indices
 
     def add(
-        self, name: str, parent: Optional[str] = None, attributes: Optional[Set[str]] = None
+        self,
+        name: str,
+        parent: Optional[str] = None,
+        attributes: Optional[Set[str]] = None,
     ) -> int:
         assert name
         assert name not in self._indices, name
@@ -154,6 +164,18 @@ class LabelCategories(Categories):
         index = len(self.items)
         self.items.append(self.Category(name, parent, attributes))
         self._indices[name] = index
+        return index
+
+    def add_label_group(
+        self,
+        name: str,
+        labels: List[str],
+        group_type: str,
+    ) -> int:
+        assert name
+
+        index = len(self.label_groups)
+        self.label_groups.append(self.LabelGroup(name, labels, group_type))
         return index
 
     def find(self, name: str) -> Tuple[Optional[int], Optional[Category]]:
