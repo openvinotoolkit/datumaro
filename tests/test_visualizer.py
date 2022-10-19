@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 import numpy as np
 from matplotlib.figure import Figure
 
-from datumaro.components.annotation import Bbox, Caption, Label, Points, PolyLine, Polygon
+from datumaro.components.annotation import Bbox, Caption, Label, Points, Polygon, PolyLine
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
