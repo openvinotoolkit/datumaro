@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import defaultdict
 import math
 import warnings
 from typing import Iterable, List, Optional, Tuple, Union
@@ -146,15 +147,16 @@ class Visualizer:
             else None
         )
 
+        context = defaultdict(list)
         for ann in annotations:
             if ann.type in self.ignored_types:
                 warnings.warn(f"{ann.type} in self.ignored_types. Skip it.")
                 continue
 
             if ann.type in self._draw_func:
-                self._draw_func[ann.type](ann, label_categories, ax)
+                self._draw_func[ann.type](ann, label_categories, ax, context[ann.type])
             else:
-                raise
+                raise ValueError(f"Unknown ann.type={ann.type}")
 
         ax.set_title(f"ID: {id}, Subset={subset}")
         ax.set_axis_off()
@@ -162,17 +164,40 @@ class Visualizer:
         return fig
 
     def _draw_label(
-        self, ann: Label, label_categories: Optional[LabelCategories], ax: Axes
+        self,
+        ann: Label,
+        label_categories: Optional[LabelCategories],
+        ax: Axes,
+        context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self.color_cycles[ann.label % len(self.color_cycles)]
-        ax.text(0, 0, label_text, ha="left", va="top", color=color, transform=ax.transAxes)
 
-    def _draw_mask(self, ann: Mask, label_categories: Optional[LabelCategories], ax: Axes) -> None:
+        if len(context) == 0:
+            x, y = 0.01, 0.99
+        else:
+            text = context[-1]
+            bbox = ax.transAxes.inverted().transform(text.get_tightbbox())
+            x, y = 0.01, bbox[0][1]
+
+        text = ax.text(x, y, label_text, ha="left", va="top", color=color, transform=ax.transAxes)
+        context.append(text)
+
+    def _draw_mask(
+        self,
+        ann: Mask,
+        label_categories: Optional[LabelCategories],
+        ax: Axes,
+        context: List,
+    ) -> None:
         pass
 
     def _draw_points(
-        self, ann: Points, label_categories: Optional[LabelCategories], ax: Axes
+        self,
+        ann: Points,
+        label_categories: Optional[LabelCategories],
+        ax: Axes,
+        context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self.color_cycles[ann.label % len(self.color_cycles)]
@@ -193,6 +218,7 @@ class Visualizer:
         ann: Union[Polygon, PolyLine],
         label_categories: Optional[LabelCategories],
         ax: Axes,
+        context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self.color_cycles[ann.label % len(self.color_cycles)]
@@ -220,7 +246,13 @@ class Visualizer:
         x, y, _, _ = ann.get_bbox()
         ax.text(x, y - self.text_y_offset, label_text, color=color)
 
-    def _draw_bbox(self, ann: Bbox, label_categories: Optional[LabelCategories], ax: Axes) -> None:
+    def _draw_bbox(
+        self,
+        ann: Bbox,
+        label_categories: Optional[LabelCategories],
+        ax: Axes,
+        context: List,
+    ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self.color_cycles[ann.label % len(self.color_cycles)]
         rect = patches.Rectangle(
