@@ -9,6 +9,7 @@ from typing import Iterable, List, Optional, Tuple, Union
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+from matplotlib.text import Text
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -17,16 +18,21 @@ from datumaro.components.annotation import (
     Annotation,
     AnnotationType,
     Bbox,
+    Caption,
+    Cuboid3d,
+    DepthAnnotation,
     Label,
     LabelCategories,
     Mask,
     Points,
     PolyLine,
     Polygon,
+    SuperResolutionAnnotation,
 )
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import DatasetItem
 
+CAPTION_BBOX_PAD = 0.2
 DEFAULT_COLOR_CYCLES: List[str] = [
     "#1f77b4",
     "#ff7f0e",
@@ -86,9 +92,6 @@ class Visualizer:
         self.text_y_offset = text_y_offset
         self.alpha = alpha
 
-        def _not_implmented(ann: Annotation, *args, **kwargs):
-            raise NotImplementedError(f"{ann.type} is not implemented yet.")
-
         self._draw_func = {
             AnnotationType.label: self._draw_label,
             AnnotationType.mask: self._draw_mask,
@@ -96,10 +99,10 @@ class Visualizer:
             AnnotationType.polygon: self._draw_polygon,
             AnnotationType.polyline: self._draw_polygon,
             AnnotationType.bbox: self._draw_bbox,
-            AnnotationType.caption: _not_implmented,
-            AnnotationType.cuboid_3d: _not_implmented,
-            AnnotationType.super_resolution_annotation: _not_implmented,
-            AnnotationType.depth_annotation: _not_implmented,
+            AnnotationType.caption: self._draw_caption,
+            AnnotationType.cuboid_3d: self._draw_cuboid_3d,
+            AnnotationType.super_resolution_annotation: self._draw_super_resolution_annotation,
+            AnnotationType.depth_annotation: self._draw_depth_annotation,
         }
 
     def _sort_by_z_order(self, annotations: List[Annotation]) -> List[Annotation]:
@@ -154,7 +157,7 @@ class Visualizer:
                 continue
 
             if ann.type in self._draw_func:
-                self._draw_func[ann.type](ann, label_categories, ax, context[ann.type])
+                self._draw_func[ann.type](ann, label_categories, fig, ax, context[ann.type])
             else:
                 raise ValueError(f"Unknown ann.type={ann.type}")
 
@@ -167,6 +170,7 @@ class Visualizer:
         self,
         ann: Label,
         label_categories: Optional[LabelCategories],
+        fig: Figure,
         ax: Axes,
         context: List,
     ) -> None:
@@ -176,6 +180,7 @@ class Visualizer:
         if len(context) == 0:
             x, y = 0.01, 0.99
         else:
+            # Draw below the previously drawn label.
             text = context[-1]
             bbox = ax.transAxes.inverted().transform(text.get_tightbbox())
             x, y = 0.01, bbox[0][1]
@@ -187,6 +192,7 @@ class Visualizer:
         self,
         ann: Mask,
         label_categories: Optional[LabelCategories],
+        fig: Figure,
         ax: Axes,
         context: List,
     ) -> None:
@@ -196,6 +202,7 @@ class Visualizer:
         self,
         ann: Points,
         label_categories: Optional[LabelCategories],
+        fig: Figure,
         ax: Axes,
         context: List,
     ) -> None:
@@ -217,6 +224,7 @@ class Visualizer:
         self,
         ann: Union[Polygon, PolyLine],
         label_categories: Optional[LabelCategories],
+        fig: Figure,
         ax: Axes,
         context: List,
     ) -> None:
@@ -250,6 +258,7 @@ class Visualizer:
         self,
         ann: Bbox,
         label_categories: Optional[LabelCategories],
+        fig: Figure,
         ax: Axes,
         context: List,
     ) -> None:
@@ -265,3 +274,73 @@ class Visualizer:
         )
         ax.text(ann.x, ann.y - self.text_y_offset, label_text, color=color)
         ax.add_patch(rect)
+
+    def _draw_caption(
+        self,
+        ann: Caption,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        if len(context) == 0:
+            x, y = 0.5, 0.01
+        else:
+            # Draw on the top of the previously drawn caption.
+            text: Text = context[-1]
+            bbox = text.get_bbox_patch()
+            # We can know the position of text bbox only if drawing it actually.
+            # https://stackoverflow.com/a/41271773/16880031
+            fig.canvas.draw()
+            drawed_bbox = bbox.get_bbox()
+            x, y = bbox.get_transform().transform(
+                [0, (1.0 + 2 * CAPTION_BBOX_PAD) * drawed_bbox.height]
+            )
+            x, y = ax.transAxes.inverted().transform([x, y])
+            x, y = 0.5, y
+
+        width = ax.transAxes.transform_point((1, 0))[0] - ax.transAxes.transform_point((0, 0))[0]
+
+        text = ax.text(
+            x,
+            y,
+            ann.caption,
+            ha="center",
+            va="bottom",
+            wrap=True,
+            transform=ax.transAxes,
+            bbox={"facecolor": "white", "alpha": self.alpha},
+        )
+        text.get_bbox_patch().set_boxstyle(f"Round,pad={CAPTION_BBOX_PAD}")
+        text._get_wrap_line_width = lambda: width
+        context.append(text)
+
+    def _draw_cuboid_3d(
+        self,
+        ann: Cuboid3d,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        raise NotImplementedError(f"{ann.type} is not implemented yet.")
+
+    def _draw_super_resolution_annotation(
+        self,
+        ann: SuperResolutionAnnotation,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        raise NotImplementedError(f"{ann.type} is not implemented yet.")
+
+    def _draw_depth_annotation(
+        self,
+        ann: DepthAnnotation,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        raise NotImplementedError(f"{ann.type} is not implemented yet.")
