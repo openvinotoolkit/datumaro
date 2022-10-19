@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Visualization Python API
   - Bbox
     (<https://github.com/openvinotoolkit/datumaro/pull/744>)
+  - Add Label, Points, Polygon, PolyLine, and Caption visualization features
+    (<https://github.com/openvinotoolkit/datumaro/pull/746>)
 
 ### Changed
 - N/A
