@@ -30,7 +30,7 @@ class VisualizerTestBase:
         GridSizeTestCase((5, 1), (5, 1)),
     ]
 
-    def test_vis_one_sample(self, mocked: mock.MagicMock, check_z_order: bool = True):
+    def _test_vis_one_sample(self, mocked: mock.MagicMock, check_z_order: bool = True):
         visualizer = Visualizer(self.dataset)
 
         for item in self.items:
@@ -55,7 +55,7 @@ class VisualizerTestBase:
             with self.assertRaises(Exception):
                 visualizer.vis_one_sample(item.id, "unknown")
 
-    def test_vis_gallery(self, test_cases: GridSizeTestCase):
+    def _test_vis_gallery(self, test_cases: GridSizeTestCase):
         visualizer = Visualizer(self.dataset)
 
         # Too small nrows and ncols
@@ -108,11 +108,11 @@ class LabelVisualizerTest(TestCase, VisualizerTestBase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @mock.patch("datumaro.components.visualizer.Visualizer._draw_label")
     def test_vis_one_sample(self, mocked: mock.MagicMock):
-        super().test_vis_one_sample(mocked, check_z_order=False)
+        self._test_vis_one_sample(mocked, check_z_order=False)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
-        super().test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
+        self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
 class PointsVisualizerTest(TestCase, VisualizerTestBase):
@@ -143,11 +143,11 @@ class PointsVisualizerTest(TestCase, VisualizerTestBase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @mock.patch("datumaro.components.visualizer.Visualizer._draw_points")
     def test_vis_one_sample(self, mocked: mock.MagicMock):
-        super().test_vis_one_sample(mocked, check_z_order=True)
+        self._test_vis_one_sample(mocked, check_z_order=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
-        super().test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
+        self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
 class PolygonVisualizerTest(TestCase, VisualizerTestBase):
@@ -178,11 +178,11 @@ class PolygonVisualizerTest(TestCase, VisualizerTestBase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @mock.patch("datumaro.components.visualizer.Visualizer._draw_polygon")
     def test_vis_one_sample(self, mocked: mock.MagicMock):
-        super().test_vis_one_sample(mocked, check_z_order=True)
+        self._test_vis_one_sample(mocked, check_z_order=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
-        super().test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
+        self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
 class PolyLineVisualizerTest(TestCase, VisualizerTestBase):
@@ -213,11 +213,11 @@ class PolyLineVisualizerTest(TestCase, VisualizerTestBase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @mock.patch("datumaro.components.visualizer.Visualizer._draw_polygon")
     def test_vis_one_sample(self, mocked: mock.MagicMock):
-        super().test_vis_one_sample(mocked, check_z_order=True)
+        self._test_vis_one_sample(mocked, check_z_order=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
-        super().test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
+        self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
 class BboxVisualizerTest(TestCase, VisualizerTestBase):
@@ -251,11 +251,11 @@ class BboxVisualizerTest(TestCase, VisualizerTestBase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @mock.patch("datumaro.components.visualizer.Visualizer._draw_bbox")
     def test_vis_one_sample(self, mocked: mock.MagicMock):
-        super().test_vis_one_sample(mocked)
+        self._test_vis_one_sample(mocked)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
-        super().test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
+        self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
 class CaptionVisualizerTest(TestCase, VisualizerTestBase):
@@ -283,8 +283,8 @@ class CaptionVisualizerTest(TestCase, VisualizerTestBase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @mock.patch("datumaro.components.visualizer.Visualizer._draw_caption")
     def test_vis_one_sample(self, mocked: mock.MagicMock):
-        super().test_vis_one_sample(mocked, check_z_order=False)
+        self._test_vis_one_sample(mocked, check_z_order=False)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
-        super().test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
+        self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
