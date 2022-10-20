@@ -181,9 +181,13 @@ class Visualizer:
             x, y = 0.01, 0.99
         else:
             # Draw below the previously drawn label.
-            text = context[-1]
-            bbox = ax.transAxes.inverted().transform(text.get_tightbbox())
-            x, y = 0.01, bbox[0][1]
+            text: Text = context[-1]
+            # We can know the position of text bbox only if drawing it actually.
+            # https://stackoverflow.com/a/41271773/16880031
+            fig.canvas.draw()
+            bbox = text.get_window_extent()
+            bbox = ax.transAxes.inverted().transform_bbox(bbox)
+            x, y = 0.01, bbox.y0
 
         text = ax.text(x, y, label_text, ha="left", va="top", color=color, transform=ax.transAxes)
         context.append(text)
