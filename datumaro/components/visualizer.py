@@ -2,17 +2,17 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict
 import math
 import warnings
+from collections import defaultdict
 from typing import Iterable, List, Optional, Tuple, Union
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-from matplotlib.text import Text
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.text import Text
 
 from datumaro.components.annotation import (
     Annotation,
@@ -25,8 +25,8 @@ from datumaro.components.annotation import (
     LabelCategories,
     Mask,
     Points,
-    PolyLine,
     Polygon,
+    PolyLine,
     SuperResolutionAnnotation,
 )
 from datumaro.components.dataset import IDataset
