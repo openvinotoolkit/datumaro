@@ -4,7 +4,17 @@ from unittest import TestCase, mock
 import numpy as np
 from matplotlib.figure import Figure
 
-from datumaro.components.annotation import Bbox, Caption, Label, Points, Polygon, PolyLine
+from datumaro.components.annotation import (
+    Bbox,
+    Caption,
+    DepthAnnotation,
+    Label,
+    Mask,
+    Points,
+    Polygon,
+    PolyLine,
+    SuperResolutionAnnotation,
+)
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
@@ -150,6 +160,41 @@ class PointsVisualizerTest(TestCase, VisualizerTestBase):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
+class MaskVisualizerTest(TestCase, VisualizerTestBase):
+    @classmethod
+    def setUpClass(cls):
+        cls.subset = "train"
+        cls.items = [
+            DatasetItem(
+                "image_%03d" % img_idx,
+                subset=cls.subset,
+                media=Image(data=np.ones((4, 6, 3))),
+                annotations=[
+                    Mask(
+                        image=np.random.randint(0, 2, size=(4, 6)),
+                        label=label_idx,
+                        id=img_idx * img_idx + label_idx,
+                        group=1,
+                        z_order=label_idx,
+                        attributes={},
+                    )
+                    for label_idx in range(img_idx)
+                ],
+            )
+            for img_idx in range(1, 6)
+        ]
+        cls.dataset = Dataset.from_iterable(cls.items)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mock.patch("datumaro.components.visualizer.Visualizer._draw_mask")
+    def test_vis_one_sample(self, mocked: mock.MagicMock):
+        self._test_vis_one_sample(mocked, check_z_order=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_vis_gallery(self):
+        self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
+
+
 class PolygonVisualizerTest(TestCase, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
@@ -282,6 +327,68 @@ class CaptionVisualizerTest(TestCase, VisualizerTestBase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @mock.patch("datumaro.components.visualizer.Visualizer._draw_caption")
+    def test_vis_one_sample(self, mocked: mock.MagicMock):
+        self._test_vis_one_sample(mocked, check_z_order=False)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_vis_gallery(self):
+        self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
+
+
+class SuperResolutionVisualizerTest(TestCase, VisualizerTestBase):
+    @classmethod
+    def setUpClass(cls):
+        cls.subset = "train"
+        cls.items = [
+            DatasetItem(
+                "image_%03d" % img_idx,
+                subset=cls.subset,
+                media=Image(data=np.ones((4, 6, 3))),
+                annotations=[
+                    SuperResolutionAnnotation(
+                        Image(data=np.ones((8, 12, 3))),
+                        id=img_idx,
+                        attributes={},
+                    )
+                ],
+            )
+            for img_idx in range(1, 6)
+        ]
+        cls.dataset = Dataset.from_iterable(cls.items)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mock.patch("datumaro.components.visualizer.Visualizer._draw_super_resolution_annotation")
+    def test_vis_one_sample(self, mocked: mock.MagicMock):
+        self._test_vis_one_sample(mocked, check_z_order=False)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_vis_gallery(self):
+        self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
+
+
+class DepthVisualizerTest(TestCase, VisualizerTestBase):
+    @classmethod
+    def setUpClass(cls):
+        cls.subset = "train"
+        cls.items = [
+            DatasetItem(
+                "image_%03d" % img_idx,
+                subset=cls.subset,
+                media=Image(data=np.ones((4, 6, 3))),
+                annotations=[
+                    DepthAnnotation(
+                        Image(data=np.ones((4, 6, 3))),
+                        id=img_idx,
+                        attributes={},
+                    )
+                ],
+            )
+            for img_idx in range(1, 6)
+        ]
+        cls.dataset = Dataset.from_iterable(cls.items)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mock.patch("datumaro.components.visualizer.Visualizer._draw_depth_annotation")
     def test_vis_one_sample(self, mocked: mock.MagicMock):
         self._test_vis_one_sample(mocked, check_z_order=False)
 

@@ -13,6 +13,8 @@ import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.text import Text
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from PIL import ImageColor
 
 from datumaro.components.annotation import (
     Annotation,
@@ -31,7 +33,6 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import DatasetItem
-from PIL import ImageColor
 
 CAPTION_BBOX_PAD = 0.2
 DEFAULT_COLOR_CYCLES: List[str] = [
@@ -78,6 +79,7 @@ class Visualizer:
     def __init__(
         self,
         dataset: IDataset,
+        draw_only_image: bool = False,
         ignored_types: Optional[Iterable[AnnotationType]] = None,
         figsize: Tuple[float, float] = (8, 6),
         color_cycles: Optional[List[str]] = None,
@@ -86,6 +88,7 @@ class Visualizer:
         alpha: float = 1.0,
     ) -> None:
         self.dataset = dataset
+        self.draw_only_image = draw_only_image
         self.figsize = figsize
         self.ignored_types = set(ignored_types) if ignored_types is not None else set()
         self.color_cycles = color_cycles if color_cycles is not None else DEFAULT_COLOR_CYCLES
@@ -149,6 +152,12 @@ class Visualizer:
         img = item.media.data.astype(np.uint8)
         ax.imshow(img)
 
+        ax.set_title(f"ID: {id}, Subset={subset}")
+        ax.set_axis_off()
+
+        if self.draw_only_image:
+            return fig
+
         annotations = self._sort_by_z_order(item.annotations)
         categories = self.dataset.categories()
         label_categories = (
@@ -167,9 +176,6 @@ class Visualizer:
                 self._draw_func[ann.type](ann, label_categories, fig, ax, context[ann.type])
             else:
                 raise ValueError(f"Unknown ann.type={ann.type}")
-
-        ax.set_title(f"ID: {id}, Subset={subset}")
-        ax.set_axis_off()
 
         return fig
 
@@ -351,7 +357,18 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
-        raise NotImplementedError(f"{ann.type} is not implemented yet.")
+        assert (
+            len(context) == 0
+        ), "It cannot visualize more than one SuperResolutionAnnotation per item."
+
+        warnings.warn(
+            "SuperResolutionAnnotation overdraw high resolution image on top of the original image. "
+            "If you want to see the original image, set draw_only_image=True."
+        )
+
+        hi_res_img = ann.image.data
+        im = ax.imshow(hi_res_img)
+        context.append(im)
 
     def _draw_depth_annotation(
         self,
@@ -361,4 +378,13 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
-        raise NotImplementedError(f"{ann.type} is not implemented yet.")
+        assert len(context) == 0, "It cannot visualize more than one DepthAnnotation per item."
+
+        depth = ann.image.data
+
+        im = ax.imshow(depth, alpha=self.alpha)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+
+        fig.colorbar(im, cax)
+        context.append(im)
