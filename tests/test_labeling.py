@@ -16,38 +16,6 @@ from .requirements import Requirements, mark_requirement
 
 class LabelingTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_multiple_label(self):
-        label_categories = LabelCategories()
-        label_categories.add("car", parent="")
-        label_categories.add("bicycle", parent="")
-
-        dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=0,
-                    subset="train",
-                    media=Image(data=np.ones((10, 6, 3))),
-                    annotations=[
-                        Label(
-                            0,
-                            id=0,
-                        ),
-                        Label(
-                            1,
-                            id=1,
-                        ),
-                    ],
-                ),
-            ],
-            categories={
-                AnnotationType.label: label_categories,
-            },
-        )
-
-        for item in dataset:
-            self.assertEqual(len(item.annotations), 2)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_label_group(self):
         label_categories = LabelCategories()
         label_categories.add("car", parent="")
