@@ -1,4 +1,5 @@
 # Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -24,6 +25,7 @@ from .format import (
     KittiLabelMap,
     KittiPath,
     KittiTask,
+    find_or_create_background_label,
     make_kitti_categories,
     parse_label_map,
     write_label_map,
@@ -83,7 +85,6 @@ class KittiConverter(Converter):
         save_dir,
         tasks=None,
         apply_colormap=True,
-        allow_attributes=True,
         label_map=None,
         **kwargs,
     ):
@@ -105,7 +106,7 @@ class KittiConverter(Converter):
         if KittiTask.segmentation in self._tasks:
             self._load_categories(label_map)
         elif KittiTask.detection in self._tasks:
-            self._categories = {
+            self._output_categories = {
                 AnnotationType.label: self._extractor.categories().get(
                     AnnotationType.label, LabelCategories()
                 )
@@ -130,7 +131,9 @@ class KittiConverter(Converter):
                 masks = [a for a in item.annotations if a.type == AnnotationType.mask]
                 if masks and KittiTask.segmentation in self._tasks:
                     compiled_class_mask = CompiledMask.from_instance_masks(
-                        masks, instance_labels=[self._label_id_mapping(m.label) for m in masks]
+                        masks,
+                        instance_labels=[self._label_id_mapping(m.label) for m in masks],
+                        background_label_id=0,
                     )
                     color_mask_path = osp.join(
                         subset_name, KittiPath.SEMANTIC_RGB_DIR, item.id + KittiPath.MASK_EXT
@@ -155,6 +158,7 @@ class KittiConverter(Converter):
                         instance_labels=[
                             (self._label_id_mapping(m.label) << 8) + m.id for m in masks
                         ],
+                        background_label_id=0,
                     )
                     inst_path = osp.join(
                         subset_name, KittiPath.INSTANCES_DIR, item.id + KittiPath.MASK_EXT
@@ -246,14 +250,25 @@ class KittiConverter(Converter):
                 "expected one of %s or a file path" % ", ".join(t.name for t in LabelmapType)
             )
 
-        self._categories = make_kitti_categories(label_map)
+        find_or_create_background_label(label_map)
+        output_categories = make_kitti_categories(label_map)
+
+        # Update colors with assigned values
+        colormap = output_categories[AnnotationType.mask].colormap
+        for label_id, color in colormap.items():
+            label_map[output_categories[AnnotationType.label].items[label_id].name] = color
+
+        self._output_categories = output_categories
         self._label_map = label_map
         self._label_id_mapping = self._make_label_id_map()
 
     def _make_label_id_map(self):
+        src_cat: LabelCategories = self._extractor.categories().get(AnnotationType.label)
+        dst_cat: LabelCategories = self._output_categories[AnnotationType.label]
         map_id, id_mapping, src_labels, dst_labels = make_label_id_mapping(
-            self._extractor.categories().get(AnnotationType.label),
-            self._categories[AnnotationType.label],
+            src_cat,
+            dst_cat,
+            fallback=0,
         )
 
         void_labels = [
@@ -272,7 +287,9 @@ class KittiConverter(Converter):
                         src_id,
                         src_label,
                         id_mapping[src_id],
-                        self._categories[AnnotationType.label].items[id_mapping[src_id]].name,
+                        self._output_categories[AnnotationType.label]
+                        .items[id_mapping[src_id]]
+                        .name,
                     )
                     for src_id, src_label in src_labels.items()
                 ]
@@ -284,7 +301,7 @@ class KittiConverter(Converter):
     def save_mask(self, path, mask, colormap=None, apply_colormap=True, dtype=np.uint8):
         if self._apply_colormap and apply_colormap:
             if colormap is None:
-                colormap = self._categories[AnnotationType.mask].colormap
+                colormap = self._output_categories[AnnotationType.mask].colormap
             mask = paint_mask(mask, colormap)
         save_image(path, mask, create_dir=True, dtype=dtype)
 

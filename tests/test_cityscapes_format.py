@@ -578,6 +578,222 @@ class CityscapesConverterTest(TestCase):
                 target_dataset=DstExtractor(),
             )
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_dataset_with_specific_labelmap_without_bg_class_can_add_default_bg_class(self):
+        class SrcExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(
+                            np.array([[1, 0, 0, 1, 1]]),
+                            label=1,
+                            id=1,
+                            attributes={"is_crowd": False},
+                        ),
+                        Mask(
+                            np.array([[0, 1, 1, 0, 0]]),
+                            label=2,
+                            id=2,
+                            attributes={"is_crowd": False},
+                        ),
+                    ],
+                )
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map["background"] = (0, 0, 0)
+                label_map["label_1"] = (1, 2, 3)
+                label_map["label_2"] = (3, 2, 1)
+                return Cityscapes.make_cityscapes_categories(label_map)
+
+        output_label_map = OrderedDict()
+        output_label_map["label_1"] = (4, 5, 6)
+        output_label_map["label_2"] = (2, 5, 7)
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(
+                            np.array([[1, 0, 0, 1, 1]]),
+                            attributes={"is_crowd": False},
+                            id=1,
+                            label=self._label("label_1"),
+                        ),
+                        Mask(
+                            np.array([[0, 1, 1, 0, 0]]),
+                            attributes={"is_crowd": False},
+                            id=2,
+                            label=self._label("label_2"),
+                        ),
+                    ],
+                )
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map["background"] = (0, 0, 0)
+                label_map["label_1"] = (4, 5, 6)
+                label_map["label_2"] = (2, 5, 7)
+                return Cityscapes.make_cityscapes_categories(label_map)
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                SrcExtractor(),
+                partial(CityscapesConverter.convert, label_map=output_label_map, save_media=True),
+                test_dir,
+                target_dataset=DstExtractor(),
+            )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_dataset_with_specific_labelmap_with_nondefault_bg_class_color(self):
+        class SrcExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(
+                            np.array([[1, 0, 0, 1, 1]]),
+                            label=1,
+                            id=1,
+                            attributes={"is_crowd": False},
+                        ),
+                        Mask(
+                            np.array([[0, 1, 1, 0, 0]]),
+                            label=2,
+                            id=2,
+                            attributes={"is_crowd": False},
+                        ),
+                    ],
+                )
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map["background"] = (0, 0, 0)
+                label_map["label_1"] = (1, 2, 3)
+                label_map["label_2"] = (3, 2, 1)
+                return Cityscapes.make_cityscapes_categories(label_map)
+
+        output_label_map = OrderedDict()
+        output_label_map["label_1"] = (4, 5, 6)
+        output_label_map["background"] = (1, 2, 3)
+        output_label_map["label_2"] = (2, 5, 7)
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(
+                            np.array([[1, 0, 0, 1, 1]]),
+                            attributes={"is_crowd": False},
+                            id=1,
+                            label=self._label("label_1"),
+                        ),
+                        Mask(
+                            np.array([[0, 1, 1, 0, 0]]),
+                            attributes={"is_crowd": False},
+                            id=2,
+                            label=self._label("label_2"),
+                        ),
+                    ],
+                )
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map["background"] = (1, 2, 3)  # must be moved to the idx 0, no extra bg class
+                label_map["label_1"] = (4, 5, 6)
+                label_map["label_2"] = (2, 5, 7)
+                return Cityscapes.make_cityscapes_categories(label_map)
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                SrcExtractor(),
+                partial(CityscapesConverter.convert, label_map=output_label_map, save_media=True),
+                test_dir,
+                target_dataset=DstExtractor(),
+            )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_dataset_with_specific_labelmap_with_bg_class_not_at_idx_0_can_be_sorted(self):
+        class SrcExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(
+                            np.array([[1, 0, 0, 1, 1]]),
+                            label=1,
+                            id=1,
+                            attributes={"is_crowd": False},
+                        ),
+                        Mask(
+                            np.array([[0, 1, 1, 0, 0]]),
+                            label=2,
+                            id=2,
+                            attributes={"is_crowd": False},
+                        ),
+                    ],
+                )
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map["background"] = (0, 0, 0)
+                label_map["a"] = (1, 2, 3)
+                label_map["c"] = (3, 2, 1)
+                return Cityscapes.make_cityscapes_categories(label_map)
+
+        # In this case we check the background label can be moved to the idx 0 after
+        # label sorting. The labels have such names that sorting produces
+        # an invalid order: a, background, c. We expect that the background class
+        # will be moved to the index 0, as the format supposes.
+        output_label_map = OrderedDict()
+        output_label_map["c"] = (2, 5, 7)
+        output_label_map["a"] = (4, 5, 6)
+        output_label_map["background"] = (1, 2, 3)
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((1, 5, 3))),
+                    annotations=[
+                        Mask(
+                            np.array([[1, 0, 0, 1, 1]]),
+                            attributes={"is_crowd": False},
+                            id=1,
+                            label=self._label("a"),
+                        ),
+                        Mask(
+                            np.array([[0, 1, 1, 0, 0]]),
+                            attributes={"is_crowd": False},
+                            id=2,
+                            label=self._label("c"),
+                        ),
+                    ],
+                )
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map["background"] = (1, 2, 3)  # must be moved to the idx 0
+                label_map["a"] = (4, 5, 6)
+                label_map["c"] = (2, 5, 7)
+                return Cityscapes.make_cityscapes_categories(label_map)
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                SrcExtractor(),
+                partial(CityscapesConverter.convert, label_map=output_label_map, save_media=True),
+                test_dir,
+                target_dataset=DstExtractor(),
+            )
+
     @mark_requirement(Requirements.DATUM_267)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         class TestExtractor(TestExtractorBase):
@@ -641,6 +857,7 @@ class CityscapesConverterTest(TestCase):
             categories=Cityscapes.make_cityscapes_categories(
                 OrderedDict(
                     [
+                        ("background", (0, 0, 0)),
                         ("a", src_mask_cat.colormap[0]),
                         ("b", src_mask_cat.colormap[1]),
                     ]

@@ -1,11 +1,15 @@
 # Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
 from enum import Enum, auto
+from typing import Optional
 
-from datumaro.components.annotation import AnnotationType, LabelCategories, MaskCategories
+from datumaro.components.annotation import AnnotationType, LabelCategories, MaskCategories, RgbColor
+from datumaro.components.extractor import CategoriesInfo
+from datumaro.util import find
 from datumaro.util.mask_tools import generate_colormap
 
 
@@ -71,7 +75,51 @@ class KittiPath:
     DEFAULT_SCORE = 1.0
 
 
-def make_kitti_categories(label_map=None):
+DEFAULT_BACKGROUND_LABEL = "background"
+DEFAULT_BACKGROUND_COLOR = (0, 0, 0)
+
+
+def has_colors(label_map: OrderedDict) -> bool:
+    return any(v is not None for v in label_map.values())
+
+
+def find_background_label(
+    label_map: OrderedDict,
+    *,
+    name: str = DEFAULT_BACKGROUND_LABEL,
+    color: RgbColor = DEFAULT_BACKGROUND_COLOR,
+) -> Optional[str]:
+    bg_label = find(label_map.items(), lambda x: x[1] == color)
+    if bg_label is not None:
+        return bg_label[0]
+
+    if name in label_map:
+        return name
+
+    return None
+
+
+def find_or_create_background_label(
+    label_map: OrderedDict,
+    *,
+    name: str = DEFAULT_BACKGROUND_LABEL,
+    color: RgbColor = DEFAULT_BACKGROUND_COLOR,
+) -> str:
+    bg_label = find_background_label(label_map, color=color, name=name)
+
+    if bg_label is None:
+        bg_label = name
+        color = color if has_colors(label_map) else None
+        label_map[bg_label] = color
+
+    # In KITTI, the background class can only be at idx 0
+    # due to how masks are encoded
+    label_map.move_to_end(bg_label, last=False)
+
+    return bg_label
+
+
+def make_kitti_categories(label_map: Optional[OrderedDict] = None) -> CategoriesInfo:
     if label_map is None:
         label_map = KittiLabelMap
 

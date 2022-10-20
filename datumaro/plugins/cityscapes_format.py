@@ -1,4 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -8,6 +9,7 @@ import os
 import os.path as osp
 from collections import OrderedDict
 from enum import Enum, auto
+from typing import Optional
 
 import numpy as np
 
@@ -17,18 +19,24 @@ from datumaro.components.annotation import (
     LabelCategories,
     Mask,
     MaskCategories,
+    RgbColor,
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.extractor import CategoriesInfo, DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
-from datumaro.util.meta_file_util import has_meta_file, is_meta_file, parse_meta_file
+from datumaro.util.meta_file_util import (
+    has_meta_file,
+    is_meta_file,
+    parse_meta_file,
+    save_meta_file,
+)
 
 TRAIN_CITYSCAPES_LABEL_MAP = OrderedDict(
     [
@@ -110,18 +118,53 @@ class CityscapesPath:
     LABELMAP_FILE = "label_colors.txt"
 
 
-def make_cityscapes_categories(label_map=None):
+DEFAULT_BACKGROUND_LABEL = "background"
+DEFAULT_BACKGROUND_COLOR = (0, 0, 0)
+
+
+def has_colors(label_map: OrderedDict) -> bool:
+    return any(v is not None for v in label_map.values())
+
+
+def find_background_label(
+    label_map: OrderedDict,
+    *,
+    name: str = DEFAULT_BACKGROUND_LABEL,
+    color: RgbColor = DEFAULT_BACKGROUND_COLOR,
+) -> Optional[str]:
+    bg_label = find(label_map.items(), lambda x: x[1] == color)
+    if bg_label is not None:
+        return bg_label[0]
+
+    if name in label_map:
+        return name
+
+    return None
+
+
+def find_or_create_background_label(
+    label_map: OrderedDict,
+    *,
+    name: str = DEFAULT_BACKGROUND_LABEL,
+    color: RgbColor = DEFAULT_BACKGROUND_COLOR,
+) -> str:
+    bg_label = find_background_label(label_map, color=color, name=name)
+
+    if bg_label is None:
+        bg_label = name
+        color = color if has_colors(label_map) else None
+        label_map[bg_label] = color
+
+    # In Cityscapes, the background class can only be at idx 0
+    # due to how masks are encoded
+    label_map.move_to_end(bg_label, last=False)
+
+    return bg_label
+
+
+def make_cityscapes_categories(label_map: Optional[OrderedDict] = None) -> CategoriesInfo:
     if label_map is None:
         label_map = CITYSCAPES_LABEL_MAP
-
-    bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
-    if bg_label is None:
-        bg_label = "background"
-        if bg_label not in label_map:
-            has_colors = any(v is not None for v in label_map.values())
-            color = (0, 0, 0) if has_colors else None
-            label_map[bg_label] = color
-        label_map.move_to_end(bg_label, last=False)
 
     categories = {}
     label_categories = LabelCategories()
@@ -134,7 +177,9 @@ def make_cityscapes_categories(label_map=None):
         colormap = generate_colormap(len(label_map))
     else:  # only copy defined colors
         label_id = lambda label: label_categories.find(label)[0]
-        colormap = {label_id(name): (desc[0], desc[1], desc[2]) for name, desc in label_map.items()}
+        colormap = {
+            label_id(name): (color[0], color[1], color[2]) for name, color in label_map.items()
+        }
     mask_categories = MaskCategories(colormap)
     mask_categories.inverse_colormap  # pylint: disable=pointless-statement
     categories[AnnotationType.mask] = mask_categories
@@ -403,6 +448,7 @@ class CityscapesConverter(Converter):
                         for i, m in enumerate(masks)
                     ],
                     instance_labels=[self._label_id_mapping(m.label) for m in masks],
+                    background_label_id=0,
                 )
 
                 mask_dir = osp.join(self._save_dir, CityscapesPath.GT_FINE_DIR, subset_name)
@@ -425,14 +471,13 @@ class CityscapesConverter(Converter):
                 )
         self.save_label_map()
 
+    def _save_meta_file(self, path):
+        save_meta_file(path, self._output_categories)
+
     def save_label_map(self):
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
         else:
-            labels = self._extractor.categories()[AnnotationType.label]
-            if len(self._label_map) > len(labels):
-                self._label_map.pop("background")
-
             path = osp.join(self._save_dir, CityscapesPath.LABELMAP_FILE)
             write_label_map(path, self._label_map)
 
@@ -477,14 +522,25 @@ class CityscapesConverter(Converter):
                 "expected one of %s or a file path" % ", ".join(t.name for t in LabelmapType)
             )
 
-        self._categories = make_cityscapes_categories(label_map)
+        find_or_create_background_label(label_map)
+        output_categories = make_cityscapes_categories(label_map)
+
+        # Update colors with assigned values
+        colormap = output_categories[AnnotationType.mask].colormap
+        for label_id, color in colormap.items():
+            label_map[output_categories[AnnotationType.label].items[label_id].name] = color
+
+        self._output_categories = output_categories
         self._label_map = label_map
         self._label_id_mapping = self._make_label_id_map()
 
     def _make_label_id_map(self):
+        src_cat: LabelCategories = self._extractor.categories().get(AnnotationType.label)
+        dst_cat: LabelCategories = self._output_categories[AnnotationType.label]
         map_id, id_mapping, src_labels, dst_labels = make_label_id_mapping(
-            self._extractor.categories().get(AnnotationType.label),
-            self._categories[AnnotationType.label],
+            src_cat,
+            dst_cat,
+            fallback=0,
         )
 
         void_labels = [
@@ -503,7 +559,9 @@ class CityscapesConverter(Converter):
                         src_id,
                         src_label,
                         id_mapping[src_id],
-                        self._categories[AnnotationType.label].items[id_mapping[src_id]].name,
+                        self._output_categories[AnnotationType.label]
+                        .items[id_mapping[src_id]]
+                        .name,
                     )
                     for src_id, src_label in src_labels.items()
                 ]
@@ -515,7 +573,7 @@ class CityscapesConverter(Converter):
     def save_mask(self, path, mask, colormap=None, apply_colormap=True, dtype=np.uint8):
         if apply_colormap:
             if colormap is None:
-                colormap = self._categories[AnnotationType.mask].colormap
+                colormap = self._output_categories[AnnotationType.mask].colormap
             mask = paint_mask(mask, colormap)
         save_image(path, mask, create_dir=True, dtype=dtype)
 
