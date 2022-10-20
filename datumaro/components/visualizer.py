@@ -31,6 +31,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import DatasetItem
+from PIL import ImageColor
 
 CAPTION_BBOX_PAD = 0.2
 DEFAULT_COLOR_CYCLES: List[str] = [
@@ -90,6 +91,8 @@ class Visualizer:
         self.color_cycles = color_cycles if color_cycles is not None else DEFAULT_COLOR_CYCLES
         self.bbox_linewidth = bbox_linewidth
         self.text_y_offset = text_y_offset
+
+        assert 0.0 <= alpha <= 1.0, "alpha should be in [0, 1]."
         self.alpha = alpha
 
         self._draw_func = {
@@ -104,6 +107,10 @@ class Visualizer:
             AnnotationType.super_resolution_annotation: self._draw_super_resolution_annotation,
             AnnotationType.depth_annotation: self._draw_depth_annotation,
         }
+
+    def _get_color(self, ann: Annotation) -> str:
+        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        return color
 
     def _sort_by_z_order(self, annotations: List[Annotation]) -> List[Annotation]:
         def _sort_key(ann: Annotation):
@@ -175,7 +182,7 @@ class Visualizer:
         context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
-        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        color = self._get_color(ann)
 
         if len(context) == 0:
             x, y = 0.01, 0.99
@@ -200,7 +207,14 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
-        pass
+        h, w = ann.image.shape
+        mask_map = np.zeros((h, w, 4), dtype=np.uint8)
+        color = self._get_color(ann)
+        rgb_color = ImageColor.getcolor(color, "RGB")
+        mask_map[ann.image, :3] = rgb_color
+        mask_map[ann.image, 3] = int(255 * self.alpha)
+
+        ax.imshow(mask_map)
 
     def _draw_points(
         self,
@@ -211,7 +225,7 @@ class Visualizer:
         context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
-        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        color = self._get_color(ann)
         points = np.array(ann.points)
         n_points = len(points) // 2
         points = points.reshape(n_points, 2)
@@ -233,7 +247,7 @@ class Visualizer:
         context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
-        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        color = self._get_color(ann)
         points = np.array(ann.points)
         n_points = len(points) // 2
         points = points.reshape(n_points, 2)
@@ -267,7 +281,7 @@ class Visualizer:
         context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
-        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        color = self._get_color(ann)
         rect = patches.Rectangle(
             (ann.x, ann.y),
             ann.w,
