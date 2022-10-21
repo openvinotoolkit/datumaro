@@ -1,12 +1,12 @@
 # Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-
 import math
 import warnings
 from collections import defaultdict
 from typing import Iterable, List, Optional, Tuple, Union
 
+import cv2
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -98,18 +98,36 @@ class Visualizer:
         assert 0.0 <= alpha <= 1.0, "alpha should be in [0, 1]."
         self.alpha = alpha
 
-        self._draw_func = {
-            AnnotationType.label: self._draw_label,
-            AnnotationType.mask: self._draw_mask,
-            AnnotationType.points: self._draw_points,
-            AnnotationType.polygon: self._draw_polygon,
-            AnnotationType.polyline: self._draw_polygon,
-            AnnotationType.bbox: self._draw_bbox,
-            AnnotationType.caption: self._draw_caption,
-            AnnotationType.cuboid_3d: self._draw_cuboid_3d,
-            AnnotationType.super_resolution_annotation: self._draw_super_resolution_annotation,
-            AnnotationType.depth_annotation: self._draw_depth_annotation,
-        }
+    def _draw(
+        self,
+        ann: Annotation,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        if ann.type == AnnotationType.label:
+            return self._draw_label(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.mask:
+            return self._draw_mask(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.points:
+            return self._draw_points(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.polygon:
+            return self._draw_polygon(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.polyline:
+            return self._draw_polygon(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.bbox:
+            return self._draw_bbox(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.caption:
+            return self._draw_caption(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.cuboid_3d:
+            return self._draw_cuboid_3d(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.super_resolution_annotation:
+            return self._draw_super_resolution_annotation(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.depth_annotation:
+            return self._draw_depth_annotation(ann, label_categories, fig, ax, context)
+
+        raise ValueError(f"Unknown ann.type={ann.type}")
 
     def _get_color(self, ann: Annotation) -> str:
         color = self.color_cycles[ann.label % len(self.color_cycles)]
@@ -150,6 +168,7 @@ class Visualizer:
         assert item is not None, f"Cannot find id={id}, subset={subset}"
 
         img = item.media.data.astype(np.uint8)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         ax.imshow(img)
 
         ax.set_title(f"ID: {id}, Subset={subset}")
@@ -171,11 +190,7 @@ class Visualizer:
             if ann.type in self.ignored_types:
                 warnings.warn(f"{ann.type} in self.ignored_types. Skip it.")
                 continue
-
-            if ann.type in self._draw_func:
-                self._draw_func[ann.type](ann, label_categories, fig, ax, context[ann.type])
-            else:
-                raise ValueError(f"Unknown ann.type={ann.type}")
+            self._draw(ann, label_categories, fig, ax, context[ann.type])
 
         return fig
 
@@ -216,8 +231,8 @@ class Visualizer:
         h, w = ann.image.shape
         mask_map = np.zeros((h, w, 4), dtype=np.uint8)
         color = self._get_color(ann)
-        rgb_color = ImageColor.getcolor(color, "RGB")
-        mask_map[ann.image, :3] = rgb_color
+        rgba_color = (*ImageColor.getcolor(color, "RGB"), 0.0)
+        mask_map[ann.image] = rgba_color
         mask_map[ann.image, 3] = int(255 * self.alpha)
 
         ax.imshow(mask_map)

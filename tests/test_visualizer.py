@@ -40,21 +40,27 @@ class VisualizerTestBase:
         GridSizeTestCase((5, 1), (5, 1)),
     ]
 
-    def _test_vis_one_sample(self, mocked: mock.MagicMock, check_z_order: bool = True):
+    def _test_vis_one_sample(self, func_name: str, check_z_order: bool = True):
         visualizer = Visualizer(self.dataset)
 
-        for item in self.items:
-            visualizer.vis_one_sample(item.id, self.subset)
+        with mock.patch(
+            f"datumaro.components.visualizer.Visualizer.{func_name}",
+            wraps=getattr(visualizer, func_name),
+        ) as mocked:
 
-            # Check count
-            assert mocked.call_count == len(item.annotations)
+            for item in self.items:
+                fig = visualizer.vis_one_sample(item.id, self.subset)
 
-            # Check z-order
-            if check_z_order:
-                called_z_order = [call[0][0].z_order for call in mocked.call_args_list]
-                assert sorted(called_z_order) == called_z_order
+                # Check count
+                assert mocked.call_count == len(item.annotations)
 
-            mocked.reset_mock()
+                # Check z-order
+                if check_z_order:
+                    called_z_order = [call[0][0].z_order for call in mocked.call_args_list]
+                    assert sorted(called_z_order) == called_z_order
+
+                self.assertIsInstance(fig, Figure)
+                mocked.reset_mock()
 
         # Unknown id
         with self.assertRaises(Exception):
@@ -116,9 +122,8 @@ class LabelVisualizerTest(TestCase, VisualizerTestBase):
         cls.dataset = Dataset.from_iterable(cls.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @mock.patch("datumaro.components.visualizer.Visualizer._draw_label")
-    def test_vis_one_sample(self, mocked: mock.MagicMock):
-        self._test_vis_one_sample(mocked, check_z_order=False)
+    def test_vis_one_sample(self):
+        self._test_vis_one_sample("_draw_label", check_z_order=False)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
@@ -151,9 +156,8 @@ class PointsVisualizerTest(TestCase, VisualizerTestBase):
         cls.dataset = Dataset.from_iterable(cls.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @mock.patch("datumaro.components.visualizer.Visualizer._draw_points")
-    def test_vis_one_sample(self, mocked: mock.MagicMock):
-        self._test_vis_one_sample(mocked, check_z_order=True)
+    def test_vis_one_sample(self):
+        self._test_vis_one_sample("_draw_points", check_z_order=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
@@ -186,9 +190,8 @@ class MaskVisualizerTest(TestCase, VisualizerTestBase):
         cls.dataset = Dataset.from_iterable(cls.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @mock.patch("datumaro.components.visualizer.Visualizer._draw_mask")
-    def test_vis_one_sample(self, mocked: mock.MagicMock):
-        self._test_vis_one_sample(mocked, check_z_order=True)
+    def test_vis_one_sample(self):
+        self._test_vis_one_sample("_draw_mask", check_z_order=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
@@ -221,9 +224,8 @@ class PolygonVisualizerTest(TestCase, VisualizerTestBase):
         cls.dataset = Dataset.from_iterable(cls.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @mock.patch("datumaro.components.visualizer.Visualizer._draw_polygon")
-    def test_vis_one_sample(self, mocked: mock.MagicMock):
-        self._test_vis_one_sample(mocked, check_z_order=True)
+    def test_vis_one_sample(self):
+        self._test_vis_one_sample("_draw_polygon", check_z_order=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
@@ -256,9 +258,8 @@ class PolyLineVisualizerTest(TestCase, VisualizerTestBase):
         cls.dataset = Dataset.from_iterable(cls.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @mock.patch("datumaro.components.visualizer.Visualizer._draw_polygon")
-    def test_vis_one_sample(self, mocked: mock.MagicMock):
-        self._test_vis_one_sample(mocked, check_z_order=True)
+    def test_vis_one_sample(self):
+        self._test_vis_one_sample("_draw_polygon", check_z_order=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
@@ -294,9 +295,8 @@ class BboxVisualizerTest(TestCase, VisualizerTestBase):
         cls.dataset = Dataset.from_iterable(cls.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @mock.patch("datumaro.components.visualizer.Visualizer._draw_bbox")
-    def test_vis_one_sample(self, mocked: mock.MagicMock):
-        self._test_vis_one_sample(mocked)
+    def test_vis_one_sample(self):
+        self._test_vis_one_sample("_draw_bbox")
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
@@ -326,9 +326,8 @@ class CaptionVisualizerTest(TestCase, VisualizerTestBase):
         cls.dataset = Dataset.from_iterable(cls.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @mock.patch("datumaro.components.visualizer.Visualizer._draw_caption")
-    def test_vis_one_sample(self, mocked: mock.MagicMock):
-        self._test_vis_one_sample(mocked, check_z_order=False)
+    def test_vis_one_sample(self):
+        self._test_vis_one_sample("_draw_caption", check_z_order=False)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
@@ -357,9 +356,8 @@ class SuperResolutionVisualizerTest(TestCase, VisualizerTestBase):
         cls.dataset = Dataset.from_iterable(cls.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @mock.patch("datumaro.components.visualizer.Visualizer._draw_super_resolution_annotation")
-    def test_vis_one_sample(self, mocked: mock.MagicMock):
-        self._test_vis_one_sample(mocked, check_z_order=False)
+    def test_vis_one_sample(self):
+        self._test_vis_one_sample("_draw_super_resolution_annotation", check_z_order=False)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
@@ -388,9 +386,8 @@ class DepthVisualizerTest(TestCase, VisualizerTestBase):
         cls.dataset = Dataset.from_iterable(cls.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @mock.patch("datumaro.components.visualizer.Visualizer._draw_depth_annotation")
-    def test_vis_one_sample(self, mocked: mock.MagicMock):
-        self._test_vis_one_sample(mocked, check_z_order=False)
+    def test_vis_one_sample(self):
+        self._test_vis_one_sample("_draw_depth_annotation", check_z_order=False)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):
