@@ -106,6 +106,25 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
+        """
+        Draw annotation according to it's annotation type.
+
+        Parameters
+        ----------
+        ann:
+            Annotation entity to draw.
+        label_categories:
+            Categories of labels. It is used to extract label name by label id.
+        fig:
+            Pyplot Figure instance used to draw annotation.
+        ax:
+            Pyplot Axes instance used to draw annotation.
+        context:
+            It includes previously drawing history for each annotation type.
+            Currently, it is necessary to avoid drawing again over an already drawn place.
+            For example, multi label dataset has multiple Labels in a DatasetItem.
+            If we don't keep context, it has to draw Label at the same place again and again.
+        """
         if ann.type == AnnotationType.label:
             return self._draw_label(ann, label_categories, fig, ax, context)
         if ann.type == AnnotationType.mask:
