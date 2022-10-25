@@ -4,6 +4,7 @@
 
 import math
 import warnings
+from collections import defaultdict
 from typing import Iterable, List, Optional, Tuple, Union
 
 import matplotlib.patches as patches
@@ -11,11 +12,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.text import Text
 
-from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
+from datumaro.components.annotation import (
+    Annotation,
+    AnnotationType,
+    Bbox,
+    Caption,
+    Cuboid3d,
+    DepthAnnotation,
+    Label,
+    LabelCategories,
+    Mask,
+    Points,
+    Polygon,
+    PolyLine,
+    SuperResolutionAnnotation,
+)
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import DatasetItem
 
+CAPTION_BBOX_PAD = 0.2
 DEFAULT_COLOR_CYCLES: List[str] = [
     "#1f77b4",
     "#ff7f0e",
@@ -65,6 +82,7 @@ class Visualizer:
         color_cycles: Optional[List[str]] = None,
         bbox_linewidth: float = 1.0,
         text_y_offset: float = 1.5,
+        alpha: float = 1.0,
     ) -> None:
         self.dataset = dataset
         self.figsize = figsize
@@ -72,6 +90,20 @@ class Visualizer:
         self.color_cycles = color_cycles if color_cycles is not None else DEFAULT_COLOR_CYCLES
         self.bbox_linewidth = bbox_linewidth
         self.text_y_offset = text_y_offset
+        self.alpha = alpha
+
+        self._draw_func = {
+            AnnotationType.label: self._draw_label,
+            AnnotationType.mask: self._draw_mask,
+            AnnotationType.points: self._draw_points,
+            AnnotationType.polygon: self._draw_polygon,
+            AnnotationType.polyline: self._draw_polygon,
+            AnnotationType.bbox: self._draw_bbox,
+            AnnotationType.caption: self._draw_caption,
+            AnnotationType.cuboid_3d: self._draw_cuboid_3d,
+            AnnotationType.super_resolution_annotation: self._draw_super_resolution_annotation,
+            AnnotationType.depth_annotation: self._draw_depth_annotation,
+        }
 
     def _sort_by_z_order(self, annotations: List[Annotation]) -> List[Annotation]:
         def _sort_key(ann: Annotation):
@@ -118,22 +150,122 @@ class Visualizer:
             else None
         )
 
+        context = defaultdict(list)
         for ann in annotations:
             if ann.type in self.ignored_types:
                 warnings.warn(f"{ann.type} in self.ignored_types. Skip it.")
                 continue
 
-            if ann.type == AnnotationType.bbox:
-                self._draw_bbox(ann, label_categories, ax)
+            if ann.type in self._draw_func:
+                self._draw_func[ann.type](ann, label_categories, fig, ax, context[ann.type])
             else:
-                raise NotImplementedError(f"{ann.type} is not implemented yet.")
+                raise ValueError(f"Unknown ann.type={ann.type}")
 
         ax.set_title(f"ID: {id}, Subset={subset}")
         ax.set_axis_off()
 
         return fig
 
-    def _draw_bbox(self, ann: Bbox, label_categories: Optional[LabelCategories], ax: Axes):
+    def _draw_label(
+        self,
+        ann: Label,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        label_text = label_categories[ann.label].name if label_categories is not None else ann.label
+        color = self.color_cycles[ann.label % len(self.color_cycles)]
+
+        if len(context) == 0:
+            x, y = 0.01, 0.99
+        else:
+            # Draw below the previously drawn label.
+            text: Text = context[-1]
+            # We can know the position of text bbox only if drawing it actually.
+            # https://stackoverflow.com/a/41271773/16880031
+            fig.canvas.draw()
+            bbox = text.get_window_extent()
+            bbox = ax.transAxes.inverted().transform_bbox(bbox)
+            x, y = 0.01, bbox.y0
+
+        text = ax.text(x, y, label_text, ha="left", va="top", color=color, transform=ax.transAxes)
+        context.append(text)
+
+    def _draw_mask(
+        self,
+        ann: Mask,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        pass
+
+    def _draw_points(
+        self,
+        ann: Points,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        label_text = label_categories[ann.label].name if label_categories is not None else ann.label
+        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        points = np.array(ann.points)
+        n_points = len(points) // 2
+        points = points.reshape(n_points, 2)
+        visible = [viz == Points.Visibility.visible for viz in ann.visibility]
+        points = points[visible]
+
+        ax.scatter(points[:, 0], points[:, 1], color=color)
+
+        if len(points) > 0:
+            x, y, _, _ = ann.get_bbox()
+            ax.text(x, y - self.text_y_offset, label_text, color=color)
+
+    def _draw_polygon(
+        self,
+        ann: Union[Polygon, PolyLine],
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        label_text = label_categories[ann.label].name if label_categories is not None else ann.label
+        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        points = np.array(ann.points)
+        n_points = len(points) // 2
+        points = points.reshape(n_points, 2)
+
+        polyline = patches.Polygon(
+            points,
+            fill=False,
+            linewidth=self.bbox_linewidth,
+            edgecolor=color,
+        )
+        ax.add_patch(polyline)
+
+        if isinstance(ann, Polygon):
+            polygon = patches.Polygon(
+                points,
+                fill=True,
+                facecolor=color if isinstance(ann, Polygon) else "none",
+                alpha=self.alpha,
+            )
+            ax.add_patch(polygon)
+
+        x, y, _, _ = ann.get_bbox()
+        ax.text(x, y - self.text_y_offset, label_text, color=color)
+
+    def _draw_bbox(
+        self,
+        ann: Bbox,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self.color_cycles[ann.label % len(self.color_cycles)]
         rect = patches.Rectangle(
@@ -146,3 +278,73 @@ class Visualizer:
         )
         ax.text(ann.x, ann.y - self.text_y_offset, label_text, color=color)
         ax.add_patch(rect)
+
+    def _draw_caption(
+        self,
+        ann: Caption,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        if len(context) == 0:
+            x, y = 0.5, 0.01
+        else:
+            # Draw on the top of the previously drawn caption.
+            text: Text = context[-1]
+            bbox = text.get_bbox_patch()
+            # We can know the position of text bbox only if drawing it actually.
+            # https://stackoverflow.com/a/41271773/16880031
+            fig.canvas.draw()
+            drawed_bbox = bbox.get_bbox()
+            x, y = bbox.get_transform().transform(
+                [0, (1.0 + 2 * CAPTION_BBOX_PAD) * drawed_bbox.height]
+            )
+            x, y = ax.transAxes.inverted().transform([x, y])
+            x, y = 0.5, y
+
+        width = ax.transAxes.transform_point((1, 0))[0] - ax.transAxes.transform_point((0, 0))[0]
+
+        text = ax.text(
+            x,
+            y,
+            ann.caption,
+            ha="center",
+            va="bottom",
+            wrap=True,
+            transform=ax.transAxes,
+            bbox={"facecolor": "white", "alpha": self.alpha},
+        )
+        text.get_bbox_patch().set_boxstyle(f"Round,pad={CAPTION_BBOX_PAD}")
+        text._get_wrap_line_width = lambda: width
+        context.append(text)
+
+    def _draw_cuboid_3d(
+        self,
+        ann: Cuboid3d,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        raise NotImplementedError(f"{ann.type} is not implemented yet.")
+
+    def _draw_super_resolution_annotation(
+        self,
+        ann: SuperResolutionAnnotation,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        raise NotImplementedError(f"{ann.type} is not implemented yet.")
+
+    def _draw_depth_annotation(
+        self,
+        ann: DepthAnnotation,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        raise NotImplementedError(f"{ann.type} is not implemented yet.")
