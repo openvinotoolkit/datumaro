@@ -114,6 +114,9 @@ class DatasetItemStorage:
     def subsets(self):
         return self.data
 
+    def get_annotated_size(self):
+        return sum(not s.annotations for s in self._traversal_order.values())
+
     def __copy__(self):
         copied = DatasetItemStorage()
         copied._traversal_order = copy(self._traversal_order)
@@ -619,6 +622,9 @@ class DatasetStorage(IDataset):
         # and other cases
         return self._merged().subsets()
 
+    def get_annotated_size(self):
+        return self._storage.get_annotated_size()
+
     def transform(self, method: Type[Transform], *args, **kwargs):
         # Flush accumulated changes
         if not self._storage.is_empty():
@@ -807,6 +813,16 @@ class Dataset(IDataset):
         self._source_path = None
         self._options = {}
 
+    def __repr__(self) -> str:
+        return  (
+            f"Dataset(size={len(self._data)}, "
+            f"source_path={self._source_path}, "
+            f"media_type={self.media_type()}, "
+            f"annotated_count={self.get_annotated_size()}, "
+            f"subset_count={len(self.subsets())}, "
+            f"categories_count={len(self.categories())})"
+        )
+
     def define_categories(self, categories: CategoriesInfo) -> None:
         self._data.define_categories(categories)
 
@@ -833,6 +849,9 @@ class Dataset(IDataset):
 
     def get(self, id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         return self._data.get(id, subset)
+
+    def get_annotated_size(self):
+        return self._data.get_annotated_size()
 
     def __contains__(self, x: Union[DatasetItem, str, Tuple[str, str]]) -> bool:
         if isinstance(x, DatasetItem):
