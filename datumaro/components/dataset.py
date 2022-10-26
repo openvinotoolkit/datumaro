@@ -115,7 +115,7 @@ class DatasetItemStorage:
         return self.data
 
     def get_annotated_size(self):
-        return sum(not s.annotations for s in self._traversal_order.values())
+        return sum(bool(s.annotations) for s in self._traversal_order.values())
 
     def __copy__(self):
         copied = DatasetItemStorage()
