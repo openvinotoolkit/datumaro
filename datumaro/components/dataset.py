@@ -814,7 +814,7 @@ class Dataset(IDataset):
         self._options = {}
 
     def __repr__(self) -> str:
-        return  (
+        return (
             f"Dataset(size={len(self._data)}, "
             f"source_path={self._source_path}, "
             f"media_type={self.media_type()}, "
