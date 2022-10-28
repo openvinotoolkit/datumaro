@@ -55,6 +55,8 @@ weight: 3
     - [Remove](./command-reference/sources/#source-remove)
   - Utilities:
     - [Split Video](./command-reference/util/#split-video)
+- [Python API reference](./python-api-reference)
+  - [Visualizer](./python-api-reference/visualizer)
 - [Extending](./extending)
   - [Builtin plugins](./extending/#builtin-plugins)
   - [Dataset Formats](./extending/#dataset-formats)
