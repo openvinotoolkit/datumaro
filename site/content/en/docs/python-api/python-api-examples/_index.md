@@ -5,5 +5,5 @@ description: ''
 weight: 6
 ---
 
-### How to use it
+### How to use Python API
 [Need to update the description.]
