@@ -21,6 +21,7 @@ CVAT annotations                             ---> Publication, statistics etc.
 - [Features](#features)
 - [User manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual)
 - [Developer manual](https://openvinotoolkit.github.io/datumaro/api)
+- [Python API](https://openvinotoolkit.github.io/datumaro/docs/python-api)
 - [Contributing](#contributing)
 
 ## Features
