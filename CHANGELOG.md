@@ -8,16 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
+- Support for exclusive of labels with LabelGroup
+  (<https://github.com/openvinotoolkit/datumaro/pull/742>)
 - Add jupyter sample introducing how to merge datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/738>)
 - Add Visualization Python API
   - Bbox
     (<https://github.com/openvinotoolkit/datumaro/pull/744>)
-- Support for exclusive of labels with LabelGroup
-  (<https://github.com/openvinotoolkit/datumaro/pull/742>)
+  - Add Label, Points, Polygon, PolyLine, and Caption visualization features
+    (<https://github.com/openvinotoolkit/datumaro/pull/746>)
 
 ### Changed
-- N/A
+- Updated `networkx` version to 2.6
+  (<https://github.com/openvinotoolkit/datumaro/pull/749>)
 
 ### Deprecated
 - N/A
