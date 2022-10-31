@@ -1,0 +1,77 @@
+{
+    "info": {},
+    "categories": {
+        "label": {
+            "label_groups": [
+                {
+                    "name": "manmade",
+                    "group_type": "exclusive",
+                    "labels": ["car", "bicycle"]
+                },
+                {
+                    "name": "empty_group",
+                    "group_type": "empty",
+                    "labels": ["tom", "mary"]
+                }
+            ],
+            "labels": [
+                {
+                    "name": "car",
+                    "parent": "",
+                    "attributes": []
+                },
+                {
+                    "name": "bicycle",
+                    "parent": "",
+                    "attributes": []
+                },
+                {
+                    "name": "tom",
+                    "parent": "",
+                    "attributes": []
+                },
+                {
+                    "name": "mary",
+                    "parent": "",
+                    "attributes": []
+                }
+            ],
+            "attributes": []
+        }
+    },
+    "items": [
+        {
+            "id": "c",
+            "annotations": [
+                {
+                    "id": 0,
+                    "type": "label",
+                    "attributes": {
+                        "score": 1.0
+                    },
+                    "group": 0,
+                    "label_id": 1
+                },
+                {
+                    "id": 0,
+                    "type": "label",
+                    "attributes": {
+                        "score": 1.0
+                    },
+                    "group": 0,
+                    "label_id": 3
+                }
+            ],
+            "image": {
+                "path": "../tests/assets/datumaro_dataset/images/test/c.jpg",
+                "size": [
+                    10,
+                    5
+                ]
+            },
+            "media": {
+                "path": "../tests/assets/datumaro_dataset/images/test/c.jpg"
+            }
+        }
+    ]
+}
