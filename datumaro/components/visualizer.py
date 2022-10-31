@@ -79,7 +79,6 @@ class Visualizer:
     def __init__(
         self,
         dataset: IDataset,
-        draw_only_image: bool = False,
         ignored_types: Optional[Iterable[AnnotationType]] = None,
         figsize: Tuple[float, float] = (8, 6),
         color_cycles: Optional[List[str]] = None,
@@ -87,8 +86,32 @@ class Visualizer:
         text_y_offset: float = 1.5,
         alpha: float = 1.0,
     ) -> None:
+        """
+        Visualizer for Datumaro annotations
+
+        Parameters
+        ----------
+        dataset:
+            Datumaro dataset to visualize its items.
+        ignored_types:
+            Categories of labels. It is used to extract label name by label id.
+        figsize:
+            Pyplot Figure instance used to draw annotation.
+        color_cycles:
+            Color cycle corresponding to each label ID.
+            If the length of the color cycle is less than the label ID,
+            then the label ID exceeding the color cycle length is assgined by the following rule.
+            color = color_cycles[label_id % len(color_cycles)]
+        bbox_linewidth:
+            Line width for Bbox, Polygon and PolyLine annotation
+        text_y_offset:
+            Offset of y axis for texts.
+            The higher value puts the text in the upper place of the annotation.
+        alpha:
+            Transparency value when drawing annotations. It should be in [0, 1].
+            If alpha=0, we do not draw any annotations.
+        """
         self.dataset = dataset
-        self.draw_only_image = draw_only_image
         self.figsize = figsize
         self.ignored_types = set(ignored_types) if ignored_types is not None else set()
         self.color_cycles = color_cycles if color_cycles is not None else DEFAULT_COLOR_CYCLES
@@ -97,6 +120,13 @@ class Visualizer:
 
         assert 0.0 <= alpha <= 1.0, "alpha should be in [0, 1]."
         self.alpha = alpha
+
+    @property
+    def draw_only_image(self):
+        """
+        If self.alpha = 0, we do not overdraw any annotation over the image.
+        """
+        return self.alpha == 0.0
 
     def _draw(
         self,
@@ -396,12 +426,12 @@ class Visualizer:
         ), "It cannot visualize more than one SuperResolutionAnnotation per item."
 
         warnings.warn(
-            "SuperResolutionAnnotation overdraw high resolution image on top of the original image. "
-            "If you want to see the original image, set draw_only_image=True."
+            "SuperResolutionAnnotation overdraws the high-resolution image over the original image. "
+            "If you want to see the original image, set alpha=0."
         )
 
         hi_res_img = ann.image.data
-        im = ax.imshow(hi_res_img)
+        im = ax.imshow(hi_res_img, alpha=self.alpha)
         context.append(im)
 
     def _draw_depth_annotation(
