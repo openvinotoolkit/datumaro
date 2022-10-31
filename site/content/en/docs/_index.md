@@ -43,7 +43,7 @@ Basic information and sections needed for a quick start.
 
 {{% /blocks/feature %}}
 
-
+{{% blocks/feature icon="fa-book" title="[User Manual](/docs/user-manual/)" %}}
 
 This section contains documents for Datumaro users.
 
