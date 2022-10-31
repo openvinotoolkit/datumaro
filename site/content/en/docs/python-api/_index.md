@@ -6,7 +6,7 @@ weight: 3
 ---
 
 ## What is Python API
-[Need to update the description.]
+Need to update the description.
 
 ## Contents
 - [Python API examples](./python-api-examples)
