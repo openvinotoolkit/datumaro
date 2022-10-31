@@ -10,7 +10,6 @@ weight: 3
 [Need to update the description.]
 
 ## Contents
-- [Python API reference](./python-api-reference)
 - [Python API examples](./python-api-examples)
   - [Visualizer](./python-api-examples/visualizer)
   - [Filter](./python-api-examples/filter)
