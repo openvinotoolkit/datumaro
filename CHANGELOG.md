@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     (<https://github.com/openvinotoolkit/datumaro/pull/746>)
 - Add a documentation tab menu for Python API
   (<https://github.com/openvinotoolkit/datumaro/pull/753>)
+- Add __repr__ for Dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/750>)
 
 ### Changed
 - Updated `networkx` version to 2.6
