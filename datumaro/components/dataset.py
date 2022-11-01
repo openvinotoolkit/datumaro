@@ -869,7 +869,7 @@ class Dataset(IDataset):
     def get_subset_info(self):
         return (
             f"{subset_name}: # of items={len(self.get_subset(subset_name))}, "
-            f"# of annotations={self.get_subset(subset_name).get_annotated_size()}, "
+            f"# of annotated={self.get_subset(subset_name).get_annotated_size()}, "
             f"annotation types={self.get_subset(subset_name).get_annotated_type()}\n"
             for subset_name in sorted(self.subsets().keys())
         )
