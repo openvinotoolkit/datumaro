@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/742>)
 - Add jupyter sample introducing how to merge datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/738>)
+  - introducing how to filter dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/748>)
 - Add Visualization Python API
   - Bbox
     (<https://github.com/openvinotoolkit/datumaro/pull/744>)
@@ -19,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     (<https://github.com/openvinotoolkit/datumaro/pull/746>)
 - Add a documentation tab menu for Python API
   (<https://github.com/openvinotoolkit/datumaro/pull/753>)
+- Add `__repr__` for Dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/750>)
 
 ### Changed
 - N/A
