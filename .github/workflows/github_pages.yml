@@ -38,14 +38,16 @@ jobs:
           pip install --upgrade pip
 
       # click>=8.1.0 fails https://github.com/streamlit/streamlit/issues/4555
+      # markupsafe>=2.1.1 fails https://github.com/aws/aws-sam-cli/issues/3661
       - name: Build docs
         run: |
           pip install \
-            'click<8.1' \
+            'click<8.1' 'markupsafe<2.1.0' \
             gitpython packaging toml Sphinx==4.2.0 sphinx-rtd-theme==1.0.0 sphinx-copybutton==0.4.0 \
             tensorflow openvino-dev sphinxcontrib-mermaid
           pip install -r requirements.txt
-          pip install 'click<8.1' git+https://github.com/pytorch-ignite/sphinxcontrib-versioning.git@a1a1a94ca80a0233f0df3eaf9876812484901e76
+          pip install 'click<8.1' 'markupsafe<2.1.0' \
+            git+https://github.com/pytorch-ignite/sphinxcontrib-versioning.git@a1a1a94ca80a0233f0df3eaf9876812484901e76
           sphinx-versioning -l site/source/conf.py build -r develop -w develop site/source site/static/api
           python site/build_docs.py
 
