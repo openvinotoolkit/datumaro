@@ -114,8 +114,15 @@ class DatasetItemStorage:
     def subsets(self):
         return self.data
 
-    def get_annotated_size(self):
+    def get_annotated_items(self):
         return sum(bool(s.annotations) for s in self._traversal_order.values())
+
+    def get_annotations(self):
+        annotations_by_type = {t.name: {"count": 0} for t in AnnotationType}
+        for item in self._traversal_order.values():
+            for ann in item.annotations:
+                annotations_by_type[ann.type.name]["count"] += 1
+        return sum(t["count"] for t in annotations_by_type.values())
 
     def __copy__(self):
         copied = DatasetItemStorage()
@@ -282,8 +289,15 @@ class DatasetSubset(IDataset):  # non-owning view
     def media_type(self):
         return self.parent.media_type()
 
-    def get_annotated_size(self):
+    def get_annotated_items(self):
         return sum(bool(s.annotations) for s in self.parent._data.get_subset(self.name))
+
+    def get_annotations(self):
+        annotations_by_type = {t.name: {"count": 0} for t in AnnotationType}
+        for item in self.parent._data.get_subset(self.name):
+            for ann in item.annotations:
+                annotations_by_type[ann.type.name]["count"] += 1
+        return sum(t["count"] for t in annotations_by_type.values())
 
     def get_annotated_type(self):
         annotation_types = []
@@ -631,8 +645,11 @@ class DatasetStorage(IDataset):
         # and other cases
         return self._merged().subsets()
 
-    def get_annotated_size(self):
-        return self._storage.get_annotated_size()
+    def get_annotated_items(self):
+        return self._storage.get_annotated_items()
+
+    def get_annotations(self):
+        return self._storage.get_annotations()
 
     def transform(self, method: Type[Transform], *args, **kwargs):
         # Flush accumulated changes
@@ -829,7 +846,8 @@ class Dataset(IDataset):
             f"\tsize={len(self._data)}\n"
             f"\tsource_path={self._source_path}\n"
             f"\tmedia_type={self.media_type()}\n"
-            f"\tannotated_count={self.get_annotated_size()}\n"
+            f"\tannotated_items_count={self.get_annotated_items()}\n"
+            f"\tannotations_count={self.get_annotations()}\n"
             f"subsets\n"
             f"\t{separator.join(self.get_subset_info())}"
             f"categories\n"
@@ -863,13 +881,17 @@ class Dataset(IDataset):
     def get(self, id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         return self._data.get(id, subset)
 
-    def get_annotated_size(self):
-        return self._data.get_annotated_size()
+    def get_annotated_items(self):
+        return self._data.get_annotated_items()
+
+    def get_annotations(self):
+        return self._data.get_annotations()
 
     def get_subset_info(self):
         return (
             f"{subset_name}: # of items={len(self.get_subset(subset_name))}, "
-            f"# of annotated={self.get_subset(subset_name).get_annotated_size()}, "
+            f"# of annotated items={self.get_subset(subset_name).get_annotated_items()}, "
+            f"# of annotations={self.get_subset(subset_name).get_annotations()}, "
             f"annotation types={self.get_subset(subset_name).get_annotated_type()}\n"
             for subset_name in sorted(self.subsets().keys())
         )
