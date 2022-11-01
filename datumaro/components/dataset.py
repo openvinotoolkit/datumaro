@@ -114,6 +114,9 @@ class DatasetItemStorage:
     def subsets(self):
         return self.data
 
+    def get_annotated_size(self):
+        return sum(bool(s.annotations) for s in self._traversal_order.values())
+
     def __copy__(self):
         copied = DatasetItemStorage()
         copied._traversal_order = copy(self._traversal_order)
@@ -278,6 +281,15 @@ class DatasetSubset(IDataset):  # non-owning view
 
     def media_type(self):
         return self.parent.media_type()
+
+    def get_annotated_size(self):
+        return sum(bool(s.annotations) for s in self.parent._data.get_subset(self.name))
+
+    def get_annotated_type(self):
+        annotation_types = []
+        for item in self.parent._data.get_subset(self.name):
+            annotation_types.extend([str(anno.type).split(".")[-1] for anno in item.annotations])
+        return list(set(annotation_types))
 
     def as_dataset(self) -> Dataset:
         return Dataset.from_extractors(self, env=self.parent.env)
@@ -619,6 +631,9 @@ class DatasetStorage(IDataset):
         # and other cases
         return self._merged().subsets()
 
+    def get_annotated_size(self):
+        return self._storage.get_annotated_size()
+
     def transform(self, method: Type[Transform], *args, **kwargs):
         # Flush accumulated changes
         if not self._storage.is_empty():
@@ -807,6 +822,20 @@ class Dataset(IDataset):
         self._source_path = None
         self._options = {}
 
+    def __repr__(self) -> str:
+        separator = "\t"
+        return (
+            f"Dataset\n"
+            f"\tsize={len(self._data)}\n"
+            f"\tsource_path={self._source_path}\n"
+            f"\tmedia_type={self.media_type()}\n"
+            f"\tannotated_count={self.get_annotated_size()}\n"
+            f"subsets\n"
+            f"\t{separator.join(self.get_subset_info())}"
+            f"categories\n"
+            f"\t{separator.join(self.get_categories_info())}"
+        )
+
     def define_categories(self, categories: CategoriesInfo) -> None:
         self._data.define_categories(categories)
 
@@ -833,6 +862,28 @@ class Dataset(IDataset):
 
     def get(self, id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         return self._data.get(id, subset)
+
+    def get_annotated_size(self):
+        return self._data.get_annotated_size()
+
+    def get_subset_info(self):
+        return (
+            f"{subset_name}: # of items={len(self.get_subset(subset_name))}, "
+            f"# of annotations={self.get_subset(subset_name).get_annotated_size()}, "
+            f"annotation types={self.get_subset(subset_name).get_annotated_type()}\n"
+            for subset_name in sorted(self.subsets().keys())
+        )
+
+    def get_categories_info(self):
+        category_dict = {}
+        for annotation_type, category in self.categories().items():
+            if isinstance(category, LabelCategories):
+                category_names = list(category._indices.keys())
+                category_dict[annotation_type] = category_names
+        return (
+            f"{str(annotation_type).split('.')[-1]}: {list(category_dict.get(annotation_type, []))}\n"
+            for annotation_type in self.categories().keys()
+        )
 
     def __contains__(self, x: Union[DatasetItem, str, Tuple[str, str]]) -> bool:
         if isinstance(x, DatasetItem):
