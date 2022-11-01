@@ -21,8 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/753>)
 
 ### Changed
-- Updated `networkx` version to 2.6
-  (<https://github.com/openvinotoolkit/datumaro/pull/749>)
+- N/A
 
 ### Deprecated
 - N/A
