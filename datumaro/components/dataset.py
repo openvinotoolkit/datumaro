@@ -288,7 +288,7 @@ class DatasetSubset(IDataset):  # non-owning view
     def get_annotated_type(self):
         annotation_types = []
         for item in self.parent._data.get_subset(self.name):
-            annotation_types.extend([str(anno.type).split('.')[-1] for anno in item.annotations])
+            annotation_types.extend([str(anno.type).split(".")[-1] for anno in item.annotations])
         return list(set(annotation_types))
 
     def as_dataset(self) -> Dataset:
@@ -823,6 +823,7 @@ class Dataset(IDataset):
         self._options = {}
 
     def __repr__(self) -> str:
+        separator = "\t"
         return (
             f"Dataset\n"
             f"\tsize={len(self._data)}\n"
@@ -830,9 +831,9 @@ class Dataset(IDataset):
             f"\tmedia_type={self.media_type()}\n"
             f"\tannotated_count={self.get_annotated_size()}\n"
             f"subsets\n"
-            f"{self.get_subset_info()}"
+            f"\t{separator.join(self.get_subset_info())}"
             f"categories\n"
-            f"{self.get_categories_info()}"
+            f"\t{separator.join(self.get_categories_info())}"
         )
 
     def define_categories(self, categories: CategoriesInfo) -> None:
@@ -866,17 +867,23 @@ class Dataset(IDataset):
         return self._data.get_annotated_size()
 
     def get_subset_info(self):
-        return "".join(f"\t{subset_name}: # of items={len(self.get_subset(subset_name))}, "
-                        f"# of annotations={self.get_subset(subset_name).get_annotated_size()}, "
-                        f"annotation types={self.get_subset(subset_name).get_annotated_type()}\n" for subset_name in sorted(self.subsets().keys()))
-    
+        return (
+            f"{subset_name}: # of items={len(self.get_subset(subset_name))}, "
+            f"# of annotations={self.get_subset(subset_name).get_annotated_size()}, "
+            f"annotation types={self.get_subset(subset_name).get_annotated_type()}\n"
+            for subset_name in sorted(self.subsets().keys())
+        )
+
     def get_categories_info(self):
         category_dict = {}
         for annotation_type, category in self.categories().items():
             if isinstance(category, LabelCategories):
                 category_names = list(category._indices.keys())
-                category_dict[annotation_type]=category_names
-        return "".join(f"\t{str(annotation_type).split('.')[-1]}: {list(category_dict.get(annotation_type, []))}\n" for annotation_type in self.categories().keys())
+                category_dict[annotation_type] = category_names
+        return (
+            f"{str(annotation_type).split('.')[-1]}: {list(category_dict.get(annotation_type, []))}\n"
+            for annotation_type in self.categories().keys()
+        )
 
     def __contains__(self, x: Union[DatasetItem, str, Tuple[str, str]]) -> bool:
         if isinstance(x, DatasetItem):
