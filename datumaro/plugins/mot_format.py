@@ -1,4 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2022 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -130,8 +131,8 @@ class MotSeqExtractor(SourceExtractor):
 
         if self._seq_info:
             for frame_id in range(1, self._seq_info["seqlength"] + 1):  # base-1 frame ids
-                items[frame_id] = DatasetItem(
-                    id=frame_id,
+                items[str(frame_id)] = DatasetItem(
+                    id=str(frame_id),
                     subset=self._subset,
                     media=Image(
                         path=osp.join(
@@ -142,7 +143,7 @@ class MotSeqExtractor(SourceExtractor):
                 )
         elif osp.isdir(self._image_dir):
             for p in find_images(self._image_dir):
-                frame_id = int(osp.splitext(osp.relpath(p, self._image_dir))[0])
+                frame_id = osp.splitext(osp.relpath(p, self._image_dir))[0]
                 items[frame_id] = DatasetItem(id=frame_id, subset=self._subset, media=Image(path=p))
 
         with open(path, newline="", encoding="utf-8") as csv_file:
@@ -151,9 +152,13 @@ class MotSeqExtractor(SourceExtractor):
             # - all extra fields go to a separate field
             # - all unmet fields have None values
             for row in csv.DictReader(csv_file, fieldnames=MotPath.FIELDS):
-                frame_id = int(row["frame_id"])
+                frame_id = row["frame_id"]
                 item = items.get(frame_id)
                 if item is None:
+                    frame_id = "%06d" % int(frame_id)
+                    item = items.get(frame_id)
+                if item is None:
+                    frame_id = row["frame_id"]
                     item = DatasetItem(id=frame_id, subset=self._subset)
                 annotations = item.annotations
 
@@ -278,7 +283,7 @@ class MotSeqGtConverter(Converter):
 
                 if self._save_media:
                     if item.media and item.media.has_data:
-                        self._save_image(item, subdir=image_dir, name="%06d" % frame_id)
+                        self._save_image(item, subdir=image_dir, name=item.id)
                     else:
                         log.debug("Item '%s' has no image", item.id)
 

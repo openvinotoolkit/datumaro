@@ -230,7 +230,7 @@ class VocIntegrationScenarios(TestCase):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="1",
+                    id="000001",
                     subset="default",
                     media=Image(data=np.ones((16, 16, 3))),
                     annotations=[
@@ -257,7 +257,11 @@ class VocIntegrationScenarios(TestCase):
         )
 
         mot_dir = osp.join(
-            __file__[: __file__.rfind(osp.join("tests", ""))], "tests", "assets", "mot_dataset"
+            __file__[: __file__.rfind(osp.join("tests", ""))],
+            "tests",
+            "assets",
+            "mot_dataset",
+            "mot_seq",
         )
         with TestDir() as test_dir:
             voc_dir = osp.join(test_dir, "voc")

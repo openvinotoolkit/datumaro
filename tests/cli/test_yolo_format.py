@@ -60,13 +60,21 @@ class YoloIntegrationScenarios(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_mot_as_yolo(self):
         target_dataset = Dataset.from_iterable(
-            [DatasetItem(id="1", subset="train", annotations=[Bbox(0.0, 4.0, 4.0, 8.0, label=2)])],
+            [
+                DatasetItem(
+                    id="000001", subset="train", annotations=[Bbox(0.0, 4.0, 4.0, 8.0, label=2)]
+                )
+            ],
             categories=["label_" + str(i) for i in range(10)],
         )
 
         with TestDir() as test_dir:
             mot_dir = osp.join(
-                __file__[: __file__.rfind(osp.join("tests", ""))], "tests", "assets", "mot_dataset"
+                __file__[: __file__.rfind(osp.join("tests", ""))],
+                "tests",
+                "assets",
+                "mot_dataset",
+                "mot_seq",
             )
 
             run(self, "create", "-o", test_dir)
