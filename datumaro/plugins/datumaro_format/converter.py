@@ -268,9 +268,13 @@ class _SubsetWriter:
     def _convert_attribute_categories(self, attributes):
         return sorted(attributes)
 
+    def _convert_labels_label_groups(self, labels):
+        return sorted(labels)
+
     def _convert_label_categories(self, obj):
         converted = {
             "labels": [],
+            "label_groups": [],
             "attributes": self._convert_attribute_categories(obj.attributes),
         }
         for label in obj.items:
@@ -279,6 +283,14 @@ class _SubsetWriter:
                     "name": cast(label.name, str),
                     "parent": cast(label.parent, str),
                     "attributes": self._convert_attribute_categories(label.attributes),
+                }
+            )
+        for label_group in obj.label_groups:
+            converted["label_groups"].append(
+                {
+                    "name": cast(label_group.name, str),
+                    "group_type": cast(label_group.group_type, str),
+                    "labels": self._convert_labels_label_groups(label_group.labels),
                 }
             )
         return converted
