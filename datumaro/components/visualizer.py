@@ -1,18 +1,20 @@
 # Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-
 import math
 import warnings
 from collections import defaultdict
 from typing import Iterable, List, Optional, Tuple, Union
 
+import cv2
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.text import Text
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from PIL import ImageColor
 
 from datumaro.components.annotation import (
     Annotation,
@@ -84,26 +86,101 @@ class Visualizer:
         text_y_offset: float = 1.5,
         alpha: float = 1.0,
     ) -> None:
+        """
+        Visualizer for Datumaro annotations
+
+        Parameters
+        ----------
+        dataset:
+            Datumaro dataset to visualize its items.
+        ignored_types:
+            Categories of labels. It is used to extract label name by label id.
+        figsize:
+            Pyplot Figure instance used to draw annotation.
+        color_cycles:
+            Color cycle corresponding to each label ID.
+            If the length of the color cycle is less than the label ID,
+            then the label ID exceeding the color cycle length is assgined by the following rule.
+            color = color_cycles[label_id % len(color_cycles)]
+        bbox_linewidth:
+            Line width for Bbox, Polygon and PolyLine annotation
+        text_y_offset:
+            Offset of y axis for texts.
+            The higher value puts the text in the upper place of the annotation.
+        alpha:
+            Transparency value when drawing annotations. It should be in [0, 1].
+            If alpha=0, we do not draw any annotations.
+        """
         self.dataset = dataset
         self.figsize = figsize
         self.ignored_types = set(ignored_types) if ignored_types is not None else set()
         self.color_cycles = color_cycles if color_cycles is not None else DEFAULT_COLOR_CYCLES
         self.bbox_linewidth = bbox_linewidth
         self.text_y_offset = text_y_offset
+
+        assert 0.0 <= alpha <= 1.0, "alpha should be in [0, 1]."
         self.alpha = alpha
 
-        self._draw_func = {
-            AnnotationType.label: self._draw_label,
-            AnnotationType.mask: self._draw_mask,
-            AnnotationType.points: self._draw_points,
-            AnnotationType.polygon: self._draw_polygon,
-            AnnotationType.polyline: self._draw_polygon,
-            AnnotationType.bbox: self._draw_bbox,
-            AnnotationType.caption: self._draw_caption,
-            AnnotationType.cuboid_3d: self._draw_cuboid_3d,
-            AnnotationType.super_resolution_annotation: self._draw_super_resolution_annotation,
-            AnnotationType.depth_annotation: self._draw_depth_annotation,
-        }
+    @property
+    def draw_only_image(self):
+        """
+        If self.alpha = 0, we do not overdraw any annotation over the image.
+        """
+        return self.alpha == 0.0
+
+    def _draw(
+        self,
+        ann: Annotation,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        """
+        Draw annotation according to it's annotation type.
+
+        Parameters
+        ----------
+        ann:
+            Annotation entity to draw.
+        label_categories:
+            Categories of labels. It is used to extract label name by label id.
+        fig:
+            Pyplot Figure instance used to draw annotation.
+        ax:
+            Pyplot Axes instance used to draw annotation.
+        context:
+            It includes previously drawing history for each annotation type.
+            Currently, it is necessary to avoid drawing again over an already drawn place.
+            For example, multi label dataset has multiple Labels in a DatasetItem.
+            If we don't keep context, it has to draw Label at the same place again and again.
+        """
+        if ann.type == AnnotationType.label:
+            return self._draw_label(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.mask:
+            return self._draw_mask(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.points:
+            return self._draw_points(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.polygon:
+            return self._draw_polygon(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.polyline:
+            return self._draw_polygon(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.bbox:
+            return self._draw_bbox(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.caption:
+            return self._draw_caption(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.cuboid_3d:
+            return self._draw_cuboid_3d(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.super_resolution_annotation:
+            return self._draw_super_resolution_annotation(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.depth_annotation:
+            return self._draw_depth_annotation(ann, label_categories, fig, ax, context)
+
+        raise ValueError(f"Unknown ann.type={ann.type}")
+
+    def _get_color(self, ann: Annotation) -> str:
+        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        return color
 
     def _sort_by_z_order(self, annotations: List[Annotation]) -> List[Annotation]:
         def _sort_key(ann: Annotation):
@@ -140,7 +217,14 @@ class Visualizer:
         assert item is not None, f"Cannot find id={id}, subset={subset}"
 
         img = item.media.data.astype(np.uint8)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         ax.imshow(img)
+
+        ax.set_title(f"ID: {id}, Subset={subset}")
+        ax.set_axis_off()
+
+        if self.draw_only_image:
+            return fig
 
         annotations = self._sort_by_z_order(item.annotations)
         categories = self.dataset.categories()
@@ -155,14 +239,7 @@ class Visualizer:
             if ann.type in self.ignored_types:
                 warnings.warn(f"{ann.type} in self.ignored_types. Skip it.")
                 continue
-
-            if ann.type in self._draw_func:
-                self._draw_func[ann.type](ann, label_categories, fig, ax, context[ann.type])
-            else:
-                raise ValueError(f"Unknown ann.type={ann.type}")
-
-        ax.set_title(f"ID: {id}, Subset={subset}")
-        ax.set_axis_off()
+            self._draw(ann, label_categories, fig, ax, context[ann.type])
 
         return fig
 
@@ -175,7 +252,7 @@ class Visualizer:
         context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
-        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        color = self._get_color(ann)
 
         if len(context) == 0:
             x, y = 0.01, 0.99
@@ -200,7 +277,14 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
-        pass
+        h, w = ann.image.shape
+        mask_map = np.zeros((h, w, 4), dtype=np.uint8)
+        color = self._get_color(ann)
+        rgba_color = (*ImageColor.getcolor(color, "RGB"), 0.0)
+        mask_map[ann.image] = rgba_color
+        mask_map[ann.image, 3] = int(255 * self.alpha)
+
+        ax.imshow(mask_map)
 
     def _draw_points(
         self,
@@ -211,7 +295,7 @@ class Visualizer:
         context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
-        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        color = self._get_color(ann)
         points = np.array(ann.points)
         n_points = len(points) // 2
         points = points.reshape(n_points, 2)
@@ -233,7 +317,7 @@ class Visualizer:
         context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
-        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        color = self._get_color(ann)
         points = np.array(ann.points)
         n_points = len(points) // 2
         points = points.reshape(n_points, 2)
@@ -267,7 +351,7 @@ class Visualizer:
         context: List,
     ) -> None:
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
-        color = self.color_cycles[ann.label % len(self.color_cycles)]
+        color = self._get_color(ann)
         rect = patches.Rectangle(
             (ann.x, ann.y),
             ann.w,
@@ -337,7 +421,18 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
-        raise NotImplementedError(f"{ann.type} is not implemented yet.")
+        assert (
+            len(context) == 0
+        ), "It cannot visualize more than one SuperResolutionAnnotation per item."
+
+        warnings.warn(
+            "SuperResolutionAnnotation overdraws the high-resolution image over the original image. "
+            "If you want to see the original image, set alpha=0."
+        )
+
+        hi_res_img = ann.image.data
+        im = ax.imshow(hi_res_img, alpha=self.alpha)
+        context.append(im)
 
     def _draw_depth_annotation(
         self,
@@ -347,4 +442,13 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
-        raise NotImplementedError(f"{ann.type} is not implemented yet.")
+        assert len(context) == 0, "It cannot visualize more than one DepthAnnotation per item."
+
+        depth = ann.image.data
+
+        im = ax.imshow(depth, alpha=self.alpha)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+
+        fig.colorbar(im, cax)
+        context.append(im)
