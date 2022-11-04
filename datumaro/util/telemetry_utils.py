@@ -18,20 +18,20 @@ except ImportError:
 
 
 def _get_action_name(command):
-    if command is contexts.project.export_command:
-        return "project_export_result"
-    elif command is contexts.project.filter_command:
-        return "project_filter_result"
-    elif command is contexts.project.transform_command:
-        return "project_transform_result"
-    elif command is contexts.project.info_command:
+    if command is contexts.project.info_command:
         return "project_info_result"
     elif command is contexts.project.stats_command:
         return "project_stats_result"
-    elif command is contexts.project.validate_command:
-        return "project_validate_result"
     elif command is contexts.project.migrate_command:
         return "project_migrate_result"
+    elif command is contexts.project.export_command:
+        return "project_export_result"
+    elif command is commands.validate.validate_command:
+        return "project_validate_result"
+    elif command is commands.filter.filter_command:
+        return "project_filter_result"
+    elif command is commands.transform.transform_command:
+        return "project_transform_result"
     elif command is contexts.source.import_command:
         return "source_add_result"
     elif command is contexts.source.remove_command:
