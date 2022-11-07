@@ -25,7 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/753>)
 - Add `__repr__` for Dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/750>)
-
+- Add CodeCov coverage reporting feature to CI/CD
+  (<https://github.com/openvinotoolkit/datumaro/pull/756>)
 ### Changed
 - N/A
 
