@@ -19,13 +19,6 @@ jobs:
       matrix:
         os: ['macos-10.15', 'ubuntu-20.04', 'windows-2019']
         python-version: ['3.7', '3.8', '3.9', '3.10']
-        include:
-          - codecov-os: 'macos'
-            os: 'macos-10.15'
-          - codecov-os: 'linux'
-            os: 'ubuntu-20.04'
-          - codecov-os: 'windows'
-            os: 'windows-2019'
     name: build and test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -36,15 +29,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install -e '.[default,tf,tfds]' pytest
+          pip install -e '.[default,tf,tfds]' pytest pytest-cov
       - name: Unit testing
         run: |
           pytest -v --cov
           datum -h
       - name: Upload coverage reports to Codecov
-        run: |
-          # Replace `linux` below with the appropriate OS
-          # Options are `alpine`, `linux`, `macos`, `windows`
-          curl -Os https://uploader.codecov.io/latest/${{ matrix.codecov-os }}/codecov
-          chmod +x codecov
-          ./codecov -t ${{ secrets.CODECOV_TOKEN }}
+        uses: codecov/codecov-action@v3
