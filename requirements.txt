@@ -20,3 +20,5 @@ black>=22.1.0
 
 # docs
 markupsafe==2.0.1
+nbconvert>=7.2.3
+ipython>=8.4.0

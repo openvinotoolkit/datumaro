@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import shutil
 import subprocess
 import tarfile
@@ -75,8 +76,30 @@ def generate_docs(repo, output_dir, tags):
     with tempfile.TemporaryDirectory() as temp_dir:
         content_loc = Path(temp_dir, "site")
         shutil.copytree(repo_root / "site", content_loc, symlinks=True)
+        nb_loc = content_loc / "notebooks"
+        shutil.copytree(repo_root / "notebooks", nb_loc, symlinks=True)
 
         def run_hugo(destination_dir):
+            nb_out_dir = os.path.join(
+                str(content_loc),
+                "content",
+                "en",
+                "docs",
+                "python-api",
+                "python-api-examples",
+                "nb_htmls",
+            )
+            for f in os.listdir(str(nb_loc)):
+                ext = os.path.splitext(f)[-1]
+                if ext != ".ipynb":
+                    continue
+                nb_path = str(nb_loc / f)
+                subprocess.run(
+                    ["jupyter", "nbconvert", "--to", "html", nb_path, "--output-dir", nb_out_dir],
+                    cwd=content_loc,
+                    check=True,
+                )
+
             subprocess.run(  # nosec B603, B607
                 [
                     "hugo",

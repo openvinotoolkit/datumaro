@@ -7,4 +7,5 @@ description: ''
 Need to update the description.
 
 Jupyter Notebook Examples:
-Need to update the description.
+({{ .Site.Params.github_repo }})
+{{< blocks/notebook 03_visualize >}}
