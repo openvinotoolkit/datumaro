@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'master'
+      - 'develop'
   pull_request:
     types: [edited, ready_for_review, opened, synchronize, reopened]
 defaults:
@@ -29,8 +30,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install -e '.[default,tf,tfds]' pytest
+          pip install -e '.[default,tf,tfds]' pytest pytest-cov
       - name: Unit testing
         run: |
-          pytest -v
+          pytest -v --cov
           datum -h
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: ${{ matrix.os }}_Python-${{ matrix.python-version }}

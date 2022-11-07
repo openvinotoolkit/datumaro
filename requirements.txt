@@ -9,6 +9,7 @@ openvino-telemetry>=2022.1.0
 
 # testing
 pytest>=5.3.5
+pytest-cov>=4.0.0
 
 # linters
 bandit>=1.7.0
