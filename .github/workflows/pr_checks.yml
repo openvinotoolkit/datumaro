@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'master'
+      - 'develop'
   pull_request:
     types: [edited, ready_for_review, opened, synchronize, reopened]
 defaults:
@@ -36,3 +37,5 @@ jobs:
           datum -h
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          flags: ${{ matrix.os }}, Python ${{ matrix.python-version }}
