@@ -94,7 +94,7 @@ def generate_docs(repo, output_dir, tags):
                 if ext != ".ipynb":
                     continue
                 nb_path = str(nb_loc / f)
-                subprocess.run(
+                subprocess.run(  # nosec B603, B607
                     ["jupyter", "nbconvert", "--to", "html", nb_path, "--output-dir", nb_out_dir],
                     cwd=content_loc,
                     check=True,
