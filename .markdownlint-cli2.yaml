@@ -1,8 +1,12 @@
 config:
   list-item-indent: space
   no-dead-urls: false
-  maximum-line-length: 100
-  maximum-heading-length: 120
+  # MD013/line-length - Line length
+  MD013:
+    # Number of characters
+    line_length: 100
+    # Number of characters for headings
+    heading_line_length: 120
   strong-marker: "*"
   emphasis-marker: "_"
   unordered-list-marker-style: "-"
@@ -12,3 +16,4 @@ config:
 
 globs:
   - '**/*.md'
+  - '!tests/*.md'
