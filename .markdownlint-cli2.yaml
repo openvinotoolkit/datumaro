@@ -11,5 +11,5 @@ config:
   list-item-spacing: false
 
 globs:
-  - "**/*.md"
-  - !"tests/*"
+  - '**/*.md'
+  - !tests/*
