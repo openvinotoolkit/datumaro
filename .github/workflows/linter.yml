@@ -69,8 +69,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: DavidAnson/markdownlint-cli2-action@v7
-        with:
-          globs: '**/*.md'
   whitespace:
     runs-on: ubuntu-latest
     steps:

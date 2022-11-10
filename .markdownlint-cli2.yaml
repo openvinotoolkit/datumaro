@@ -1,0 +1,15 @@
+config:
+  list-item-indent: space
+  no-dead-urls: false
+  maximum-line-length: 100
+  maximum-heading-length: 120
+  strong-marker: *
+  emphasis-marker: _
+  unordered-list-marker-style: -
+  ordered-list-marker-style: .
+  no-file-name-irregular-characters: false
+  list-item-spacing: false
+
+globs:
+  - "**/*.md"
+  - !"tests/*"
