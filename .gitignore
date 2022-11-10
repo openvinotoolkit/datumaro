@@ -65,6 +65,7 @@ site/public/
 site/resources/
 site/node_modules/
 site/tech-doc-hugo
+site/**/nb_htmls/*.html
 
 # Temporary sphinx files
 site/static/api

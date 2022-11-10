@@ -7,4 +7,4 @@ description: ''
 Need to update the description.
 
 Jupyter Notebook Examples:
-Need to update the description.
+{{< blocks/notebook 03_visualize >}}

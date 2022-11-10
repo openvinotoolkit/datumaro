@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/750>)
 - Add CodeCov coverage reporting feature to CI/CD
   (<https://github.com/openvinotoolkit/datumaro/pull/756>)
+- Add jupyter notebook example rendering to documentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/758>)
 
 ### Changed
 - N/A
