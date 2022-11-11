@@ -105,7 +105,6 @@ think something needs to be changed. You are welcome to participate in
 development, instructions are available in our
 [contribution guide](https://openvinotoolkit.github.io/datumaro/docs/contributing).
 
-
 ## Telemetry data collection note
 
 The [OpenVINO™ telemetry library](https://github.com/openvinotoolkit/telemetry/)
