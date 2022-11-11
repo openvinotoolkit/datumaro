@@ -37,7 +37,6 @@ Parameters:
 - `<extra args>` - Additional arguments for the model launcher
   (use `-- -h` for help). Must be specified after the main command arguments.
 
-
 Example: register an OpenVINO model
 
 A model consists of a graph description and weights. There is also a script
@@ -142,7 +141,6 @@ Parameters:
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
 - `-h, --help` - Print the help message and exit.
-
 
 Example: launch inference on a dataset
 

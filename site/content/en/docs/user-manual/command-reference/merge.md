@@ -103,7 +103,6 @@ Parameters:
 - `-- <extra format args>` - Additional arguments for the format writer
   (use `-- -h` for help). Must be specified after the main command arguments.
 
-
 Examples:
 
 Merge 4 (partially-)intersecting projects,

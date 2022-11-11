@@ -48,7 +48,6 @@ Parameters:
   - `-k, --topk-bins` (number) - The ratio of bins with the highest
     number of data to total bins in the histogram
 
-
 Example : give warning when imbalance ratio of data with classification task
 over 40
 
@@ -80,7 +79,6 @@ Here is the list of validation items(a.k.a. anomaly types).
 | InvalidValue | There's invalid (ex. inf, nan) value for bounding box info. | detection |
 | FarFromLabelMean | An annotation has an too small or large value than average for a label | detection, segmentation |
 | FarFromAttrMean  | An annotation has an too small or large value than average for an attribute | detection, segmentation |
-
 
 Validation Result Format:
 

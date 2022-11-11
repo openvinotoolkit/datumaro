@@ -19,7 +19,6 @@ information about images that matched with this person
 and mismatched with this person.
 Also LFW contains additional information about landmark points on the face.
 
-
 Supported annotation types:
 - `Label`
 - `Points` (face landmark points)
@@ -27,7 +26,6 @@ Supported annotation types:
 Supported attributes:
 - `negative_pairs`: list with names of mismatched persons;
 - `positive_pairs`: list with names of matched persons;
-
 
 ## Import LFW dataset
 
@@ -80,15 +78,12 @@ format [Datumaro supports](/docs/user-manual/supported_formats/).
 Pay attention that this format should also support `Label` and/or `Points`
 annotation types.
 
-
 There is few ways to convert LFW dataset into other format:
 
 ```
-
 # Converting to ImageNet with `convert` command:
 datum convert -if lfw -i ./lfw_dataset \
     -f imagenet -o ./output_dir -- --save-media
-
 
 # Converting to VggFace2 through the Datumaro project:
 datum create

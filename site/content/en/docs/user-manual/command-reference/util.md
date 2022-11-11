@@ -49,7 +49,6 @@ Parameters:
 - `-x, --image-ext` (string) Output image extension (default: `.jpg`)
 - `-h, --help` - Print the help message and exit
 
-
 Example: split a video into frames, use each 30-rd frame:
 ```bash
 datum util split_video -i video.mp4 -o video.mp4-frames --step 30

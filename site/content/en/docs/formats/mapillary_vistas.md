@@ -31,7 +31,7 @@ datum add -f mapillary_vistas ./dataset
 
 > Note: the directory with dataset should be subdirectory of the
 > project directory.
-
+<!-- markdownlint-disable-line MD028 -->
 > Note: there is no opportunity to import both instance and panoptic
 > masks for one dataset.
 

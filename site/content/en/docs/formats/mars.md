@@ -23,7 +23,6 @@ Required attributes:
   frame within this track. For the tracks, their names are accumulated
   for each ID, but for frames, they start from "0001" in each track.
 
-
 ## Import MARS dataset
 
 Use these instructions to import MARS dataset into Datumaro project:

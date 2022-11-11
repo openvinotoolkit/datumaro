@@ -63,7 +63,6 @@ Parameters:
   - `-b, --batch-size` (number) - Batch size for inference (default: 1)
   - `--display` - Visualize results during computations
 
-
 Examples:
 - Run RISE on an image, display results:
 `datum explain path/to/image.jpg -m mymodel rise --max-samples 50`
@@ -106,7 +105,6 @@ def process_outputs(inputs, outputs):
 
     return results
 ```
-
 
 Object Detection scenario:
 

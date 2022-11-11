@@ -77,7 +77,6 @@ Prerequisites:
 - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
 - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
 
-
 ## Examples
 
 To run the inference with OpenVINO™ models and the interpreter samples,
