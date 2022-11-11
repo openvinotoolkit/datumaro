@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for exclusive of labels with LabelGroup
   (<https://github.com/openvinotoolkit/datumaro/pull/742>)
-- Add jupyter samples 
+- Add jupyter samples
   - introducing how to merge datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/738>)
   - introducing how to visualize dataset
