@@ -20,6 +20,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.plugins.cvat_format.extractor import CvatImporter
+from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -27,6 +28,8 @@ from .requirements import Requirements, mark_requirement
 DUMMY_IMAGE_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "cvat_dataset", "for_images")
 
 DUMMY_VIDEO_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "cvat_dataset", "for_video")
+
+DUMMY_VIDEO_DATASET_FILE = osp.join(osp.dirname(__file__), "assets", "cvat_dataset", "test.mp4")
 
 
 class CvatImporterTest(TestCase):
@@ -595,3 +598,57 @@ class CvatConverterTest(TestCase):
                 require_media=True,
                 ignored_attrs={"frame"},
             )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_video_export(self):
+        dataset = Dataset.import_from(
+            DUMMY_VIDEO_DATASET_FILE,
+            "video_frames",
+            start_frame=0,
+            end_frame=20,
+            name_pattern="frame_%06d",
+        )
+
+        dataset.transform(ProjectLabels, dst_labels=["label1", "label2"])
+
+        for frame, item in enumerate(dataset):
+            item.annotations = [
+                Bbox(
+                    3,
+                    4,
+                    7,
+                    1,
+                    label=1,
+                    id=0,
+                    attributes={
+                        "occluded": True,
+                        "outside": False,
+                        "keyframe": True,
+                        "track_id": 0,
+                    },
+                ),
+                Points(
+                    [21.95, 8.00, 2.55, 15.09, 2.23, 3.16],
+                    label=0,
+                    id=1,
+                    attributes={
+                        "occluded": False,
+                        "outside": False,
+                        "keyframe": True,
+                        "track_id": 1,
+                    },
+                ),
+            ]
+            item.attributes = {"frame": frame}
+
+        with TestDir() as path:
+            dataset.export(
+                format="cvat",
+                save_dir=path,
+                save_media=True,
+                use_track=True,
+            )
+            dataset_re = Dataset.import_from(path, "cvat")
+
+            self.assertEqual(sorted(dataset.subsets()), sorted(dataset_re.subsets()))
+            self.assertEqual(len(dataset), len(dataset_re))
