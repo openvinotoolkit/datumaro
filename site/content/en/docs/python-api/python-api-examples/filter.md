@@ -7,9 +7,10 @@ description: ''
 This API allows you to filter a dataset to satisfy some conditions. 
 Here, XML [XPath](https://devhints.io/xpath) is used as a query format.
 
-For instance, with a given XML file below, we can filter a dataset by the subset name through `/item[subset="minival2014"]`,
-by the media id through `/item[id="290768"]`, by the image sizes through `/item[image/width=image/height]`,
-and annotation information such as id (`id`), type (`type`), label (`label_id`), bounding box (`x, y, w, h`), etc.
+For instance, with a given XML file below, we can filter a dataset by the subset name through
+`/item[subset="minival2014"]`, by the media id through `/item[id="290768"]`, by the image sizes
+through `/item[image/width=image/height]`, and annotation information such as id (`id`), type
+(`type`), label (`label_id`), bounding box (`x, y, w, h`), etc.
 
 ``` xml
 <item>
@@ -45,8 +46,8 @@ and annotation information such as id (`id`), type (`type`), label (`label_id`),
 ```
 
 For the annotation-based filtration, we need to set the argument `filter_annotations` to `True`.
-We provide the argument `remove_empty` to remove all media with an empty annotation.
-We note that datasets are updated in-place by default.
+We provide the argument `remove_empty` to remove all media with an empty annotation. We note that
+datasets are updated in-place by default.
 
 Jupyter Notebook Example:
 {{< blocks/notebook 04_filter >}}
