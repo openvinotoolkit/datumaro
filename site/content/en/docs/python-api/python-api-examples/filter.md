@@ -4,7 +4,7 @@ linkTitle: 'filter'
 description: ''
 ---
 
-This API allows you to filter a dataset to satisfy some conditions. 
+This API allows you to filter a dataset to satisfy some conditions.
 Here, XML [XPath](https://devhints.io/xpath) is used as a query format.
 
 For instance, with a given XML file below, we can filter a dataset by the subset name through
