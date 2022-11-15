@@ -29,3 +29,4 @@ requests
 
 # Sampler
 pandas>=1.1.5
+protobuf>=3.20.2 # not directly required, pinned by Snyk to avoid a vulnerability
