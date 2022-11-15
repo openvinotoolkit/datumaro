@@ -77,10 +77,9 @@ class Environment:
         from datumaro.components.extractor import (
             Extractor,
             Importer,
-            ItemTransform,
             SourceExtractor,
-            Transform,
         )
+        from datumaro.components.transformer import Transform, ItemTransform
         from datumaro.components.launcher import Launcher
         from datumaro.components.validator import Validator
 

@@ -45,11 +45,10 @@ from datumaro.components.extractor import (
     Extractor,
     FailingImportErrorPolicy,
     ImportErrorPolicy,
-    ItemTransform,
     ProgressReporter,
     SourceExtractor,
-    Transform,
 )
+from datumaro.components.transformer import Transform, ItemTransform
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement, Video
 from datumaro.components.operations import IntersectMerge

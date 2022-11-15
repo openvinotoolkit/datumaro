@@ -49,10 +49,9 @@ from .components.extractor import (
     IExtractor,
     Importer,
     ImportErrorPolicy,
-    ItemTransform,
     SourceExtractor,
-    Transform,
 )
+from .components.transformer import Transform, ItemTransform
 from .components.hl_ops import (  # pylint: disable=redefined-builtin
     export,
     filter,
