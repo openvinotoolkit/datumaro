@@ -5,7 +5,7 @@
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from itertools import chain
 
 # Disable B406: import_xml_sax - the library is used for writing
@@ -163,10 +163,72 @@ class _SubsetWriter:
         self._writer.open_root()
         self._write_meta()
 
-        for index, item in enumerate(self._extractor):
-            self._write_item(item, index)
+        if self._context._use_track:
+            tracks = self._get_tracks()
+            for track in tracks:
+                self._write_track(track)
+        else:
+            for index, item in enumerate(self._extractor):
+                self._write_item(item, index)
 
         self._writer.close_root()
+
+    def _write_track(self, track):
+        track_id = track["track_id"]
+        label_name = self._get_label(track["label"]).name
+        annotations = track["annotations"]
+
+        track_info = {"id": str(track_id), "label": label_name}
+
+        self._writer.open_track(track_info)
+        for ann in annotations:
+            if ann.type in {
+                AnnotationType.points,
+                AnnotationType.polyline,
+                AnnotationType.polygon,
+                AnnotationType.bbox,
+            }:
+                self._write_shape(ann, write_label_info=False, write_frame=True)
+        self._writer.close_track()
+
+    def _get_tracks(self):
+        track_infos = defaultdict(lambda: defaultdict(list))
+        for item in self._extractor:
+            if "frame" not in item.attributes:
+                continue
+            frame = item.attributes["frame"]
+            for annotation in item.annotations:
+                if "track_id" not in annotation.attributes:
+                    continue
+                track_id = int(annotation.attributes["track_id"])
+                track_infos[track_id][frame].append(annotation)
+
+        tracks = []
+
+        for tid in sorted(list(track_infos.keys())):
+            annotations = []
+            for frame in sorted(list(track_infos[tid].keys())):
+                for annotation in track_infos[tid][frame]:
+                    annotation.attributes["frame"] = frame
+                    del annotation.attributes["track_id"]
+                    annotations.append(annotation)
+
+            if len(annotations) == 0:
+                continue
+
+            valid_label = True
+            for annotation in annotations[1:]:
+                if annotation.label != annotations[0].label:
+                    valid_label = False
+
+            if not valid_label:
+                continue
+
+            tracks.append(
+                {"track_id": tid, "label": annotations[0].label, "annotations": annotations}
+            )
+
+        return tracks
 
     def _write_item(self, item, index):
         if not self._context._reindex:
@@ -210,56 +272,67 @@ class _SubsetWriter:
 
     def _write_meta(self):
         label_cat = self._extractor.categories().get(AnnotationType.label, LabelCategories())
-        meta = OrderedDict(
-            [
+
+        task_items = [
+            ("id", ""),
+            ("name", self._name),
+            ("size", str(len(self._extractor))),
+            ("mode", "annotation"),
+            ("overlap", ""),
+            ("start_frame", "0"),
+            ("stop_frame", str(len(self._extractor))),
+            ("frame_filter", ""),
+            ("z_order", "True"),
+            (
+                "labels",
+                [
+                    (
+                        "label",
+                        OrderedDict(
+                            [
+                                ("name", label.name),
+                                (
+                                    "attributes",
+                                    [
+                                        (
+                                            "attribute",
+                                            OrderedDict(
+                                                [
+                                                    ("name", attr),
+                                                    ("mutable", "True"),
+                                                    ("input_type", "text"),
+                                                    ("default_value", ""),
+                                                    ("values", ""),
+                                                ]
+                                            ),
+                                        )
+                                        for attr in self._get_label_attrs(label)
+                                    ],
+                                ),
+                            ]
+                        ),
+                    )
+                    for label in label_cat.items
+                ],
+            ),
+        ]
+
+        if self._context._original_size is not None:
+            task_items.append(
                 (
-                    "task",
+                    "original_size",
                     OrderedDict(
                         [
-                            ("id", ""),
-                            ("name", self._name),
-                            ("size", str(len(self._extractor))),
-                            ("mode", "annotation"),
-                            ("overlap", ""),
-                            ("start_frame", "0"),
-                            ("stop_frame", str(len(self._extractor))),
-                            ("frame_filter", ""),
-                            ("z_order", "True"),
-                            (
-                                "labels",
-                                [
-                                    (
-                                        "label",
-                                        OrderedDict(
-                                            [
-                                                ("name", label.name),
-                                                (
-                                                    "attributes",
-                                                    [
-                                                        (
-                                                            "attribute",
-                                                            OrderedDict(
-                                                                [
-                                                                    ("name", attr),
-                                                                    ("mutable", "True"),
-                                                                    ("input_type", "text"),
-                                                                    ("default_value", ""),
-                                                                    ("values", ""),
-                                                                ]
-                                                            ),
-                                                        )
-                                                        for attr in self._get_label_attrs(label)
-                                                    ],
-                                                ),
-                                            ]
-                                        ),
-                                    )
-                                    for label in label_cat.items
-                                ],
-                            ),
+                            ("width", str(self._context._original_size[0])),
+                            ("height", str(self._context._original_size[1])),
                         ]
                     ),
-                ),
+                )
+            )
+
+        meta = OrderedDict(
+            [
+                ("task", OrderedDict(task_items)),
             ]
         )
         self._writer.write_meta(meta)
@@ -276,17 +349,33 @@ class _SubsetWriter:
             label = label_cat[label]
         return set(chain(label.attributes, label_cat.attributes)) - self._context._builtin_attrs
 
-    def _write_shape(self, shape, item):
-        if shape.label is None:
-            log.warning("Item %s: skipping a %s with no label", item.id, shape.type.name)
+    def _write_shape(self, shape, item=None, write_label_info=True, write_frame=False):
+        item_id = "None" if item is None else item.id
+
+        if write_label_info and shape.label is None:
+            log.warning("Item %s: skipping a %s with no label", item_id, shape.type.name)
             return
 
-        label_name = self._get_label(shape.label).name
-        shape_data = OrderedDict(
-            [
-                ("label", label_name),
-                ("occluded", str(int(shape.attributes.get("occluded", False)))),
-            ]
+        if write_frame and "frame" not in shape.attributes:
+            log.warning("Skipping a %s with no frame", shape.type.name)
+            return
+
+        if write_label_info:
+            label_name = self._get_label(shape.label).name
+            shape_data = OrderedDict([("label", label_name)])
+        else:
+            shape_data = OrderedDict()
+
+        if write_frame:
+            shape_data.update(OrderedDict([("frame", str(int(shape.attributes.get("frame", 0))))]))
+        shape_data.update(
+            OrderedDict([("occluded", str(int(shape.attributes.get("occluded", False))))])
+        )
+        shape_data.update(
+            OrderedDict([("outside", str(int(shape.attributes.get("outside", False))))])
+        )
+        shape_data.update(
+            OrderedDict([("keyframe", str(int(shape.attributes.get("keyframe", False))))])
         )
 
         if shape.type == AnnotationType.bbox:
@@ -332,31 +421,32 @@ class _SubsetWriter:
         else:
             raise NotImplementedError("unknown shape type")
 
-        for attr_name, attr_value in shape.attributes.items():
-            if attr_name in self._context._builtin_attrs:
-                continue
-            if isinstance(attr_value, bool):
-                attr_value = "true" if attr_value else "false"
-            if self._context._allow_undeclared_attrs or attr_name in self._get_label_attrs(
-                shape.label
-            ):
-                self._writer.add_attribute(
-                    OrderedDict(
-                        [
-                            ("name", str(attr_name)),
-                            ("value", str(attr_value)),
-                        ]
+        if write_label_info:
+            for attr_name, attr_value in shape.attributes.items():
+                if attr_name in self._context._builtin_attrs:
+                    continue
+                if isinstance(attr_value, bool):
+                    attr_value = "true" if attr_value else "false"
+                if self._context._allow_undeclared_attrs or attr_name in self._get_label_attrs(
+                    shape.label
+                ):
+                    self._writer.add_attribute(
+                        OrderedDict(
+                            [
+                                ("name", str(attr_name)),
+                                ("value", str(attr_value)),
+                            ]
+                        )
                     )
-                )
-            else:
-                log.warning(
-                    "Item %s: skipping undeclared "
-                    "attribute '%s' for label '%s' "
-                    "(allow with --allow-undeclared-attrs option)",
-                    item.id,
-                    attr_name,
-                    label_name,
-                )
+                else:
+                    log.warning(
+                        "Item %s: skipping undeclared "
+                        "attribute '%s' for label '%s' "
+                        "(allow with --allow-undeclared-attrs option)",
+                        item_id,
+                        attr_name,
+                        label_name,
+                    )
 
         if shape.type == AnnotationType.bbox:
             self._writer.close_box()
@@ -432,12 +522,34 @@ class CvatConverter(Converter):
         )
         return parser
 
-    def __init__(self, extractor, save_dir, reindex=False, allow_undeclared_attrs=False, **kwargs):
+    def __init__(
+        self,
+        extractor,
+        save_dir,
+        reindex=False,
+        allow_undeclared_attrs=False,
+        use_track=False,
+        **kwargs,
+    ):
         super().__init__(extractor, save_dir, **kwargs)
 
         self._reindex = reindex
         self._builtin_attrs = CvatPath.BUILTIN_ATTRS
         self._allow_undeclared_attrs = allow_undeclared_attrs
+        self._use_track = use_track
+        if use_track:
+            self._original_size = self._get_original_size(extractor)
+        else:
+            self._original_size = None
+
+    def _get_original_size(self, extractor):
+        item_hw = None
+        for item in extractor:
+            if item_hw is None:
+                item_hw = item.media.size
+            elif item_hw != item.media.size:
+                return None
+        return (item_hw[1], item_hw[0])
 
     def apply(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
