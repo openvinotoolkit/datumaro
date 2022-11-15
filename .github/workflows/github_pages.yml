@@ -30,12 +30,10 @@ jobs:
         run: |
           npm ci
 
-      # The pip upgrade must be in a separate step, because otherwise bash will
-      # remember where the system-installed pip was, and will use it in any following
-      # commands instead of the newly-installed pip.
-      - name: Upgrade pip
-        run: |
-          pip install --upgrade pip
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
 
       # click>=8.1.0 fails https://github.com/streamlit/streamlit/issues/4555
       - name: Build docs

@@ -9,6 +9,7 @@ openvino-telemetry>=2022.1.0
 
 # testing
 pytest>=5.3.5
+pytest-cov>=4.0.0
 
 # linters
 bandit>=1.7.0
@@ -19,3 +20,5 @@ black>=22.1.0
 
 # docs
 markupsafe==2.0.1
+nbconvert>=7.2.3
+ipython>=8.4.0
