@@ -5,7 +5,7 @@ description: ''
 weight: 50
 ---
 
-## Related sections:
+## Related sections
 
 - [Design document](/docs/design/)
 - [Developer manual](/api/api/developer_manual.html)
@@ -151,7 +151,6 @@ DATUM_BUG_219 = "Return format is not uniform"
 # And defined any other way:
 @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
 ```
-
 
 ##### Available annotations for tests and requirements
 

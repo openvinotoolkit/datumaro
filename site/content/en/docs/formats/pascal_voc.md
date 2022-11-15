@@ -240,7 +240,7 @@ to get more information about these operations.
 There are few examples of using Datumaro operations to solve
 particular problems with Pascal VOC dataset:
 
-### Example 1. How to prepare an original dataset for training.
+### Example 1. How to prepare an original dataset for training
 In this example, preparing the original dataset to train the semantic
 segmentation model includes:
 loading,
@@ -311,7 +311,7 @@ train_dataset.select(only_jumping)
 train_dataset.export('./jumping_label_me', format='label_me', save_media=True)
 ```
 
-### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task:
+### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task
 
 ```python
 import datumaro as dm

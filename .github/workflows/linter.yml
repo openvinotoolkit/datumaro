@@ -51,19 +51,24 @@ jobs:
           pip install --user -r <(grep "^pylint" ./requirements.txt)
           echo "Pylint version: "`pylint --version | head -1`
           git ls-files -z '*.py' | xargs -0 pylint
-  remark:
+  # remark:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #           node-version: 12
+
+  #     - name: Run checks
+  #       run: |
+  #         npm ci
+  #         echo "remark version: "`npx remark --version`
+  #         npx remark --frail .
+  markdownlint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-            node-version: 12
-
-      - name: Run checks
-        run: |
-          npm ci
-          echo "remark version: "`npx remark --version`
-          npx remark --frail .
+      - uses: DavidAnson/markdownlint-cli2-action@v7
   whitespace:
     runs-on: ubuntu-latest
     steps:

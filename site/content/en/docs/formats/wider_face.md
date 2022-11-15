@@ -35,7 +35,6 @@ Supported attributes for bboxes:
   - 1 face with partial occlusion;
   - 2 face with heavy occlusion.
 
-
 ## Import WIDER Face dataset
 
 Importing of WIDER Face dataset into the Datumaro project:

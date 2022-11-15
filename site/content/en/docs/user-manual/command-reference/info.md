@@ -21,7 +21,6 @@ Parameters:
   (default: current directory).
 - `-h, --help` - Print the help message and exit.
 
-
 Examples:
 
 - Print info about a project dataset:

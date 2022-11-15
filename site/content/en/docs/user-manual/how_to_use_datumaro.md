@@ -97,8 +97,10 @@ dataset = dm.Dataset.import_from(path, format)
 In Datumaro, most command-line commands operate on projects, but there are
 also few commands operating on datasets directly. There are 2 basic ways
 to use Datumaro from the command-line:
-- Use the [`convert`](/docs/user-manual/command-reference/convert), [`diff`](/docs/user-manual/command-reference/diff), [`merge`](/docs/user-manual/command-reference/merge)
-  commands directly on existing datasets
+- Use the [`convert`](/docs/user-manual/command-reference/convert)
+, [`diff`](/docs/user-manual/command-reference/diff)
+, [`merge`](/docs/user-manual/command-reference/merge)
+ commands directly on existing datasets
 
 - Create a Datumaro project and operate on it:
   - Create an empty project with [`create`](/docs/user-manual/command-reference/create)
@@ -232,13 +234,11 @@ Datasets come in a wide variety of formats. Each dataset
 format defines its own data structure and rules on how to
 interpret the data. For example, the following data structure
 is used in COCO format:
-<!--lint disable fenced-code-flag-->
 ```
 /dataset/
 - /images/<id>.jpg
 - /annotations/
 ```
-<!--lint enable fenced-code-flag-->
 
 Datumaro supports complete datasets, having both image data and
 annotations, or incomplete ones, having annotations only.

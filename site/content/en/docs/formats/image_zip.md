@@ -92,7 +92,6 @@ Extra options for exporting to image_zip format:
   Follow [zip documentation](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT)
   for more information.
 
-
 ## Examples
 
 Examples of using this format from the code can be found in

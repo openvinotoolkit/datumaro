@@ -60,8 +60,7 @@ Parameters:
   - `--all` - Include matches in the output. By default, only differences are
     printed.
 
-
-Examples:
+<!-- markdownlint-disable-line MD028 -->Examples:
 - Compare two projects by distance, match boxes if IoU > 0.7,
   save results to TensorBoard:
 `datum diff other/project -o diff/ -f tensorboard --iou-thresh 0.7`

@@ -46,7 +46,6 @@ Dataset/
 To make sure that the selected dataset has been added to the project, you can
 run `datum project info`, which will display the project information.
 
-
 ## Examples
 
 Examples of using this format from the code can be found in

@@ -71,7 +71,7 @@ can pass the `-p/--project <path>` argument to the command.
 > **Note**: command behavior is subject to change, so this text might be
   outdated,
 > **always check the `--help` output of the specific command**
-
+<!-- markdownlint-disable-line MD028 -->
 > **Note**: command parameters must be passed prior to the positional arguments.
 
 Datumaro functionality is available with the `datum` command.
