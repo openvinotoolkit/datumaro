@@ -6,9 +6,10 @@ description: ''
 
 Datumaro provides the dataset import and export functionalities.
 
-When importing multiple datasets, Datumaro helps to manipulate and merge. Since the manipulations
-such as reidentification, label redefinition, or filtration are mostly the topic of transformation,
-we here describe how to merge two heterogeneous datasets through `IntersectMerge`.
+When importing multiple datasets, Datumaro helps to manipulate and merge them into a single
+dataset. Since the manipulations such as reidentification, label redefinition, or filtration are
+mostly the topic of transformation, we here describe how to merge two heterogeneous datasets
+through `IntersectMerge`.
 
 Jupyter Notebook Examples:
 {{< blocks/notebook 01_merge_multiple_datasets_for_classification >}}
