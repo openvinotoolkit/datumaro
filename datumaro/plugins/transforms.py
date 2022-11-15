@@ -36,14 +36,9 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import DatumaroError
-from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME,
-    DatasetInfo,
-    DatasetItem,
-    IExtractor,
-)
-from datumaro.components.transformer import Transform, ItemTransform
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, IExtractor
 from datumaro.components.media import Image
+from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util import NOTSET, filter_dict, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
 

@@ -74,13 +74,9 @@ class Environment:
     def __init__(self):
         from datumaro.components.converter import Converter
         from datumaro.components.dataset_generator import DatasetGenerator
-        from datumaro.components.extractor import (
-            Extractor,
-            Importer,
-            SourceExtractor,
-        )
-        from datumaro.components.transformer import Transform, ItemTransform
+        from datumaro.components.extractor import Extractor, Importer, SourceExtractor
         from datumaro.components.launcher import Launcher
+        from datumaro.components.transformer import ItemTransform, Transform
         from datumaro.components.validator import Validator
 
         _filter = self._make_filter

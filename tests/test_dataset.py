@@ -48,12 +48,11 @@ from datumaro.components.extractor import (
     ProgressReporter,
     SourceExtractor,
 )
-from datumaro.components.transformer import Transform, ItemTransform
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement, Video
 from datumaro.components.operations import IntersectMerge
 from datumaro.components.progress_reporting import NullProgressReporter
-from datumaro.plugins.transforms import ProjectInfos
+from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 from .requirements import Requirements, mark_requirement

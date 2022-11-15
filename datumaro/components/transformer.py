@@ -5,11 +5,7 @@
 from typing import Optional
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import (
-    DatasetItem,
-    IExtractor,
-    _ExtractorBase,
-)
+from datumaro.components.extractor import DatasetItem, IExtractor, _ExtractorBase
 from datumaro.util import is_method_redefined
 
 

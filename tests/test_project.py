@@ -26,10 +26,10 @@ from datumaro.components.errors import (
     UnknownTargetError,
 )
 from datumaro.components.extractor import DatasetItem, Extractor
-from datumaro.components.transformer import ItemTransform
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.components.project import DiffStatus, Project
+from datumaro.components.transformer import ItemTransform
 from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 

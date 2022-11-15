@@ -40,10 +40,10 @@ from datumaro.components.extractor import (
     ImportErrorPolicy,
     _ImportFail,
 )
-from datumaro.components.transformer import Transform, ItemTransform
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.media import Image, MediaElement
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
+from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled

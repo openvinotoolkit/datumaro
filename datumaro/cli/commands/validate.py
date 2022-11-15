@@ -148,4 +148,3 @@ def validate_command(args):
     dst_file = generate_next_file_name(dst_file_name, ext=".json")
     log.info("Writing project validation results to '%s'" % dst_file)
     dump_json_file(dst_file, report, indent=True, allow_numpy=True)
-    
