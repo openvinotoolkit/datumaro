@@ -15,8 +15,9 @@ from datumaro.components.errors import (
     InvalidAnnotationError,
     UndeclaredLabelError,
 )
-from datumaro.components.extractor import DatasetItem, Extractor, Importer, SourceExtractor
+from datumaro.components.extractor import DatasetItem, Extractor, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import DEFAULT_IMAGE_META_FILE_NAME, ImageMeta, load_image_meta_file
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file

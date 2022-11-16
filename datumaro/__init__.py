@@ -45,10 +45,7 @@ from .components.extractor import (
     CategoriesInfo,
     DatasetItem,
     Extractor,
-    FailingImportErrorPolicy,
     IExtractor,
-    Importer,
-    ImportErrorPolicy,
     SourceExtractor,
 )
 from .components.hl_ops import (  # pylint: disable=redefined-builtin
@@ -59,6 +56,7 @@ from .components.hl_ops import (  # pylint: disable=redefined-builtin
     transform,
     validate,
 )
+from .components.importer import FailingImportErrorPolicy, Importer, ImportErrorPolicy
 from .components.launcher import Launcher, ModelTransform
 from .components.media import ByteImage, Image, MediaElement, Video, VideoFrame
 from .components.media_manager import MediaManager

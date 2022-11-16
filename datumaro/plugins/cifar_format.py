@@ -13,7 +13,8 @@ from datumaro.components.annotation import AnnotationType, Label, LabelCategorie
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util import cast
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file

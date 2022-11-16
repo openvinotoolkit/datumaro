@@ -5,8 +5,9 @@
 import os.path as osp
 from typing import Optional
 
-from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, Extractor, Importer
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, Extractor
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
+from datumaro.components.importer import Importer
 from datumaro.components.media import Video, VideoFrame
 from datumaro.util.os_util import find_files
 

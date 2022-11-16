@@ -8,7 +8,8 @@ import re
 
 from datumaro.components.converter import Converter
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
 from datumaro.util.image import find_images

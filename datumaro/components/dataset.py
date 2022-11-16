@@ -36,10 +36,8 @@ from datumaro.components.extractor import (
     DatasetItem,
     Extractor,
     IExtractor,
-    ImportContext,
-    ImportErrorPolicy,
-    _ImportFail,
 )
+from datumaro.components.importer import ImportContext, ImportErrorPolicy, _ImportFail
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.media import Image, MediaElement
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter

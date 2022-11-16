@@ -5,8 +5,9 @@
 import os.path as osp
 
 from datumaro.components.annotation import SuperResolutionAnnotation
-from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 

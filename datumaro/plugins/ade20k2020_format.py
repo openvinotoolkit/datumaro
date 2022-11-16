@@ -17,8 +17,9 @@ from datumaro.components.annotation import (
     Mask,
     Polygon,
 )
-from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util import parse_json
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images, lazy_image, load_image

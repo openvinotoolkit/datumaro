@@ -8,8 +8,9 @@ import os.path as osp
 from defusedxml import ElementTree as ET
 
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
-from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image, PointCloud
 from datumaro.util import cast
 from datumaro.util.image import find_images

@@ -19,8 +19,9 @@ from datumaro.components.annotation import (
     RleMask,
 )
 from datumaro.components.errors import DatasetImportError
-from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import parse_json, parse_json_file
 

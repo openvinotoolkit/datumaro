@@ -4,8 +4,8 @@
 
 import os.path as osp
 
-from datumaro.components.extractor import Importer
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.importer import Importer
 
 from .format import VocPath, VocTask
 

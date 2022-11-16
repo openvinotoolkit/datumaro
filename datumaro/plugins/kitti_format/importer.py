@@ -6,7 +6,7 @@ import logging as log
 import os.path as osp
 from glob import glob
 
-from datumaro.components.extractor import Importer
+from datumaro.components.importer import Importer
 
 from .format import KittiPath, KittiTask
 

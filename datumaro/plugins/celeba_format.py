@@ -13,7 +13,8 @@ from datumaro.components.annotation import (
     PointsCategories,
 )
 from datumaro.components.errors import DatasetImportError
-from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file

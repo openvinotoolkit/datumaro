@@ -7,8 +7,9 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.annotation import Bbox, LabelCategories, Points, PointsCategories
-from datumaro.components.extractor import AnnotationType, DatasetItem, Importer, SourceExtractor
+from datumaro.components.extractor import AnnotationType, DatasetItem, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util import parse_json_file
 

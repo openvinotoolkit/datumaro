@@ -6,9 +6,16 @@ import os.path as osp
 
 import scipy.io as spio
 
-from datumaro.components.annotation import Bbox, LabelCategories, Points, PointsCategories
-from datumaro.components.extractor import AnnotationType, DatasetItem, Importer, SourceExtractor
+from datumaro.components.annotation import (
+    AnnotationType,
+    Bbox,
+    LabelCategories,
+    Points,
+    PointsCategories,
+)
+from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 
 from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
