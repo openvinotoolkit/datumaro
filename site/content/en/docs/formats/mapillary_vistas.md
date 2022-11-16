@@ -66,8 +66,9 @@ of annotations, and the names of the directory with annotations.
 So, the directory with dataset should have one of these structures:
 
 <!--lint disable fenced-code-flag-->
-{{< tabpane >}}
-  {{< tab header="v1.2">}}
+
+For Mapillary Vistas dataset v1.2, dataset should have the following structure:
+```
 dataset
 ├── dataset_meta.json # a list of custom labels (optional)
 ├── config_v1.2.json # config file with description of classes (id, color, name)
@@ -88,8 +89,9 @@ dataset
 ├── <subset_name2>
 │   ├── ...
 ├── ...
-  {{< /tab >}}
-  {{< tab header="v2.0">}}
+```
+For Mapillary Vistas dataset v2.0, dataset should have the following structure:
+```
 dataset
 ├── config_v2.0.json
 ├── <subset_name1> # config file with description of classes (id, color, name)
@@ -118,8 +120,9 @@ dataset
 ├── <subset_name2>
     ├── ...
 ├── ...
-  {{< /tab >}}
-  {{< tab header="v1.2 w/o subsets">}}
+```
+For Mapillary Vistas dataset v1.2 w/o subsets, dataset should have the following structure:
+```
 dataset
 ├── config_v1.2.json # config file with description of classes (id, color, name)
 ├── images
@@ -135,8 +138,9 @@ dataset
         └── <image_name1>.png
         ├── <image_name2>.png
         ├── ...
-  {{< /tab >}}
-  {{< tab header="v2.0 w/o subsets">}}
+```
+For Mapillary Vistas dataset v2.0 w/o subsets, dataset should have the following structure:
+```
 dataset
 ├── config_v2.0.json
 ├── images
@@ -161,9 +165,7 @@ dataset
         ├── <image_name1>.json
         ├── <image_name2>.json
         ├── ...
-  {{< /tab >}}
-{{< /tabpane >}}
-
+```
 To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 See examples of annotation files in

@@ -49,8 +49,7 @@ For successful importing of ImageNet dataset the input directory with dataset
 should has the following structure:
 
 <!--lint disable fenced-code-flag-->
-{{< tabpane >}}
-  {{< tab header="imagenet">}}
+```
 imagenet_dataset/
 ├── label_0
 │   ├── <image_name_0>.jpg
@@ -63,8 +62,9 @@ imagenet_dataset/
 │    ├── <image_name_2>.jpg
 │    ├── ...
 ├── ...
-  {{< /tab >}}
-  {{< tab header="imagenet_txt">}}
+```
+imagenet_txt dataset directory should have the following structure:
+```
 imagenet_txt_dataset/
 ├── images # directory with images
 │   ├── <image_name_0>.jpg
@@ -73,8 +73,7 @@ imagenet_txt_dataset/
 │   ├── ...
 ├── synsets.txt # optional, list of labels
 └── train.txt   # list of pairs (image_name, label)
-  {{< /tab >}}
-{{< /tabpane >}}
+```
 
 > Note: if you don't have synsets file then Datumaro will automatically generate
 > classes with a name pattern `class-<i>`.
