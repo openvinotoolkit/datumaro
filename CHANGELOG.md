@@ -25,8 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     (<https://github.com/openvinotoolkit/datumaro/pull/746>)
   - Add Mask, SuperResolution, Depth visualization features
     (<https://github.com/openvinotoolkit/datumaro/pull/747>)
-- Add a documentation tab menu for Python API
+- Add a documentation for Python API
   (<https://github.com/openvinotoolkit/datumaro/pull/753>)
+  - Add dataset handler, visualizer, filter descriptions
+    (<https://github.com/openvinotoolkit/datumaro/pull/761>)
 - Add `__repr__` for Dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/750>)
 - Support for exporting as CVAT video format

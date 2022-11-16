@@ -10,6 +10,7 @@ Need to update the description.
 
 ## Contents
 - [Python API examples](./python-api-examples)
+  - [Dataset Handler](./python-api-examples/dataset-handler)
   - [Visualizer](./python-api-examples/visualizer)
   - [Filter](./python-api-examples/filter)
   - [Transform](./python-api-examples/transform)
