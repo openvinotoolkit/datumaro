@@ -45,13 +45,10 @@ from datumaro.components.extractor import (
     Extractor,
     SourceExtractor,
 )
-from datumaro.components.importer import (
-    FailingImportErrorPolicy,
-    ImportErrorPolicy,
-)
+from datumaro.components.importer import FailingImportErrorPolicy, ImportErrorPolicy
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement, Video
-from datumaro.components.progress_reporting import ProgressReporter, NullProgressReporter
+from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
