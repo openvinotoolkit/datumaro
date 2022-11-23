@@ -192,14 +192,17 @@ class Visualizer:
     def vis_gallery(
         self,
         ids: List[Union[str, DatasetItem]],
-        subset: Optional[str] = None,
+        subset: Optional[Union[str, List[str]]] = None,
         grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
     ) -> Figure:
         nrows, ncols = _infer_grid_size(len(ids), grid_size)
         fig, axs = plt.subplots(nrows, ncols, figsize=self.figsize)
 
-        for dataset_id, ax in zip(ids, axs.flatten()):
-            self.vis_one_sample(dataset_id, subset, ax)
+        for i, (dataset_id, ax) in enumerate(zip(ids, axs.flatten())):
+            if isinstance(subset, List):
+                self.vis_one_sample(dataset_id, subset[i], ax)
+            else:
+                self.vis_one_sample(dataset_id, subset, ax)
 
         return fig
 
