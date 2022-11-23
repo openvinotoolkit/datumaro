@@ -33,6 +33,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 
 CAPTION_BBOX_PAD = 0.2
 DEFAULT_COLOR_CYCLES: List[str] = [
@@ -218,6 +219,7 @@ class Visualizer:
 
         item: DatasetItem = self.dataset.get(id, subset)
         assert item is not None, f"Cannot find id={id}, subset={subset}"
+        assert item is Image, f"Media type should be Image, Current media type={type(item.media)}"
 
         img = item.media.data.astype(np.uint8)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
