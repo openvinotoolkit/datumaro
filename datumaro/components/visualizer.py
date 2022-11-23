@@ -220,7 +220,18 @@ class Visualizer:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         ax.imshow(img)
 
-        ax.set_title(f"ID: {id}, Subset={subset}")
+        width = ax.transAxes.transform_point((1, 0))[0] - ax.transAxes.transform_point((0, 0))[0]
+        text = ax.set_title(f"ID: {id}, Subset: {subset}", loc="center", wrap=True)
+        text.__get_wrapped_text = text._get_wrapped_text
+
+        def _get_wrapped_text():
+            wrapped_text = text.__get_wrapped_text()
+            text._text = wrapped_text
+            return wrapped_text
+
+        text._get_wrapped_text = _get_wrapped_text
+        text._get_wrap_line_width = lambda: width
+
         ax.set_axis_off()
 
         if self.draw_only_image:
