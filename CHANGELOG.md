@@ -39,7 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/758>)
 
 ### Changed
-- N/A
+- Wrap title text according to its plot width
+  (<https://github.com/openvinotoolkit/datumaro/pull/769>)
 
 ### Deprecated
 - N/A
