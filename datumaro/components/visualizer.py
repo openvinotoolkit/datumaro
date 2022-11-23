@@ -199,6 +199,7 @@ class Visualizer:
         nrows, ncols = _infer_grid_size(len(ids), grid_size)
         fig, axs = plt.subplots(nrows, ncols, figsize=self.figsize)
 
+        assert isinstance(subset, list) and len(ids) == len(subset)
         for i, (dataset_id, ax) in enumerate(zip(ids, axs.flatten())):
             if isinstance(subset, List):
                 self.vis_one_sample(dataset_id, subset[i], ax)
@@ -219,7 +220,9 @@ class Visualizer:
 
         item: DatasetItem = self.dataset.get(id, subset)
         assert item is not None, f"Cannot find id={id}, subset={subset}"
-        assert item is not Image, f"Media type should be Image, Current media type={type(item.media)}"
+        assert (
+            item is not Image
+        ), f"Media type should be Image, Current media type={type(item.media)}"
 
         img = item.media.data.astype(np.uint8)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
