@@ -22,6 +22,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     CategoriesRedefinedError,
     ConflictingCategoriesError,
+    DatasetInfosRedefinedError,
     MediaTypeError,
     MultipleFormatsMatchError,
     NoMatchingFormatsError,
@@ -31,6 +32,7 @@ from datumaro.components.errors import (
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME,
     CategoriesInfo,
+    DatasetInfo,
     DatasetItem,
     Extractor,
     IExtractor,
@@ -168,6 +170,9 @@ class DatasetItemStorageDatasetView(IDataset):
         def subsets(self):
             return {self.name or DEFAULT_SUBSET_NAME: self}
 
+        def infos(self):
+            return self.parent.infos()
+
         def categories(self):
             return self.parent.categories()
 
@@ -177,10 +182,12 @@ class DatasetItemStorageDatasetView(IDataset):
     def __init__(
         self,
         parent: DatasetItemStorage,
+        infos: DatasetInfo,
         categories: CategoriesInfo,
         media_type: Optional[Type[MediaElement]],
     ):
         self._parent = parent
+        self._infos = infos
         self._categories = categories
         self._media_type = media_type
 
@@ -189,6 +196,9 @@ class DatasetItemStorageDatasetView(IDataset):
 
     def __len__(self):
         return len(self._parent)
+
+    def infos(self):
+        return self._infos
 
     def categories(self):
         return self._categories
@@ -220,7 +230,12 @@ class DatasetPatch:
         # The purpose of this class is to indicate that the input dataset is
         # a patch and autofill patch info in Converter
         def __init__(self, patch: DatasetPatch, parent: IDataset):
-            super().__init__(patch.data, parent.categories(), parent.media_type())
+            super().__init__(
+                patch.data,
+                infos=parent.infos(),
+                categories=parent.categories(),
+                media_type=parent.media_type(),
+            )
             self.patch = patch
 
         def subsets(self):
@@ -229,11 +244,13 @@ class DatasetPatch:
     def __init__(
         self,
         data: DatasetItemStorage,
+        infos: DatasetInfo,
         categories: CategoriesInfo,
         updated_items: Dict[Tuple[str, str], ItemStatus],
         updated_subsets: Dict[str, ItemStatus] = None,
     ):
         self.data = data
+        self.infos = infos
         self.categories = categories
         self.updated_items = updated_items
         self._updated_subsets = updated_subsets
@@ -283,6 +300,9 @@ class DatasetSubset(IDataset):  # non-owning view
             return self.parent.subsets()
         return {self.name: self}
 
+    def infos(self):
+        return self.parent.infos()
+
     def categories(self):
         return self.parent.categories()
 
@@ -313,6 +333,7 @@ class DatasetStorage(IDataset):
     def __init__(
         self,
         source: Union[IDataset, DatasetItemStorage] = None,
+        infos: Optional[DatasetInfo] = None,
         categories: Optional[CategoriesInfo] = None,
         media_type: Optional[Type[MediaElement]] = None,
     ):
@@ -321,6 +342,12 @@ class DatasetStorage(IDataset):
         elif isinstance(source, IDataset) and categories is not None:
             raise ValueError("Can't use both source and categories")
         self._categories = categories
+
+        if source is None and infos is None:
+            infos = {}
+        elif isinstance(source, IDataset) and infos is not None:
+            raise ValueError("Can't use both source and categories")
+        self._infos = infos
 
         if media_type:
             pass
@@ -414,6 +441,9 @@ class DatasetStorage(IDataset):
             def __iter__(self):
                 yield from self.transforms[-1]
 
+            def infos(self):
+                return self.transforms[-1].infos()
+
             def categories(self):
                 return self.transforms[-1].categories()
 
@@ -443,7 +473,7 @@ class DatasetStorage(IDataset):
         patch = self._storage  # must be empty after transforming
         cache = DatasetItemStorage()
         source = self._source or DatasetItemStorageDatasetView(
-            self._storage, categories=self._categories, media_type=media_type
+            self._storage, infos=self._infos, categories=self._categories, media_type=media_type
         )
         transform = None
 
@@ -545,6 +575,13 @@ class DatasetStorage(IDataset):
             # Don't need to override categories if already defined
             self._categories = source_cat
 
+        if transform:
+            source_infos = transform.infos()
+        else:
+            source_infos = source.infos()
+        if source_infos is not None:
+            self._infos = source_infos
+
         self._source = None
         self._transforms = []
 
@@ -563,12 +600,33 @@ class DatasetStorage(IDataset):
             return self._source
         elif self._source is not None:
             self.init_cache()
-        return DatasetItemStorageDatasetView(self._storage, self._categories, self._media_type)
+        return DatasetItemStorageDatasetView(
+            self._storage,
+            infos=self._infos,
+            categories=self._categories,
+            media_type=self._media_type,
+        )
 
     def __len__(self) -> int:
         if self._length is None:
             self.init_cache()
         return self._length
+
+    def infos(self) -> DatasetInfo:
+        if self.is_cache_initialized():
+            return self._infos
+        elif self._infos is not None:
+            return self._infos
+        elif any(is_method_redefined("infos", Transform, t[0]) for t in self._transforms):
+            self.init_cache()
+            return self._infos
+        else:
+            return self._source.infos()
+
+    def define_infos(self, infos: DatasetInfo):
+        if self._infos or self._source is not None:
+            raise DatasetInfosRedefinedError()
+        self._infos = infos
 
     def categories(self) -> CategoriesInfo:
         if self.is_cache_initialized():
@@ -664,6 +722,9 @@ class DatasetStorage(IDataset):
             self._source = source
         self._transforms.append((method, args, kwargs))
 
+        if is_method_redefined("infos", Transform, method):
+            self._infos = None
+
         if is_method_redefined("categories", Transform, method):
             self._categories = None
         self._length = None
@@ -689,7 +750,9 @@ class DatasetStorage(IDataset):
             else:
                 patch.put(self._storage.get(item_id, subset))
 
-        return DatasetPatch(patch, self._categories, self._updated_items)
+        return DatasetPatch(
+            patch, infos=self._infos, categories=self._categories, updated_items=self._updated_items
+        )
 
     def flush_changes(self):
         self._updated_items = {}
@@ -738,6 +801,7 @@ class Dataset(IDataset):
     def from_iterable(
         cls,
         iterable: Iterable[DatasetItem],
+        infos: Optional[DatasetInfo] = None,
         categories: Union[CategoriesInfo, List[str], None] = None,
         *,
         env: Optional[Environment] = None,
@@ -750,6 +814,7 @@ class Dataset(IDataset):
 
         Parameters:
             iterable: An iterable which returns dataset items
+            infos: A dictionary of the dataset specific information
             categories: A simple list of labels or complete information
                 about labels. If not specified, an empty list of labels
                 is assumed.
@@ -762,6 +827,9 @@ class Dataset(IDataset):
         Returns:
             dataset: A new dataset with specified contents
         """
+
+        if infos is None:
+            infos = {}
 
         # TODO: remove the default value for media_type
         # https://github.com/openvinotoolkit/datumaro/issues/675
@@ -781,6 +849,9 @@ class Dataset(IDataset):
 
             def __iter__(self):
                 return iter(iterable)
+
+            def infos(self):
+                return infos
 
             def categories(self):
                 return categories
@@ -813,14 +884,18 @@ class Dataset(IDataset):
 
             media_type = ExactMerge.merge_media_types(sources)
             source = ExactMerge.merge(*sources)
+            infos = ExactMerge.merge_infos(s.infos() for s in sources)
             categories = ExactMerge.merge_categories(s.categories() for s in sources)
-            dataset = Dataset(source=source, categories=categories, media_type=media_type, env=env)
+            dataset = Dataset(
+                source=source, infos=infos, categories=categories, media_type=media_type, env=env
+            )
         return dataset
 
     def __init__(
         self,
         source: Optional[IDataset] = None,
         *,
+        infos: Optional[DatasetInfo] = None,
         categories: Optional[CategoriesInfo] = None,
         media_type: Optional[Type[MediaElement]] = None,
         env: Optional[Environment] = None,
@@ -831,7 +906,9 @@ class Dataset(IDataset):
         self._env = env
 
         self.eager = None
-        self._data = DatasetStorage(source, categories=categories, media_type=media_type)
+        self._data = DatasetStorage(
+            source, infos=infos, categories=categories, media_type=media_type
+        )
         if self.is_eager:
             self.init_cache()
 
@@ -850,9 +927,14 @@ class Dataset(IDataset):
             f"\tannotations_count={self.get_annotations()}\n"
             f"subsets\n"
             f"\t{separator.join(self.get_subset_info())}"
+            f"infos\n"
+            f"\t{separator.join(self.get_infos())}"
             f"categories\n"
             f"\t{separator.join(self.get_categories_info())}"
         )
+
+    def define_infos(self, infos: DatasetInfo) -> None:
+        self._data.define_infos(infos)
 
     def define_categories(self, categories: CategoriesInfo) -> None:
         self._data.define_categories(categories)
@@ -871,6 +953,9 @@ class Dataset(IDataset):
 
     def subsets(self) -> Dict[str, DatasetSubset]:
         return {k: self.get_subset(k) for k in self._data.subsets()}
+
+    def infos(self) -> DatasetInfo:
+        return self._data.infos()
 
     def categories(self) -> CategoriesInfo:
         return self._data.categories()
@@ -895,6 +980,12 @@ class Dataset(IDataset):
             f"annotation types={self.get_subset(subset_name).get_annotated_type()}\n"
             for subset_name in sorted(self.subsets().keys())
         )
+
+    def get_infos(self):
+        if self.infos() is not None:
+            return (f"{k}: {v}\n" for k, v in self.infos().items())
+        else:
+            return ("\n",)
 
     def get_categories_info(self):
         category_dict = {}

@@ -105,10 +105,11 @@ def merge(*datasets: IDataset) -> IDataset:
     Returns: a wrapper around the input datasets
     """
 
+    infos = ExactMerge.merge_infos(d.infos() for d in datasets)
     categories = ExactMerge.merge_categories(d.categories() for d in datasets)
     media_type = ExactMerge.merge_media_types(datasets)
     return DatasetItemStorageDatasetView(
-        ExactMerge.merge(*datasets), categories=categories, media_type=media_type
+        ExactMerge.merge(*datasets), infos=infos, categories=categories, media_type=media_type
     )
 
 

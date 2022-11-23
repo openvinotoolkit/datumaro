@@ -94,6 +94,10 @@ class _TaskConverter:
         return self._data["annotations"]
 
     @property
+    def infos(self):
+        return self._data["info"]
+
+    @property
     def categories(self):
         return self._data["categories"]
 

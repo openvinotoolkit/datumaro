@@ -1,5 +1,8 @@
 {
-    "info": {},
+    "infos": {
+        "task": "classification",
+        "author": "anonymous"
+    },
     "categories": {
         "label": {
             "label_groups": [

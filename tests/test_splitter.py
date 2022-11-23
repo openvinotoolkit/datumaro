@@ -68,7 +68,7 @@ class SplitterTest(TestCase):
                         )
                     )
         categories = {AnnotationType.label: label_cat}
-        dataset = Dataset.from_iterable(iterable, categories)
+        dataset = Dataset.from_iterable(iterable, categories=categories)
         return dataset
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

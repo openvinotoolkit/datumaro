@@ -41,10 +41,14 @@ class _SubsetWriter:
         self._context = context
 
         self._data = {
-            "info": {},
+            "infos": {},
             "categories": {},
             "items": [],
         }
+
+    @property
+    def infos(self):
+        return self._data["infos"]
 
     @property
     def categories(self):
@@ -145,6 +149,9 @@ class _SubsetWriter:
             else:
                 raise NotImplementedError()
             annotations.append(converted_ann)
+
+    def add_infos(self, infos):
+        self._data["infos"].update(infos)
 
     def add_categories(self, categories):
         for ann_type, desc in categories.items():
@@ -344,6 +351,7 @@ class DatumaroConverter(Converter):
 
         writers = {s: _SubsetWriter(self) for s in self._extractor.subsets()}
         for writer in writers.values():
+            writer.add_infos(self._extractor.infos())
             writer.add_categories(self._extractor.categories())
 
         for item in self._extractor:

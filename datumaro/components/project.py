@@ -141,6 +141,9 @@ class ProjectSourceDataset(IDataset):
     def get_subset(self, name):
         return self._dataset.get_subset(name)
 
+    def infos(self):
+        return self._dataset.infos()
+
     def categories(self):
         return self._dataset.categories()
 
