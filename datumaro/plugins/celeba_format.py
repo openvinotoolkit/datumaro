@@ -13,7 +13,7 @@ from datumaro.components.annotation import (
     PointsCategories,
 )
 from datumaro.components.errors import DatasetImportError
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
@@ -31,7 +31,7 @@ class CelebaPath:
     BBOXES_HEADER = "image_id x_1 y_1 width height"
 
 
-class CelebaExtractor(SourceExtractor):
+class CelebaExtractor(SubsetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

@@ -9,7 +9,7 @@ import nibabel as nib
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import MultiframeImage
@@ -21,7 +21,7 @@ class BratsPath:
     DATA_EXT = ".nii.gz"
 
 
-class BratsExtractor(SourceExtractor):
+class BratsExtractor(SubsetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

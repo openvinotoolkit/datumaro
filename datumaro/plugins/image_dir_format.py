@@ -7,7 +7,7 @@ import os
 import os.path as osp
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
@@ -34,7 +34,7 @@ class ImageDirImporter(Importer):
         return [{"url": path, "format": ImageDirExtractor.NAME}]
 
 
-class ImageDirExtractor(SourceExtractor):
+class ImageDirExtractor(SubsetBase):
     def __init__(self, url, subset=None):
         super().__init__(subset=subset)
 

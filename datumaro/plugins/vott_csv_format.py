@@ -6,7 +6,7 @@ import csv
 import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -17,7 +17,7 @@ class VottCsvPath:
     ANNO_FILE_SUFFIX = "-export.csv"
 
 
-class VottCsvExtractor(SourceExtractor):
+class VottCsvExtractor(SubsetBase):
     def __init__(self, path):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

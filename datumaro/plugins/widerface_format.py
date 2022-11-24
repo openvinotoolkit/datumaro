@@ -9,7 +9,7 @@ import re
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -28,7 +28,7 @@ class WiderFacePath:
     DEFAULT_LABEL = "face"
 
 
-class WiderFaceExtractor(SourceExtractor):
+class WiderFaceExtractor(SubsetBase):
     def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise Exception("Can't read annotation file '%s'" % path)

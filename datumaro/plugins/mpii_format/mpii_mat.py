@@ -13,7 +13,7 @@ from datumaro.components.annotation import (
     Points,
     PointsCategories,
 )
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -21,7 +21,7 @@ from datumaro.components.media import Image
 from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
 
 
-class MpiiExtractor(SourceExtractor):
+class MpiiExtractor(SubsetBase):
     def __init__(self, path):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

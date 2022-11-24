@@ -24,7 +24,7 @@ from datumaro.components.errors import (
     MissingFieldError,
     UndeclaredLabelError,
 )
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import invert_colormap, lazy_mask
@@ -44,7 +44,7 @@ _inverse_inst_colormap = invert_colormap(VocInstColormap)
 T = TypeVar("T")
 
 
-class _VocExtractor(SourceExtractor):
+class _VocExtractor(SubsetBase):
     def __init__(self, path, task, **kwargs):
         if not osp.isfile(path):
             raise DatasetImportError(f"Can't find txt subset list file at '{path}'")

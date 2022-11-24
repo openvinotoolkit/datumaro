@@ -43,7 +43,7 @@ from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME,
     DatasetItem,
     DatasetBase,
-    SourceExtractor,
+    SubsetBase,
 )
 from datumaro.components.importer import FailingImportErrorPolicy, ImportErrorPolicy
 from datumaro.components.launcher import Launcher
@@ -1733,7 +1733,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
     def test_progress_reporter_implies_eager_mode(self):
-        class TestExtractor(SourceExtractor):
+        class TestExtractor(SubsetBase):
             def __init__(self, url, **kwargs):
                 super().__init__(**kwargs)
 
@@ -1750,7 +1750,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_error_reporter_implies_eager_mode(self):
-        class TestExtractor(SourceExtractor):
+        class TestExtractor(SubsetBase):
             def __init__(self, url, **kwargs):
                 super().__init__(**kwargs)
 
@@ -1767,7 +1767,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
     def test_can_report_progress_from_extractor(self):
-        class TestExtractor(SourceExtractor):
+        class TestExtractor(SubsetBase):
             def __init__(self, url, **kwargs):
                 super().__init__(**kwargs)
 
@@ -1799,7 +1799,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
     def test_can_report_progress_from_extractor_multiple_pbars(self):
-        class TestExtractor(SourceExtractor):
+        class TestExtractor(SubsetBase):
             def __init__(self, url, **kwargs):
                 super().__init__(**kwargs, media_type=MediaElement)
 
@@ -1834,7 +1834,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_errors_from_extractor(self):
-        class TestExtractor(SourceExtractor):
+        class TestExtractor(SubsetBase):
             def __init__(self, url, **kwargs):
                 super().__init__(**kwargs, media_type=MediaElement)
 

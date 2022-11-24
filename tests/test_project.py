@@ -1111,10 +1111,10 @@ class ProjectTest(TestCase):
             f.write(
                 textwrap.dedent(
                     """
-                from datumaro.components.extractor import (SourceExtractor,
+                from datumaro.components.extractor import (SubsetBase,
                     DatasetItem)
 
-                class MyExtractor(SourceExtractor):
+                class MyExtractor(SubsetBase):
                     def __init__(self, *args, **kwargs):
                         super().__init__()
 

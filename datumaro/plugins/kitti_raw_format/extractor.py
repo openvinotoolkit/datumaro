@@ -8,7 +8,7 @@ import os.path as osp
 from defusedxml import ElementTree as ET
 
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image, PointCloud
@@ -19,7 +19,7 @@ from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from .format import KittiRawPath, OcclusionStates, TruncationStates
 
 
-class KittiRawExtractor(SourceExtractor):
+class KittiRawExtractor(SubsetBase):
     # http://www.cvlibs.net/datasets/kitti/raw_data.php
     # https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip
     # Check cpp header implementation for field meaning

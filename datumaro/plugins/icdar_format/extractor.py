@@ -10,7 +10,7 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.annotation import Bbox, Caption, Mask, MaskCategories, Polygon
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -20,7 +20,7 @@ from datumaro.util.mask_tools import lazy_mask
 from .format import IcdarPath, IcdarTask
 
 
-class _IcdarExtractor(SourceExtractor):
+class _IcdarExtractor(SubsetBase):
     def __init__(self, path, task, subset=None):
         self._path = path
         self._task = task

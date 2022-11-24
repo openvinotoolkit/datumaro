@@ -9,7 +9,7 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
@@ -19,7 +19,7 @@ class ImagenetPath:
     IMAGE_DIR_NO_LABEL = "no_label"
 
 
-class ImagenetExtractor(SourceExtractor):
+class ImagenetExtractor(SubsetBase):
     def __init__(self, path, subset=None):
         assert osp.isdir(path), path
         super().__init__(subset=subset)

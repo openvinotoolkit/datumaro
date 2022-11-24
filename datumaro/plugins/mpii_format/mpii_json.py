@@ -7,7 +7,7 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.annotation import Bbox, LabelCategories, Points, PointsCategories
-from datumaro.components.extractor import AnnotationType, DatasetItem, SourceExtractor
+from datumaro.components.extractor import AnnotationType, DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -23,7 +23,7 @@ class MpiiJsonPath:
     POS_GT_FILE = "mpii_pos_gt.npy"
 
 
-class MpiiJsonExtractor(SourceExtractor):
+class MpiiJsonExtractor(SubsetBase):
     def __init__(self, path):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

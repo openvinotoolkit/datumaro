@@ -12,7 +12,7 @@ from datumaro.components.annotation import (
     PointsCategories,
 )
 from datumaro.components.errors import DatasetImportError
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
@@ -33,7 +33,7 @@ class AlignCelebaPath:
     )
 
 
-class AlignCelebaExtractor(SourceExtractor):
+class AlignCelebaExtractor(SubsetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

@@ -5,7 +5,7 @@
 import os.path as osp
 
 from datumaro.components.annotation import SuperResolutionAnnotation
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -18,7 +18,7 @@ class CommonSuperResolutionPath:
     UPSAMPLED_IMAGES_DIR = "upsampled"
 
 
-class CommonSuperResolutionExtractor(SourceExtractor):
+class CommonSuperResolutionExtractor(SubsetBase):
     def __init__(self, path, subset=None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

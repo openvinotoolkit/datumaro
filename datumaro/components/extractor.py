@@ -285,7 +285,7 @@ class _DatasetBase(IDataset):
 class DatasetBase(_DatasetBase, CliPlugin):
     """
     A base class for user-defined and built-in extractors.
-    Should be used in cases, where SourceExtractor is not enough,
+    Should be used in cases, where SubsetBase is not enough,
     or its use makes problems with performance, implementation etc.
     """
 

@@ -22,7 +22,7 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -170,7 +170,7 @@ def _parse_annotation_line(line: str) -> Tuple[str, Optional[str]]:
         return objects[0], None
 
 
-class CamvidExtractor(SourceExtractor):
+class CamvidExtractor(SubsetBase):
     def __init__(self, path, subset=None):
         assert osp.isfile(path), path
         self._path = path

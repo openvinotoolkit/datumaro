@@ -29,7 +29,7 @@ from datumaro.components.errors import (
     MissingFieldError,
     UndeclaredLabelError,
 )
-from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, SubsetBase
 from datumaro.components.media import Image
 from datumaro.util import NOTSET, parse_json_file, take_by
 from datumaro.util.image import lazy_image, load_image
@@ -41,7 +41,7 @@ from .format import CocoPath, CocoTask
 T = TypeVar("T")
 
 
-class _CocoExtractor(SourceExtractor):
+class _CocoExtractor(SubsetBase):
     """
     Parses COCO annotations written in the following format:
     https://cocodataset.org/#format-data

@@ -16,7 +16,7 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
 )
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -24,7 +24,7 @@ from datumaro.components.media import Image
 from .format import CvatPath
 
 
-class CvatExtractor(SourceExtractor):
+class CvatExtractor(SubsetBase):
     _SUPPORTED_SHAPES = ("box", "polygon", "polyline", "points")
 
     def __init__(self, path, subset=None):

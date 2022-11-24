@@ -16,7 +16,7 @@ from datumaro.components.annotation import (
     MaskCategories,
     Polygon,
 )
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.media import Image
 from datumaro.util import parse_json_file
 from datumaro.util.image import find_images, lazy_image, load_image
@@ -32,7 +32,7 @@ from .format import (
 )
 
 
-class _MapillaryVistasExtractor(SourceExtractor):
+class _MapillaryVistasExtractor(SubsetBase):
     def __init__(
         self, path, task, subset=None, use_original_config=False, keep_original_category_ids=False
     ):

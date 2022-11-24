@@ -15,7 +15,7 @@ from datumaro.components.errors import (
     InvalidAnnotationError,
     UndeclaredLabelError,
 )
-from datumaro.components.extractor import DatasetItem, DatasetBase, SourceExtractor
+from datumaro.components.extractor import DatasetItem, DatasetBase, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -28,7 +28,7 @@ from .format import YoloPath
 T = TypeVar("T")
 
 
-class YoloExtractor(SourceExtractor):
+class YoloExtractor(SubsetBase):
     class Subset(DatasetBase):
         def __init__(self, name: str, parent: YoloExtractor):
             super().__init__()

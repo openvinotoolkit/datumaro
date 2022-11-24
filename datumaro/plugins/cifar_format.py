@@ -13,7 +13,7 @@ from datumaro.components.annotation import AnnotationType, Label, LabelCategorie
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util import cast
@@ -45,7 +45,7 @@ Cifar10Label = [
 # Support for Python version CIFAR-10/100
 
 
-class CifarExtractor(SourceExtractor):
+class CifarExtractor(SubsetBase):
     def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

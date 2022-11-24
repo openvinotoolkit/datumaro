@@ -9,7 +9,7 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.errors import DatasetImportError
-from datumaro.components.extractor import DatasetItem, SourceExtractor
+from datumaro.components.extractor import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -45,7 +45,7 @@ def make_categories(label_map=None):
     return categories
 
 
-class CommonSemanticSegmentationExtractor(SourceExtractor):
+class CommonSemanticSegmentationExtractor(SubsetBase):
     def __init__(
         self,
         path,
