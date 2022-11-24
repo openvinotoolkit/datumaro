@@ -33,6 +33,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 
 CAPTION_BBOX_PAD = 0.2
 DEFAULT_COLOR_CYCLES: List[str] = [
@@ -192,14 +193,22 @@ class Visualizer:
     def vis_gallery(
         self,
         ids: List[Union[str, DatasetItem]],
-        subset: Optional[str] = None,
+        subset: Optional[Union[str, List[str]]] = None,
         grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
     ) -> Figure:
         nrows, ncols = _infer_grid_size(len(ids), grid_size)
         fig, axs = plt.subplots(nrows, ncols, figsize=self.figsize)
 
-        for dataset_id, ax in zip(ids, axs.flatten()):
-            self.vis_one_sample(dataset_id, subset, ax)
+        if isinstance(subset, list):
+            assert len(ids) == len(
+                subset
+            ), "If subset is a list, it should have the same length as ids."
+
+        for i, (dataset_id, ax) in enumerate(zip(ids, axs.flatten())):
+            if isinstance(subset, List):
+                self.vis_one_sample(dataset_id, subset[i], ax)
+            else:
+                self.vis_one_sample(dataset_id, subset, ax)
 
         return fig
 
@@ -215,6 +224,9 @@ class Visualizer:
 
         item: DatasetItem = self.dataset.get(id, subset)
         assert item is not None, f"Cannot find id={id}, subset={subset}"
+        assert (
+            item is not Image
+        ), f"Media type should be Image, Current media type={type(item.media)}"
 
         img = item.media.data.astype(np.uint8)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)

@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Wrap title text according to its plot width
   (<https://github.com/openvinotoolkit/datumaro/pull/769>)
+- Get list of subsets and support only Image media type in visualizer
+  (<https://github.com/openvinotoolkit/datumaro/pull/768>)
 
 ### Deprecated
 - N/A
