@@ -199,7 +199,9 @@ class Visualizer:
         nrows, ncols = _infer_grid_size(len(ids), grid_size)
         fig, axs = plt.subplots(nrows, ncols, figsize=self.figsize)
 
-        assert not isinstance(subset, list) and len(ids) == len(subset)
+        if isinstance(subset, list):
+            assert len(ids) == len(subset), "If subset is a list, it should have the same length as ids."
+
         for i, (dataset_id, ax) in enumerate(zip(ids, axs.flatten())):
             if isinstance(subset, List):
                 self.vis_one_sample(dataset_id, subset[i], ax)
