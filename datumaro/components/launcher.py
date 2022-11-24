@@ -18,6 +18,9 @@ class Launcher(CliPlugin):
     def launch(self, inputs):
         raise NotImplementedError()
 
+    def infos(self):
+        return None
+
     def categories(self):
         return None
 
@@ -43,6 +46,12 @@ class ModelTransform(Transform):
     def get_subset(self, name):
         subset = self._extractor.get_subset(name)
         return __class__(subset, self._launcher, self._batch_size)
+
+    def infos(self):
+        launcher_override = self._launcher.infos()
+        if launcher_override is not None:
+            return launcher_override
+        return self._extractor.infos()
 
     def categories(self):
         launcher_override = self._launcher.categories()

@@ -38,6 +38,7 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import DatumaroError
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME,
+    DatasetInfo,
     DatasetItem,
     IExtractor,
     ItemTransform,
@@ -712,6 +713,52 @@ class RemapLabels(ItemTransform, CliPlugin):
             elif self._default_action is self.DefaultAction.keep:
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
+
+
+class ProjectInfos(Transform, CliPlugin):
+    """
+    Changes the content of infos.
+    A user can add meta-data of dataset such as author, comments, or related papers.
+    Infos values are not affect on the dataset structure.
+    We thus can add any meta-data freely.
+    """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "-i",
+            "--infos",
+            action="append",
+            dest="dst_infos",
+            help="A dictionary of the dataset meta-information",
+        )
+        parser.add_argument(
+            "-o",
+            "--overwrite",
+            action="store_true",
+            dest="overwrite",
+            help="Overwrite the infos of src if True",
+        )
+        return parser
+
+    def __init__(self, extractor: IExtractor, dst_infos: DatasetInfo, overwrite: bool = False):
+        super().__init__(extractor)
+
+        if overwrite:
+            self._infos = dst_infos
+        else:
+            self._infos = deepcopy(extractor.infos())
+            for k, v in dst_infos.items():
+                self._infos[k] = v
+
+    def __iter__(self):
+        for item in self._extractor:
+            if item is not None:
+                yield item
+
+    def infos(self):
+        return self._infos
 
 
 class ProjectLabels(ItemTransform):

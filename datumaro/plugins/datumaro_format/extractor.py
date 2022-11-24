@@ -53,8 +53,13 @@ class DatumaroExtractor(SourceExtractor):
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
         parsed_anns = parse_json_file(path)
+        self._infos = self._load_infos(parsed_anns)
         self._categories = self._load_categories(parsed_anns)
         self._items = self._load_items(parsed_anns)
+
+    @staticmethod
+    def _load_infos(parsed):
+        return parsed.get("infos", {})
 
     @staticmethod
     def _load_categories(parsed):

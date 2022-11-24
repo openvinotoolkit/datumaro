@@ -448,3 +448,17 @@ class DatumaroConverterTest(TestCase):
                 compare=None,
                 dimension=Dimensions.dim_3d,
             )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_infos(self):
+        infos = {"info 1": 1, "info 2": "test info"}
+
+        dataset = Dataset.from_iterable(
+            [DatasetItem(3, subset="train", media=Image(data=np.ones((2, 2, 3))))], infos=infos
+        )
+
+        with TestDir() as test_dir:
+            dataset.export(test_dir, "datumaro")
+            dataset_imported = Dataset.import_from(test_dir)
+
+        self.assertEqual(dataset_imported.infos(), infos)

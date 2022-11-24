@@ -302,6 +302,11 @@ class MediaTypeError(DatumaroError):
     pass
 
 
+class DatasetInfosRedefinedError(DatasetError):
+    def __str__(self):
+        return "Infos can only be set once for a dataset"
+
+
 class CategoriesRedefinedError(DatasetError):
     def __str__(self):
         return "Categories can only be set once for a dataset"

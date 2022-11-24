@@ -41,7 +41,7 @@ from datumaro.components.errors import (
     VideoMergeError,
     WrongGroupError,
 )
-from datumaro.components.extractor import CategoriesInfo, DatasetItem
+from datumaro.components.extractor import CategoriesInfo, DatasetInfo, DatasetItem
 from datumaro.components.media import Image, MediaElement, MultiframeImage, PointCloud, Video
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
@@ -76,6 +76,16 @@ def match_annotations_equal(a, b):
 def merge_annotations_equal(a, b):
     matches, a_unmatched, b_unmatched = match_annotations_equal(a, b)
     return [ann_a for (ann_a, _) in matches] + a_unmatched + b_unmatched
+
+
+def merge_infos(sources):
+    infos = {}
+    for source in sources:
+        for k, v in source.items():
+            if k in infos:
+                log.warning("Duplicated infos field %s: overwrite from %s to %s", k, infos[k], v)
+            infos[k] = v
+    return infos
 
 
 def merge_categories(sources):
@@ -371,6 +381,10 @@ class ExactMerge:
         return merge_annotations_equal(a, b)
 
     @staticmethod
+    def merge_infos(sources: Iterable[IDataset]) -> DatasetInfo:
+        return merge_infos(sources)
+
+    @staticmethod
     def merge_categories(sources: Iterable[IDataset]) -> CategoriesInfo:
         return merge_categories(sources)
 
@@ -431,12 +445,16 @@ class IntersectMerge(MergingStrategy):
     _item = attrib(init=False)
 
     # Misc.
+    _infos = attrib(init=False)  # merged infos
     _categories = attrib(init=False)  # merged categories
 
     def __call__(self, datasets):
+        self._infos = merge_infos([d.infos() for d in datasets])
         self._categories = self._merge_categories([d.categories() for d in datasets])
         merged = Dataset(
-            categories=self._categories, media_type=ExactMerge.merge_media_types(datasets)
+            infos=self._infos,
+            categories=self._categories,
+            media_type=ExactMerge.merge_media_types(datasets),
         )
 
         self._check_groups_definition()

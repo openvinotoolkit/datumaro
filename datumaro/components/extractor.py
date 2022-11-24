@@ -177,6 +177,7 @@ class DatasetItem:
         return isinstance(self.media, PointCloud)
 
 
+DatasetInfo = Dict[str, Any]
 CategoriesInfo = Dict[AnnotationType, Categories]
 
 
@@ -200,6 +201,12 @@ class IExtractor:
         raise NotImplementedError()
 
     def get_subset(self, name) -> IExtractor:
+        raise NotImplementedError()
+
+    def infos(self) -> DatasetInfo:
+        """
+        Returns meta-info of dataset.
+        """
         raise NotImplementedError()
 
     def categories(self) -> CategoriesInfo:
@@ -275,6 +282,9 @@ class _ExtractorBase(IExtractor):
             def __iter__(_):
                 return filter(pred, iter(self))
 
+            def infos(_):
+                return self.infos()
+
             def categories(_):
                 return self.categories()
 
@@ -282,6 +292,9 @@ class _ExtractorBase(IExtractor):
                 return self.media_type()
 
         return _DatasetFilter()
+
+    def infos(self):
+        return {}
 
     def categories(self):
         return {}
@@ -399,8 +412,12 @@ class SourceExtractor(Extractor):
         self._subset = subset or DEFAULT_SUBSET_NAME
         super().__init__(length=length, subsets=[self._subset], media_type=media_type, ctx=ctx)
 
+        self._infos = {}
         self._categories = {}
         self._items = []
+
+    def infos(self):
+        return self._infos
 
     def categories(self):
         return self._categories
@@ -523,6 +540,9 @@ class Transform(_ExtractorBase, CliPlugin):
         super().__init__()
 
         self._extractor = extractor
+
+    def infos(self):
+        return self._extractor.infos()
 
     def categories(self):
         return self._extractor.categories()
