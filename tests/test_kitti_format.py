@@ -8,7 +8,7 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Mask
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.extractor import DatasetItem, DatasetBase
 from datumaro.components.media import Image
 from datumaro.plugins.kitti_format.converter import KittiConverter
 from datumaro.plugins.kitti_format.format import (
@@ -224,7 +224,7 @@ class KittiImportTest(TestCase):
                 self.assertIn(subtask.NAME, detected_formats)
 
 
-class TestExtractorBase(Extractor):
+class TestExtractorBase(DatasetBase):
     def _label(self, kitti_label):
         return self.categories()[AnnotationType.label].find(kitti_label)[0]
 

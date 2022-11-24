@@ -5,7 +5,7 @@
 import os.path as osp
 from typing import Optional
 
-from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, Extractor
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, DatasetBase
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Video, VideoFrame
@@ -95,7 +95,7 @@ class VideoFramesImporter(Importer):
         return [{"url": path, "format": VideoFramesExtractor.NAME}]
 
 
-class VideoFramesExtractor(Extractor):
+class VideoFramesExtractor(DatasetBase):
     def __init__(
         self,
         url: str,

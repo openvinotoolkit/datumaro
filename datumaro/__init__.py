@@ -44,7 +44,7 @@ from .components.extractor import (
     DEFAULT_SUBSET_NAME,
     CategoriesInfo,
     DatasetItem,
-    Extractor,
+    DatasetBase,
     IDataset,
     SourceExtractor,
 )

@@ -28,7 +28,7 @@ from datumaro.components.errors import (
     RepeatedItemError,
     UndefinedLabel,
 )
-from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.extractor import DatasetItem, DatasetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -167,7 +167,7 @@ class OpenImagesPath:
     )
 
 
-class OpenImagesExtractor(Extractor):
+class OpenImagesExtractor(DatasetBase):
     def __init__(self, path, image_meta=None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

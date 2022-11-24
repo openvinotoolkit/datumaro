@@ -25,7 +25,7 @@ from datumaro.components.errors import (
     UnexpectedUrlError,
     UnknownTargetError,
 )
-from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.extractor import DatasetItem, DatasetBase
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.components.project import DiffStatus, Project
@@ -1136,7 +1136,7 @@ class ProjectTest(TestCase):
     @mark_requirement(Requirements.DATUM_BUG_402)
     @scoped
     def test_can_transform_by_name(self):
-        class CustomExtractor(Extractor):
+        class CustomExtractor(DatasetBase):
             def __init__(self, *args, **kwargs):
                 super().__init__()
 

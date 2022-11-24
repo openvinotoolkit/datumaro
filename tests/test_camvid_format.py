@@ -10,7 +10,7 @@ import datumaro.plugins.camvid_format as Camvid
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.extractor import DatasetItem, DatasetBase
 from datumaro.components.media import Image
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
 from datumaro.util.meta_file_util import parse_meta_file
@@ -49,7 +49,7 @@ class CamvidFormatTest(TestCase):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "camvid_dataset")
 
 
-class TestExtractorBase(Extractor):
+class TestExtractorBase(DatasetBase):
     def _label(self, camvid_label):
         return self.categories()[AnnotationType.label].find(camvid_label)[0]
 

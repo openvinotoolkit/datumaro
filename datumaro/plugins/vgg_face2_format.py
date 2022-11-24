@@ -9,7 +9,7 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Points
 from datumaro.components.converter import Converter
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.extractor import DatasetItem, DatasetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -26,7 +26,7 @@ class VggFace2Path:
     IMAGES_DIR_NO_LABEL = "no_label"
 
 
-class VggFace2Extractor(Extractor):
+class VggFace2Extractor(DatasetBase):
     def __init__(self, path):
         subset = None
         if osp.isdir(path):

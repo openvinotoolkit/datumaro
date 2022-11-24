@@ -5,11 +5,11 @@
 from typing import Optional
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import DatasetItem, IDataset, _ExtractorBase
+from datumaro.components.extractor import DatasetBase, DatasetItem, IDataset
 from datumaro.util import is_method_redefined
 
 
-class Transform(_ExtractorBase, CliPlugin):
+class Transform(DatasetBase, CliPlugin):
     """
     A base class for dataset transformations that change dataset items
     or their annotations.

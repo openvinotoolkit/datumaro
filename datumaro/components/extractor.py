@@ -207,7 +207,7 @@ class IDataset:
         raise NotImplementedError()
 
 
-class _ExtractorBase(IDataset):
+class _DatasetBase(IDataset):
     def __init__(self, *, length: Optional[int] = None, subsets: Optional[Sequence[str]] = None):
         self._length = length
         self._subsets = subsets
@@ -253,7 +253,7 @@ class _ExtractorBase(IDataset):
         return method(self, *args, **kwargs)
 
     def select(self, pred):
-        class _DatasetFilter(_ExtractorBase):
+        class _DatasetFilter(_DatasetBase):
             def __iter__(_):
                 return filter(pred, iter(self))
 
@@ -282,7 +282,7 @@ class _ExtractorBase(IDataset):
         return None
 
 
-class Extractor(_ExtractorBase, CliPlugin):
+class DatasetBase(_DatasetBase, CliPlugin):
     """
     A base class for user-defined and built-in extractors.
     Should be used in cases, where SourceExtractor is not enough,
@@ -306,7 +306,7 @@ class Extractor(_ExtractorBase, CliPlugin):
         return self._media_type
 
 
-class SourceExtractor(Extractor):
+class SubsetBase(DatasetBase):
     """
     A base class for simple, single-subset extractors.
     Should be used by default for user-defined extractors.

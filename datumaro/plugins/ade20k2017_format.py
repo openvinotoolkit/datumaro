@@ -11,7 +11,7 @@ import re
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, CompiledMask, LabelCategories, Mask
-from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.extractor import DatasetItem, DatasetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
@@ -28,7 +28,7 @@ class Ade20k2017Path:
     )
 
 
-class Ade20k2017Extractor(Extractor):
+class Ade20k2017Extractor(DatasetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

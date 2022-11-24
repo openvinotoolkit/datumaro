@@ -34,7 +34,7 @@ from datumaro.components.extractor import (
     CategoriesInfo,
     DatasetInfo,
     DatasetItem,
-    Extractor,
+    DatasetBase,
     IDataset,
 )
 from datumaro.components.importer import ImportContext, ImportErrorPolicy, _ImportFail
@@ -482,7 +482,7 @@ class DatasetStorage(IDataset):
                 # A generic way to find modified items:
                 # Collect all the dataset original ids and compare
                 # with transform outputs.
-                # TODO: introduce Extractor.items() / .ids() to avoid extra
+                # TODO: introduce DatasetBase.items() / .ids() to avoid extra
                 # dataset traversals?
                 old_ids = set((item.id, item.subset) for item in source)
                 source = transform
@@ -667,7 +667,7 @@ class DatasetStorage(IDataset):
 
         item = self._storage.get(id, subset)
         if item is None and not self.is_cache_initialized():
-            if self._source.get.__func__ == Extractor.get:
+            if self._source.get.__func__ == DatasetBase.get:
                 # can be improved if IDataset is ABC
                 self.init_cache()
                 item = self._storage.get(id, subset)
@@ -835,7 +835,7 @@ class Dataset(IDataset):
         if not categories:
             categories = {}
 
-        class _extractor(Extractor):
+        class _extractor(DatasetBase):
             def __init__(self):
                 super().__init__(
                     length=len(iterable) if hasattr(iterable, "__len__") else None,
