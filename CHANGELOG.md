@@ -39,7 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/758>)
 
 ### Changed
-- N/A
+- Get list of subsets and support only Image media type in visualizer
+  (<https://github.com/openvinotoolkit/datumaro/pull/768>)
 
 ### Deprecated
 - N/A
