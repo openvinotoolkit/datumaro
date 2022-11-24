@@ -21,9 +21,10 @@ from .format import IcdarPath, IcdarTask
 
 
 class _IcdarBase(SubsetBase):
-    def __init__(self, path, task, subset=None):
+    def __init__(self, path, task, subset=None, save_hash=False):
         self._path = path
         self._task = task
+        self._save_hash = save_hash
 
         if task is IcdarTask.word_recognition:
             if not osp.isfile(path):
@@ -74,7 +75,7 @@ class _IcdarBase(SubsetBase):
                 image_path = osp.join(osp.dirname(self._path), IcdarPath.IMAGES_DIR, image)
                 if item_id not in items:
                     items[item_id] = DatasetItem(
-                        item_id, subset=self._subset, media=Image(path=image_path)
+                        item_id, subset=self._subset, media=Image(path=image_path), save_hash=self._save_hash
                     )
 
                 annotations = items[item_id].annotations
@@ -107,7 +108,7 @@ class _IcdarBase(SubsetBase):
                 if image_path:
                     image = Image(path=image_path)
 
-                items[item_id] = DatasetItem(item_id, subset=self._subset, media=image)
+                items[item_id] = DatasetItem(item_id, subset=self._subset, media=image, save_hash=self._save_hash)
             annotations = items[item_id].annotations
 
             with open(path, encoding="utf-8") as f:
@@ -178,7 +179,7 @@ class _IcdarBase(SubsetBase):
                 if image_path:
                     image = Image(path=image_path)
 
-                items[item_id] = DatasetItem(item_id, subset=self._subset, media=image)
+                items[item_id] = DatasetItem(item_id, subset=self._subset, media=image, save_hash=self._save_hash)
             annotations = items[item_id].annotations
 
             colors = [(255, 255, 255)]

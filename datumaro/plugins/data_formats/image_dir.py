@@ -35,14 +35,14 @@ class ImageDirImporter(Importer):
 
 
 class ImageDirBase(SubsetBase):
-    def __init__(self, url, subset=None):
+    def __init__(self, url, subset=None, save_hash=False):
         super().__init__(subset=subset)
 
         assert osp.isdir(url), url
 
         for path in find_images(url, recursive=True):
             item_id = osp.relpath(osp.splitext(path)[0], url)
-            self._items.append(DatasetItem(id=item_id, subset=self._subset, media=Image(path=path)))
+            self._items.append(DatasetItem(id=item_id, subset=self._subset, media=Image(path=path), save_hash=save_hash))
 
 
 class ImageDirExporter(Exporter):

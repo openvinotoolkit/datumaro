@@ -23,13 +23,14 @@ class BratsNumpyPath:
 
 
 class BratsNumpyBase(SubsetBase):
-    def __init__(self, path):
+    def __init__(self, path, save_hash=False):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
         super().__init__(media_type=MultiframeImage)
 
         self._root_dir = osp.dirname(path)
+        self._save_hash = save_hash
         self._categories = self._load_categories()
         self._items = list(self._load_items(path).values())
 
@@ -86,7 +87,7 @@ class BratsNumpyBase(SubsetBase):
                 box = boxes[i]
                 anno.append(Cuboid3d(position=list(box[0]), rotation=list(box[1])))
 
-            items[item_id] = DatasetItem(id=item_id, media=media, annotations=anno)
+            items[item_id] = DatasetItem(id=item_id, media=media, annotations=anno, save_hash=self._save_hash)
 
         return items
 

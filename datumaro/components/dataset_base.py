@@ -16,6 +16,7 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.importer import ImportContext, NullImportContext
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util.attrs_util import default_if_none, not_empty
+from datumaro.components.model_inference import inference
 
 DEFAULT_SUBSET_NAME = "default"
 
@@ -36,6 +37,8 @@ class DatasetItem:
 
     attributes: Dict[str, Any] = field(factory=dict, validator=default_if_none(dict))
 
+    hash_key: List[float] = field(factory=list, validator=default_if_none(list))
+
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)
 
@@ -51,9 +54,11 @@ class DatasetItem:
         media: Union[str, MediaElement, None] = None,
         annotations: Optional[List[Annotation]] = None,
         attributes: Dict[str, Any] = None,
+        save_hash: Optional[bool] = False,
         image=None,
         point_cloud=None,
         related_images=None,
+        hash_key=None
     ):
         if image is not None:
             warnings.warn(
@@ -86,8 +91,11 @@ class DatasetItem:
             assert isinstance(point_cloud, PointCloud)
             media = point_cloud
 
+        if save_hash and bool(media):
+            hash_key = inference(media)
+
         self.__attrs_init__(
-            id=id, subset=subset, media=media, annotations=annotations, attributes=attributes
+            id=id, subset=subset, media=media, annotations=annotations, attributes=attributes, hash_key=hash_key,
         )
 
     # Deprecated. Provided for backward compatibility.

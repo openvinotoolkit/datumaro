@@ -27,7 +27,7 @@ class MnistPath:
 
 
 class MnistBase(SubsetBase):
-    def __init__(self, path, subset=None):
+    def __init__(self, path, subset=None, save_hash=False):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
@@ -39,6 +39,8 @@ class MnistBase(SubsetBase):
                 subset = file_name.split("-", maxsplit=1)[0]
 
         super().__init__(subset=subset)
+        self._save_hash = save_hash
+
         self._dataset_dir = osp.dirname(path)
 
         self._categories = self._load_categories()
@@ -114,7 +116,7 @@ class MnistBase(SubsetBase):
             if 0 < len(meta) and (len(meta[i]) == 1 or len(meta[i]) == 3):
                 i = meta[i][0]
 
-            items[i] = DatasetItem(id=i, subset=self._subset, media=image, annotations=annotations)
+            items[i] = DatasetItem(id=i, subset=self._subset, media=image, annotations=annotations, save_hash=self._save_hash)
         return items
 
 

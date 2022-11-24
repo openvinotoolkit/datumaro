@@ -29,7 +29,7 @@ class Ade20k2017Path:
 
 
 class Ade20k2017Base(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path, save_hash=False):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
@@ -40,6 +40,7 @@ class Ade20k2017Base(DatasetBase):
 
         super().__init__(subsets=sorted(subsets))
         self._path = path
+        self._save_hash = save_hash
 
         self._items = []
         self._categories = {}
@@ -121,6 +122,7 @@ class Ade20k2017Base(DatasetBase):
                     subset=subset,
                     media=Image(path=image_path),
                     annotations=item_annotations,
+                    save_hash=self._save_hash
                 )
             )
 

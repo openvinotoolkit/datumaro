@@ -28,13 +28,15 @@ class LfwPath:
 
 
 class LfwBase(SubsetBase):
-    def __init__(self, path, subset=None):
+    def __init__(self, path, subset=None, save_hash=False):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
         if not subset:
             subset = osp.basename(osp.dirname(osp.dirname(path)))
         super().__init__(subset=subset)
+
+        self._save_hash = save_hash
 
         self._dataset_dir = osp.dirname(osp.dirname(osp.dirname(path)))
         self._annotations_dir = osp.dirname(path)
@@ -103,7 +105,7 @@ class LfwBase(SubsetBase):
                             image = Image(path=image)
 
                         items[item_id] = DatasetItem(
-                            id=item_id, subset=self._subset, media=image, annotations=annotations
+                            id=item_id, subset=self._subset, media=image, annotations=annotations, save_hash=self._save_hash
                         )
                 elif len(pair) == 3:
                     image1, id1 = self.get_image_name(pair[0], pair[1])
@@ -119,7 +121,7 @@ class LfwBase(SubsetBase):
                             image = Image(path=image)
 
                         items[id1] = DatasetItem(
-                            id=id1, subset=self._subset, media=image, annotations=annotations
+                            id=id1, subset=self._subset, media=image, annotations=annotations, save_hash=self._save_hash
                         )
                     if id2 not in items:
                         annotations = []
@@ -130,7 +132,7 @@ class LfwBase(SubsetBase):
                             image = Image(path=image)
 
                         items[id2] = DatasetItem(
-                            id=id2, subset=self._subset, media=image, annotations=annotations
+                            id=id2, subset=self._subset, media=image, annotations=annotations, save_hash=self._save_hash
                         )
 
                     # pairs form a directed graph
@@ -155,7 +157,7 @@ class LfwBase(SubsetBase):
                             image = Image(path=image)
 
                         items[id1] = DatasetItem(
-                            id=id1, subset=self._subset, media=image, annotations=annotations
+                            id=id1, subset=self._subset, media=image, annotations=annotations, save_hash=self._save_hash
                         )
                     if id2 not in items:
                         annotations = []

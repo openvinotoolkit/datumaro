@@ -18,11 +18,13 @@ class VottJsonPath:
 
 
 class VottJsonBase(SubsetBase):
-    def __init__(self, path):
+    def __init__(self, path, save_hash=False):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0].rsplit("-", maxsplit=1)[0])
+
+        self._save_hash = save_hash
 
         if has_meta_file(path):
             self._categories = {
@@ -87,6 +89,7 @@ class VottJsonBase(SubsetBase):
                 attributes={"id": id},
                 media=Image(path=osp.join(osp.dirname(path), asset.get("asset", {}).get("path"))),
                 annotations=annotations,
+                save_hash=self._save_hash,
             )
 
         return items

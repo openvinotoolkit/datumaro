@@ -23,11 +23,12 @@ class MarsPath:
 
 
 class MarsBase(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path, save_hash=False):
         assert osp.isdir(path), path
         super().__init__()
 
         self._dataset_dir = path
+        self._save_hash = save_hash
         self._subsets = {
             subset_dir.split("_", maxsplit=1)[1]: osp.join(path, subset_dir)
             for subset_dir in os.listdir(path)
@@ -55,7 +56,7 @@ class MarsBase(DatasetBase):
                 for subset_path in self._subsets.values()
                 for dir_name in os.listdir(subset_path)
                 if (
-                    osp.isdir(osp.join(self._dataset_dir, subset_path, dir_name))
+                    osp.isdir(osp.join(subset_path, dir_name))
                     and any(
                         fnmatch.fnmatch(dir_name, image_dir)
                         for image_dir in MarsPath.IMAGE_DIR_PATTERNS
@@ -76,7 +77,7 @@ class MarsBase(DatasetBase):
                 pedestrian_id = image_name[0:4]
 
                 if not fnmatch.fnmatch(image_name, label + MarsPath.IMAGE_NAME_POSTFIX):
-                    items.append(DatasetItem(id=item_id, image=image_path))
+                    items.append(DatasetItem(id=item_id, image=image_path, save_hash=self._save_hash))
                     continue
 
                 if pedestrian_id != label:
@@ -99,6 +100,7 @@ class MarsBase(DatasetBase):
                             "track_id": int(image_name[7:11]),
                             "frame_id": int(image_name[12:15]),
                         },
+                        save_hash=self._save_hash,
                     )
                 )
 

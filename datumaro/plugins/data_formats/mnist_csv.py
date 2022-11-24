@@ -22,7 +22,7 @@ class MnistCsvPath:
 
 
 class MnistCsvBase(SubsetBase):
-    def __init__(self, path, subset=None):
+    def __init__(self, path, subset=None, save_hash=False):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
@@ -31,6 +31,8 @@ class MnistCsvBase(SubsetBase):
             subset = file_name.rsplit("_", maxsplit=1)[-1]
 
         super().__init__(subset=subset)
+        self._save_hash = save_hash
+
         self._dataset_dir = osp.dirname(path)
 
         self._categories = self._load_categories()
@@ -98,7 +100,7 @@ class MnistCsvBase(SubsetBase):
             if 0 < len(meta) and len(meta[i]) in [1, 3]:
                 i = meta[i][0]
 
-            items[i] = DatasetItem(id=i, subset=self._subset, media=image, annotations=item_anno)
+            items[i] = DatasetItem(id=i, subset=self._subset, media=image, annotations=item_anno, save_hash=self._save_hash)
         return items
 
 

@@ -52,6 +52,7 @@ class YoloBase(SubsetBase):
         self,
         config_path: str,
         image_info: Union[None, str, ImageMeta] = None,
+        save_hash: Optional[bool] = False,
         **kwargs,
     ) -> None:
         if not osp.isfile(config_path):
@@ -61,6 +62,7 @@ class YoloBase(SubsetBase):
 
         rootpath = osp.dirname(config_path)
         self._path = rootpath
+        self._save_hash = save_hash
 
         assert image_info is None or isinstance(image_info, (str, dict))
         if image_info is None:
@@ -172,7 +174,7 @@ class YoloBase(SubsetBase):
                 )
 
                 item = DatasetItem(
-                    id=item_id, subset=subset_name, media=image, annotations=annotations
+                    id=item_id, subset=subset_name, media=image, annotations=annotations, save_hash=self._save_hash
                 )
                 subset.items[item_id] = item
             except Exception as e:

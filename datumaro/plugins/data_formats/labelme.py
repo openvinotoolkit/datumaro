@@ -44,12 +44,13 @@ class LabelMePath:
 
 
 class LabelMeBase(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path, save_hash=False):
         assert osp.isdir(path), path
         super().__init__()
 
+        self._save_hash = save_hash
         self._items, self._categories, self._subsets = self._parse(path)
-        self._length = len(self._items)
+        self._length = len(self._items)        
 
     def _parse(self, dataset_root):
         items = []
@@ -94,7 +95,7 @@ class LabelMeBase(DatasetBase):
             annotations = self._parse_annotations(root, osp.join(dataset_root, subset), categories)
 
             items.append(
-                DatasetItem(id=item_id, subset=subset, media=image, annotations=annotations)
+                DatasetItem(id=item_id, subset=subset, media=image, annotations=annotations, save_hash=self._save_hash)
             )
             subsets.add(items[-1].subset)
         return items, categories, subsets

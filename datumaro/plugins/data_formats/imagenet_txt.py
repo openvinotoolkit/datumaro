@@ -56,6 +56,7 @@ class ImagenetTxtBase(SubsetBase):
         labels_file: str = ImagenetTxtPath.LABELS_FILE,
         image_dir: Optional[str] = None,
         subset: Optional[str] = None,
+        save_hash: Optional[bool] = False,
     ):
         assert osp.isfile(path), path
 
@@ -69,6 +70,7 @@ class ImagenetTxtBase(SubsetBase):
         self.image_dir = osp.join(root_dir, image_dir)
 
         self._generate_labels = False
+        self._save_hash = save_hash
 
         if isinstance(labels, str):
             labels_source = _LabelsSource[labels]
@@ -128,6 +130,7 @@ class ImagenetTxtBase(SubsetBase):
                     subset=self._subset,
                     media=Image(path=osp.join(self.image_dir, image)),
                     annotations=anno,
+                    save_hash=self._save_hash,
                 )
 
         return items

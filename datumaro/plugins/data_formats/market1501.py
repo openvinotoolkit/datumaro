@@ -26,11 +26,12 @@ class Market1501Path:
 
 
 class Market1501Base(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path, save_hash=False):
         if not osp.isdir(path):
             raise NotADirectoryError("Can't open folder with annotation files '%s'" % path)
 
         self._path = path
+        self._save_hash = save_hash
         super().__init__()
 
         subsets = {}
@@ -94,7 +95,7 @@ class Market1501Base(DatasetBase):
             item = items.get(item_id)
             if item is None:
                 item = DatasetItem(
-                    id=item_id, subset=subset, media=Image(path=image_path), attributes=attributes
+                    id=item_id, subset=subset, media=Image(path=image_path), attributes=attributes, save_hash=self._save_hash
                 )
                 items[item_id] = item
 

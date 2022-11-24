@@ -52,6 +52,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
         subset=None,
         image_prefix="",
         mask_prefix="",
+        save_hash=False,
     ):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
@@ -60,6 +61,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
 
         self._image_prefix = image_prefix
         self._mask_prefix = mask_prefix
+        self._save_hash = save_hash
 
         meta_file = glob.glob(osp.join(path, "**", DATASET_META_FILE), recursive=True)
         if is_meta_file(meta_file[0]):
@@ -113,7 +115,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
                 )
 
             items[item_id] = DatasetItem(
-                id=item_id, subset=self._subset, media=image, annotations=annotations
+                id=item_id, subset=self._subset, media=image, annotations=annotations, save_hash=self._save_hash
             )
 
         return items
