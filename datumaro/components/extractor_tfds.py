@@ -14,7 +14,7 @@ import attrs
 from attrs import field, frozen
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
-from datumaro.components.extractor import CategoriesInfo, DatasetInfo, DatasetItem, IExtractor
+from datumaro.components.extractor import CategoriesInfo, DatasetItem, IDataset
 from datumaro.components.media import ByteImage, Image, MediaElement
 from datumaro.util.tf_util import import_tf
 
@@ -381,7 +381,7 @@ _TFDS_ADAPTERS = {
 }
 
 
-class _TfdsSplitExtractor(IExtractor):
+class _TfdsSplitExtractor(IDataset):
     def __init__(
         self,
         parent: _TfdsExtractor,
@@ -413,10 +413,10 @@ class _TfdsSplitExtractor(IExtractor):
     def categories(self) -> CategoriesInfo:
         return self._parent.categories()
 
-    def subsets(self) -> Dict[str, IExtractor]:
+    def subsets(self) -> Dict[str, IDataset]:
         return {self._tfds_split_info.name: self}
 
-    def get_subset(self, name) -> IExtractor:
+    def get_subset(self, name) -> IDataset:
         assert name == self._tfds_split_info.name
         return self
 
@@ -434,7 +434,7 @@ class _TfdsSplitExtractor(IExtractor):
         return self._parent._media_type
 
 
-class _TfdsExtractor(IExtractor):
+class _TfdsExtractor(IDataset):
     _categories: CategoriesInfo
     _infos: DatasetInfo
 
@@ -477,10 +477,10 @@ class _TfdsExtractor(IExtractor):
     def categories(self) -> CategoriesInfo:
         return self._categories
 
-    def subsets(self) -> Dict[str, IExtractor]:
+    def subsets(self) -> Dict[str, IDataset]:
         return self._split_extractors
 
-    def get_subset(self, name) -> IExtractor:
+    def get_subset(self, name) -> IDataset:
         return self._split_extractors[name]
 
     def get(self, id, subset=None) -> Optional[DatasetItem]:
@@ -537,7 +537,7 @@ class TfdsDataset:
     def metadata(self) -> TfdsDatasetMetadata:
         return self._adapter.metadata
 
-    def make_extractor(self) -> IExtractor:
+    def make_extractor(self) -> IDataset:
         return _TfdsExtractor(self._tfds_ds_name)
 
     def query_remote_metadata(self) -> TfdsDatasetRemoteMetadata:

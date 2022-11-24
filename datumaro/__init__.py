@@ -45,7 +45,7 @@ from .components.extractor import (
     CategoriesInfo,
     DatasetItem,
     Extractor,
-    IExtractor,
+    IDataset,
     SourceExtractor,
 )
 from .components.hl_ops import (  # pylint: disable=redefined-builtin

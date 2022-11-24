@@ -11,7 +11,7 @@ from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import DatasetExportError, MediaTypeError
-from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, IExtractor
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
 
@@ -45,7 +45,7 @@ class YoloConverter(Converter):
         return parser
 
     def __init__(
-        self, extractor: IExtractor, save_dir: str, *, add_path_prefix: bool = True, **kwargs
+        self, extractor: IDataset, save_dir: str, *, add_path_prefix: bool = True, **kwargs
     ) -> None:
         super().__init__(extractor, save_dir, **kwargs)
 

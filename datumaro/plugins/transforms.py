@@ -36,7 +36,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import DatumaroError
-from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, IExtractor
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
 from datumaro.components.media import Image
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util import NOTSET, filter_dict, parse_str_enum_value, take_by
@@ -610,7 +610,7 @@ class RemapLabels(ItemTransform, CliPlugin):
 
     def __init__(
         self,
-        extractor: IExtractor,
+        extractor: IDataset,
         mapping: Union[Dict[str, str], List[Tuple[str, str]]],
         default: Union[None, str, DefaultAction] = None,
     ):
@@ -788,7 +788,7 @@ class ProjectLabels(ItemTransform):
         )
         return parser
 
-    def __init__(self, extractor: IExtractor, dst_labels: Union[Iterable[str], LabelCategories]):
+    def __init__(self, extractor: IDataset, dst_labels: Union[Iterable[str], LabelCategories]):
         super().__init__(extractor)
 
         self._categories = {}
@@ -943,7 +943,7 @@ class ResizeTransform(ItemTransform):
         parser.add_argument("-dh", "--height", type=int, help="Destination image height")
         return parser
 
-    def __init__(self, extractor: IExtractor, width: int, height: int) -> None:
+    def __init__(self, extractor: IDataset, width: int, height: int) -> None:
         super().__init__(extractor)
 
         assert width > 0 and height > 0
@@ -1062,7 +1062,7 @@ class RemoveItems(ItemTransform):
         )
         return parser
 
-    def __init__(self, extractor: IExtractor, ids: Iterable[Tuple[str, str]]):
+    def __init__(self, extractor: IDataset, ids: Iterable[Tuple[str, str]]):
         super().__init__(extractor)
         self._ids = set(tuple(v) for v in (ids or []))
 
@@ -1109,7 +1109,7 @@ class RemoveAnnotations(ItemTransform):
         )
         return parser
 
-    def __init__(self, extractor: IExtractor, *, ids: Optional[Iterable[Tuple[str, str]]] = None):
+    def __init__(self, extractor: IDataset, *, ids: Optional[Iterable[Tuple[str, str]]] = None):
         super().__init__(extractor)
         self._ids = set(tuple(v) for v in (ids or []))
 
@@ -1173,7 +1173,7 @@ class RemoveAttributes(ItemTransform):
 
     def __init__(
         self,
-        extractor: IExtractor,
+        extractor: IDataset,
         ids: Optional[Iterable[Tuple[str, str]]] = None,
         attributes: Optional[Iterable[str]] = None,
     ):

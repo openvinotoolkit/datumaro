@@ -20,7 +20,7 @@ from datumaro.components.errors import (
     DatumaroError,
     ItemExportError,
 )
-from datumaro.components.extractor import DatasetItem, IExtractor
+from datumaro.components.extractor import DatasetItem, IDataset
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.util.meta_file_util import save_meta_file
@@ -165,7 +165,7 @@ class Converter(CliPlugin):
 
     def __init__(
         self,
-        extractor: IExtractor,
+        extractor: IDataset,
         save_dir: str,
         *,
         save_images=None,  # Deprecated

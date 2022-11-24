@@ -156,7 +156,7 @@ DatasetInfo = Dict[str, Any]
 CategoriesInfo = Dict[AnnotationType, Categories]
 
 
-class IExtractor:
+class IDataset:
     def __iter__(self) -> Iterator[DatasetItem]:
         """
         Provides sequential access to dataset items.
@@ -169,13 +169,13 @@ class IExtractor:
     def __bool__(self):  # avoid __len__ use for truth checking
         return True
 
-    def subsets(self) -> Dict[str, IExtractor]:
+    def subsets(self) -> Dict[str, IDataset]:
         """
         Enumerates subsets in the dataset. Each subset can be a dataset itself.
         """
         raise NotImplementedError()
 
-    def get_subset(self, name) -> IExtractor:
+    def get_subset(self, name) -> IDataset:
         raise NotImplementedError()
 
     def infos(self) -> DatasetInfo:
@@ -207,7 +207,7 @@ class IExtractor:
         raise NotImplementedError()
 
 
-class _ExtractorBase(IExtractor):
+class _ExtractorBase(IDataset):
     def __init__(self, *, length: Optional[int] = None, subsets: Optional[Sequence[str]] = None):
         self._length = length
         self._subsets = subsets
@@ -229,7 +229,7 @@ class _ExtractorBase(IExtractor):
             self._init_cache()
         return self._length
 
-    def subsets(self) -> Dict[str, IExtractor]:
+    def subsets(self) -> Dict[str, IDataset]:
         if self._subsets is None:
             self._init_cache()
         return {name or DEFAULT_SUBSET_NAME: self.get_subset(name) for name in self._subsets}

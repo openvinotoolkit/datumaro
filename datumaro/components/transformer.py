@@ -5,7 +5,7 @@
 from typing import Optional
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import DatasetItem, IExtractor, _ExtractorBase
+from datumaro.components.extractor import DatasetItem, IDataset, _ExtractorBase
 from datumaro.util import is_method_redefined
 
 
@@ -19,7 +19,7 @@ class Transform(_ExtractorBase, CliPlugin):
     def wrap_item(item, **kwargs):
         return item.wrap(**kwargs)
 
-    def __init__(self, extractor: IExtractor):
+    def __init__(self, extractor: IDataset):
         super().__init__()
 
         self._extractor = extractor

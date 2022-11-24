@@ -18,7 +18,7 @@ from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem, IExtractor
+from datumaro.components.extractor import DatasetItem, IDataset
 from datumaro.components.media import PointCloud
 from datumaro.util import cast, dump_json_file
 
@@ -26,7 +26,7 @@ from .format import PointCloudPath
 
 
 class _SuperviselyPointCloudDumper:
-    def __init__(self, extractor: IExtractor, context: SuperviselyPointCloudConverter):
+    def __init__(self, extractor: IDataset, context: SuperviselyPointCloudConverter):
         self._extractor = extractor
         self._context = context
 

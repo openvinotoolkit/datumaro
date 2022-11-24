@@ -9,7 +9,7 @@ from typing import List, Mapping, Optional, Tuple
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import DatasetItem, IExtractor
+from datumaro.components.extractor import DatasetItem, IDataset
 from datumaro.components.transformer import Transform
 from datumaro.util import cast
 
@@ -53,7 +53,7 @@ class RandomSampler(Transform, CliPlugin):
 
     def __init__(
         self,
-        extractor: IExtractor,
+        extractor: IDataset,
         count: int,
         *,
         subset: Optional[str] = None,
@@ -175,7 +175,7 @@ class LabelRandomSampler(Transform, CliPlugin):
 
     def __init__(
         self,
-        extractor: IExtractor,
+        extractor: IDataset,
         *,
         count: Optional[int] = None,
         label_counts: Optional[Mapping[str, int]] = None,
