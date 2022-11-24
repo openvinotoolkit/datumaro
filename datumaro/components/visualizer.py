@@ -200,7 +200,9 @@ class Visualizer:
         fig, axs = plt.subplots(nrows, ncols, figsize=self.figsize)
 
         if isinstance(subset, list):
-            assert len(ids) == len(subset), "If subset is a list, it should have the same length as ids."
+            assert len(ids) == len(
+                subset
+            ), "If subset is a list, it should have the same length as ids."
 
         for i, (dataset_id, ax) in enumerate(zip(ids, axs.flatten())):
             if isinstance(subset, List):
