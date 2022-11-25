@@ -6,7 +6,7 @@ import os
 import os.path as osp
 import re
 from distutils.util import strtobool
-
+from pybind11.setup_helpers import Pybind11Extension, build_ext
 import setuptools
 
 # Snyk scan integration
@@ -54,6 +54,15 @@ DEFAULT_REQUIREMENTS = parse_requirements(DEFAULT_REQUIREMENTS_FILE)
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+ext_modules = [
+    Pybind11Extension(
+        "datumaro._capi",
+        ["datumaro/capi/pybind.cpp"],
+        define_macros=[("VERSION_INFO", find_version(here))],
+        extra_compile_args=["-O3"],
+    ),
+]
+
 setuptools.setup(
     name="datumaro",
     version=find_version(here),
@@ -79,11 +88,13 @@ setuptools.setup(
         "tf-gpu": ["tensorflow-gpu"],
         "default": DEFAULT_REQUIREMENTS,
     },
+    ext_modules=ext_modules,
     entry_points={
         "console_scripts": [
             "datum=datumaro.cli.__main__:main",
         ],
     },
+    cmdclass={"build_ext": build_ext},
     package_data={"datumaro.plugins.synthetic_data": ["background_colors.txt"]},
     include_package_data=True,
 )
