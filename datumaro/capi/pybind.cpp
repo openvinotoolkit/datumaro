@@ -26,11 +26,11 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
+#include <cstdint>
+#include <memory>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
-#include <iostream>
 #include <vector>
-#include <memory>
 
 namespace py = pybind11;
 
@@ -75,7 +75,7 @@ RLE rleEncode(const byte *M, siz h, siz w)
     return RLE(h, w, k, cnts);
 }
 
-py::dict pyRleEncode(py::array_t<u_int8_t, py::array::f_style | py::array::forcecast> mask)
+py::dict pyRleEncode(py::array_t<std::uint8_t, py::array::f_style | py::array::forcecast> mask)
 {
     const auto buf = mask.request();
     if (mask.ndim() != 2)
