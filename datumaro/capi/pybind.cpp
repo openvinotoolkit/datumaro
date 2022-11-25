@@ -41,9 +41,8 @@ typedef double *BB;
 struct RLE
 {
     RLE(siz h, siz w, siz m, std::unique_ptr<std::vector<uint>> &_cnts)
-        : h(h), w(w), m(m)
+        : h(h), w(w), m(m), cnts(std::move(_cnts))
     {
-        cnts = std::move(_cnts);
     }
     siz h, w, m;
     std::unique_ptr<std::vector<uint>> cnts;
@@ -51,12 +50,12 @@ struct RLE
 
 RLE rleEncode(const byte *M, siz h, siz w)
 {
-    siz i, j, k, a = w * h;
+    siz j, k, a = w * h;
     uint c;
     byte p;
     auto cnts = std::make_unique<std::vector<uint>>(a + 1);
 
-    const byte *T = M + a * i;
+    const byte *T = M;
     k = 0;
     p = 0;
     c = 0;

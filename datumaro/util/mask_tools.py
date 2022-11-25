@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import platform
 from functools import partial
 from itertools import chain
 from typing import Tuple
@@ -155,9 +154,6 @@ def lazy_mask(path, inverse_colormap=None):
 
 
 def mask_to_rle(binary_mask):
-    if platform.system() == "Windows":
-        # C-API encode() raises segfault in Windows.
-        return mask_to_rle_py(binary_mask)
     return encode(binary_mask)
 
 
