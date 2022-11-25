@@ -6,8 +6,9 @@ import os
 import os.path as osp
 import re
 from distutils.util import strtobool
-from pybind11.setup_helpers import Pybind11Extension, build_ext
+
 import setuptools
+from pybind11.setup_helpers import Pybind11Extension, build_ext
 
 # Snyk scan integration
 here = None
