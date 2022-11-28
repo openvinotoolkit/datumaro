@@ -66,7 +66,13 @@ class FractalImageGenerator(DatasetGenerator):
 
         mp_ctx = get_context("spawn")  # On Mac 10.15 and Python 3.7 fork leads to hangs
         with mp_ctx.Pool(processes=self._cpu_count) as pool:
-            params = pool.map(self._generate_category, [Random(i) for i in range(self._categories)])
+            try:
+                params = pool.map(
+                    self._generate_category, [Random(i) for i in range(self._categories)]
+                )
+            finally:
+                pool.close()
+                pool.join()
 
         instances_weights = np.repeat(self._weights, self._instances, axis=0)
         weight_per_img = np.tile(instances_weights, (self._categories, 1))
@@ -88,7 +94,11 @@ class FractalImageGenerator(DatasetGenerator):
             generation_params.append((param, w, indices))
 
         with mp_ctx.Pool(processes=self._cpu_count) as pool:
-            pool.starmap(self._generate_image_batch, generation_params)
+            try:
+                pool.starmap(self._generate_image_batch, generation_params)
+            finally:
+                pool.close()
+                pool.join()
 
     @scoped
     def _generate_image_batch(
