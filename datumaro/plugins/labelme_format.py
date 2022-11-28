@@ -43,7 +43,7 @@ class LabelMePath:
     ]
 
 
-class LabelMeExtractor(DatasetBase):
+class LabelMeBase(DatasetBase):
     def __init__(self, path):
         assert osp.isdir(path), path
         super().__init__()
@@ -349,7 +349,7 @@ class LabelMeImporter(Importer):
             subsets.append(
                 {
                     "url": osp.normpath(path),
-                    "format": LabelMeExtractor.NAME,
+                    "format": LabelMeBase.NAME,
                 }
             )
         except StopIteration:

@@ -15,7 +15,7 @@ from datumaro.util.image import find_images
 from .format import PointCloudPath
 
 
-class SuperviselyPointCloudExtractor(SubsetBase):
+class SuperviselyPointCloudBase(SubsetBase):
     NAME = "sly_pointcloud"
     _SUPPORTED_SHAPES = "cuboid"
 

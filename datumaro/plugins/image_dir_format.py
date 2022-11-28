@@ -31,10 +31,10 @@ class ImageDirImporter(Importer):
     def find_sources(cls, path):
         if not osp.isdir(path):
             return []
-        return [{"url": path, "format": ImageDirExtractor.NAME}]
+        return [{"url": path, "format": ImageDirBase.NAME}]
 
 
-class ImageDirExtractor(SubsetBase):
+class ImageDirBase(SubsetBase):
     def __init__(self, url, subset=None):
         super().__init__(subset=subset)
 

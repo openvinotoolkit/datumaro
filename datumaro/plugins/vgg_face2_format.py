@@ -26,7 +26,7 @@ class VggFace2Path:
     IMAGES_DIR_NO_LABEL = "no_label"
 
 
-class VggFace2Extractor(DatasetBase):
+class VggFace2Base(DatasetBase):
     def __init__(self, path):
         subset = None
         if osp.isdir(path):
@@ -204,7 +204,7 @@ class VggFace2Importer(Importer):
                 return [
                     {
                         "url": annotation_dir,
-                        "format": VggFace2Extractor.NAME,
+                        "format": VggFace2Base.NAME,
                     }
                 ]
         elif osp.isfile(path):
@@ -215,7 +215,7 @@ class VggFace2Importer(Importer):
                 return [
                     {
                         "url": path,
-                        "format": VggFace2Extractor.NAME,
+                        "format": VggFace2Base.NAME,
                     }
                 ]
         return []

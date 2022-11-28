@@ -45,7 +45,7 @@ def make_categories(label_map=None):
     return categories
 
 
-class CommonSemanticSegmentationExtractor(SubsetBase):
+class CommonSemanticSegmentationBase(SubsetBase):
     def __init__(
         self,
         path,

@@ -28,7 +28,7 @@ class Ade20k2017Path:
     )
 
 
-class Ade20k2017Extractor(DatasetBase):
+class Ade20k2017Base(DatasetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
@@ -176,7 +176,7 @@ class Ade20k2017Importer(Importer):
                     return [
                         {
                             "url": path,
-                            "format": Ade20k2017Extractor.NAME,
+                            "format": Ade20k2017Base.NAME,
                         }
                     ]
         return []

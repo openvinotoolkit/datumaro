@@ -25,7 +25,7 @@ class Market1501Path:
     ATTRIBUTES = ["person_id", "camera_id", "track_id", "frame_id", "bbox_id"]
 
 
-class Market1501Extractor(DatasetBase):
+class Market1501Base(DatasetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise NotADirectoryError("Can't open folder with annotation files '%s'" % path)
@@ -108,7 +108,7 @@ class Market1501Importer(Importer):
             if dirname.startswith(
                 (Market1501Path.BBOX_DIR, Market1501Path.QUERY_DIR, Market1501Path.LIST_PREFIX)
             ):
-                return [{"url": path, "format": Market1501Extractor.NAME}]
+                return [{"url": path, "format": Market1501Base.NAME}]
 
 
 class Market1501Exporter(Exporter):

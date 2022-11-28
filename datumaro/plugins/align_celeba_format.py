@@ -33,7 +33,7 @@ class AlignCelebaPath:
     )
 
 
-class AlignCelebaExtractor(SubsetBase):
+class AlignCelebaBase(SubsetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

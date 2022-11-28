@@ -22,7 +22,7 @@ class MarsPath:
     IMAGE_NAME_POSTFIX = "C[0-9]" + "T" + "[0-9]" * 4 + "F" + "[0-9]" * 3 + ".*"
 
 
-class MarsExtractor(DatasetBase):
+class MarsBase(DatasetBase):
     def __init__(self, path):
         assert osp.isdir(path), path
         super().__init__()

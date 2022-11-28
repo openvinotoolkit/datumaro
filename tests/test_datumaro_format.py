@@ -24,7 +24,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
 from datumaro.plugins.datumaro_format.exporter import DatumaroExporter
-from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
+from datumaro.plugins.datumaro_format.base import DatumaroImporter
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.test_utils import (
     Dimensions,

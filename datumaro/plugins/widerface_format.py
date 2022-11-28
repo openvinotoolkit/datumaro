@@ -28,7 +28,7 @@ class WiderFacePath:
     DEFAULT_LABEL = "face"
 
 
-class WiderFaceExtractor(SubsetBase):
+class WiderFaceBase(SubsetBase):
     def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise Exception("Can't read annotation file '%s'" % path)

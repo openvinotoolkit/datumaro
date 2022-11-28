@@ -28,9 +28,9 @@ from .format import YoloPath
 T = TypeVar("T")
 
 
-class YoloExtractor(SubsetBase):
+class YoloBase(SubsetBase):
     class Subset(DatasetBase):
-        def __init__(self, name: str, parent: YoloExtractor):
+        def __init__(self, name: str, parent: YoloBase):
             super().__init__()
             self._name = name
             self._parent = parent
@@ -95,14 +95,14 @@ class YoloExtractor(SubsetBase):
             if not osp.isfile(list_path):
                 raise InvalidAnnotationError(f"Can't find '{subset_name}' subset list file")
 
-            subset = YoloExtractor.Subset(subset_name, self)
+            subset = YoloBase.Subset(subset_name, self)
             with open(list_path, "r", encoding="utf-8") as f:
                 subset.items = OrderedDict(
                     (self.name_from_path(p), self.localize_path(p)) for p in f if p.strip()
                 )
             subsets[subset_name] = subset
 
-        self._subsets: Dict[str, YoloExtractor.Subset] = subsets
+        self._subsets: Dict[str, YoloBase.Subset] = subsets
 
         self._categories = {
             AnnotationType.label: self._load_categories(

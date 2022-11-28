@@ -18,7 +18,7 @@ class CommonSuperResolutionPath:
     UPSAMPLED_IMAGES_DIR = "upsampled"
 
 
-class CommonSuperResolutionExtractor(SubsetBase):
+class CommonSuperResolutionBase(SubsetBase):
     def __init__(self, path, subset=None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

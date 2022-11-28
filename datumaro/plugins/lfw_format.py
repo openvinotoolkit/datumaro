@@ -27,7 +27,7 @@ class LfwPath:
     PATTERN = re.compile(r"([\w-]+)_([-\d]+)")
 
 
-class LfwExtractor(SubsetBase):
+class LfwBase(SubsetBase):
     def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

@@ -31,7 +31,7 @@ class CelebaPath:
     BBOXES_HEADER = "image_id x_1 y_1 width height"
 
 
-class CelebaExtractor(SubsetBase):
+class CelebaBase(SubsetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

@@ -181,7 +181,7 @@ def write_label_map(path, label_map):
             f.write("%s %s\n" % (color_rgb, label_name))
 
 
-class CityscapesExtractor(SubsetBase):
+class CityscapesBase(SubsetBase):
     def __init__(self, path, subset=None):
         assert osp.isdir(path), path
 

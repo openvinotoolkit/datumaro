@@ -26,7 +26,7 @@ class MnistPath:
     NONE_LABEL = 255
 
 
-class MnistExtractor(SubsetBase):
+class MnistBase(SubsetBase):
     def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

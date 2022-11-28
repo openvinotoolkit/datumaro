@@ -44,7 +44,7 @@ _inverse_inst_colormap = invert_colormap(VocInstColormap)
 T = TypeVar("T")
 
 
-class _VocExtractor(SubsetBase):
+class _VocBase(SubsetBase):
     def __init__(self, path, task, **kwargs):
         if not osp.isfile(path):
             raise DatasetImportError(f"Can't find txt subset list file at '{path}'")
@@ -115,7 +115,7 @@ class _VocExtractor(SubsetBase):
             return subset_list
 
 
-class VocClassificationExtractor(_VocExtractor):
+class VocClassificationBase(_VocBase):
     def __init__(self, path, **kwargs):
         super().__init__(path, VocTask.classification, **kwargs)
 
@@ -177,7 +177,7 @@ class VocClassificationExtractor(_VocExtractor):
         return annotations
 
 
-class _VocXmlExtractor(_VocExtractor):
+class _VocXmlBase(_VocBase):
     def __iter__(self):
         image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
         if osp.isdir(image_dir):
@@ -344,22 +344,22 @@ class _VocXmlExtractor(_VocExtractor):
         return [xmin, ymin, xmax - xmin, ymax - ymin]
 
 
-class VocDetectionExtractor(_VocXmlExtractor):
+class VocDetectionBase(_VocXmlBase):
     def __init__(self, path, **kwargs):
         super().__init__(path, task=VocTask.detection, **kwargs)
 
 
-class VocLayoutExtractor(_VocXmlExtractor):
+class VocLayoutBase(_VocXmlBase):
     def __init__(self, path, **kwargs):
         super().__init__(path, task=VocTask.person_layout, **kwargs)
 
 
-class VocActionExtractor(_VocXmlExtractor):
+class VocActionBase(_VocXmlBase):
     def __init__(self, path, **kwargs):
         super().__init__(path, task=VocTask.action_classification, **kwargs)
 
 
-class VocSegmentationExtractor(_VocExtractor):
+class VocSegmentationBase(_VocBase):
     def __init__(self, path, **kwargs):
         super().__init__(path, task=VocTask.segmentation, **kwargs)
 

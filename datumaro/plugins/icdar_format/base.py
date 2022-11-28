@@ -20,7 +20,7 @@ from datumaro.util.mask_tools import lazy_mask
 from .format import IcdarPath, IcdarTask
 
 
-class _IcdarExtractor(SubsetBase):
+class _IcdarBase(SubsetBase):
     def __init__(self, path, task, subset=None):
         self._path = path
         self._task = task
@@ -253,19 +253,19 @@ class _IcdarExtractor(SubsetBase):
         return lambda: mask == c
 
 
-class IcdarWordRecognitionExtractor(_IcdarExtractor):
+class IcdarWordRecognitionBase(_IcdarBase):
     def __init__(self, path, **kwargs):
         kwargs["task"] = IcdarTask.word_recognition
         super().__init__(path, **kwargs)
 
 
-class IcdarTextLocalizationExtractor(_IcdarExtractor):
+class IcdarTextLocalizationBase(_IcdarBase):
     def __init__(self, path, **kwargs):
         kwargs["task"] = IcdarTask.text_localization
         super().__init__(path, **kwargs)
 
 
-class IcdarTextSegmentationExtractor(_IcdarExtractor):
+class IcdarTextSegmentationBase(_IcdarBase):
     def __init__(self, path, **kwargs):
         kwargs["task"] = IcdarTask.text_segmentation
         super().__init__(path, **kwargs)

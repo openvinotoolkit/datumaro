@@ -96,7 +96,7 @@ def parse_label_map(path):
     return label_map
 
 
-class SynthiaExtractor(SubsetBase):
+class SynthiaBase(SubsetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

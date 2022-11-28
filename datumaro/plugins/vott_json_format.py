@@ -17,7 +17,7 @@ class VottJsonPath:
     ANNO_FILE_SUFFIX = "-export.json"
 
 
-class VottJsonExtractor(SubsetBase):
+class VottJsonBase(SubsetBase):
     def __init__(self, path):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

@@ -19,7 +19,7 @@ class ImagenetPath:
     IMAGE_DIR_NO_LABEL = "no_label"
 
 
-class ImagenetExtractor(SubsetBase):
+class ImagenetBase(SubsetBase):
     def __init__(self, path, subset=None):
         assert osp.isdir(path), path
         super().__init__(subset=subset)
@@ -60,7 +60,7 @@ class ImagenetImporter(Importer):
     def find_sources(cls, path):
         if not osp.isdir(path):
             return []
-        return [{"url": path, "format": ImagenetExtractor.NAME}]
+        return [{"url": path, "format": ImagenetBase.NAME}]
 
 
 class ImagenetExporter(Exporter):

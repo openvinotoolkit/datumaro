@@ -17,7 +17,7 @@ class VottCsvPath:
     ANNO_FILE_SUFFIX = "-export.csv"
 
 
-class VottCsvExtractor(SubsetBase):
+class VottCsvBase(SubsetBase):
     def __init__(self, path):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

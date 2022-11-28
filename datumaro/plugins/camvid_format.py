@@ -170,7 +170,7 @@ def _parse_annotation_line(line: str) -> Tuple[str, Optional[str]]:
         return objects[0], None
 
 
-class CamvidExtractor(SubsetBase):
+class CamvidBase(SubsetBase):
     def __init__(self, path, subset=None):
         assert osp.isfile(path), path
         self._path = path

@@ -1113,7 +1113,7 @@ class ProjectTest(TestCase):
                     """
                 from datumaro.components.dataset_base import (SubsetBase,
                     DatasetItem)
-                class MyExtractor(SubsetBase):
+                class MyBase(SubsetBase):
                     def __init__(self, *args, **kwargs):
                         super().__init__()
                     def __iter__(self):

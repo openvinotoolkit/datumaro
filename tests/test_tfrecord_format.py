@@ -18,8 +18,8 @@ from .requirements import Requirements, mark_requirement
 
 try:
     from datumaro.plugins.tf_detection_api_format.exporter import TfDetectionApiExporter
-    from datumaro.plugins.tf_detection_api_format.extractor import (
-        TfDetectionApiExtractor,
+    from datumaro.plugins.tf_detection_api_format.base import (
+        TfDetectionApiBase,
         TfDetectionApiImporter,
     )
 
@@ -301,7 +301,7 @@ class TfrecordExporterTest(TestCase):
             "qw3": 6,
             "qw4": 7,
         }
-        parsed = TfDetectionApiExtractor._parse_labelmap(text)
+        parsed = TfDetectionApiBase._parse_labelmap(text)
 
         self.assertEqual(expected, parsed)
 

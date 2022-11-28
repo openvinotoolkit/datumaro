@@ -19,7 +19,7 @@ from datumaro.components.errors import (
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.yolo_format.exporter import YoloExporter
-from datumaro.plugins.yolo_format.extractor import YoloExtractor, YoloImporter
+from datumaro.plugins.yolo_format.base import YoloBase, YoloImporter
 from datumaro.util.image import save_image
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
@@ -375,7 +375,7 @@ class YoloImporterTest(TestCase):
         compare_datasets_strict(self, source, parsed)
 
 
-class YoloExtractorTest(TestCase):
+class YoloBaseTest(TestCase):
     def _prepare_dataset(self, path: str) -> Dataset:
         dataset = Dataset.from_iterable(
             [
@@ -404,7 +404,7 @@ class YoloExtractorTest(TestCase):
     def test_can_report_invalid_data_file(self):
         with TestDir() as test_dir:
             with self.assertRaisesRegex(DatasetImportError, "Can't read dataset descriptor file"):
-                YoloExtractor(test_dir)
+                YoloBase(test_dir)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_ann_line_format(self):

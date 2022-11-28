@@ -45,7 +45,7 @@ Cifar10Label = [
 # Support for Python version CIFAR-10/100
 
 
-class CifarExtractor(SubsetBase):
+class CifarBase(SubsetBase):
     def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

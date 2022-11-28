@@ -15,7 +15,7 @@ from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 
 
-class NyuDepthV2Extractor(SubsetBase):
+class NyuDepthV2Base(SubsetBase):
     def __init__(self, path, subset=None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)

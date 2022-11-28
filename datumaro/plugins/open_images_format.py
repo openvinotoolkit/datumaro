@@ -167,7 +167,7 @@ class OpenImagesPath:
     )
 
 
-class OpenImagesExtractor(DatasetBase):
+class OpenImagesBase(DatasetBase):
     def __init__(self, path, image_meta=None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
@@ -603,9 +603,9 @@ class OpenImagesImporter(Importer):
     def find_sources(cls, path):
         for pattern in cls.POSSIBLE_ANNOTATION_PATTERNS:
             if glob.glob(osp.join(glob.escape(path), OpenImagesPath.ANNOTATIONS_DIR, pattern)):
-                return [{"url": path, "format": OpenImagesExtractor.NAME}]
+                return [{"url": path, "format": OpenImagesBase.NAME}]
             elif glob.glob(osp.join(glob.escape(path), pattern)):
-                return [{"url": path, "format": OpenImagesExtractor.NAME}]
+                return [{"url": path, "format": OpenImagesBase.NAME}]
         return []
 
 

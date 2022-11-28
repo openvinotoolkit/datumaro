@@ -19,7 +19,7 @@ from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from .format import KittiRawPath, OcclusionStates, TruncationStates
 
 
-class KittiRawExtractor(SubsetBase):
+class KittiRawBase(SubsetBase):
     # http://www.cvlibs.net/datasets/kitti/raw_data.php
     # https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip
     # Check cpp header implementation for field meaning

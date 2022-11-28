@@ -65,7 +65,7 @@ class MotPath:
     ]
 
 
-class MotSeqExtractor(SubsetBase):
+class MotSeqBase(SubsetBase):
     def __init__(self, path, labels=None, occlusion_threshold=0, is_gt=None, subset=None):
         super().__init__(subset=subset)
 

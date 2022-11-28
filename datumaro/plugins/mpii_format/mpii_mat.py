@@ -21,7 +21,7 @@ from datumaro.components.media import Image
 from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
 
 
-class MpiiExtractor(SubsetBase):
+class MpiiBase(SubsetBase):
     def __init__(self, path):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

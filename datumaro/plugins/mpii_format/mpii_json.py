@@ -23,7 +23,7 @@ class MpiiJsonPath:
     POS_GT_FILE = "mpii_pos_gt.npy"
 
 
-class MpiiJsonExtractor(SubsetBase):
+class MpiiJsonBase(SubsetBase):
     def __init__(self, path):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

@@ -24,7 +24,7 @@ from datumaro.components.media import Image
 from .format import CvatPath
 
 
-class CvatExtractor(SubsetBase):
+class CvatBase(SubsetBase):
     _SUPPORTED_SHAPES = ("box", "polygon", "polyline", "points")
 
     def __init__(self, path, subset=None):

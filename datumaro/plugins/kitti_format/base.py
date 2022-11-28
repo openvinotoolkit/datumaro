@@ -16,7 +16,7 @@ from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from .format import KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map
 
 
-class _KittiExtractor(SubsetBase):
+class _KittiBase(SubsetBase):
     def __init__(self, path, task, subset=None):
         assert osp.isdir(path), path
         self._path = path
@@ -154,11 +154,11 @@ class _KittiExtractor(SubsetBase):
         return lambda: mask == c
 
 
-class KittiSegmentationExtractor(_KittiExtractor):
+class KittiSegmentationBase(_KittiBase):
     def __init__(self, path):
         super().__init__(path, task=KittiTask.segmentation)
 
 
-class KittiDetectionExtractor(_KittiExtractor):
+class KittiDetectionBase(_KittiBase):
     def __init__(self, path):
         super().__init__(path, task=KittiTask.detection)

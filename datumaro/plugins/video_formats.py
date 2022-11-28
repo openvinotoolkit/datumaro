@@ -92,10 +92,10 @@ class VideoFramesImporter(Importer):
     def find_sources(cls, path):
         if not osp.isfile(path):
             return []
-        return [{"url": path, "format": VideoFramesExtractor.NAME}]
+        return [{"url": path, "format": VideoFramesBase.NAME}]
 
 
-class VideoFramesExtractor(DatasetBase):
+class VideoFramesBase(DatasetBase):
     def __init__(
         self,
         url: str,

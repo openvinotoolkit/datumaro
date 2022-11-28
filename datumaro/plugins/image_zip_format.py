@@ -28,7 +28,7 @@ class ImageZipPath:
     DEFAULT_COMPRESSION = Compression.ZIP_STORED
 
 
-class ImageZipExtractor(SubsetBase):
+class ImageZipBase(SubsetBase):
     def __init__(self, url, subset=None):
         super().__init__(subset=subset, media_type=ByteImage)
 

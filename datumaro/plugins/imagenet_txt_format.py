@@ -47,7 +47,7 @@ def _parse_annotation_line(line: str) -> Tuple[str, str, Sequence[int]]:
     return item_id, image, label_ids
 
 
-class ImagenetTxtExtractor(SubsetBase):
+class ImagenetTxtBase(SubsetBase):
     def __init__(
         self,
         path: str,

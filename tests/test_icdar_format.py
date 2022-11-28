@@ -14,7 +14,7 @@ from datumaro.plugins.icdar_format.exporter import (
     IcdarTextSegmentationExporter,
     IcdarWordRecognitionExporter,
 )
-from datumaro.plugins.icdar_format.extractor import (
+from datumaro.plugins.icdar_format.base import (
     IcdarTextLocalizationImporter,
     IcdarTextSegmentationImporter,
     IcdarWordRecognitionImporter,

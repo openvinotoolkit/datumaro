@@ -16,7 +16,7 @@ from datumaro.util import parse_json, parse_json_file
 from datumaro.util.os_util import find_files
 
 
-class KineticsExtractor(DatasetBase):
+class KineticsBase(DatasetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
@@ -159,5 +159,5 @@ class KineticsImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         if find_files(path, ["csv", "json"]):
-            return [{"url": path, "format": KineticsExtractor.NAME}]
+            return [{"url": path, "format": KineticsBase.NAME}]
         return []

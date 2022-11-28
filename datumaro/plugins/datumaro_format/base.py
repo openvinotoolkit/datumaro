@@ -28,7 +28,7 @@ from datumaro.util import parse_json, parse_json_file
 from .format import DatumaroPath
 
 
-class DatumaroExtractor(SubsetBase):
+class DatumaroBase(SubsetBase):
     def __init__(self, path):
         assert osp.isfile(path), path
 

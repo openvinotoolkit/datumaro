@@ -24,7 +24,7 @@ def clamp(value, _min, _max):
     return max(min(_max, value), _min)
 
 
-class TfDetectionApiExtractor(SubsetBase):
+class TfDetectionApiBase(SubsetBase):
     def __init__(self, path, subset=None):
         assert osp.isfile(path), path
         images_dir = ""

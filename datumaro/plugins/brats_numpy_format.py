@@ -22,7 +22,7 @@ class BratsNumpyPath:
     LABEL_SUFFIX = "_label_cropped"
 
 
-class BratsNumpyExtractor(SubsetBase):
+class BratsNumpyBase(SubsetBase):
     def __init__(self, path):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)

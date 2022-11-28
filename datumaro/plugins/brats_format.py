@@ -21,7 +21,7 @@ class BratsPath:
     DATA_EXT = ".nii.gz"
 
 
-class BratsExtractor(SubsetBase):
+class BratsBase(SubsetBase):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
