@@ -30,13 +30,7 @@ from .components.annotation import (
     RleMask,
 )
 from .components.cli_plugin import CliPlugin
-from .components.dataset import (
-    Dataset,
-    DatasetPatch,
-    DatasetSubset,
-    ItemStatus,
-    eager_mode,
-)
+from .components.dataset import Dataset, DatasetPatch, DatasetSubset, ItemStatus, eager_mode
 from .components.dataset_base import (
     DEFAULT_SUBSET_NAME,
     CategoriesInfo,
