@@ -7,8 +7,8 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Mask
 from datumaro.components.dataset import Dataset
-from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.environment import Environment
 from datumaro.components.media import ByteImage, Image
 from datumaro.util.image import encode_image
 from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
@@ -17,11 +17,11 @@ from datumaro.util.tf_util import check_import
 from .requirements import Requirements, mark_requirement
 
 try:
-    from datumaro.plugins.tf_detection_api_format.exporter import TfDetectionApiExporter
     from datumaro.plugins.tf_detection_api_format.base import (
         TfDetectionApiBase,
         TfDetectionApiImporter,
     )
+    from datumaro.plugins.tf_detection_api_format.exporter import TfDetectionApiExporter
 
     import_failed = False
 except ImportError:

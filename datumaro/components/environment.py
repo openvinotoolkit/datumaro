@@ -72,9 +72,9 @@ class Environment:
         return issubclass(t, accept) and t not in skip
 
     def __init__(self):
-        from datumaro.components.exporter import Exporter
-        from datumaro.components.dataset_generator import DatasetGenerator
         from datumaro.components.dataset_base import DatasetBase, SubsetBase
+        from datumaro.components.dataset_generator import DatasetGenerator
+        from datumaro.components.exporter import Exporter
         from datumaro.components.importer import Importer
         from datumaro.components.launcher import Launcher
         from datumaro.components.transformer import ItemTransform, Transform
@@ -188,7 +188,7 @@ class Environment:
                 % (module_name, ", ".join(s.__name__ for s in exports))
             )
             all_exports.extend(exports)
-        
+
         return all_exports
 
     @classmethod
@@ -208,7 +208,7 @@ class Environment:
         plugins = self._load_plugins(
             module_names, importer=partial(import_foreign_module, path=plugins_dir)
         )
-        
+
         self._register_plugins(plugins)
 
     def _register_builtin_plugins(self):

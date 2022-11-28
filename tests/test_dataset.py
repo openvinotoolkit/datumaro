@@ -19,8 +19,13 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
 )
-from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, ItemStatus, eager_mode
+from datumaro.components.dataset_base import (
+    DEFAULT_SUBSET_NAME,
+    DatasetBase,
+    DatasetItem,
+    SubsetBase,
+)
 from datumaro.components.dataset_filter import (
     DatasetItemEncoder,
     XPathAnnotationsFilter,
@@ -39,12 +44,7 @@ from datumaro.components.errors import (
     RepeatedItemError,
     UnknownFormatError,
 )
-from datumaro.components.dataset_base import (
-    DEFAULT_SUBSET_NAME,
-    DatasetItem,
-    DatasetBase,
-    SubsetBase,
-)
+from datumaro.components.exporter import Exporter
 from datumaro.components.importer import FailingImportErrorPolicy, ImportErrorPolicy
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement, Video

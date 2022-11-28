@@ -10,12 +10,12 @@ from collections import OrderedDict
 from typing import Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
+from datumaro.components.dataset_base import DatasetBase, DatasetItem, SubsetBase
 from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
     UndeclaredLabelError,
 )
-from datumaro.components.dataset_base import DatasetItem, DatasetBase, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image

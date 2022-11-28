@@ -5,8 +5,8 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset import Dataset
-from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.imagenet_txt_format import ImagenetTxtExporter, ImagenetTxtImporter
 from datumaro.util.test_utils import TestDir, compare_datasets

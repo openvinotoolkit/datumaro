@@ -16,7 +16,14 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tupl
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.config_model import Source
-from datumaro.components.exporter import Exporter, ExportContext, ExportErrorPolicy, _ExportFail
+from datumaro.components.dataset_base import (
+    DEFAULT_SUBSET_NAME,
+    CategoriesInfo,
+    DatasetBase,
+    DatasetInfo,
+    DatasetItem,
+    IDataset,
+)
 from datumaro.components.dataset_filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
@@ -29,14 +36,7 @@ from datumaro.components.errors import (
     RepeatedItemError,
     UnknownFormatError,
 )
-from datumaro.components.dataset_base import (
-    DEFAULT_SUBSET_NAME,
-    CategoriesInfo,
-    DatasetInfo,
-    DatasetItem,
-    DatasetBase,
-    IDataset,
-)
+from datumaro.components.exporter import ExportContext, Exporter, ExportErrorPolicy, _ExportFail
 from datumaro.components.importer import ImportContext, ImportErrorPolicy, _ImportFail
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.media import Image, MediaElement

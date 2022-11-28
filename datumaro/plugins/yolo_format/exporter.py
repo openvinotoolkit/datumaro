@@ -8,10 +8,10 @@ import os.path as osp
 from collections import OrderedDict
 
 from datumaro.components.annotation import AnnotationType, Bbox
-from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.errors import DatasetExportError, MediaTypeError
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
+from datumaro.components.errors import DatasetExportError, MediaTypeError
+from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
 

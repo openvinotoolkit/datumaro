@@ -7,9 +7,9 @@ import os
 import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Points
-from datumaro.components.exporter import Exporter
+from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.dataset_base import DatasetItem, DatasetBase
+from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image

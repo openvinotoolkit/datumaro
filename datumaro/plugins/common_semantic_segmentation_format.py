@@ -8,8 +8,8 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
-from datumaro.components.errors import DatasetImportError
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image

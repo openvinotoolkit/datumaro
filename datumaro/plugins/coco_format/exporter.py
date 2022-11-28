@@ -13,10 +13,10 @@ import pycocotools.mask as mask_utils
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import COORDINATE_ROUNDING_DIGITS, AnnotationType, Points
-from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.errors import MediaTypeError
+from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
 from datumaro.util import cast, dump_json_file, find, str_to_bool
 from datumaro.util.image import save_image

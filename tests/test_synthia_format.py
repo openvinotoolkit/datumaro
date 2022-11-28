@@ -6,8 +6,8 @@ import numpy as np
 import datumaro.plugins.synthia_format as Synthia
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset import Dataset
-from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.util.test_utils import compare_datasets
 

@@ -18,6 +18,7 @@ from datumaro.components.annotation import (
     MaskCategories,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AnnotationImportError,
@@ -27,13 +28,12 @@ from datumaro.components.errors import (
     MissingFieldError,
     UndeclaredLabelError,
 )
-from datumaro.components.dataset_base import DatasetItem, DatasetBase
 from datumaro.components.media import Image
 from datumaro.plugins.voc_format.exporter import (
     VocActionExporter,
     VocClassificationExporter,
-    VocExporter,
     VocDetectionExporter,
+    VocExporter,
     VocLayoutExporter,
     VocSegmentationExporter,
 )

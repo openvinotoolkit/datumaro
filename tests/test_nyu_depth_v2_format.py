@@ -5,8 +5,8 @@ import numpy as np
 
 from datumaro.components.annotation import DepthAnnotation
 from datumaro.components.dataset import Dataset
-from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.nyu_depth_v2_format import NyuDepthV2Importer
 from datumaro.util.test_utils import compare_datasets

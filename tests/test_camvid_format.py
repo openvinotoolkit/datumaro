@@ -9,8 +9,8 @@ import numpy as np
 import datumaro.plugins.camvid_format as Camvid
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.environment import Environment
-from datumaro.components.dataset_base import DatasetItem, DatasetBase
 from datumaro.components.media import Image
 from datumaro.plugins.camvid_format import CamvidExporter, CamvidImporter
 from datumaro.util.meta_file_util import parse_meta_file

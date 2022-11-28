@@ -102,10 +102,10 @@ def convert_command(args):
     env = Environment()
 
     try:
-        converter = env.converters[args.output_format]
+        exporter = env.exporters[args.output_format]
     except KeyError:
         raise CliException("Exporter for format '%s' is not found" % args.output_format)
-    extra_args = converter.parse_cmdline(args.extra_args)
+    extra_args = exporter.parse_cmdline(args.extra_args)
 
     filter_args = FilterModes.make_filter_args(args.filter_mode)
 

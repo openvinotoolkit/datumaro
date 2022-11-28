@@ -3,8 +3,8 @@ from unittest import TestCase
 
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
-from datumaro.components.errors import ReadonlyDatasetError
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.errors import ReadonlyDatasetError
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets

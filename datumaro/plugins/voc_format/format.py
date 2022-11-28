@@ -17,8 +17,8 @@ from datumaro.components.annotation import (
     MaskCategories,
     RgbColor,
 )
-from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.dataset_base import CategoriesInfo
+from datumaro.components.errors import InvalidAnnotationError
 from datumaro.util import dump_json_file, find, parse_json_file
 from datumaro.util.meta_file_util import get_meta_file
 

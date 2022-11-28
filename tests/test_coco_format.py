@@ -20,6 +20,7 @@ from datumaro.components.annotation import (
     Polygon,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AnnotationImportError,
@@ -30,8 +31,8 @@ from datumaro.components.errors import (
     MissingFieldError,
     UndeclaredLabelError,
 )
-from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
+from datumaro.plugins.coco_format.base import CocoInstancesBase
 from datumaro.plugins.coco_format.exporter import (
     CocoCaptionsExporter,
     CocoExporter,
@@ -42,7 +43,6 @@ from datumaro.plugins.coco_format.exporter import (
     CocoPersonKeypointsExporter,
     CocoStuffExporter,
 )
-from datumaro.plugins.coco_format.base import CocoInstancesBase
 from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util import dump_json_file
 from datumaro.util.test_utils import (

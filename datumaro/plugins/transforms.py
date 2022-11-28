@@ -35,8 +35,8 @@ from datumaro.components.annotation import (
     RleMask,
 )
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.errors import DatumaroError
-from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
 from datumaro.components.media import Image
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util import NOTSET, filter_dict, parse_str_enum_value, take_by
@@ -736,7 +736,7 @@ class ProjectInfos(Transform, CliPlugin):
         )
         return parser
 
-    def __init__(self, extractor: IExtractor, dst_infos: DatasetInfo, overwrite: bool = False):
+    def __init__(self, extractor: IDataset, dst_infos: DatasetInfo, overwrite: bool = False):
         super().__init__(extractor)
 
         if overwrite:

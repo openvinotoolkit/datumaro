@@ -7,6 +7,7 @@ import numpy as np
 
 from datumaro.components.annotation import Bbox
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AnnotationImportError,
@@ -16,10 +17,9 @@ from datumaro.components.errors import (
     ItemImportError,
     UndeclaredLabelError,
 )
-from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.yolo_format.exporter import YoloExporter
 from datumaro.plugins.yolo_format.base import YoloBase, YoloImporter
+from datumaro.plugins.yolo_format.exporter import YoloExporter
 from datumaro.util.image import save_image
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 

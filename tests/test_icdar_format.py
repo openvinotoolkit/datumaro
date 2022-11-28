@@ -5,19 +5,19 @@ from unittest import TestCase
 import numpy as np
 
 from datumaro.components.annotation import Bbox, Caption, Mask, Polygon
-from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
-from datumaro.plugins.icdar_format.exporter import (
-    IcdarTextLocalizationExporter,
-    IcdarTextSegmentationExporter,
-    IcdarWordRecognitionExporter,
-)
 from datumaro.plugins.icdar_format.base import (
     IcdarTextLocalizationImporter,
     IcdarTextSegmentationImporter,
     IcdarWordRecognitionImporter,
+)
+from datumaro.plugins.icdar_format.exporter import (
+    IcdarTextLocalizationExporter,
+    IcdarTextSegmentationExporter,
+    IcdarWordRecognitionExporter,
 )
 from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 
