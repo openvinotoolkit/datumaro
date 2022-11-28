@@ -17,7 +17,7 @@ from datumaro.util.tf_util import check_import
 from .requirements import Requirements, mark_requirement
 
 try:
-    from datumaro.plugins.tf_detection_api_format.converter import TfDetectionApiExporter
+    from datumaro.plugins.tf_detection_api_format.exporter import TfDetectionApiExporter
     from datumaro.plugins.tf_detection_api_format.extractor import (
         TfDetectionApiExtractor,
         TfDetectionApiImporter,

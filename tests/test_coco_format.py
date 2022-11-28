@@ -32,7 +32,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.coco_format.converter import (
+from datumaro.plugins.coco_format.exporter import (
     CocoCaptionsExporter,
     CocoExporter,
     CocoImageInfoExporter,

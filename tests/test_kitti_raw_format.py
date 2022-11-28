@@ -8,7 +8,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
-from datumaro.plugins.kitti_raw_format.converter import KittiRawExporter
+from datumaro.plugins.kitti_raw_format.exporter import KittiRawExporter
 from datumaro.plugins.kitti_raw_format.extractor import KittiRawImporter
 from datumaro.util.test_utils import Dimensions, TestDir, check_save_and_load, compare_datasets_3d
 

@@ -9,7 +9,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
-from datumaro.plugins.icdar_format.converter import (
+from datumaro.plugins.icdar_format.exporter import (
     IcdarTextLocalizationExporter,
     IcdarTextSegmentationExporter,
     IcdarWordRecognitionExporter,

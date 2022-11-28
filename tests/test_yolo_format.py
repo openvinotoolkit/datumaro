@@ -18,7 +18,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.yolo_format.converter import YoloExporter
+from datumaro.plugins.yolo_format.exporter import YoloExporter
 from datumaro.plugins.yolo_format.extractor import YoloExtractor, YoloImporter
 from datumaro.util.image import save_image
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
