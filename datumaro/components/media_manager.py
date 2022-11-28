@@ -18,7 +18,7 @@
 #
 # Problems:
 # - Too much burden on plugins. Media reporting and resource management takes
-# too much efforts in this solution. Extractors and Converters all need to
+# too much efforts in this solution. Extractors and Exporters all need to
 # bother with this.
 #
 #

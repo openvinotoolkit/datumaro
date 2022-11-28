@@ -7,7 +7,7 @@ import os.path as osp
 import re
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
@@ -173,7 +173,7 @@ class WiderFaceImporter(Importer):
         )
 
 
-class WiderFaceConverter(Converter):
+class WiderFaceExporter(Exporter):
     DEFAULT_IMAGE_EXT = WiderFacePath.IMAGE_EXT
 
     def apply(self):

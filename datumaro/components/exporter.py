@@ -91,7 +91,7 @@ class NullExportContext(ExportContext):
     pass
 
 
-class Converter(CliPlugin):
+class Exporter(CliPlugin):
     DEFAULT_IMAGE_EXT = None
 
     @classmethod

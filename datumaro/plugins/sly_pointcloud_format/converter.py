@@ -15,7 +15,7 @@ import uuid
 from datetime import datetime
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, IDataset
@@ -26,7 +26,7 @@ from .format import PointCloudPath
 
 
 class _SuperviselyPointCloudDumper:
-    def __init__(self, extractor: IDataset, context: SuperviselyPointCloudConverter):
+    def __init__(self, extractor: IDataset, context: SuperviselyPointCloudExporter):
         self._extractor = extractor
         self._context = context
 
@@ -368,7 +368,7 @@ class _SuperviselyPointCloudDumper:
         self._write_key_id()
 
 
-class SuperviselyPointCloudConverter(Converter):
+class SuperviselyPointCloudExporter(Exporter):
     NAME = "sly_pointcloud"
     DEFAULT_IMAGE_EXT = PointCloudPath.DEFAULT_IMAGE_EXT
 

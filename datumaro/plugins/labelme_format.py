@@ -12,7 +12,7 @@ import numpy as np
 from defusedxml import ElementTree
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Mask, Polygon
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, DatasetBase
 from datumaro.components.format_detection import FormatDetectionContext
@@ -357,7 +357,7 @@ class LabelMeImporter(Importer):
         return subsets
 
 
-class LabelMeConverter(Converter):
+class LabelMeExporter(Exporter):
     DEFAULT_IMAGE_EXT = LabelMePath.IMAGE_EXT
 
     def apply(self):

@@ -62,7 +62,7 @@ class FilterModes(Enum):
 
 
 def build_export_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().converters)
+    builtins = sorted(Environment().exporters)
 
     parser = parser_ctor(
         help="Export project",
@@ -142,7 +142,7 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "extra_args",
         nargs=argparse.REMAINDER,
-        help="Additional arguments for converter (pass '-- -h' for help). "
+        help="Additional arguments for exporter (pass '-- -h' for help). "
         "Must be specified after the main command arguments and after "
         "the '--' separator",
     )
@@ -184,11 +184,11 @@ def export_command(args):
         env = Environment()
 
     try:
-        converter = env.converters[args.format]
+        exporter = env.exporters[args.format]
     except KeyError:
-        raise CliException("Converter for format '%s' is not found" % args.format)
+        raise CliException("Exporter for format '%s' is not found" % args.format)
 
-    extra_args = converter.parse_cmdline(args.extra_args)
+    extra_args = exporter.parse_cmdline(args.extra_args)
 
     dst_dir = args.dst_dir
     if dst_dir:
@@ -212,7 +212,7 @@ def export_command(args):
 
     log.info("Exporting...")
 
-    dataset.export(save_dir=dst_dir, format=converter, **extra_args)
+    dataset.export(save_dir=dst_dir, format=exporter, **extra_args)
 
     log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -352,7 +352,7 @@ def info_command(args):
     print("  location:", project._root_dir)
     print("Plugins:")
     print("  extractors:", ", ".join(sorted(set(env.extractors) | set(env.importers))))
-    print("  converters:", ", ".join(env.converters))
+    print("  exporters:", ", ".join(env.exporters))
     print("  launchers:", ", ".join(env.launchers))
 
     print("Models:")

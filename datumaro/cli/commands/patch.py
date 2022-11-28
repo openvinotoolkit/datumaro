@@ -138,11 +138,11 @@ def patch_command(args):
         scope_add(_project)
 
     try:
-        converter = env.converters[target_dataset.format]
+        exporter = env.exporters[target_dataset.format]
     except KeyError:
-        raise CliException("Converter for format '%s' is not found" % args.format)
+        raise CliException("Exporter for format '%s' is not found" % args.format)
 
-    extra_args = converter.parse_cmdline(args.extra_args)
+    extra_args = exporter.parse_cmdline(args.extra_args)
 
     dst_dir = args.dst_dir or target_dataset.data_path
     if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):

@@ -8,7 +8,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.imagenet_txt_format import ImagenetTxtConverter, ImagenetTxtImporter
+from datumaro.plugins.imagenet_txt_format import ImagenetTxtExporter, ImagenetTxtImporter
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -35,7 +35,7 @@ class ImagenetTxtFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetTxtConverter.convert(source_dataset, test_dir, save_media=True)
+            ImagenetTxtExporter.convert(source_dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet_txt")
 
@@ -51,7 +51,7 @@ class ImagenetTxtFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetTxtConverter.convert(source_dataset, test_dir, save_media=False)
+            ImagenetTxtExporter.convert(source_dataset, test_dir, save_media=False)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet_txt")
 
@@ -68,7 +68,7 @@ class ImagenetTxtFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetTxtConverter.convert(source_dataset, test_dir, save_dataset_meta=True)
+            ImagenetTxtExporter.convert(source_dataset, test_dir, save_dataset_meta=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet_txt")
 
@@ -94,7 +94,7 @@ class ImagenetTxtFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetTxtConverter.convert(source_dataset, test_dir, save_media=True)
+            ImagenetTxtExporter.convert(source_dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet_txt")
 
@@ -116,7 +116,7 @@ class ImagenetTxtFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetTxtConverter.convert(source_dataset, test_dir, save_media=True)
+            ImagenetTxtExporter.convert(source_dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet_txt")
 
@@ -140,7 +140,7 @@ class ImagenetTxtFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetTxtConverter.convert(dataset, test_dir, save_media=True)
+            ImagenetTxtExporter.convert(dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet_txt")
 
@@ -159,7 +159,7 @@ class ImagenetTxtFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetTxtConverter.convert(dataset, test_dir, save_media=True)
+            ImagenetTxtExporter.convert(dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet_txt")
 

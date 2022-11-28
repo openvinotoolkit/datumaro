@@ -6,7 +6,7 @@ import os
 import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, CompiledMask
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import DatumaroError, MediaTypeError
 from datumaro.components.media import Image
 from datumaro.util.image import save_image
@@ -15,7 +15,7 @@ from datumaro.util.mask_tools import generate_colormap, paint_mask
 from .format import IcdarPath
 
 
-class IcdarWordRecognitionConverter(Converter):
+class IcdarWordRecognitionExporter(Exporter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
@@ -46,7 +46,7 @@ class IcdarWordRecognitionConverter(Converter):
                     f.write(annotation)
 
 
-class IcdarTextLocalizationConverter(Converter):
+class IcdarTextLocalizationExporter(Exporter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):
@@ -81,7 +81,7 @@ class IcdarTextLocalizationConverter(Converter):
                     f.write(annotation)
 
 
-class IcdarTextSegmentationConverter(Converter):
+class IcdarTextSegmentationExporter(Exporter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
     def apply(self):

@@ -6,7 +6,7 @@ import os
 import os.path as osp
 import re
 
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, DatasetBase
 from datumaro.components.importer import Importer
@@ -111,7 +111,7 @@ class Market1501Importer(Importer):
                 return [{"url": path, "format": Market1501Extractor.NAME}]
 
 
-class Market1501Converter(Converter):
+class Market1501Exporter(Exporter):
     DEFAULT_IMAGE_EXT = Market1501Path.IMAGE_EXT
 
     def _make_dir_name(self, item):

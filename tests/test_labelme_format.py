@@ -10,13 +10,13 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.labelme_format import LabelMeConverter, LabelMeImporter
+from datumaro.plugins.labelme_format import LabelMeExporter, LabelMeImporter
 from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 
 from .requirements import Requirements, mark_requirement
 
 
-class LabelMeConverterTest(TestCase):
+class LabelMeExporterTest(TestCase):
     def _test_save_and_load(
         self, source_dataset, converter, test_dir, target_dataset=None, importer_args=None, **kwargs
     ):
@@ -137,7 +137,7 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(LabelMeConverter.convert, save_media=True),
+                partial(LabelMeExporter.convert, save_media=True),
                 test_dir,
                 target_dataset=target_dataset,
                 require_media=True,
@@ -158,7 +158,7 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 dataset,
-                partial(LabelMeConverter.convert, save_media=True),
+                partial(LabelMeExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
             )
@@ -199,7 +199,7 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(LabelMeConverter.convert, save_media=True),
+                partial(LabelMeExporter.convert, save_media=True),
                 test_dir,
                 target_dataset=target_dataset,
                 require_media=True,
@@ -247,7 +247,7 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(LabelMeConverter.convert, save_media=True),
+                partial(LabelMeExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
             )
@@ -264,7 +264,7 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 dataset,
-                partial(LabelMeConverter.convert, save_media=True),
+                partial(LabelMeExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
             )
@@ -311,7 +311,7 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(LabelMeConverter.convert, save_media=True, save_dataset_meta=True),
+                partial(LabelMeExporter.convert, save_media=True, save_dataset_meta=True),
                 test_dir,
                 require_media=True,
             )
@@ -432,7 +432,7 @@ class LabelMeImporterTest(TestCase):
     def test_can_convert(self):
         source_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "label_me")
         with TestDir() as test_dir:
-            LabelMeConverter.convert(source_dataset, test_dir, save_media=True)
+            LabelMeExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "label_me")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)

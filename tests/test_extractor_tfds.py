@@ -27,7 +27,7 @@ class TfdsDatasetsTest(TestCase):
             assert isinstance(dataset.metadata.human_name, str)
             assert dataset.metadata.human_name != ""
 
-            assert dataset.metadata.default_output_format in env.converters
+            assert dataset.metadata.default_output_format in env.extractors
 
             assert issubclass(dataset.metadata.media_type, MediaElement)
 

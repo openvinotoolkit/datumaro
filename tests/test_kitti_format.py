@@ -10,7 +10,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem, DatasetBase
 from datumaro.components.media import Image
-from datumaro.plugins.kitti_format.converter import KittiConverter
+from datumaro.plugins.kitti_format.converter import KittiExporter
 from datumaro.plugins.kitti_format.format import (
     KittiLabelMap,
     KittiPath,
@@ -54,7 +54,7 @@ class KittiFormatTest(TestCase):
                 [], categories=make_kitti_categories(src_label_map)
             )
 
-            KittiConverter.convert(source_dataset, test_dir, save_dataset_meta=True)
+            KittiExporter.convert(source_dataset, test_dir, save_dataset_meta=True)
             dst_label_map = parse_meta_file(test_dir)
 
             self.assertEqual(src_label_map, dst_label_map)
@@ -232,7 +232,7 @@ class TestExtractorBase(DatasetBase):
         return make_kitti_categories()
 
 
-class KittiConverterTest(TestCase):
+class KittiExporterTest(TestCase):
     def _test_save_and_load(
         self, source_dataset, converter, test_dir, target_dataset=None, importer_args=None, **kwargs
     ):
@@ -303,7 +303,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(KittiConverter.convert, label_map="kitti", save_media=True),
+                partial(KittiExporter.convert, label_map="kitti", save_media=True),
                 test_dir,
             )
 
@@ -359,7 +359,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(KittiConverter.convert, save_media=True, tasks=KittiTask.detection),
+                partial(KittiExporter.convert, save_media=True, tasks=KittiTask.detection),
                 test_dir,
             )
 
@@ -401,7 +401,7 @@ class KittiConverterTest(TestCase):
             self._test_save_and_load(
                 TestExtractor(),
                 partial(
-                    KittiConverter.convert, label_map="kitti", save_media=True, apply_colormap=False
+                    KittiExporter.convert, label_map="kitti", save_media=True, apply_colormap=False
                 ),
                 test_dir,
             )
@@ -454,7 +454,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(KittiConverter.convert, label_map="kitti", save_media=True),
+                partial(KittiExporter.convert, label_map="kitti", save_media=True),
                 test_dir,
             )
 
@@ -489,7 +489,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(KittiConverter.convert, label_map="kitti", save_media=True),
+                partial(KittiExporter.convert, label_map="kitti", save_media=True),
                 test_dir,
             )
 
@@ -523,7 +523,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(KittiConverter.convert, label_map="kitti", save_media=True),
+                partial(KittiExporter.convert, label_map="kitti", save_media=True),
                 test_dir,
             )
 
@@ -558,7 +558,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(KittiConverter.convert, label_map="kitti", save_media=True),
+                partial(KittiExporter.convert, label_map="kitti", save_media=True),
                 test_dir,
             )
 
@@ -579,7 +579,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(KittiConverter.convert, label_map="kitti", save_media=True),
+                partial(KittiExporter.convert, label_map="kitti", save_media=True),
                 test_dir,
             )
 
@@ -646,7 +646,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 SrcExtractor(),
-                partial(KittiConverter.convert, label_map="source", save_media=True),
+                partial(KittiExporter.convert, label_map="source", save_media=True),
                 test_dir,
                 target_dataset=DstExtractor(),
             )
@@ -712,7 +712,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 SrcExtractor(),
-                partial(KittiConverter.convert, label_map="source", save_media=True),
+                partial(KittiExporter.convert, label_map="source", save_media=True),
                 test_dir,
                 target_dataset=DstExtractor(),
             )
@@ -756,7 +756,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(KittiConverter.convert, save_media=True),
+                partial(KittiExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
             )
@@ -796,7 +796,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(KittiConverter.convert, save_media=False, label_map="kitti"),
+                partial(KittiExporter.convert, save_media=False, label_map="kitti"),
                 test_dir,
             )
 
@@ -826,7 +826,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(KittiConverter.convert, tasks=KittiTask.detection, save_media=False),
+                partial(KittiExporter.convert, tasks=KittiTask.detection, save_media=False),
                 test_dir,
             )
 
@@ -908,7 +908,7 @@ class KittiConverterTest(TestCase):
             self._test_save_and_load(
                 source_dataset,
                 partial(
-                    KittiConverter.convert, tasks=KittiTask.segmentation, label_map=source_label_map
+                    KittiExporter.convert, tasks=KittiTask.segmentation, label_map=source_label_map
                 ),
                 test_dir,
                 target_dataset=expected_dataset,
@@ -966,7 +966,7 @@ class KittiConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(KittiConverter.convert, save_media=True, tasks=KittiTask.detection),
+                partial(KittiExporter.convert, save_media=True, tasks=KittiTask.detection),
                 test_dir,
             )
 
@@ -1023,7 +1023,7 @@ class KittiConverterTest(TestCase):
             self._test_save_and_load(
                 source_dataset,
                 partial(
-                    KittiConverter.convert,
+                    KittiExporter.convert,
                     save_media=True,
                     save_dataset_meta=True,
                     tasks=KittiTask.detection,
@@ -1093,7 +1093,7 @@ class KittiConverterTest(TestCase):
             self._test_save_and_load(
                 SrcExtractor(),
                 partial(
-                    KittiConverter.convert,
+                    KittiExporter.convert,
                     label_map="source",
                     save_media=True,
                     save_dataset_meta=True,

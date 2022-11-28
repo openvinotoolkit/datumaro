@@ -9,7 +9,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.imagenet_format import ImagenetConverter, ImagenetImporter
+from datumaro.plugins.imagenet_format import ImagenetExporter, ImagenetImporter
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 from .requirements import Requirements, mark_requirement
@@ -35,7 +35,7 @@ class ImagenetFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetConverter.convert(source_dataset, test_dir, save_media=True)
+            ImagenetExporter.convert(source_dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet")
 
@@ -71,7 +71,7 @@ class ImagenetFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetConverter.convert(source_dataset, test_dir, save_media=True)
+            ImagenetExporter.convert(source_dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet")
 
@@ -91,7 +91,7 @@ class ImagenetFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetConverter.convert(source_dataset, test_dir, save_media=True)
+            ImagenetExporter.convert(source_dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet")
 
@@ -108,7 +108,7 @@ class ImagenetFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            ImagenetConverter.convert(dataset, test_dir, save_media=True)
+            ImagenetExporter.convert(dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "imagenet")
 

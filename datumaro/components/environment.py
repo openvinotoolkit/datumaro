@@ -72,7 +72,7 @@ class Environment:
         return issubclass(t, accept) and t not in skip
 
     def __init__(self):
-        from datumaro.components.converter import Converter
+        from datumaro.components.exporter import Exporter
         from datumaro.components.dataset_generator import DatasetGenerator
         from datumaro.components.dataset_base import DatasetBase, SubsetBase
         from datumaro.components.importer import Importer
@@ -84,7 +84,7 @@ class Environment:
         self._extractors = PluginRegistry(_filter(DatasetBase, skip=SubsetBase))
         self._importers = PluginRegistry(_filter(Importer))
         self._launchers = PluginRegistry(_filter(Launcher))
-        self._converters = PluginRegistry(_filter(Converter))
+        self._exporters = PluginRegistry(_filter(Exporter))
         self._generators = PluginRegistry(_filter(DatasetGenerator))
         self._transforms = PluginRegistry(_filter(Transform, skip=ItemTransform))
         self._validators = PluginRegistry(_filter(Validator))
@@ -109,8 +109,8 @@ class Environment:
         return self._get_plugin_registry("_launchers")
 
     @property
-    def converters(self) -> PluginRegistry:
-        return self._get_plugin_registry("_converters")
+    def exporters(self) -> PluginRegistry:
+        return self._get_plugin_registry("_exporters")
 
     @property
     def generators(self) -> PluginRegistry:
@@ -188,7 +188,7 @@ class Environment:
                 % (module_name, ", ".join(s.__name__ for s in exports))
             )
             all_exports.extend(exports)
-
+        
         return all_exports
 
     @classmethod
@@ -208,6 +208,7 @@ class Environment:
         plugins = self._load_plugins(
             module_names, importer=partial(import_foreign_module, path=plugins_dir)
         )
+        
         self._register_plugins(plugins)
 
     def _register_builtin_plugins(self):
@@ -217,7 +218,7 @@ class Environment:
         self.extractors.batch_register(plugins)
         self.importers.batch_register(plugins)
         self.launchers.batch_register(plugins)
-        self.converters.batch_register(plugins)
+        self.exporters.batch_register(plugins)
         self.generators.batch_register(plugins)
         self.transforms.batch_register(plugins)
         self.validators.batch_register(plugins)
@@ -231,8 +232,8 @@ class Environment:
     def make_launcher(self, name, *args, **kwargs):
         return self.launchers.get(name)(*args, **kwargs)
 
-    def make_converter(self, name, *args, **kwargs):
-        result = self.converters.get(name)
+    def make_exporter(self, name, *args, **kwargs):
+        result = self.exporters.get(name)
         if isclass(result):
             result = result.convert
         return partial(result, *args, **kwargs)

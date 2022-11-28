@@ -66,7 +66,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         "extra_args",
         nargs=argparse.REMAINDER,
         default=None,
-        help="Additional arguments for converter (pass '-- -h' for help)",
+        help="Additional arguments for exporter (pass '-- -h' for help)",
     )
     parser.set_defaults(command=add_command)
 

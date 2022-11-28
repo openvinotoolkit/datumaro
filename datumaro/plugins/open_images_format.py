@@ -20,7 +20,7 @@ import numpy as np
 from attr import attrs
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Mask
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import (
     DatasetError,
@@ -698,7 +698,7 @@ class _AnnotationWriter:
                 os.unlink(osp.join(self._annotations_dir, file_name))
 
 
-class OpenImagesConverter(Converter):
+class OpenImagesExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
 
     def apply(self):

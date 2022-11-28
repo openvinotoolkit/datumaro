@@ -8,7 +8,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
-from datumaro.plugins.sly_pointcloud_format.converter import SuperviselyPointCloudConverter
+from datumaro.plugins.sly_pointcloud_format.converter import SuperviselyPointCloudExporter
 from datumaro.plugins.sly_pointcloud_format.extractor import SuperviselyPointCloudImporter
 from datumaro.util.test_utils import Dimensions, TestDir, check_save_and_load, compare_datasets_3d
 
@@ -212,7 +212,7 @@ class PointCloudConverterTest(TestCase):
 
             self._test_save_and_load(
                 source_dataset,
-                partial(SuperviselyPointCloudConverter.convert, save_media=True),
+                partial(SuperviselyPointCloudExporter.convert, save_media=True),
                 test_dir,
                 target_dataset=target_dataset,
                 require_point_cloud=True,
@@ -231,7 +231,7 @@ class PointCloudConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 dataset,
-                SuperviselyPointCloudConverter.convert,
+                SuperviselyPointCloudExporter.convert,
                 test_dir,
                 ignored_attrs={"description"},
             )
@@ -251,7 +251,7 @@ class PointCloudConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(SuperviselyPointCloudConverter.convert, reindex=True),
+                partial(SuperviselyPointCloudExporter.convert, reindex=True),
                 test_dir,
                 target_dataset=expected_dataset,
                 ignored_attrs={"description"},
@@ -290,7 +290,7 @@ class PointCloudConverterTest(TestCase):
             self._test_save_and_load(
                 source_dataset,
                 partial(
-                    SuperviselyPointCloudConverter.convert,
+                    SuperviselyPointCloudExporter.convert,
                     save_media=True,
                     allow_undeclared_attrs=True,
                 ),
@@ -344,7 +344,7 @@ class PointCloudConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(SuperviselyPointCloudConverter.convert, save_media=True),
+                partial(SuperviselyPointCloudExporter.convert, save_media=True),
                 test_dir,
                 target_dataset=target_dataset,
                 ignored_attrs=["description"],
@@ -380,7 +380,7 @@ class PointCloudConverterTest(TestCase):
 
             self._test_save_and_load(
                 source_dataset,
-                partial(SuperviselyPointCloudConverter.convert, save_media=True),
+                partial(SuperviselyPointCloudExporter.convert, save_media=True),
                 test_dir,
                 target_dataset=target_dataset,
                 ignored_attrs={"description"},

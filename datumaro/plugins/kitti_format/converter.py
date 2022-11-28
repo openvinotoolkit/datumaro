@@ -11,7 +11,7 @@ from enum import Enum, auto
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, CompiledMask, LabelCategories
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.util import cast, parse_str_enum_value, str_to_bool
@@ -35,7 +35,7 @@ class LabelmapType(Enum):
     source = auto()
 
 
-class KittiConverter(Converter):
+class KittiExporter(Exporter):
     DEFAULT_IMAGE_EXT = KittiPath.IMAGE_EXT
 
     @staticmethod
@@ -289,13 +289,13 @@ class KittiConverter(Converter):
         save_image(path, mask, create_dir=True, dtype=dtype)
 
 
-class KittiSegmentationConverter(KittiConverter):
+class KittiSegmentationExporter(KittiExporter):
     def __init__(self, *args, **kwargs):
         kwargs["tasks"] = KittiTask.segmentation
         super().__init__(*args, **kwargs)
 
 
-class KittiDetectionConverter(KittiConverter):
+class KittiDetectionExporter(KittiExporter):
     def __init__(self, *args, **kwargs):
         kwargs["tasks"] = KittiTask.detection
         super().__init__(*args, **kwargs)

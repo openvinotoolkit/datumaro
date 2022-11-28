@@ -10,7 +10,7 @@ from collections import OrderedDict
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -173,7 +173,7 @@ class CifarImporter(Importer):
         )
 
 
-class CifarConverter(Converter):
+class CifarExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".png"
 
     def apply(self):

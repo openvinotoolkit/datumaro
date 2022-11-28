@@ -12,7 +12,7 @@ from itertools import chain
 from xml.sax.saxutils import XMLGenerator  # nosec
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem
@@ -503,7 +503,7 @@ class _SubsetWriter:
         self._writer.close_tag()
 
 
-class CvatConverter(Converter):
+class CvatExporter(Exporter):
     DEFAULT_IMAGE_EXT = CvatPath.IMAGE_EXT
 
     @classmethod

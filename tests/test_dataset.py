@@ -19,7 +19,7 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
 )
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, ItemStatus, eager_mode
 from datumaro.components.dataset_filter import (
     DatasetItemEncoder,
@@ -384,7 +384,7 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_by_string_format_name(self):
         env = Environment()
-        env.converters.items = {"qq": env.converters[DEFAULT_FORMAT]}
+        env.exporters.items = {"qq": env.exporters[DEFAULT_FORMAT]}
 
         dataset = Dataset.from_iterable(
             [
@@ -1594,7 +1594,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
-        class CustomConverter(Converter):
+        class CustomExporter(Exporter):
             DEFAULT_IMAGE_EXT = ".jpg"
 
             def apply(self):
@@ -1609,7 +1609,7 @@ class DatasetTest(TestCase):
                         self._save_image(item, name=name)
 
         env = Environment()
-        env.converters.items = {"test": CustomConverter}
+        env.exporters.items = {"test": CustomExporter}
 
         with TestDir() as path:
             dataset = Dataset.from_iterable(
@@ -1863,8 +1863,8 @@ class DatasetTest(TestCase):
         error_policy.report_annotation_error.assert_called()
 
     @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
-    def test_can_report_progress_from_converter(self):
-        class TestConverter(Converter):
+    def test_can_report_progress_from_exporter(self):
+        class TestExporter(Exporter):
             DEFAULT_IMAGE_EXT = ".jpg"
 
             def apply(self):
@@ -1882,7 +1882,7 @@ class DatasetTest(TestCase):
 
         with TestDir() as test_dir:
             Dataset(media_type=MediaElement).export(
-                test_dir, TestConverter, progress_reporter=progress_reporter
+                test_dir, TestExporter, progress_reporter=progress_reporter
             )
 
         period_mock.assert_called_once()
@@ -1891,8 +1891,8 @@ class DatasetTest(TestCase):
         progress_reporter.finish.assert_called()
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
-    def test_can_report_errors_from_converter(self):
-        class TestConverter(Converter):
+    def test_can_report_errors_from_exporter(self):
+        class TestExporter(Exporter):
             DEFAULT_IMAGE_EXT = ".jpg"
 
             def apply(self):
@@ -1911,7 +1911,7 @@ class DatasetTest(TestCase):
 
         with TestDir() as test_dir:
             Dataset(media_type=MediaElement).export(
-                test_dir, TestConverter, error_policy=error_policy
+                test_dir, TestExporter, error_policy=error_policy
             )
 
         error_policy.report_item_error.assert_called()

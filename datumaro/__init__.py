@@ -30,7 +30,7 @@ from .components.annotation import (
     RleMask,
 )
 from .components.cli_plugin import CliPlugin
-from .components.converter import Converter, ExportErrorPolicy, FailingExportErrorPolicy
+from .components.exporter import Exporter, ExportErrorPolicy, FailingExportErrorPolicy
 from .components.dataset import (
     Dataset,
     DatasetPatch,

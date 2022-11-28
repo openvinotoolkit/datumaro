@@ -9,7 +9,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.mots_format import MotsImporter, MotsPngConverter
+from datumaro.plugins.mots_format import MotsImporter, MotsPngExporter
 from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -17,7 +17,7 @@ from .requirements import Requirements, mark_requirement
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "mots_dataset")
 
 
-class MotsPngConverterTest(TestCase):
+class MotsPngExporterTest(TestCase):
     def _test_save_and_load(
         self, source_dataset, converter, test_dir, target_dataset=None, importer_args=None, **kwargs
     ):
@@ -118,7 +118,7 @@ class MotsPngConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source,
-                partial(MotsPngConverter.convert, save_media=True),
+                partial(MotsPngExporter.convert, save_media=True),
                 test_dir,
                 target_dataset=target,
             )
@@ -142,7 +142,7 @@ class MotsPngConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                source_dataset, partial(MotsPngConverter.convert, save_media=False), test_dir
+                source_dataset, partial(MotsPngExporter.convert, save_media=False), test_dir
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -164,7 +164,7 @@ class MotsPngConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source,
-                partial(MotsPngConverter.convert, save_media=True),
+                partial(MotsPngExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
             )
@@ -194,7 +194,7 @@ class MotsPngConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 expected,
-                partial(MotsPngConverter.convert, save_media=True),
+                partial(MotsPngExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
             )
@@ -219,7 +219,7 @@ class MotsPngConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(MotsPngConverter.convert, save_media=True, save_dataset_meta=True),
+                partial(MotsPngExporter.convert, save_media=True, save_dataset_meta=True),
                 test_dir,
                 require_media=True,
             )

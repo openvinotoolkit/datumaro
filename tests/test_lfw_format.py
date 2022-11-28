@@ -10,7 +10,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.lfw_format import LfwConverter, LfwImporter
+from datumaro.plugins.lfw_format import LfwExporter, LfwImporter
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -66,7 +66,7 @@ class LfwFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            LfwConverter.convert(source_dataset, test_dir, save_media=True)
+            LfwExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "lfw")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
@@ -106,7 +106,7 @@ class LfwFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            LfwConverter.convert(source_dataset, test_dir, save_media=False)
+            LfwExporter.convert(source_dataset, test_dir, save_media=False)
             parsed_dataset = Dataset.import_from(test_dir, "lfw")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -138,7 +138,7 @@ class LfwFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            LfwConverter.convert(source_dataset, test_dir, save_media=True)
+            LfwExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "lfw")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -160,7 +160,7 @@ class LfwFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            LfwConverter.convert(source_dataset, test_dir, save_media=True)
+            LfwExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "lfw")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -190,7 +190,7 @@ class LfwFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            LfwConverter.convert(source_dataset, test_dir, save_media=True)
+            LfwExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "lfw")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -210,7 +210,7 @@ class LfwFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            LfwConverter.convert(dataset, test_dir, save_media=True)
+            LfwExporter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "lfw")
 
             compare_datasets(self, dataset, parsed_dataset, require_media=True)
@@ -234,7 +234,7 @@ class LfwFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            LfwConverter.convert(dataset, test_dir, save_media=True)
+            LfwExporter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "lfw")
 
             compare_datasets(self, dataset, parsed_dataset, require_media=True)
@@ -288,7 +288,7 @@ class LfwFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            LfwConverter.convert(source_dataset, test_dir, save_media=True, save_dataset_meta=True)
+            LfwExporter.convert(source_dataset, test_dir, save_media=True, save_dataset_meta=True)
             parsed_dataset = Dataset.import_from(test_dir, "lfw")
 
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))

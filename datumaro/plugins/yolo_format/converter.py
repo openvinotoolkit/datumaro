@@ -8,7 +8,7 @@ import os.path as osp
 from collections import OrderedDict
 
 from datumaro.components.annotation import AnnotationType, Bbox
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import DatasetExportError, MediaTypeError
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
@@ -29,7 +29,7 @@ def _make_yolo_bbox(img_size, box):
     return x, y, w, h
 
 
-class YoloConverter(Converter):
+class YoloExporter(Exporter):
     # https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects
     DEFAULT_IMAGE_EXT = ".jpg"
 

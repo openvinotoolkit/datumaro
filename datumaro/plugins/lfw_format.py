@@ -7,7 +7,7 @@ import os.path as osp
 import re
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories, Points
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
@@ -227,7 +227,7 @@ class LfwImporter(Importer):
         )
 
 
-class LfwConverter(Converter):
+class LfwExporter(Exporter):
     DEFAULT_IMAGE_EXT = LfwPath.IMAGE_EXT
 
     def apply(self):

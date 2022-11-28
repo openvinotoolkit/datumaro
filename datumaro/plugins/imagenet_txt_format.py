@@ -9,7 +9,7 @@ from typing import Iterable, Optional, Sequence, Tuple, Union
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
@@ -186,7 +186,7 @@ class ImagenetTxtImporter(Importer, CliPlugin):
         return cls._find_sources_recursive(path, ".txt", "imagenet_txt", file_filter=file_filter)
 
 
-class ImagenetTxtConverter(Converter):
+class ImagenetTxtExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
 
     def apply(self):

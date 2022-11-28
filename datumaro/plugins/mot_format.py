@@ -14,7 +14,7 @@ from collections import OrderedDict
 from enum import Enum
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
@@ -226,7 +226,7 @@ class MotSeqImporter(Importer):
         )
 
 
-class MotSeqGtConverter(Converter):
+class MotSeqGtExporter(Exporter):
     DEFAULT_IMAGE_EXT = MotPath.IMAGE_EXT
 
     def apply(self):

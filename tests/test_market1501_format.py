@@ -7,7 +7,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.market1501_format import Market1501Converter, Market1501Importer
+from datumaro.plugins.market1501_format import Market1501Exporter, Market1501Importer
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -61,7 +61,7 @@ class Market1501FormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            Market1501Converter.convert(source_dataset, test_dir, save_media=True)
+            Market1501Exporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "market1501")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -86,7 +86,7 @@ class Market1501FormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            Market1501Converter.convert(source_dataset, test_dir, save_media=True)
+            Market1501Exporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "market1501")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -121,7 +121,7 @@ class Market1501FormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            Market1501Converter.convert(source_dataset, test_dir, save_media=True)
+            Market1501Exporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "market1501")
 
             compare_datasets(self, expected_dataset, parsed_dataset, require_media=True)
@@ -147,7 +147,7 @@ class Market1501FormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            Market1501Converter.convert(source_dataset, test_dir, save_media=False)
+            Market1501Exporter.convert(source_dataset, test_dir, save_media=False)
             parsed_dataset = Dataset.import_from(test_dir, "market1501")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -184,7 +184,7 @@ class Market1501FormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            Market1501Converter.convert(expected, test_dir, save_media=True)
+            Market1501Exporter.convert(expected, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "market1501")
 
             compare_datasets(self, expected, parsed_dataset, require_media=True)
@@ -202,7 +202,7 @@ class Market1501FormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            Market1501Converter.convert(source_dataset, test_dir, save_media=False)
+            Market1501Exporter.convert(source_dataset, test_dir, save_media=False)
             parsed_dataset = Dataset.import_from(test_dir, "market1501")
 
             compare_datasets(self, source_dataset, parsed_dataset)

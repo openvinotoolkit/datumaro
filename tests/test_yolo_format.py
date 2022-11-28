@@ -18,7 +18,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.yolo_format.converter import YoloConverter
+from datumaro.plugins.yolo_format.converter import YoloExporter
 from datumaro.plugins.yolo_format.extractor import YoloExtractor, YoloImporter
 from datumaro.util.image import save_image
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
@@ -26,7 +26,7 @@ from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets
 from .requirements import Requirements, mark_requirement
 
 
-class YoloConvertertTest(TestCase):
+class YoloExportertTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable(
@@ -66,7 +66,7 @@ class YoloConvertertTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            YoloConverter.convert(source_dataset, test_dir, save_media=True)
+            YoloExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "yolo")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -89,7 +89,7 @@ class YoloConvertertTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            YoloConverter.convert(source_dataset, test_dir)
+            YoloExporter.convert(source_dataset, test_dir)
 
             save_image(
                 osp.join(test_dir, "obj_train_data", "1.jpg"), np.ones((10, 15, 3))
@@ -116,7 +116,7 @@ class YoloConvertertTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            YoloConverter.convert(source_dataset, test_dir)
+            YoloExporter.convert(source_dataset, test_dir)
 
             parsed_dataset = Dataset.import_from(test_dir, "yolo", image_info={"1": (10, 15)})
 
@@ -140,7 +140,7 @@ class YoloConvertertTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            YoloConverter.convert(source_dataset, test_dir, save_media=True)
+            YoloExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "yolo")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
@@ -159,7 +159,7 @@ class YoloConvertertTest(TestCase):
         for save_media in {True, False}:
             with self.subTest(save_media=save_media):
                 with TestDir() as test_dir:
-                    YoloConverter.convert(source_dataset, test_dir, save_media=save_media)
+                    YoloExporter.convert(source_dataset, test_dir, save_media=save_media)
                     parsed_dataset = Dataset.import_from(test_dir, "yolo")
 
                     compare_datasets(self, source_dataset, parsed_dataset)
@@ -181,7 +181,7 @@ class YoloConvertertTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            YoloConverter.convert(dataset, test_dir, save_media=True)
+            YoloExporter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "yolo")
 
             compare_datasets(self, dataset, parsed_dataset, require_media=True)
@@ -257,7 +257,7 @@ class YoloConvertertTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            YoloConverter.convert(source_dataset, test_dir, save_media=True, save_dataset_meta=True)
+            YoloExporter.convert(source_dataset, test_dir, save_media=True, save_dataset_meta=True)
             parsed_dataset = Dataset.import_from(test_dir, "yolo")
 
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
@@ -281,7 +281,7 @@ class YoloConvertertTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            YoloConverter.convert(source_dataset, test_dir, save_media=True)
+            YoloExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "yolo")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -303,7 +303,7 @@ class YoloConvertertTest(TestCase):
 
             with TestDir() as test_dir:
                 with self.assertRaisesRegex(DatasetExportError, f"Can't export '{subset}' subset"):
-                    YoloConverter.convert(dataset, test_dir)
+                    YoloExporter.convert(dataset, test_dir)
 
     @mark_requirement(Requirements.DATUM_609)
     def test_can_save_and_load_without_path_prefix(self):
@@ -322,7 +322,7 @@ class YoloConvertertTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            YoloConverter.convert(source_dataset, test_dir, save_media=True, add_path_prefix=False)
+            YoloExporter.convert(source_dataset, test_dir, save_media=True, add_path_prefix=False)
             parsed_dataset = Dataset.import_from(test_dir, "yolo")
 
             with open(osp.join(test_dir, "obj.data"), "r") as f:

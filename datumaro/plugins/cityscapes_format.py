@@ -18,7 +18,7 @@ from datumaro.components.annotation import (
     Mask,
     MaskCategories,
 )
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -337,7 +337,7 @@ class LabelmapType(Enum):
     source = auto()
 
 
-class CityscapesConverter(Converter):
+class CityscapesExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".png"
 
     @staticmethod

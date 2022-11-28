@@ -16,7 +16,7 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tupl
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.config_model import Source
-from datumaro.components.converter import Converter, ExportContext, ExportErrorPolicy, _ExportFail
+from datumaro.components.exporter import Exporter, ExportContext, ExportErrorPolicy, _ExportFail
 from datumaro.components.dataset_filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
@@ -223,7 +223,7 @@ class ItemStatus(Enum):
 class DatasetPatch:
     class DatasetPatchWrapper(DatasetItemStorageDatasetView):
         # The purpose of this class is to indicate that the input dataset is
-        # a patch and autofill patch info in Converter
+        # a patch and autofill patch info in Exporter
         def __init__(self, patch: DatasetPatch, parent: IDataset):
             super().__init__(
                 patch.data,
@@ -1180,7 +1180,7 @@ class Dataset(IDataset):
     def export(
         self,
         save_dir: str,
-        format: Union[str, Type[Converter]],
+        format: Union[str, Type[Exporter]],
         *,
         progress_reporter: Optional[ProgressReporter] = None,
         error_policy: Optional[ExportErrorPolicy] = None,
@@ -1205,12 +1205,12 @@ class Dataset(IDataset):
         inplace = save_dir == self._source_path and format == self._format
 
         if isinstance(format, str):
-            converter = self.env.converters[format]
+            exporter = self.env.exporters[format]
         else:
-            converter = format
+            exporter = format
 
-        if not (inspect.isclass(converter) and issubclass(converter, Converter)):
-            raise TypeError("Unexpected 'format' argument type: %s" % type(converter))
+        if not (inspect.isclass(exporter) and issubclass(exporter, Exporter)):
+            raise TypeError("Unexpected 'format' argument type: %s" % type(exporter))
 
         save_dir = osp.abspath(save_dir)
         if not osp.exists(save_dir):
@@ -1224,15 +1224,15 @@ class Dataset(IDataset):
             progress_reporter = NullProgressReporter()
 
         assert "ctx" not in kwargs
-        converter_kwargs = copy(kwargs)
-        converter_kwargs["ctx"] = ExportContext(
+        exporter_kwargs = copy(kwargs)
+        exporter_kwargs["ctx"] = ExportContext(
             progress_reporter=progress_reporter, error_policy=error_policy
         )
 
         try:
             if not inplace:
                 try:
-                    converter.convert(self, save_dir=save_dir, **converter_kwargs)
+                    exporter.convert(self, save_dir=save_dir, **exporter_kwargs)
                 except TypeError as e:
                     # TODO: for backward compatibility. To be removed after 0.3
                     if "unexpected keyword argument 'ctx'" not in str(e):
@@ -1240,17 +1240,17 @@ class Dataset(IDataset):
 
                     if has_ctx_args:
                         warnings.warn(
-                            "It seems that '%s' converter "
+                            "It seems that '%s' exporter "
                             "does not support progress and error reporting, "
                             "it will be disabled" % format,
                             DeprecationWarning,
                         )
-                    converter_kwargs.pop("ctx")
+                    exporter_kwargs.pop("ctx")
 
-                    converter.convert(self, save_dir=save_dir, **converter_kwargs)
+                    exporter.convert(self, save_dir=save_dir, **exporter_kwargs)
             else:
                 try:
-                    converter.patch(self, self.get_patch(), save_dir=save_dir, **converter_kwargs)
+                    exporter.patch(self, self.get_patch(), save_dir=save_dir, **exporter_kwargs)
                 except TypeError as e:
                     # TODO: for backward compatibility. To be removed after 0.3
                     if "unexpected keyword argument 'ctx'" not in str(e):
@@ -1258,14 +1258,14 @@ class Dataset(IDataset):
 
                     if has_ctx_args:
                         warnings.warn(
-                            "It seems that '%s' converter "
+                            "It seems that '%s' exporter "
                             "does not support progress and error reporting, "
                             "it will be disabled" % format,
                             DeprecationWarning,
                         )
-                    converter_kwargs.pop("ctx")
+                    exporter_kwargs.pop("ctx")
 
-                    converter.patch(self, self.get_patch(), save_dir=save_dir, **converter_kwargs)
+                    exporter.patch(self, self.get_patch(), save_dir=save_dir, **exporter_kwargs)
         except _ExportFail as e:
             raise e.__cause__
 

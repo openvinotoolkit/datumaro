@@ -23,7 +23,7 @@ from datumaro.components.annotation import (
     LabelCategories,
     Mask,
 )
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem
@@ -84,7 +84,7 @@ class _SubsetLists:
     segm_list: Dict[str, Optional[bool]] = field(factory=dict)
 
 
-class VocConverter(Converter):
+class VocExporter(Exporter):
     DEFAULT_IMAGE_EXT = VocPath.IMAGE_EXT
     BUILTIN_ATTRS = {"difficult", "pose", "truncated", "occluded"}
 
@@ -764,31 +764,31 @@ class VocConverter(Converter):
                     os.unlink(path)
 
 
-class VocClassificationConverter(VocConverter):
+class VocClassificationExporter(VocExporter):
     def __init__(self, *args, **kwargs):
         kwargs["tasks"] = VocTask.classification
         super().__init__(*args, **kwargs)
 
 
-class VocDetectionConverter(VocConverter):
+class VocDetectionExporter(VocExporter):
     def __init__(self, *args, **kwargs):
         kwargs["tasks"] = VocTask.detection
         super().__init__(*args, **kwargs)
 
 
-class VocLayoutConverter(VocConverter):
+class VocLayoutExporter(VocExporter):
     def __init__(self, *args, **kwargs):
         kwargs["tasks"] = VocTask.person_layout
         super().__init__(*args, **kwargs)
 
 
-class VocActionConverter(VocConverter):
+class VocActionExporter(VocExporter):
     def __init__(self, *args, **kwargs):
         kwargs["tasks"] = VocTask.action_classification
         super().__init__(*args, **kwargs)
 
 
-class VocSegmentationConverter(VocConverter):
+class VocSegmentationExporter(VocExporter):
     def __init__(self, *args, **kwargs):
         kwargs["tasks"] = VocTask.segmentation
         super().__init__(*args, **kwargs)

@@ -27,7 +27,7 @@ from datumaro.components.annotation import (
     RleMask,
     _Shape,
 )
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.media import Image, MediaElement, PointCloud
@@ -332,7 +332,7 @@ class _SubsetWriter:
         return converted
 
 
-class DatumaroConverter(Converter):
+class DatumaroExporter(Exporter):
     DEFAULT_IMAGE_EXT = DatumaroPath.IMAGE_EXT
 
     def apply(self):

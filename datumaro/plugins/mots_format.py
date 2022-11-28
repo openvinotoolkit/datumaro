@@ -13,7 +13,7 @@ from glob import iglob
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
@@ -143,7 +143,7 @@ class MotsImporter(Importer):
         return subsets
 
 
-class MotsPngConverter(Converter):
+class MotsPngExporter(Exporter):
     DEFAULT_IMAGE_EXT = MotsPath.IMAGE_EXT
 
     def apply(self):

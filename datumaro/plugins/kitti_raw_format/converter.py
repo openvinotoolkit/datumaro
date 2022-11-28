@@ -11,7 +11,7 @@ from copy import deepcopy
 from xml.sax.saxutils import XMLGenerator  # nosec
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem
@@ -268,7 +268,7 @@ class _XmlAnnotationWriter:
         self._close_serialization()
 
 
-class KittiRawConverter(Converter):
+class KittiRawExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
 
     @classmethod

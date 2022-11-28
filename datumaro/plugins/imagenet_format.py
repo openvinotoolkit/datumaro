@@ -7,7 +7,7 @@ import os
 import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
@@ -63,7 +63,7 @@ class ImagenetImporter(Importer):
         return [{"url": path, "format": ImagenetExtractor.NAME}]
 
 
-class ImagenetConverter(Converter):
+class ImagenetExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
 
     def apply(self):

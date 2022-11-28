@@ -23,7 +23,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
-from datumaro.plugins.datumaro_format.converter import DatumaroConverter
+from datumaro.plugins.datumaro_format.converter import DatumaroExporter
 from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.test_utils import (
@@ -37,7 +37,7 @@ from datumaro.util.test_utils import (
 from .requirements import Requirements, mark_requirement
 
 
-class DatumaroConverterTest(TestCase):
+class DatumaroExporterTest(TestCase):
     def _test_save_and_load(
         self,
         source_dataset,
@@ -183,7 +183,7 @@ class DatumaroConverterTest(TestCase):
     def test_can_save_and_load(self):
         with TestDir() as test_dir:
             self._test_save_and_load(
-                self.test_dataset, partial(DatumaroConverter.convert, save_media=True), test_dir
+                self.test_dataset, partial(DatumaroExporter.convert, save_media=True), test_dir
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -191,7 +191,7 @@ class DatumaroConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 self.test_dataset,
-                partial(DatumaroConverter.convert, save_media=True),
+                partial(DatumaroExporter.convert, save_media=True),
                 test_dir,
                 compare=None,
                 require_media=False,
@@ -200,7 +200,7 @@ class DatumaroConverterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         with TestDir() as test_dir:
-            DatumaroConverter.convert(self.test_dataset, save_dir=test_dir)
+            DatumaroExporter.convert(self.test_dataset, save_dir=test_dir)
 
             detected_formats = Environment().detect_dataset(test_dir)
             self.assertEqual([DatumaroImporter.NAME], detected_formats)
@@ -217,7 +217,7 @@ class DatumaroConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                test_dataset, partial(DatumaroConverter.convert, save_media=True), test_dir
+                test_dataset, partial(DatumaroExporter.convert, save_media=True), test_dir
             )
 
     @mark_requirement(Requirements.DATUM_231)
@@ -257,7 +257,7 @@ class DatumaroConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                expected, partial(DatumaroConverter.convert, save_media=True), test_dir
+                expected, partial(DatumaroExporter.convert, save_media=True), test_dir
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -268,7 +268,7 @@ class DatumaroConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                test_dataset, partial(DatumaroConverter.convert, save_media=True), test_dir
+                test_dataset, partial(DatumaroExporter.convert, save_media=True), test_dir
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -290,7 +290,7 @@ class DatumaroConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                expected, partial(DatumaroConverter.convert, save_media=True), test_dir
+                expected, partial(DatumaroExporter.convert, save_media=True), test_dir
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -442,7 +442,7 @@ class DatumaroConverterTest(TestCase):
             )
             self._test_save_and_load(
                 source_dataset,
-                partial(DatumaroConverter.convert, save_media=True),
+                partial(DatumaroExporter.convert, save_media=True),
                 test_dir,
                 target_dataset,
                 compare=None,

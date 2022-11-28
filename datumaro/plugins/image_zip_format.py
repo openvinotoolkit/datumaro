@@ -8,7 +8,7 @@ import os.path as osp
 from enum import Enum
 from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
 from datumaro.components.media import ByteImage
@@ -49,7 +49,7 @@ class ImageZipImporter(Importer):
         return cls._find_sources_recursive(path, ".zip", "image_zip")
 
 
-class ImageZipConverter(Converter):
+class ImageZipExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
 
     @staticmethod

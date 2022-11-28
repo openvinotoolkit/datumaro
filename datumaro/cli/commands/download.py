@@ -17,7 +17,7 @@ from ..util.project import generate_next_file_name
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    builtin_writers = sorted(Environment().converters)
+    builtin_writers = sorted(Environment().exporters)
     if TFDS_EXTRACTOR_AVAILABLE:
         available_datasets = ", ".join(f"tfds:{name}" for name in AVAILABLE_TFDS_DATASETS)
     else:
@@ -110,10 +110,10 @@ def download_command(args):
     output_format = args.output_format or default_output_format
 
     try:
-        converter = env.converters[output_format]
+        exporter = env.exporters[output_format]
     except KeyError:
-        raise CliException("Converter for format '%s' is not found" % output_format)
-    extra_args = converter.parse_cmdline(args.extra_args)
+        raise CliException("Exporter for format '%s' is not found" % output_format)
+    extra_args = exporter.parse_cmdline(args.extra_args)
 
     dst_dir = args.dst_dir
     if dst_dir:
@@ -141,6 +141,6 @@ def download_command(args):
             raise CliException("Subset '%s' is not present in the dataset" % args.subset)
 
     log.info("Exporting the dataset")
-    converter.convert(extractor, dst_dir, default_image_ext=".png", **extra_args)
+    exporter.convert(extractor, dst_dir, default_image_ext=".png", **extra_args)
 
     log.info("Dataset exported to '%s' as '%s'" % (dst_dir, output_format))

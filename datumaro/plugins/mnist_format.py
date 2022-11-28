@@ -9,7 +9,7 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
-from datumaro.components.converter import Converter
+from datumaro.components.exporter import Exporter
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
@@ -130,7 +130,7 @@ class MnistImporter(Importer):
         )
 
 
-class MnistConverter(Converter):
+class MnistExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".png"
 
     def apply(self):
