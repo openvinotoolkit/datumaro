@@ -16,7 +16,7 @@ from datumaro.components.errors import (
     ItemImportError,
     UndeclaredLabelError,
 )
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.yolo_format.converter import YoloConverter
 from datumaro.plugins.yolo_format.extractor import YoloExtractor, YoloImporter

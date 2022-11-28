@@ -17,7 +17,7 @@ from datumaro.components.annotation import (
     PolyLine,
 )
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.media import Image, MultiframeImage, PointCloud
 from datumaro.components.operations import (
     FailedAttrVotingError,

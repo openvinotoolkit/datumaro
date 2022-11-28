@@ -10,7 +10,7 @@ from datumaro.components.errors import (
     ProjectNotFoundError,
     UnknownTargetError,
 )
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir

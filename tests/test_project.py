@@ -25,7 +25,7 @@ from datumaro.components.errors import (
     UnexpectedUrlError,
     UnknownTargetError,
 )
-from datumaro.components.extractor import DatasetItem, DatasetBase
+from datumaro.components.dataset_base import DatasetItem, DatasetBase
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.components.project import DiffStatus, Project
@@ -1111,13 +1111,11 @@ class ProjectTest(TestCase):
             f.write(
                 textwrap.dedent(
                     """
-                from datumaro.components.extractor import (SubsetBase,
+                from datumaro.components.dataset_base import (SubsetBase,
                     DatasetItem)
-
                 class MyExtractor(SubsetBase):
                     def __init__(self, *args, **kwargs):
                         super().__init__()
-
                     def __iter__(self):
                         yield from [
                             DatasetItem('1'),

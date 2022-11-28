@@ -10,7 +10,7 @@ import datumaro.plugins.camvid_format as Camvid
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem, DatasetBase
+from datumaro.components.dataset_base import DatasetItem, DatasetBase
 from datumaro.components.media import Image
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
 from datumaro.util.meta_file_util import parse_meta_file

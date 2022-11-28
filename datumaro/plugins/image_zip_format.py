@@ -9,7 +9,7 @@ from enum import Enum
 from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import DatasetItem, SubsetBase
+from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
 from datumaro.components.media import ByteImage
 from datumaro.util import parse_str_enum_value

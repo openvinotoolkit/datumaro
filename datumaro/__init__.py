@@ -40,7 +40,7 @@ from .components.dataset import (
     eager_mode,
 )
 from .components.environment import Environment, PluginRegistry
-from .components.extractor import (
+from .components.dataset_base import (
     DEFAULT_SUBSET_NAME,
     CategoriesInfo,
     DatasetItem,

@@ -8,7 +8,7 @@ import numpy as np
 from datumaro.components.annotation import Bbox, Mask, Polygon
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.labelme_format import LabelMeConverter, LabelMeImporter
 from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets

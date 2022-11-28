@@ -20,7 +20,7 @@ from datumaro.components.errors import (
     DatumaroError,
     ItemExportError,
 )
-from datumaro.components.extractor import DatasetItem, IDataset
+from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.util.meta_file_util import save_meta_file

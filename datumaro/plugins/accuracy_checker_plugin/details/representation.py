@@ -8,7 +8,7 @@ import_tf()  # prevent TF loading and potential interpreter crash
 
 import accuracy_checker.representation as ac
 
-import datumaro.components.extractor as dm
+import datumaro.components.dataset_base as dm
 from datumaro.util.annotation_util import softmax
 
 

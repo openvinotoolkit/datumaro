@@ -8,7 +8,7 @@ from typing import Optional, Union
 import pandas as pd
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import IDataset
+from datumaro.components.dataset_base import IDataset
 from datumaro.components.transformer import Transform
 from datumaro.util import parse_str_enum_value
 

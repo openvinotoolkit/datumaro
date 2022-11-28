@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, save_image
 from datumaro.components.project import Dataset
 from datumaro.plugins.image_zip_format import ImageZipConverter, ImageZipPath

@@ -18,7 +18,7 @@ from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem, IDataset
+from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.media import PointCloud
 from datumaro.util import cast, dump_json_file
 

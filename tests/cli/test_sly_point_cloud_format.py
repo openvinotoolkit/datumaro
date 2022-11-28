@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
 from datumaro.util.test_utils import TestDir, compare_datasets_3d
 from datumaro.util.test_utils import run_datum as run

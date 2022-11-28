@@ -11,7 +11,7 @@ from datumaro.components.annotation import AnnotationType, Label, LabelCategorie
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.converter import Converter
 from datumaro.components.errors import DatasetImportError, MediaTypeError
-from datumaro.components.extractor import DatasetItem, SubsetBase
+from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image

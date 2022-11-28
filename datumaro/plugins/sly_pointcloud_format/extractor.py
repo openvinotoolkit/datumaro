@@ -6,7 +6,7 @@ import os.path as osp
 from glob import iglob
 
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
-from datumaro.components.extractor import DatasetItem, SubsetBase
+from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image, PointCloud
 from datumaro.util import parse_json_file

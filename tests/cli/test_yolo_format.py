@@ -6,7 +6,7 @@ import numpy as np
 import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 from datumaro.util.test_utils import run_datum as run

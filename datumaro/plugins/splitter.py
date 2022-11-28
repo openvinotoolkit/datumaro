@@ -11,7 +11,7 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import DEFAULT_SUBSET_NAME
+from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
 from datumaro.components.transformer import Transform
 from datumaro.util import cast
 

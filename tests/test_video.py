@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, Video
 from datumaro.components.media_manager import MediaManager
 from datumaro.components.project import Project

@@ -7,7 +7,7 @@ import numpy as np
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.widerface_format import WiderFaceConverter, WiderFaceImporter
 from datumaro.util.test_utils import IGNORE_ALL, TestDir, compare_datasets

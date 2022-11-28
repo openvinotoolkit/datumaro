@@ -6,7 +6,7 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Points
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.vgg_face2_format import VggFace2Converter, VggFace2Importer
 from datumaro.util.test_utils import TestDir, compare_datasets

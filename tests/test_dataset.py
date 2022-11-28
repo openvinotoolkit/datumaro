@@ -39,7 +39,7 @@ from datumaro.components.errors import (
     RepeatedItemError,
     UnknownFormatError,
 )
-from datumaro.components.extractor import (
+from datumaro.components.dataset_base import (
     DEFAULT_SUBSET_NAME,
     DatasetItem,
     DatasetBase,

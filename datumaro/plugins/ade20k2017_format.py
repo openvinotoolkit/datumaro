@@ -11,7 +11,7 @@ import re
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, CompiledMask, LabelCategories, Mask
-from datumaro.components.extractor import DatasetItem, DatasetBase
+from datumaro.components.dataset_base import DatasetItem, DatasetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image

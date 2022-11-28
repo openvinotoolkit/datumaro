@@ -5,7 +5,7 @@
 from typing import Optional
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import DatasetBase, DatasetItem, IDataset
+from datumaro.components.dataset_base import DatasetBase, DatasetItem, IDataset
 from datumaro.util import is_method_redefined
 
 

@@ -6,7 +6,7 @@ import numpy as np
 from datumaro.components.annotation import Bbox, LabelCategories, Points, PointsCategories
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import AnnotationType, DatasetItem
+from datumaro.components.dataset_base import AnnotationType, DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.mpii_format.mpii_json import (
     MPII_POINTS_JOINTS,

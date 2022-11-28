@@ -16,7 +16,7 @@ from datumaro.components.annotation import COORDINATE_ROUNDING_DIGITS, Annotatio
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.util import cast, dump_json_file, find, str_to_bool
 from datumaro.util.image import save_image

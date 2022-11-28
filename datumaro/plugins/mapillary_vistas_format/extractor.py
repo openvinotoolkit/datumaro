@@ -16,7 +16,7 @@ from datumaro.components.annotation import (
     MaskCategories,
     Polygon,
 )
-from datumaro.components.extractor import DatasetItem, SubsetBase
+from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.media import Image
 from datumaro.util import parse_json_file
 from datumaro.util.image import find_images, lazy_image, load_image
