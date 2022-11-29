@@ -7,8 +7,8 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, LabelCategories, Mask
-from datumaro.components.dataset_base import AnnotationType, DatasetItem, SubsetBase
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Mask
+from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.media import Image
 from datumaro.util.image import find_images, load_image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
