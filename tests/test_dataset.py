@@ -26,11 +26,6 @@ from datumaro.components.dataset_base import (
     DatasetItem,
     SubsetBase,
 )
-from datumaro.components.filter import (
-    DatasetItemEncoder,
-    XPathAnnotationsFilter,
-    XPathDatasetFilter,
-)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     ConflictingCategoriesError,
@@ -45,6 +40,11 @@ from datumaro.components.errors import (
     UnknownFormatError,
 )
 from datumaro.components.exporter import Exporter
+from datumaro.components.filter import (
+    DatasetItemEncoder,
+    XPathAnnotationsFilter,
+    XPathDatasetFilter,
+)
 from datumaro.components.importer import FailingImportErrorPolicy, ImportErrorPolicy
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement, Video

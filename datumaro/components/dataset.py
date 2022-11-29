@@ -24,7 +24,6 @@ from datumaro.components.dataset_base import (
     DatasetItem,
     IDataset,
 )
-from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     CategoriesRedefinedError,
@@ -37,6 +36,7 @@ from datumaro.components.errors import (
     UnknownFormatError,
 )
 from datumaro.components.exporter import ExportContext, Exporter, ExportErrorPolicy, _ExportFail
+from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.importer import ImportContext, ImportErrorPolicy, _ImportFail
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.media import Image, MediaElement
