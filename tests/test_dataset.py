@@ -26,7 +26,7 @@ from datumaro.components.dataset_base import (
     DatasetItem,
     SubsetBase,
 )
-from datumaro.components.dataset_filter import (
+from datumaro.components.filter import (
     DatasetItemEncoder,
     XPathAnnotationsFilter,
     XPathDatasetFilter,

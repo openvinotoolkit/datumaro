@@ -8,7 +8,7 @@ import os
 import os.path as osp
 from enum import Enum
 
-from datumaro.components.dataset_filter import DatasetItemEncoder
+from datumaro.components.filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
 from datumaro.components.errors import MigrationError, ProjectNotFoundError
 from datumaro.components.operations import compute_ann_statistics, compute_image_statistics

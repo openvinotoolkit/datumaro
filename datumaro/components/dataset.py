@@ -24,7 +24,7 @@ from datumaro.components.dataset_base import (
     DatasetItem,
     IDataset,
 )
-from datumaro.components.dataset_filter import XPathAnnotationsFilter, XPathDatasetFilter
+from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     CategoriesRedefinedError,

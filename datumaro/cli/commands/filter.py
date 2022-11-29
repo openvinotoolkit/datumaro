@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.dataset_filter import DatasetItemEncoder
+from datumaro.components.filter import DatasetItemEncoder
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import ProjectBuildTargets
 from datumaro.util import str_to_bool
