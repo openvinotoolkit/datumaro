@@ -11,7 +11,7 @@ from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Video
-from datumaro.plugins.video_formats import VIDEO_EXTENSIONS
+from datumaro.plugins.data_formats.video import VIDEO_EXTENSIONS
 from datumaro.util import parse_json, parse_json_file
 from datumaro.util.os_util import find_files
 

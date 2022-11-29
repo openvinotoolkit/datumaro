@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 
-import datumaro.plugins.voc_format.format as VOC
+import datumaro.plugins.data_formats.voc.format as VOC
 from datumaro.components.annotation import Bbox, Label, Mask
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.media import Image

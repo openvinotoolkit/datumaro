@@ -14,7 +14,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.plugins.align_celeba_format import AlignCelebaImporter
+from datumaro.plugins.data_formats.align_celeba import AlignCelebaImporter
 from datumaro.util.test_utils import compare_datasets
 
 from .requirements import Requirements, mark_requirement

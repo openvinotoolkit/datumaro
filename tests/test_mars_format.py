@@ -11,7 +11,7 @@ from datumaro.components.annotation import Label
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.plugins.mars_format import MarsImporter
+from datumaro.plugins.data_formats.mars import MarsImporter
 from datumaro.util.test_utils import compare_datasets
 
 from tests.requirements import Requirements, mark_requirement

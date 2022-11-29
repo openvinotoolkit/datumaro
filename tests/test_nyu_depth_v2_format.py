@@ -8,7 +8,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.plugins.nyu_depth_v2_format import NyuDepthV2Importer
+from datumaro.plugins.data_formats.nyu_depth_v2 import NyuDepthV2Importer
 from datumaro.util.test_utils import compare_datasets
 
 from .requirements import Requirements, mark_requirement

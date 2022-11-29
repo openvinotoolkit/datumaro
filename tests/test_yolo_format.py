@@ -18,8 +18,8 @@ from datumaro.components.errors import (
     UndeclaredLabelError,
 )
 from datumaro.components.media import Image
-from datumaro.plugins.yolo_format.base import YoloBase, YoloImporter
-from datumaro.plugins.yolo_format.exporter import YoloExporter
+from datumaro.plugins.data_formats.yolo.base import YoloBase, YoloImporter
+from datumaro.plugins.data_formats.yolo.exporter import YoloExporter
 from datumaro.util.image import save_image
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 

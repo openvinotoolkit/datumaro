@@ -10,8 +10,8 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.plugins.kitti_format.exporter import KittiExporter
-from datumaro.plugins.kitti_format.format import (
+from datumaro.plugins.data_formats.kitti.exporter import KittiExporter
+from datumaro.plugins.data_formats.kitti.format import (
     KittiLabelMap,
     KittiPath,
     KittiTask,
@@ -19,7 +19,7 @@ from datumaro.plugins.kitti_format.format import (
     parse_label_map,
     write_label_map,
 )
-from datumaro.plugins.kitti_format.importer import (
+from datumaro.plugins.data_formats.kitti.importer import (
     KittiDetectionImporter,
     KittiImporter,
     KittiSegmentationImporter,

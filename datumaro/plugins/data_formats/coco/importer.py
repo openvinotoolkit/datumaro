@@ -9,7 +9,7 @@ from glob import glob
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
-from datumaro.plugins.coco_format.base import (
+from datumaro.plugins.data_formats.coco.base import (
     CocoCaptionsBase,
     CocoImageInfoBase,
     CocoInstancesBase,

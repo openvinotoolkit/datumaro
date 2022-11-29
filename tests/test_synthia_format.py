@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
-import datumaro.plugins.synthia_format as Synthia
+import datumaro.plugins.data_formats.synthia as Synthia
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem

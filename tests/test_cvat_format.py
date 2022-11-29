@@ -18,8 +18,8 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.plugins.cvat_format.base import CvatImporter
-from datumaro.plugins.cvat_format.exporter import CvatExporter
+from datumaro.plugins.data_formats.cvat.base import CvatImporter
+from datumaro.plugins.data_formats.cvat.exporter import CvatExporter
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 

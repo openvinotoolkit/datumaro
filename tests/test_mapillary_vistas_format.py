@@ -13,7 +13,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.mapillary_vistas_format.format import (
+from datumaro.plugins.data_formats.mapillary_vistas.format import (
     MapillaryVistasLabelMaps,
     make_mapillary_instance_categories,
 )

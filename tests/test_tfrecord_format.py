@@ -17,11 +17,11 @@ from datumaro.util.tf_util import check_import
 from .requirements import Requirements, mark_requirement
 
 try:
-    from datumaro.plugins.tf_detection_api_format.base import (
+    from datumaro.plugins.data_formats.tf_detection_api.base import (
         TfDetectionApiBase,
         TfDetectionApiImporter,
     )
-    from datumaro.plugins.tf_detection_api_format.exporter import TfDetectionApiExporter
+    from datumaro.plugins.data_formats.tf_detection_api.exporter import TfDetectionApiExporter
 
     import_failed = False
 except ImportError:

@@ -9,7 +9,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.plugins.imagenet_format import ImagenetExporter, ImagenetImporter
+from datumaro.plugins.data_formats.imagenet import ImagenetExporter, ImagenetImporter
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 from .requirements import Requirements, mark_requirement

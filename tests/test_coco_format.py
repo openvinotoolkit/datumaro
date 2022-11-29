@@ -32,8 +32,8 @@ from datumaro.components.errors import (
     UndeclaredLabelError,
 )
 from datumaro.components.media import Image
-from datumaro.plugins.coco_format.base import CocoInstancesBase
-from datumaro.plugins.coco_format.exporter import (
+from datumaro.plugins.data_formats.coco.base import CocoInstancesBase
+from datumaro.plugins.data_formats.coco.exporter import (
     CocoCaptionsExporter,
     CocoExporter,
     CocoImageInfoExporter,
@@ -43,7 +43,7 @@ from datumaro.plugins.coco_format.exporter import (
     CocoPersonKeypointsExporter,
     CocoStuffExporter,
 )
-from datumaro.plugins.coco_format.importer import CocoImporter
+from datumaro.plugins.data_formats.coco.importer import CocoImporter
 from datumaro.util import dump_json_file
 from datumaro.util.test_utils import (
     TestDir,

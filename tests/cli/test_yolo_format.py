@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
-import datumaro.plugins.voc_format.format as VOC
+import datumaro.plugins.data_formats.voc.format as VOC
 from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
