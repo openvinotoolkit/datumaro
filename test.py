@@ -12,11 +12,11 @@ from datumaro.components.searcher import Searcher
 
 # dataset = dm.Dataset.import_from('./tests/assets/widerface_dataset')
 start_time = time.time()
-dataset = dm.Dataset.import_from('./tests/assets/brats_dataset', save_hash=True)
+# dataset = dm.Dataset.import_from('./tests/assets/brats_dataset', save_hash=True)
 # dataset = dm.Dataset.import_from('./tests/assets/kitti_dataset/kitti_raw', format='kitti_raw', save_hash=True)
 # dataset = dm.Dataset.import_from('./tests/assets/mapillary_vistas_dataset/dataset_with_meta_file', 'mapillary_vistas', save_hash=True)
 # dataset = dm.Dataset.import_from('./tests/assets/mars_dataset', 'mars', save_hash=True)
-# dataset = dm.Dataset.import_from('./tests/assets/voc_dataset/voc_dataset2', 'voc', save_hash=True)
+dataset = dm.Dataset.import_from('./tests/assets/voc_dataset/voc_dataset2', 'voc', save_hash=True)
 # dataset = dm.Dataset.import_from('./tests/assets/common_semantic_segmentation_dataset/non_standard_dataset/segmentation', image_prefix="image_", mask_prefix="gt_", save_hash=True)
 # dataset = dm.Dataset.import_from('./tests/assets/cvat_dataset/for_video', "cvat", save_hash=True)
 # dataset = dm.Dataset.import_from('./tests/assets/datumaro_dataset', save_hash=True)
@@ -35,6 +35,15 @@ for i, item in enumerate(dataset):
     if i == 1:
         query = item
 
-# searcher = Searcher(dataset)
+searcher = Searcher(dataset)
 # topk_list = searcher.search_topk(query, topk=1)
 # print(topk_list)
+
+topk_list = searcher.search_topk("0", topk=11)
+subset_list = []
+id_list =[]
+for result in topk_list:
+    subset_list.append(result.subset)
+    id_list.append(result.id)
+# fig = visualizer.vis_gallery(id_list[:12], subset_list[:12], (None, None))
+# fig.show()

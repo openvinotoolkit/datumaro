@@ -611,9 +611,6 @@ def load_model(download_root: str = None, model_name: str = "ViT-B/32", jit: boo
     return model_
 
 def _image_features(model, image):
-    if len(image.shape) == 3:
-        image = np.squeeze(image, axis=0)
-
     trans = transforms.Compose(
         [
             transforms.ToTensor(),
@@ -625,7 +622,7 @@ def _image_features(model, image):
     img = np.uint8(image)
     img = Image.fromarray(img)
 
-    if np.array(img).ndim == 2:
+    if np.array(img).ndim == 2 or img.mode == 'RGBA':
         img = img.convert('RGB')
     img = trans(img)
     img = np.expand_dims(img, axis=0)
@@ -647,23 +644,22 @@ def _compute_hash(features):
     return hash_string
 
 def inference(item):
-    assert not isinstance(item, Video), f"Media type should be Image, Current type={type(item)}"
-    assert not isinstance(item, PointCloud), f"Media type should be Image, Current type={type(item)}"
-    if isinstance(item.data, type(None)):
-        return []
+    assert not type(item) in [Video, PointCloud, MultiframeImage], f"Media type should be Image, Current type={type(item)}"
 
     model = load_model()
 
     if isinstance(item, str):
         text = tokenize(f"a photo of a {item}").to(device)
         features = model.encode_text(text)
-    elif isinstance(item, MultiframeImage):
-        multi_hash_string = []
-        for frame in item.data:
-            features = _image_features(model, frame.data)
-            hash_string = _compute_hash(features)
-            multi_hash_string.append(hash_string)
-        return multi_hash_string
+    # elif isinstance(item, MultiframeImage):
+    #     multi_hash_string = []
+    #     for frame in item.data:
+    #         features = _image_features(model, frame.data)
+    #         hash_string = _compute_hash(features)
+    #         multi_hash_string.append(hash_string)
+    #     return multi_hash_string
+    elif isinstance(item.data, type(None)):
+        return []
     else:
         features = _image_features(model, item.data)
 

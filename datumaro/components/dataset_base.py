@@ -37,7 +37,7 @@ class DatasetItem:
 
     attributes: Dict[str, Any] = field(factory=dict, validator=default_if_none(dict))
 
-    hash_key: List[float] = field(factory=list, validator=default_if_none(list))
+    hash_key: List[str] = field(factory=list, validator=default_if_none(list))
 
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)
@@ -158,6 +158,11 @@ class DatasetItem:
             stacklevel=2,
         )
         return isinstance(self.media, PointCloud)
+    
+    @property
+    def set_hash_key(self):
+        self.hash_key = inference(self.media)
+        return self.hash_key
 
 
 DatasetInfo = Dict[str, Any]
