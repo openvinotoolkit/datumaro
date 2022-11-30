@@ -433,3 +433,8 @@ class PointCloudConverterTest(TestCase):
             self.assertFalse(
                 osp.isfile(osp.join(path, "ds0", "related_images", "frame1_pcd", "img2.png"))
             )
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_save_hash(self):
+        with self.assertRaises(Exception):
+            Dataset.import_from(DUMMY_DATASET_DIR, "sly_pointcloud", save_hash=True)

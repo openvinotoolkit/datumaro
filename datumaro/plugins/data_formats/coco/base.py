@@ -38,8 +38,6 @@ from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import CocoPath, CocoTask
 
-from tqdm import tqdm
-
 T = TypeVar("T")
 
 
@@ -171,10 +169,10 @@ class _CocoBase(SubsetBase):
         pbars = self._ctx.progress_reporter.split(2)
         items = {}
         img_infos = {}
-        for img_info in tqdm(pbars[0].iter(
+        for img_info in pbars[0].iter(
             self._parse_field(json_data, "images", list),
             desc=f"Parsing image info in '{osp.basename(self._path)}'",
-        )):
+        ):
             img_id = None
             try:
                 img_id = self._parse_field(img_info, "id", int)

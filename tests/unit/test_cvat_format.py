@@ -711,3 +711,16 @@ class CvatExporterTest(TestCase):
 
             self.assertEqual(sorted(dataset.subsets()), sorted(dataset_re.subsets()))
             self.assertEqual(len(dataset), len(dataset_re))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash_image(self):
+        imported_dataset = Dataset.import_from(DUMMY_IMAGE_DATASET_DIR, "cvat", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash_video(self):
+        imported_dataset = Dataset.import_from(DUMMY_VIDEO_DATASET_DIR, "cvat", save_hash=True)
+        for item in imported_dataset:
+            if item.media.data is not None:
+                self.assertTrue(bool(item.hash_key))

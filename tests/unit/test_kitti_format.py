@@ -1104,3 +1104,19 @@ class KittiExporterTest(TestCase):
                 target_dataset=DstExtractor(),
             )
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash_segmentation(self):
+        imported_dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, "kitti_segmentation"), "kitti", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash_detection(self):
+        imported_dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, "kitti_detection"), "kitti", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

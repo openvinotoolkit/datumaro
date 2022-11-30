@@ -492,3 +492,15 @@ class OpenImagesImporterTest(TestCase):
         self.assertEqual([OpenImagesImporter.NAME], detected_formats)
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR_V5)
         self.assertEqual([OpenImagesImporter.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_274)
+    def test_save_hash_v6(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR_V6, "open_images", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_274)
+    def test_save_hash_v5(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR_V5, "open_images", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

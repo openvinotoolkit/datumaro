@@ -101,3 +101,17 @@ class Ade20k2017ImporterTest(TestCase):
 
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR_META_FILE, "ade20k2017")
         compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_399)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "ade20k2017", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_399)
+    def test_save_hash_with_meta_file(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_DATASET_DIR_META_FILE, "ade20k2017", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

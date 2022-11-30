@@ -371,3 +371,15 @@ class CifarImporterTest(TestCase):
     def test_can_detect_100(self):
         detected_formats = Environment().detect_dataset(DUMMY_100_DATASET_DIR)
         self.assertIn(CifarImporter.NAME, detected_formats)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash_10(self):
+        imported_dataset = Dataset.import_from(DUMMY_10_DATASET_DIR, "cifar", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash_100(self):
+        imported_dataset = Dataset.import_from(DUMMY_100_DATASET_DIR, "cifar", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

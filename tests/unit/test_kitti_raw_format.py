@@ -660,3 +660,8 @@ class KittiRawExporterTest(TestCase):
                 require_point_cloud=True,
             )
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_save_hash(self):
+        with self.assertRaises(Exception):
+            Dataset.import_from(DUMMY_DATASET_DIR, "kitti_raw", save_hash=True)

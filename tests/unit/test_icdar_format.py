@@ -602,3 +602,17 @@ class IcdarConverterTest(TestCase):
                 "icdar_text_segmentation",
                 expected_dataset,
             )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        paths = [
+            osp.join(DUMMY_DATASET_DIR, "text_localization"),
+            osp.join(DUMMY_DATASET_DIR, "text_segmentation"),
+            osp.join(DUMMY_DATASET_DIR, "word_recognition"),
+        ]
+        formats = ["icdar_text_localization", "icdar_text_segmentation", "icdar_word_recognition"]
+
+        for dataset_dir, format in zip(paths, formats):
+            imported_dataset = Dataset.import_from(dataset_dir, format, save_hash=True)
+            for item in imported_dataset:
+                self.assertTrue(bool(item.hash_key))

@@ -43,3 +43,9 @@ class NyuDepthV2ImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "nyu_depth_v2")
 
         compare_datasets(self, expected_dataset, dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_497)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "nyu_depth_v2", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

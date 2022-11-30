@@ -2612,3 +2612,31 @@ class CocoExporterTest(TestCase):
                 require_media=True,
             )
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        paths = [
+            osp.join(DUMMY_DATASET_DIR, "coco"),
+            osp.join(DUMMY_DATASET_DIR, "coco_captions"),
+            osp.join(DUMMY_DATASET_DIR, "coco_instances"),
+            osp.join(DUMMY_DATASET_DIR, "coco_panoptic"),
+            osp.join(DUMMY_DATASET_DIR, "coco_person_keypoints"),
+            osp.join(DUMMY_DATASET_DIR, "coco_stuff"),
+            osp.join(DUMMY_DATASET_DIR, "coco_image_info"),
+            osp.join(DUMMY_DATASET_DIR, "coco_labels"),
+        ]
+        formats = [
+            "coco",
+            "coco_captions",
+            "coco_instances",
+            "coco_panoptic",
+            "coco_person_keypoints",
+            "coco_stuff",
+            "coco_image_info",
+            "coco_labels",
+        ]
+
+        for dataset_dir, format in zip(paths, formats):
+            imported_dataset = Dataset.import_from(dataset_dir, format, save_hash=True)
+            for item in imported_dataset:
+                self.assertTrue(bool(item.hash_key))

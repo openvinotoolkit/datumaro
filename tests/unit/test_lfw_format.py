@@ -404,3 +404,9 @@ class LfwImporterTest(TestCase):
             dataset = Dataset.import_from(DUMMY_DATASET_DIR, "lfw")
 
             compare_datasets(self, expected_dataset, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "lfw", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

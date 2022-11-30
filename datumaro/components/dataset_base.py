@@ -15,8 +15,8 @@ from datumaro.components.annotation import Annotation, AnnotationType, Categorie
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.importer import ImportContext, NullImportContext
 from datumaro.components.media import Image, MediaElement, PointCloud
+from datumaro.components.model_inference import hash_inference
 from datumaro.util.attrs_util import default_if_none, not_empty
-from datumaro.components.model_inference import inference
 
 DEFAULT_SUBSET_NAME = "default"
 
@@ -58,7 +58,7 @@ class DatasetItem:
         image=None,
         point_cloud=None,
         related_images=None,
-        hash_key=None
+        hash_key=None,
     ):
         if image is not None:
             warnings.warn(
@@ -92,10 +92,15 @@ class DatasetItem:
             media = point_cloud
 
         if save_hash and bool(media):
-            hash_key = inference(media)
+            hash_key = hash_inference(media)
 
         self.__attrs_init__(
-            id=id, subset=subset, media=media, annotations=annotations, attributes=attributes, hash_key=hash_key,
+            id=id,
+            subset=subset,
+            media=media,
+            annotations=annotations,
+            attributes=attributes,
+            hash_key=hash_key,
         )
 
     # Deprecated. Provided for backward compatibility.
@@ -158,10 +163,10 @@ class DatasetItem:
             stacklevel=2,
         )
         return isinstance(self.media, PointCloud)
-    
+
     @property
     def set_hash_key(self):
-        self.hash_key = inference(self.media)
+        self.hash_key = hash_inference(self.media)
         return self.hash_key
 
 

@@ -739,3 +739,17 @@ class CityscapesExporterTest(TestCase):
                 partial(CityscapesExporter.convert, label_map="cityscapes"),
                 test_dir,
             )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "cityscapes", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash_with_train_label_map(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_TRAIN_DATASET_DIR, "cityscapes", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

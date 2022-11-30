@@ -49,3 +49,11 @@ class CommonSuperResolutionImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "common_super_resolution")
 
         compare_datasets(self, expected_dataset, dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_DATASET_DIR, "common_super_resolution", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

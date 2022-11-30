@@ -79,3 +79,18 @@ class ImageDirFormatTest(TestCase):
                 importer="image_dir",
                 require_media=True,
             )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(id=1, media=Image(data=np.ones((10, 6, 3)))),
+                DatasetItem(id=2, media=Image(data=np.ones((5, 4, 3)))),
+            ]
+        )
+        with TestDir() as test_dir:
+            converter = ImageDirConverter.convert
+            converter(dataset, test_dir)
+            parsed_dataset = Dataset.import_from(test_dir, "image_dir", save_hash=True)
+        for item in parsed_dataset:
+            self.assertTrue(bool(item.hash_key))

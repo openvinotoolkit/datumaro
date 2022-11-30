@@ -163,3 +163,9 @@ class ImagenetImporterTest(TestCase):
         parsed = pickle.loads(pickle.dumps(source))  # nosec
 
         compare_datasets_strict(self, source, parsed)
+
+    @mark_requirement(Requirements.DATUM_673)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "imagenet", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

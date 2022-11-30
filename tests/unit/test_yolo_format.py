@@ -481,3 +481,9 @@ class YoloBaseTest(TestCase):
 
             with self.assertRaisesRegex(InvalidAnnotationError, "subset list file"):
                 Dataset.import_from(test_dir, "yolo").init_cache()
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "yolo", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(item.hash_key)

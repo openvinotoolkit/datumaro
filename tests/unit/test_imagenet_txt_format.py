@@ -238,3 +238,28 @@ class ImagenetTxtImporterTest(TestCase):
     def test_can_detect_imagenet(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
         self.assertEqual([ImagenetTxtImporter.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "imagenet_txt", save_hash=True)
+        for item in imported_dataset:
+            if item.media.data is not None:
+                self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash_with_custom_labels_file(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR, "imagenet_txt", labels_file="synsets-alt.txt"
+        )
+        for item in imported_dataset:
+            if item.media.data is not None:
+                self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash_with_no_labels_file(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_DATASET_WITH_NO_LABELS_DIR, "imagenet_txt", labels="generate", save_hash=True
+        )
+        for item in imported_dataset:
+            if item.media.data is not None:
+                self.assertTrue(bool(item.hash_key))

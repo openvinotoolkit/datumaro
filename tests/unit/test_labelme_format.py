@@ -438,3 +438,9 @@ class LabelMeImporterTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, "label_me")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "label_me", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

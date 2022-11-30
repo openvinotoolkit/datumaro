@@ -270,3 +270,9 @@ class MotsImporterTest(TestCase):
 
         parsed = Dataset.import_from(DUMMY_DATASET_DIR, "mots")
         compare_datasets(self, expected=target, actual=parsed)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "mots", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

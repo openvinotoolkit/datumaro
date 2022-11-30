@@ -231,3 +231,9 @@ class MpiiImporterTest(TestCase):
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
         self.assertEqual([MpiiImporter.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_580)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "mpii", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

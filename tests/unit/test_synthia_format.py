@@ -251,3 +251,35 @@ class SynthiaImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_META_FILE, "synthia")
 
         compare_datasets(self, expected_dataset, dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_497)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_LABELS_SEGM_DATASET_DIR, "synthia", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_497)
+    def test_save_hash_with_colored_masks(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_COLOR_SEGM_DATASET_DIR, "synthia", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_497)
+    def test_save_hash_with_custom_labelmap(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_DATASET_DIR_CUSTOM_LABELMAP, "synthia", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_497)
+    def test_save_hash_with_meta_file(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_DATASET_DIR_META_FILE, "synthia", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

@@ -168,3 +168,19 @@ class AlignCelebaImporterTest(TestCase):
     def test_can_detect_align_dataset(self):
         detected_formats = Environment().detect_dataset(DUMMY_ALIGN_DATASET_DIR)
         self.assertIn(AlignCelebaImporter.NAME, detected_formats)
+
+    @mark_requirement(Requirements.DATUM_475)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_ALIGN_DATASET_DIR, "align_celeba", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_475)
+    def test_save_hash_with_meta_file(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_ALIGN_DATASET_DIR_WITH_META_FILE, "align_celeba", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

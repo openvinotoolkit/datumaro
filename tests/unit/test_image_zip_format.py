@@ -118,3 +118,9 @@ class ImageZipImporterTest(TestCase):
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, format="image_zip")
         compare_datasets(self, source_dataset, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_267)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "image_zip", save_hash=True)
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

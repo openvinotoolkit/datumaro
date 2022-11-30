@@ -50,3 +50,8 @@ class BratsImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "brats")
 
         compare_datasets(self, expected_dataset, dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_save_hash(self):
+        with self.assertRaises(Exception):
+            Dataset.import_from(DUMMY_DATASET_DIR, "brats", save_hash=True)

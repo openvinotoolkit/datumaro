@@ -122,3 +122,23 @@ class CommonSemanticSegmentationImporterTest(TestCase):
         )
 
         compare_datasets(self, expected_dataset, dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_DATASET_DIR, "common_semantic_segmentation", save_hash=True
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_hash_non_standard_structure(self):
+        imported_dataset = Dataset.import_from(
+            DUMMY_NON_STANDARD_DATASET_DIR,
+            "common_semantic_segmentation",
+            image_prefix="image_",
+            mask_prefix="gt_",
+            save_hash=True,
+        )
+        for item in imported_dataset:
+            self.assertTrue(bool(item.hash_key))

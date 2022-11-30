@@ -272,19 +272,3 @@ class Exporter(CliPlugin):
 
     def _save_meta_file(self, path):
         save_meta_file(path, self._extractor.categories())
-
-    def _save_hash_key(self, item, path=None, *, name=None, subdir=None, basedir=None):
-        assert not (
-            (subdir or name or basedir) and path
-        ), "Can't use both subdir or name or basedir and path arguments"
-
-        if not isinstance(item.media, Image):
-            log.warning("Item '%s' has no image", item.id)
-            return
-
-        basedir = basedir or self._save_dir
-        path = path or osp.join(basedir, self._make_hash_filename(item, name=name, subdir=subdir))
-        path = osp.abspath(path)
-
-        os.makedirs()
-

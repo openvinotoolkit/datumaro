@@ -34,7 +34,13 @@ from .format import (
 
 class _MapillaryVistasBase(SubsetBase):
     def __init__(
-        self, path, task, subset=None, use_original_config=False, keep_original_category_ids=False, save_hash=False
+        self,
+        path,
+        task,
+        subset=None,
+        use_original_config=False,
+        keep_original_category_ids=False,
+        save_hash=False,
     ):
         assert osp.isdir(path), path
         self._path = path
@@ -159,7 +165,11 @@ class _MapillaryVistasBase(SubsetBase):
                 )
 
             items[item_id] = DatasetItem(
-                id=item_id, subset=self._subset, annotations=annotations, media=image, save_hash=self._save_hash
+                id=item_id,
+                subset=self._subset,
+                annotations=annotations,
+                media=image,
+                save_hash=self._save_hash,
             )
 
         self._load_polygons(items)
@@ -220,8 +230,11 @@ class _MapillaryVistasBase(SubsetBase):
             image = Image(path=image_path)
             if item_id in items:
                 items[item_id].media = image
+                items[item_id].set_hash_key
             else:
-                items[item_id] = DatasetItem(id=item_id, subset=self._subset, media=image, save_hash=self._save_hash)
+                items[item_id] = DatasetItem(
+                    id=item_id, subset=self._subset, media=image, save_hash=self._save_hash
+                )
 
         self._load_polygons(items)
         return items.values()
