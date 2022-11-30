@@ -9,6 +9,7 @@ import numpy as np
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
+from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.errors import (
     DatasetMergeError,
     EmptyCommitError,
@@ -25,10 +26,10 @@ from datumaro.components.errors import (
     UnexpectedUrlError,
     UnknownTargetError,
 )
-from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.components.project import DiffStatus, Project
+from datumaro.components.transformer import ItemTransform
 from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 
@@ -1110,13 +1111,11 @@ class ProjectTest(TestCase):
             f.write(
                 textwrap.dedent(
                     """
-                from datumaro.components.extractor import (SourceExtractor,
+                from datumaro.components.dataset_base import (SubsetBase,
                     DatasetItem)
-
-                class MyExtractor(SourceExtractor):
+                class MyBase(SubsetBase):
                     def __init__(self, *args, **kwargs):
                         super().__init__()
-
                     def __iter__(self):
                         yield from [
                             DatasetItem('1'),
@@ -1135,7 +1134,7 @@ class ProjectTest(TestCase):
     @mark_requirement(Requirements.DATUM_BUG_402)
     @scoped
     def test_can_transform_by_name(self):
-        class CustomExtractor(Extractor):
+        class CustomExtractor(DatasetBase):
             def __init__(self, *args, **kwargs):
                 super().__init__()
 

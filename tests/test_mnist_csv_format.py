@@ -5,10 +5,10 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.mnist_csv_format import MnistCsvConverter, MnistCsvImporter
+from datumaro.plugins.data_formats.mnist_csv import MnistCsvExporter, MnistCsvImporter
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -35,7 +35,7 @@ class MnistCsvFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            MnistCsvConverter.convert(source_dataset, test_dir, save_media=True)
+            MnistCsvExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "mnist_csv")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
@@ -55,7 +55,7 @@ class MnistCsvFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            MnistCsvConverter.convert(source_dataset, test_dir, save_media=False)
+            MnistCsvExporter.convert(source_dataset, test_dir, save_media=False)
             parsed_dataset = Dataset.import_from(test_dir, "mnist_csv")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
@@ -75,7 +75,7 @@ class MnistCsvFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            MnistCsvConverter.convert(source_dataset, test_dir, save_media=True)
+            MnistCsvExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "mnist_csv")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
@@ -98,7 +98,7 @@ class MnistCsvFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            MnistCsvConverter.convert(source_dataset, test_dir, save_media=True)
+            MnistCsvExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "mnist_csv")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
@@ -118,7 +118,7 @@ class MnistCsvFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            MnistCsvConverter.convert(dataset, test_dir, save_media=True)
+            MnistCsvExporter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "mnist_csv")
 
             compare_datasets(self, dataset, parsed_dataset, require_media=True)
@@ -135,7 +135,7 @@ class MnistCsvFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            MnistCsvConverter.convert(dataset, test_dir, save_media=True)
+            MnistCsvExporter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "mnist_csv")
 
             compare_datasets(self, dataset, parsed_dataset, require_media=True)
@@ -155,7 +155,7 @@ class MnistCsvFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            MnistCsvConverter.convert(dataset, test_dir, save_media=True)
+            MnistCsvExporter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "mnist_csv")
 
             compare_datasets(self, dataset, parsed_dataset, require_media=True)
@@ -180,7 +180,7 @@ class MnistCsvFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            MnistCsvConverter.convert(
+            MnistCsvExporter.convert(
                 source_dataset, test_dir, save_media=True, save_dataset_meta=True
             )
             parsed_dataset = Dataset.import_from(test_dir, "mnist_csv")

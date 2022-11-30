@@ -15,7 +15,7 @@ import cv2 as cv
 import numpy as np
 import requests
 
-from datumaro.components.dataset_generator import DatasetGenerator
+from datumaro.components.generator import DatasetGenerator
 from datumaro.util.image import save_image
 from datumaro.util.scope import on_error_do, on_exit_do, scope_add, scoped
 

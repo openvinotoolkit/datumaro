@@ -16,8 +16,14 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tupl
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.config_model import Source
-from datumaro.components.converter import Converter, ExportContext, ExportErrorPolicy, _ExportFail
-from datumaro.components.dataset_filter import XPathAnnotationsFilter, XPathDatasetFilter
+from datumaro.components.dataset_base import (
+    DEFAULT_SUBSET_NAME,
+    CategoriesInfo,
+    DatasetBase,
+    DatasetInfo,
+    DatasetItem,
+    IDataset,
+)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     CategoriesRedefinedError,
@@ -29,22 +35,13 @@ from datumaro.components.errors import (
     RepeatedItemError,
     UnknownFormatError,
 )
-from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME,
-    CategoriesInfo,
-    DatasetInfo,
-    DatasetItem,
-    Extractor,
-    IExtractor,
-    ImportContext,
-    ImportErrorPolicy,
-    ItemTransform,
-    Transform,
-    _ImportFail,
-)
+from datumaro.components.exporter import ExportContext, Exporter, ExportErrorPolicy, _ExportFail
+from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
+from datumaro.components.importer import ImportContext, ImportErrorPolicy, _ImportFail
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.media import Image, MediaElement
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
+from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
@@ -52,8 +49,6 @@ from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
 DEFAULT_FORMAT = "datumaro"
-
-IDataset = IExtractor
 
 
 class DatasetItemStorage:
@@ -228,7 +223,7 @@ class ItemStatus(Enum):
 class DatasetPatch:
     class DatasetPatchWrapper(DatasetItemStorageDatasetView):
         # The purpose of this class is to indicate that the input dataset is
-        # a patch and autofill patch info in Converter
+        # a patch and autofill patch info in Exporter
         def __init__(self, patch: DatasetPatch, parent: IDataset):
             super().__init__(
                 patch.data,
@@ -487,7 +482,7 @@ class DatasetStorage(IDataset):
                 # A generic way to find modified items:
                 # Collect all the dataset original ids and compare
                 # with transform outputs.
-                # TODO: introduce Extractor.items() / .ids() to avoid extra
+                # TODO: introduce DatasetBase.items() / .ids() to avoid extra
                 # dataset traversals?
                 old_ids = set((item.id, item.subset) for item in source)
                 source = transform
@@ -672,7 +667,7 @@ class DatasetStorage(IDataset):
 
         item = self._storage.get(id, subset)
         if item is None and not self.is_cache_initialized():
-            if self._source.get.__func__ == Extractor.get:
+            if self._source.get.__func__ == DatasetBase.get:
                 # can be improved if IDataset is ABC
                 self.init_cache()
                 item = self._storage.get(id, subset)
@@ -759,7 +754,7 @@ class DatasetStorage(IDataset):
         if not (self.is_cache_initialized() or self._is_unchanged_wrapper):
             self._flush_changes = True
 
-    def update(self, source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]):
+    def update(self, source: Union[DatasetPatch, IDataset, Iterable[DatasetItem]]):
         # TODO: provide a more efficient implementation with patch reuse
 
         if isinstance(source, DatasetPatch):
@@ -771,7 +766,7 @@ class DatasetStorage(IDataset):
                     self.remove(*item_id)
                 else:
                     self.put(source.data.get(*item_id))
-        elif isinstance(source, IExtractor):
+        elif isinstance(source, IDataset):
             for item in ProjectLabels(
                 source, self.categories().get(AnnotationType.label, LabelCategories())
             ):
@@ -840,7 +835,7 @@ class Dataset(IDataset):
         if not categories:
             categories = {}
 
-        class _extractor(Extractor):
+        class _extractor(DatasetBase):
             def __init__(self):
                 super().__init__(
                     length=len(iterable) if hasattr(iterable, "__len__") else None,
@@ -1047,7 +1042,7 @@ class Dataset(IDataset):
         else:
             return self.transform(XPathDatasetFilter, xpath=expr)
 
-    def update(self, source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]) -> Dataset:
+    def update(self, source: Union[DatasetPatch, IDataset, Iterable[DatasetItem]]) -> Dataset:
         """
         Updates items of the current dataset from another dataset or an
         iterable (the source). Items from the source overwrite matching
@@ -1185,7 +1180,7 @@ class Dataset(IDataset):
     def export(
         self,
         save_dir: str,
-        format: Union[str, Type[Converter]],
+        format: Union[str, Type[Exporter]],
         *,
         progress_reporter: Optional[ProgressReporter] = None,
         error_policy: Optional[ExportErrorPolicy] = None,
@@ -1210,12 +1205,12 @@ class Dataset(IDataset):
         inplace = save_dir == self._source_path and format == self._format
 
         if isinstance(format, str):
-            converter = self.env.converters[format]
+            exporter = self.env.exporters[format]
         else:
-            converter = format
+            exporter = format
 
-        if not (inspect.isclass(converter) and issubclass(converter, Converter)):
-            raise TypeError("Unexpected 'format' argument type: %s" % type(converter))
+        if not (inspect.isclass(exporter) and issubclass(exporter, Exporter)):
+            raise TypeError("Unexpected 'format' argument type: %s" % type(exporter))
 
         save_dir = osp.abspath(save_dir)
         if not osp.exists(save_dir):
@@ -1229,15 +1224,15 @@ class Dataset(IDataset):
             progress_reporter = NullProgressReporter()
 
         assert "ctx" not in kwargs
-        converter_kwargs = copy(kwargs)
-        converter_kwargs["ctx"] = ExportContext(
+        exporter_kwargs = copy(kwargs)
+        exporter_kwargs["ctx"] = ExportContext(
             progress_reporter=progress_reporter, error_policy=error_policy
         )
 
         try:
             if not inplace:
                 try:
-                    converter.convert(self, save_dir=save_dir, **converter_kwargs)
+                    exporter.convert(self, save_dir=save_dir, **exporter_kwargs)
                 except TypeError as e:
                     # TODO: for backward compatibility. To be removed after 0.3
                     if "unexpected keyword argument 'ctx'" not in str(e):
@@ -1245,17 +1240,17 @@ class Dataset(IDataset):
 
                     if has_ctx_args:
                         warnings.warn(
-                            "It seems that '%s' converter "
+                            "It seems that '%s' exporter "
                             "does not support progress and error reporting, "
                             "it will be disabled" % format,
                             DeprecationWarning,
                         )
-                    converter_kwargs.pop("ctx")
+                    exporter_kwargs.pop("ctx")
 
-                    converter.convert(self, save_dir=save_dir, **converter_kwargs)
+                    exporter.convert(self, save_dir=save_dir, **exporter_kwargs)
             else:
                 try:
-                    converter.patch(self, self.get_patch(), save_dir=save_dir, **converter_kwargs)
+                    exporter.patch(self, self.get_patch(), save_dir=save_dir, **exporter_kwargs)
                 except TypeError as e:
                     # TODO: for backward compatibility. To be removed after 0.3
                     if "unexpected keyword argument 'ctx'" not in str(e):
@@ -1263,14 +1258,14 @@ class Dataset(IDataset):
 
                     if has_ctx_args:
                         warnings.warn(
-                            "It seems that '%s' converter "
+                            "It seems that '%s' exporter "
                             "does not support progress and error reporting, "
                             "it will be disabled" % format,
                             DeprecationWarning,
                         )
-                    converter_kwargs.pop("ctx")
+                    exporter_kwargs.pop("ctx")
 
-                    converter.patch(self, self.get_patch(), save_dir=save_dir, **converter_kwargs)
+                    exporter.patch(self, self.get_patch(), save_dir=save_dir, **exporter_kwargs)
         except _ExportFail as e:
             raise e.__cause__
 

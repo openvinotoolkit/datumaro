@@ -4,8 +4,8 @@
 
 import argparse
 
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.errors import DatasetMergeError, MissingObjectError, ProjectNotFoundError
-from datumaro.components.extractor import AnnotationType
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter

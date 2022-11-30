@@ -8,7 +8,8 @@ from typing import Optional, Union
 import pandas as pd
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import IExtractor, Transform
+from datumaro.components.dataset_base import IDataset
+from datumaro.components.transformer import Transform
 from datumaro.util import parse_str_enum_value
 
 from .algorithm.algorithm import Algorithm, SamplingMethod
@@ -100,7 +101,7 @@ class RelevancySampler(Transform, CliPlugin):
 
     def __init__(
         self,
-        extractor: IExtractor,
+        extractor: IDataset,
         count: int,
         *,
         algorithm: Union[str, Algorithm],

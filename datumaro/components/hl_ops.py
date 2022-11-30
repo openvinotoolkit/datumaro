@@ -8,13 +8,13 @@ import os.path as osp
 import shutil
 from typing import Dict, Optional, Type, Union
 
-from datumaro.components.converter import Converter
 from datumaro.components.dataset import Dataset, DatasetItemStorageDatasetView, IDataset
-from datumaro.components.dataset_filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import Transform
+from datumaro.components.exporter import Exporter
+from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.operations import ExactMerge
+from datumaro.components.transformer import Transform
 from datumaro.components.validator import TaskType, Validator
 from datumaro.util import parse_str_enum_value
 from datumaro.util.scope import on_error_do, scoped
@@ -147,7 +147,7 @@ def run_model(
 def export(
     dataset: IDataset,
     path: str,
-    format: Union[str, Type[Converter]],
+    format: Union[str, Type[Exporter]],
     *,
     env: Optional[Environment] = None,
     **kwargs,
@@ -168,19 +168,19 @@ def export(
     if isinstance(format, str):
         if env is None:
             env = Environment()
-        converter = env.converters[format]
+        exporter = env.exporters[format]
     else:
-        converter = format
+        exporter = format
 
-    if not (inspect.isclass(converter) and issubclass(converter, Converter)):
-        raise TypeError("Unexpected 'format' argument type: %s" % type(converter))
+    if not (inspect.isclass(exporter) and issubclass(exporter, Exporter)):
+        raise TypeError("Unexpected 'format' argument type: %s" % type(exporter))
 
     path = osp.abspath(path)
     if not osp.exists(path):
         on_error_do(shutil.rmtree, path, ignore_errors=True)
     os.makedirs(path, exist_ok=True)
 
-    converter.convert(dataset, save_dir=path, **kwargs)
+    exporter.convert(dataset, save_dir=path, **kwargs)
 
 
 def validate(

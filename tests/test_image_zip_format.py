@@ -3,20 +3,20 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, save_image
 from datumaro.components.project import Dataset
-from datumaro.plugins.image_zip_format import ImageZipConverter, ImageZipPath
+from datumaro.plugins.data_formats.image_zip import ImageZipExporter, ImageZipPath
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
 
 
-class ImageZipConverterTest(TestCase):
+class ImageZipExporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_267)
     def _test_can_save_and_load(self, source_dataset, test_dir, **kwargs):
         archive_path = osp.join(test_dir, kwargs.get("name", ImageZipPath.DEFAULT_ARCHIVE_NAME))
-        ImageZipConverter.convert(source_dataset, test_dir, **kwargs)
+        ImageZipExporter.convert(source_dataset, test_dir, **kwargs)
         parsed_dataset = Dataset.import_from(archive_path, "image_zip")
 
         compare_datasets(self, source_dataset, parsed_dataset)

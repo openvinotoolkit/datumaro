@@ -11,10 +11,10 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Mask
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.open_images_format import OpenImagesConverter, OpenImagesImporter
+from datumaro.plugins.data_formats.open_images import OpenImagesExporter, OpenImagesImporter
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from tests.requirements import Requirements, mark_requirement
@@ -129,7 +129,7 @@ class OpenImagesFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            OpenImagesConverter.convert(source_dataset, test_dir, save_media=True)
+            OpenImagesExporter.convert(source_dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "open_images")
 
@@ -145,7 +145,7 @@ class OpenImagesFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            OpenImagesConverter.convert(source_dataset, test_dir, save_media=True)
+            OpenImagesExporter.convert(source_dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "open_images")
 
@@ -164,7 +164,7 @@ class OpenImagesFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            OpenImagesConverter.convert(dataset, test_dir, save_media=True)
+            OpenImagesExporter.convert(dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "open_images")
 
@@ -272,7 +272,7 @@ class OpenImagesFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            OpenImagesConverter.convert(dataset, test_dir)
+            OpenImagesExporter.convert(dataset, test_dir)
 
             parsed_dataset = Dataset.import_from(test_dir, "open_images")
 
@@ -300,7 +300,7 @@ class OpenImagesFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            OpenImagesConverter.convert(dataset, test_dir, save_media=True, save_dataset_meta=True)
+            OpenImagesExporter.convert(dataset, test_dir, save_media=True, save_dataset_meta=True)
 
             parsed_dataset = Dataset.import_from(test_dir, "open_images")
 

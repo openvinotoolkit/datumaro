@@ -31,8 +31,7 @@ from datumaro.components.annotation import (
     PolyLine,
     SuperResolutionAnnotation,
 )
-from datumaro.components.dataset import IDataset
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.media import Image
 
 CAPTION_BBOX_PAD = 0.2

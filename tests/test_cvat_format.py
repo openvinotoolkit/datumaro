@@ -15,11 +15,11 @@ from datumaro.components.annotation import (
     PolyLine,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.cvat_format.converter import CvatConverter
-from datumaro.plugins.cvat_format.extractor import CvatImporter
+from datumaro.plugins.data_formats.cvat.base import CvatImporter
+from datumaro.plugins.data_formats.cvat.exporter import CvatExporter
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 
@@ -227,7 +227,7 @@ class CvatImporterTest(TestCase):
         compare_datasets(self, expected_dataset, parsed_dataset)
 
 
-class CvatConverterTest(TestCase):
+class CvatExporterTest(TestCase):
     def _test_save_and_load(
         self, source_dataset, converter, test_dir, target_dataset=None, importer_args=None, **kwargs
     ):
@@ -367,7 +367,7 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(CvatConverter.convert, save_media=True),
+                partial(CvatExporter.convert, save_media=True),
                 test_dir,
                 target_dataset=target_dataset,
             )
@@ -408,7 +408,7 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(CvatConverter.convert, allow_undeclared_attrs=True),
+                partial(CvatExporter.convert, allow_undeclared_attrs=True),
                 test_dir,
                 target_dataset=target_dataset,
             )
@@ -439,7 +439,7 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(CvatConverter.convert, save_media=True),
+                partial(CvatExporter.convert, save_media=True),
                 test_dir,
                 target_dataset=target_dataset,
                 require_media=True,
@@ -488,7 +488,7 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(CvatConverter.convert, save_media=True),
+                partial(CvatExporter.convert, save_media=True),
                 test_dir,
                 target_dataset=target_dataset,
                 require_media=True,
@@ -515,7 +515,7 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 expected,
-                partial(CvatConverter.convert, save_media=True),
+                partial(CvatExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
             )
@@ -534,7 +534,7 @@ class CvatConverterTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset, CvatConverter.convert, test_dir)
+            self._test_save_and_load(expected_dataset, CvatExporter.convert, test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
@@ -558,7 +558,7 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(CvatConverter.convert, reindex=True),
+                partial(CvatExporter.convert, reindex=True),
                 test_dir,
                 target_dataset=expected_dataset,
             )

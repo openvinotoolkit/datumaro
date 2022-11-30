@@ -6,15 +6,15 @@ from unittest import TestCase
 
 import numpy as np
 
-import datumaro.plugins.cityscapes_format as Cityscapes
+import datumaro.plugins.data_formats.cityscapes as Cityscapes
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.media import Image
-from datumaro.plugins.cityscapes_format import (
+from datumaro.plugins.data_formats.cityscapes import (
     TRAIN_CITYSCAPES_LABEL_MAP,
-    CityscapesConverter,
+    CityscapesExporter,
     CityscapesImporter,
 )
 from datumaro.util.meta_file_util import parse_meta_file
@@ -50,7 +50,7 @@ class CityscapesFormatTest(TestCase):
                 [], categories=Cityscapes.make_cityscapes_categories(src_label_map)
             )
 
-            CityscapesConverter.convert(source_dataset, test_dir, save_dataset_meta=True)
+            CityscapesExporter.convert(source_dataset, test_dir, save_dataset_meta=True)
             dst_label_map = parse_meta_file(test_dir)
 
             self.assertEqual(src_label_map, dst_label_map)
@@ -187,7 +187,7 @@ class CityscapesImportTest(TestCase):
         self.assertEqual([CityscapesImporter.NAME], detected_formats)
 
 
-class TestExtractorBase(Extractor):
+class TestExtractorBase(DatasetBase):
     def _label(self, cityscapes_label):
         return self.categories()[AnnotationType.label].find(cityscapes_label)[0]
 
@@ -195,7 +195,7 @@ class TestExtractorBase(Extractor):
         return Cityscapes.make_cityscapes_categories()
 
 
-class CityscapesConverterTest(TestCase):
+class CityscapesExporterTest(TestCase):
     def _test_save_and_load(
         self, source_dataset, converter, test_dir, target_dataset=None, importer_args=None, **kwargs
     ):
@@ -262,7 +262,7 @@ class CityscapesConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(CityscapesConverter.convert, label_map="cityscapes", save_media=True),
+                partial(CityscapesExporter.convert, label_map="cityscapes", save_media=True),
                 test_dir,
             )
 
@@ -310,7 +310,7 @@ class CityscapesConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(CityscapesConverter.convert, label_map="cityscapes", save_media=True),
+                partial(CityscapesExporter.convert, label_map="cityscapes", save_media=True),
                 test_dir,
             )
 
@@ -343,7 +343,7 @@ class CityscapesConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(CityscapesConverter.convert, label_map="cityscapes", save_media=True),
+                partial(CityscapesExporter.convert, label_map="cityscapes", save_media=True),
                 test_dir,
             )
 
@@ -377,7 +377,7 @@ class CityscapesConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(CityscapesConverter.convert, label_map="cityscapes", save_media=True),
+                partial(CityscapesExporter.convert, label_map="cityscapes", save_media=True),
                 test_dir,
             )
 
@@ -398,7 +398,7 @@ class CityscapesConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(CityscapesConverter.convert, label_map="cityscapes", save_media=True),
+                partial(CityscapesExporter.convert, label_map="cityscapes", save_media=True),
                 test_dir,
             )
 
@@ -449,7 +449,7 @@ class CityscapesConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(CityscapesConverter.convert, label_map="source", save_media=True),
+                partial(CityscapesExporter.convert, label_map="source", save_media=True),
                 test_dir,
                 target_dataset=DstExtractor(),
             )
@@ -502,7 +502,7 @@ class CityscapesConverterTest(TestCase):
             self._test_save_and_load(
                 source_dataset,
                 partial(
-                    CityscapesConverter.convert,
+                    CityscapesExporter.convert,
                     label_map="source",
                     save_media=True,
                     save_dataset_meta=True,
@@ -573,7 +573,7 @@ class CityscapesConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 SrcExtractor(),
-                partial(CityscapesConverter.convert, label_map="source", save_media=True),
+                partial(CityscapesExporter.convert, label_map="source", save_media=True),
                 test_dir,
                 target_dataset=DstExtractor(),
             )
@@ -613,7 +613,7 @@ class CityscapesConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(CityscapesConverter.convert, save_media=True),
+                partial(CityscapesExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
             )
@@ -736,6 +736,6 @@ class CityscapesConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(CityscapesConverter.convert, label_map="cityscapes"),
+                partial(CityscapesExporter.convert, label_map="cityscapes"),
                 test_dir,
             )

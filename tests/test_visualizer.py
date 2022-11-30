@@ -16,7 +16,7 @@ from datumaro.components.annotation import (
     SuperResolutionAnnotation,
 )
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.visualizer import Visualizer
 

@@ -7,8 +7,8 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Mask
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import ByteImage, Image
 from datumaro.util.image import encode_image
 from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
@@ -17,11 +17,11 @@ from datumaro.util.tf_util import check_import
 from .requirements import Requirements, mark_requirement
 
 try:
-    from datumaro.plugins.tf_detection_api_format.converter import TfDetectionApiConverter
-    from datumaro.plugins.tf_detection_api_format.extractor import (
-        TfDetectionApiExtractor,
+    from datumaro.plugins.data_formats.tf_detection_api.base import (
+        TfDetectionApiBase,
         TfDetectionApiImporter,
     )
+    from datumaro.plugins.data_formats.tf_detection_api.exporter import TfDetectionApiExporter
 
     import_failed = False
 except ImportError:
@@ -42,7 +42,7 @@ except ImportError:
 
 
 @skipIf(import_failed, "Failed to import tensorflow")
-class TfrecordConverterTest(TestCase):
+class TfrecordExporterTest(TestCase):
     def _test_save_and_load(
         self, source_dataset, converter, test_dir, target_dataset=None, importer_args=None, **kwargs
     ):
@@ -82,7 +82,7 @@ class TfrecordConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                test_dataset, partial(TfDetectionApiConverter.convert, save_media=True), test_dir
+                test_dataset, partial(TfDetectionApiExporter.convert, save_media=True), test_dir
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -118,7 +118,7 @@ class TfrecordConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                test_dataset, partial(TfDetectionApiConverter.convert, save_masks=True), test_dir
+                test_dataset, partial(TfDetectionApiExporter.convert, save_masks=True), test_dir
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -155,7 +155,7 @@ class TfrecordConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                test_dataset, partial(TfDetectionApiConverter.convert, save_media=True), test_dir
+                test_dataset, partial(TfDetectionApiExporter.convert, save_media=True), test_dir
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -181,7 +181,7 @@ class TfrecordConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                test_dataset, partial(TfDetectionApiConverter.convert, save_media=True), test_dir
+                test_dataset, partial(TfDetectionApiExporter.convert, save_media=True), test_dir
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -198,7 +198,7 @@ class TfrecordConverterTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(test_dataset, TfDetectionApiConverter.convert, test_dir)
+            self._test_save_and_load(test_dataset, TfDetectionApiExporter.convert, test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_unknown_image_formats(self):
@@ -221,7 +221,7 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
-                partial(TfDetectionApiConverter.convert, save_media=True),
+                partial(TfDetectionApiExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
             )
@@ -249,7 +249,7 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 dataset,
-                partial(TfDetectionApiConverter.convert, save_media=True),
+                partial(TfDetectionApiExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
             )
@@ -301,7 +301,7 @@ class TfrecordConverterTest(TestCase):
             "qw3": 6,
             "qw4": 7,
         }
-        parsed = TfDetectionApiExtractor._parse_labelmap(text)
+        parsed = TfDetectionApiBase._parse_labelmap(text)
 
         self.assertEqual(expected, parsed)
 

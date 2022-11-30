@@ -6,7 +6,7 @@ import numpy as np
 
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped

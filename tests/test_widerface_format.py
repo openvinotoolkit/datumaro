@@ -6,10 +6,10 @@ import numpy as np
 
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.widerface_format import WiderFaceConverter, WiderFaceImporter
+from datumaro.plugins.data_formats.widerface import WiderFaceExporter, WiderFaceImporter
 from datumaro.util.test_utils import IGNORE_ALL, TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -143,7 +143,7 @@ class WiderFaceFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(source_dataset, test_dir, save_media=True)
+            WiderFaceExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "wider_face")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
@@ -181,7 +181,7 @@ class WiderFaceFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(source_dataset, test_dir, save_media=False)
+            WiderFaceExporter.convert(source_dataset, test_dir, save_media=False)
             parsed_dataset = Dataset.import_from(test_dir, "wider_face")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -217,7 +217,7 @@ class WiderFaceFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(source_dataset, test_dir, save_media=True)
+            WiderFaceExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "wider_face")
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -254,7 +254,7 @@ class WiderFaceFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(
+            WiderFaceExporter.convert(
                 source_dataset, test_dir, save_media=True, save_dataset_meta=True
             )
             parsed_dataset = Dataset.import_from(test_dir, "wider_face")
@@ -292,7 +292,7 @@ class WiderFaceFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(source_dataset, test_dir, save_media=True)
+            WiderFaceExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "wider_face")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
@@ -337,7 +337,7 @@ class WiderFaceFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(source_dataset, test_dir, save_media=True)
+            WiderFaceExporter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "wider_face")
 
             compare_datasets(self, target_dataset, parsed_dataset)
@@ -353,7 +353,7 @@ class WiderFaceFormatTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(dataset, test_dir, save_media=True)
+            WiderFaceExporter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, "wider_face")
 
             compare_datasets(self, dataset, parsed_dataset, require_media=True)

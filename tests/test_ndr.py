@@ -4,7 +4,7 @@ import numpy as np
 
 import datumaro.plugins.ndr as ndr
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 

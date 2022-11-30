@@ -5,12 +5,12 @@ from unittest.case import TestCase
 
 from datumaro.cli.util.project import WrongRevpathError, parse_full_revpath, split_local_revpath
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import (
     MultipleFormatsMatchError,
     ProjectNotFoundError,
     UnknownTargetError,
 )
-from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir

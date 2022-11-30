@@ -2,10 +2,10 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
-from datumaro.plugins.image_dir_format import ImageDirConverter
+from datumaro.plugins.data_formats.image_dir import ImageDirExporter
 from datumaro.util.test_utils import TestDir, check_save_and_load
 
 from .requirements import Requirements, mark_requirement
@@ -25,7 +25,7 @@ class ImageDirFormatTest(TestCase):
             check_save_and_load(
                 self,
                 dataset,
-                ImageDirConverter.convert,
+                ImageDirExporter.convert,
                 test_dir,
                 importer="image_dir",
                 require_media=True,
@@ -43,7 +43,7 @@ class ImageDirFormatTest(TestCase):
 
         with TestDir() as test_dir:
             check_save_and_load(
-                self, dataset, ImageDirConverter.convert, test_dir, importer="image_dir"
+                self, dataset, ImageDirExporter.convert, test_dir, importer="image_dir"
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -56,7 +56,7 @@ class ImageDirFormatTest(TestCase):
 
         with TestDir() as test_dir:
             check_save_and_load(
-                self, dataset, ImageDirConverter.convert, test_dir, importer="image_dir"
+                self, dataset, ImageDirExporter.convert, test_dir, importer="image_dir"
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -74,7 +74,7 @@ class ImageDirFormatTest(TestCase):
             check_save_and_load(
                 self,
                 dataset,
-                ImageDirConverter.convert,
+                ImageDirExporter.convert,
                 test_dir,
                 importer="image_dir",
                 require_media=True,

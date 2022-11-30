@@ -8,8 +8,8 @@
 # Options:
 #
 # A. Require converter to open all the media resources.
-# - Dataset (IExtractor) just provides media access metainfo
-# - Dataset (IExtractor) must provide the list of all media resources
+# - Dataset (IDataset) just provides media access metainfo
+# - Dataset (IDataset) must provide the list of all media resources
 # - Each resource has to provide means for loading and releasing
 # - All converters require changes and special handling for different media
 # sources.
@@ -18,7 +18,7 @@
 #
 # Problems:
 # - Too much burden on plugins. Media reporting and resource management takes
-# too much efforts in this solution. Extractors and Converters all need to
+# too much efforts in this solution. Extractors and Exporters all need to
 # bother with this.
 #
 #

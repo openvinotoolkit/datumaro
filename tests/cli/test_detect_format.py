@@ -6,10 +6,10 @@ import os.path as osp
 import shutil
 from unittest.case import TestCase
 
-from datumaro.plugins.ade20k2017_format import Ade20k2017Importer
-from datumaro.plugins.ade20k2020_format import Ade20k2020Importer
-from datumaro.plugins.image_dir_format import ImageDirImporter
-from datumaro.plugins.lfw_format import LfwImporter
+from datumaro.plugins.data_formats.ade20k2017 import Ade20k2017Importer
+from datumaro.plugins.data_formats.ade20k2020 import Ade20k2020Importer
+from datumaro.plugins.data_formats.image_dir import ImageDirImporter
+from datumaro.plugins.data_formats.lfw import LfwImporter
 from datumaro.util.os_util import suppress_output
 from datumaro.util.test_utils import TestDir
 from datumaro.util.test_utils import run_datum as run

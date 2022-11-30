@@ -4,8 +4,8 @@ from unittest import TestCase
 import numpy as np
 
 from datumaro.components.annotation import Bbox
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import ReadonlyDatasetError
-from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset, Project
 from datumaro.util.test_utils import TestDir, compare_datasets

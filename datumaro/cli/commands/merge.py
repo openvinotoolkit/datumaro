@@ -148,7 +148,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "extra_args",
         nargs=argparse.REMAINDER,
-        help="Additional arguments for converter (pass '-- -h' for help). "
+        help="Additional arguments for exporter (pass '-- -h' for help). "
         "Must be specified after the main command arguments and after "
         "the '--' separator",
     )
@@ -203,11 +203,11 @@ def merge_command(args):
         env = Environment()
 
     try:
-        converter = env.converters[args.format]
+        exporter = env.exporters[args.format]
     except KeyError:
-        raise CliException("Converter for format '%s' is not found" % args.format)
+        raise CliException("Exporter for format '%s' is not found" % args.format)
 
-    export_args = converter.parse_cmdline(args.extra_args)
+    export_args = exporter.parse_cmdline(args.extra_args)
 
     source_datasets = []
     try:
@@ -232,7 +232,7 @@ def merge_command(args):
     )
     merged_dataset = merger(source_datasets)
 
-    merged_dataset.export(save_dir=dst_dir, format=converter, **export_args)
+    merged_dataset.export(save_dir=dst_dir, format=exporter, **export_args)
 
     report_path = osp.join(dst_dir, "merge_report.json")
     save_merge_report(merger, report_path)
