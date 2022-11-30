@@ -93,7 +93,11 @@ class _KittiBase(SubsetBase):
                     image = Image(path=image)
 
                 items[item_id] = DatasetItem(
-                    id=item_id, annotations=anns, media=image, subset=self._subset, save_hash=self._save_hash
+                    id=item_id,
+                    annotations=anns,
+                    media=image,
+                    subset=self._subset,
+                    save_hash=self._save_hash,
                 )
 
         det_dir = osp.join(self._path, KittiPath.LABELS_DIR)
@@ -140,12 +144,19 @@ class _KittiBase(SubsetBase):
                     image = Image(path=image)
 
                 items[item_id] = DatasetItem(
-                    id=item_id, annotations=anns, media=image, subset=self._subset, save_hash=self._save_hash
+                    id=item_id,
+                    annotations=anns,
+                    media=image,
+                    subset=self._subset,
+                    save_hash=self._save_hash,
                 )
 
         for item_id, image_path in image_path_by_id.items():
             items[item_id] = DatasetItem(
-                id=item_id, subset=self._subset, media=Image(path=image_path), save_hash=self._save_hash
+                id=item_id,
+                subset=self._subset,
+                media=Image(path=image_path),
+                save_hash=self._save_hash,
             )
 
         return items

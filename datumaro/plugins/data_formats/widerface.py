@@ -116,7 +116,7 @@ class WiderFaceBase(SubsetBase):
                 subset=self._subset,
                 media=Image(path=image_path),
                 annotations=annotations,
-                save_hash=self._save_hash
+                save_hash=self._save_hash,
             )
 
             try:

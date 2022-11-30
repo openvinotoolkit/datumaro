@@ -140,7 +140,11 @@ class VocClassificationBase(_VocBase):
             if image:
                 image = Image(path=image)
             yield DatasetItem(
-                id=item_id, subset=self._subset, media=image, annotations=annotations.get(item_id), save_hash=self._save_hash
+                id=item_id,
+                subset=self._subset,
+                media=image,
+                annotations=annotations.get(item_id),
+                save_hash=self._save_hash,
             )
 
     def _load_annotations(self):
@@ -224,7 +228,13 @@ class _VocXmlBase(_VocBase):
                 if image or size:
                     image = Image(path=image, size=size)
 
-                yield DatasetItem(id=item_id, subset=self._subset, media=image, annotations=anns, save_hash=self._save_hash)
+                yield DatasetItem(
+                    id=item_id,
+                    subset=self._subset,
+                    media=image,
+                    annotations=anns,
+                    save_hash=self._save_hash,
+                )
             except ElementTree.ParseError as e:
                 readable_wrapper = InvalidAnnotationError("Failed to parse XML file")
                 readable_wrapper.__cause__ = e

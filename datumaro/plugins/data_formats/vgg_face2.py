@@ -137,7 +137,9 @@ class VggFace2Base(DatasetBase):
                     image = images.get(row["NAME_ID"])
                     if image:
                         image = Image(path=image)
-                    items[item_id] = DatasetItem(id=item_id, subset=subset, media=image, save_hash=self._save_hash)
+                    items[item_id] = DatasetItem(
+                        id=item_id, subset=subset, media=image, save_hash=self._save_hash
+                    )
 
                 annotations = items[item_id].annotations
                 if [a for a in annotations if a.type == AnnotationType.points]:

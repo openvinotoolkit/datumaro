@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, Caption, Label, LabelCategories
+from datumaro.components.annotation import Caption, Label
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.model_inference import hash_inference

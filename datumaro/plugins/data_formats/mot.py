@@ -66,7 +66,9 @@ class MotPath:
 
 
 class MotSeqBase(SubsetBase):
-    def __init__(self, path, labels=None, occlusion_threshold=0, is_gt=None, subset=None, save_hash=False):
+    def __init__(
+        self, path, labels=None, occlusion_threshold=0, is_gt=None, subset=None, save_hash=False
+    ):
         super().__init__(subset=subset)
 
         assert osp.isfile(path)
@@ -147,7 +149,9 @@ class MotSeqBase(SubsetBase):
         elif osp.isdir(self._image_dir):
             for p in find_images(self._image_dir):
                 frame_id = int(osp.splitext(osp.relpath(p, self._image_dir))[0])
-                items[frame_id] = DatasetItem(id=frame_id, subset=self._subset, media=Image(path=p), save_hash=self._save_hash)
+                items[frame_id] = DatasetItem(
+                    id=frame_id, subset=self._subset, media=Image(path=p), save_hash=self._save_hash
+                )
 
         with open(path, newline="", encoding="utf-8") as csv_file:
             # NOTE: Different MOT files have different count of fields

@@ -87,7 +87,9 @@ class BratsNumpyBase(SubsetBase):
                 box = boxes[i]
                 anno.append(Cuboid3d(position=list(box[0]), rotation=list(box[1])))
 
-            items[item_id] = DatasetItem(id=item_id, media=media, annotations=anno, save_hash=self._save_hash)
+            items[item_id] = DatasetItem(
+                id=item_id, media=media, annotations=anno, save_hash=self._save_hash
+            )
 
         return items
 

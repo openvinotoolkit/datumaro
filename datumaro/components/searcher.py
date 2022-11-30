@@ -7,7 +7,7 @@ from typing import List, Optional, Union
 import numpy as np
 
 from datumaro.components.dataset import IDataset
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.model_inference import hash_inference
 
 

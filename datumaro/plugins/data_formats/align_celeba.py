@@ -83,7 +83,9 @@ class AlignCelebaBase(SubsetBase):
                 if image:
                     image = Image(path=image)
 
-                items[item_id] = DatasetItem(id=item_id, media=image, annotations=anno, save_hash=self._save_hash)
+                items[item_id] = DatasetItem(
+                    id=item_id, media=image, annotations=anno, save_hash=self._save_hash
+                )
 
         landmark_path = osp.join(root_dir, AlignCelebaPath.LANDMARKS_FILE)
         if osp.isfile(landmark_path):
@@ -148,7 +150,9 @@ class AlignCelebaBase(SubsetBase):
                         if image:
                             image = Image(path=image)
 
-                        items[item_id] = DatasetItem(id=item_id, media=image, save_hash=self._save_hash)
+                        items[item_id] = DatasetItem(
+                            id=item_id, media=image, save_hash=self._save_hash
+                        )
 
                     items[item_id].attributes = attrs
 
@@ -171,7 +175,9 @@ class AlignCelebaBase(SubsetBase):
                         image = images.get(item_id)
                         if image:
                             image = Image(path=image)
-                        items[item_id] = DatasetItem(id=item_id, media=image, save_hash=self._save_hash)
+                        items[item_id] = DatasetItem(
+                            id=item_id, media=image, save_hash=self._save_hash
+                        )
 
                     items[item_id].subset = subset
 

@@ -122,7 +122,7 @@ class Ade20k2017Base(DatasetBase):
                     subset=subset,
                     media=Image(path=image_path),
                     annotations=item_annotations,
-                    save_hash=self._save_hash
+                    save_hash=self._save_hash,
                 )
             )
 

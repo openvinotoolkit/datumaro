@@ -75,7 +75,10 @@ class _IcdarBase(SubsetBase):
                 image_path = osp.join(osp.dirname(self._path), IcdarPath.IMAGES_DIR, image)
                 if item_id not in items:
                     items[item_id] = DatasetItem(
-                        item_id, subset=self._subset, media=Image(path=image_path), save_hash=self._save_hash
+                        item_id,
+                        subset=self._subset,
+                        media=Image(path=image_path),
+                        save_hash=self._save_hash,
                     )
 
                 annotations = items[item_id].annotations
@@ -108,7 +111,9 @@ class _IcdarBase(SubsetBase):
                 if image_path:
                     image = Image(path=image_path)
 
-                items[item_id] = DatasetItem(item_id, subset=self._subset, media=image, save_hash=self._save_hash)
+                items[item_id] = DatasetItem(
+                    item_id, subset=self._subset, media=image, save_hash=self._save_hash
+                )
             annotations = items[item_id].annotations
 
             with open(path, encoding="utf-8") as f:
@@ -179,7 +184,9 @@ class _IcdarBase(SubsetBase):
                 if image_path:
                     image = Image(path=image_path)
 
-                items[item_id] = DatasetItem(item_id, subset=self._subset, media=image, save_hash=self._save_hash)
+                items[item_id] = DatasetItem(
+                    item_id, subset=self._subset, media=image, save_hash=self._save_hash
+                )
             annotations = items[item_id].annotations
 
             colors = [(255, 255, 255)]

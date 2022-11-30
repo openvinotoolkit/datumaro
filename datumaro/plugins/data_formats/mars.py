@@ -77,7 +77,9 @@ class MarsBase(DatasetBase):
                 pedestrian_id = image_name[0:4]
 
                 if not fnmatch.fnmatch(image_name, label + MarsPath.IMAGE_NAME_POSTFIX):
-                    items.append(DatasetItem(id=item_id, image=image_path, save_hash=self._save_hash))
+                    items.append(
+                        DatasetItem(id=item_id, image=image_path, save_hash=self._save_hash)
+                    )
                     continue
 
                 if pedestrian_id != label:

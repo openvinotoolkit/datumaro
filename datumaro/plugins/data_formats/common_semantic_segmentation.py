@@ -115,7 +115,11 @@ class CommonSemanticSegmentationBase(SubsetBase):
                 )
 
             items[item_id] = DatasetItem(
-                id=item_id, subset=self._subset, media=image, annotations=annotations, save_hash=self._save_hash
+                id=item_id,
+                subset=self._subset,
+                media=image,
+                annotations=annotations,
+                save_hash=self._save_hash,
             )
 
         return items

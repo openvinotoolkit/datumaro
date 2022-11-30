@@ -31,7 +31,7 @@ from .format import DatumaroPath
 class DatumaroBase(SubsetBase):
     def __init__(self, path, save_hash=False):
         assert osp.isfile(path), path
-        
+
         self._save_hash = save_hash
 
         rootpath = ""

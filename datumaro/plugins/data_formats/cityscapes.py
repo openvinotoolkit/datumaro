@@ -285,11 +285,17 @@ class CityscapesBase(SubsetBase):
                 image = Image(path=image)
 
             items[item_id] = DatasetItem(
-                id=item_id, subset=self._subset, media=image, annotations=anns, save_hash=self._save_hash
+                id=item_id,
+                subset=self._subset,
+                media=image,
+                annotations=anns,
+                save_hash=self._save_hash,
             )
 
         for item_id, path in image_path_by_id.items():
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset, media=Image(path=path), save_hash=self._save_hash)
+            items[item_id] = DatasetItem(
+                id=item_id, subset=self._subset, media=Image(path=path), save_hash=self._save_hash
+            )
 
         self._categories = self._load_categories(
             self._path, use_train_label_map=mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX

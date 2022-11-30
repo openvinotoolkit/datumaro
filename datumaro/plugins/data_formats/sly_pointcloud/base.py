@@ -171,7 +171,7 @@ class SuperviselyPointCloudBase(SubsetBase):
                 media=PointCloud(pcd_path, extra_images=related_images),
                 annotations=frame_desc.get("annotations"),
                 attributes={"frame": int(frame_id), **frame_desc["attributes"]},
-                save_hash=self._save_hash
+                save_hash=self._save_hash,
             )
 
         return parsed
