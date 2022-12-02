@@ -208,7 +208,10 @@ class _InstancesExporter(_TaskExporter):
 
         anns = boxes + polygons + masks
         leader = anno_tools.find_group_leader(anns)
-        bbox = anno_tools.max_bbox(anns)
+        if len(boxes) > 0:
+            bbox = anno_tools.max_bbox(boxes)
+        else:
+            bbox = anno_tools.max_bbox(anns)
         mask = None
         polygons = [p.points for p in polygons]
 

@@ -59,6 +59,23 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "coco_dataset")
 
 class CocoImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_export_and_import_back(self):
+        format_paths = [
+            ("coco_captions", osp.join(DUMMY_DATASET_DIR, "coco_captions")),
+            ("coco_image_info", osp.join(DUMMY_DATASET_DIR, "coco_image_info")),
+            ("coco_instances", osp.join(DUMMY_DATASET_DIR, "coco_instances")),
+            ("coco_labels", osp.join(DUMMY_DATASET_DIR, "coco_labels")),
+            ("coco_person_keypoints", osp.join(DUMMY_DATASET_DIR, "coco_person_keypoints")),
+            ("coco_stuff", osp.join(DUMMY_DATASET_DIR, "coco_stuff")),
+        ]
+        for format, path in format_paths:
+            dataset = Dataset.import_from(path, format)
+            with TestDir() as path_test_dir:
+                dataset.export(path_test_dir, format)
+                back_dataset = Dataset.import_from(path_test_dir)
+            compare_datasets(self, dataset, back_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_instances(self):
         expected_dataset = Dataset.from_iterable(
             [
@@ -84,12 +101,34 @@ class CocoImporterTest(TestCase):
                             group=1,
                             attributes={"is_crowd": False, "x": 1, "y": "hello"},
                         ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            1.0,
+                            2.0,
+                            id=1,
+                            attributes={"x": 1, "y": "hello", "is_crowd": False},
+                            group=1,
+                            label=0,
+                            z_order=0,
+                        ),
                         Mask(
                             np.array([[1, 1, 0, 0, 0]] * 10),
                             label=1,
                             id=2,
                             group=2,
                             attributes={"is_crowd": True},
+                        ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            1.0,
+                            9.0,
+                            id=2,
+                            attributes={"is_crowd": True},
+                            group=2,
+                            label=1,
+                            z_order=0,
                         ),
                     ],
                 ),
@@ -366,6 +405,17 @@ class CocoImporterTest(TestCase):
                             group=1,
                             attributes={"is_crowd": False, "x": 1, "y": "hello"},
                         ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            1.0,
+                            2.0,
+                            id=1,
+                            attributes={"x": 1, "y": "hello", "is_crowd": False},
+                            group=1,
+                            label=0,
+                            z_order=0,
+                        ),
                         Points(
                             [2, 4, 4, 4, 4, 2],
                             label=1,
@@ -379,6 +429,17 @@ class CocoImporterTest(TestCase):
                             id=2,
                             group=2,
                             attributes={"is_crowd": True},
+                        ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            1.0,
+                            9.0,
+                            id=2,
+                            attributes={"is_crowd": True},
+                            group=2,
+                            label=1,
+                            z_order=0,
                         ),
                     ],
                 ),
@@ -731,6 +792,17 @@ class CocoImporterTest(TestCase):
                             group=7,
                             attributes={"is_crowd": False},
                         ),
+                        Bbox(
+                            2.0,
+                            0.0,
+                            4.0,
+                            4.0,
+                            id=7,
+                            attributes={"is_crowd": True},
+                            group=7,
+                            label=0,
+                            z_order=0,
+                        ),
                     ],
                 ),
                 DatasetItem(
@@ -745,6 +817,17 @@ class CocoImporterTest(TestCase):
                             id=2,
                             group=2,
                             attributes={"is_crowd": False},
+                        ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            1.0,
+                            9.0,
+                            id=2,
+                            attributes={"is_crowd": True},
+                            group=2,
+                            label=1,
+                            z_order=0,
                         ),
                     ],
                 ),
@@ -784,6 +867,17 @@ class CocoImporterTest(TestCase):
                             id=7,
                             group=7,
                             attributes={"is_crowd": False},
+                        ),
+                        Bbox(
+                            2.0,
+                            0.0,
+                            4.0,
+                            4.0,
+                            id=7,
+                            attributes={"is_crowd": True},
+                            group=7,
+                            label=0,
+                            z_order=0,
                         ),
                     ],
                 ),
@@ -1174,6 +1268,17 @@ class CocoExporterTest(TestCase):
                             group=1,
                             id=1,
                         ),
+                        Bbox(
+                            0.0,
+                            1.0,
+                            2.0,
+                            2.0,
+                            id=1,
+                            attributes={"is_crowd": False},
+                            group=1,
+                            label=2,
+                            z_order=0,
+                        ),
                     ],
                     attributes={"id": 1},
                 ),
@@ -1191,6 +1296,17 @@ class CocoExporterTest(TestCase):
                             group=3,
                             id=3,
                         ),
+                        Bbox(
+                            1.0,
+                            0.0,
+                            2.0,
+                            2.0,
+                            id=3,
+                            attributes={"is_crowd": True},
+                            group=3,
+                            label=4,
+                            z_order=0,
+                        ),
                     ],
                     attributes={"id": 2},
                 ),
@@ -1207,6 +1323,17 @@ class CocoExporterTest(TestCase):
                             label=4,
                             group=3,
                             id=3,
+                        ),
+                        Bbox(
+                            0.0,
+                            1.0,
+                            2.0,
+                            2.0,
+                            id=3,
+                            attributes={"is_crowd": True},
+                            group=3,
+                            label=4,
+                            z_order=0,
                         ),
                     ],
                     attributes={"id": 1},
@@ -1296,7 +1423,7 @@ class CocoExporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_stuff(self):
-        dataset = Dataset.from_iterable(
+        source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id=1,
@@ -1336,8 +1463,72 @@ class CocoExporterTest(TestCase):
             categories=[str(i) for i in range(10)],
         )
 
+        target_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    subset="train",
+                    media=Image(data=np.ones((4, 4, 3))),
+                    annotations=[
+                        Mask(
+                            np.array(
+                                [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 1, 1], [0, 0, 0, 0]],
+                            ),
+                            attributes={"is_crowd": False},
+                            label=4,
+                            group=3,
+                            id=3,
+                        ),
+                        Bbox(
+                            1.0,
+                            0.0,
+                            2.0,
+                            2.0,
+                            id=3,
+                            attributes={"is_crowd": True},
+                            group=3,
+                            label=4,
+                            z_order=0,
+                        ),
+                    ],
+                    attributes={"id": 2},
+                ),
+                DatasetItem(
+                    id=2,
+                    subset="val",
+                    media=Image(data=np.ones((4, 4, 3))),
+                    annotations=[
+                        Mask(
+                            np.array(
+                                [[0, 0, 0, 0], [1, 1, 1, 0], [1, 1, 0, 0], [0, 0, 0, 0]],
+                            ),
+                            attributes={"is_crowd": False},
+                            label=4,
+                            group=3,
+                            id=3,
+                        ),
+                        Bbox(
+                            0.0,
+                            1.0,
+                            2.0,
+                            1.0,
+                            id=3,
+                            attributes={"is_crowd": True},
+                            group=3,
+                            label=4,
+                            z_order=0,
+                        ),
+                    ],
+                    attributes={"id": 1},
+                ),
+            ],
+            categories=[str(i) for i in range(10)],
+        )
+
         with TestDir() as test_dir:
-            self._test_save_and_load(dataset, CocoStuffExporter.convert, test_dir)
+            self._test_save_and_load(
+                source_dataset, CocoStuffExporter.convert, test_dir, target_dataset=target_dataset
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_merge_polygons_on_loading(self):
@@ -1378,6 +1569,17 @@ class CocoExporterTest(TestCase):
                             id=4,
                             group=4,
                             attributes={"is_crowd": False},
+                        ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            9.0,
+                            5.0,
+                            id=4,
+                            attributes={"is_crowd": False},
+                            group=4,
+                            label=3,
+                            z_order=0,
                         ),
                     ],
                     attributes={"id": 1},
@@ -1445,12 +1647,34 @@ class CocoExporterTest(TestCase):
                             id=1,
                             group=1,
                         ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            4.0,
+                            4.0,
+                            id=1,
+                            attributes={"is_crowd": True},
+                            group=1,
+                            label=2,
+                            z_order=0,
+                        ),
                         Polygon(
                             [1, 1, 4, 1, 4, 4, 1, 4],
                             label=1,
                             id=2,
                             group=2,
                             attributes={"is_crowd": False},
+                        ),
+                        Bbox(
+                            1.0,
+                            1.0,
+                            3.0,
+                            3.0,
+                            id=2,
+                            attributes={"is_crowd": False},
+                            group=2,
+                            label=1,
+                            z_order=0,
                         ),
                     ],
                     attributes={"id": 1},
@@ -1524,6 +1748,17 @@ class CocoExporterTest(TestCase):
                             id=4,
                             group=4,
                         ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            9.0,
+                            5.0,
+                            id=4,
+                            attributes={"is_crowd": True},
+                            group=4,
+                            label=3,
+                            z_order=0,
+                        ),
                     ],
                     attributes={"id": 1},
                 ),
@@ -1588,6 +1823,17 @@ class CocoExporterTest(TestCase):
                             id=4,
                             group=4,
                             attributes={"is_crowd": False},
+                        ),
+                        Bbox(
+                            1.0,
+                            0.0,
+                            7.0,
+                            3.0,
+                            id=4,
+                            attributes={"is_crowd": False},
+                            group=4,
+                            label=3,
+                            z_order=0,
                         ),
                     ],
                     attributes={"id": 1},
@@ -1736,6 +1982,17 @@ class CocoExporterTest(TestCase):
                             id=1,
                             attributes={"is_crowd": False},
                         ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            4.0,
+                            4.0,
+                            id=1,
+                            attributes={"is_crowd": False},
+                            group=1,
+                            label=3,
+                            z_order=0,
+                        ),
                         Polygon(
                             [0, 0, 4, 0, 4, 4],
                             label=3,
@@ -1871,7 +2128,7 @@ class CocoExporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_annotation_attributes(self):
-        expected_dataset = Dataset.from_iterable(
+        source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id=1,
@@ -1891,8 +2148,41 @@ class CocoExporterTest(TestCase):
             categories=[str(i) for i in range(10)],
         )
 
+        target_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((4, 2, 3))),
+                    annotations=[
+                        Polygon(
+                            [0, 0, 4, 0, 4, 4],
+                            label=5,
+                            group=1,
+                            id=1,
+                            attributes={"is_crowd": False, "x": 5, "y": "abc"},
+                        ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            4.0,
+                            4.0,
+                            id=1,
+                            attributes={"x": 5, "y": "abc", "is_crowd": False},
+                            group=1,
+                            label=5,
+                            z_order=0,
+                        ),
+                    ],
+                    attributes={"id": 1},
+                )
+            ],
+            categories=[str(i) for i in range(10)],
+        )
+
         with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset, CocoExporter.convert, test_dir)
+            self._test_save_and_load(
+                source_dataset, CocoExporter.convert, test_dir, target_dataset=target_dataset
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_auto_annotation_ids(self):
@@ -1921,6 +2211,17 @@ class CocoExporterTest(TestCase):
                             id=1,
                             group=1,
                             attributes={"is_crowd": False},
+                        ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            4.0,
+                            4.0,
+                            id=1,
+                            attributes={"is_crowd": False},
+                            group=1,
+                            label=0,
+                            z_order=0,
                         ),
                     ],
                     attributes={"id": 1},
@@ -1957,8 +2258,42 @@ class CocoExporterTest(TestCase):
             categories=[str(i) for i in range(10)],
         )
 
+        target_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=2,
+                    subset="subset_1",
+                    media=Image(data=np.ones((4, 2, 3))),
+                    annotations=[
+                        Polygon(
+                            [0, 0, 4, 0, 4, 4],
+                            label=0,
+                            id=1,
+                            group=1,
+                            attributes={"is_crowd": False},
+                        ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            4.0,
+                            4.0,
+                            id=1,
+                            attributes={"is_crowd": False},
+                            group=1,
+                            label=0,
+                            z_order=0,
+                        ),
+                    ],
+                    attributes={"id": 1},
+                )
+            ],
+            categories=[str(i) for i in range(10)],
+        )
+
         with TestDir() as test_dir:
-            self._test_save_and_load(source_dataset, CocoExporter.convert, test_dir)
+            self._test_save_and_load(
+                source_dataset, CocoExporter.convert, test_dir, target_dataset=target_dataset
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
@@ -1988,6 +2323,17 @@ class CocoExporterTest(TestCase):
                             id=1,
                             group=1,
                             attributes={"is_crowd": False},
+                        ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            4.0,
+                            4.0,
+                            id=1,
+                            attributes={"is_crowd": False},
+                            group=1,
+                            label=0,
+                            z_order=0,
                         ),
                     ],
                     attributes={"id": 1},
@@ -2130,6 +2476,17 @@ class CocoExporterTest(TestCase):
                             label=0,
                             id=0,
                             group=1,
+                        ),
+                        Bbox(
+                            1.0,
+                            1.0,
+                            2.0,
+                            2.0,
+                            id=1,
+                            attributes={"is_crowd": True},
+                            group=1,
+                            label=0,
+                            z_order=0,
                         ),
                     ],
                     attributes={"id": 1},

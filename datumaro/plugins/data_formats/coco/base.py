@@ -412,17 +412,27 @@ class _CocoBase(SubsetBase):
                             rle=rle, label=label_id, id=ann_id, attributes=attributes, group=group
                         )
                     )
-            else:
-                bbox = self._parse_field(ann, "bbox", list)
+
+            bbox = self._parse_field(ann, "bbox", list)
+            if bbox and len(bbox) > 0:
                 if len(bbox) != 4:
                     raise InvalidAnnotationError(
                         f"Bbox has wrong value count {len(bbox)}. Expected 4 values."
                     )
-
                 x, y, w, h = bbox
                 parsed_annotations.append(
-                    Bbox(x, y, w, h, label=label_id, id=ann_id, attributes=attributes, group=group)
+                    Bbox(
+                        x,
+                        y,
+                        w,
+                        h,
+                        label=label_id,
+                        id=ann_id,
+                        attributes=attributes,
+                        group=group,
+                    )
                 )
+
         elif self._task is CocoTask.labels:
             label_id = self._get_label_id(ann)
             parsed_annotations.append(
