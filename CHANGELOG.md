@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/767>)
 - Fix a VOC dataset export when a label contains 'space'
   (<https://github.com/openvinotoolkit/datumaro/pull/771>)
+- Keep 'bbox' annotation when importing a COCO dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/772>)
 
 ### Changed
 - Wrap title text according to its plot width
