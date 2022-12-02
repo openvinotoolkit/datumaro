@@ -5,6 +5,7 @@
 import gzip
 import html
 import os
+import re
 import warnings
 from collections import OrderedDict
 from functools import lru_cache
@@ -12,7 +13,6 @@ from typing import List, Tuple, Union
 
 import ftfy
 import numpy as np
-import re
 import torch
 import torch.nn.functional as F
 from PIL import Image
@@ -339,7 +339,7 @@ class SimpleTokenizer(object):
         self.cache = {"<|startoftext|>": "<|startoftext|>", "<|endoftext|>": "<|endoftext|>"}
         self.pat = re.compile(
             r"""<\|startoftext\|>|<\|endoftext\|>|'s|'t|'re|'ve|'m|'ll|'d|[\p{L}]+|[\p{N}]|[^\s\p{L}\p{N}]+""",
-            re.IGNORECASE
+            re.IGNORECASE,
         )
 
     def bpe(self, token):

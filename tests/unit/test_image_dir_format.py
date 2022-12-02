@@ -89,7 +89,7 @@ class ImageDirFormatTest(TestCase):
             ]
         )
         with TestDir() as test_dir:
-            converter = ImageDirConverter.convert
+            converter = ImageDirExporter.convert
             converter(dataset, test_dir)
             parsed_dataset = Dataset.import_from(test_dir, "image_dir", save_hash=True)
         for item in parsed_dataset:
