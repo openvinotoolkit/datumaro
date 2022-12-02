@@ -12,13 +12,12 @@ from typing import List, Tuple, Union
 
 import ftfy
 import numpy as np
-import regex as re
+import re
 import torch
 import torch.nn.functional as F
 from PIL import Image
 from pkg_resources import packaging
 from torch import nn
-from torch.autograd import Function
 from torchvision import transforms
 
 from datumaro.components.media import MultiframeImage, PointCloud, Video
@@ -340,7 +339,7 @@ class SimpleTokenizer(object):
         self.cache = {"<|startoftext|>": "<|startoftext|>", "<|endoftext|>": "<|endoftext|>"}
         self.pat = re.compile(
             r"""<\|startoftext\|>|<\|endoftext\|>|'s|'t|'re|'ve|'m|'ll|'d|[\p{L}]+|[\p{N}]|[^\s\p{L}\p{N}]+""",
-            re.IGNORECASE,
+            re.IGNORECASE
         )
 
     def bpe(self, token):
@@ -360,13 +359,9 @@ class SimpleTokenizer(object):
             new_word = []
             i = 0
             while i < len(word):
-                try:
-                    j = word.index(first, i)
-                    new_word.extend(word[i:j])
-                    i = j
-                except:
-                    new_word.extend(word[i:])
-                    break
+                j = word.index(first, i)
+                new_word.extend(word[i:j])
+                i = j
 
                 if word[i] == first and i < len(word) - 1 and word[i + 1] == second:
                     new_word.append(first + second)
@@ -402,27 +397,9 @@ class SimpleTokenizer(object):
         return text
 
 
-class hash(Function):
-    @staticmethod
-    def forward(ctx, input):
-        # ctx.save_for_backward(input)
-        return torch.sign(input)
-
-    @staticmethod
-    def backward(ctx, grad_output):
-        # input,  = ctx.saved_tensors
-        # grad_output = grad_output.data
-
-        return grad_output
-
-
-def hash_layer(input):
-    return hash.apply(input)
-
-
 def encode_discrete(x):
     prob = torch.sigmoid(x)
-    z = hash_layer(prob - 0.5)
+    z = torch.sign(prob - 0.5)
     return z
 
 

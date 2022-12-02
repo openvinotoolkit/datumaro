@@ -76,7 +76,7 @@ class Searcher:
         if isinstance(query, DatasetItem):
             try:
                 query_key = query.hash_key
-            except:
+            finally:
                 query_key = query.set_hash_key
         elif isinstance(query, str):
             query_key = hash_inference(query)

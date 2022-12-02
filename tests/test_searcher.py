@@ -9,7 +9,7 @@ from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.model_inference import hash_inference
 from datumaro.components.searcher import Searcher
-from datumaro.plugins.datumaro_format.converter import DatumaroConverter
+from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.util.image import load_image
 from datumaro.util.test_utils import TestDir
 
@@ -49,7 +49,7 @@ class SearcherTest(TestCase):
             ]
         )
         with TestDir() as test_dir:
-            converter = partial(DatumaroConverter.convert, save_media=True)
+            converter = partial(DatumaroExporter.convert, save_media=True)
             converter(dataset, test_dir)
             imported_dataset = Dataset.import_from(test_dir, "datumaro", save_hash=True)
         return imported_dataset
@@ -84,7 +84,7 @@ class SearcherTest(TestCase):
             ]
         )
         with TestDir() as test_dir:
-            converter = partial(DatumaroConverter.convert, save_media=True)
+            converter = partial(DatumaroExporter.convert, save_media=True)
             converter(dataset, test_dir)
             imported_dataset = Dataset.import_from(test_dir, "datumaro", save_hash=True)
         return imported_dataset
