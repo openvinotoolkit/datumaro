@@ -30,6 +30,7 @@ class AnnotationType(Enum):
     cuboid_3d = auto()
     super_resolution_annotation = auto()
     depth_annotation = auto()
+    hash_key = auto()
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -205,6 +206,12 @@ class LabelCategories(Categories):
 class Label(Annotation):
     _type = AnnotationType.label
     label: int = field(converter=int)
+
+
+@attrs(slots=True, order=False)
+class HashKey(Annotation):
+    _type = AnnotationType.hash_key
+    hash_key: List[str] = field(factory=list, validator=default_if_none(list))
 
 
 RgbColor = Tuple[int, int, int]

@@ -21,7 +21,7 @@ from datumaro.components.media import Image
 from datumaro.plugins.data_formats.cvat.base import CvatImporter
 from datumaro.plugins.data_formats.cvat.exporter import CvatExporter
 from datumaro.plugins.transforms import ProjectLabels
-from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
+from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets, get_hash_key
 
 from ..requirements import Requirements, mark_requirement
 
@@ -716,11 +716,11 @@ class CvatExporterTest(TestCase):
     def test_save_hash_image(self):
         imported_dataset = Dataset.import_from(DUMMY_IMAGE_DATASET_DIR, "cvat", save_hash=True)
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_save_hash_video(self):
         imported_dataset = Dataset.import_from(DUMMY_VIDEO_DATASET_DIR, "cvat", save_hash=True)
         for item in imported_dataset:
             if item.media.data is not None:
-                self.assertTrue(bool(item.hash_key))
+                self.assertTrue(bool(get_hash_key(item)))

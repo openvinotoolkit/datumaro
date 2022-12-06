@@ -18,7 +18,7 @@ from datumaro.plugins.data_formats.mpii.mpii_mat import (
     MPII_POINTS_LABELS,
     MpiiImporter,
 )
-from datumaro.util.test_utils import compare_datasets
+from datumaro.util.test_utils import compare_datasets, get_hash_key
 
 from ..requirements import Requirements, mark_requirement
 
@@ -236,4 +236,4 @@ class MpiiImporterTest(TestCase):
     def test_save_hash(self):
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "mpii", save_hash=True)
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))

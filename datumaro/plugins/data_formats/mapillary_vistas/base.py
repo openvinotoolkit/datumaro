@@ -230,7 +230,8 @@ class _MapillaryVistasBase(SubsetBase):
             image = Image(path=image_path)
             if item_id in items:
                 items[item_id].media = image
-                _ = items[item_id].set_hash_key
+                if self._save_hash:
+                    _ = items[item_id].set_hash_key
             else:
                 items[item_id] = DatasetItem(
                     id=item_id, subset=self._subset, media=image, save_hash=self._save_hash

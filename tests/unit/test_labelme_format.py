@@ -11,7 +11,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.labelme import LabelMeExporter, LabelMeImporter
-from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
+from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets, get_hash_key
 
 from ..requirements import Requirements, mark_requirement
 
@@ -443,4 +443,4 @@ class LabelMeImporterTest(TestCase):
     def test_save_hash(self):
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "label_me", save_hash=True)
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))

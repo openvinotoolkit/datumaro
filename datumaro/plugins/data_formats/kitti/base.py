@@ -21,8 +21,8 @@ class _KittiBase(SubsetBase):
         assert osp.isdir(path), path
         self._path = path
         self._task = task
-
         self._save_hash = save_hash
+
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
         self._subset = subset
@@ -167,10 +167,10 @@ class _KittiBase(SubsetBase):
 
 
 class KittiSegmentationBase(_KittiBase):
-    def __init__(self, path):
-        super().__init__(path, task=KittiTask.segmentation)
+    def __init__(self, path, save_hash=False):
+        super().__init__(path, task=KittiTask.segmentation, save_hash=save_hash)
 
 
 class KittiDetectionBase(_KittiBase):
-    def __init__(self, path):
-        super().__init__(path, task=KittiTask.detection)
+    def __init__(self, path, save_hash=False):
+        super().__init__(path, task=KittiTask.detection, save_hash=save_hash)

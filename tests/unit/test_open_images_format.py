@@ -15,7 +15,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.open_images import OpenImagesExporter, OpenImagesImporter
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets, get_hash_key
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
@@ -497,10 +497,10 @@ class OpenImagesImporterTest(TestCase):
     def test_save_hash_v6(self):
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR_V6, "open_images", save_hash=True)
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))
 
     @mark_requirement(Requirements.DATUM_274)
     def test_save_hash_v5(self):
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR_V5, "open_images", save_hash=True)
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))

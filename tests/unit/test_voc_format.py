@@ -45,6 +45,7 @@ from datumaro.util.test_utils import (
     check_save_and_load,
     compare_datasets,
     compare_datasets_strict,
+    get_hash_key,
 )
 
 from ..requirements import Requirements, mark_requirement
@@ -2030,4 +2031,4 @@ class VocExporterTest(TestCase):
             imported_dataset = Dataset.import_from(path, "voc", save_hash=True)
             for item in imported_dataset:
                 if item.media.data is not None:
-                    self.assertTrue(item.hash_key)
+                    self.assertTrue(bool(get_hash_key(item)))

@@ -6,6 +6,7 @@ from typing import List, Optional, Union
 
 import numpy as np
 
+from datumaro.components.annotation import HashKey
 from datumaro.components.dataset import IDataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.model_inference import hash_inference
@@ -44,12 +45,16 @@ class Searcher:
         retrieval_keys = []
         item_list = []
         for datasetitem in self._dataset:
+            hash_key = None
             # if hash_key=None, it means not inferenced
-            if not datasetitem.hash_key:
-                # hash_key = hash_inference(datasetitem.image)\
+            for annotation in datasetitem.annotations:
+                if isinstance(annotation, HashKey):
+                    hash_key = annotation.hash_key
+                    break
+
+            if not hash_key:
                 hash_key = datasetitem.set_hash_key
-            else:
-                hash_key = datasetitem.hash_key
+
             # if hash_key is empty, it means data is None or not proper data type
             if hash_key:
                 hash_key = hash_key[0]
@@ -74,9 +79,13 @@ class Searcher:
             topk = self._topk
 
         if isinstance(query, DatasetItem):
-            try:
-                query_key = query.hash_key
-            finally:
+            query_key = None
+            for annotation in query.annotations:
+                if isinstance(annotation, HashKey):
+                    query_key = annotation.hash_key
+                    break
+
+            if not query_key:
                 query_key = query.set_hash_key
         elif isinstance(query, str):
             query_key = hash_inference(query)

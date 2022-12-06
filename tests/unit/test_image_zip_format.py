@@ -7,7 +7,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, save_image
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.image_zip import ImageZipExporter, ImageZipPath
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets, get_hash_key
 
 from ..requirements import Requirements, mark_requirement
 
@@ -123,4 +123,4 @@ class ImageZipImporterTest(TestCase):
     def test_save_hash(self):
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "image_zip", save_hash=True)
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))

@@ -50,6 +50,7 @@ from datumaro.util.test_utils import (
     check_save_and_load,
     compare_datasets,
     compare_datasets_strict,
+    get_hash_key,
 )
 
 from ..requirements import Requirements, mark_requirement
@@ -2639,4 +2640,4 @@ class CocoExporterTest(TestCase):
         for dataset_dir, format in zip(paths, formats):
             imported_dataset = Dataset.import_from(dataset_dir, format, save_hash=True)
             for item in imported_dataset:
-                self.assertTrue(bool(item.hash_key))
+                self.assertTrue(bool(get_hash_key(item)))

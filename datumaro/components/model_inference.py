@@ -5,7 +5,6 @@
 import gzip
 import html
 import os
-import re
 import warnings
 from collections import OrderedDict
 from functools import lru_cache
@@ -13,6 +12,7 @@ from typing import List, Tuple, Union
 
 import ftfy
 import numpy as np
+import regex as re
 import torch
 import torch.nn.functional as F
 from PIL import Image
@@ -359,9 +359,13 @@ class SimpleTokenizer(object):
             new_word = []
             i = 0
             while i < len(word):
-                j = word.index(first, i)
-                new_word.extend(word[i:j])
-                i = j
+                try:
+                    j = word.index(first, i)
+                    new_word.extend(word[i:j])
+                    i = j
+                except:
+                    new_word.extend(word[i:])
+                    break
 
                 if word[i] == first and i < len(word) - 1 and word[i + 1] == second:
                     new_word.append(first + second)

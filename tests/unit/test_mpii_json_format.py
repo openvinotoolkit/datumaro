@@ -18,7 +18,7 @@ from datumaro.plugins.data_formats.mpii.mpii_json import (
     MPII_POINTS_LABELS,
     MpiiJsonImporter,
 )
-from datumaro.util.test_utils import compare_datasets
+from datumaro.util.test_utils import compare_datasets, get_hash_key
 
 from ..requirements import Requirements, mark_requirement
 
@@ -442,7 +442,7 @@ class MpiiJsonImporterTest(TestCase):
             DUMMY_DATASET_DIR_WITH_NUMPY_FILES, "mpii_json", save_hash=True
         )
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))
 
     @mark_requirement(Requirements.DATUM_580)
     def test_save_hash_wo_numpy_files(self):
@@ -450,4 +450,4 @@ class MpiiJsonImporterTest(TestCase):
             DUMMY_DATASET_DIR_WO_NUMPY_FILES, "mpii_json", save_hash=True
         )
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))

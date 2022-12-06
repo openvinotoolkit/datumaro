@@ -16,7 +16,7 @@ from typing import Collection, Optional, Union
 
 from typing_extensions import Literal
 
-from datumaro.components.annotation import AnnotationType
+from datumaro.components.annotation import AnnotationType, HashKey
 from datumaro.components.dataset import Dataset, IDataset
 from datumaro.components.media import Image, MultiframeImage, PointCloud
 from datumaro.util import filter_dict, find
@@ -362,3 +362,11 @@ def mock_tfds_data(example=None, subsets=("train",)):
 
         with unittest.mock.patch("tensorflow_datasets.core.DatasetBuilder.__init__", new_init):
             yield
+
+
+def get_hash_key(item):
+    for annotation in item.annotations:
+        if isinstance(annotation, HashKey):
+            hash_key = annotation.hash_key
+            break
+    return hash_key

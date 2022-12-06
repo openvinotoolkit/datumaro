@@ -73,7 +73,7 @@ class CommonSuperResolutionBase(SubsetBase):
                     save_hash=self._save_hash,
                 )
 
-            items[item_id].annotations = [SuperResolutionAnnotation(Image(path=hr_image))]
+            items[item_id].annotations.append(SuperResolutionAnnotation(Image(path=hr_image)))
 
         return items
 

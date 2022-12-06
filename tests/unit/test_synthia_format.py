@@ -8,7 +8,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.util.test_utils import compare_datasets
+from datumaro.util.test_utils import compare_datasets, get_hash_key
 
 from ..requirements import Requirements, mark_requirement
 
@@ -258,7 +258,7 @@ class SynthiaImporterTest(TestCase):
             DUMMY_LABELS_SEGM_DATASET_DIR, "synthia", save_hash=True
         )
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))
 
     @mark_requirement(Requirements.DATUM_497)
     def test_save_hash_with_colored_masks(self):
@@ -266,7 +266,7 @@ class SynthiaImporterTest(TestCase):
             DUMMY_COLOR_SEGM_DATASET_DIR, "synthia", save_hash=True
         )
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))
 
     @mark_requirement(Requirements.DATUM_497)
     def test_save_hash_with_custom_labelmap(self):
@@ -274,7 +274,7 @@ class SynthiaImporterTest(TestCase):
             DUMMY_DATASET_DIR_CUSTOM_LABELMAP, "synthia", save_hash=True
         )
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))
 
     @mark_requirement(Requirements.DATUM_497)
     def test_save_hash_with_meta_file(self):
@@ -282,4 +282,4 @@ class SynthiaImporterTest(TestCase):
             DUMMY_DATASET_DIR_META_FILE, "synthia", save_hash=True
         )
         for item in imported_dataset:
-            self.assertTrue(bool(item.hash_key))
+            self.assertTrue(bool(get_hash_key(item)))

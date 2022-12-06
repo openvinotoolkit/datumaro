@@ -9,7 +9,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.imagenet_txt import ImagenetTxtExporter, ImagenetTxtImporter
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets, get_hash_key
 
 from ..requirements import Requirements, mark_requirement
 
@@ -244,16 +244,19 @@ class ImagenetTxtImporterTest(TestCase):
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "imagenet_txt", save_hash=True)
         for item in imported_dataset:
             if item.media.data is not None:
-                self.assertTrue(bool(item.hash_key))
+                self.assertTrue(bool(get_hash_key(item)))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_save_hash_with_custom_labels_file(self):
         imported_dataset = Dataset.import_from(
-            DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR, "imagenet_txt", labels_file="synsets-alt.txt"
+            DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR,
+            "imagenet_txt",
+            labels_file="synsets-alt.txt",
+            save_hash=True,
         )
         for item in imported_dataset:
             if item.media.data is not None:
-                self.assertTrue(bool(item.hash_key))
+                self.assertTrue(bool(get_hash_key(item)))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_save_hash_with_no_labels_file(self):
@@ -262,4 +265,4 @@ class ImagenetTxtImporterTest(TestCase):
         )
         for item in imported_dataset:
             if item.media.data is not None:
-                self.assertTrue(bool(item.hash_key))
+                self.assertTrue(bool(get_hash_key(item)))
