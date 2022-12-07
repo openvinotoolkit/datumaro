@@ -8,6 +8,7 @@ from typing import Tuple
 
 import numpy as np
 
+from datumaro._capi import encode
 from datumaro.util.image import lazy_image, load_image
 
 
@@ -153,6 +154,10 @@ def lazy_mask(path, inverse_colormap=None):
 
 
 def mask_to_rle(binary_mask):
+    return encode(binary_mask)
+
+
+def mask_to_rle_py(binary_mask):
     # walk in row-major order as COCO format specifies
     bounded = binary_mask.ravel(order="F")
 
