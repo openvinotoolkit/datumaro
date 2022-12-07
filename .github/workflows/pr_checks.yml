@@ -4,6 +4,7 @@ on:
     branches:
       - 'master'
       - 'develop'
+      - 'releases/*'
   pull_request:
     types: [edited, ready_for_review, opened, synchronize, reopened]
 defaults:
