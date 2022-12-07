@@ -1,0 +1,4 @@
+Copyright (c) 2022, Intel Corporation
+Copyright (c) 2014, Piotr Dollar and Tsung-Yi Lin
+
+This project is licensed under the MIT license, with exception of datumaro/capi/pybind.cpp which is licensed under the 3 clause BSD license
