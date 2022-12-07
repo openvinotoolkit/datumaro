@@ -11,6 +11,7 @@ from datumaro.util.image import is_image, load_image, save_image
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
+from ..util.errors import CliException
 from ..util.project import load_project, parse_full_revpath
 
 
@@ -190,7 +191,7 @@ def explain_command(args):
     model = project.working_tree.models.make_executable_model(args.model)
 
     if str(args.algorithm).lower() != "rise":
-        raise NotImplementedError()
+        raise CliException("Explanation algorithm except for rise is not yet implemented.")
 
     from datumaro.components.algorithms.rise import RISE
 
