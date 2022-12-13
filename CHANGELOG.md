@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A
 
 ### Changed
-- Improve mask_to_rle performance
+- Improved mask_to_rle performance
   (<https://github.com/openvinotoolkit/datumaro/pull/770>)
 
 ### Deprecated
@@ -29,39 +29,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for exclusive of labels with LabelGroup
   (<https://github.com/openvinotoolkit/datumaro/pull/742>)
-- Add jupyter samples
-  - introducing how to merge datasets
+- Jupyter samples
+  - Introducing how to merge datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/738>)
-  - introducing how to visualize dataset
+  - Introducing how to visualize dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/747>)
-  - introducing how to filter dataset
+  - Introducing how to filter dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/748>)
-  - introducing how to transform dataset
+  - Introducing how to transform dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/759>)
-- Add Visualization Python API
-  - Bbox
+- Visualization Python API
+  - Bbox feature
     (<https://github.com/openvinotoolkit/datumaro/pull/744>)
-  - Add Label, Points, Polygon, PolyLine, and Caption visualization features
+  - Label, Points, Polygon, PolyLine, and Caption visualization features
     (<https://github.com/openvinotoolkit/datumaro/pull/746>)
-  - Add Mask, SuperResolution, Depth visualization features
+  - Mask, SuperResolution, Depth visualization features
     (<https://github.com/openvinotoolkit/datumaro/pull/747>)
-- Add a documentation for Python API
+- Documentation for Python API
   (<https://github.com/openvinotoolkit/datumaro/pull/753>)
-  - Add dataset handler, visualizer, filter descriptions
+  - dataset handler, visualizer, filter descriptions
     (<https://github.com/openvinotoolkit/datumaro/pull/761>)
-- Add `__repr__` for Dataset
+- `__repr__` for Dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/750>)
 - Support for exporting as CVAT video format
   (<https://github.com/openvinotoolkit/datumaro/pull/757>)
-- Add CodeCov coverage reporting feature to CI/CD
+- CodeCov coverage reporting feature to CI/CD
   (<https://github.com/openvinotoolkit/datumaro/pull/756>)
-- Add jupyter notebook example rendering to documentation
+- Jupyter notebook example rendering to documentation
   (<https://github.com/openvinotoolkit/datumaro/pull/758>)
-- Add an interface to manipulate 'infos' to store the dataset meta-info
+- An interface to manipulate 'infos' to store the dataset meta-info
   (<https://github.com/openvinotoolkit/datumaro/pull/767>)
-- Fix a VOC dataset export when a label contains 'space'
-  (<https://github.com/openvinotoolkit/datumaro/pull/771>)
-- Keep 'bbox' annotation when importing a COCO dataset
+- 'bbox' annotation when importing a COCO dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/772>)
 
 ### Changed
@@ -77,8 +75,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A
 
 ### Fixed
-- Fix static type checking
+- Correcting static type checking
   (<https://github.com/openvinotoolkit/datumaro/pull/743>)
+- Fixing a VOC dataset export when a label contains 'space'
+  (<https://github.com/openvinotoolkit/datumaro/pull/771>)
 
 ### Security
 - N/A
