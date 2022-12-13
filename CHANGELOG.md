@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
+- N/A
+
+### Changed
+- Improve mask_to_rle performance
+  (<https://github.com/openvinotoolkit/datumaro/pull/770>)
+
+### Deprecated
+- N/A
+
+### Removed
+- N/A
+
+### Fixed
+- N/A
+
+### Security
+- N/A
+
+## 06/12/2022 - Release v0.4.0.1
+### Added
 - Support for exclusive of labels with LabelGroup
   (<https://github.com/openvinotoolkit/datumaro/pull/742>)
 - Add jupyter samples
@@ -49,8 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/769>)
 - Get list of subsets and support only Image media type in visualizer
   (<https://github.com/openvinotoolkit/datumaro/pull/768>)
-- Improve mask_to_rle performance
-  (<https://github.com/openvinotoolkit/datumaro/pull/770>)
 
 ### Deprecated
 - N/A
