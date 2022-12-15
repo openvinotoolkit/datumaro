@@ -28,4 +28,5 @@ from . import (
     status,
     transform,
     validate,
+    search,
 )

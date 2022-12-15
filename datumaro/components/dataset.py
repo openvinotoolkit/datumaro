@@ -114,6 +114,11 @@ class DatasetItemStorage:
     def get_annotated_items(self):
         return sum(bool(s.annotations) for s in self._traversal_order.values())
 
+    def get_datasetitem_by_path(self, path):
+        for s in self._traversal_order.values():
+            if s.media.path == path:
+                return s
+
     def get_annotations(self):
         annotations_by_type = {t.name: {"count": 0} for t in AnnotationType}
         for item in self._traversal_order.values():
@@ -707,6 +712,9 @@ class DatasetStorage(IDataset):
     def get_annotations(self):
         return self._storage.get_annotations()
 
+    def get_datasetitem_by_path(self, path):
+        return self._storage.get_datasetitem_by_path(path)
+
     def transform(self, method: Type[Transform], *args, **kwargs):
         # Flush accumulated changes
         if not self._storage.is_empty():
@@ -972,6 +980,11 @@ class Dataset(IDataset):
 
     def get_annotations(self):
         return self._data.get_annotations()
+
+    def get_datasetitem_by_path(self, path):
+        if not self._source_path in path:
+            path = osp.join(self._source_path, path)
+        return self._data.get_datasetitem_by_path(path)
 
     def get_subset_info(self):
         return (
