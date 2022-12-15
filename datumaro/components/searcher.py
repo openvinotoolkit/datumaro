@@ -71,12 +71,43 @@ class Searcher:
         hash_key = np.unpackbits(hash_key, axis=-1)
         return hash_key
 
-    def search_topk(self, query: Union[DatasetItem, str], topk: Optional[int] = None):
+    def search_topk(
+        self,
+        query: Union[DatasetItem, str, List[DatasetItem], List[str]],
+        topk: Optional[int] = None,
+    ):
         """
         Search topk similar results based on hamming distance for query DatasetItem
         """
         if not topk:
             topk = self._topk
+
+        retrieval_keys = np.stack(self._retrieval_keys, axis=0)
+
+        if isinstance(query, List):
+            topk_for_query = int(topk // len(query)) * 2
+            query_hash_key_list = []
+            for q in query:
+                if isinstance(q, DatasetItem):
+                    q_hash_key = None
+                    for annotation in q.annotations:
+                        if isinstance(annotation, HashKey):
+                            q_hash_key = annotation.hash_key
+                            break
+                    query_hash_key_list.append(q_hash_key)
+                elif isinstance(q, str):
+                    q_hash_key = hash_inference(q)
+                    query_hash_key_list.append(q_hash_key)
+
+            for query_hash_key in query_hash_key_list:
+                result_list = []
+                query_hash_key = self.unpack_hash_key(query_hash_key[0])
+                logits = calculate_hamming(query_hash_key, retrieval_keys)
+                ind = np.argsort(logits)
+
+                item_list = np.array(self._item_list)[ind]
+                result_list.extend(item_list[:topk_for_query].tolist())
+            return np.random.choice(result_list, topk)
 
         if isinstance(query, DatasetItem):
             query_key = None
@@ -97,8 +128,6 @@ class Searcher:
             raise ValueError("Query should have hash_key")
 
         query_key = self.unpack_hash_key(query_key[0])
-
-        retrieval_keys = np.stack(self._retrieval_keys, axis=0)
 
         logits = calculate_hamming(query_key, retrieval_keys)
         ind = np.argsort(logits)
