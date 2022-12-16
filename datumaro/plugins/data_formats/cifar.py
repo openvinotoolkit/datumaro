@@ -46,7 +46,7 @@ Cifar10Label = [
 
 
 class CifarBase(SubsetBase):
-    def __init__(self, path, subset=None, save_hash=False):
+    def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
@@ -55,7 +55,6 @@ class CifarBase(SubsetBase):
 
         super().__init__(subset=subset)
 
-        self._save_hash = save_hash
         self._categories = self._load_categories(osp.dirname(path))
         self._items = list(self._load_items(path).values())
 
@@ -157,7 +156,6 @@ class CifarBase(SubsetBase):
                 subset=self._subset,
                 media=image,
                 annotations=annotations,
-                save_hash=self._save_hash,
             )
 
         return items

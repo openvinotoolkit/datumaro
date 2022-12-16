@@ -18,13 +18,7 @@ from datumaro.plugins.data_formats.cityscapes import (
     CityscapesImporter,
 )
 from datumaro.util.meta_file_util import parse_meta_file
-from datumaro.util.test_utils import (
-    IGNORE_ALL,
-    TestDir,
-    check_save_and_load,
-    compare_datasets,
-    get_hash_key,
-)
+from datumaro.util.test_utils import IGNORE_ALL, TestDir, check_save_and_load, compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
@@ -745,17 +739,3 @@ class CityscapesExporterTest(TestCase):
                 partial(CityscapesExporter.convert, label_map="cityscapes"),
                 test_dir,
             )
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash(self):
-        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "cityscapes", save_hash=True)
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash_with_train_label_map(self):
-        imported_dataset = Dataset.import_from(
-            DUMMY_TRAIN_DATASET_DIR, "cityscapes", save_hash=True
-        )
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))

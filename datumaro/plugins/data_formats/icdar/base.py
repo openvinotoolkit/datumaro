@@ -21,10 +21,9 @@ from .format import IcdarPath, IcdarTask
 
 
 class _IcdarBase(SubsetBase):
-    def __init__(self, path, task, subset=None, save_hash=False):
+    def __init__(self, path, task, subset=None):
         self._path = path
         self._task = task
-        self._save_hash = save_hash
 
         if task is IcdarTask.word_recognition:
             if not osp.isfile(path):
@@ -78,7 +77,6 @@ class _IcdarBase(SubsetBase):
                         item_id,
                         subset=self._subset,
                         media=Image(path=image_path),
-                        save_hash=self._save_hash,
                     )
 
                 annotations = items[item_id].annotations
@@ -111,9 +109,7 @@ class _IcdarBase(SubsetBase):
                 if image_path:
                     image = Image(path=image_path)
 
-                items[item_id] = DatasetItem(
-                    item_id, subset=self._subset, media=image, save_hash=self._save_hash
-                )
+                items[item_id] = DatasetItem(item_id, subset=self._subset, media=image)
             annotations = items[item_id].annotations
 
             with open(path, encoding="utf-8") as f:
@@ -184,9 +180,7 @@ class _IcdarBase(SubsetBase):
                 if image_path:
                     image = Image(path=image_path)
 
-                items[item_id] = DatasetItem(
-                    item_id, subset=self._subset, media=image, save_hash=self._save_hash
-                )
+                items[item_id] = DatasetItem(item_id, subset=self._subset, media=image)
             annotations = items[item_id].annotations
 
             colors = [(255, 255, 255)]

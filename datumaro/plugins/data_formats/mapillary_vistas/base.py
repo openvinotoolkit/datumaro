@@ -40,7 +40,6 @@ class _MapillaryVistasBase(SubsetBase):
         subset=None,
         use_original_config=False,
         keep_original_category_ids=False,
-        save_hash=False,
     ):
         assert osp.isdir(path), path
         self._path = path
@@ -67,7 +66,6 @@ class _MapillaryVistasBase(SubsetBase):
         self._annotations_dir = osp.join(path, annotations_dirs[0])
         self._images_dir = osp.join(path, MapillaryVistasPath.IMAGES_DIR)
         self._task = task
-        self._save_hash = save_hash
 
         if self._task == MapillaryVistasTask.instances:
             if has_meta_file(path):
@@ -169,7 +167,6 @@ class _MapillaryVistasBase(SubsetBase):
                 subset=self._subset,
                 annotations=annotations,
                 media=image,
-                save_hash=self._save_hash,
             )
 
         self._load_polygons(items)
@@ -230,12 +227,8 @@ class _MapillaryVistasBase(SubsetBase):
             image = Image(path=image_path)
             if item_id in items:
                 items[item_id].media = image
-                if self._save_hash:
-                    _ = items[item_id].set_hash_key
             else:
-                items[item_id] = DatasetItem(
-                    id=item_id, subset=self._subset, media=image, save_hash=self._save_hash
-                )
+                items[item_id] = DatasetItem(id=item_id, subset=self._subset, media=image)
 
         self._load_polygons(items)
         return items.values()

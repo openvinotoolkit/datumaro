@@ -8,7 +8,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.common_super_resolution import CommonSuperResolutionImporter
-from datumaro.util.test_utils import compare_datasets, get_hash_key
+from datumaro.util.test_utils import compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
@@ -49,11 +49,3 @@ class CommonSuperResolutionImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "common_super_resolution")
 
         compare_datasets(self, expected_dataset, dataset, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash(self):
-        imported_dataset = Dataset.import_from(
-            DUMMY_DATASET_DIR, "common_super_resolution", save_hash=True
-        )
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))

@@ -10,7 +10,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.widerface import WiderFaceExporter, WiderFaceImporter
-from datumaro.util.test_utils import IGNORE_ALL, TestDir, compare_datasets, get_hash_key
+from datumaro.util.test_utils import IGNORE_ALL, TestDir, compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
@@ -529,9 +529,3 @@ class WiderFaceImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "wider_face")
 
         compare_datasets(self, expected_dataset, dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash(self):
-        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "wider_face", save_hash=True)
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))

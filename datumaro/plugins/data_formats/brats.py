@@ -22,7 +22,7 @@ class BratsPath:
 
 
 class BratsBase(SubsetBase):
-    def __init__(self, path, save_hash=False):
+    def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
@@ -35,7 +35,6 @@ class BratsBase(SubsetBase):
         super().__init__(subset=subset, media_type=MultiframeImage)
 
         self._root_dir = osp.dirname(path)
-        self._save_hash = save_hash
         self._categories = self._load_categories()
         self._items = list(self._load_items(path).values())
 
@@ -66,7 +65,6 @@ class BratsBase(SubsetBase):
                 id=item_id,
                 subset=self._subset,
                 media=MultiframeImage(images, path=image_path),
-                save_hash=self._save_hash,
             )
 
         masks_dir = osp.join(self._root_dir, BratsPath.LABELS + self._subset_suffix)

@@ -34,13 +34,12 @@ class AlignCelebaPath:
 
 
 class AlignCelebaBase(SubsetBase):
-    def __init__(self, path, save_hash=False):
+    def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
         super().__init__()
         self._anno_dir = osp.dirname(path)
-        self._save_hash = save_hash
 
         self._categories = {AnnotationType.label: LabelCategories()}
         if has_meta_file(path):
@@ -83,9 +82,7 @@ class AlignCelebaBase(SubsetBase):
                 if image:
                     image = Image(path=image)
 
-                items[item_id] = DatasetItem(
-                    id=item_id, media=image, annotations=anno, save_hash=self._save_hash
-                )
+                items[item_id] = DatasetItem(id=item_id, media=image, annotations=anno)
 
         landmark_path = osp.join(root_dir, AlignCelebaPath.LANDMARKS_FILE)
         if osp.isfile(landmark_path):
@@ -150,9 +147,7 @@ class AlignCelebaBase(SubsetBase):
                         if image:
                             image = Image(path=image)
 
-                        items[item_id] = DatasetItem(
-                            id=item_id, media=image, save_hash=self._save_hash
-                        )
+                        items[item_id] = DatasetItem(id=item_id, media=image)
 
                     items[item_id].attributes = attrs
 
@@ -175,9 +170,7 @@ class AlignCelebaBase(SubsetBase):
                         image = images.get(item_id)
                         if image:
                             image = Image(path=image)
-                        items[item_id] = DatasetItem(
-                            id=item_id, media=image, save_hash=self._save_hash
-                        )
+                        items[item_id] = DatasetItem(id=item_id, media=image)
 
                     items[item_id].subset = subset
 

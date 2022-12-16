@@ -17,11 +17,10 @@ from .format import KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, 
 
 
 class _KittiBase(SubsetBase):
-    def __init__(self, path, task, subset=None, save_hash=False):
+    def __init__(self, path, task, subset=None):
         assert osp.isdir(path), path
         self._path = path
         self._task = task
-        self._save_hash = save_hash
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
@@ -97,7 +96,6 @@ class _KittiBase(SubsetBase):
                     annotations=anns,
                     media=image,
                     subset=self._subset,
-                    save_hash=self._save_hash,
                 )
 
         det_dir = osp.join(self._path, KittiPath.LABELS_DIR)
@@ -148,7 +146,6 @@ class _KittiBase(SubsetBase):
                     annotations=anns,
                     media=image,
                     subset=self._subset,
-                    save_hash=self._save_hash,
                 )
 
         for item_id, image_path in image_path_by_id.items():
@@ -156,7 +153,6 @@ class _KittiBase(SubsetBase):
                 id=item_id,
                 subset=self._subset,
                 media=Image(path=image_path),
-                save_hash=self._save_hash,
             )
 
         return items
@@ -167,10 +163,10 @@ class _KittiBase(SubsetBase):
 
 
 class KittiSegmentationBase(_KittiBase):
-    def __init__(self, path, save_hash=False):
-        super().__init__(path, task=KittiTask.segmentation, save_hash=save_hash)
+    def __init__(self, path):
+        super().__init__(path, task=KittiTask.segmentation)
 
 
 class KittiDetectionBase(_KittiBase):
-    def __init__(self, path, save_hash=False):
-        super().__init__(path, task=KittiTask.detection, save_hash=save_hash)
+    def __init__(self, path):
+        super().__init__(path, task=KittiTask.detection)

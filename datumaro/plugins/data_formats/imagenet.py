@@ -20,11 +20,10 @@ class ImagenetPath:
 
 
 class ImagenetBase(SubsetBase):
-    def __init__(self, path, subset=None, save_hash=False):
+    def __init__(self, path, subset=None):
         assert osp.isdir(path), path
         super().__init__(subset=subset)
 
-        self._save_hash = save_hash
         self._categories = self._load_categories(path)
         self._items = list(self._load_items(path).values())
 
@@ -49,7 +48,6 @@ class ImagenetBase(SubsetBase):
                     id=item_id,
                     subset=self._subset,
                     media=Image(path=image_path),
-                    save_hash=self._save_hash,
                 )
                 items[item_id] = item
             annotations = item.annotations

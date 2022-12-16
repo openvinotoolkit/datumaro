@@ -17,7 +17,7 @@ from datumaro.util.os_util import find_files
 
 
 class KineticsBase(DatasetBase):
-    def __init__(self, path, save_hash=False):
+    def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
         self._path = path
@@ -36,7 +36,6 @@ class KineticsBase(DatasetBase):
         self._subset_media_files = {}
         self._categories = {AnnotationType.label: LabelCategories()}
         self._items = []
-        self._save_hash = save_hash
 
         for ann_file in sorted(self._annotation_files.values()):
             if ann_file.endswith("csv"):
@@ -64,11 +63,7 @@ class KineticsBase(DatasetBase):
             return self._subset_media_files[subset]
 
         subset_path = self._subset_path(subset)
-        # self._subset_media_files[subset] = {
-        #     osp.splitext(osp.basename(f))[0]: osp.join(subset_path, f)
-        #     for f in os.listdir(subset_path)
-        #     if osp.splitext(osp.basename(f))[1] in VIDEO_EXTENSIONS
-        # }
+
         self._subset_media_files[subset] = {
             osp.splitext(osp.basename(f))[0]: osp.join(subset_path, f)
             for f in os.listdir(subset_path)
@@ -105,7 +100,6 @@ class KineticsBase(DatasetBase):
             ],
             subset=subset,
             media=media,
-            save_hash=self._save_hash,
         )
 
     def _load_items_from_csv(self, path):

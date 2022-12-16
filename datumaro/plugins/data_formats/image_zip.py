@@ -29,7 +29,7 @@ class ImageZipPath:
 
 
 class ImageZipBase(SubsetBase):
-    def __init__(self, url, subset=None, save_hash=False):
+    def __init__(self, url, subset=None):
         super().__init__(subset=subset, media_type=ByteImage)
 
         assert url.endswith(".zip"), url
@@ -41,7 +41,11 @@ class ImageZipBase(SubsetBase):
                     continue
                 image = ByteImage(data=zf.read(path.filename))
                 self._items.append(
-                    DatasetItem(id=item_id, media=image, subset=self._subset, save_hash=save_hash)
+                    DatasetItem(
+                        id=item_id,
+                        media=image,
+                        subset=self._subset,
+                    )
                 )
 
 

@@ -97,13 +97,12 @@ def parse_label_map(path):
 
 
 class SynthiaBase(SubsetBase):
-    def __init__(self, path, save_hash=False):
+    def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
         super().__init__()
 
-        self._save_hash = save_hash
         self._categories = self._load_categories(path)
         self._items = list(self._load_items(path).values())
 
@@ -156,9 +155,7 @@ class SynthiaBase(SubsetBase):
                 if image:
                     image = Image(path=image)
 
-                items[item_id] = DatasetItem(
-                    id=item_id, media=image, annotations=anno, save_hash=self._save_hash
-                )
+                items[item_id] = DatasetItem(id=item_id, media=image, annotations=anno)
 
         elif osp.isdir(osp.join(root_dir, SynthiaPath.SEMANTIC_SEGM_DIR)):
             gt_dir = osp.join(root_dir, SynthiaPath.SEMANTIC_SEGM_DIR)
@@ -180,9 +177,7 @@ class SynthiaBase(SubsetBase):
                 if image:
                     image = Image(path=image)
 
-                items[item_id] = DatasetItem(
-                    id=item_id, media=image, annotations=anno, save_hash=self._save_hash
-                )
+                items[item_id] = DatasetItem(id=item_id, media=image, annotations=anno)
 
         return items
 

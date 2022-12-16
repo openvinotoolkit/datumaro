@@ -45,7 +45,6 @@ from datumaro.util.test_utils import (
     check_save_and_load,
     compare_datasets,
     compare_datasets_strict,
-    get_hash_key,
 )
 
 from ..requirements import Requirements, mark_requirement
@@ -2023,12 +2022,3 @@ class VocExporterTest(TestCase):
             self._test_save_and_load(
                 TestExtractor(), partial(VocExporter.convert, label_map="voc"), test_dir
             )
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash(self):
-        paths = [DUMMY_DATASET_DIR, DUMMY_DATASET2_DIR, DUMMY_DATASET3_DIR]
-        for path in paths:
-            imported_dataset = Dataset.import_from(path, "voc", save_hash=True)
-            for item in imported_dataset:
-                if item.media.data is not None:
-                    self.assertTrue(bool(get_hash_key(item)))

@@ -32,7 +32,6 @@ from datumaro.util.test_utils import (
     check_save_and_load,
     compare_datasets,
     compare_datasets_strict,
-    get_hash_key,
 )
 
 from ..requirements import Requirements, mark_requirement
@@ -463,11 +462,3 @@ class DatumaroExporterTest(TestCase):
             dataset_imported = Dataset.import_from(test_dir)
 
         self.assertEqual(dataset_imported.infos(), infos)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash(self):
-        DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "datumaro_dataset")
-        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "datumaro", save_hash=True)
-        for item in imported_dataset:
-            if item.media.data is not None:
-                self.assertTrue(bool(get_hash_key(item)))

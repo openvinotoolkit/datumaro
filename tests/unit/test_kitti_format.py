@@ -25,7 +25,7 @@ from datumaro.plugins.data_formats.kitti.importer import (
     KittiSegmentationImporter,
 )
 from datumaro.util.meta_file_util import parse_meta_file
-from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets, get_hash_key
+from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
@@ -1104,19 +1104,3 @@ class KittiExporterTest(TestCase):
                 target_dataset=DstExtractor(),
             )
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash_segmentation(self):
-        imported_dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, "kitti_segmentation"), "kitti", save_hash=True
-        )
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash_detection(self):
-        imported_dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, "kitti_detection"), "kitti", save_hash=True
-        )
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))

@@ -54,8 +54,3 @@ class KineticsImporterTest(TestCase):
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "kinetics")
 
         compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
-    def test_save_hash(self):
-        with self.assertRaises(Exception):
-            Dataset.import_from(DUMMY_DATASET_DIR, "kinetics", save_hash=True)

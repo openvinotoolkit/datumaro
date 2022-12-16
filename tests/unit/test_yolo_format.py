@@ -21,12 +21,7 @@ from datumaro.components.media import Image
 from datumaro.plugins.data_formats.yolo.base import YoloBase, YoloImporter
 from datumaro.plugins.data_formats.yolo.exporter import YoloExporter
 from datumaro.util.image import save_image
-from datumaro.util.test_utils import (
-    TestDir,
-    compare_datasets,
-    compare_datasets_strict,
-    get_hash_key,
-)
+from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 from ..requirements import Requirements, mark_requirement
 
@@ -486,9 +481,3 @@ class YoloBaseTest(TestCase):
 
             with self.assertRaisesRegex(InvalidAnnotationError, "subset list file"):
                 Dataset.import_from(test_dir, "yolo").init_cache()
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash(self):
-        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "yolo", save_hash=True)
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))

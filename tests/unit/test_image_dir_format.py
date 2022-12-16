@@ -6,7 +6,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.image_dir import ImageDirExporter
-from datumaro.util.test_utils import TestDir, check_save_and_load, get_hash_key
+from datumaro.util.test_utils import TestDir, check_save_and_load
 
 from ..requirements import Requirements, mark_requirement
 
@@ -79,18 +79,3 @@ class ImageDirFormatTest(TestCase):
                 importer="image_dir",
                 require_media=True,
             )
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash(self):
-        dataset = Dataset.from_iterable(
-            [
-                DatasetItem(id=1, media=Image(data=np.ones((10, 6, 3)))),
-                DatasetItem(id=2, media=Image(data=np.ones((5, 4, 3)))),
-            ]
-        )
-        with TestDir() as test_dir:
-            converter = ImageDirExporter.convert
-            converter(dataset, test_dir)
-            parsed_dataset = Dataset.import_from(test_dir, "image_dir", save_hash=True)
-        for item in parsed_dataset:
-            self.assertTrue(bool(get_hash_key(item)))

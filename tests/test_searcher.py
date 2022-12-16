@@ -109,7 +109,7 @@ class SearcherTest(TestCase):
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro", save_hash=True)
+            imported_dataset = Dataset.import_from(test_dir, "datumaro")
             for i, item in enumerate(imported_dataset):
                 if i == 1:
                     query = item
@@ -123,7 +123,7 @@ class SearcherTest(TestCase):
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_coco_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro", save_hash=True)
+            imported_dataset = Dataset.import_from(test_dir, "datumaro")
             searcher = Searcher(imported_dataset)
             result = searcher.search_topk("elephant", topk=2)
 
@@ -204,7 +204,7 @@ class SearcherTest(TestCase):
         with TestDir() as test_dir:
             converter = partial(VocExporter.convert, label_map="voc")
             converter(TestExtractor(), test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "voc", save_hash=True)
+            imported_dataset = Dataset.import_from(test_dir, "voc")
             for i, item in enumerate(imported_dataset):
                 if i == 0:
                     query = item

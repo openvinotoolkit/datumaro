@@ -168,7 +168,7 @@ class OpenImagesPath:
 
 
 class OpenImagesBase(DatasetBase):
-    def __init__(self, path, image_meta=None, save_hash=False):
+    def __init__(self, path, image_meta=None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
@@ -183,8 +183,6 @@ class OpenImagesBase(DatasetBase):
 
         self._categories = {}
         self._items = []
-
-        self._save_hash = save_hash
 
         assert image_meta is None or isinstance(image_meta, (dict, str))
         if isinstance(image_meta, dict):
@@ -353,7 +351,7 @@ class OpenImagesBase(DatasetBase):
         else:
             image = Image(path=image_path, size=self._image_meta.get(item_id))
 
-        item = DatasetItem(id=item_id, media=image, subset=subset, save_hash=self._save_hash)
+        item = DatasetItem(id=item_id, media=image, subset=subset)
         self._items.append(item)
         return item
 

@@ -29,12 +29,11 @@ class WiderFacePath:
 
 
 class WiderFaceBase(SubsetBase):
-    def __init__(self, path, subset=None, save_hash=False):
+    def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise Exception("Can't read annotation file '%s'" % path)
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(path))
-        self._save_hash = save_hash
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
@@ -116,7 +115,6 @@ class WiderFaceBase(SubsetBase):
                 subset=self._subset,
                 media=Image(path=image_path),
                 annotations=annotations,
-                save_hash=self._save_hash,
             )
 
             try:

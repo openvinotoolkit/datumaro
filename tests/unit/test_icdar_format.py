@@ -19,7 +19,7 @@ from datumaro.plugins.data_formats.icdar.exporter import (
     IcdarTextSegmentationExporter,
     IcdarWordRecognitionExporter,
 )
-from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets, get_hash_key
+from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
@@ -602,17 +602,3 @@ class IcdarConverterTest(TestCase):
                 "icdar_text_segmentation",
                 expected_dataset,
             )
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_save_hash(self):
-        paths = [
-            osp.join(DUMMY_DATASET_DIR, "text_localization"),
-            osp.join(DUMMY_DATASET_DIR, "text_segmentation"),
-            osp.join(DUMMY_DATASET_DIR, "word_recognition"),
-        ]
-        formats = ["icdar_text_localization", "icdar_text_segmentation", "icdar_word_recognition"]
-
-        for dataset_dir, format in zip(paths, formats):
-            imported_dataset = Dataset.import_from(dataset_dir, format, save_hash=True)
-            for item in imported_dataset:
-                self.assertTrue(bool(get_hash_key(item)))

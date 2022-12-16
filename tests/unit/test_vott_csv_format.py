@@ -8,7 +8,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.vott_csv import VottCsvImporter
-from datumaro.util.test_utils import compare_datasets, get_hash_key
+from datumaro.util.test_utils import compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
@@ -97,17 +97,3 @@ class VottCsvImporterTest(TestCase):
     def test_can_detect_with_meta_file(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR_WITH_META_FILE)
         self.assertEqual([VottCsvImporter.NAME], detected_formats)
-
-    @mark_requirement(Requirements.DATUM_475)
-    def test_save_hash(self):
-        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "vott_csv", save_hash=True)
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))
-
-    @mark_requirement(Requirements.DATUM_475)
-    def test_save_hash_with_meta_file(self):
-        imported_dataset = Dataset.import_from(
-            DUMMY_DATASET_DIR_WITH_META_FILE, "vott_csv", save_hash=True
-        )
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))

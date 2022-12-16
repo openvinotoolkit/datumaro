@@ -1310,7 +1310,6 @@ class Dataset(IDataset):
         env: Optional[Environment] = None,
         progress_reporter: Optional[ProgressReporter] = None,
         error_policy: Optional[ImportErrorPolicy] = None,
-        save_hash: Optional[bool] = False,
         **kwargs,
     ) -> Dataset:
         """
@@ -1328,7 +1327,6 @@ class Dataset(IDataset):
                 Implies earger loading.
             error_policy - An object to report format-related errors.
                 Implies earger loading.
-            save_hash - Indicates if saving hash for each DatasetItem.
             **kwargs - Parameters for the format
         """
 
@@ -1371,9 +1369,6 @@ class Dataset(IDataset):
                 extractor_kwargs["ctx"] = ImportContext(
                     progress_reporter=pbar, error_policy=error_policy
                 )
-
-                if save_hash:
-                    extractor_kwargs["save_hash"] = save_hash
 
                 try:
                     extractors.append(

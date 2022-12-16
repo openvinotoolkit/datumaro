@@ -52,7 +52,6 @@ class DatasetItem:
         media: Union[str, MediaElement, None] = None,
         annotations: Optional[List[Annotation]] = None,
         attributes: Dict[str, Any] = None,
-        save_hash: Optional[bool] = False,
         image=None,
         point_cloud=None,
         related_images=None,
@@ -87,12 +86,6 @@ class DatasetItem:
                 point_cloud = PointCloud(path=point_cloud, extra_images=related_images)
             assert isinstance(point_cloud, PointCloud)
             media = point_cloud
-
-        if save_hash and bool(media):
-            hash_key = hash_inference(media)
-            if not annotations:
-                annotations = []
-            annotations.append(HashKey(hash_key))
 
         self.__attrs_init__(
             id=id,

@@ -19,13 +19,12 @@ class CommonSuperResolutionPath:
 
 
 class CommonSuperResolutionBase(SubsetBase):
-    def __init__(self, path, subset=None, save_hash=False):
+    def __init__(self, path, subset=None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
         super().__init__(subset=subset)
 
-        self._save_hash = save_hash
         self._items = list(self._load_items(path).values())
 
     def _load_items(self, path):
@@ -54,7 +53,6 @@ class CommonSuperResolutionBase(SubsetBase):
                 subset=self._subset,
                 media=Image(path=lr_image),
                 attributes=attributes,
-                save_hash=self._save_hash,
             )
 
         hr_image_dir = osp.join(path, CommonSuperResolutionPath.HR_IMAGES_DIR)
@@ -70,7 +68,6 @@ class CommonSuperResolutionBase(SubsetBase):
                     id=item_id,
                     subset=self._subset,
                     attributes=attributes,
-                    save_hash=self._save_hash,
                 )
 
             items[item_id].annotations.append(SuperResolutionAnnotation(Image(path=hr_image)))

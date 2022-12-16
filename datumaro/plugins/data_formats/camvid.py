@@ -171,11 +171,10 @@ def _parse_annotation_line(line: str) -> Tuple[str, Optional[str]]:
 
 
 class CamvidBase(SubsetBase):
-    def __init__(self, path, subset=None, save_hash=False):
+    def __init__(self, path, subset=None):
         assert osp.isfile(path), path
         self._path = path
         self._dataset_dir = osp.dirname(path)
-        self._save_hash = save_hash
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
@@ -228,7 +227,6 @@ class CamvidBase(SubsetBase):
                     subset=self._subset,
                     media=Image(path=image_path),
                     annotations=item_annotations,
-                    save_hash=self._save_hash,
                 )
 
         return items

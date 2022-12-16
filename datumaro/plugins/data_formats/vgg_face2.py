@@ -27,7 +27,7 @@ class VggFace2Path:
 
 
 class VggFace2Base(DatasetBase):
-    def __init__(self, path, save_hash=False):
+    def __init__(self, path):
         subset = None
         if osp.isdir(path):
             self._path = path
@@ -59,7 +59,6 @@ class VggFace2Base(DatasetBase):
 
         self._categories = {}
         self._items = []
-        self._save_hash = save_hash
 
         self._load_categories()
         for subset in self._subsets:
@@ -137,9 +136,7 @@ class VggFace2Base(DatasetBase):
                     image = images.get(row["NAME_ID"])
                     if image:
                         image = Image(path=image)
-                    items[item_id] = DatasetItem(
-                        id=item_id, subset=subset, media=image, save_hash=self._save_hash
-                    )
+                    items[item_id] = DatasetItem(id=item_id, subset=subset, media=image)
 
                 annotations = items[item_id].annotations
                 if [a for a in annotations if a.type == AnnotationType.points]:

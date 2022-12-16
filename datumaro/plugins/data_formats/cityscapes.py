@@ -182,7 +182,7 @@ def write_label_map(path, label_map):
 
 
 class CityscapesBase(SubsetBase):
-    def __init__(self, path, subset=None, save_hash=False):
+    def __init__(self, path, subset=None):
         assert osp.isdir(path), path
 
         if not subset:
@@ -200,7 +200,6 @@ class CityscapesBase(SubsetBase):
             annotations_dir = osp.join(self._path, CityscapesPath.GT_FINE_DIR, subset)
 
         self._subset = subset
-        self._save_hash = save_hash
         self._images_dir = images_dir
         self._gt_anns_dir = annotations_dir
 
@@ -289,13 +288,10 @@ class CityscapesBase(SubsetBase):
                 subset=self._subset,
                 media=image,
                 annotations=anns,
-                save_hash=self._save_hash,
             )
 
         for item_id, path in image_path_by_id.items():
-            items[item_id] = DatasetItem(
-                id=item_id, subset=self._subset, media=Image(path=path), save_hash=self._save_hash
-            )
+            items[item_id] = DatasetItem(id=item_id, subset=self._subset, media=Image(path=path))
 
         self._categories = self._load_categories(
             self._path, use_train_label_map=mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX

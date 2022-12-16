@@ -22,13 +22,11 @@ from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
 
 
 class MpiiBase(SubsetBase):
-    def __init__(self, path, save_hash=False):
+    def __init__(self, path):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
         super().__init__()
-
-        self._save_hash = save_hash
 
         self._categories = {
             AnnotationType.label: LabelCategories.from_iterable(["human"]),
@@ -130,7 +128,6 @@ class MpiiBase(SubsetBase):
                 subset=self._subset,
                 media=Image(path=osp.join(root_dir, image)),
                 annotations=annotations,
-                save_hash=self._save_hash,
             )
 
         return items

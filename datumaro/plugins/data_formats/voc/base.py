@@ -45,14 +45,13 @@ T = TypeVar("T")
 
 
 class _VocBase(SubsetBase):
-    def __init__(self, path, task, save_hash=False, **kwargs):
+    def __init__(self, path, task, **kwargs):
         if not osp.isfile(path):
             raise DatasetImportError(f"Can't find txt subset list file at '{path}'")
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(osp.dirname(path)))
 
         self._task = task
-        self._save_hash = save_hash
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0], **kwargs)
 
@@ -144,7 +143,6 @@ class VocClassificationBase(_VocBase):
                 subset=self._subset,
                 media=image,
                 annotations=annotations.get(item_id),
-                save_hash=self._save_hash,
             )
 
     def _load_annotations(self):
@@ -233,7 +231,6 @@ class _VocXmlBase(_VocBase):
                     subset=self._subset,
                     media=image,
                     annotations=anns,
-                    save_hash=self._save_hash,
                 )
             except ElementTree.ParseError as e:
                 readable_wrapper = InvalidAnnotationError("Failed to parse XML file")
@@ -399,7 +396,6 @@ class VocSegmentationBase(_VocBase):
                     subset=self._subset,
                     media=image,
                     annotations=self._load_annotations(item_id),
-                    save_hash=self._save_hash,
                 )
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))

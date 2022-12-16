@@ -44,11 +44,10 @@ class LabelMePath:
 
 
 class LabelMeBase(DatasetBase):
-    def __init__(self, path, save_hash=False):
+    def __init__(self, path):
         assert osp.isdir(path), path
         super().__init__()
 
-        self._save_hash = save_hash
         self._items, self._categories, self._subsets = self._parse(path)
         self._length = len(self._items)
 
@@ -100,7 +99,6 @@ class LabelMeBase(DatasetBase):
                     subset=subset,
                     media=image,
                     annotations=annotations,
-                    save_hash=self._save_hash,
                 )
             )
             subsets.add(items[-1].subset)

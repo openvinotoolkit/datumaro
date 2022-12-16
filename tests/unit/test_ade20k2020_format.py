@@ -11,7 +11,7 @@ from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.ade20k2020 import Ade20k2020Importer
-from datumaro.util.test_utils import compare_datasets, get_hash_key
+from datumaro.util.test_utils import compare_datasets
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
@@ -208,17 +208,3 @@ class Ade20k2020ImporterTest(TestCase):
 
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR_META_FILE, "ade20k2020")
         compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_399)
-    def test_save_hash(self):
-        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "ade20k2020", save_hash=True)
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))
-
-    @mark_requirement(Requirements.DATUM_399)
-    def test_save_hash_with_meta_file(self):
-        imported_dataset = Dataset.import_from(
-            DUMMY_DATASET_DIR_META_FILE, "ade20k2020", save_hash=True
-        )
-        for item in imported_dataset:
-            self.assertTrue(bool(get_hash_key(item)))

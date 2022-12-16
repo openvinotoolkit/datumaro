@@ -29,10 +29,8 @@ from .format import DatumaroPath
 
 
 class DatumaroBase(SubsetBase):
-    def __init__(self, path, save_hash=False):
+    def __init__(self, path):
         assert osp.isfile(path), path
-
-        self._save_hash = save_hash
 
         rootpath = ""
         if path.endswith(osp.join(DatumaroPath.ANNOTATIONS_DIR, osp.basename(path))):
@@ -160,7 +158,6 @@ class DatumaroBase(SubsetBase):
                 annotations=annotations,
                 media=media,
                 attributes=item_desc.get("attr"),
-                save_hash=self._save_hash,
             )
 
             items.append(item)

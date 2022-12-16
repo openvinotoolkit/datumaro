@@ -55,13 +55,11 @@ class _CocoBase(SubsetBase):
         merge_instance_polygons=False,
         subset=None,
         keep_original_category_ids=False,
-        save_hash=False,
         **kwargs,
     ):
         if not osp.isfile(path):
             raise DatasetImportError(f"Can't find JSON file at '{path}'")
         self._path = path
-        self._save_hash = save_hash
 
         if not subset:
             parts = osp.splitext(osp.basename(path))[0].split(task.name + "_", maxsplit=1)
@@ -193,7 +191,6 @@ class _CocoBase(SubsetBase):
                     media=Image(path=osp.join(self._images_dir, file_name), size=image_size),
                     annotations=[],
                     attributes={"id": img_id},
-                    save_hash=self._save_hash,
                 )
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(img_id, self._subset))
