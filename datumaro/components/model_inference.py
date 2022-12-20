@@ -19,8 +19,6 @@ from PIL import Image
 from pkg_resources import packaging
 from torchvision import transforms
 
-from datumaro.components.media import MultiframeImage, PointCloud, Video
-
 if packaging.version.parse(torch.__version__) < packaging.version.parse("1.7.1"):
     warnings.warn("PyTorch version 1.7.1 or higher is recommended")
 
@@ -214,12 +212,6 @@ def _compute_hash(features):
 
 
 def hash_inference(item):
-    assert not type(item) in [
-        Video,
-        PointCloud,
-        MultiframeImage,
-    ], f"Media type should be Image, Current type={type(item)}"
-
     img_xml_model_path = os.path.join(model_folder, "clip_visual_ViT-B_32.xml")
     img_bin_model_path = os.path.join(model_folder, "clip_visual_ViT-B_32.bin")
     txt_xml_model_path = os.path.join(model_folder, "clip_text_ViT-B_32.xml")
