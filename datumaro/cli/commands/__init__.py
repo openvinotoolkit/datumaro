@@ -24,9 +24,9 @@ from . import (
     merge,
     patch,
     remove,
+    search,
     stats,
     status,
     transform,
     validate,
-    search,
 )

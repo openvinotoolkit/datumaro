@@ -17,14 +17,24 @@ from ..util.project import load_project, parse_full_revpath
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(
-        help="Search similar data in dataset",
+        help="Search similar data of query in dataset",
         description="""
         Applies data exploration to a dataset for image/text query.
         The command can be useful if you have to find similar data in dataset.
         |n
-        In simple cases, when dataset query do not 
+        The current project (-p/--project) is used as a context for plugins
+        and models. It is used when there is a dataset path in target.
+        When not specified, the current project's working tree is used.|n
         |n
-        
+        Examples:|n
+        - Search top50 similar images of image query in COCO dataset:|n
+        |s|s%(prog)s -q path/to/image.jpg -topk 50|n
+        - Search top50 similar images of text query, elephant, in COCO dataset:|n
+        |s|s%(prog)s -q elephant -topk 50|n
+        - Search top50 similar images of image query list in COCO dataset:|n
+        |s|s%(prog)s -q path/to/image1.jpg/ path/to/image2.jpg/ path/to/image3.jpg/ -topk 50|n
+        - Search top50 similar images of text query list in COCO dataset:|n
+        |s|s%(prog)s -q motorcycle/ bus/ train/ -topk 50|n
         """,
         formatter_class=MultilineFormatter,
     )
