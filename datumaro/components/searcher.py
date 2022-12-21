@@ -83,9 +83,9 @@ class Searcher:
             # media.data is None case
             raise ValueError("Database should have hash_key")
         database_keys = np.stack(self._database_keys, axis=0)
+        db_len = database_keys.shape[0]
 
         if isinstance(query, List):
-            topk_for_query = int(topk // len(query)) * 2
             query_hash_key_list = []
             for q in query:
                 if isinstance(q, DatasetItem):
@@ -99,15 +99,24 @@ class Searcher:
                     q_hash_key = hash_inference(q)
                     query_hash_key_list.append(q_hash_key)
 
-            for query_hash_key in query_hash_key_list:
-                result_list = []
+            sims = np.zeros(shape=database_keys.shape[0] * len(query_hash_key_list))
+            for i, query_hash_key in enumerate(query_hash_key_list):
                 query_hash_key = self.unpack_hash_key(query_hash_key[0])
-                logits = calculate_hamming(query_hash_key, database_keys)
-                ind = np.argsort(logits)
+                sims[i * db_len : (i + 1) * db_len] = calculate_hamming(
+                    query_hash_key, database_keys
+                )
 
-                item_list = np.array(self._item_list)[ind]
-                result_list.extend(item_list[:topk_for_query].tolist())
-            return np.random.choice(result_list, topk)
+            def cal_ind(x):
+                if x >= db_len:
+                    x = x % db_len
+                return x
+
+            ind = np.argsort(sims).tolist()
+            ind = list(map(cal_ind, ind))
+
+            item_list = np.array(self._item_list)[ind]
+            result = item_list[:topk].tolist()
+            return result
 
         if isinstance(query, DatasetItem):
             query_key = None
