@@ -6,7 +6,7 @@
 
 import os
 import shutil
-import subprocess   # nosec B404
+import subprocess  # nosec B404
 import tarfile
 import tempfile
 from pathlib import Path
