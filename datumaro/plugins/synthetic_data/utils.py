@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import platform
 import warnings
 from contextlib import contextmanager
 from random import Random
@@ -116,6 +117,10 @@ def colorize(frame, net):
     img_l_rs = img_rs - 50  # subtract 50 for mean-centering
 
     net.setInput(cv.dnn.blobFromImage(img_l_rs))
+    if platform.system() == "Darwin" and hasattr(net, "enableWinograd"):
+        # TODO: We temporarily disable Winograd for MacOS because there is an OpenCV assertion error only for MacOS
+        # https://github.com/openvinotoolkit/datumaro/actions/runs/3851853611/jobs/6563454834#step:5:1199
+        net.enableWinograd(False)
     ab_dec = net.forward()[0, :, :, :].transpose((1, 2, 0))
 
     ab_dec_us = cv.resize(ab_dec, (W_orig, H_orig))
