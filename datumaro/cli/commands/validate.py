@@ -137,7 +137,7 @@ def validate_command(args):
     def _make_serializable(d):
         for key, val in list(d.items()):
             # tuple key to str
-            if isinstance(key, tuple):
+            if isinstance(key, tuple) or isinstance(key, int):
                 d[str(key)] = val
                 d.pop(key)
             if isinstance(val, dict):
