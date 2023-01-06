@@ -557,6 +557,21 @@ class _Shape(Annotation):
         y1 = max(ys)
         return [x0, y0, x1 - x0, y1 - y0]
 
+    def get_points(self) -> Optional[List[Tuple[float, float]]]:
+        """
+        Return points as a list of tuples, e.g. [(x0, y0), (x1, y1), ...]
+        """
+        points = self.points
+        if not points:
+            return None
+
+        assert len(points) % 2 == 0, "points should have (2 x points) number of float values."
+
+        xs = [p for p in points[0::2]]
+        ys = [p for p in points[1::2]]
+
+        return [(x, y) for x, y in zip(xs, ys)]
+
 
 @attrs(slots=True, order=False)
 class PolyLine(_Shape):
