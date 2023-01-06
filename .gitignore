@@ -69,3 +69,6 @@ site/**/nb_htmls/*.html
 
 # Temporary sphinx files
 site/static/api
+
+# C extension
+datumaro/*.so

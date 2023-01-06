@@ -20,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A
 
 ### Fixed
-- N/A
+- Fix MacOS CI failures
+  (<https://github.com/openvinotoolkit/datumaro/pull/789>)
 
 ### Security
 - N/A
