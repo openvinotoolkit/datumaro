@@ -38,7 +38,7 @@ class SearcherLauncher(OpenvinoLauncher):
         self._input_blobs = next(iter(self._net.input_info))
 
     def infer(self, inputs):
-        if (inputs is None).any():
+        if None in inputs:
             # media.data is None case
             return None
 

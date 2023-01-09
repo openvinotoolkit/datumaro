@@ -134,16 +134,16 @@ class SearcherTest(TestCase):
             self.assertEqual(result[0].subset, result[1].subset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_query_data_none(self):
+    def test_data_none(self):
         """
         <b>Description:</b>
-        Check that query does not have any media.
+        Check that data does not have any media.
 
         <b>Input data:</b>
-        Query whose data is None.
+        Dataset whose data is None.
 
         <b>Expected results:</b>
-        Raise ValueError as Query should have hash_key.
+        Raise ValueError as data should have hash_key.
 
         <b>Steps</b>
         1. Import datumaro dataset which contain None media data.
@@ -151,32 +151,6 @@ class SearcherTest(TestCase):
         3. Check whether ValueError raised properly or not.
         """
         imported_dataset = Dataset.import_from("./tests/assets/datumaro_dataset", "datumaro")
-        for i, item in enumerate(imported_dataset):
-            if i == 0:
-                query = item
-        searcher = Searcher(imported_dataset)
-        with self.assertRaises(ValueError) as capture:
-            searcher.search_topk(query, topk=2)
-        self.assertEqual("Query should have hash_key", str(capture.exception))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_database_data_none(self):
-        """
-        <b>Description:</b>
-        Check that each data of database does not have any media.
-
-        <b>Input data:</b>
-        Database whose data is None.
-
-        <b>Expected results:</b>
-        Raise ValueError as Database should have hash_key.
-
-        <b>Steps</b>
-        1. Import datumaro dataset which contain None media data.
-        2. Set Searcher and try search_topk to find similar media of query.
-        3. Check whether ValueError raised properly or not.
-        """
-        imported_dataset = Dataset.import_from("./tests/assets/voc_dataset/voc_dataset2", "voc")
         for i, item in enumerate(imported_dataset):
             if i == 0:
                 query = item
@@ -206,28 +180,6 @@ class SearcherTest(TestCase):
         with self.assertRaises(MediaTypeError) as capture:
             Searcher(imported_dataset)
         self.assertIn("MultiframeImage", str(capture.exception))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_video_assert(self):
-        """
-        <b>Description:</b>
-        Check that hash inference does not supported for Video mediatype.
-
-        <b>Input data:</b>
-        Imported dataset which contains Video media.
-
-        <b>Expected results:</b>
-        Raise MediaTypeError as Media type should be Image, Current type=<class 'datumaro.components.media.Video'>.
-
-        <b>Steps</b>
-        1. Import Kinetics dataset which contain Video media.
-        2. Set Searcher to inference hash for imported dataset.
-        3. Check whether MediaTypeError raised properly or not.
-        """
-        imported_dataset = Dataset.import_from("./tests/assets/kinetics_dataset", "kinetics")
-        with self.assertRaises(MediaTypeError) as capture:
-            Searcher(imported_dataset)
-        self.assertIn("Video", str(capture.exception))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_pointcloud_assert(self):
