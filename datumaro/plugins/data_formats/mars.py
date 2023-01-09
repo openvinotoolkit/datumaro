@@ -55,7 +55,7 @@ class MarsBase(DatasetBase):
                 for subset_path in self._subsets.values()
                 for dir_name in os.listdir(subset_path)
                 if (
-                    osp.isdir(osp.join(subset_path, dir_name))
+                    osp.isdir(osp.join(self._dataset_dir, subset_path, dir_name))
                     and any(
                         fnmatch.fnmatch(dir_name, image_dir)
                         for image_dir in MarsPath.IMAGE_DIR_PATTERNS

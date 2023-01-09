@@ -34,12 +34,7 @@ from .format import (
 
 class _MapillaryVistasBase(SubsetBase):
     def __init__(
-        self,
-        path,
-        task,
-        subset=None,
-        use_original_config=False,
-        keep_original_category_ids=False,
+        self, path, task, subset=None, use_original_config=False, keep_original_category_ids=False
     ):
         assert osp.isdir(path), path
         self._path = path
@@ -163,10 +158,7 @@ class _MapillaryVistasBase(SubsetBase):
                 )
 
             items[item_id] = DatasetItem(
-                id=item_id,
-                subset=self._subset,
-                annotations=annotations,
-                media=image,
+                id=item_id, subset=self._subset, annotations=annotations, media=image
             )
 
         self._load_polygons(items)

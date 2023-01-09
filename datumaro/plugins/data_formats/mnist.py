@@ -39,7 +39,6 @@ class MnistBase(SubsetBase):
                 subset = file_name.split("-", maxsplit=1)[0]
 
         super().__init__(subset=subset)
-
         self._dataset_dir = osp.dirname(path)
 
         self._categories = self._load_categories()
@@ -115,12 +114,7 @@ class MnistBase(SubsetBase):
             if 0 < len(meta) and (len(meta[i]) == 1 or len(meta[i]) == 3):
                 i = meta[i][0]
 
-            items[i] = DatasetItem(
-                id=i,
-                subset=self._subset,
-                media=image,
-                annotations=annotations,
-            )
+            items[i] = DatasetItem(id=i, subset=self._subset, media=image, annotations=annotations)
         return items
 
 

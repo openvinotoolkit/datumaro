@@ -87,11 +87,7 @@ class DatasetItem:
             media = point_cloud
 
         self.__attrs_init__(
-            id=id,
-            subset=subset,
-            media=media,
-            annotations=annotations,
-            attributes=attributes,
+            id=id, subset=subset, media=media, annotations=annotations, attributes=attributes
         )
 
     # Deprecated. Provided for backward compatibility.

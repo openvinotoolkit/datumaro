@@ -94,12 +94,7 @@ class LabelMeBase(DatasetBase):
             annotations = self._parse_annotations(root, osp.join(dataset_root, subset), categories)
 
             items.append(
-                DatasetItem(
-                    id=item_id,
-                    subset=subset,
-                    media=image,
-                    annotations=annotations,
-                )
+                DatasetItem(id=item_id, subset=subset, media=image, annotations=annotations)
             )
             subsets.add(items[-1].subset)
         return items, categories, subsets

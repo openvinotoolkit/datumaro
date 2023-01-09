@@ -172,10 +172,7 @@ class YoloBase(SubsetBase):
                 )
 
                 item = DatasetItem(
-                    id=item_id,
-                    subset=subset_name,
-                    media=image,
-                    annotations=annotations,
+                    id=item_id, subset=subset_name, media=image, annotations=annotations
                 )
                 subset.items[item_id] = item
             except Exception as e:

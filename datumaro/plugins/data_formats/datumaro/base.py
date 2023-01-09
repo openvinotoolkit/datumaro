@@ -110,8 +110,8 @@ class DatumaroBase(SubsetBase):
             media = None
             image_info = item_desc.get("image")
             if image_info:
-                # image_filename = image_info.get("path") or item_id + DatumaroPath.IMAGE_EXT
-                image_filename = item_id + DatumaroPath.IMAGE_EXT
+                image_filename = image_info.get("path") or item_id + DatumaroPath.IMAGE_EXT
+                # image_filename = item_id + DatumaroPath.IMAGE_EXT
                 image_path = osp.join(self._images_dir, self._subset, image_filename)
                 if not osp.isfile(image_path):
                     # backward compatibility

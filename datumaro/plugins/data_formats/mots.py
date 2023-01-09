@@ -48,7 +48,6 @@ class MotsPngExtractor(SubsetBase):
     def __init__(self, path, subset=None):
         assert osp.isdir(path), path
         super().__init__(subset=subset)
-
         self._images_dir = osp.join(path, "images")
         self._anno_dir = osp.join(path, MotsPath.MASKS_DIR)
         if has_meta_file(path):

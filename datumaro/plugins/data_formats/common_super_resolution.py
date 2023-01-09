@@ -49,10 +49,7 @@ class CommonSuperResolutionBase(SubsetBase):
                 attributes["upsampled"] = Image(path=upsampled_image)
 
             items[item_id] = DatasetItem(
-                id=item_id,
-                subset=self._subset,
-                media=Image(path=lr_image),
-                attributes=attributes,
+                id=item_id, subset=self._subset, media=Image(path=lr_image), attributes=attributes
             )
 
         hr_image_dir = osp.join(path, CommonSuperResolutionPath.HR_IMAGES_DIR)
@@ -64,13 +61,9 @@ class CommonSuperResolutionBase(SubsetBase):
                 if upsampled_image:
                     attributes["upsampled"] = Image(path=upsampled_image)
 
-                items[item_id] = DatasetItem(
-                    id=item_id,
-                    subset=self._subset,
-                    attributes=attributes,
-                )
+                items[item_id] = DatasetItem(id=item_id, subset=self._subset, attributes=attributes)
 
-            items[item_id].annotations.append(SuperResolutionAnnotation(Image(path=hr_image)))
+            items[item_id].annotations = [SuperResolutionAnnotation(Image(path=hr_image))]
 
         return items
 

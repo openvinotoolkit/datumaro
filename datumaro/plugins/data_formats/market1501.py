@@ -94,10 +94,7 @@ class Market1501Base(DatasetBase):
             item = items.get(item_id)
             if item is None:
                 item = DatasetItem(
-                    id=item_id,
-                    subset=subset,
-                    media=Image(path=image_path),
-                    attributes=attributes,
+                    id=item_id, subset=subset, media=Image(path=image_path), attributes=attributes
                 )
                 items[item_id] = item
 

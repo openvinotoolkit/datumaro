@@ -37,6 +37,7 @@ class CelebaBase(SubsetBase):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
         super().__init__()
+
         self._categories = {AnnotationType.label: LabelCategories()}
         if has_meta_file(path):
             self._categories = {

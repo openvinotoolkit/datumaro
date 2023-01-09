@@ -284,10 +284,7 @@ class CityscapesBase(SubsetBase):
                 image = Image(path=image)
 
             items[item_id] = DatasetItem(
-                id=item_id,
-                subset=self._subset,
-                media=image,
-                annotations=anns,
+                id=item_id, subset=self._subset, media=image, annotations=anns
             )
 
         for item_id, path in image_path_by_id.items():

@@ -40,13 +40,7 @@ class ImageZipBase(SubsetBase):
                 if extension.lower() not in IMAGE_EXTENSIONS:
                     continue
                 image = ByteImage(data=zf.read(path.filename))
-                self._items.append(
-                    DatasetItem(
-                        id=item_id,
-                        media=image,
-                        subset=self._subset,
-                    )
-                )
+                self._items.append(DatasetItem(id=item_id, media=image, subset=self._subset))
 
 
 class ImageZipImporter(Importer):
