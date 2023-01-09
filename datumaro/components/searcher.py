@@ -12,6 +12,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import MultiframeImage, PointCloud, Video
 from datumaro.components.model_inference import hash_inference
+from datumaro.plugins.searcher import SearcherLauncher
 
 
 def calculate_hamming(B1, B2):
@@ -39,25 +40,25 @@ class Searcher:
         dataset:
             Datumaro dataset to search similar dataitem.
         topk:
-            Number of images
+            Number of images.
         """
-        self._dataset = dataset
+        self._model = SearcherLauncher()
+        inference = dataset.run_model(self._model)
         self._topk = topk
 
         database_keys = []
         item_list = []
-        for datasetitem in self._dataset:
-            if type(datasetitem.media) in [Video, PointCloud, MultiframeImage]:
-                raise MediaTypeError(
-                    f"Media type should be Image, Current type={type(datasetitem.media)}"
-                )
-            try:
-                hash_key = datasetitem.set_hash_key[0]
-                hash_key = self.unpack_hash_key(hash_key)
-                database_keys.append(hash_key)
-                item_list.append(datasetitem)
-            except Exception:
-                hash_key = None
+
+        for item in inference:
+            for annotation in item.annotations:
+                if isinstance(annotation, HashKey):
+                    try:
+                        hash_key = annotation.hash_key[0]
+                        hash_key = self.unpack_hash_key(hash_key)
+                        database_keys.append(hash_key)
+                        item_list.append(item)
+                    except Exception:
+                        hash_key = None
 
         self._database_keys = database_keys
         self._item_list = item_list
@@ -79,7 +80,7 @@ class Searcher:
         if not topk:
             topk = self._topk
 
-        if not self._database_keys:
+        if all(i is None for i in self._database_keys):
             # media.data is None case
             raise ValueError("Database should have hash_key")
         database_keys = np.stack(self._database_keys, axis=0)
@@ -126,7 +127,16 @@ class Searcher:
                     break
 
             if not query_key:
-                query_key = query.set_hash_key
+                try:
+                    if type(query.media) in [Video, PointCloud, MultiframeImage]:
+                        raise MediaTypeError(
+                            f"Media type should be Image, Current type={type(query.media)}"
+                        )
+                    query_key = self._model.launch(query.media.data)[0][0].hash_key
+                except Exception:
+                    # media.data is None case
+                    pass
+
         elif isinstance(query, str):
             query_key = hash_inference(query)
         else:

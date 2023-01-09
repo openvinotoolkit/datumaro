@@ -1,3 +1,4 @@
+import os.path as osp
 from unittest import TestCase
 
 import numpy as np
@@ -6,6 +7,7 @@ from datumaro.components.annotation import Caption, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
+from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir
 from datumaro.util.test_utils import run_datum as run
@@ -25,9 +27,8 @@ class SearchTest(TestCase):
         test_img[2, :] = 255
         train_Image = Image(data=train_img)
 
-        train_image_path = train_Image.path
-
-        Dataset.from_iterable(
+        dataset_url = osp.join(test_dir, "dataset")
+        dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id=1,
@@ -48,7 +49,14 @@ class SearchTest(TestCase):
                     annotations=[Label(2, id=2), Caption("dog")],
                 ),
             ]
-        ).export(test_dir, "datumaro")
+        )
+        dataset.export(dataset_url, "datumaro", save_media=True)
+
+        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        proj_dir = osp.join(test_dir, "proj")
+        with Project.init(proj_dir) as project:
+            project.import_source("source-1", dataset_url, "datumaro", no_cache=True)
+            project.commit("first commit")
 
         run(
             self,
@@ -57,4 +65,6 @@ class SearchTest(TestCase):
             train_image_path,
             "-topk",
             "2",
+            "-p",
+            proj_dir,
         )

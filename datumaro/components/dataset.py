@@ -179,9 +179,6 @@ class DatasetItemStorageDatasetView(IDataset):
         def media_type(self):
             return self.parent.media_type()
 
-        def hash_key(self):
-            return self.parent.hash_key()
-
     def __init__(
         self,
         parent: DatasetItemStorage,
@@ -968,9 +965,6 @@ class Dataset(IDataset):
 
     def media_type(self) -> Type[MediaElement]:
         return self._data.media_type()
-
-    def hash_key(self):
-        return self._data.hash_key()
 
     def get(self, id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         return self._data.get(id, subset)

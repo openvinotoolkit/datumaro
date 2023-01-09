@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -85,9 +85,6 @@ def search_command(args):
     except ProjectNotFoundError:
         if args.project_dir:
             raise
-
-    project = scope_add(load_project(args.project_dir))
-
     dataset, _ = parse_full_revpath(args.target, project)
 
     searcher = Searcher(dataset)

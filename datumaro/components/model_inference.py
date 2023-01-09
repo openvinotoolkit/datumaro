@@ -199,7 +199,7 @@ def _image_features(model, image, input_blob=None, output_blob=None):
     return features
 
 
-def _compute_hash(features):
+def compute_hash(features):
     features = encode_discrete(features)
     features = F.normalize(features, dim=-1)
 
@@ -249,7 +249,7 @@ def hash_inference(item):
 
         features = _image_features(img_model, item.data, input_blob, output_blob)
 
-    hash_string = _compute_hash(features)
+    hash_string = compute_hash(features)
     return hash_string
 
 

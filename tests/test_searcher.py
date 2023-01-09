@@ -9,7 +9,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
-from datumaro.components.model_inference import hash_inference
 from datumaro.components.searcher import Searcher
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.util.image import load_image
@@ -80,19 +79,6 @@ class SearcherTest(TestCase):
             ]
         )
         return dataset
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_hash_inference(self):
-        null_image = DatasetItem(
-            id="null_img",
-            subset="train",
-            media=Image(data=np.zeros((3, 4, 3))),
-            annotations=[Label(0)],
-        )
-
-        hash_key = hash_inference(null_image.media)
-        null_hash_key = null_image.set_hash_key
-        self.assertEqual(hash_key, null_hash_key)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_search_img_query(self):

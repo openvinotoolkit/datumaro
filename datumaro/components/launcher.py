@@ -6,6 +6,8 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.errors import MediaTypeError
+from datumaro.components.media import MultiframeImage, PointCloud, Video
 from datumaro.components.transformer import Transform
 from datumaro.util import take_by
 
@@ -36,12 +38,20 @@ class ModelTransform(Transform):
 
     def __iter__(self):
         for batch in take_by(self._extractor, self._batch_size):
-            inputs = np.array([np.atleast_3d(item.media.data) for item in batch])
+            inputs = []
+            for item in batch:
+                if type(item.media) in [Video, PointCloud, MultiframeImage]:
+                    raise MediaTypeError(
+                        f"Media type should be Image, Current type={type(item.media)}"
+                    )
+                inputs.append(np.atleast_3d(item.media.data))
+            inputs = np.array(inputs)
             inference = self._launcher.launch(inputs)
 
             for item, annotations in zip(batch, inference):
                 self._check_annotations(annotations)
-                yield self.wrap_item(item, annotations=annotations)
+                inferred_annotations = item.annotations + annotations
+                yield self.wrap_item(item, annotations=inferred_annotations)
 
     def get_subset(self, name):
         subset = self._extractor.get_subset(name)
