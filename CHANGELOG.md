@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/794>)
 - Add MergeTile transformation
   (<https://github.com/openvinotoolkit/datumaro/pull/796>)
+- Add Data Explorer
+  (<https://github.com/openvinotoolkit/datumaro/pull/773>)
 
 ### Changed
 - Improved mask_to_rle performance
