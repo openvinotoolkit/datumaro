@@ -7,7 +7,7 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.media import MultiframeImage, PointCloud, Video
+from datumaro.components.media import Image
 from datumaro.components.transformer import Transform
 from datumaro.util import take_by
 
@@ -40,7 +40,7 @@ class ModelTransform(Transform):
         for batch in take_by(self._extractor, self._batch_size):
             inputs = []
             for item in batch:
-                if type(item.media) in [Video, PointCloud, MultiframeImage]:
+                if not isinstance(item.media, Image):
                     raise MediaTypeError(
                         f"Media type should be Image, Current type={type(item.media)}"
                     )

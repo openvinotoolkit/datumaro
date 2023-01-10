@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -10,8 +10,7 @@ from datumaro.components.annotation import HashKey
 from datumaro.components.dataset import IDataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.media import MultiframeImage, PointCloud, Video
-from datumaro.components.model_inference import hash_inference
+from datumaro.components.media import Image
 from datumaro.plugins.searcher import SearcherLauncher
 
 
@@ -43,6 +42,9 @@ class Searcher:
             Number of images.
         """
         self._model = SearcherLauncher()
+        self._text_model = SearcherLauncher(
+            description="clip_text_ViT-B_32.xml", weights="clip_text_ViT-B_32.bin"
+        )
         inference = dataset.run_model(self._model)
         self._topk = topk
 
@@ -97,7 +99,7 @@ class Searcher:
                             break
                     query_hash_key_list.append(q_hash_key)
                 elif isinstance(q, str):
-                    q_hash_key = hash_inference(q)
+                    q_hash_key = self._text_model.launch(q)[0][0].hash_key
                     query_hash_key_list.append(q_hash_key)
 
             sims = np.zeros(shape=database_keys.shape[0] * len(query_hash_key_list))
@@ -128,7 +130,7 @@ class Searcher:
 
             if not query_key:
                 try:
-                    if type(query.media) in [Video, PointCloud, MultiframeImage]:
+                    if not isinstance(query.media, Image):
                         raise MediaTypeError(
                             f"Media type should be Image, Current type={type(query.media)}"
                         )
@@ -138,7 +140,7 @@ class Searcher:
                     pass
 
         elif isinstance(query, str):
-            query_key = hash_inference(query)
+            query_key = self._text_model.launch(query)[0][0].hash_key
         else:
             raise MediaTypeError(
                 "Unexpected media type of query '%s'. "

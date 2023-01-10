@@ -14,23 +14,12 @@ import numpy as np
 import regex as re
 import torch
 import torch.nn.functional as F
-from openvino.inference_engine import IECore
-from PIL import Image
 from pkg_resources import packaging
-from torchvision import transforms
 
 if packaging.version.parse(torch.__version__) < packaging.version.parse("1.7.1"):
     warnings.warn("PyTorch version 1.7.1 or higher is recommended")
 
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
 model_folder = "./tests/assets/searcher"
-
-model = {
-    "IMG": None,
-    "TXT": None,
-}
 
 
 @lru_cache()
@@ -87,6 +76,24 @@ def whitespace_clean(text):
     text = re.sub(r"\s+", " ", text)
     text = text.strip()
     return text
+
+
+def encode_discrete(x):
+    prob = torch.sigmoid(x)
+    z = torch.sign(prob - 0.5)
+    return z
+
+
+def compute_hash(features):
+    features = encode_discrete(features)
+    features = F.normalize(features, dim=-1)
+
+    features = features.cpu()
+    hash_key = features.detach().numpy() >= 0
+    hash_key = hash_key * 1
+    hash_string = np.packbits(hash_key, axis=-1)
+    hash_string = list(map(lambda row: "".join(["{:02x}".format(r) for r in row]), hash_string))
+    return hash_string
 
 
 class SimpleTokenizer(object):
@@ -167,90 +174,6 @@ class SimpleTokenizer(object):
             .replace("</w>", " ")
         )
         return text
-
-
-def encode_discrete(x):
-    prob = torch.sigmoid(x)
-    z = torch.sign(prob - 0.5)
-    return z
-
-
-def _image_features(model, image, input_blob=None, output_blob=None):
-    trans = transforms.Compose(
-        [
-            transforms.ToTensor(),
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225]),
-        ]
-    )
-    img = np.uint8(image)
-    img = Image.fromarray(img)
-
-    if np.array(img).ndim == 2 or img.mode == "RGBA":
-        img = img.convert("RGB")
-    img = trans(img)
-    img = np.expand_dims(img, axis=0)
-    img = torch.Tensor(img)
-    img = img.to(device, dtype=torch.float)
-
-    h = model.infer(inputs={input_blob: img.cpu()})
-    features = torch.from_numpy(h[output_blob])
-    return features
-
-
-def compute_hash(features):
-    features = encode_discrete(features)
-    features = F.normalize(features, dim=-1)
-
-    features = features.cpu()
-    hash_key = features.detach().numpy() >= 0
-    hash_key = hash_key * 1
-    hash_string = np.packbits(hash_key, axis=-1)
-    hash_string = list(map(lambda row: "".join(["{:02x}".format(r) for r in row]), hash_string))
-    return hash_string
-
-
-def hash_inference(item):
-    img_xml_model_path = os.path.join(model_folder, "clip_visual_ViT-B_32.xml")
-    img_bin_model_path = os.path.join(model_folder, "clip_visual_ViT-B_32.bin")
-    txt_xml_model_path = os.path.join(model_folder, "clip_text_ViT-B_32.xml")
-    txt_bin_model_path = os.path.join(model_folder, "clip_text_ViT-B_32.bin")
-    ie = IECore()
-
-    if isinstance(item, str):
-        if len(item.split()) > 1:
-            prompt_text = item
-        else:
-            prompt_text = f"a photo of a {item}"
-        text = tokenize(prompt_text).to(device)
-
-        txt_model = model["TXT"]
-        if not txt_model:
-            txt_net = ie.read_network(txt_xml_model_path, txt_bin_model_path)
-            txt_model = ie.load_network(network=txt_net, device_name="CPU")
-            model["TXT"] = txt_model
-        input_blob = next(iter(txt_model.input_info))
-        output_blob = next(iter(txt_model.outputs))
-
-        h = txt_model.infer(inputs={input_blob: text.cpu()})
-        features = torch.from_numpy(h[output_blob])
-
-    elif isinstance(item.data, type(None)):
-        return []
-    else:
-        img_model = model["IMG"]
-        if not img_model:
-            img_net = ie.read_network(img_xml_model_path, img_bin_model_path)
-            img_model = ie.load_network(network=img_net, device_name="CPU")
-            model["IMG"] = img_model
-        input_blob = next(iter(img_model.input_info))
-        output_blob = next(iter(img_model.outputs))
-
-        features = _image_features(img_model, item.data, input_blob, output_blob)
-
-    hash_string = compute_hash(features)
-    return hash_string
 
 
 def tokenize(

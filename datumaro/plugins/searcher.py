@@ -9,7 +9,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
-from datumaro.components.model_inference import compute_hash
+from datumaro.components.model_inference import compute_hash, tokenize
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
 
 
@@ -38,28 +38,36 @@ class SearcherLauncher(OpenvinoLauncher):
         self._input_blobs = next(iter(self._net.input_info))
 
     def infer(self, inputs):
-        if None in inputs:
-            # media.data is None case
-            return None
+        if isinstance(inputs, str):
+            if len(inputs.split()) > 1:
+                prompt_text = inputs
+            else:
+                prompt_text = f"a photo of a {inputs}"
+            inputs = tokenize(prompt_text).to("cpu", dtype=torch.float)
+        else:
+            inputs = inputs.squeeze()
+            if None in inputs:
+                # media.data is None case
+                return None
 
-        trans = transforms.Compose(
-            [
-                transforms.ToTensor(),
-                transforms.Resize(256),
-                transforms.CenterCrop(224),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225]),
-            ]
-        )
+            trans = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Resize(256),
+                    transforms.CenterCrop(224),
+                    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225]),
+                ]
+            )
 
-        inputs = np.uint8(inputs)
-        inputs = Image.fromarray(inputs)
+            inputs = np.uint8(inputs)
+            inputs = Image.fromarray(inputs)
 
-        if np.array(inputs).ndim == 2 or inputs.mode == "RGBA":
-            inputs = inputs.convert("RGB")
-        inputs = trans(inputs)
-        inputs = np.expand_dims(inputs, axis=0)
-        inputs = torch.Tensor(inputs)
-        inputs = inputs.to("cpu", dtype=torch.float)
+            if np.array(inputs).ndim == 2 or inputs.mode == "RGBA":
+                inputs = inputs.convert("RGB")
+            inputs = trans(inputs)
+            inputs = np.expand_dims(inputs, axis=0)
+            inputs = torch.Tensor(inputs)
+            inputs = inputs.to("cpu", dtype=torch.float)
 
         results = self._net.infer(inputs={self._input_blobs: inputs.cpu()})
         results = torch.from_numpy(results[self._output_blobs])
@@ -67,8 +75,6 @@ class SearcherLauncher(OpenvinoLauncher):
         return hash_string
 
     def launch(self, inputs):
-        self._inputs = inputs.squeeze()
-
-        hash_key = self.infer(self._inputs)
+        hash_key = self.infer(inputs)
         results = self.process_outputs(inputs, hash_key)
         return results

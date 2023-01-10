@@ -4,6 +4,9 @@
 
 import argparse
 import os.path as osp
+import warnings
+
+import numpy as np
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.searcher import Searcher
@@ -104,14 +107,12 @@ def search_command(args):
         subset_list.append(result.subset)
         id_list.append(result.id)
         result_path_list.append(result.media.path)
-    print(f"Most similar {args.topk} results of query in dataset: {result_path_list}")
+    warnings.warn(f"Most similar {args.topk} results of query in dataset: {result_path_list}")
 
     visualizer = Visualizer(dataset, figsize=(20, 20), alpha=0)
     fig = visualizer.vis_gallery(id_list, subset_list)
 
     if args.save:
-        import numpy as np
-
         fig.canvas.draw()
         data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
         data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
