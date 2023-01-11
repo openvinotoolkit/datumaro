@@ -105,7 +105,8 @@ def compute_hash(features):
 
 
 def download_file(url: str, file_root: str):
-    with urllib.request.urlopen(url) as source, open(file_root, "wb") as output:
+    req = urllib.request.Request(url)
+    with urllib.request.urlopen(req) as source, open(file_root, "wb") as output:
         with tqdm(
             total=int(source.info().get("Content-Length")),
             ncols=80,
