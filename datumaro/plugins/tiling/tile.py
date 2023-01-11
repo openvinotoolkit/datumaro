@@ -209,21 +209,21 @@ class TileTransform(ItemTransform, CliPlugin):
             )
 
         items: List[DatasetItem] = []
-        rois = self.extract_rois(item.media)
+        rois = self._extract_rois(item.media)
         for idx, roi in enumerate(rois):
             items += [
                 self.wrap_item(
                     item,
                     id=item.id + f"_tile_{idx}",
                     media=RoIImage.create_from_image(item.media, roi),
-                    attributes=self.get_tiled_attributes(item, idx, roi),
-                    annotations=self.get_tiled_annotations(item, roi),
+                    attributes=self._get_tiled_attributes(item, idx, roi),
+                    annotations=self._get_tiled_annotations(item, roi),
                 )
             ]
 
         return items
 
-    def extract_rois(self, image: Image) -> List[BboxIntCoords]:
+    def _extract_rois(self, image: Image) -> List[BboxIntCoords]:
         assert image.size is not None, "image.size is None."
 
         max_h, max_w = image.size
@@ -246,14 +246,14 @@ class TileTransform(ItemTransform, CliPlugin):
         return rois
 
     @staticmethod
-    def get_tiled_attributes(item: DatasetItem, idx: int, roi: BboxIntCoords) -> Dict[str, Any]:
+    def _get_tiled_attributes(item: DatasetItem, idx: int, roi: BboxIntCoords) -> Dict[str, Any]:
         attributes = {k: v for k, v in item.attributes.items()}
         attributes["tile_id"] = item.id
         attributes["tile_idx"] = idx
         attributes["roi"] = roi
         return attributes
 
-    def get_tiled_annotations(self, item: DatasetItem, roi: BboxIntCoords) -> List[Annotation]:
+    def _get_tiled_annotations(self, item: DatasetItem, roi: BboxIntCoords) -> List[Annotation]:
         roi_box: sg.Polygon = sg.box(*xywh_to_x1y1x2y2(*roi))
 
         tiled_anns = []
