@@ -234,9 +234,6 @@ class Exporter(CliPlugin):
     def _make_pcd_filename(self, item, *, name=None, subdir=None):
         return self._make_item_filename(item, name=name, subdir=subdir) + ".pcd"
 
-    def _make_hash_filename(self, item, *, name=None, subdir=None):
-        return self._make_item_filename(item, name=name, subdir=subdir) + ""
-
     def _save_image(self, item, path=None, *, name=None, subdir=None, basedir=None):
         assert not (
             (subdir or name or basedir) and path

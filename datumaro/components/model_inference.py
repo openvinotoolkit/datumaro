@@ -1,10 +1,11 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import gzip
 import html
-import os
+import os.path as osp
+import urllib
 import warnings
 from functools import lru_cache
 from typing import List, Union
@@ -15,6 +16,7 @@ import regex as re
 import torch
 import torch.nn.functional as F
 from pkg_resources import packaging
+from tqdm import tqdm
 
 if packaging.version.parse(torch.__version__) < packaging.version.parse("1.7.1"):
     warnings.warn("PyTorch version 1.7.1 or higher is recommended")
@@ -24,7 +26,13 @@ model_folder = "./tests/assets/searcher"
 
 @lru_cache()
 def default_bpe():
-    return os.path.join(model_folder, "bpe_simple_vocab_16e6.txt.gz")
+    bpe_file = osp.join(model_folder, "bpe_simple_vocab_16e6.txt.gz")
+    if not osp.exists(bpe_file):
+        url_folder = "http://s3.toolbox.iotg.sclab.intel.com/test/components-data/datumaro/models/"
+        cached_bpe_url = osp.join(url_folder, "bpe_simple_vocab_16e6.txt.gz")
+        warnings.warn('Downloading: "{}" to {}\n'.format(cached_bpe_url, bpe_file))
+        download_file(cached_bpe_url, bpe_file)
+    return bpe_file
 
 
 @lru_cache()
@@ -94,6 +102,25 @@ def compute_hash(features):
     hash_string = np.packbits(hash_key, axis=-1)
     hash_string = list(map(lambda row: "".join(["{:02x}".format(r) for r in row]), hash_string))
     return hash_string
+
+
+def download_file(url: str, file_root: str):
+    with urllib.request.urlopen(url) as source, open(file_root, "wb") as output:
+        with tqdm(
+            total=int(source.info().get("Content-Length")),
+            ncols=80,
+            unit="iB",
+            unit_scale=True,
+            unit_divisor=1024,
+        ) as loop:
+            while True:
+                buffer = source.read(8192)
+                if not buffer:
+                    break
+
+                output.write(buffer)
+                loop.update(len(buffer))
+    return 0
 
 
 class SimpleTokenizer(object):

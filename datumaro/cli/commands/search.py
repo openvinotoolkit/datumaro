@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
+import logging as log
 import os.path as osp
-import warnings
 
 import numpy as np
 
@@ -107,7 +107,7 @@ def search_command(args):
         subset_list.append(result.subset)
         id_list.append(result.id)
         result_path_list.append(result.media.path)
-    warnings.warn(f"Most similar {args.topk} results of query in dataset: {result_path_list}")
+    log.info(f"Most similar {args.topk} results of query in dataset: {result_path_list}")
 
     visualizer = Visualizer(dataset, figsize=(20, 20), alpha=0)
     fig = visualizer.vis_gallery(id_list, subset_list)

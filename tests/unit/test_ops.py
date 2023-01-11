@@ -220,6 +220,7 @@ class TestOperations(TestCase):
                 "cuboid_3d": {"count": 0},
                 "super_resolution_annotation": {"count": 0},
                 "depth_annotation": {"count": 0},
+                "hash_key": {"count": 0},
             },
             "annotations": {
                 "labels": {
@@ -319,6 +320,7 @@ class TestOperations(TestCase):
                 "cuboid_3d": {"count": 0},
                 "super_resolution_annotation": {"count": 0},
                 "depth_annotation": {"count": 0},
+                "hash_key": {"count": 0},
             },
             "annotations": {
                 "labels": {
