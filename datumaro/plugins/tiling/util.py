@@ -49,21 +49,3 @@ def x1y1x2y2_to_xywh(x1: int, y1: int, x2: int, y2: int) -> BboxIntCoords:
 
 def xywh_to_x1y1x2y2(x: int, y: int, w: int, h: int) -> BboxIntCoords:
     return x, y, x + w, y + h
-
-
-# print(
-#     cxcywh_to_x1y1x2y2(*x1y1x2y2_to_cxcywh(0, 0, 50, 100))
-# )
-# print(
-#     tight_x1y1x2y2(0, 0, 100, 100, 80, 70)
-# )
-
-# def _to_box(img):
-#     x1, y1, x2, y2 = img["bbox"]
-#     return box(x1, y1, x2, y2)
-
-# def _to_xywh_tuple(bbox):
-#     x, y, max_x, max_y = bbox.bounds
-#     width = max_x - x
-#     height = max_y - y
-#     return x, y, width, height
