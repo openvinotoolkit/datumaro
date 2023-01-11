@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import shapely.geometry as sg
 import shapely.ops as so
@@ -12,9 +12,7 @@ from datumaro.components.annotation import (
     Annotation,
     AnnotationType,
     Bbox,
-    Caption,
     DepthAnnotation,
-    Label,
     Mask,
     Points,
     Polygon,
@@ -42,13 +40,9 @@ def _apply_offset(geom: sg.base.BaseGeometry, roi_box: sg.Polygon) -> sg.base.Ba
 def _tile_mask(ann: Mask, roi_int: BboxIntCoords, *args, **kwargs) -> Mask:
     x, y, w, h = roi_int
     tiled_mask = ann.image[y : y + h, x : x + w]
-    return Mask(
+    return ann.wrap(
         image=tiled_mask,
-        id=ann.id,
         attributes=deepcopy(ann.attributes),
-        group=ann.group,
-        label=ann.label,
-        z_order=ann.z_order,
     )
 
 
@@ -60,13 +54,9 @@ def _tile_points(ann: Points, roi_box: sg.Polygon, *args, **kwargs) -> Optional[
 
     points = _apply_offset(points, roi_box)
 
-    return Points(
-        [v for point in points.geoms for v in (point.x, point.y)],
-        id=ann.id,
+    return ann.wrap(
+        points=[v for point in points.geoms for v in (point.x, point.y)],
         attributes=deepcopy(ann.attributes),
-        group=ann.group,
-        label=ann.label,
-        z_order=ann.z_order,
         visibility=deepcopy(ann.visibility),
     )
 
@@ -87,13 +77,8 @@ def _tile_polygon(
 
     inter = _apply_offset(inter, roi_box)
 
-    return Polygon(
-        [p for xy in inter.exterior.coords for p in xy],
-        id=ann.id,
-        attributes=deepcopy(ann.attributes),
-        group=ann.group,
-        label=ann.label,
-        z_order=ann.z_order,
+    return ann.wrap(
+        points=[p for xy in inter.exterior.coords for p in xy], attributes=deepcopy(ann.attributes)
     )
 
 
@@ -105,13 +90,9 @@ def _tile_polyline(ann: PolyLine, roi_box: sg.Polygon, *args, **kwargs) -> Optio
 
     lines = _apply_offset(lines, roi_box)
 
-    return PolyLine(
-        [v for point in lines.coords for v in (point[0], point[1])],
-        id=ann.id,
+    return ann.wrap(
+        points=[v for point in lines.coords for v in (point[0], point[1])],
         attributes=deepcopy(ann.attributes),
-        group=ann.group,
-        label=ann.label,
-        z_order=ann.z_order,
     )
 
 
@@ -131,14 +112,8 @@ def _tile_bbox(
 
     inter = _apply_offset(inter, roi_box)
 
-    return Bbox(
-        *x1y1x2y2_to_xywh(*inter.bounds),
-        id=ann.id,
-        attributes=deepcopy(ann.attributes),
-        group=ann.group,
-        label=ann.label,
-        z_order=ann.z_order,
-    )
+    x, y, w, h = x1y1x2y2_to_xywh(*inter.bounds)
+    return ann.wrap(x=x, y=y, w=w, h=h, attributes=deepcopy(ann.attributes))
 
 
 def _tile_depth_annotation(
@@ -146,18 +121,11 @@ def _tile_depth_annotation(
 ) -> DepthAnnotation:
     x, y, w, h = roi_int
     tiled_img = ann.image[y : y + h, x : x + w]
-
-    return DepthAnnotation(
-        tiled_img, id=ann.id, attributes=deepcopy(ann.attributes), group=ann.group
-    )
+    return ann.wrap(image=tiled_img, attributes=deepcopy(ann.attributes))
 
 
-def _tile_by_copy(ann: Union[Label, Caption], *args, **kwargs) -> Union[Label, Caption]:
-    if ann.type == AnnotationType.label:
-        return Label(ann.label, id=ann.id, attributes=deepcopy(ann.attributes), group=ann.group)
-    elif ann.type == AnnotationType.caption:
-        return Caption(ann.caption, id=ann.id, attributes=deepcopy(ann.attributes), group=ann.group)
-    raise ValueError(f"Unknown type, type(ann)={type(ann)}.")
+def _tile_by_copy(ann: Annotation, *args, **kwargs) -> Annotation:
+    return ann.wrap(attributes=deepcopy(ann.attributes))
 
 
 def _tile_not_support(ann: Annotation, *args, **kwargs) -> None:
@@ -244,9 +212,9 @@ class TileTransform(ItemTransform, CliPlugin):
         rois = self.extract_rois(item.media)
         for idx, roi in enumerate(rois):
             items += [
-                DatasetItem(
+                self.wrap_item(
+                    item,
                     id=item.id + f"_tile_{idx}",
-                    subset=item.subset,
                     media=RoIImage.create_from_image(item.media, roi),
                     attributes=self.get_tiled_attributes(item, idx, roi),
                     annotations=self.get_tiled_annotations(item, roi),
