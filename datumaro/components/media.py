@@ -543,6 +543,7 @@ class RoIImage(Image):
         ext: Optional[str] = None,
         roi: BboxIntCoords,
     ) -> None:
+        assert len(roi) == 4 and all(isinstance(v, int) for v in roi)
         self._roi = roi
         _, _, w, h = self._roi
         super().__init__(data=data, path=path, ext=ext, size=(h, w))
