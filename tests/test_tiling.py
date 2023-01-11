@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from copy import deepcopy
 from typing import Dict, List
 from unittest import TestCase
 
@@ -51,13 +52,13 @@ class TileTransformTest(TestCase):
 
     @property
     def default_label_attrs(self):
-        attrs = {k: v for k, v in self.default_attrs.items()}
+        attrs = deepcopy(self.default_attrs)
         attrs["label"] = 10
         return attrs
 
     @property
     def default_shape_attrs(self):
-        attrs = {k: v for k, v in self.default_label_attrs.items()}
+        attrs = deepcopy(self.default_label_attrs)
         attrs["z_order"] = 10
         return attrs
 
