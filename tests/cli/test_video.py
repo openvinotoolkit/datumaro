@@ -54,7 +54,7 @@ class VideoTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_extract_frames_from_video(self):
-        expected = Dataset.from_iterable([DatasetItem('000000'), DatasetItem('000002')])
+        expected = Dataset.from_iterable([DatasetItem("000000"), DatasetItem("000002")])
 
         with TestDir() as test_dir:
             video_dir = osp.join(test_dir, "src")
@@ -93,7 +93,7 @@ class VideoTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_extract_keyframes_from_video(self):
-        expected = Dataset.from_iterable([DatasetItem('000000')])
+        expected = Dataset.from_iterable([DatasetItem("000000")])
 
         with TestDir() as test_dir:
             video_dir = osp.join(test_dir, "src")
