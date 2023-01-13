@@ -15,6 +15,8 @@ import numpy as np
 
 from datumaro.util.image import _image_loading_errors, decode_image, lazy_image, save_image
 
+BboxIntCoords = Tuple[int, int, int, int]  # (x, y, w, h)
+
 
 class MediaElement:
     def __init__(self, path: str) -> None:
@@ -530,3 +532,37 @@ class MultiframeImage(MediaElement):
     @property
     def data(self) -> List[Image]:
         return self._images
+
+
+class RoIImage(Image):
+    def __init__(
+        self,
+        data: Union[np.ndarray, Callable[[str], np.ndarray], None] = None,
+        *,
+        path: Optional[str] = None,
+        ext: Optional[str] = None,
+        roi: BboxIntCoords,
+    ) -> None:
+        assert len(roi) == 4 and all(isinstance(v, int) for v in roi)
+        self._roi = roi
+        _, _, w, h = self._roi
+        super().__init__(data=data, path=path, ext=ext, size=(h, w))
+
+    @classmethod
+    def create_from_image(cls, img: Image, roi: BboxIntCoords) -> RoIImage:
+        if not isinstance(img, Image):
+            raise TypeError(f"type(img)={type(img)} should be Image.")
+
+        data = lambda _: img._data() if isinstance(img._data, lazy_image) else img._data
+        return cls(data=data, path=img._path, ext=img._ext, roi=roi)
+
+    @property
+    def roi(self) -> BboxIntCoords:
+        return self._roi
+
+    @property
+    def data(self) -> np.ndarray:
+        """Image data in BGR HWC [0; 255] (float) format"""
+        x, y, w, h = self._roi
+        img = super().data
+        return img[y : y + h, x : x + w]

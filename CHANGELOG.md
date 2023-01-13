@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
-- N/A
+- Add Tile transformation
+  (<https://github.com/openvinotoolkit/datumaro/pull/790>)
 
 ### Changed
 - Improved mask_to_rle performance
