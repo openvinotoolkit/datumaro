@@ -22,7 +22,7 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError, MediaTypeError
 from datumaro.components.media import BboxIntCoords, Image, RoIImage
-from datumaro.components.transformer import ItemTransform
+from datumaro.components.transformer import Transform, ItemTransform
 from datumaro.plugins.tiling.util import (
     clip_x1y1x2y2,
     cxcywh_to_x1y1x2y2,
@@ -132,7 +132,7 @@ def _tile_not_support(ann: Annotation, *args, **kwargs) -> None:
     raise DatumaroError(f"type(ann)={type(ann)} is not support tiling.")
 
 
-class TileTransform(ItemTransform, CliPlugin):
+class TileTransform(Transform, CliPlugin):
     """
     Apply tile tranformation to items in the dataset.
     This transformation is useful for detecting small objects [1]_.
