@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix MacOS CI failures
   (<https://github.com/openvinotoolkit/datumaro/pull/789>)
+- Fix auto-documentation for the data_format plugins
+  (<https://github.com/openvinotoolkit/datumaro/pull/793>)
 
 ### Security
 - N/A
