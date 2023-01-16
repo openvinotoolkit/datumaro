@@ -134,8 +134,29 @@ def _tile_not_support(ann: Annotation, *args, **kwargs) -> None:
 
 class TileTransform(ItemTransform, CliPlugin):
     """
-    Tile dataset
-    TODO: Fill in this description
+    Apply tile tranformation to items in the dataset.
+    This transformation is useful for detecting small objects [1]_.
+    The high-resolution input images are divided into overlapping small tile images
+    so that the relative area of small objects increases with respect to the images.
+    Annotations of the input image (such as bounding boxes) are also repositioned
+    to fit each tile image.
+
+    Examples
+    --------
+    The following example is the CLI command for a 3x2 tiling with a width and height overlap of 10%::
+
+        $ datum transform -t tile --grid-size 3 2 --overlap 0.1 0.1 --threshold-drop-ann 0.1
+
+    :obj:`--threshold-drop-ann` means an area threshold to remove bboxes and polygons
+    when they are in the boundary of the tiled image and cropped by tiling. In this example,
+    annotations remaining their area within 10% after tiling are discarded.
+
+    References
+    ----------
+    .. [1] Ozge Unel, F., Burak O. Ozkalayci, and Cevahir Cigla.
+       "The power of tiling for small object detection."
+       Proceedings of the IEEE/CVF Conference on Computer Vision
+       and Pattern Recognition Workshops. 2019.
     """
 
     _tile_ann_func_map: Dict[AnnotationType, Callable] = {
