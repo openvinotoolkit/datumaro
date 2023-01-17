@@ -86,9 +86,6 @@ class VideoTest(TestCase):
             run(self, "export", "-f", "image_dir", "-p", proj_dir, "-o", result_dir)
             parsed_dataset = Dataset.import_from(result_dir, "image_dir")
 
-            for d in parsed_dataset:
-                print(d)
-
             compare_datasets(self, expected, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

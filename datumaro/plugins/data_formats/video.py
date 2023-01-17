@@ -144,11 +144,7 @@ class VideoKeyframesImporter(VideoFramesImporter):
             default=0.3,
             help="Similarity threshold (default: %(default)s)",
         )
-        return parser
 
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument(
             "-resize",
             "--resize",
