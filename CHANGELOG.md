@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix MacOS CI failures
   (<https://github.com/openvinotoolkit/datumaro/pull/789>)
+- Fix CVAT for images 1.1 data format import at project level
+  (<https://github.com/openvinotoolkit/datumaro/pull/795>)
 
 ### Security
 - N/A
