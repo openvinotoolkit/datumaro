@@ -210,6 +210,7 @@ class VideoKeyframesBase(VideoFramesBase):
             np.multiply((self._keyframe - self._keyframe_stats[0]), (_curr_frame - _curr_stats[0])),
             dtype=np.float32,
         )
+        # added the epsilon 1e-6 for numerical stability during division operation
         zncc_score /= (
             self._keyframe_stats[1] * _curr_stats[1] * self._resize[0] * self._resize[1] + 1e-6
         )
