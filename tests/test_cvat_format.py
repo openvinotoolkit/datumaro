@@ -25,18 +25,123 @@ from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datas
 
 from .requirements import Requirements, mark_requirement
 
-DUMMY_IMAGE_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "cvat_dataset", "for_images")
+DUMMY_IMAGE_DATASET_DIRS = [
+    osp.join(osp.dirname(__file__), "assets", "cvat_dataset", "for_images", export_type)
+    for export_type in ["export_project", "export_task"]
+]
 
 DUMMY_VIDEO_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "cvat_dataset", "for_video")
 
 DUMMY_VIDEO_DATASET_FILE = osp.join(osp.dirname(__file__), "assets", "cvat_dataset", "test.mp4")
 
+EXPECTED_IMAGE_DATASETS = [
+    # export_project
+    Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="img0",
+                subset=subset,
+                media=Image(data=np.ones((8, 8, 3))),
+                annotations=[
+                    Bbox(
+                        0,
+                        2,
+                        4,
+                        2,
+                        label=0,
+                        z_order=1,
+                        attributes={
+                            "occluded": True,
+                            "a1": True,
+                            "a2": "v3",
+                            "a3": "0003",
+                            "a4": 2.4,
+                        },
+                    ),
+                    PolyLine([1, 2, 3, 4, 5, 6, 7, 8], label=1, attributes={"occluded": False}),
+                ],
+                attributes={"frame": 0},
+            )
+            for subset in ["Test", "Train", "Validation"]
+        ]
+        + [
+            DatasetItem(
+                id="img1",
+                subset=subset,
+                media=Image(data=np.ones((10, 10, 3))),
+                annotations=[
+                    Polygon([1, 2, 3, 4, 6, 5], label=0, z_order=1, attributes={"occluded": False}),
+                    Points([1, 2, 3, 4, 5, 6], label=1, z_order=2, attributes={"occluded": False}),
+                ],
+                attributes={"frame": 1},
+            )
+            for subset in ["Test", "Train", "Validation"]
+        ],
+        categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                [
+                    ["label1", "", {"a1", "a2", "a3", "a4"}],
+                    ["label2"],
+                ]
+            )
+        },
+    ),
+    # export_task
+    Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="img0",
+                subset="train",
+                media=Image(data=np.ones((8, 8, 3))),
+                annotations=[
+                    Bbox(
+                        0,
+                        2,
+                        4,
+                        2,
+                        label=0,
+                        z_order=1,
+                        attributes={
+                            "occluded": True,
+                            "a1": True,
+                            "a2": "v3",
+                            "a3": "0003",
+                            "a4": 2.4,
+                        },
+                    ),
+                    PolyLine([1, 2, 3, 4, 5, 6, 7, 8], attributes={"occluded": False}),
+                ],
+                attributes={"frame": 0},
+            ),
+            DatasetItem(
+                id="img1",
+                subset="train",
+                media=Image(data=np.ones((10, 10, 3))),
+                annotations=[
+                    Polygon([1, 2, 3, 4, 6, 5], z_order=1, attributes={"occluded": False}),
+                    Points([1, 2, 3, 4, 5, 6], label=1, z_order=2, attributes={"occluded": False}),
+                ],
+                attributes={"frame": 1},
+            ),
+        ],
+        categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                [
+                    ["label1", "", {"a1", "a2", "a3", "a4"}],
+                    ["label2"],
+                ]
+            )
+        },
+    ),
+]
+
 
 class CvatImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_image(self):
-        detected_formats = Environment().detect_dataset(DUMMY_IMAGE_DATASET_DIR)
-        self.assertEqual([CvatImporter.NAME], detected_formats)
+        for dataset_dir in DUMMY_IMAGE_DATASET_DIRS:
+            detected_formats = Environment().detect_dataset(dataset_dir)
+            self.assertEqual([CvatImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_video(self):
@@ -45,58 +150,10 @@ class CvatImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load_image(self):
-        expected_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="img0",
-                    subset="train",
-                    media=Image(data=np.ones((8, 8, 3))),
-                    annotations=[
-                        Bbox(
-                            0,
-                            2,
-                            4,
-                            2,
-                            label=0,
-                            z_order=1,
-                            attributes={
-                                "occluded": True,
-                                "a1": True,
-                                "a2": "v3",
-                                "a3": "0003",
-                                "a4": 2.4,
-                            },
-                        ),
-                        PolyLine([1, 2, 3, 4, 5, 6, 7, 8], attributes={"occluded": False}),
-                    ],
-                    attributes={"frame": 0},
-                ),
-                DatasetItem(
-                    id="img1",
-                    subset="train",
-                    media=Image(data=np.ones((10, 10, 3))),
-                    annotations=[
-                        Polygon([1, 2, 3, 4, 6, 5], z_order=1, attributes={"occluded": False}),
-                        Points(
-                            [1, 2, 3, 4, 5, 6], label=1, z_order=2, attributes={"occluded": False}
-                        ),
-                    ],
-                    attributes={"frame": 1},
-                ),
-            ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    [
-                        ["label1", "", {"a1", "a2", "a3", "a4"}],
-                        ["label2"],
-                    ]
-                )
-            },
-        )
+        for expected_dataset, dataset_dir in zip(EXPECTED_IMAGE_DATASETS, DUMMY_IMAGE_DATASET_DIRS):
+            parsed_dataset = Dataset.import_from(dataset_dir, "cvat")
 
-        parsed_dataset = Dataset.import_from(DUMMY_IMAGE_DATASET_DIR, "cvat")
-
-        compare_datasets(self, expected_dataset, parsed_dataset)
+            compare_datasets(self, expected_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load_video(self):
