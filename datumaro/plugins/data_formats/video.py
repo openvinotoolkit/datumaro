@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
-from typing import Optional
+from typing import Optional, Tuple
 
 import cv2
 import numpy as np
@@ -138,7 +138,23 @@ class VideoKeyframesImporter(VideoFramesImporter):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument(
-            "-t", "--threshold", type=float, default=0.3, help="Frame step (default: %(default)s)"
+            "-t",
+            "--threshold",
+            type=float,
+            default=0.3,
+            help="Similarity threshold (default: %(default)s)",
+        )
+        return parser
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "-resize",
+            "--resize",
+            type=float,
+            default=(64, 64),
+            help="Image size for comuting ZNCC score (default: %(default)s)",
         )
         return parser
 
@@ -147,9 +163,6 @@ class VideoKeyframesImporter(VideoFramesImporter):
         if not osp.isfile(path):
             return []
         return [{"url": path, "format": VideoKeyframesBase.NAME}]
-
-
-_FEAT_SIZE = (64, 64)
 
 
 class VideoKeyframesBase(VideoFramesBase):
@@ -162,6 +175,7 @@ class VideoKeyframesBase(VideoFramesBase):
         step: int = 1,
         start_frame: int = 0,
         end_frame: Optional[int] = None,
+        resize: Tuple[int, int] = (64, 64),
         threshold: float = 0.3,
     ) -> None:
         self._subset = subset or DEFAULT_SUBSET_NAME
@@ -178,24 +192,27 @@ class VideoKeyframesBase(VideoFramesBase):
         self._threshold = threshold
         self._keyframe = None
         self._keyframe_stats = None
+        self._resize = resize
 
     def _is_keyframe(self, frame):
         if self._keyframe is None:
             self._keyframe = frame
             self._keyframe = cv2.resize(
-                cv2.cvtColor(np.uint8(frame), cv2.COLOR_BGR2GRAY), _FEAT_SIZE
+                cv2.cvtColor(np.uint8(frame), cv2.COLOR_BGR2GRAY), self._resize
             )
             self._keyframe_stats = cv2.meanStdDev(self._keyframe)
             return True
 
-        _curr_frame = cv2.resize(cv2.cvtColor(np.uint8(frame), cv2.COLOR_BGR2GRAY), _FEAT_SIZE)
+        _curr_frame = cv2.resize(cv2.cvtColor(np.uint8(frame), cv2.COLOR_BGR2GRAY), self._resize)
         _curr_stats = cv2.meanStdDev(_curr_frame)
 
         zncc_score = np.sum(
             np.multiply((self._keyframe - self._keyframe_stats[0]), (_curr_frame - _curr_stats[0])),
             dtype=np.float32,
         )
-        zncc_score /= self._keyframe_stats[1] * _curr_stats[1] * _FEAT_SIZE[0] * _FEAT_SIZE[1]
+        zncc_score /= (
+            self._keyframe_stats[1] * _curr_stats[1] * self._resize[0] * self._resize[1] + 1e-6
+        )
 
         if zncc_score < self._threshold:
             self._keyframe = _curr_frame
