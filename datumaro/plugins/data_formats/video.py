@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
-from typing import Optional
+from typing import Optional, Tuple
+
+import cv2
+import numpy as np
 
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetBase, DatasetItem
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
@@ -124,3 +127,95 @@ class VideoFramesBase(DatasetBase):
     def get(self, id, subset=None):
         assert subset == self._subset, "%s != %s" % (subset, self._subset)
         return super().get(id, subset or self._subset)
+
+
+class VideoKeyframesImporter(VideoFramesImporter):
+    """
+    Reads video frames as a dataset.
+    """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "-t",
+            "--threshold",
+            type=float,
+            default=0.3,
+            help="Similarity threshold (default: %(default)s)",
+        )
+        parser.add_argument(
+            "-r",
+            "--resize",
+            type=float,
+            default=(64, 64),
+            help="Image size for comuting ZNCC score (default: %(default)s)",
+        )
+        return parser
+
+    @classmethod
+    def find_sources(cls, path):
+        if not osp.isfile(path):
+            return []
+        return [{"url": path, "format": VideoKeyframesBase.NAME}]
+
+
+class VideoKeyframesBase(VideoFramesBase):
+    def __init__(
+        self,
+        url: str,
+        *,
+        subset: Optional[str] = None,
+        name_pattern: str = "%06d",
+        step: int = 1,
+        start_frame: int = 0,
+        end_frame: Optional[int] = None,
+        resize: Tuple[int, int] = (64, 64),
+        threshold: float = 0.3,
+    ) -> None:
+        super().__init__(
+            url=url,
+            subset=subset,
+            step=step,
+            start_frame=start_frame,
+            end_frame=end_frame,
+            name_pattern=name_pattern,
+        )
+
+        self._resize = resize
+        self._threshold = threshold
+        self._keyframe = None
+
+    def _is_keyframe(self, frame):
+        if self._keyframe is None:
+            self._keyframe = cv2.resize(
+                cv2.cvtColor(np.uint8(frame), cv2.COLOR_BGR2GRAY), self._resize
+            ).astype("float64")
+            self._keyframe -= np.mean(self._keyframe)
+            return True
+
+        _curr_frame = cv2.resize(
+            cv2.cvtColor(np.uint8(frame), cv2.COLOR_BGR2GRAY), self._resize
+        ).astype("float64")
+        _curr_frame -= np.mean(_curr_frame)
+
+        zncc_score = np.sum(self._keyframe * _curr_frame)
+
+        # added the epsilon 1e-6 for numerical stability during division operation
+        zncc_norm = np.sqrt(np.sum(self._keyframe**2)) * np.sqrt(np.sum(_curr_frame**2)) + 1e-6
+        zncc_score /= zncc_norm
+
+        if zncc_score < self._threshold:
+            self._keyframe = _curr_frame
+            return True
+
+        return False
+
+    def __iter__(self):
+        for frame in self._reader:
+            frame_data = frame.video.get_frame_data(frame.index)
+            print(frame_data)
+            if self._is_keyframe(frame_data):
+                yield DatasetItem(
+                    id=self._name_pattern % (frame.index,), subset=self._subset, media=frame
+                )

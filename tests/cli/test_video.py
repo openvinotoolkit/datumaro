@@ -2,7 +2,8 @@ import os
 import os.path as osp
 from unittest import TestCase
 
-from datumaro.util.test_utils import TestDir
+from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.util.test_utils import TestDir, compare_datasets
 from datumaro.util.test_utils import run_datum as run
 
 from ..requirements import Requirements, mark_requirement
@@ -50,3 +51,74 @@ class VideoTest(TestCase):
                 run(self, "add", "-f", "video_frames", "-p", proj_dir, "-r", "video.avi", video_dir)
 
             self.assertTrue("results across multiple runs" in "\n".join(capture.output))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_extract_frames_from_video(self):
+        expected = Dataset.from_iterable([DatasetItem("000000"), DatasetItem("000002")])
+
+        video_dir = osp.join(osp.dirname(__file__), "..", "assets", "video_dataset")
+
+        with TestDir() as test_dir:
+            proj_dir = osp.join(test_dir, "proj")
+            run(self, "create", "-o", proj_dir)
+
+            run(
+                self,
+                "import",
+                "-f",
+                "video_frames",
+                "-p",
+                proj_dir,
+                "-r",
+                "video.avi",
+                video_dir,
+                "--start-frame",
+                "0",
+                "--end-frame",
+                "4",
+                "--step",
+                "2",
+            )
+
+            result_dir = osp.join(proj_dir, "result")
+            run(self, "export", "-f", "image_dir", "-p", proj_dir, "-o", result_dir)
+            parsed_dataset = Dataset.import_from(result_dir, "image_dir")
+
+            compare_datasets(self, expected, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_extract_keyframes_from_video(self):
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem("000000"),
+                DatasetItem("000001"),
+                DatasetItem("000004"),
+                DatasetItem("000005"),
+            ]
+        )
+
+        video_dir = osp.join(osp.dirname(__file__), "..", "assets", "video_dataset")
+
+        with TestDir() as test_dir:
+            proj_dir = osp.join(test_dir, "proj")
+            run(self, "create", "-o", proj_dir)
+
+            run(
+                self,
+                "import",
+                "-f",
+                "video_keyframes",
+                "-p",
+                proj_dir,
+                "-r",
+                "video.avi",
+                video_dir,
+                "--threshold",
+                "0.3",
+            )
+
+            result_dir = osp.join(proj_dir, "result")
+            run(self, "export", "-f", "image_dir", "-p", proj_dir, "-o", result_dir)
+            parsed_dataset = Dataset.import_from(result_dir, "image_dir")
+
+            compare_datasets(self, expected, parsed_dataset)
