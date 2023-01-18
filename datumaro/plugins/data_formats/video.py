@@ -144,14 +144,13 @@ class VideoKeyframesImporter(VideoFramesImporter):
             default=0.3,
             help="Similarity threshold (default: %(default)s)",
         )
-
-        parser.add_argument(
-            "-resize",
-            "--resize",
-            type=float,
-            default=(64, 64),
-            help="Image size for comuting ZNCC score (default: %(default)s)",
-        )
+        # parser.add_argument(
+        #     "-resize",
+        #     "--resize",
+        #     type=float,
+        #     default=(64, 64),
+        #     help="Image size for comuting ZNCC score (default: %(default)s)",
+        # )
         return parser
 
     @classmethod
@@ -185,35 +184,31 @@ class VideoKeyframesBase(VideoFramesBase):
 
         assert osp.isfile(url), url
 
+        self._resize = resize
         self._threshold = threshold
         self._keyframe = None
-        self._keyframe_stats = None
-        self._resize = resize
 
     def _is_keyframe(self, frame):
         if self._keyframe is None:
-            self._keyframe = frame
             self._keyframe = cv2.resize(
                 cv2.cvtColor(np.uint8(frame), cv2.COLOR_BGR2GRAY), self._resize
-            )
-            self._keyframe_stats = cv2.meanStdDev(self._keyframe)
+            ).astype("float64")
+            self._keyframe -= np.mean(self._keyframe)
             return True
 
-        _curr_frame = cv2.resize(cv2.cvtColor(np.uint8(frame), cv2.COLOR_BGR2GRAY), self._resize)
-        _curr_stats = cv2.meanStdDev(_curr_frame)
+        _curr_frame = cv2.resize(
+            cv2.cvtColor(np.uint8(frame), cv2.COLOR_BGR2GRAY), self._resize
+        ).astype("float64")
+        _curr_frame -= np.mean(_curr_frame)
 
-        zncc_score = np.sum(
-            np.multiply((self._keyframe - self._keyframe_stats[0]), (_curr_frame - _curr_stats[0])),
-            dtype=np.float32,
-        )
+        zncc_score = np.sum(self._keyframe * _curr_frame)
+
         # added the epsilon 1e-6 for numerical stability during division operation
-        zncc_score /= (
-            self._keyframe_stats[1] * _curr_stats[1] * self._resize[0] * self._resize[1] + 1e-6
-        )
+        zncc_norm = np.sqrt(np.sum(self._keyframe**2)) * np.sqrt(np.sum(_curr_frame**2)) + 1e-6
+        zncc_score /= zncc_norm
 
         if zncc_score < self._threshold:
             self._keyframe = _curr_frame
-            self._keyframe_stats = _curr_stats
             return True
 
         return False
@@ -221,6 +216,7 @@ class VideoKeyframesBase(VideoFramesBase):
     def __iter__(self):
         for frame in self._reader:
             frame_data = frame.video.get_frame_data(frame.index)
+            print(frame_data)
             if self._is_keyframe(frame_data):
                 yield DatasetItem(
                     id=self._name_pattern % (frame.index,), subset=self._subset, media=frame

@@ -2,7 +2,11 @@ import os
 import os.path as osp
 from unittest import TestCase
 
+import cv2
+import numpy as np
+
 from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.util.scope import on_exit_do
 from datumaro.util.test_utils import TestDir, compare_datasets
 from datumaro.util.test_utils import run_datum as run
 
@@ -56,11 +60,9 @@ class VideoTest(TestCase):
     def test_can_extract_frames_from_video(self):
         expected = Dataset.from_iterable([DatasetItem("000000"), DatasetItem("000002")])
 
-        with TestDir() as test_dir:
-            video_dir = osp.join(test_dir, "src")
-            os.makedirs(video_dir)
-            make_sample_video(osp.join(video_dir, "video.avi"), frames=10)
+        video_dir = osp.join(osp.dirname(__file__), "..", "assets", "video_dataset")
 
+        with TestDir() as test_dir:
             proj_dir = osp.join(test_dir, "proj")
             run(self, "create", "-o", proj_dir)
 
@@ -90,13 +92,18 @@ class VideoTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_extract_keyframes_from_video(self):
-        expected = Dataset.from_iterable([DatasetItem("000000")])
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem("000000"),
+                DatasetItem("000001"),
+                DatasetItem("000004"),
+                DatasetItem("000005"),
+            ]
+        )
+
+        video_dir = osp.join(osp.dirname(__file__), "..", "assets", "video_dataset")
 
         with TestDir() as test_dir:
-            video_dir = osp.join(test_dir, "src")
-            os.makedirs(video_dir)
-            make_sample_video(osp.join(video_dir, "video.avi"), frames=10)
-
             proj_dir = osp.join(test_dir, "proj")
             run(self, "create", "-o", proj_dir)
 
