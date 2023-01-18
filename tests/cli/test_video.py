@@ -2,11 +2,7 @@ import os
 import os.path as osp
 from unittest import TestCase
 
-import cv2
-import numpy as np
-
 from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.util.scope import on_exit_do
 from datumaro.util.test_utils import TestDir, compare_datasets
 from datumaro.util.test_utils import run_datum as run
 
