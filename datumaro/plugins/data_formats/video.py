@@ -144,13 +144,13 @@ class VideoKeyframesImporter(VideoFramesImporter):
             default=0.3,
             help="Similarity threshold (default: %(default)s)",
         )
-        # parser.add_argument(
-        #     "-resize",
-        #     "--resize",
-        #     type=float,
-        #     default=(64, 64),
-        #     help="Image size for comuting ZNCC score (default: %(default)s)",
-        # )
+        parser.add_argument(
+            "-r",
+            "--resize",
+            type=float,
+            default=(64, 64),
+            help="Image size for comuting ZNCC score (default: %(default)s)",
+        )
         return parser
 
     @classmethod
@@ -173,16 +173,14 @@ class VideoKeyframesBase(VideoFramesBase):
         resize: Tuple[int, int] = (64, 64),
         threshold: float = 0.3,
     ) -> None:
-        self._subset = subset or DEFAULT_SUBSET_NAME
         super().__init__(
             url=url,
+            subset=subset,
             step=step,
             start_frame=start_frame,
             end_frame=end_frame,
             name_pattern=name_pattern,
         )
-
-        assert osp.isfile(url), url
 
         self._resize = resize
         self._threshold = threshold
