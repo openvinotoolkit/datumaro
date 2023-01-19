@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add Tile transformation
   (<https://github.com/openvinotoolkit/datumaro/pull/790>)
+- Add MergeTile transformation
+  (<https://github.com/openvinotoolkit/datumaro/pull/796>)
 
 ### Changed
 - Improved mask_to_rle performance
