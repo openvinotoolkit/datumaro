@@ -22,7 +22,7 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError, MediaTypeError
 from datumaro.components.media import BboxIntCoords, Image, RoIImage
-from datumaro.components.transformer import Transform, ItemTransform
+from datumaro.components.transformer import Transform
 from datumaro.plugins.tiling.util import (
     clip_x1y1x2y2,
     cxcywh_to_x1y1x2y2,
