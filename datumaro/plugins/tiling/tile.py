@@ -132,7 +132,7 @@ def _tile_not_support(ann: Annotation, *args, **kwargs) -> None:
     raise DatumaroError(f"type(ann)={type(ann)} is not support tiling.")
 
 
-class TileTransform(Transform, CliPlugin):
+class Tile(Transform, CliPlugin):
     """
     Apply tile tranformation to items in the dataset.
     This transformation is useful for detecting small objects [1]_.
@@ -140,6 +140,8 @@ class TileTransform(Transform, CliPlugin):
     so that the relative area of small objects increases with respect to the images.
     Annotations of the input image (such as bounding boxes) are also repositioned
     to fit each tile image.
+
+    **You should set `save_media=True` to save the tiled image also.**
 
     Examples
     --------
@@ -153,7 +155,7 @@ class TileTransform(Transform, CliPlugin):
 
     References
     ----------
-    .. [1] Ozge Unel, F., Burak O. Ozkalayci, and Cevahir Cigla.
+    .. [1] F. Ozge Unel, Burak O. Ozkalayci, and Cevahir Cigla.
        "The power of tiling for small object detection."
        Proceedings of the IEEE/CVF Conference on Computer Vision
        and Pattern Recognition Workshops. 2019.
