@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+import math
 from collections import defaultdict
 from copy import deepcopy
-import math
 from typing import Any, Callable, Dict, List, Tuple, Union
 
 import numpy as np
