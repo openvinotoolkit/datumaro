@@ -566,3 +566,20 @@ class RoIImage(Image):
         x, y, w, h = self._roi
         img = super().data
         return img[y : y + h, x : x + w]
+
+
+ImageWithRoI = Tuple[Image, BboxIntCoords]
+
+
+class MosaicImage(Image):
+    def __init__(self, imgs: List[ImageWithRoI], size: Tuple[int, int]) -> None:
+        def _get_mosaic_img() -> np.ndarray:
+            h, w = size
+            mosaic_img = np.zeros(size=(h, w, 3), dtype=np.uint8)
+            for img, roi in imgs:
+                assert isinstance(img), "MosaicImage can only take a list of Images."
+                x, y, w, h = roi
+                mosaic_img[y : y + h, x : x + w] = img
+            return mosaic_img
+
+        super().__init__(data=_get_mosaic_img, path=None, ext=None, size=size)

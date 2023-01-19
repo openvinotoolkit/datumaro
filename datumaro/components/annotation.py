@@ -829,12 +829,19 @@ class Caption(Annotation):
     caption: str = field(converter=str)
 
 
-@attrs(slots=True, order=False)
+@attrs(slots=True, order=False, eq=False)
 class _ImageAnnotation(Annotation):
     image: Image = field()
 
+    def __eq__(self, other):
+        if not super().__eq__(other):
+            return False
+        if not isinstance(other, __class__):
+            return False
+        return np.array_equal(self.image, other.image)
 
-@attrs(slots=True, order=False)
+
+@attrs(slots=True, order=False, eq=False)
 class SuperResolutionAnnotation(_ImageAnnotation):
     """
     Represents high resolution images.
@@ -843,7 +850,7 @@ class SuperResolutionAnnotation(_ImageAnnotation):
     _type = AnnotationType.super_resolution_annotation
 
 
-@attrs(slots=True, order=False)
+@attrs(slots=True, order=False, eq=False)
 class DepthAnnotation(_ImageAnnotation):
     """
     Represents depth images.
