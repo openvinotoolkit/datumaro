@@ -17,6 +17,6 @@ References
     </li>
 </ol>
 
-Jupyter Notebook Example:
--------------------------
+Jupyter Notebook Example
+------------------------
 {{< blocks/notebook 06_tiling >}}
