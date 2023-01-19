@@ -104,8 +104,8 @@ class TileTransformTest(TestCase):
             ]
         )
         p_overlap = 0.5
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.5, 0.5),
             threshold_drop_ann=0.5,
@@ -134,8 +134,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -166,8 +166,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -210,8 +210,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -252,8 +252,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -302,8 +302,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -346,8 +346,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -389,8 +389,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -427,8 +427,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -454,8 +454,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -482,8 +482,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -531,8 +531,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            TileTransform,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
