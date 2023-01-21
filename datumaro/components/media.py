@@ -567,6 +567,11 @@ class RoIImage(Image):
         img = super().data
         return img[y : y + h, x : x + w]
 
+    def save(self, path):
+        path = osp.abspath(path)
+        os.makedirs(osp.dirname(path), exist_ok=True)
+        save_image(path, self.data)
+
 
 ImageWithRoI = Tuple[Image, BboxIntCoords]
 
@@ -583,3 +588,8 @@ class MosaicImage(Image):
             return mosaic_img
 
         super().__init__(data=_get_mosaic_img, path=None, ext=None, size=size)
+
+    def save(self, path):
+        path = osp.abspath(path)
+        os.makedirs(osp.dirname(path), exist_ok=True)
+        save_image(path, self.data)

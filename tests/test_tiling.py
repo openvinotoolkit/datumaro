@@ -25,7 +25,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError
 from datumaro.components.media import Image
-from datumaro.plugins.tiling import TileTransform
+from datumaro.plugins.tiling import Tile
 from datumaro.plugins.tiling.util import xywh_to_x1y1x2y2
 from datumaro.util.test_utils import compare_datasets
 
@@ -310,8 +310,8 @@ class TileTest(_TestBase, TestCase):
             ]
         )
         p_overlap = 0.5
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.5, 0.5),
             threshold_drop_ann=0.5,
@@ -331,8 +331,8 @@ class TileTest(_TestBase, TestCase):
     def test_label(self):
         source = self.source_dataset_label
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -354,8 +354,8 @@ class TileTest(_TestBase, TestCase):
     def test_caption(self):
         source = self.source_dataset_caption
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -379,8 +379,8 @@ class TileTest(_TestBase, TestCase):
     def test_bbox(self):
         source = self.source_dataset_bbox
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -400,8 +400,8 @@ class TileTest(_TestBase, TestCase):
     def test_polygon(self):
         source = self.source_dataset_polygon
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -429,8 +429,8 @@ class TileTest(_TestBase, TestCase):
     def test_points(self):
         source = self.source_dataset_points
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -452,8 +452,8 @@ class TileTest(_TestBase, TestCase):
     def test_polyline(self):
         source = self.source_dataset_polyline
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -476,8 +476,8 @@ class TileTest(_TestBase, TestCase):
         n_pixels = min(self.tile_height, self.tile_width)
         source = self.source_dataset_mask
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -495,8 +495,8 @@ class TileTest(_TestBase, TestCase):
         n_pixels = min(self.tile_height, self.tile_width)
         source = self.source_dataset_depth_annotation
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -513,8 +513,8 @@ class TileTest(_TestBase, TestCase):
     def test_cuboid3d_annotation(self):
         source = self.source_dataset_cuboid3d
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -528,8 +528,8 @@ class TileTest(_TestBase, TestCase):
     def test_super_resolution_annotation(self):
         source = self.source_dataset_super_resolution_annotation
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -577,8 +577,8 @@ class TileTest(_TestBase, TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -612,7 +612,7 @@ class TileTest(_TestBase, TestCase):
         )
 
         # Set threshold=0.5. All annotations must be dropped.
-        dropped = TileTransform(
+        dropped = Tile(
             source,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
@@ -623,7 +623,7 @@ class TileTest(_TestBase, TestCase):
             assert len(item.annotations) == 0
 
         # Set threshold=0. All annotations must be accepted.
-        accepted = TileTransform(
+        accepted = Tile(
             source,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
