@@ -578,13 +578,13 @@ ImageWithRoI = Tuple[Image, BboxIntCoords]
 
 class MosaicImage(Image):
     def __init__(self, imgs: List[ImageWithRoI], size: Tuple[int, int]) -> None:
-        def _get_mosaic_img() -> np.ndarray:
-            h, w = size
-            mosaic_img = np.zeros(size=(h, w, 3), dtype=np.uint8)
+        def _get_mosaic_img(_) -> np.ndarray:
+            h, w = self.size
+            mosaic_img = np.zeros(shape=(h, w, 3), dtype=np.uint8)
             for img, roi in imgs:
-                assert isinstance(img), "MosaicImage can only take a list of Images."
+                assert isinstance(img, Image), "MosaicImage can only take a list of Images."
                 x, y, w, h = roi
-                mosaic_img[y : y + h, x : x + w] = img
+                mosaic_img[y : y + h, x : x + w] = img.data
             return mosaic_img
 
         super().__init__(data=_get_mosaic_img, path=None, ext=None, size=size)
