@@ -25,7 +25,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError
 from datumaro.components.media import Image
-from datumaro.plugins.tiling import TileTransform
+from datumaro.plugins.tiling import Tile
 from datumaro.plugins.tiling.util import xywh_to_x1y1x2y2
 
 from .requirements import Requirements, mark_requirement
@@ -104,8 +104,8 @@ class TileTransformTest(TestCase):
             ]
         )
         p_overlap = 0.5
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.5, 0.5),
             threshold_drop_ann=0.5,
@@ -134,8 +134,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -166,8 +166,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -210,8 +210,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -252,8 +252,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -302,8 +302,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -346,8 +346,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -389,8 +389,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -427,8 +427,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -454,8 +454,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -482,8 +482,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -531,8 +531,8 @@ class TileTransformTest(TestCase):
             ]
         )
 
-        transformed = TileTransform(
-            source,
+        transformed = source.transform(
+            Tile,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
             threshold_drop_ann=0.5,
@@ -566,7 +566,7 @@ class TileTransformTest(TestCase):
         )
 
         # Set threshold=0.5. All annotations must be dropped.
-        dropped = TileTransform(
+        dropped = Tile(
             source,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),
@@ -577,7 +577,7 @@ class TileTransformTest(TestCase):
             assert len(item.annotations) == 0
 
         # Set threshold=0. All annotations must be accepted.
-        accepted = TileTransform(
+        accepted = Tile(
             source,
             grid_size=(self.n_tiles, self.n_tiles),
             overlap=(0.0, 0.0),

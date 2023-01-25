@@ -2,6 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from .tile import TileTransform
+from .tile import Tile
 
-__all__ = ["TileTransform"]
+__all__ = ["Tile"]
