@@ -661,13 +661,13 @@ class Polygon(_Shape):
         return area
 
     def __eq__(self, other):
+        if not isinstance(other, __class__):
+            return False
         if (
             not Annotation.__eq__(self, other)
             or self.label != other.label
             or self.z_order != other.z_order
         ):
-            return False
-        if not isinstance(other, __class__):
             return False
 
         self_polygon = sg.Polygon(self.get_points())
