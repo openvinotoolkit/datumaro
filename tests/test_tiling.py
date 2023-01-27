@@ -27,11 +27,12 @@ from datumaro.components.errors import DatumaroError
 from datumaro.components.media import Image
 from datumaro.plugins.tiling import Tile
 from datumaro.plugins.tiling.util import xywh_to_x1y1x2y2
+from datumaro.util.test_utils import compare_datasets
 
 from .requirements import Requirements, mark_requirement
 
 
-class TileTransformTest(TestCase):
+class _TestBase:
     n_items = 2
     n_tiles = 2
     height = 16
@@ -41,6 +42,9 @@ class TileTransformTest(TestCase):
         "attributes": {"dummy": "dummy"},
         "group": 10,
     }
+
+    def get_id(self, row, col):
+        return self.n_tiles * row + col
 
     @property
     def tile_height(self):
@@ -62,9 +66,212 @@ class TileTransformTest(TestCase):
         attrs["z_order"] = 10
         return attrs
 
-    def get_id(self, row: int, col: int) -> int:
-        return self.n_tiles * row + col
+    @property
+    def source_dataset_label(self) -> Dataset:
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=idx,
+                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    annotations=[Label(id=idx, **self.default_label_attrs)],
+                )
+                for idx in range(self.n_items)
+            ]
+        )
 
+    @property
+    def source_dataset_caption(self) -> Dataset:
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=idx,
+                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    annotations=[Caption(id=idx, caption=f"caption_{idx}", **self.default_attrs)],
+                )
+                for idx in range(self.n_items)
+            ]
+        )
+
+    @property
+    def source_dataset_bbox(self) -> Dataset:
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=idx,
+                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    annotations=[
+                        Bbox(
+                            x=self.tile_width * col,
+                            y=self.tile_height * row,
+                            w=self.tile_width,
+                            h=self.tile_height,
+                            id=self.get_id(row, col),
+                            **self.default_shape_attrs,
+                        )
+                        for row in range(self.n_tiles)
+                        for col in range(self.n_tiles)
+                    ],
+                )
+                for idx in range(self.n_items)
+            ]
+        )
+
+    @property
+    def source_dataset_polygon(self) -> Dataset:
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=idx,
+                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    annotations=[
+                        Polygon(
+                            Bbox(
+                                x=self.tile_width * col,
+                                y=self.tile_height * row,
+                                w=self.tile_width,
+                                h=self.tile_height,
+                            ).as_polygon(),
+                            id=self.get_id(row, col),
+                            **self.default_shape_attrs,
+                        )
+                        for row in range(self.n_tiles)
+                        for col in range(self.n_tiles)
+                    ],
+                )
+                for idx in range(self.n_items)
+            ]
+        )
+
+    @property
+    def source_dataset_points(self) -> Dataset:
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=idx,
+                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    annotations=[
+                        Points(
+                            Bbox(
+                                x=self.tile_width * col,
+                                y=self.tile_height * row,
+                                w=self.tile_width,
+                                h=self.tile_height,
+                            ).as_polygon(),
+                            **self.default_shape_attrs,
+                        )
+                        for row in range(self.n_tiles)
+                        for col in range(self.n_tiles)
+                    ],
+                )
+                for idx in range(self.n_items)
+            ]
+        )
+
+    @property
+    def source_dataset_polyline(self) -> Dataset:
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=idx,
+                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    annotations=[
+                        PolyLine(
+                            Bbox(
+                                x=self.tile_width * col,
+                                y=self.tile_height * row,
+                                w=self.tile_width,
+                                h=self.tile_height,
+                            ).as_polygon(),
+                            **self.default_shape_attrs,
+                        )
+                        for row in range(self.n_tiles)
+                        for col in range(self.n_tiles)
+                    ],
+                )
+                for idx in range(self.n_items)
+            ]
+        )
+
+    @property
+    def source_dataset_mask(self) -> Dataset:
+        mask_tile = np.zeros([self.tile_height, self.tile_width])
+        n_pixels = min(self.tile_height, self.tile_width)
+        for i in range(n_pixels):
+            mask_tile[i, i] = 1
+        mask = np.tile(mask_tile, (self.n_tiles, self.n_tiles))
+
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=idx,
+                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    annotations=[
+                        Mask(
+                            mask,
+                            **self.default_shape_attrs,
+                        )
+                    ],
+                )
+                for idx in range(self.n_items)
+            ]
+        )
+
+    @property
+    def source_dataset_depth_annotation(self) -> Dataset:
+        depth_tile = np.zeros([self.tile_height, self.tile_width])
+        n_pixels = min(self.tile_height, self.tile_width)
+        for i in range(n_pixels):
+            depth_tile[i, i] = 1
+        depth = np.tile(depth_tile, (self.n_tiles, self.n_tiles))
+
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=idx,
+                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    annotations=[
+                        DepthAnnotation(
+                            depth,
+                            **self.default_attrs,
+                        )
+                    ],
+                )
+                for idx in range(self.n_items)
+            ]
+        )
+
+    @property
+    def source_dataset_cuboid3d(self) -> Dataset:
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=idx,
+                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    annotations=[Cuboid3d(position=(0, 0, 0), **self.default_attrs)],
+                )
+                for idx in range(self.n_items)
+            ]
+        )
+
+    @property
+    def source_dataset_super_resolution_annotation(self):
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=idx,
+                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    annotations=[
+                        SuperResolutionAnnotation(
+                            image=np.zeros((self.height, self.width, 3)), **self.default_attrs
+                        )
+                    ],
+                )
+                for idx in range(self.n_items)
+            ]
+        )
+
+
+class TileTest(_TestBase, TestCase):
     def _test_common(
         self, transformed: List[DatasetItem], attrs_to_test: Dict, ann_type: AnnotationType
     ):
@@ -123,16 +330,7 @@ class TileTransformTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_label(self):
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
-                    annotations=[Label(id=idx, **self.default_label_attrs)],
-                )
-                for idx in range(self.n_items)
-            ]
-        )
+        source = self.source_dataset_label
 
         transformed = source.transform(
             Tile,
@@ -155,16 +353,7 @@ class TileTransformTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_caption(self):
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
-                    annotations=[Caption(id=idx, caption=f"caption_{idx}", **self.default_attrs)],
-                )
-                for idx in range(self.n_items)
-            ]
-        )
+        source = self.source_dataset_caption
 
         transformed = source.transform(
             Tile,
@@ -189,26 +378,7 @@ class TileTransformTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_bbox(self):
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
-                    annotations=[
-                        Bbox(
-                            x=self.tile_width * col,
-                            y=self.tile_height * row,
-                            w=self.tile_width,
-                            h=self.tile_height,
-                            **self.default_shape_attrs,
-                        )
-                        for row in range(self.n_tiles)
-                        for col in range(self.n_tiles)
-                    ],
-                )
-                for idx in range(self.n_items)
-            ]
-        )
+        source = self.source_dataset_bbox
 
         transformed = source.transform(
             Tile,
@@ -229,28 +399,7 @@ class TileTransformTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_polygon(self):
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
-                    annotations=[
-                        Polygon(
-                            Bbox(
-                                x=self.tile_width * col,
-                                y=self.tile_height * row,
-                                w=self.tile_width,
-                                h=self.tile_height,
-                            ).as_polygon(),
-                            **self.default_shape_attrs,
-                        )
-                        for row in range(self.n_tiles)
-                        for col in range(self.n_tiles)
-                    ],
-                )
-                for idx in range(self.n_items)
-            ]
-        )
+        source = self.source_dataset_polygon
 
         transformed = source.transform(
             Tile,
@@ -279,28 +428,7 @@ class TileTransformTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_points(self):
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
-                    annotations=[
-                        Points(
-                            Bbox(
-                                x=self.tile_width * col,
-                                y=self.tile_height * row,
-                                w=self.tile_width,
-                                h=self.tile_height,
-                            ).as_polygon(),
-                            **self.default_shape_attrs,
-                        )
-                        for row in range(self.n_tiles)
-                        for col in range(self.n_tiles)
-                    ],
-                )
-                for idx in range(self.n_items)
-            ]
-        )
+        source = self.source_dataset_points
 
         transformed = source.transform(
             Tile,
@@ -323,28 +451,7 @@ class TileTransformTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_polyline(self):
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
-                    annotations=[
-                        PolyLine(
-                            Bbox(
-                                x=self.tile_width * col,
-                                y=self.tile_height * row,
-                                w=self.tile_width,
-                                h=self.tile_height,
-                            ).as_polygon(),
-                            **self.default_shape_attrs,
-                        )
-                        for row in range(self.n_tiles)
-                        for col in range(self.n_tiles)
-                    ],
-                )
-                for idx in range(self.n_items)
-            ]
-        )
+        source = self.source_dataset_polyline
 
         transformed = source.transform(
             Tile,
@@ -367,27 +474,8 @@ class TileTransformTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mask(self):
-        mask_tile = np.zeros([self.tile_height, self.tile_width])
         n_pixels = min(self.tile_height, self.tile_width)
-        for i in range(n_pixels):
-            mask_tile[i, i] = 1
-        mask = np.tile(mask_tile, (self.n_tiles, self.n_tiles))
-
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
-                    annotations=[
-                        Mask(
-                            mask,
-                            **self.default_shape_attrs,
-                        )
-                    ],
-                )
-                for idx in range(self.n_items)
-            ]
-        )
+        source = self.source_dataset_mask
 
         transformed = source.transform(
             Tile,
@@ -405,27 +493,8 @@ class TileTransformTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_depth_annotation(self):
-        depth_tile = np.zeros([self.tile_height, self.tile_width])
         n_pixels = min(self.tile_height, self.tile_width)
-        for i in range(n_pixels):
-            depth_tile[i, i] = 1
-        depth = np.tile(depth_tile, (self.n_tiles, self.n_tiles))
-
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
-                    annotations=[
-                        DepthAnnotation(
-                            depth,
-                            **self.default_attrs,
-                        )
-                    ],
-                )
-                for idx in range(self.n_items)
-            ]
-        )
+        source = self.source_dataset_depth_annotation
 
         transformed = source.transform(
             Tile,
@@ -443,16 +512,7 @@ class TileTransformTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cuboid3d_annotation(self):
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
-                    annotations=[Cuboid3d(position=(0, 0, 0), **self.default_attrs)],
-                )
-                for idx in range(self.n_items)
-            ]
-        )
+        source = self.source_dataset_cuboid3d
 
         transformed = source.transform(
             Tile,
@@ -467,20 +527,7 @@ class TileTransformTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_super_resolution_annotation(self):
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
-                    annotations=[
-                        SuperResolutionAnnotation(
-                            image=np.zeros((self.height, self.width, 3)), **self.default_attrs
-                        )
-                    ],
-                )
-                for idx in range(self.n_items)
-            ]
-        )
+        source = self.source_dataset_super_resolution_annotation
 
         transformed = source.transform(
             Tile,
@@ -601,3 +648,30 @@ class TileTransformTest(TestCase):
 
                 # There should be no protrusion.
                 assert tile_roi_polygon.covers(actual_polygon)
+
+
+class MergeTileTest(_TestBase, TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_tile_and_merge_tile(self):
+        for ann_type in [
+            "label",
+            "caption",
+            "bbox",
+            "polygon",
+            "points",
+            "polyline",
+            "mask",
+            "depth_annotation",
+        ]:
+            source = getattr(self, f"source_dataset_{ann_type}")
+            transformed = (
+                getattr(self, f"source_dataset_{ann_type}")
+                .transform(
+                    "tile",
+                    grid_size=(self.n_tiles, self.n_tiles),
+                    overlap=(0.0, 0.0),
+                    threshold_drop_ann=0.5,
+                )
+                .transform("merge_tile")
+            )
+            compare_datasets(self, transformed, source, require_media=True)

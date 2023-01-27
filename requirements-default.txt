@@ -1,2 +1,3 @@
 dvc>=2.7.0
+fsspec <= 2022.11.0; python_version < '3.8' # https://github.com/openvinotoolkit/datumaro/actions/runs/4003215621/jobs/6871114851#step:5:1647
 GitPython>=3.1.18,!=3.1.25 # https://github.com/openvinotoolkit/datumaro/issues/612
