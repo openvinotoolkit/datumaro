@@ -1,2 +1,4 @@
 dvc>=2.7.0
+fsspec<2023.1; python_version == '3.7' # remove after 3.7 EOL. https://stackoverflow.com/a/75197382
+
 GitPython>=3.1.18,!=3.1.25 # https://github.com/openvinotoolkit/datumaro/issues/612
