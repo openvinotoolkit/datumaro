@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+
+## 27/01/2023 - Release v0.5.0
 ### Added
 - Add Tile transformation
   (<https://github.com/openvinotoolkit/datumaro/pull/790>)
@@ -33,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/793>)
 
 ### Security
-- N/A
+- Add security.md file for the SDL
+  (<https://github.com/openvinotoolkit/datumaro/pull/798>)
 
 ## 06/12/2022 - Release v0.4.0.1
 ### Added
