@@ -11,6 +11,7 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Set,
 
 import attr
 import numpy as np
+import shapely.geometry as sg
 from attr import asdict, attrs, field
 from typing_extensions import Literal
 
@@ -641,7 +642,7 @@ class Cuboid3d(Annotation):
         self.scale[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
 
-@attrs(slots=True, order=False)
+@attrs(slots=True, order=False, eq=False)
 class Polygon(_Shape):
     _type = AnnotationType.polygon
 
@@ -658,6 +659,21 @@ class Polygon(_Shape):
         rle = mask_utils.frPyObjects([self.points], y + h, x + w)
         area = mask_utils.area(rle)[0]
         return area
+
+    def __eq__(self, other):
+        if not isinstance(other, __class__):
+            return False
+        if (
+            not Annotation.__eq__(self, other)
+            or self.label != other.label
+            or self.z_order != other.z_order
+        ):
+            return False
+
+        self_polygon = sg.Polygon(self.get_points())
+        other_polygon = sg.Polygon(other.get_points())
+        inter_area = self_polygon.intersection(other_polygon).area
+        return abs(self_polygon.area - inter_area) == 0.0
 
 
 @attrs(slots=True, init=False, order=False)
@@ -829,12 +845,19 @@ class Caption(Annotation):
     caption: str = field(converter=str)
 
 
-@attrs(slots=True, order=False)
+@attrs(slots=True, order=False, eq=False)
 class _ImageAnnotation(Annotation):
     image: Image = field()
 
+    def __eq__(self, other):
+        if not super().__eq__(other):
+            return False
+        if not isinstance(other, __class__):
+            return False
+        return np.array_equal(self.image, other.image)
 
-@attrs(slots=True, order=False)
+
+@attrs(slots=True, order=False, eq=False)
 class SuperResolutionAnnotation(_ImageAnnotation):
     """
     Represents high resolution images.
@@ -843,7 +866,7 @@ class SuperResolutionAnnotation(_ImageAnnotation):
     _type = AnnotationType.super_resolution_annotation
 
 
-@attrs(slots=True, order=False)
+@attrs(slots=True, order=False, eq=False)
 class DepthAnnotation(_ImageAnnotation):
     """
     Represents depth images.
