@@ -124,6 +124,31 @@ def download_file(url: str, file_root: str):
     return 0
 
 
+def img_center_crop(image, size):
+    """
+    Crop center of image
+    """
+
+    width, height = image.shape[1], image.shape[0]
+    mid_w, mid_h = int(width / 2), int(height / 2)
+
+    crop_w = size if size < image.shape[1] else image.shape[1]
+    crop_h = size if size < image.shape[0] else image.shape[0]
+    mid_cw, mid_ch = int(crop_w / 2), int(crop_h / 2)
+
+    cropped_image = image[mid_h - mid_ch : mid_h + mid_ch, mid_w - mid_cw : mid_w + mid_cw]
+    return cropped_image
+
+
+def img_normalize(image):
+    mean = 255 * np.array([0.485, 0.456, 0.406])
+    std = 255 * np.array([0.229, 0.224, 0.225])
+
+    image = image.transpose(-1, 0, 1)
+    image = (image - mean[:, None, None]) / std[:, None, None]
+    return image
+
+
 class SimpleTokenizer(object):
     def __init__(self, bpe_path: str = default_bpe()):
         self.byte_encoder = bytes_to_unicode()

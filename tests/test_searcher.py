@@ -53,8 +53,8 @@ class SearcherTest(TestCase):
     def test_coco_dataset(self):
         SEARCHER_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "searcher")
         train_img1 = load_image(osp.join(SEARCHER_DATASET_DIR, "000000094852.jpg"))
-        train_img2 = load_image(osp.join(SEARCHER_DATASET_DIR, "000000475779.jpg"))
-        test_img = load_image(osp.join(SEARCHER_DATASET_DIR, "000000572517.jpg"))
+        train_img2 = load_image(osp.join(SEARCHER_DATASET_DIR, "000000210708.jpg"))
+        test_img = load_image(osp.join(SEARCHER_DATASET_DIR, "000000356432.jpg"))
 
         dataset = Dataset.from_iterable(
             [
@@ -74,7 +74,7 @@ class SearcherTest(TestCase):
                     id=3,
                     subset="test",
                     media=Image(data=test_img),
-                    annotations=[Label(2, id=2), Caption("bear")],
+                    annotations=[Label(2, id=2), Caption("couch")],
                 ),
             ]
         )

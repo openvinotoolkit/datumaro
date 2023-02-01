@@ -5,12 +5,17 @@
 import logging as log
 import os.path as osp
 
+import cv2
 import numpy as np
 import torch
-from PIL import Image
-from torchvision import transforms
 
-from datumaro.components.model_inference import compute_hash, download_file, tokenize
+from datumaro.components.model_inference import (
+    compute_hash,
+    download_file,
+    img_center_crop,
+    img_normalize,
+    tokenize,
+)
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
 
 
@@ -62,30 +67,20 @@ class SearcherLauncher(OpenvinoLauncher):
             inputs = tokenize(prompt_text).to("cpu", dtype=torch.float)
         else:
             inputs = inputs.squeeze()
-            if None in inputs:
+            if not inputs.any():
                 # media.data is None case
                 return None
 
-            trans = transforms.Compose(
-                [
-                    transforms.ToTensor(),
-                    transforms.Resize(256),
-                    transforms.CenterCrop(224),
-                    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225]),
-                ]
-            )
-
-            inputs = np.uint8(inputs)
-            inputs = Image.fromarray(inputs)
-
-            if np.array(inputs).ndim == 2 or inputs.mode == "RGBA":
-                inputs = inputs.convert("RGB")
-            inputs = trans(inputs)
+            if np.array(inputs).ndim == 2:
+                inputs = cv2.cvtColor(inputs, cv2.COLOR_GRAY2RGB)
+            elif np.array(inputs).ndim == 4:
+                inputs = cv2.cvtColor(inputs, cv2.COLOR_RGBA2RGB)
+            inputs = cv2.resize(inputs, (256, 256))
+            inputs = img_center_crop(inputs, 224)
+            inputs = img_normalize(inputs)
             inputs = np.expand_dims(inputs, axis=0)
-            inputs = torch.Tensor(inputs)
-            inputs = inputs.to("cpu", dtype=torch.float)
 
-        results = self._net.infer(inputs={self._input_blobs: inputs.cpu()})
+        results = self._net.infer(inputs={self._input_blobs: inputs})
         results = torch.from_numpy(results[self._output_blobs])
         hash_string = compute_hash(results)
         return hash_string
