@@ -41,7 +41,7 @@ class _LogManager:
         cls._define_loglevel_option(parser)
         args, _ = parser.parse_known_args(args)
 
-        log.basicConfig(format="%(asctime)s %(levelname)s: %(message)s", level=args.loglevel)
+        log.basicConfig(format="%(asctime)s %(levelname)s: %(message)s", level=args.loglevel, force=True)
 
         # Suppress own deprecation warnings
         warnings.filterwarnings("ignore", category=DeprecationWarning, module=r"datumaro\..*")
