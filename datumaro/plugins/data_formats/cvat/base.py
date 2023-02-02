@@ -4,6 +4,7 @@
 
 import os.path as osp
 from collections import OrderedDict
+from copy import deepcopy
 
 from defusedxml import ElementTree
 
@@ -17,11 +18,30 @@ from datumaro.components.annotation import (
     PolyLine,
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 
 from .format import CvatPath
+
+
+def _find_meta_root(path: str):
+    context = ElementTree.iterparse(path, events=("start", "end"))
+    context = iter(context)
+
+    meta_root = None
+
+    for event, elem in context:
+        if elem.tag == "meta" and event == "start":
+            meta_root = elem
+        elif elem.tag == "meta" and event == "end":
+            break
+
+    if meta_root is None:
+        raise DatasetImportError("CVAT XML file should have <meta> tag.")
+
+    return meta_root, context
 
 
 class CvatBase(SubsetBase):
@@ -44,12 +64,10 @@ class CvatBase(SubsetBase):
         self._items = list(self._load_items(items).values())
         self._categories = categories
 
-    @classmethod
-    def _parse(cls, path):
-        context = ElementTree.iterparse(path, events=("start", "end"))
-        context = iter(context)
+    def _parse(self, path):
+        meta_root, context = _find_meta_root(path)
 
-        categories, frame_size, attribute_types = cls._parse_meta(context)
+        categories, frame_size, attribute_types = self._parse_meta(meta_root)
 
         items = OrderedDict()
 
@@ -58,6 +76,7 @@ class CvatBase(SubsetBase):
         tag = None
         attributes = None
         image = None
+        subset = None
         for ev, el in context:
             if ev == "start":
                 if el.tag == "track":
@@ -68,6 +87,7 @@ class CvatBase(SubsetBase):
                         "height": frame_size[0],
                         "width": frame_size[1],
                     }
+                    subset = el.attrib.get("subset")
                 elif el.tag == "image":
                     image = {
                         "name": el.attrib.get("name"),
@@ -75,7 +95,8 @@ class CvatBase(SubsetBase):
                         "width": el.attrib.get("width"),
                         "height": el.attrib.get("height"),
                     }
-                elif el.tag in cls._SUPPORTED_SHAPES and (track or image):
+                    subset = el.attrib.get("subset")
+                elif el.tag in self._SUPPORTED_SHAPES and (track or image):
                     attributes = {}
                     shape = {
                         "type": None,
@@ -106,7 +127,7 @@ class CvatBase(SubsetBase):
                         except ValueError:
                             pass
                     attributes[el.attrib["name"]] = attr_value
-                elif el.tag in cls._SUPPORTED_SHAPES:
+                elif el.tag in self._SUPPORTED_SHAPES:
                     if track is not None:
                         shape["frame"] = el.attrib["frame"]
                         shape["outside"] = el.attrib.get("outside") == "1"
@@ -136,136 +157,63 @@ class CvatBase(SubsetBase):
                         for pair in el.attrib["points"].split(";"):
                             shape["points"].extend(map(float, pair.split(",")))
 
-                    frame_desc = items.get(shape["frame"], {"annotations": []})
-                    frame_desc["annotations"].append(cls._parse_shape_ann(shape, categories))
-                    items[shape["frame"]] = frame_desc
+                    if subset is None or subset == self._subset:
+                        frame_desc = items.get(shape["frame"], {"annotations": []})
+                        frame_desc["annotations"].append(self._parse_shape_ann(shape, categories))
+                        items[shape["frame"]] = frame_desc
                     shape = None
 
                 elif el.tag == "tag":
-                    frame_desc = items.get(tag["frame"], {"annotations": []})
-                    frame_desc["annotations"].append(cls._parse_tag_ann(tag, categories))
-                    items[tag["frame"]] = frame_desc
+                    if subset is None or subset == self._subset:
+                        frame_desc = items.get(tag["frame"], {"annotations": []})
+                        frame_desc["annotations"].append(self._parse_tag_ann(tag, categories))
+                        items[tag["frame"]] = frame_desc
                     tag = None
                 elif el.tag == "track":
                     track = None
                 elif el.tag == "image":
-                    frame_desc = items.get(image["frame"], {"annotations": []})
-                    frame_desc.update(
-                        {
-                            "name": image.get("name"),
-                            "height": image.get("height"),
-                            "width": image.get("width"),
-                        }
-                    )
-                    items[image["frame"]] = frame_desc
+                    if subset is None or subset == self._subset:
+                        frame_desc = items.get(image["frame"], {"annotations": []})
+                        frame_desc.update(
+                            {
+                                "name": image.get("name"),
+                                "height": image.get("height"),
+                                "width": image.get("width"),
+                            }
+                        )
+                        items[image["frame"]] = frame_desc
                     image = None
                 el.clear()
 
         return items, categories
 
     @staticmethod
-    def _parse_meta(context):
-        ev, el = next(context)
-        if not (ev == "start" and el.tag == "annotations"):
-            raise Exception("Unexpected token ")
-
+    def _parse_meta(meta_root):
         categories = {}
 
         frame_size = None
+        original_size = [item for item in meta_root.iter("original_size")]
+
+        if len(original_size) > 1:
+            raise DatasetImportError("CVAT XML file should have only one <original_size> tag.")
+        elif len(original_size) == 1:
+            frame_size = (
+                int(original_size[0].find("height").text),
+                int(original_size[0].find("width").text),
+            )
+
         mode = None
         labels = OrderedDict()
-        label = None
 
-        # Recursive descent parser
-        el = None
-        states = ["annotations"]
-
-        def accepted(expected_state, tag, next_state=None):
-            state = states[-1]
-            if state == expected_state and el is not None and el.tag == tag:
-                if not next_state:
-                    next_state = tag
-                states.append(next_state)
-                return True
-            return False
-
-        def consumed(expected_state, tag):
-            state = states[-1]
-            if state == expected_state and el is not None and el.tag == tag:
-                states.pop()
-                return True
-            return False
-
-        for ev, el in context:
-            if ev == "start":
-                if accepted("annotations", "meta"):
-                    pass
-                elif accepted("meta", "task"):
-                    pass
-                elif accepted("task", "mode"):
-                    pass
-                elif accepted("task", "original_size"):
-                    frame_size = [None, None]
-                elif accepted("original_size", "height", next_state="frame_height"):
-                    pass
-                elif accepted("original_size", "width", next_state="frame_width"):
-                    pass
-                elif accepted("task", "labels"):
-                    pass
-                elif accepted("labels", "label"):
-                    label = {"name": None, "attributes": []}
-                elif accepted("label", "name", next_state="label_name"):
-                    pass
-                elif accepted("label", "attributes"):
-                    pass
-                elif accepted("attributes", "attribute"):
-                    pass
-                elif accepted("attribute", "name", next_state="attr_name"):
-                    pass
-                elif accepted("attribute", "input_type", next_state="attr_type"):
-                    pass
-                elif (
-                    accepted("annotations", "image")
-                    or accepted("annotations", "track")
-                    or accepted("annotations", "tag")
-                ):
-                    break
-                else:
-                    pass
-            elif ev == "end":
-                if consumed("meta", "meta"):
-                    break
-                elif consumed("task", "task"):
-                    pass
-                elif consumed("mode", "mode"):
-                    mode = el.text
-                elif consumed("original_size", "original_size"):
-                    pass
-                elif consumed("frame_height", "height"):
-                    frame_size[0] = int(el.text)
-                elif consumed("frame_width", "width"):
-                    frame_size[1] = int(el.text)
-                elif consumed("label_name", "name"):
-                    label["name"] = el.text
-                elif consumed("attr_name", "name"):
-                    label["attributes"].append({"name": el.text})
-                elif consumed("attr_type", "input_type"):
-                    label["attributes"][-1]["input_type"] = el.text
-                elif consumed("attribute", "attribute"):
-                    pass
-                elif consumed("attributes", "attributes"):
-                    pass
-                elif consumed("label", "label"):
-                    labels[label["name"]] = label["attributes"]
-                    label = None
-                elif consumed("labels", "labels"):
-                    pass
-                else:
-                    pass
-
-        assert len(states) == 1 and states[0] == "annotations", (
-            "Expected 'meta' section in the annotation file, path: %s" % states
-        )
+        for label in meta_root.iter("label"):
+            name = label.find("name").text
+            labels[name] = [
+                {
+                    "name": attr.find("name").text,
+                    "input_type": attr.find("input_type").text,
+                }
+                for attr in label.iter("attribute")
+            ]
 
         common_attrs = ["occluded"]
         if mode == "interpolation":
@@ -373,6 +321,9 @@ class CvatBase(SubsetBase):
             else:
                 image = Image(path=image)
 
+            subset = item_desc.get("subset")
+            if subset is not None and subset != self._subset:
+                continue
             parsed[frame_id] = DatasetItem(
                 id=osp.splitext(name)[0],
                 subset=self._subset,
@@ -396,6 +347,32 @@ class CvatImporter(Importer):
             if root_elem.tag != "annotations":
                 raise Exception
 
+    @staticmethod
+    def find_subsets(meta_root):
+        subsets = [item.text for item in meta_root.iter("subset")]
+        if len(subsets) == 0:
+            raise DatasetImportError("CVAT XML should include <subset> tags.")
+        return subsets
+
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, ".xml", "cvat")
+        source_files = cls._find_sources_recursive(path, ".xml", "cvat")
+        sources = []
+
+        for source in source_files:
+            path = source["url"]
+            meta_root, _ = _find_meta_root(path)
+
+            if meta_root.find("project") is not None:
+                for subset in cls.find_subsets(meta_root):
+                    source_clone = deepcopy(source)
+                    source_clone["options"] = {"subset": subset}
+                    sources += [source_clone]
+            elif meta_root.find("task") is not None:
+                sources += [source]
+            else:
+                raise DatasetImportError(
+                    "CVAT XML file should have a <meta> -> <task> or <meta> -> <project> subtree."
+                )
+
+        return sources
