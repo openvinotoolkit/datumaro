@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+### Fixed
+- Fix for importing CVAT image 1.1 data format exported to project level
+  (<https://github.com/openvinotoolkit/datumaro/pull/795>)
 
 ## 27/01/2023 - Release v0.5.0
 ### Added
@@ -33,8 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/789>)
 - Fix auto-documentation for the data_format plugins
   (<https://github.com/openvinotoolkit/datumaro/pull/793>)
-- Fix CVAT for images 1.1 data format import at project level
-  (<https://github.com/openvinotoolkit/datumaro/pull/795>)
 
 ### Security
 - Add security.md file for the SDL
