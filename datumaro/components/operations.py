@@ -544,7 +544,7 @@ class IntersectMerge(MergingStrategy):
         item_map = {}  # id(item) -> (item, id(dataset))
 
         matches = OrderedDict()
-        for (item_id, item_subset) in sorted(item_ids, key=lambda e: e[0]):
+        for item_id, item_subset in sorted(item_ids, key=lambda e: e[0]):
             items = {}
             for d in datasets:
                 item = d.get(item_id, subset=item_subset)
