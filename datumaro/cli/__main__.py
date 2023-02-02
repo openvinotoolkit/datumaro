@@ -40,10 +40,17 @@ class _LogManager:
         parser = argparse.ArgumentParser(add_help=False)
         cls._define_loglevel_option(parser)
         args, _ = parser.parse_known_args(args)
+        log_format = "%(asctime)s %(levelname)s: %(message)s"
 
-        log.basicConfig(
-            format="%(asctime)s %(levelname)s: %(message)s", level=args.loglevel, force=True
-        )
+        # Try setting up logging with basicConfig.
+        # This does nothing, if other parts of the software
+        # already configured handlers, i.e. during imports and when
+        # main is called programmatically.
+        log.basicConfig(format=log_format, level=args.loglevel)
+        # Force-overwrite the log level and formatter
+        log.root.setLevel(args.loglevel)
+        for h in log.root.handlers:
+            h.setFormatter(log.Formatter(log_format))
 
         # Suppress own deprecation warnings
         warnings.filterwarnings("ignore", category=DeprecationWarning, module=r"datumaro\..*")
