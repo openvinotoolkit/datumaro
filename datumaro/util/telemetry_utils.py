@@ -3,18 +3,22 @@
 # SPDX-License-Identifier: MIT
 
 import json
+import os
 import os.path as osp
 import re
 import sys
 import traceback
 
 from datumaro.cli import commands, contexts
+from datumaro.util import telemetry_stub
 from datumaro.util.os_util import is_subpath
 
 try:
     import openvino_telemetry as tm
 except ImportError:
     from datumaro.util import telemetry_stub as tm
+
+NO_TELEMETRY_KEY = "DATUMARO_NO_OV_TELEMETRY"
 
 
 def _get_action_name(command):
@@ -117,11 +121,17 @@ def _cleanup_stacktrace():
 
 
 def init_telemetry_session(app_name, app_version):
-    telemetry = tm.Telemetry(app_name=app_name, app_version=app_version, tid="UA-17808594-29")
-    telemetry.start_session("dm")
-    send_version_info(telemetry, app_version)
+    no_telemetry_flag = os.environ.get(NO_TELEMETRY_KEY, None)
 
-    return telemetry
+    if no_telemetry_flag is None:
+        telemetry = tm.Telemetry(app_name=app_name, app_version=app_version, tid="UA-17808594-29")
+        telemetry.start_session("dm")
+        send_version_info(telemetry, app_version)
+        return telemetry
+
+    return telemetry_stub.Telemetry(
+        app_name=app_name, app_version=app_version, tid="UA-17808594-29"
+    )
 
 
 def close_telemetry_session(telemetry):
