@@ -16,7 +16,7 @@ from datumaro.util.os_util import is_subpath
 try:
     import openvino_telemetry as tm
 except ImportError:
-    from datumaro.util import telemetry_stub as tm
+    tm = telemetry_stub
 
 NO_TELEMETRY_KEY = "DATUMARO_NO_OV_TELEMETRY"
 

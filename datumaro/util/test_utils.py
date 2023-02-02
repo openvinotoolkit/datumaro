@@ -10,7 +10,6 @@ import tempfile
 import unittest
 import unittest.mock
 import warnings
-from copy import deepcopy
 from enum import Enum, auto
 from glob import glob
 from typing import Collection, Optional, Union

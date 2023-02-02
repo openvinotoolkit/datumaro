@@ -1,4 +1,3 @@
-import os.path as osp
 from collections import OrderedDict
 from unittest import TestCase
 

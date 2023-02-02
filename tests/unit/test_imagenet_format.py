@@ -1,4 +1,3 @@
-import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check
 from unittest import TestCase
 
