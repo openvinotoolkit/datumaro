@@ -817,7 +817,6 @@ class TestSegmentationValidator(_TestValidatorBase):
 
 
 class TestValidateAnnotations(_TestValidatorBase):
-
     extra_args = {
         "few_samples_thr": 1,
         "imbalance_ratio_thr": 50,

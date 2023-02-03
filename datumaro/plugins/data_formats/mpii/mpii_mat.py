@@ -117,7 +117,6 @@ class MpiiBase(SubsetBase):
                     )
 
                 if x1 is not None and x2 is not None and y1 is not None and y2 is not None:
-
                     annotations.append(Bbox(x1, y1, x2 - x1, y2 - y1, label=0, group=group_num))
 
                 group_num += 1

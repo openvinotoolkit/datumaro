@@ -289,7 +289,6 @@ class YoloExportertTest(TestCase):
     @mark_requirement(Requirements.DATUM_565)
     def test_cant_save_with_reserved_subset_name(self):
         for subset in ["backup", "classes"]:
-
             dataset = Dataset.from_iterable(
                 [
                     DatasetItem(

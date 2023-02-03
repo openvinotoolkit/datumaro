@@ -927,7 +927,6 @@ class SplitterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_split_for_segmentation(self):
-
         with self.subTest("mask annotation"):
             dtypes = ["coco", "voc", "labelme", "mot"]
             task = splitter.SplitTask.segmentation.name
@@ -1041,7 +1040,6 @@ class SplitterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_split_for_segmentation_with_unlabeled(self):
-
         with self.subTest("mask annotation"):
             source, _ = self._generate_detection_segmentation_dataset(
                 annotation_type=self._get_append_mask("coco"),
@@ -1076,7 +1074,6 @@ class SplitterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_split_for_segmentation_gives_error(self):
-
         with self.subTest("mask annotation"):
             source, _ = self._generate_detection_segmentation_dataset(
                 annotation_type=self._get_append_mask("coco"),

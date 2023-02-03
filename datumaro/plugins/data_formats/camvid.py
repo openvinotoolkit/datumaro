@@ -361,7 +361,7 @@ class CamvidExporter(Exporter):
             return
 
         with open(ann_file, "w", encoding="utf-8") as f:
-            for (image_path, mask_path) in segm_list.values():
+            for image_path, mask_path in segm_list.values():
                 image_path = "/" + image_path.replace("\\", "/")
                 mask_path = mask_path.replace("\\", "/")
                 if 1 < len(image_path.split()) or 1 < len(mask_path.split()):

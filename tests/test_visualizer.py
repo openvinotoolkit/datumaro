@@ -47,7 +47,6 @@ class VisualizerTestBase:
             f"datumaro.components.visualizer.Visualizer.{func_name}",
             wraps=getattr(visualizer, func_name),
         ) as mocked:
-
             for item in self.items:
                 fig = visualizer.vis_one_sample(item.id, self.subset)
 

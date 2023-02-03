@@ -172,7 +172,6 @@ class ImagenetTxtImporter(Importer, CliPlugin):
     @classmethod
     def find_sources_with_params(cls, path, **extra_params):
         if "labels" not in extra_params or extra_params["labels"] == _LabelsSource.file.name:
-
             labels_file_name = osp.basename(
                 extra_params.get("labels_file") or ImagenetTxtPath.LABELS_FILE
             )
