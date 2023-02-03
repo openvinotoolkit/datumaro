@@ -1,5 +1,5 @@
+from datumaro.components.annotation import Label
 from datumaro.util.annotation_util import softmax
-from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 
 
 def process_outputs(inputs, outputs):
@@ -10,5 +10,8 @@ def process_outputs(inputs, outputs):
     assert len(outputs) == 1
 
     return [
-        [Label(label=label, attributes={"score": score}) for label, score in enumerate(outputs[0])]
+        [
+            Label(label=label, attributes={"score": score})
+            for label, score in enumerate(softmax(outputs[0]))
+        ]
     ]
