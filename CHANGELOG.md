@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[Unreleased\]
 
 ### Fixed
-- Fix problem setting loglevel via CLI 
+- Fix problem setting loglevel via CLI
   (<https://github.com/openvinotoolkit/datumaro/pull/800>)
 
 ## 27/01/2023 - Release v0.5.0
