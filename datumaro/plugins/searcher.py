@@ -4,19 +4,98 @@
 
 import logging as log
 import os.path as osp
+import urllib
 
 import cv2
 import numpy as np
-import torch
+from tqdm import tqdm
+from transformers import CLIPTokenizer
 
-from datumaro.components.model_inference import (
-    compute_hash,
-    download_file,
-    img_center_crop,
-    img_normalize,
-    tokenize,
-)
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
+
+model_folder = "./tests/assets/searcher"
+
+
+def download_file(url: str, file_root: str):
+    req = urllib.request.Request(url)
+    with urllib.request.urlopen(req) as source, open(file_root, "wb") as output:
+        with tqdm(
+            total=int(source.info().get("Content-Length")),
+            ncols=80,
+            unit="iB",
+            unit_scale=True,
+            unit_divisor=1024,
+        ) as loop:
+            while True:
+                buffer = source.read(8192)
+                if not buffer:
+                    break
+
+                output.write(buffer)
+                loop.update(len(buffer))
+    return 0
+
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
+def encode_discrete(x):
+    prob = sigmoid(x)
+    z = np.sign(prob - 0.5)
+    return z
+
+
+def normalize(x, axis=1, eps=1e-12):
+    denom = max(np.linalg.norm(x, axis=axis, keepdims=True), eps)
+    return x / denom
+
+
+def compute_hash(features):
+    features = encode_discrete(features)
+    features = normalize(features, axis=-1)
+    hash_key = features >= 0
+    hash_key = hash_key * 1
+    hash_string = np.packbits(hash_key, axis=-1)
+    hash_string = list(map(lambda row: "".join(["{:02x}".format(r) for r in row]), hash_string))
+    return hash_string
+
+
+def img_center_crop(image, size):
+    width, height = image.shape[1], image.shape[0]
+    mid_w, mid_h = int(width / 2), int(height / 2)
+
+    crop_w = size if size < image.shape[1] else image.shape[1]
+    crop_h = size if size < image.shape[0] else image.shape[0]
+    mid_cw, mid_ch = int(crop_w / 2), int(crop_h / 2)
+
+    cropped_image = image[mid_h - mid_ch : mid_h + mid_ch, mid_w - mid_cw : mid_w + mid_cw]
+    return cropped_image
+
+
+def img_normalize(image):
+    mean = 255 * np.array([0.485, 0.456, 0.406])
+    std = 255 * np.array([0.229, 0.224, 0.225])
+
+    image = image.transpose(-1, 0, 1)
+    image = (image - mean[:, None, None]) / std[:, None, None]
+    return image
+
+
+def tokenize(texts: str, context_length: int = 77):
+    checkpoint = "openai/clip-vit-base-patch32"
+    tokenizer = CLIPTokenizer.from_pretrained(checkpoint)
+    eot_token = tokenizer.encoder["<|endoftext|>"]
+    tokens = tokenizer.encode(texts)
+
+    result = np.zeros((1, context_length))
+    if len(result) > context_length:
+        result = result[:context_length]
+        result[-1] = eot_token
+
+    for i, token in enumerate(tokens):
+        result[:, i] = token
+    return result
 
 
 class SearcherLauncher(OpenvinoLauncher):
@@ -50,7 +129,8 @@ class SearcherLauncher(OpenvinoLauncher):
             download_file(cached_weights_url, weights)
 
         if not interpreter:
-            interpreter = osp.join(model_dir, "clip_ViT-B_32_interp.py")
+            openvino_plugin_samples_dir = "datumaro/plugins/openvino_plugin/samples"
+            interpreter = osp.join(openvino_plugin_samples_dir, "clip_ViT-B_32_interp.py")
 
         super().__init__(description, weights, interpreter, device, model_dir, output_layers)
 
@@ -64,7 +144,7 @@ class SearcherLauncher(OpenvinoLauncher):
                 prompt_text = inputs
             else:
                 prompt_text = f"a photo of a {inputs}"
-            inputs = tokenize(prompt_text).to("cpu", dtype=torch.float)
+            inputs = tokenize(prompt_text)
         else:
             inputs = inputs.squeeze()
             if not inputs.any():
@@ -81,8 +161,7 @@ class SearcherLauncher(OpenvinoLauncher):
             inputs = np.expand_dims(inputs, axis=0)
 
         results = self._net.infer(inputs={self._input_blobs: inputs})
-        results = torch.from_numpy(results[self._output_blobs])
-        hash_string = compute_hash(results)
+        hash_string = compute_hash(results[self._output_blobs])
         return hash_string
 
     def launch(self, inputs):

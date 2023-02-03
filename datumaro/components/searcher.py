@@ -110,8 +110,7 @@ class Searcher:
                 )
 
             def cal_ind(x):
-                if x >= db_len:
-                    x = x % db_len
+                x = x % db_len
                 return x
 
             ind = np.argsort(sims).tolist()
