@@ -310,7 +310,18 @@ def compare_dirs(test, expected: str, actual: str):
 def run_datum(test, *args, expected_code=0):
     from datumaro.cli.__main__ import main
 
-    test.assertEqual(expected_code, main(args), str(args))
+    @contextlib.contextmanager
+    def set_no_telemetry():
+        from datumaro.util.telemetry_utils import NO_TELEMETRY_KEY
+
+        os.environ[NO_TELEMETRY_KEY] = "1"
+        try:
+            yield
+        finally:
+            del os.environ[NO_TELEMETRY_KEY]
+
+    with set_no_telemetry():
+        test.assertEqual(expected_code, main(args), str(args))
 
 
 @contextlib.contextmanager
