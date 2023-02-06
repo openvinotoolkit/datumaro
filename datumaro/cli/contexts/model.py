@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -171,6 +171,8 @@ def remove_command(args):
     project.remove_model(args.name)
     project.save()
 
+    log.info(f"Model {args.name} has been removed from the project.")
+
     return 0
 
 
@@ -259,7 +261,11 @@ def run_command(args):
 
 
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(
+        help="Print model information in this project",
+        description="Print model information in this project",
+        formatter_class=MultilineFormatter,
+    )
 
     parser.add_argument("-n", "--name", help="Model name")
     parser.add_argument("-v", "--verbose", action="store_true", help="Show details")
