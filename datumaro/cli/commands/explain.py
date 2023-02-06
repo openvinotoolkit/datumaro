@@ -190,7 +190,7 @@ def explain_command(args):
 
     if args.model not in project.models:
         raise CliException(
-            f"{args.model} has not benn registered in this project. "
+            f"{args.model} has not been registered in this project. "
             f"This is a list of registered model names: {list(project.models.keys())}"
         )
 
