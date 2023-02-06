@@ -87,6 +87,9 @@ def search_command(args):
         project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if args.project_dir:
+            log.info(
+                f"Wrong argument: project_dir, {args.project_dir}, should be a path to project dir"
+            )
             raise
     dataset, _ = parse_full_revpath(args.target, project)
 

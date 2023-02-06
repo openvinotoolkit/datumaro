@@ -14,7 +14,9 @@ from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.util.image import load_image
 from datumaro.util.test_utils import TestDir
 
-from .requirements import Requirements, mark_requirement
+from ..requirements import Requirements, mark_requirement
+
+from tests.utils.assets import get_test_asset_path
 
 
 class SearcherTest(TestCase):
@@ -51,7 +53,7 @@ class SearcherTest(TestCase):
 
     @property
     def test_coco_dataset(self):
-        SEARCHER_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "searcher")
+        SEARCHER_DATASET_DIR = get_test_asset_path("searcher")
         train_img1 = load_image(osp.join(SEARCHER_DATASET_DIR, "000000094852.jpg"))
         train_img2 = load_image(osp.join(SEARCHER_DATASET_DIR, "000000210708.jpg"))
         test_img = load_image(osp.join(SEARCHER_DATASET_DIR, "000000356432.jpg"))

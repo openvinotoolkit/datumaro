@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import logging as log
+import os
 import os.path as osp
 import urllib
 
@@ -12,8 +13,6 @@ from tqdm import tqdm
 from transformers import CLIPTokenizer
 
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
-
-model_folder = "./tests/assets/searcher"
 
 
 def download_file(url: str, file_root: str):
@@ -114,7 +113,9 @@ class SearcherLauncher(OpenvinoLauncher):
 
         url_folder = "http://s3.toolbox.iotg.sclab.intel.com/test/components-data/datumaro/models/"
         if not model_dir:
-            model_dir = "tests/assets/searcher"
+            model_dir = os.path.join(os.path.expanduser("~"), ".cache/datumaro")
+            if not osp.exists(model_dir):
+                os.mkdir(model_dir)
 
         description = osp.join(model_dir, model_name + ".xml")
         if not osp.exists(description):
