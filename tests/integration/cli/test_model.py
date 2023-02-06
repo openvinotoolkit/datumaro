@@ -16,7 +16,7 @@ from tests.utils.assets import get_test_asset_path
 
 
 class ModelIntegrationScenarios(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_model_add_and_remove(self):
         rise_dir = get_test_asset_path("rise")
 

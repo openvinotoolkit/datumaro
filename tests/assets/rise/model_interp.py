@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from datumaro.components.annotation import Label
 from datumaro.util.annotation_util import softmax
 
