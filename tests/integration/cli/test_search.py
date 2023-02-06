@@ -12,7 +12,7 @@ from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir
 from datumaro.util.test_utils import run_datum as run
 
-from ..requirements import Requirements, mark_requirement
+from ...requirements import Requirements, mark_requirement
 
 
 class SearchTest(TestCase):
