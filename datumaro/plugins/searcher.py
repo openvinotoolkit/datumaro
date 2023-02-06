@@ -17,7 +17,7 @@ from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
 
 def download_file(url: str, file_root: str):
     req = urllib.request.Request(url)
-    with urllib.request.urlopen(req) as source, open(file_root, "wb") as output:
+    with urllib.request.urlopen(req) as source, open(file_root, "wb") as output:  # nosec B310
         with tqdm(
             total=int(source.info().get("Content-Length")),
             ncols=80,
