@@ -215,6 +215,45 @@ def mask_to_polygons(mask, area_threshold=1):
     return polygons
 
 
+def mask_to_bboxes(mask):
+    """
+    Convert an instance mask to polygons
+
+    Args:
+        mask: a 2d binary mask
+        tolerance: maximum distance from original points of
+            a polygon to the approximated ones
+        area_threshold: minimal area of generated polygons
+
+    Returns:
+        A list of polygons like [[x1,y1, x2,y2 ...], [...]]
+    """
+    import cv2
+
+    bboxes = []
+
+    contours, _ = cv2.findContours(
+        mask.astype(np.uint8), mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_TC89_KCOS
+    )
+
+    for contour in contours:
+        if len(contour) <= 2:
+            continue
+
+        contour = contour.reshape((-1, 2))
+
+        if not np.array_equal(contour[0], contour[-1]):
+            contour = np.vstack((contour, contour[0]))  # make polygon closed
+        contour = contour.flatten().clip(0)  # [x0, y0, ...]
+
+        x1, x2 = min(contour[0::2]), max(contour[0::2])
+        y1, y2 = min(contour[1::2]), max(contour[1::2])
+
+        bboxes.append([x1, x2, y1, y2])
+
+    return bboxes
+
+
 def crop_covered_segments(
     segments,
     width,
