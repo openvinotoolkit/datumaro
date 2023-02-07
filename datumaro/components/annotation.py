@@ -925,6 +925,14 @@ class Ellipse(_Shape):
     def h(self):
         return self.points[3] - self.points[1]
 
+    @property
+    def c_x(self):
+        return 0.5 * (self.points[0] + self.points[2])
+
+    @property
+    def c_y(self):
+        return 0.5 * (self.points[1] + self.points[3])
+
     def get_area(self):
         return 0.25 * np.pi * self.w * self.h
 
@@ -959,8 +967,8 @@ class Ellipse(_Shape):
 
         l1 = 0.5 * self.w
         l2 = 0.5 * self.h
-        x_points = l1 * np.cos(theta)
-        y_points = l2 * np.sin(theta)
+        x_points = self.c_x + l1 * np.cos(theta)
+        y_points = self.c_y + l2 * np.sin(theta)
 
         points = []
         for x, y in zip(x_points, y_points):

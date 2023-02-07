@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 from typing import List
-import pytest
+
 import numpy as np
-from datumaro.components.annotation import Ellipse
+import pytest
 import shapely.geometry as sg
+
+from datumaro.components.annotation import Ellipse
 
 
 class EllipseTest:
