@@ -34,7 +34,7 @@ jobs:
           pip install -e '.[default,tf,tfds]' pytest pytest-cov
       - name: Unit testing
         run: |
-          pytest -v --cov
+          pytest -v tests/unit/ --cov
           datum -h
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
