@@ -6,7 +6,7 @@ from datumaro.components.annotation import AnnotationType, HashKey, LabelCategor
 
 
 def process_outputs(inputs, outputs):
-    results = [[HashKey(outputs, label=None)]]
+    results = [[HashKey(outputs)]]
     return results
 
 

@@ -212,9 +212,6 @@ class Label(Annotation):
 class HashKey(Annotation):
     _type = AnnotationType.hash_key
     hash_key: List[str] = field(factory=list, validator=default_if_none(list))
-    label: Optional[int] = field(
-        converter=attr.converters.optional(int), default=None, kw_only=True
-    )
 
 
 RgbColor = Tuple[int, int, int]

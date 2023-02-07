@@ -43,7 +43,7 @@ class ModelTransform(Transform):
         for batch in take_by(self._extractor, self._batch_size):
             inputs = []
             for item in batch:
-                if self._launcher.type_check(item):
+                if not self._launcher.type_check(item):
                     raise MediaTypeError(
                         f"Media type should be Image, Current type={type(item.media)}"
                     )
@@ -82,7 +82,7 @@ class ModelTransform(Transform):
         labels_count = len(self.categories().get(AnnotationType.label, LabelCategories()).items)
 
         for ann in annotations:
-            label = getattr(ann, "label")
+            label = getattr(ann, "label", None)
             if label is None:
                 continue
 

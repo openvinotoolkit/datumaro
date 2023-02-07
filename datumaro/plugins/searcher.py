@@ -53,13 +53,9 @@ def normalize(x, axis=1, eps=1e-12):
 
 
 def compute_hash(features):
-    features = encode_discrete(features)
-    features = normalize(features, axis=-1)
-    hash_key = features >= 0
-    hash_key = hash_key * 1
-    hash_string = np.packbits(hash_key, axis=-1)
-    hash_string = list(map(lambda row: "".join(["{:02x}".format(r) for r in row]), hash_string))
-    return hash_string
+    features = np.sign(features)
+    hash_key = np.clip(features, 0, None)
+    return hash_key
 
 
 def img_center_crop(image, size):
@@ -172,6 +168,6 @@ class SearcherLauncher(OpenvinoLauncher):
         return results
 
     def type_check(self, item):
-        if isinstance(item.media, Image):
+        if not isinstance(item.media, Image):
             return False
         return True

@@ -56,7 +56,6 @@ class Searcher:
                 if isinstance(annotation, HashKey):
                     try:
                         hash_key = annotation.hash_key[0]
-                        hash_key = self.unpack_hash_key(hash_key)
                         database_keys.append(hash_key)
                         item_list.append(item)
                     except Exception:
@@ -64,12 +63,6 @@ class Searcher:
 
         self._database_keys = database_keys
         self._item_list = item_list
-
-    def unpack_hash_key(self, hash_key: List):
-        hash_key_list = [hash_key[i : i + 2] for i in range(0, len(hash_key), 2)]
-        hash_key = np.array([int(s, 16) for s in hash_key_list], dtype="uint8")
-        hash_key = np.unpackbits(hash_key, axis=-1)
-        return hash_key
 
     def search_topk(
         self,
@@ -104,9 +97,8 @@ class Searcher:
 
             sims = np.zeros(shape=database_keys.shape[0] * len(query_hash_key_list))
             for i, query_hash_key in enumerate(query_hash_key_list):
-                query_hash_key = self.unpack_hash_key(query_hash_key[0])
                 sims[i * db_len : (i + 1) * db_len] = calculate_hamming(
-                    query_hash_key, database_keys
+                    query_hash_key[0], database_keys
                 )
 
             def cal_ind(x):
@@ -150,9 +142,7 @@ class Searcher:
             # media.data is None case
             raise ValueError("Query should have hash_key")
 
-        query_key = self.unpack_hash_key(query_key[0])
-
-        logits = calculate_hamming(query_key, database_keys)
+        logits = calculate_hamming(query_key[0], database_keys)
         ind = np.argsort(logits)
 
         item_list = np.array(self._item_list)[ind]
