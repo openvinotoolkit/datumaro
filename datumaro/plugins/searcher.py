@@ -37,21 +37,6 @@ def download_file(url: str, file_root: str):
     return 0
 
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-
-def encode_discrete(x):
-    prob = sigmoid(x)
-    z = np.sign(prob - 0.5)
-    return z
-
-
-def normalize(x, axis=1, eps=1e-12):
-    denom = max(np.linalg.norm(x, axis=axis, keepdims=True), eps)
-    return x / denom
-
-
 def compute_hash(features):
     features = np.sign(features)
     hash_key = np.clip(features, 0, None)
