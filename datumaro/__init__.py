@@ -28,6 +28,7 @@ from .components.annotation import (
     PolyLine,
     RgbColor,
     RleMask,
+    Ellipse
 )
 from .components.cli_plugin import CliPlugin
 from .components.dataset import Dataset, DatasetPatch, DatasetSubset, ItemStatus, eager_mode
