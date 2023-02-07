@@ -9,10 +9,12 @@ import urllib
 
 import cv2
 import numpy as np
+from tokenizers import Tokenizer
 from tqdm import tqdm
-from transformers import CLIPTokenizer
 
+from datumaro.components.media import Image
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
+from datumaro.util.samples import get_samples_path
 
 
 def download_file(url: str, file_root: str):
@@ -81,16 +83,17 @@ def img_normalize(image):
     return image
 
 
-def tokenize(texts: str, context_length: int = 77):
+def tokenize(texts: str, context_length: int = 77, truncate: bool = True):
     checkpoint = "openai/clip-vit-base-patch32"
-    tokenizer = CLIPTokenizer.from_pretrained(checkpoint)
-    eot_token = tokenizer.encoder["<|endoftext|>"]
-    tokens = tokenizer.encode(texts)
-
+    tokenizer = Tokenizer.from_pretrained(checkpoint)
+    tokens = tokenizer.encode(texts).ids
     result = np.zeros((1, context_length))
-    if len(result) > context_length:
-        result = result[:context_length]
-        result[-1] = eot_token
+
+    if len(tokens) > context_length:
+        if truncate:
+            eot_token = tokens.ids[-1]
+            tokens = tokens[:context_length]
+            tokens[-1] = eot_token
 
     for i, token in enumerate(tokens):
         result[:, i] = token
@@ -130,7 +133,7 @@ class SearcherLauncher(OpenvinoLauncher):
             download_file(cached_weights_url, weights)
 
         if not interpreter:
-            openvino_plugin_samples_dir = "datumaro/plugins/openvino_plugin/samples"
+            openvino_plugin_samples_dir = get_samples_path()
             interpreter = osp.join(openvino_plugin_samples_dir, "clip_ViT-B_32_interp.py")
 
         super().__init__(description, weights, interpreter, device, model_dir, output_layers)
@@ -140,6 +143,7 @@ class SearcherLauncher(OpenvinoLauncher):
         self._input_blobs = next(iter(self._net.input_info))
 
     def infer(self, inputs):
+        color_space_dict = {2: "COLOR_GRAY2RGB", 3: "COLOR_BGR2RGB", 4: "COLOR_RGBA2RGB"}
         if isinstance(inputs, str):
             if len(inputs.split()) > 1:
                 prompt_text = inputs
@@ -152,10 +156,7 @@ class SearcherLauncher(OpenvinoLauncher):
                 # media.data is None case
                 return None
 
-            if np.array(inputs).ndim == 2:
-                inputs = cv2.cvtColor(inputs, cv2.COLOR_GRAY2RGB)
-            elif np.array(inputs).ndim == 4:
-                inputs = cv2.cvtColor(inputs, cv2.COLOR_RGBA2RGB)
+            inputs = cv2.cvtColor(inputs, getattr(cv2, color_space_dict.get(inputs.ndim)))
             inputs = cv2.resize(inputs, (256, 256))
             inputs = img_center_crop(inputs, 224)
             inputs = img_normalize(inputs)
@@ -169,3 +170,8 @@ class SearcherLauncher(OpenvinoLauncher):
         hash_key = self.infer(inputs)
         results = self.process_outputs(inputs, hash_key)
         return results
+
+    def type_check(self, item):
+        if isinstance(item.media, Image):
+            return False
+        return True

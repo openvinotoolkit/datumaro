@@ -7,7 +7,6 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.media import Image
 from datumaro.components.transformer import Transform
 from datumaro.util import take_by
 
@@ -26,21 +25,25 @@ class Launcher(CliPlugin):
     def categories(self):
         return None
 
+    def type_check(self, item):
+        return True
+
 
 # pylint: enable=no-self-use
 
 
 class ModelTransform(Transform):
-    def __init__(self, extractor, launcher, batch_size=1):
+    def __init__(self, extractor, launcher, batch_size=1, append_annotation=False):
         super().__init__(extractor)
         self._launcher = launcher
         self._batch_size = batch_size
+        self._append_annotation = append_annotation
 
     def __iter__(self):
         for batch in take_by(self._extractor, self._batch_size):
             inputs = []
             for item in batch:
-                if not isinstance(item.media, Image):
+                if self._launcher.type_check(item):
                     raise MediaTypeError(
                         f"Media type should be Image, Current type={type(item.media)}"
                     )
@@ -50,8 +53,9 @@ class ModelTransform(Transform):
 
             for item, annotations in zip(batch, inference):
                 self._check_annotations(annotations)
-                inferred_annotations = item.annotations + annotations
-                yield self.wrap_item(item, annotations=inferred_annotations)
+                if self._append_annotation:
+                    annotations = item.annotations + annotations
+                yield self.wrap_item(item, annotations=annotations)
 
     def get_subset(self, name):
         subset = self._extractor.get_subset(name)

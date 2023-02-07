@@ -118,6 +118,7 @@ def run_model(
     model: Union[Launcher, Type[ModelTransform]],
     *,
     batch_size: int = 1,
+    append_annotation: bool = False,
     **kwargs,
 ) -> IDataset:
     """
@@ -129,6 +130,7 @@ def run_model(
         model: The model to be applied to the dataset
         batch_size: The number of dataset items processed
             simultaneously by the model
+        append_annotation: Whether append new annotation to existed annotations
         **kwargs: Parameters for the model
 
     Returns: a wrapper around the input dataset, which is computed lazily
@@ -136,9 +138,18 @@ def run_model(
     """
 
     if isinstance(model, Launcher):
-        return transform(dataset, ModelTransform, launcher=model, batch_size=batch_size, **kwargs)
+        return transform(
+            dataset,
+            ModelTransform,
+            launcher=model,
+            batch_size=batch_size,
+            append_annotation=append_annotation,
+            **kwargs,
+        )
     elif inspect.isclass(model) and issubclass(model, ModelTransform):
-        return transform(dataset, model, batch_size=batch_size, **kwargs)
+        return transform(
+            dataset, model, batch_size=batch_size, append_annotation=append_annotation, **kwargs
+        )
     else:
         raise TypeError("Unexpected model argument type: %s" % type(model))
 

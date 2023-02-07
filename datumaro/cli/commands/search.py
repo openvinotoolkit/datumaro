@@ -106,11 +106,14 @@ def search_command(args):
     subset_list = []
     id_list = []
     result_path_list = []
+    log.info("Most similar {} results of query in dataset".format(args.topk))
     for result in results:
         subset_list.append(result.subset)
         id_list.append(result.id)
         result_path_list.append(result.media.path)
-    log.info(f"Most similar {args.topk} results of query in dataset: {result_path_list}")
+        log.info(
+            "id: {} | subset: {} | path : {}".format(result.id, result.subset, result.media.path)
+        )
 
     visualizer = Visualizer(dataset, figsize=(20, 20), alpha=0)
     fig = visualizer.vis_gallery(id_list, subset_list)

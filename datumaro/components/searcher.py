@@ -45,7 +45,7 @@ class Searcher:
         self._text_model = SearcherLauncher(
             description="clip_text_ViT-B_32.xml", weights="clip_text_ViT-B_32.bin"
         )
-        inference = dataset.run_model(self._model)
+        inference = dataset.run_model(self._model, append_annotation=True)
         self._topk = topk
 
         database_keys = []

@@ -1103,7 +1103,12 @@ class Dataset(IDataset):
         return self
 
     def run_model(
-        self, model: Union[Launcher, Type[ModelTransform]], *, batch_size: int = 1, **kwargs
+        self,
+        model: Union[Launcher, Type[ModelTransform]],
+        *,
+        batch_size: int = 1,
+        append_annotation: bool = False,
+        **kwargs,
     ) -> Dataset:
         """
         Applies a model to dataset items' media and produces a dataset with
@@ -1113,15 +1118,24 @@ class Dataset(IDataset):
             model: The model to be applied to the dataset
             batch_size: The number of dataset items processed
                 simultaneously by the model
+            append_annotation: Whether append new annotation to existed annotations
             **kwargs: Parameters for the model
 
         Returns: self
         """
 
         if isinstance(model, Launcher):
-            return self.transform(ModelTransform, launcher=model, batch_size=batch_size, **kwargs)
+            return self.transform(
+                ModelTransform,
+                launcher=model,
+                batch_size=batch_size,
+                append_annotation=append_annotation,
+                **kwargs,
+            )
         elif inspect.isclass(model) and isinstance(model, ModelTransform):
-            return self.transform(model, batch_size=batch_size, **kwargs)
+            return self.transform(
+                model, batch_size=batch_size, append_annotation=append_annotation, **kwargs
+            )
         else:
             raise TypeError("Unexpected 'model' argument type: %s" % type(model))
 
