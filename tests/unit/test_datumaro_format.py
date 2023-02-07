@@ -10,6 +10,7 @@ from datumaro.components.annotation import (
     Bbox,
     Caption,
     Cuboid3d,
+    Ellipse,
     Label,
     LabelCategories,
     Mask,
@@ -129,6 +130,19 @@ class DatumaroExporterTest(TestCase):
                             id=5,
                             z_order=2,
                             image=np.ones((2, 3)),
+                            attributes={
+                                "x": 1,
+                                "y": "2",
+                            },
+                        ),
+                        Ellipse(
+                            5,
+                            6,
+                            7,
+                            8,
+                            label=3,
+                            id=5,
+                            z_order=2,
                             attributes={
                                 "x": 1,
                                 "y": "2",
