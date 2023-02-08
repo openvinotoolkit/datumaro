@@ -211,7 +211,7 @@ class Label(Annotation):
 @attrs(slots=True, order=False)
 class HashKey(Annotation):
     _type = AnnotationType.hash_key
-    hash_key: List[str] = field(factory=list, validator=default_if_none(list))
+    hash_key: np.ndarray = field(factory=lambda: np.zeros((1, 512)))
 
 
 RgbColor = Tuple[int, int, int]

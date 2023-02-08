@@ -113,13 +113,13 @@ class Searcher:
             return result
 
         if isinstance(query, DatasetItem):
-            query_key = None
+            query_key = np.zeros((1, 512))
             for annotation in query.annotations:
                 if isinstance(annotation, HashKey):
                     query_key = annotation.hash_key
                     break
 
-            if not query_key:
+            if not query_key.any():
                 try:
                     if not isinstance(query.media, Image):
                         raise MediaTypeError(
@@ -138,7 +138,7 @@ class Searcher:
                 "Expected 'DatasetItem' or 'string', actual'%s'" % (query, type(query))
             )
 
-        if not query_key:
+        if not query_key.any():
             # media.data is None case
             raise ValueError("Query should have hash_key")
 
