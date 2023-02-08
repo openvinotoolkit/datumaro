@@ -12,6 +12,7 @@ import numpy as np
 from tokenizers import Tokenizer
 from tqdm import tqdm
 
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
 from datumaro.util.samples import get_samples_path
@@ -40,6 +41,8 @@ def download_file(url: str, file_root: str):
 def compute_hash(features):
     features = np.sign(features)
     hash_key = np.clip(features, 0, None)
+    hash_key = hash_key.astype(np.uint8)
+    hash_key = np.packbits(hash_key, axis=-1)
     return hash_key
 
 
@@ -144,8 +147,8 @@ class SearcherLauncher(OpenvinoLauncher):
             inputs = np.expand_dims(inputs, axis=0)
 
         results = self._net.infer(inputs={self._input_blobs: inputs})
-        hash_string = compute_hash(results[self._output_blobs])
-        return hash_string
+        hash_key = compute_hash(results[self._output_blobs])
+        return hash_key
 
     def launch(self, inputs):
         hash_key = self.infer(inputs)
@@ -154,5 +157,5 @@ class SearcherLauncher(OpenvinoLauncher):
 
     def type_check(self, item):
         if not isinstance(item.media, Image):
-            return False
+            raise MediaTypeError(f"Media type should be Image, Current type={type(item.media)}")
         return True

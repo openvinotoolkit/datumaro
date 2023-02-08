@@ -56,6 +56,7 @@ class Searcher:
                 if isinstance(annotation, HashKey):
                     try:
                         hash_key = annotation.hash_key[0]
+                        hash_key = np.unpackbits(hash_key, axis=-1)
                         database_keys.append(hash_key)
                         item_list.append(item)
                     except Exception:
@@ -85,7 +86,7 @@ class Searcher:
             query_hash_key_list = []
             for q in query:
                 if isinstance(q, DatasetItem):
-                    q_hash_key = None
+                    q_hash_key = np.zeros((1, 64))
                     for annotation in q.annotations:
                         if isinstance(annotation, HashKey):
                             q_hash_key = annotation.hash_key
@@ -97,8 +98,9 @@ class Searcher:
 
             sims = np.zeros(shape=database_keys.shape[0] * len(query_hash_key_list))
             for i, query_hash_key in enumerate(query_hash_key_list):
+                query_hash_key = np.unpackbits(query_hash_key[0], axis=-1)
                 sims[i * db_len : (i + 1) * db_len] = calculate_hamming(
-                    query_hash_key[0], database_keys
+                    query_hash_key, database_keys
                 )
 
             def cal_ind(x):
@@ -113,7 +115,7 @@ class Searcher:
             return result
 
         if isinstance(query, DatasetItem):
-            query_key = np.zeros((1, 512))
+            query_key = np.zeros((1, 64))
             for annotation in query.annotations:
                 if isinstance(annotation, HashKey):
                     query_key = annotation.hash_key
@@ -142,7 +144,8 @@ class Searcher:
             # media.data is None case
             raise ValueError("Query should have hash_key")
 
-        logits = calculate_hamming(query_key[0], database_keys)
+        query_key = np.unpackbits(query_key[0], axis=-1)
+        logits = calculate_hamming(query_key, database_keys)
         ind = np.argsort(logits)
 
         item_list = np.array(self._item_list)[ind]
