@@ -2221,9 +2221,9 @@ class TestHLOps(TestCase):
 
         types = {ann.type.name for ann in annotations}
 
-        for type in types:
-            allowed_types = types - {type}
-            cmd = " or ".join([f"type='{a_type}'" for a_type in allowed_types])
+        for t in types:
+            allowed_types = types - {t}
+            cmd = " or ".join([f"type='{allowed_type}'" for allowed_type in allowed_types])
             actual = hl_ops.filter(
                 dataset,
                 f"/item/annotation[{cmd}]",
