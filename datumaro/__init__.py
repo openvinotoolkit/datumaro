@@ -17,6 +17,7 @@ from .components.annotation import (
     CompiledMask,
     CompiledMaskImage,
     Cuboid3d,
+    Ellipse,
     IndexMaskImage,
     Label,
     LabelCategories,
@@ -28,7 +29,6 @@ from .components.annotation import (
     PolyLine,
     RgbColor,
     RleMask,
-    Ellipse
 )
 from .components.cli_plugin import CliPlugin
 from .components.dataset import Dataset, DatasetPatch, DatasetSubset, ItemStatus, eager_mode
@@ -57,4 +57,5 @@ from .components.media_manager import MediaManager
 from .components.progress_reporting import NullProgressReporter, ProgressReporter
 from .components.transformer import ItemTransform, Transform
 from .components.validator import Validator
+from .components.visualizer import Visualizer
 from .version import VERSION

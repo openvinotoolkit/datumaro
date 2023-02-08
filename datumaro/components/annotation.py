@@ -910,12 +910,20 @@ class Ellipse(_Shape):
         self.__attrs_init__([x1, y1, x2, y2], *args, **kwargs)
 
     @property
-    def x(self):
+    def x1(self):
         return self.points[0]
 
     @property
-    def y(self):
+    def y1(self):
         return self.points[1]
+
+    @property
+    def x2(self):
+        return self.points[2]
+
+    @property
+    def y2(self):
+        return self.points[3]
 
     @property
     def w(self):
@@ -937,7 +945,7 @@ class Ellipse(_Shape):
         return 0.25 * np.pi * self.w * self.h
 
     def get_bbox(self):
-        return [self.x, self.y, self.w, self.h]
+        return [self.x1, self.y1, self.w, self.h]
 
     def get_points(self, num_points: int = 720) -> List[Tuple[float, float]]:
         """

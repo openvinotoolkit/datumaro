@@ -23,6 +23,7 @@ from datumaro.components.annotation import (
     Caption,
     Cuboid3d,
     DepthAnnotation,
+    Ellipse,
     Label,
     LabelCategories,
     Mask,
@@ -175,6 +176,8 @@ class Visualizer:
             return self._draw_super_resolution_annotation(ann, label_categories, fig, ax, context)
         if ann.type == AnnotationType.depth_annotation:
             return self._draw_depth_annotation(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.ellipse:
+            return self._draw_ellipse(ann, label_categories, fig, ax, context)
 
         raise ValueError(f"Unknown ann.type={ann.type}")
 
@@ -474,3 +477,24 @@ class Visualizer:
 
         fig.colorbar(im, cax)
         context.append(im)
+
+    def _draw_ellipse(
+        self,
+        ann: Ellipse,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        label_text = label_categories[ann.label].name if label_categories is not None else ann.label
+        color = self._get_color(ann)
+        ellipse = patches.Ellipse(
+            xy=(ann.c_x, ann.c_y),
+            width=ann.w,
+            height=ann.h,
+            linewidth=self.bbox_linewidth,
+            edgecolor=color,
+            facecolor="none",
+        )
+        ax.text(ann.x1, ann.y1 - self.text_y_offset, label_text, color=color)
+        ax.add_patch(ellipse)

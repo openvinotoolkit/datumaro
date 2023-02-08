@@ -7,7 +7,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Label, Mask, Polygon
+from datumaro.components.annotation import Bbox, Ellipse, Label, Mask, Polygon
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
@@ -333,6 +333,15 @@ class _TestValidatorBase(TestCase):
                                     [1, 1, 1],
                                 ]
                             ),
+                        ),
+                        Ellipse(
+                            2,
+                            1,
+                            3,
+                            4,
+                            id=1,
+                            label=2,
+                            attributes={},
                         ),
                     ],
                 ),
@@ -935,7 +944,7 @@ class TestValidateAnnotations(_TestValidatorBase):
 
         with self.subTest("Test of statistics", i=0):
             actual_stats = actual_results["statistics"]
-            self.assertEqual(actual_stats["total_ann_count"], 8)
+            self.assertEqual(actual_stats["total_ann_count"], 9)
             self.assertEqual(len(actual_stats["items_missing_annotation"]), 1)
             self.assertEqual(actual_stats["items_with_invalid_value"], {})
 
@@ -960,24 +969,24 @@ class TestValidateAnnotations(_TestValidatorBase):
             self.assertEqual(attr_prop_stats["median"], np.median(areas))
 
             mask_dist_item = actual_stats["mask_distribution_in_dataset_item"]
-            self.assertEqual(sum(mask_dist_item.values()), 8)
+            self.assertEqual(sum(mask_dist_item.values()), 9)
 
         with self.subTest("Test of validation reports", i=1):
             actual_reports = actual_results["validation_reports"]
             report_types = [r["anomaly_type"] for r in actual_reports]
             count_by_type = Counter(report_types)
 
-            self.assertEqual(len(actual_reports), 24)
+            self.assertEqual(len(actual_reports), 25)
             self.assertEqual(count_by_type["ImbalancedDistInLabel"], 0)
             self.assertEqual(count_by_type["ImbalancedDistInAttribute"], 13)
             self.assertEqual(count_by_type["MissingAnnotation"], 1)
-            self.assertEqual(count_by_type["UndefinedLabel"], 2)
+            self.assertEqual(count_by_type["UndefinedLabel"], 3)
             self.assertEqual(count_by_type["FewSamplesInAttribute"], 4)
             self.assertEqual(count_by_type["UndefinedAttribute"], 4)
 
         with self.subTest("Test of summary", i=2):
             actual_summary = actual_results["summary"]
-            expected_summary = {"errors": 6, "warnings": 18}
+            expected_summary = {"errors": 7, "warnings": 18}
 
             self.assertEqual(actual_summary, expected_summary)
 

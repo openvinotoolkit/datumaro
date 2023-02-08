@@ -153,8 +153,8 @@ class _TaskValidator(Validator, CliPlugin):
             self.ann_types = {AnnotationType.bbox}
             self.str_ann_type = "bounding box"
         elif self.task_type == TaskType.segmentation:
-            self.ann_types = {AnnotationType.mask, AnnotationType.polygon}
-            self.str_ann_type = "mask or polygon"
+            self.ann_types = {AnnotationType.mask, AnnotationType.polygon, AnnotationType.ellipse}
+            self.str_ann_type = "mask or polygon or ellipse"
 
         if few_samples_thr is None:
             few_samples_thr = self.DEFAULT_FEW_SAMPLES_THR
