@@ -680,7 +680,7 @@ class Polygon(_Shape):
         self_polygon = sg.Polygon(self.get_points())
         other_polygon = sg.Polygon(other.get_points())
         inter_area = self_polygon.intersection(other_polygon).area
-        return abs(self_polygon.area - inter_area) == 0.0
+        return abs(self_polygon.area - inter_area) < 1e-7
 
 
 @attrs(slots=True, init=False, order=False)

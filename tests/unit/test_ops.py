@@ -7,6 +7,7 @@ from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
     Caption,
+    Ellipse,
     Label,
     LabelCategories,
     Mask,
@@ -182,6 +183,17 @@ class TestOperations(TestCase):
                                 "occluded": False,
                             },
                         ),
+                        Ellipse(
+                            5,
+                            6,
+                            2,
+                            2,
+                            attributes={
+                                "x": 2,
+                                "y": "3",
+                                "occluded": False,
+                            },
+                        ),
                     ],
                 ),
                 DatasetItem(id=3),
@@ -192,7 +204,7 @@ class TestOperations(TestCase):
 
         expected = {
             "images count": 4,
-            "annotations count": 10,
+            "annotations count": 11,
             "unannotated images count": 2,
             "unannotated images": ["3", "2.2"],
             "annotations by type": {
@@ -220,6 +232,7 @@ class TestOperations(TestCase):
                 "cuboid_3d": {"count": 0},
                 "super_resolution_annotation": {"count": 0},
                 "depth_annotation": {"count": 0},
+                "ellipse": {"count": 1},
             },
             "annotations": {
                 "labels": {
@@ -319,6 +332,7 @@ class TestOperations(TestCase):
                 "cuboid_3d": {"count": 0},
                 "super_resolution_annotation": {"count": 0},
                 "depth_annotation": {"count": 0},
+                "ellipse": {"count": 0},
             },
             "annotations": {
                 "labels": {
@@ -781,6 +795,7 @@ class TestMultimerge(TestCase):
                         Label(0),
                         Label(1),
                         Bbox(0, 0, 1, 1, label=1),
+                        Ellipse(0, 0, 1, 1, label=1),
                     ],
                 ),
             ],
@@ -796,6 +811,8 @@ class TestMultimerge(TestCase):
                         Label(1),
                         Bbox(0, 0, 1, 1, label=0),
                         Bbox(0, 0, 1, 1, label=1),
+                        Ellipse(0, 0, 1, 1, label=0),
+                        Ellipse(0, 0, 1, 1, label=1),
                     ],
                 ),
             ],
@@ -812,6 +829,8 @@ class TestMultimerge(TestCase):
                         Label(2),
                         Bbox(0, 0, 1, 1, label=1),
                         Bbox(0, 0, 1, 1, label=2),
+                        Ellipse(0, 0, 1, 1, label=1),
+                        Ellipse(0, 0, 1, 1, label=2),
                     ],
                 ),
             ],
