@@ -1,4 +1,3 @@
-import os.path as osp
 import unittest
 from functools import partial
 from unittest import TestCase
@@ -12,12 +11,9 @@ from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.components.searcher import Searcher
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
-from datumaro.util.image import load_image
 from datumaro.util.test_utils import TestDir
 
 from ..requirements import Requirements, mark_requirement
-
-from tests.utils.assets import get_test_asset_path
 
 
 class SearcherTest(TestCase):
@@ -53,31 +49,29 @@ class SearcherTest(TestCase):
         return dataset
 
     @property
-    def test_coco_dataset(self):
-        SEARCHER_DATASET_DIR = get_test_asset_path("searcher")
-        train_img1 = load_image(osp.join(SEARCHER_DATASET_DIR, "000000094852.jpg"))
-        train_img2 = load_image(osp.join(SEARCHER_DATASET_DIR, "000000210708.jpg"))
-        test_img = load_image(osp.join(SEARCHER_DATASET_DIR, "000000356432.jpg"))
+    def test_dataset_black_white(self):
+        train_img = np.full((5, 5, 3), 255, dtype=np.uint8)
+        test_img = np.full((5, 5, 3), 0, dtype=np.uint8)
 
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image(data=train_img1),
-                    annotations=[Label(1, id=1), Caption("elephant")],
+                    media=Image(data=train_img),
+                    annotations=[Label(1, id=1), Caption("cat")],
                 ),
                 DatasetItem(
                     id=2,
                     subset="train",
-                    media=Image(data=train_img2),
-                    annotations=[Label(1, id=1), Caption("elephant")],
+                    media=Image(data=train_img),
+                    annotations=[Label(1, id=1), Caption("cat")],
                 ),
                 DatasetItem(
                     id=3,
                     subset="test",
                     media=Image(data=test_img),
-                    annotations=[Label(2, id=2), Caption("couch")],
+                    annotations=[Label(2, id=2), Caption("dog")],
                 ),
             ]
         )
@@ -132,10 +126,10 @@ class SearcherTest(TestCase):
         """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(self.test_coco_dataset, test_dir)
+            converter(self.test_dataset_black_white, test_dir)
             imported_dataset = Dataset.import_from(test_dir, "datumaro")
             searcher = Searcher(imported_dataset)
-            result = searcher.search_topk("elephant", topk=2)
+            result = searcher.search_topk("a photo of white background", topk=2)
             self.assertEqual(result[0].subset, result[1].subset)
 
     @unittest.skip(reason="Searcher model is not uploaded in public storage")
