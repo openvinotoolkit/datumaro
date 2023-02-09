@@ -33,3 +33,4 @@ pandas>=1.1.5
 
 # OpenVINO
 openvino==2022.3.0
+tokenizers
