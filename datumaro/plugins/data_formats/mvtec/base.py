@@ -27,9 +27,7 @@ class _MvtecBase(SubsetBase):
         super().__init__(subset=subset)
 
         self._categories = self._load_categories()
-        print("base.py 31", self._categories)
         self._items = list(self._load_items().values())
-        print("base.py 33", self._items)
 
     def _load_categories(self):
         label_path = os.listdir(self._path)
@@ -40,7 +38,7 @@ class _MvtecBase(SubsetBase):
 
     def _load_items(self):
         items = {}
-        for image_path in find_images(self._path, recursive=True, max_depth=1):
+        for image_path in find_images(self._path, recursive=True, max_depth=2):
             label = osp.basename(osp.dirname(image_path))
             label_id = self._categories[AnnotationType.label].find(label)[0]
             item_id = label + "/" + osp.splitext(osp.basename(image_path))[0]
@@ -54,7 +52,7 @@ class _MvtecBase(SubsetBase):
             if self._task == MvtecTask.classification:
                 anns.append(Label(label=label_id))
             elif self._task == MvtecTask.segmentation:
-                mask_path = osp.join(self._path, MvtecPath.MASK_DIR)
+                mask_path = osp.join(self._path, "..", MvtecPath.MASK_DIR)
                 file_name = item_id + MvtecPath.MASK_POSTFIX + MvtecPath.MASK_EXT
                 instance_path = osp.join(mask_path, file_name)
 
@@ -68,7 +66,7 @@ class _MvtecBase(SubsetBase):
                 else:
                     anns.append(Label(label=label_id))
             elif self._task == MvtecTask.detection:
-                mask_path = osp.join(self._path, MvtecPath.MASK_DIR)
+                mask_path = osp.join(self._path, "..", MvtecPath.MASK_DIR)
                 file_name = item_id + MvtecPath.MASK_POSTFIX + MvtecPath.MASK_EXT
                 instance_path = osp.join(mask_path, file_name)
 
