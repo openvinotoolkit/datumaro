@@ -2,9 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os.path as osp
+from glob import glob
+
 from datumaro.components.importer import Importer
 
-from .format import MvtecTask
+from .format import MvtecTask, MvtecPath
 
 
 class MvtecImporter(Importer):
@@ -16,15 +19,21 @@ class MvtecImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
+        subset_paths = glob(osp.join(path, "*"), recursive=True)
+
         sources = []
         for extractor_type in cls._TASKS.values():
-            sources.append(
-                {
-                    "url": path,
-                    "format": extractor_type,
-                    "options": dict(),
-                }
-            )
+            for subset_path in subset_paths:
+                if osp.isdir(subset_path) and MvtecPath.MASK_DIR not in subset_path:
+                    sources.append(
+                        {
+                            "url": subset_path,
+                            "format": extractor_type,
+                            "options": dict(),
+                        }
+                    )
+        print("mvtec importer 36", sources)
+
         return sources
 
 

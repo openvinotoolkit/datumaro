@@ -199,5 +199,4 @@ class MvtecImporterTest(TestCase):
         for path, subtask in matrix:
             with self.subTest(path=path, task=subtask):
                 detected_formats = env.detect_dataset(path)
-                print(subtask.NAME, detected_formats)
                 self.assertIn(subtask.NAME, detected_formats)
