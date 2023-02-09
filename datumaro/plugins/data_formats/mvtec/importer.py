@@ -7,7 +7,7 @@ from glob import glob
 
 from datumaro.components.importer import Importer
 
-from .format import MvtecTask, MvtecPath
+from .format import MvtecPath, MvtecTask
 
 
 class MvtecImporter(Importer):
@@ -32,7 +32,6 @@ class MvtecImporter(Importer):
                             "options": dict(),
                         }
                     )
-        print("mvtec importer 36", sources)
 
         return sources
 
