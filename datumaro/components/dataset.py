@@ -40,6 +40,7 @@ from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilte
 from datumaro.components.importer import ImportContext, ImportErrorPolicy, _ImportFail
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.media import Image, MediaElement
+from datumaro.components.merger import Merger
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.plugins.transforms import ProjectLabels
@@ -862,7 +863,9 @@ class Dataset(IDataset):
         return cls.from_extractors(_extractor(), env=env)
 
     @staticmethod
-    def from_extractors(*sources: IDataset, env: Optional[Environment] = None) -> Dataset:
+    def from_extractors(
+        *sources: IDataset, env: Optional[Environment] = None, merger: Merger = None
+    ) -> Dataset:
         """
         Creates a new dataset from one or several `Extractor`s.
 
@@ -883,12 +886,15 @@ class Dataset(IDataset):
             source = sources[0]
             dataset = Dataset(source=source, env=env)
         else:
-            from datumaro.components.operations import ExactMerge
+            if not merger:
+                from datumaro.components.operations import ExactMerge
 
-            media_type = ExactMerge.merge_media_types(sources)
-            source = ExactMerge.merge(*sources)
-            infos = ExactMerge.merge_infos(s.infos() for s in sources)
-            categories = ExactMerge.merge_categories(s.categories() for s in sources)
+                merger = ExactMerge()
+
+            media_type = merger.merge_media_types(sources)
+            source = merger.merge(*sources)
+            infos = merger.merge_infos(s.infos() for s in sources)
+            categories = merger.merge_categories(s.categories() for s in sources)
             dataset = Dataset(
                 source=source, infos=infos, categories=categories, media_type=media_type, env=env
             )
