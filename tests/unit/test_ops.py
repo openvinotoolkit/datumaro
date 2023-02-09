@@ -451,7 +451,7 @@ class TestMultimerge(TestCase):
         )
 
         merger = IntersectMerge()
-        merged = merger([source0, source1, source2])
+        merged = merger.merge([source0, source1, source2])
 
         compare_datasets(self, expected, merged)
         self.assertEqual(
@@ -604,7 +604,7 @@ class TestMultimerge(TestCase):
         )
 
         merger = IntersectMerge(conf={"quorum": 1, "pairwise_dist": 0.1})
-        merged = merger([source0, source1, source2])
+        merged = merger.merge([source0, source1, source2])
 
         compare_datasets(self, expected, merged, ignored_attrs={"score"})
         self.assertEqual(
@@ -663,7 +663,7 @@ class TestMultimerge(TestCase):
         )
 
         merger = IntersectMerge(conf={"quorum": 1, "pairwise_dist": 0.1})
-        merged = merger([source0, source1])
+        merged = merger.merge([source0, source1])
 
         compare_datasets(self, expected, merged, ignored_attrs={"score"})
         self.assertEqual(0, len(merger.errors))
@@ -740,7 +740,7 @@ class TestMultimerge(TestCase):
         )
 
         merger = IntersectMerge(conf={"quorum": 3, "ignored_attributes": {"ignored"}})
-        merged = merger([source0, source1, source2])
+        merged = merger.merge([source0, source1, source2])
 
         compare_datasets(self, expected, merged, ignored_attrs={"score"})
         self.assertEqual(2, len([e for e in merger.errors if isinstance(e, FailedAttrVotingError)]))
@@ -767,7 +767,7 @@ class TestMultimerge(TestCase):
         )
 
         merger = IntersectMerge(conf={"groups": [["a", "a_g1", "a_g2_opt?"], ["c", "c_g1_opt?"]]})
-        merger([dataset, dataset])
+        merger.merge([dataset, dataset])
 
         self.assertEqual(
             3, len([e for e in merger.errors if isinstance(e, WrongGroupError)]), merger.errors
@@ -821,7 +821,7 @@ class TestMultimerge(TestCase):
         )
 
         merger = IntersectMerge()
-        merged = merger([source0, source1])
+        merged = merger.merge([source0, source1])
 
         compare_datasets(self, expected, merged, ignored_attrs={"score"})
 
@@ -909,7 +909,7 @@ class TestMultimerge(TestCase):
         )
 
         merger = IntersectMerge()
-        merged = merger([source0, source1])
+        merged = merger.merge([source0, source1])
 
         compare_datasets(self, expected, merged, ignored_attrs={"score"})
 
@@ -963,7 +963,7 @@ class TestMultimerge(TestCase):
         )
 
         merger = IntersectMerge()
-        merged = merger([source0, source1])
+        merged = merger.merge([source0, source1])
 
         compare_datasets(self, expected, merged)
 
@@ -1006,6 +1006,6 @@ class TestMultimerge(TestCase):
         )
 
         merger = IntersectMerge()
-        merged = merger([source0, source1])
+        merged = merger.merge([source0, source1])
 
         compare_datasets(self, expected, merged)

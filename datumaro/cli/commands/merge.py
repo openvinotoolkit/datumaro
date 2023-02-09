@@ -230,7 +230,7 @@ def merge_command(args):
             quorum=args.quorum,
         )
     )
-    merged_dataset = merger(source_datasets)
+    merged_dataset = merger.merge(source_datasets)
 
     merged_dataset.export(save_dir=dst_dir, format=exporter, **export_args)
 
