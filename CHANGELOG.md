@@ -9,14 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix for importing CVAT image 1.1 data format exported to project level
   (<https://github.com/openvinotoolkit/datumaro/pull/795>)
+- Fix problem setting loglevel via CLI
+  (<https://github.com/openvinotoolkit/datumaro/pull/800>)
 - Fix code format with the latest black==23.1.0
   (<https://github.com/openvinotoolkit/datumaro/pull/802>)
 - Refactor existing tests
   (<https://github.com/openvinotoolkit/datumaro/pull/803>)
-
-### Fixed
-- Fix problem setting loglevel via CLI
-  (<https://github.com/openvinotoolkit/datumaro/pull/800>)
+- Fix [#721](https://github.com/openvinotoolkit/datumaro/issues/721)
+  (<https://github.com/openvinotoolkit/datumaro/pull/804>)
 
 ## 27/01/2023 - Release v0.5.0
 ### Added

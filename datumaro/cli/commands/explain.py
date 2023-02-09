@@ -188,7 +188,13 @@ def explain_command(args):
 
     project = scope_add(load_project(args.project_dir))
 
-    model = project.working_tree.models.make_executable_model(args.model)
+    if args.model not in project.models:
+        raise CliException(
+            f"{args.model} has not been registered in this project. "
+            f"This is a list of registered model names: {list(project.models.keys())}"
+        )
+
+    model = project.make_model(args.model)
 
     if str(args.algorithm).lower() != "rise":
         raise CliException("Explanation algorithm except for rise is not yet implemented.")
