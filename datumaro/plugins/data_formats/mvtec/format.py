@@ -12,8 +12,6 @@ class MvtecTask(Enum):
 
 
 class MvtecPath:
-    TRAIN_DIR = "train"
-    TEST_DIR = "test"
     MASK_DIR = "ground_truth"
     MASK_POSTFIX = "_mask"
     IMAGE_EXT = ".png"

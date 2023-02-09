@@ -22,19 +22,17 @@ class _MvtecBase(SubsetBase):
         self._task = task
 
         if not subset:
-            subset = MvtecPath.TEST_DIR
+            subset = osp.splitext(osp.basename(path))[0]
         self._subset = subset
-        print("base.py 26", self._path, self._task, self._subset)
         super().__init__(subset=subset)
 
-        self._categories = self._load_categories(self._path)
+        self._categories = self._load_categories()
         print("base.py 31", self._categories)
         self._items = list(self._load_items().values())
         print("base.py 33", self._items)
 
-    def _load_categories(self, path):
-        label_path = os.listdir(osp.join(path, self._subset))
-        print(label_path)
+    def _load_categories(self):
+        label_path = os.listdir(self._path)
         label_cat = LabelCategories()
         for dirname in sorted(set(label_path)):
             label_cat.add(dirname)
@@ -42,9 +40,7 @@ class _MvtecBase(SubsetBase):
 
     def _load_items(self):
         items = {}
-        for image_path in find_images(
-            os.path.join(self._path, self._subset), recursive=True, max_depth=1
-        ):
+        for image_path in find_images(self._path, recursive=True, max_depth=1):
             label = osp.basename(osp.dirname(image_path))
             label_id = self._categories[AnnotationType.label].find(label)[0]
             item_id = label + "/" + osp.splitext(osp.basename(image_path))[0]
@@ -70,12 +66,7 @@ class _MvtecBase(SubsetBase):
                         )
                     )
                 else:
-                    anns.append(
-                        Mask(
-                            image=np.zeros(load_image(image_path).shape, dtype=np.int32),
-                            label=label_id,
-                        )
-                    )
+                    anns.append(Label(label=label_id))
             elif self._task == MvtecTask.detection:
                 mask_path = osp.join(self._path, MvtecPath.MASK_DIR)
                 file_name = item_id + MvtecPath.MASK_POSTFIX + MvtecPath.MASK_EXT
@@ -97,7 +88,8 @@ class _MvtecBase(SubsetBase):
                                 label=label_id,
                             )
                         )
-
+                else:
+                    anns.append(Label(label=label_id))
         return items
 
     @staticmethod

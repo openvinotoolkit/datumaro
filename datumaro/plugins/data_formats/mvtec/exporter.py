@@ -92,36 +92,28 @@ class MvtecExporter(Exporter):
                     mask_path = osp.join(
                         MvtecPath.MASK_DIR, item.id + MvtecPath.POSTFIX + MvtecPath.MASK_EXT
                     )
-                    x, y, h, w = bbox.get_bbox()
-                    masks = np.zeros(item.media.size)
-                    masks = cv2.rectangle(masks, (x, y), (x + w, y + h), (255, 255, 255), -1)
 
-                    self.save_mask(
-                        osp.join(self._save_dir, mask_path),
-                        masks,
-                        dtype=np.int32,
-                    )
+                    mask = np.zeros((*item.media.size,), dtype=np.uint8)
+                    for bbox in bboxes:
+                        x, y, h, w = bbox.get_bbox()
+                        mask = cv2.rectangle(mask, (x, y), (x + w, y + h), (1), -1)
+
+                    if not os.path.exists(os.path.join(self._save_dir, os.path.dirname(mask_path))):
+                        os.mkdir(os.path.join(self._save_dir, os.path.dirname(mask_path)))
+                    cv2.imwrite(mask_path, mask)
 
                 masks = [a for a in item.annotations if a.type == AnnotationType.mask]
                 if masks and MvtecTask.segmentation in self._tasks:
                     mask_path = osp.join(
                         MvtecPath.MASK_DIR, item.id + MvtecPath.POSTFIX + MvtecPath.MASK_EXT
                     )
-                    self.save_mask(
-                        osp.join(self._save_dir, mask_path),
-                        masks,
-                        dtype=np.int32,
-                    )
+
+                    if not os.path.exists(os.path.join(self._save_dir, os.path.dirname(mask_path))):
+                        os.mkdir(os.path.join(self._save_dir, os.path.dirname(mask_path)))
+                    cv2.imwrite(mask_path, masks[0].image.astype(np.uint8))
 
     def get_label(self, label_id):
         return self._extractor.categories()[AnnotationType.label].items[label_id].name
-
-    def save_mask(self, path, mask, colormap=None, apply_colormap=True, dtype=np.uint8):
-        if self._apply_colormap and apply_colormap:
-            if colormap is None:
-                colormap = self._categories[AnnotationType.mask].colormap
-            mask = paint_mask(mask, colormap)
-        save_image(path, mask, create_dir=True, dtype=dtype)
 
 
 class MvtecClassificationExporter(MvtecExporter):
