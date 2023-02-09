@@ -31,6 +31,7 @@ class AnnotationType(Enum):
     super_resolution_annotation = auto()
     depth_annotation = auto()
     ellipse = auto()
+    hash_key = auto()
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -206,6 +207,12 @@ class LabelCategories(Categories):
 class Label(Annotation):
     _type = AnnotationType.label
     label: int = field(converter=int)
+
+
+@attrs(slots=True, order=False)
+class HashKey(Annotation):
+    _type = AnnotationType.hash_key
+    hash_key: np.ndarray = field(factory=lambda: np.zeros((1, 64), dtype=np.uint8))
 
 
 RgbColor = Tuple[int, int, int]

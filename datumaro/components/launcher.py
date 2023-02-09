@@ -24,23 +24,34 @@ class Launcher(CliPlugin):
     def categories(self):
         return None
 
+    def type_check(self, item):
+        return True
+
 
 # pylint: enable=no-self-use
 
 
 class ModelTransform(Transform):
-    def __init__(self, extractor, launcher, batch_size=1):
+    def __init__(self, extractor, launcher, batch_size=1, append_annotation=False):
         super().__init__(extractor)
         self._launcher = launcher
         self._batch_size = batch_size
+        self._append_annotation = append_annotation
 
     def __iter__(self):
         for batch in take_by(self._extractor, self._batch_size):
-            inputs = np.array([np.atleast_3d(item.media.data) for item in batch])
+            inputs = []
+            for item in batch:
+                if not self._launcher.type_check(item):
+                    continue
+                inputs.append(np.atleast_3d(item.media.data))
+            inputs = np.array(inputs)
             inference = self._launcher.launch(inputs)
 
             for item, annotations in zip(batch, inference):
                 self._check_annotations(annotations)
+                if self._append_annotation:
+                    annotations = item.annotations + annotations
                 yield self.wrap_item(item, annotations=annotations)
 
     def get_subset(self, name):
@@ -68,7 +79,7 @@ class ModelTransform(Transform):
         labels_count = len(self.categories().get(AnnotationType.label, LabelCategories()).items)
 
         for ann in annotations:
-            label = getattr(ann, "label")
+            label = getattr(ann, "label", None)
             if label is None:
                 continue
 

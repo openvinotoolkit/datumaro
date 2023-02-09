@@ -114,6 +114,11 @@ class DatasetItemStorage:
     def get_annotated_items(self):
         return sum(bool(s.annotations) for s in self._traversal_order.values())
 
+    def get_datasetitem_by_path(self, path):
+        for s in self._traversal_order.values():
+            if s.media.path == path:
+                return s
+
     def get_annotations(self):
         annotations_by_type = {t.name: {"count": 0} for t in AnnotationType}
         for item in self._traversal_order.values():
@@ -704,6 +709,9 @@ class DatasetStorage(IDataset):
     def get_annotations(self):
         return self._storage.get_annotations()
 
+    def get_datasetitem_by_path(self, path):
+        return self._storage.get_datasetitem_by_path(path)
+
     def transform(self, method: Type[Transform], *args, **kwargs):
         # Flush accumulated changes
         if not self._storage.is_empty():
@@ -967,6 +975,11 @@ class Dataset(IDataset):
     def get_annotations(self):
         return self._data.get_annotations()
 
+    def get_datasetitem_by_path(self, path):
+        if not self._source_path in path:
+            path = osp.join(self._source_path, path)
+        return self._data.get_datasetitem_by_path(path)
+
     def get_subset_info(self):
         return (
             f"{subset_name}: # of items={len(self.get_subset(subset_name))}, "
@@ -1090,7 +1103,12 @@ class Dataset(IDataset):
         return self
 
     def run_model(
-        self, model: Union[Launcher, Type[ModelTransform]], *, batch_size: int = 1, **kwargs
+        self,
+        model: Union[Launcher, Type[ModelTransform]],
+        *,
+        batch_size: int = 1,
+        append_annotation: bool = False,
+        **kwargs,
     ) -> Dataset:
         """
         Applies a model to dataset items' media and produces a dataset with
@@ -1100,15 +1118,24 @@ class Dataset(IDataset):
             model: The model to be applied to the dataset
             batch_size: The number of dataset items processed
                 simultaneously by the model
+            append_annotation: Whether append new annotation to existed annotations
             **kwargs: Parameters for the model
 
         Returns: self
         """
 
         if isinstance(model, Launcher):
-            return self.transform(ModelTransform, launcher=model, batch_size=batch_size, **kwargs)
+            return self.transform(
+                ModelTransform,
+                launcher=model,
+                batch_size=batch_size,
+                append_annotation=append_annotation,
+                **kwargs,
+            )
         elif inspect.isclass(model) and isinstance(model, ModelTransform):
-            return self.transform(model, batch_size=batch_size, **kwargs)
+            return self.transform(
+                model, batch_size=batch_size, append_annotation=append_annotation, **kwargs
+            )
         else:
             raise TypeError("Unexpected 'model' argument type: %s" % type(model))
 

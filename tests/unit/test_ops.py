@@ -233,6 +233,7 @@ class TestOperations(TestCase):
                 "super_resolution_annotation": {"count": 0},
                 "depth_annotation": {"count": 0},
                 "ellipse": {"count": 1},
+                "hash_key": {"count": 0},
             },
             "annotations": {
                 "labels": {
@@ -333,6 +334,7 @@ class TestOperations(TestCase):
                 "super_resolution_annotation": {"count": 0},
                 "depth_annotation": {"count": 0},
                 "ellipse": {"count": 0},
+                "hash_key": {"count": 0},
             },
             "annotations": {
                 "labels": {

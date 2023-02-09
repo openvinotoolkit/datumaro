@@ -59,6 +59,7 @@ class Requirements:
     DATUM_BUG_602 = "Patch command example error"
     DATUM_BUG_606 = "transform with resize also changed the image extension from .jpg to .png"
     DATUM_BUG_618 = "ResizeTransform returns broken image pixels"
+    DATUM_BUG_721 = "Explain command cannot find the model"
 
 
 class SkipMessages:

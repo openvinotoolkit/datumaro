@@ -120,6 +120,7 @@ def _get_known_commands():
         ("stats", commands.stats, "Compute dataset statistics"),
         ("transform", commands.transform, "Modify dataset items"),
         ("validate", commands.validate, "Validate dataset"),
+        ("search", commands.search, "Search similar datasetitems of query"),
     ]
 
 

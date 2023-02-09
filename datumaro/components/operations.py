@@ -721,6 +721,8 @@ class IntersectMerge(MergingStrategy):
                 return _make(ImageAnnotationMerger, **kwargs)
             elif t is AnnotationType.ellipse:
                 return _make(EllipseMerger, **kwargs)
+            elif t is AnnotationType.hash_key:
+                return _make(HashKeyMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 
@@ -1110,6 +1112,12 @@ class ImageAnnotationMatcher(AnnotationMatcher):
         raise NotImplementedError()
 
 
+@attrs
+class HashKeyMatcher(AnnotationMatcher):
+    def match_annotations(self, sources):
+        raise NotImplementedError()
+
+
 @attrs(kw_only=True)
 class AnnotationMerger:
     def merge_clusters(self, clusters):
@@ -1255,6 +1263,11 @@ class ImageAnnotationMerger(AnnotationMerger, ImageAnnotationMatcher):
 
 @attrs
 class EllipseMerger(_ShapeMerger, _ShapeMatcher):
+    pass
+
+
+@attrs
+class HashKeyMerger(AnnotationMerger, HashKeyMatcher):
     pass
 
 
