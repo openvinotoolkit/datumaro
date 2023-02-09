@@ -35,7 +35,7 @@ class AnnotationType(Enum):
 
 
 COORDINATE_ROUNDING_DIGITS = 2
-
+CHECK_POLYGON_EQ_EPSILONE = 1e-7
 NO_GROUP = 0
 
 
@@ -687,7 +687,7 @@ class Polygon(_Shape):
         self_polygon = sg.Polygon(self.get_points())
         other_polygon = sg.Polygon(other.get_points())
         inter_area = self_polygon.intersection(other_polygon).area
-        return abs(self_polygon.area - inter_area) < 1e-7
+        return abs(self_polygon.area - inter_area) < CHECK_POLYGON_EQ_EPSILONE
 
 
 @attrs(slots=True, init=False, order=False)
