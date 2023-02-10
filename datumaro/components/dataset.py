@@ -40,7 +40,6 @@ from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilte
 from datumaro.components.importer import ImportContext, ImportErrorPolicy, _ImportFail
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.media import Image, MediaElement
-from datumaro.components.merger import Merger
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.plugins.transforms import ProjectLabels
@@ -1386,7 +1385,7 @@ class Dataset(IDataset):
                 )
 
                 if not merge_policy:
-                    merge_policy = extractor_kwargs["merge_policy"]
+                    merge_policy = extractor_kwargs.get("merge_policy", None)
 
                 try:
                     extractors.append(
