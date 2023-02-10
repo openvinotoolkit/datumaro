@@ -23,7 +23,6 @@ from datumaro.components.annotation import (
     MaskCategories,
     PointsCategories,
 )
-from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import Dataset, DatasetItemStorage
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.errors import (
@@ -56,6 +55,7 @@ from datumaro.util.annotation_util import (
 from datumaro.util.attrs_util import default_if_none, ensure_cls
 
 
+@attrs
 class ExactMerge(Merger):
     """
     Merges several datasets using the "simple" algorithm:
@@ -341,6 +341,7 @@ class ExactMerge(Merger):
         return self._merge_annotations_equal(a, b)
 
 
+@attrs
 class IntersectMerge(Merger):
     def __init__(self, **options):
         super().__init__(**options)
@@ -851,6 +852,7 @@ class IntersectMerge(Merger):
                     )
 
 
+@attrs
 class UnionMerge(Merger):
     """
     Merges several datasets using the "simple" algorithm:
