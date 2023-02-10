@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ['macos-11', 'ubuntu-20.04', 'windows-2019']
-        python-version: ['3.7', '3.8']
+        python-version: ['3.8']
     name: pr test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
