@@ -12,6 +12,7 @@ from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
     Caption,
+    Ellipse,
     Label,
     LabelCategories,
     Mask,
@@ -2612,3 +2613,60 @@ class CocoExporterTest(TestCase):
                 require_media=True,
             )
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_export_and_import_ellipse(self):
+        ellipses = [
+            Ellipse(0, 0, 5, 5, id=1, label=1, group=1),
+            Ellipse(5, 5, 10, 10, id=2, label=2, group=2),
+        ]
+
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((10, 10, 3))),
+                    annotations=ellipses,
+                    attributes={"id": 1},
+                ),
+            ],
+            categories=[str(i) for i in range(10)],
+        )
+
+        target_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=Image(data=np.ones((10, 10, 3))),
+                    annotations=[
+                        Polygon(
+                            ellipse.as_polygon(),
+                            id=ellipse.id,
+                            label=ellipse.label,
+                            group=ellipse.group,
+                        )
+                        for ellipse in ellipses
+                    ]
+                    + [
+                        Bbox(
+                            *ellipse.get_bbox(),
+                            id=ellipse.id,
+                            label=ellipse.label,
+                            group=ellipse.group,
+                        )
+                        for ellipse in ellipses
+                    ],
+                    attributes={"id": 1},
+                ),
+            ],
+            categories=[str(i) for i in range(10)],
+        )
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                source_dataset,
+                CocoInstancesExporter.convert,
+                test_dir,
+                target_dataset=target_dataset,
+                ignored_attrs={"is_crowd"},
+            )

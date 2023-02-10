@@ -719,6 +719,8 @@ class IntersectMerge(MergingStrategy):
                 return _make(ImageAnnotationMerger, **kwargs)
             elif t is AnnotationType.depth_annotation:
                 return _make(ImageAnnotationMerger, **kwargs)
+            elif t is AnnotationType.ellipse:
+                return _make(EllipseMerger, **kwargs)
             elif t is AnnotationType.hash_key:
                 return _make(HashKeyMerger, **kwargs)
             else:
@@ -1256,6 +1258,11 @@ class Cuboid3dMerger(_ShapeMerger, Cuboid3dMatcher):
 
 @attrs
 class ImageAnnotationMerger(AnnotationMerger, ImageAnnotationMatcher):
+    pass
+
+
+@attrs
+class EllipseMerger(_ShapeMerger, _ShapeMatcher):
     pass
 
 

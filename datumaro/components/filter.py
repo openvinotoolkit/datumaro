@@ -12,6 +12,7 @@ from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
     Caption,
+    Ellipse,
     Label,
     Mask,
     Points,
@@ -197,6 +198,21 @@ class DatasetItemEncoder:
         return ann_elem
 
     @classmethod
+    def encode_ellipse_object(cls, obj: Ellipse, categories) -> ET.Element:
+        ann_elem = cls.encode_annotation_base(obj)
+
+        ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
+        ET.SubElement(ann_elem, "label_id").text = str(obj.label)
+
+        ET.SubElement(ann_elem, "x1").text = str(obj.x1)
+        ET.SubElement(ann_elem, "y1").text = str(obj.y1)
+        ET.SubElement(ann_elem, "x2").text = str(obj.x2)
+        ET.SubElement(ann_elem, "y2").text = str(obj.y2)
+        ET.SubElement(ann_elem, "area").text = str(obj.get_area())
+
+        return ann_elem
+
+    @classmethod
     def encode_annotation(cls, o, categories=None):
         if isinstance(o, Label):
             return cls.encode_label_object(o, categories)
@@ -212,6 +228,8 @@ class DatasetItemEncoder:
             return cls.encode_polygon_object(o, categories)
         if isinstance(o, Caption):
             return cls.encode_caption_object(o)
+        if isinstance(o, Ellipse):
+            return cls.encode_ellipse_object(o, categories)
         raise NotImplementedError("Unexpected annotation object passed: %s" % o)
 
     @staticmethod

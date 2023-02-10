@@ -7,12 +7,19 @@ import os
 import os.path as osp
 from enum import Enum, auto
 from itertools import chain, groupby
+from typing import List, Union
 
 import pycocotools.mask as mask_utils
 
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
-from datumaro.components.annotation import COORDINATE_ROUNDING_DIGITS, AnnotationType, Points
+from datumaro.components.annotation import (
+    COORDINATE_ROUNDING_DIGITS,
+    AnnotationType,
+    Ellipse,
+    Points,
+    Polygon,
+)
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
@@ -155,6 +162,14 @@ class _CaptionsExporter(_TaskExporter):
 
 
 class _InstancesExporter(_TaskExporter):
+    _polygon_types = {AnnotationType.polygon, AnnotationType.ellipse}
+    _allowed_types = {
+        AnnotationType.bbox,
+        AnnotationType.polygon,
+        AnnotationType.mask,
+        AnnotationType.ellipse,
+    }
+
     def save_categories(self, dataset):
         label_categories = dataset.categories().get(AnnotationType.label)
         if label_categories is None:
@@ -203,7 +218,9 @@ class _InstancesExporter(_TaskExporter):
 
     def find_instance_parts(self, group, img_width, img_height):
         boxes = [a for a in group if a.type == AnnotationType.bbox]
-        polygons = [a for a in group if a.type == AnnotationType.polygon]
+        polygons: List[Union[Polygon, Ellipse]] = [
+            a for a in group if a.type in self._polygon_types
+        ]
         masks = [a for a in group if a.type == AnnotationType.mask]
 
         anns = boxes + polygons + masks
@@ -213,7 +230,7 @@ class _InstancesExporter(_TaskExporter):
         else:
             bbox = anno_tools.max_bbox(anns)
         mask = None
-        polygons = [p.points for p in polygons]
+        polygons = [p.as_polygon() for p in polygons]
 
         if self._context._segmentation_mode == SegmentationMode.guess:
             use_masks = True is leader.attributes.get(
@@ -251,11 +268,7 @@ class _InstancesExporter(_TaskExporter):
 
     @staticmethod
     def find_instance_anns(annotations):
-        return [
-            a
-            for a in annotations
-            if a.type in {AnnotationType.bbox, AnnotationType.polygon, AnnotationType.mask}
-        ]
+        return [a for a in annotations if a.type in _InstancesExporter._allowed_types]
 
     @classmethod
     def find_instances(cls, annotations):
