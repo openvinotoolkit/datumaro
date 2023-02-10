@@ -16,6 +16,7 @@ from datumaro.components.annotation import (
     Bbox,
     Caption,
     Cuboid3d,
+    Ellipse,
     Label,
     LabelCategories,
     Mask,
@@ -146,6 +147,8 @@ class _SubsetWriter:
                 converted_ann = self._convert_caption_object(ann)
             elif isinstance(ann, Cuboid3d):
                 converted_ann = self._convert_cuboid_3d_object(ann)
+            elif isinstance(ann, Ellipse):
+                converted_ann = self._convert_ellipse_object(ann)
             else:
                 raise NotImplementedError()
             annotations.append(converted_ann)
@@ -271,6 +274,9 @@ class _SubsetWriter:
             }
         )
         return converted
+
+    def _convert_ellipse_object(self, obj: Ellipse):
+        return self._convert_shape_object(obj)
 
     def _convert_attribute_categories(self, attributes):
         return sorted(attributes)

@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
     Caption,
+    Ellipse,
     Label,
     LabelCategories,
     Mask,
@@ -2198,6 +2199,39 @@ class TestHLOps(TestCase):
         )
 
         compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_filter_by_annotation_types(self):
+        annotations = [
+            Label(0, id=0),
+            Bbox(0, 0, 1, 1, id=1),
+            Polygon([0, 0, 0, 1, 1, 1], id=2),
+            Ellipse(0, 0, 1, 1, id=3),
+        ]
+
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    0,
+                    subset="train",
+                    annotations=annotations,
+                )
+            ],
+        )
+
+        types = {ann.type.name for ann in annotations}
+
+        for t in types:
+            allowed_types = types - {t}
+            cmd = " or ".join([f"type='{allowed_type}'" for allowed_type in allowed_types])
+            actual = hl_ops.filter(
+                dataset,
+                f"/item/annotation[{cmd}]",
+                filter_annotations=True,
+                remove_empty=True,
+            )
+            actual_anns = [item for item in actual][0].annotations
+            self.assertEqual(len(actual_anns), len(allowed_types))
 
     def test_can_merge(self):
         expected = Dataset.from_iterable(

@@ -8,6 +8,7 @@ from datumaro.components.annotation import (
     Bbox,
     Caption,
     DepthAnnotation,
+    Ellipse,
     Label,
     Mask,
     Points,
@@ -387,6 +388,43 @@ class DepthVisualizerTest(TestCase, VisualizerTestBase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_one_sample(self):
         self._test_vis_one_sample("_draw_depth_annotation", check_z_order=False)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_vis_gallery(self):
+        self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
+
+
+class EllipseVisualizerTest(TestCase, VisualizerTestBase):
+    @classmethod
+    def setUpClass(cls):
+        cls.subset = "train"
+        cls.items = [
+            DatasetItem(
+                "image_%03d" % img_idx,
+                subset=cls.subset,
+                media=Image(data=np.ones((4, 6, 3))),
+                annotations=[
+                    Ellipse(
+                        0,
+                        0,
+                        1,
+                        1,
+                        label=label_idx,
+                        id=img_idx * img_idx + label_idx,
+                        group=1,
+                        z_order=label_idx,
+                        attributes={},
+                    )
+                    for label_idx in range(img_idx)
+                ],
+            )
+            for img_idx in range(1, 6)
+        ]
+        cls.dataset = Dataset.from_iterable(cls.items)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_vis_one_sample(self):
+        self._test_vis_one_sample("_draw_ellipse")
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_gallery(self):

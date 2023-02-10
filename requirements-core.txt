@@ -9,7 +9,7 @@ numpy>=1.17.3
 orjson>=3.6.6
 Pillow>=6.1.0
 ruamel.yaml>=0.17.0
-shapely>=2.0.0
+shapely>=1.7
 typing_extensions>=3.7.4.3
 
 pycocotools>=2.0.4; platform_system != "Windows" or python_version >= '3.9'
@@ -33,3 +33,4 @@ pandas>=1.1.5
 
 # OpenVINO
 openvino==2022.3.0
+tokenizers

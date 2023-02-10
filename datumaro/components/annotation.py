@@ -30,10 +30,12 @@ class AnnotationType(Enum):
     cuboid_3d = auto()
     super_resolution_annotation = auto()
     depth_annotation = auto()
+    ellipse = auto()
+    hash_key = auto()
 
 
 COORDINATE_ROUNDING_DIGITS = 2
-
+CHECK_POLYGON_EQ_EPSILONE = 1e-7
 NO_GROUP = 0
 
 
@@ -205,6 +207,12 @@ class LabelCategories(Categories):
 class Label(Annotation):
     _type = AnnotationType.label
     label: int = field(converter=int)
+
+
+@attrs(slots=True, order=False)
+class HashKey(Annotation):
+    _type = AnnotationType.hash_key
+    hash_key: np.ndarray = field(factory=lambda: np.zeros((1, 64), dtype=np.uint8))
 
 
 RgbColor = Tuple[int, int, int]
@@ -543,6 +551,9 @@ class _Shape(Annotation):
     def get_area(self):
         raise NotImplementedError()
 
+    def as_polygon(self) -> List[float]:
+        raise NotImplementedError()
+
     def get_bbox(self) -> Tuple[float, float, float, float]:
         "Returns [x, y, w, h]"
 
@@ -660,6 +671,9 @@ class Polygon(_Shape):
         area = mask_utils.area(rle)[0]
         return area
 
+    def as_polygon(self) -> List[float]:
+        return self.points
+
     def __eq__(self, other):
         if not isinstance(other, __class__):
             return False
@@ -673,7 +687,7 @@ class Polygon(_Shape):
         self_polygon = sg.Polygon(self.get_points())
         other_polygon = sg.Polygon(other.get_points())
         inter_area = self_polygon.intersection(other_polygon).area
-        return abs(self_polygon.area - inter_area) == 0.0
+        return abs(self_polygon.area - inter_area) < CHECK_POLYGON_EQ_EPSILONE
 
 
 @attrs(slots=True, init=False, order=False)
@@ -706,7 +720,7 @@ class Bbox(_Shape):
     def get_bbox(self):
         return [self.x, self.y, self.w, self.h]
 
-    def as_polygon(self):
+    def as_polygon(self) -> List[float]:
         x, y, w, h = self.get_bbox()
         return [x, y, x + w, y, x + w, y + h, x, y + h]
 
@@ -873,3 +887,116 @@ class DepthAnnotation(_ImageAnnotation):
     """
 
     _type = AnnotationType.depth_annotation
+
+
+@attrs(slots=True, init=False, order=False)
+class Ellipse(_Shape):
+    """
+    Ellipse represents an ellipse that is encapsulated by a rectangle.
+
+    - x1 and y1 represent the top-left coordinate of the encapsulating rectangle
+    - x2 and y2 representing the bottom-right coordinate of the encapsulating rectangle
+
+    Parameters
+    ----------
+
+    x1: float
+        left x coordinate of encapsulating rectangle
+    y1: float
+        top y coordinate of encapsulating rectangle
+    x2: float
+        right x coordinate of encapsulating rectangle
+    y2: float
+        bottom y coordinate of encapsulating rectangle
+    """
+
+    _type = AnnotationType.ellipse
+
+    def __init__(self, x1: float, y1: float, x2: float, y2: float, *args, **kwargs):
+        kwargs.pop("points", None)  # comes from wrap()
+        self.__attrs_init__([x1, y1, x2, y2], *args, **kwargs)
+
+    @property
+    def x1(self):
+        return self.points[0]
+
+    @property
+    def y1(self):
+        return self.points[1]
+
+    @property
+    def x2(self):
+        return self.points[2]
+
+    @property
+    def y2(self):
+        return self.points[3]
+
+    @property
+    def w(self):
+        return self.points[2] - self.points[0]
+
+    @property
+    def h(self):
+        return self.points[3] - self.points[1]
+
+    @property
+    def c_x(self):
+        return 0.5 * (self.points[0] + self.points[2])
+
+    @property
+    def c_y(self):
+        return 0.5 * (self.points[1] + self.points[3])
+
+    def get_area(self):
+        return 0.25 * np.pi * self.w * self.h
+
+    def get_bbox(self):
+        return [self.x1, self.y1, self.w, self.h]
+
+    def get_points(self, num_points: int = 720) -> List[Tuple[float, float]]:
+        """
+        Return points as a list of tuples, e.g. [(x0, y0), (x1, y1), ...].
+
+        Parameters
+        ----------
+        num_points: int
+            The number of boundary points of the ellipse.
+            By default, one point is created for every 1 degree of interior angle (num_points=360).
+        """
+        points = self.as_polygon(num_points)
+
+        return [(x, y) for x, y in zip(points[0::2], points[1::2])]
+
+    def as_polygon(self, num_points: int = 720) -> List[float]:
+        """
+        Return a polygon as a list of tuples, e.g. [x0, y0, x1, y1, ...].
+
+        Parameters
+        ----------
+        num_points: int
+            The number of boundary points of the ellipse.
+            By default, one point is created for every 1 degree of interior angle (num_points=360).
+        """
+        theta = np.linspace(0, 2 * np.pi, num=num_points)
+
+        l1 = 0.5 * self.w
+        l2 = 0.5 * self.h
+        x_points = self.c_x + l1 * np.cos(theta)
+        y_points = self.c_y + l2 * np.sin(theta)
+
+        points = []
+        for x, y in zip(x_points, y_points):
+            points += [x, y]
+
+        return points
+
+    def iou(self, other: _Shape) -> Union[float, Literal[-1]]:
+        from datumaro.util.annotation_util import bbox_iou
+
+        return bbox_iou(self.get_bbox(), other.get_bbox())
+
+    def wrap(item: Ellipse, **kwargs) -> Ellipse:
+        d = {"x1": item.x1, "y1": item.y1, "x2": item.x2, "y2": item.y2}
+        d.update(kwargs)
+        return attr.evolve(item, **d)

@@ -10,6 +10,7 @@ import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
+    Ellipse,
     Label,
     LabelCategories,
     Mask,
@@ -133,6 +134,8 @@ class TransformsTest(TestCase):
                     annotations=[
                         Polygon([0, 0, 4, 0, 4, 4]),
                         Polygon([5, 0, 9, 0, 5, 5]),
+                        Ellipse(0, 1, 5, 4),
+                        Ellipse(6, 0, 9, 5),
                     ],
                 ),
             ]
@@ -163,6 +166,28 @@ class TransformsTest(TestCase):
                                     [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                ]
+                            ),
+                        ),
+                        Mask(
+                            np.array(
+                                [
+                                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                    [0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+                                    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+                                    [0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                ]
+                            ),
+                        ),
+                        Mask(
+                            np.array(
+                                [
+                                    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
+                                    [0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
+                                    [0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
                                 ]
                             ),
                         ),

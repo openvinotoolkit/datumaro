@@ -9,6 +9,7 @@ from datumaro.components.annotation import (
     Bbox,
     Caption,
     Cuboid3d,
+    Ellipse,
     Label,
     LabelCategories,
     MaskCategories,
@@ -261,6 +262,18 @@ class DatumaroBase(SubsetBase):
                         id=ann_id,
                         attributes=attributes,
                         group=group,
+                    )
+                )
+
+            elif ann_type == AnnotationType.ellipse:
+                loaded.append(
+                    Ellipse(
+                        *points,
+                        label=label_id,
+                        id=ann_id,
+                        attributes=attributes,
+                        group=group,
+                        z_order=z_order,
                     )
                 )
 

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+### Added
+- Add Data Explorer
+  (<https://github.com/openvinotoolkit/datumaro/pull/773>)
+- Add Ellipse annotation type
+  (<https://github.com/openvinotoolkit/datumaro/pull/807>)
+
 ### Fixed
 - Fix for importing CVAT image 1.1 data format exported to project level
   (<https://github.com/openvinotoolkit/datumaro/pull/795>)

@@ -24,6 +24,7 @@ from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
     Caption,
+    Ellipse,
     Label,
     LabelCategories,
     Mask,
@@ -208,10 +209,12 @@ class MergeInstanceSegments(ItemTransform, CliPlugin):
 
 
 class PolygonsToMasks(ItemTransform, CliPlugin):
+    _allowed_types = {AnnotationType.polygon, AnnotationType.ellipse}
+
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
-            if ann.type == AnnotationType.polygon:
+            if ann.type in self._allowed_types:
                 if not isinstance(item.media, Image):
                     raise Exception("Image info is required for this transform")
                 h, w = item.media.size
@@ -222,8 +225,8 @@ class PolygonsToMasks(ItemTransform, CliPlugin):
         return self.wrap_item(item, annotations=annotations)
 
     @staticmethod
-    def convert_polygon(polygon, img_h, img_w):
-        rle = mask_utils.frPyObjects([polygon.points], img_h, img_w)[0]
+    def convert_polygon(polygon: Union[Polygon, Ellipse], img_h, img_w):
+        rle = mask_utils.frPyObjects([polygon.as_polygon()], img_h, img_w)[0]
 
         return RleMask(
             rle=rle,

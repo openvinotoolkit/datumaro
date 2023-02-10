@@ -137,7 +137,8 @@ def segment_iou(a, b):
     a_bbox = list(a.get_bbox())
     b_bbox = list(b.get_bbox())
 
-    is_bbox = AnnotationType.bbox in [a.type, b.type]
+    types = {a.type, b.type}
+    is_bbox = AnnotationType.bbox in types or AnnotationType.ellipse in types
     if is_bbox:
         a = [a_bbox]
         b = [b_bbox]
