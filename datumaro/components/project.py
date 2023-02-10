@@ -2685,10 +2685,12 @@ class Project:
         if self.readonly:
             raise ReadonlyProjectError()
 
-        if name in self.models:
+        if name not in self.models:
             raise KeyError("Unknown model '%s'" % name)
 
         MediaManager.get_instance().clear()
+
+        self._config.models.remove(name)
 
         data_dir = self.model_data_dir(name)
         if osp.isdir(data_dir):

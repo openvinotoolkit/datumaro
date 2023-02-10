@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
+- Add Data Explorer
+  (<https://github.com/openvinotoolkit/datumaro/pull/773>)
 - Add Ellipse annotation type
   (<https://github.com/openvinotoolkit/datumaro/pull/807>)
 
@@ -19,10 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/802>)
 - Refactor existing tests
   (<https://github.com/openvinotoolkit/datumaro/pull/803>)
-- Fix [#721](https://github.com/openvinotoolkit/datumaro/issues/721)
+- Fix [Explain command cannot find the model (#721)](https://github.com/openvinotoolkit/datumaro/issues/721)
   (<https://github.com/openvinotoolkit/datumaro/pull/804>)
-- Add Data Explorer
-  (<https://github.com/openvinotoolkit/datumaro/pull/773>)
+- Fix model remove CLI command
+  (<https://github.com/openvinotoolkit/datumaro/pull/805>)
 
 ## 27/01/2023 - Release v0.5.0
 ### Added
