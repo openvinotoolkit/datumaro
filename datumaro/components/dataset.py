@@ -1373,6 +1373,7 @@ class Dataset(IDataset):
 
         try:
             extractors = []
+            merge_policy = None
             for src_conf, pbar in zip(detected_sources, pbars):
                 if not isinstance(src_conf, Source):
                     src_conf = Source(src_conf)
@@ -1383,6 +1384,9 @@ class Dataset(IDataset):
                 extractor_kwargs["ctx"] = ImportContext(
                     progress_reporter=pbar, error_policy=error_policy
                 )
+
+                if not merge_policy:
+                    merge_policy = extractor_kwargs["merge_policy"]
 
                 try:
                     extractors.append(
@@ -1406,7 +1410,6 @@ class Dataset(IDataset):
                         env.make_extractor(src_conf.format, src_conf.url, **extractor_kwargs)
                     )
 
-            merge_policy = detected_sources[0].get("options").get("merge_policy", None)
             dataset = cls.from_extractors(*extractors, env=env, merge_policy=merge_policy)
             if eager:
                 dataset.init_cache()

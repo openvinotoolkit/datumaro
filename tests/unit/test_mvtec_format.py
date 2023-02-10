@@ -16,7 +16,8 @@ from datumaro.plugins.data_formats.mvtec.importer import (
 )
 from datumaro.util.test_utils import TestDir, compare_datasets
 
-from .requirements import Requirements, mark_requirement
+from tests.requirements import Requirements, mark_requirement
+from tests.utils.assets import get_test_asset_path
 
 
 class MVTecFormatTest(TestCase):
@@ -107,8 +108,7 @@ class MVTecFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
 
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), "assets", "mvtec_dataset", "category_0")
-
+DUMMY_DATASET_DIR = get_test_asset_path("mvtec_dataset", "category_0")
 
 class MvtecImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
