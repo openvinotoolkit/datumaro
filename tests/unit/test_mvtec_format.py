@@ -110,6 +110,7 @@ class MVTecFormatTest(TestCase):
 
 DUMMY_DATASET_DIR = get_test_asset_path("mvtec_dataset", "category_0")
 
+
 class MvtecImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_classification(self):
