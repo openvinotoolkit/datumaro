@@ -864,7 +864,7 @@ class Dataset(IDataset):
 
     @staticmethod
     def from_extractors(
-        *sources: IDataset, env: Optional[Environment] = None, merger: Merger = None
+        *sources: IDataset, env: Optional[Environment] = None, merge_policy: str = None
     ) -> Dataset:
         """
         Creates a new dataset from one or several `Extractor`s.
@@ -886,18 +886,18 @@ class Dataset(IDataset):
             source = sources[0]
             dataset = Dataset(source=source, env=env)
         else:
-            if not merger:
-                from datumaro.components.operations import ExactMerge
+            from datumaro.components.merger import get_merger
 
-                merger = ExactMerge()
+            merger = get_merger(merge_policy)
 
+            categories = merger.merge_categories(s.categories() for s in sources)
+            infos = merger.merge_infos(s.infos() for s in sources)
             media_type = merger.merge_media_types(sources)
             source = merger.merge(*sources)
-            infos = merger.merge_infos(s.infos() for s in sources)
-            categories = merger.merge_categories(s.categories() for s in sources)
             dataset = Dataset(
                 source=source, infos=infos, categories=categories, media_type=media_type, env=env
             )
+
         return dataset
 
     def __init__(
@@ -1406,7 +1406,8 @@ class Dataset(IDataset):
                         env.make_extractor(src_conf.format, src_conf.url, **extractor_kwargs)
                     )
 
-            dataset = cls.from_extractors(*extractors, env=env)
+            merge_policy = detected_sources[0].get("options").get("merge_policy", None)
+            dataset = cls.from_extractors(*extractors, env=env, merge_policy=merge_policy)
             if eager:
                 dataset.init_cache()
         except _ImportFail as e:
