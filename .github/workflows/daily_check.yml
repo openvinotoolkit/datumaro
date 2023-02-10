@@ -1,27 +1,19 @@
-name: PR Test
+name: Nightly Regression Test
 on:
-  push:
-    branches:
-      - 'master'
-      - 'develop'
-      - 'releases/*'
-  pull_request:
-    types: [edited, ready_for_review, opened, synchronize, reopened]
+  workflow_dispatch: # run on request (no need for PR)
+  schedule:
+    - cron: "0 0 * * *" # Every day at 12:00 AM
 defaults:
   run:
     shell: bash
 jobs:
-  pr_test:
-    if: |
-      github.event.pull_request.draft == false &&
-      !startsWith(github.event.pull_request.title, '[WIP]') &&
-      !startsWith(github.event.pull_request.title, '[Dependent]')
+  nightly_regression_test:
     strategy:
       fail-fast: false
       matrix:
         os: ['macos-11', 'ubuntu-20.04', 'windows-2019']
-        python-version: ['3.8']
-    name: pr test (${{ matrix.os }}, Python ${{ matrix.python-version }})
+        python-version: ['3.7', '3.8', '3.9', '3.10']
+    name: nightly regression test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2

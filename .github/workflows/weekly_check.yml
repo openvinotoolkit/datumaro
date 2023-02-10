@@ -1,0 +1,29 @@
+name: Weekly Stability Test
+on:
+  workflow_dispatch: # run on request (no need for PR)
+  schedule:
+    - cron: "0 9 * * 6" # every 9AM on Saturday
+defaults:
+  run:
+    shell: bash
+jobs:
+  weekly_stability_test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['macos-11', 'ubuntu-20.04', 'windows-2019']
+        python-version: ['3.8']
+    name: stability test (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Installing python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Installing dependencies
+        run: |
+          pip install -e '.[default,tf,tfds]' pytest pytest-stress
+      - name: Stability testing
+        run: |
+          pytest --hours 8
