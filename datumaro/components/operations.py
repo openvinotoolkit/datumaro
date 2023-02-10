@@ -839,6 +839,7 @@ class IntersectMerge(Merger):
             return self._get_label_name(label_id)
 
     def _check_groups_definition(self):
+        print("op 842", self.conf.groups)
         for group in self.conf.groups:
             for label, _ in group:
                 _, entry = self._categories[AnnotationType.label].find(label)
