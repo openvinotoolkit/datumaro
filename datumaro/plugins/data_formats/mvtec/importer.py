@@ -29,7 +29,7 @@ class MvtecImporter(Importer):
                         {
                             "url": subset_path,
                             "format": extractor_type,
-                            "options": dict(),
+                            "options": dict({"merge_policy": "union"}),
                         }
                     )
 

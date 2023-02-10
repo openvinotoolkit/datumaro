@@ -96,15 +96,15 @@ class _MvtecBase(SubsetBase):
 
 
 class MvtecClassificationBase(_MvtecBase):
-    def __init__(self, path):
+    def __init__(self, path, **kwargs):
         super().__init__(path, task=MvtecTask.classification)
 
 
 class MvtecSegmentationBase(_MvtecBase):
-    def __init__(self, path):
+    def __init__(self, path, **kwargs):
         super().__init__(path, task=MvtecTask.segmentation)
 
 
 class MvtecDetectionBase(_MvtecBase):
-    def __init__(self, path):
+    def __init__(self, path, **kwargs):
         super().__init__(path, task=MvtecTask.detection)
