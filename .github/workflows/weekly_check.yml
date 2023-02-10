@@ -23,7 +23,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install -e '.[default,tf,tfds]' pytest pytest-stress
+          pip install -e '.[default,tf,tfds]' pytest pytest-stress pytest-html
       - name: Stability testing
         run: |
-          pytest --hours 8
+          pytest --html=stability_test_report.html --minutes 5
+      - name: Upload test result
+        uses: actions/upload-artifact@v2
+        with:
+          name: stability
+          path: report/stability_test_report.html
