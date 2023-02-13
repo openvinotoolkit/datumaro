@@ -6,7 +6,7 @@ import hashlib
 import logging as log
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
 from unittest import TestCase
 
 import attr
@@ -24,7 +24,7 @@ from datumaro.components.annotation import (
     PointsCategories,
 )
 from datumaro.components.dataset import Dataset, DatasetItemStorage
-from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
+from datumaro.components.dataset_base import CategoriesInfo, DatasetItem, IDataset
 from datumaro.components.errors import (
     AnnotationsTooCloseError,
     ConflictingCategoriesError,
