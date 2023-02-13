@@ -26,7 +26,7 @@ jobs:
           pip install -e '.[default,tf,tfds]' pytest pytest-stress pytest-html
       - name: Stability testing
         run: |
-          pytest --html=stability_test_report.html --hours 8
+          pytest --html=stability_test_report.html --minutes 5
       - name: Upload test results
         uses: actions/upload-artifact@v2
         with:

@@ -2,7 +2,7 @@ name: Nightly Regression Test
 on:
   workflow_dispatch: # run on request (no need for PR)
   schedule:
-    - cron: "0 0 * * *" # Every day at 12:00 AM
+    - cron: "0 15 * * 2-6" # Every day at 12:00 AM in Korea time
 defaults:
   run:
     shell: bash
