@@ -87,15 +87,6 @@ class ExactMerge(Merger):
                 items.put(item)
         return items
 
-    def merge_infos(self, sources: Iterable[IDataset]) -> DatasetInfo:
-        return self._merge_infos(sources)
-
-    def merge_categories(self, sources: Iterable[IDataset]) -> CategoriesInfo:
-        return self._merge_categories(sources)
-
-    def merge_media_types(self, sources: Iterable[IDataset]) -> Type[MediaElement]:
-        return self._merge_media_types(sources)
-
     def _match_annotations_equal(self, a, b):
         matches = []
         a_unmatched = a[:]
@@ -389,12 +380,12 @@ class IntersectMerge(Merger):
     _categories = attrib(init=False)  # merged categories
 
     def merge(self, datasets):
-        self._infos = self._merge_infos([d.infos() for d in datasets])
-        self._categories = self._merge_categories([d.categories() for d in datasets])
+        self._infos = self.merge_infos([d.infos() for d in datasets])
+        self._categories = self.merge_categories([d.categories() for d in datasets])
         merged = Dataset(
             infos=self._infos,
             categories=self._categories,
-            media_type=self._merge_media_types(datasets),
+            media_type=self.merge_media_types(datasets),
         )
 
         self._check_groups_definition()
@@ -416,6 +407,24 @@ class IntersectMerge(Merger):
 
     def get_ann_source(self, ann_id):
         return self._item_map[self._ann_map[ann_id][1]][1]
+
+    def merge_categories(self, sources):
+        dst_categories = {}
+
+        label_cat = self._merge_label_categories(sources)
+        if label_cat is None:
+            label_cat = LabelCategories()
+        dst_categories[AnnotationType.label] = label_cat
+
+        points_cat = self._merge_point_categories(sources, label_cat)
+        if points_cat is not None:
+            dst_categories[AnnotationType.points] = points_cat
+
+        mask_cat = self._merge_mask_categories(sources, label_cat)
+        if mask_cat is not None:
+            dst_categories[AnnotationType.mask] = mask_cat
+
+        return dst_categories
 
     def merge_items(self, items):
         self._item = next(iter(items.values()))
@@ -597,24 +606,6 @@ class IntersectMerge(Merger):
             return None
 
         return dst_mask_cat
-
-    def _merge_categories(self, sources):
-        dst_categories = {}
-
-        label_cat = self._merge_label_categories(sources)
-        if label_cat is None:
-            label_cat = LabelCategories()
-        dst_categories[AnnotationType.label] = label_cat
-
-        points_cat = self._merge_point_categories(sources, label_cat)
-        if points_cat is not None:
-            dst_categories[AnnotationType.points] = points_cat
-
-        mask_cat = self._merge_mask_categories(sources, label_cat)
-        if mask_cat is not None:
-            dst_categories[AnnotationType.mask] = mask_cat
-
-        return dst_categories
 
     def _match_annotations(self, sources):
         all_by_type = {}
@@ -842,7 +833,6 @@ class IntersectMerge(Merger):
             return self._get_label_name(label_id)
 
     def _check_groups_definition(self):
-        print("op 842", self.conf.groups)
         for group in self.conf.groups:
             for label, _ in group:
                 _, entry = self._categories[AnnotationType.label].find(label)
@@ -860,10 +850,9 @@ class UnionMerge(Merger):
     Merges several datasets using the "simple" algorithm:
         - items are matched by (id, subset) pairs
         - matching items share the media info available:
-
             - nothing + nothing = nothing
             - nothing + something = something
-            - something A + something B = conflict
+            - something A + something B = something (A + B)
         - annotations are matched by value and shared
         - in case of conflicts, throws an error
     """
@@ -881,15 +870,6 @@ class UnionMerge(Merger):
                         ann.label = self._matching_table[source_idx][ann.label]
                 items.put(item)
         return items
-
-    def merge_infos(self, sources: Iterable[IDataset]) -> DatasetInfo:
-        return self._merge_infos(sources)
-
-    def merge_categories(self, sources: Iterable[IDataset]) -> CategoriesInfo:
-        return self._merge_categories(sources)
-
-    def merge_media_types(self, sources: Iterable[IDataset]) -> Type[MediaElement]:
-        return self._merge_media_types(sources)
 
     def _merge_categories(self, sources):
         dst_categories = {}

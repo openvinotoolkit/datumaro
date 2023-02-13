@@ -13,7 +13,7 @@ class Merger(CliPlugin):
         super().__init__(**options)
         self.__dict__["_sources"] = None
 
-    def _merge_infos(self, sources):
+    def merge_infos(self, sources):
         infos = {}
         for source in sources:
             for k, v in source.items():
@@ -24,7 +24,7 @@ class Merger(CliPlugin):
                 infos[k] = v
         return infos
 
-    def _merge_categories(self, sources):
+    def merge_categories(self, sources):
         categories = {}
         for source_idx, source in enumerate(sources):
             for cat_type, source_cat in source.items():
@@ -40,7 +40,7 @@ class Merger(CliPlugin):
                         )
         return categories
 
-    def _merge_media_types(self, sources):
+    def merge_media_types(self, sources):
         if sources:
             media_type = sources[0].media_type()
             for s in sources:

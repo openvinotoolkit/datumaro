@@ -175,6 +175,38 @@ def mask_to_rle_py(binary_mask):
     return {"counts": counts, "size": list(binary_mask.shape)}
 
 
+def extract_contours(mask):
+    """
+    Convert an instance mask to polygons
+
+    Args:
+        mask: a 2d binary mask
+        tolerance: maximum distance from original points of
+            a polygon to the approximated ones
+        area_threshold: minimal area of generated polygons
+
+    Returns:
+        A list of polygons like [[x1,y1, x2,y2 ...], [...]]
+    """
+    import cv2
+
+    contours, _ = cv2.findContours(
+        mask.astype(np.uint8), mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_TC89_KCOS
+    )
+
+    for contour in contours:
+        if len(contour) <= 2:
+            continue
+
+        contour = contour.reshape((-1, 2))
+
+        if not np.array_equal(contour[0], contour[-1]):
+            contour = np.vstack((contour, contour[0]))  # make polygon closed
+        contour = contour.flatten().clip(0)  # [x0, y0, ...]
+
+    return contours
+
+
 def mask_to_polygons(mask, area_threshold=1):
     """
     Convert an instance mask to polygons
@@ -188,25 +220,12 @@ def mask_to_polygons(mask, area_threshold=1):
     Returns:
         A list of polygons like [[x1,y1, x2,y2 ...], [...]]
     """
-    import cv2
     from pycocotools import mask as mask_utils
 
+    contours = extract_contours(mask)
+
     polygons = []
-
-    contours, _ = cv2.findContours(
-        mask.astype(np.uint8), mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_TC89_KCOS
-    )
-
     for contour in contours:
-        if len(contour) <= 2:
-            continue
-
-        contour = contour.reshape((-1, 2))
-
-        if not np.array_equal(contour[0], contour[-1]):
-            contour = np.vstack((contour, contour[0]))  # make polygon closed
-        contour = contour.flatten().clip(0)  # [x0, y0, ...]
-
         # Check if the polygon is big enough
         rle = mask_utils.frPyObjects([contour], mask.shape[0], mask.shape[1])
         area = sum(mask_utils.area(rle))
@@ -217,35 +236,19 @@ def mask_to_polygons(mask, area_threshold=1):
 
 def mask_to_bboxes(mask):
     """
-    Convert an instance mask to polygons
+    Convert an instance mask to bboxes
 
     Args:
         mask: a 2d binary mask
-        tolerance: maximum distance from original points of
-            a polygon to the approximated ones
-        area_threshold: minimal area of generated polygons
 
     Returns:
-        A list of polygons like [[x1,y1, x2,y2 ...], [...]]
+        A list of bboxes like [[x1,x2,y1,y2], [...]]
     """
-    import cv2
+
+    contours = extract_contours(mask)
 
     bboxes = []
-
-    contours, _ = cv2.findContours(
-        mask.astype(np.uint8), mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_TC89_KCOS
-    )
-
     for contour in contours:
-        if len(contour) <= 2:
-            continue
-
-        contour = contour.reshape((-1, 2))
-
-        if not np.array_equal(contour[0], contour[-1]):
-            contour = np.vstack((contour, contour[0]))  # make polygon closed
-        contour = contour.flatten().clip(0)  # [x0, y0, ...]
-
         x1, x2 = min(contour[0::2]), max(contour[0::2])
         y1, y2 = min(contour[1::2]), max(contour[1::2])
 
