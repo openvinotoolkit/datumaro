@@ -23,9 +23,9 @@ from datumaro.components.media import Image, MultiframeImage, PointCloud
 from datumaro.components.operations import (
     FailedAttrVotingError,
     IntersectMerge,
-    UnionMerge,
     NoMatchingAnnError,
     NoMatchingItemError,
+    UnionMerge,
     WrongGroupError,
     compute_ann_statistics,
     compute_image_statistics,
@@ -1042,9 +1042,7 @@ class TestMultimerge(TestCase):
                 ),
                 DatasetItem(
                     1,
-                    annotations=[
-                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)
-                    ],
+                    annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
                 ),
             ],
             categories={
@@ -1056,15 +1054,11 @@ class TestMultimerge(TestCase):
             [
                 DatasetItem(
                     2,
-                    annotations=[
-                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=0)
-                    ],
+                    annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=0)],
                 ),
                 DatasetItem(
                     3,
-                    annotations=[
-                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)
-                    ],
+                    annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
                 ),
             ],
             categories={
@@ -1082,21 +1076,15 @@ class TestMultimerge(TestCase):
                 ),
                 DatasetItem(
                     1,
-                    annotations=[
-                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)
-                    ],
+                    annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
                 ),
                 DatasetItem(
                     2,
-                    annotations=[
-                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=2)
-                    ],
+                    annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=2)],
                 ),
                 DatasetItem(
                     3,
-                    annotations=[
-                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)
-                    ],
+                    annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
                 ),
             ],
             categories={
@@ -1109,8 +1097,6 @@ class TestMultimerge(TestCase):
         infos = merger.merge_infos(s.infos() for s in [source0, source1])
         media_type = merger.merge_media_types([source0, source1])
         source = merger.merge(*[source0, source1])
-        merged = Dataset(
-            source=source, infos=infos, categories=categories, media_type=media_type
-        )
+        merged = Dataset(source=source, infos=infos, categories=categories, media_type=media_type)
 
         compare_datasets(self, expected, merged, ignored_attrs={"score"})
