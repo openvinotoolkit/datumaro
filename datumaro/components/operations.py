@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -6,7 +6,7 @@ import hashlib
 import logging as log
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
 from unittest import TestCase
 
 import attr
@@ -23,16 +23,14 @@ from datumaro.components.annotation import (
     MaskCategories,
     PointsCategories,
 )
-from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
-from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem
+from datumaro.components.dataset import Dataset, DatasetItemStorage
+from datumaro.components.dataset_base import CategoriesInfo, DatasetItem, IDataset
 from datumaro.components.errors import (
     AnnotationsTooCloseError,
     ConflictingCategoriesError,
     DatasetMergeError,
     FailedAttrVotingError,
     FailedLabelVotingError,
-    MediaTypeError,
     MismatchingAttributesError,
     MismatchingImageInfoError,
     MismatchingMediaError,
@@ -43,6 +41,7 @@ from datumaro.components.errors import (
     WrongGroupError,
 )
 from datumaro.components.media import Image, MediaElement, MultiframeImage, PointCloud, Video
+from datumaro.components.merger import Merger
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS,
@@ -56,70 +55,8 @@ from datumaro.util.annotation_util import (
 from datumaro.util.attrs_util import default_if_none, ensure_cls
 
 
-def match_annotations_equal(a, b):
-    matches = []
-    a_unmatched = a[:]
-    b_unmatched = b[:]
-    for a_ann in a:
-        for b_ann in b_unmatched:
-            if a_ann != b_ann:
-                continue
-
-            matches.append((a_ann, b_ann))
-            a_unmatched.remove(a_ann)
-            b_unmatched.remove(b_ann)
-            break
-
-    return matches, a_unmatched, b_unmatched
-
-
-def merge_annotations_equal(a, b):
-    matches, a_unmatched, b_unmatched = match_annotations_equal(a, b)
-    return [ann_a for (ann_a, _) in matches] + a_unmatched + b_unmatched
-
-
-def merge_infos(sources):
-    infos = {}
-    for source in sources:
-        for k, v in source.items():
-            if k in infos:
-                log.warning("Duplicated infos field %s: overwrite from %s to %s", k, infos[k], v)
-            infos[k] = v
-    return infos
-
-
-def merge_categories(sources):
-    categories = {}
-    for source_idx, source in enumerate(sources):
-        for cat_type, source_cat in source.items():
-            existing_cat = categories.setdefault(cat_type, source_cat)
-            if existing_cat != source_cat and len(source_cat) != 0:
-                if len(existing_cat) == 0:
-                    categories[cat_type] = source_cat
-                else:
-                    raise ConflictingCategoriesError(
-                        "Merging of datasets with different categories is "
-                        "only allowed in 'merge' command.",
-                        sources=list(range(source_idx)),
-                    )
-    return categories
-
-
-class MergingStrategy(CliPlugin):
-    @classmethod
-    def merge(cls, sources, **options):
-        instance = cls(**options)
-        return instance(sources)
-
-    def __init__(self, **options):
-        super().__init__(**options)
-        self.__dict__["_sources"] = None
-
-    def __call__(self, sources):
-        raise NotImplementedError()
-
-
-class ExactMerge:
+@attrs
+class ExactMerge(Merger):
     """
     Merges several datasets using the "simple" algorithm:
         - items are matched by (id, subset) pairs
@@ -132,15 +69,17 @@ class ExactMerge:
         - in case of conflicts, throws an error
     """
 
-    @classmethod
-    def merge(cls, *sources: IDataset) -> DatasetItemStorage:
+    def __init__(self, **options):
+        super().__init__(**options)
+
+    def merge(self, *sources: IDataset) -> DatasetItemStorage:
         items = DatasetItemStorage()
         for source_idx, source in enumerate(sources):
             for item in source:
                 existing_item = items.get(item.id, item.subset)
                 if existing_item is not None:
                     try:
-                        item = cls._merge_items(existing_item, item)
+                        item = self._merge_items(existing_item, item)
                     except DatasetMergeError as e:
                         e.sources = set(range(source_idx))
                         raise e
@@ -148,20 +87,38 @@ class ExactMerge:
                 items.put(item)
         return items
 
-    @classmethod
-    def _merge_items(cls, existing_item: DatasetItem, current_item: DatasetItem) -> DatasetItem:
+    def _match_annotations_equal(self, a, b):
+        matches = []
+        a_unmatched = a[:]
+        b_unmatched = b[:]
+        for a_ann in a:
+            for b_ann in b_unmatched:
+                if a_ann != b_ann:
+                    continue
+
+                matches.append((a_ann, b_ann))
+                a_unmatched.remove(a_ann)
+                b_unmatched.remove(b_ann)
+                break
+
+        return matches, a_unmatched, b_unmatched
+
+    def _merge_annotations_equal(self, a, b):
+        matches, a_unmatched, b_unmatched = self._match_annotations_equal(a, b)
+        return [ann_a for (ann_a, _) in matches] + a_unmatched + b_unmatched
+
+    def _merge_items(self, existing_item: DatasetItem, current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
-            media=cls._merge_media(existing_item, current_item),
-            attributes=cls._merge_attrs(
+            media=self._merge_media(existing_item, current_item),
+            attributes=self._merge_attrs(
                 existing_item.attributes,
                 current_item.attributes,
                 item_id=(existing_item.id, existing_item.subset),
             ),
-            annotations=cls._merge_anno(existing_item.annotations, current_item.annotations),
+            annotations=self._merge_anno(existing_item.annotations, current_item.annotations),
         )
 
-    @staticmethod
-    def _merge_attrs(a: Dict[str, Any], b: Dict[str, Any], item_id: Tuple[str, str]) -> Dict:
+    def _merge_attrs(self, a: Dict[str, Any], b: Dict[str, Any], item_id: Tuple[str, str]) -> Dict:
         merged = {}
 
         for name in a.keys() | b.keys():
@@ -181,26 +138,25 @@ class ExactMerge:
 
         return merged
 
-    @classmethod
     def _merge_media(
-        cls, item_a: DatasetItem, item_b: DatasetItem
+        self, item_a: DatasetItem, item_b: DatasetItem
     ) -> Union[Image, PointCloud, Video]:
         if (not item_a.media or isinstance(item_a.media, Image)) and (
             not item_b.media or isinstance(item_b.media, Image)
         ):
-            media = cls._merge_images(item_a, item_b)
+            media = self._merge_images(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, PointCloud)) and (
             not item_b.media or isinstance(item_b.media, PointCloud)
         ):
-            media = cls._merge_point_clouds(item_a, item_b)
+            media = self._merge_point_clouds(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, Video)) and (
             not item_b.media or isinstance(item_b.media, Video)
         ):
-            media = cls._merge_videos(item_a, item_b)
+            media = self._merge_videos(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, MultiframeImage)) and (
             not item_b.media or isinstance(item_b.media, MultiframeImage)
         ):
-            media = cls._merge_multiframe_images(item_a, item_b)
+            media = self._merge_multiframe_images(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, MediaElement)) and (
             not item_b.media or isinstance(item_b.media, MediaElement)
         ):
@@ -227,8 +183,7 @@ class ExactMerge:
             raise MismatchingMediaError((item_a.id, item_a.subset), item_a.media, item_b.media)
         return media
 
-    @staticmethod
-    def _merge_images(item_a: DatasetItem, item_b: DatasetItem) -> Image:
+    def _merge_images(self, item_a: DatasetItem, item_b: DatasetItem) -> Image:
         media = None
 
         if isinstance(item_a.media, Image) and isinstance(item_b.media, Image):
@@ -291,8 +246,7 @@ class ExactMerge:
 
         return media
 
-    @staticmethod
-    def _merge_point_clouds(item_a: DatasetItem, item_b: DatasetItem) -> PointCloud:
+    def _merge_point_clouds(self, item_a: DatasetItem, item_b: DatasetItem) -> PointCloud:
         media = None
 
         if isinstance(item_a.media, PointCloud) and isinstance(item_b.media, PointCloud):
@@ -323,8 +277,7 @@ class ExactMerge:
 
         return media
 
-    @staticmethod
-    def _merge_videos(item_a: DatasetItem, item_b: DatasetItem) -> Video:
+    def _merge_videos(self, item_a: DatasetItem, item_b: DatasetItem) -> Video:
         media = None
 
         if isinstance(item_a.media, Video) and isinstance(item_b.media, Video):
@@ -344,8 +297,7 @@ class ExactMerge:
 
         return media
 
-    @staticmethod
-    def _merge_multiframe_images(item_a: DatasetItem, item_b: DatasetItem) -> MultiframeImage:
+    def _merge_multiframe_images(self, item_a: DatasetItem, item_b: DatasetItem) -> MultiframeImage:
         media = None
 
         if isinstance(item_a.media, MultiframeImage) and isinstance(item_b.media, MultiframeImage):
@@ -376,36 +328,15 @@ class ExactMerge:
 
         return media
 
-    @staticmethod
-    def _merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) -> List[Annotation]:
-        return merge_annotations_equal(a, b)
-
-    @staticmethod
-    def merge_infos(sources: Iterable[IDataset]) -> DatasetInfo:
-        return merge_infos(sources)
-
-    @staticmethod
-    def merge_categories(sources: Iterable[IDataset]) -> CategoriesInfo:
-        return merge_categories(sources)
-
-    @staticmethod
-    def merge_media_types(sources: Iterable[IDataset]) -> Type[MediaElement]:
-        if sources:
-            media_type = sources[0].media_type()
-            for s in sources:
-                if not issubclass(s.media_type(), media_type) or not issubclass(
-                    media_type, s.media_type()
-                ):
-                    # Symmetric comparision is needed in the case of subclasses:
-                    # eg. Image and ByteImage
-                    raise MediaTypeError("Datasets have different media types")
-            return media_type
-
-        return None
+    def _merge_anno(self, a: Iterable[Annotation], b: Iterable[Annotation]) -> List[Annotation]:
+        return self._merge_annotations_equal(a, b)
 
 
 @attrs
-class IntersectMerge(MergingStrategy):
+class IntersectMerge(Merger):
+    def __init__(self, **options):
+        super().__init__(**options)
+
     @attrs(repr_ns="IntersectMerge", kw_only=True)
     class Conf:
         pairwise_dist = attrib(converter=float, default=0.5)
@@ -448,13 +379,13 @@ class IntersectMerge(MergingStrategy):
     _infos = attrib(init=False)  # merged infos
     _categories = attrib(init=False)  # merged categories
 
-    def __call__(self, datasets):
-        self._infos = merge_infos([d.infos() for d in datasets])
-        self._categories = self._merge_categories([d.categories() for d in datasets])
+    def merge(self, datasets):
+        self._infos = self.merge_infos([d.infos() for d in datasets])
+        self._categories = self.merge_categories([d.categories() for d in datasets])
         merged = Dataset(
             infos=self._infos,
             categories=self._categories,
-            media_type=ExactMerge.merge_media_types(datasets),
+            media_type=self.merge_media_types(datasets),
         )
 
         self._check_groups_definition()
@@ -476,6 +407,24 @@ class IntersectMerge(MergingStrategy):
 
     def get_ann_source(self, ann_id):
         return self._item_map[self._ann_map[ann_id][1]][1]
+
+    def merge_categories(self, sources):
+        dst_categories = {}
+
+        label_cat = self._merge_label_categories(sources)
+        if label_cat is None:
+            label_cat = LabelCategories()
+        dst_categories[AnnotationType.label] = label_cat
+
+        points_cat = self._merge_point_categories(sources, label_cat)
+        if points_cat is not None:
+            dst_categories[AnnotationType.points] = points_cat
+
+        mask_cat = self._merge_mask_categories(sources, label_cat)
+        if mask_cat is not None:
+            dst_categories[AnnotationType.mask] = mask_cat
+
+        return dst_categories
 
     def merge_items(self, items):
         self._item = next(iter(items.values()))
@@ -537,8 +486,7 @@ class IntersectMerge(MergingStrategy):
 
         return annotations
 
-    @staticmethod
-    def match_items(datasets):
+    def match_items(self, datasets):
         item_ids = set((item.id, item.subset) for d in datasets for item in d)
 
         item_map = {}  # id(item) -> (item, id(dataset))
@@ -659,24 +607,6 @@ class IntersectMerge(MergingStrategy):
 
         return dst_mask_cat
 
-    def _merge_categories(self, sources):
-        dst_categories = {}
-
-        label_cat = self._merge_label_categories(sources)
-        if label_cat is None:
-            label_cat = LabelCategories()
-        dst_categories[AnnotationType.label] = label_cat
-
-        points_cat = self._merge_point_categories(sources, label_cat)
-        if points_cat is not None:
-            dst_categories[AnnotationType.points] = points_cat
-
-        mask_cat = self._merge_mask_categories(sources, label_cat)
-        if mask_cat is not None:
-            dst_categories[AnnotationType.mask] = mask_cat
-
-        return dst_categories
-
     def _match_annotations(self, sources):
         all_by_type = {}
         for s in sources:
@@ -749,8 +679,7 @@ class IntersectMerge(MergingStrategy):
     def _merge_clusters(self, t, clusters):
         return self._mergers[t].merge_clusters(clusters)
 
-    @staticmethod
-    def _find_cluster_groups(clusters):
+    def _find_cluster_groups(self, clusters):
         cluster_groups = []
         visited = set()
         for a_idx, cluster_a in enumerate(clusters):
@@ -913,6 +842,82 @@ class IntersectMerge(MergingStrategy):
                         "label '%s', available labels %s"
                         % (label, [i.name for i in self._categories[AnnotationType.label].items])
                     )
+
+
+class UnionMerge(Merger):
+    """
+    Merges several datasets using the "simple" algorithm:
+        - items are matched by (id, subset) pairs
+        - matching items share the media info available:
+            - nothing + nothing = nothing
+            - nothing + something = something
+            - something A + something B = something (A + B)
+        - annotations are matched by value and shared
+        - in case of conflicts, throws an error
+    """
+
+    def __init__(self, **options):
+        super().__init__(**options)
+        self._matching_table = {}
+
+    def merge(self, *sources: IDataset) -> DatasetItemStorage:
+        items = DatasetItemStorage()
+        for source_idx, source in enumerate(sources):
+            for item in source:
+                if self._matching_table.get(source_idx, None):
+                    for ann in item.annotations:
+                        ann.label = self._matching_table[source_idx][ann.label]
+                items.put(item)
+        return items
+
+    def merge_categories(self, sources):
+        dst_categories = {}
+
+        label_cat = self._merge_label_categories(sources)
+        if label_cat is None:
+            label_cat = LabelCategories()
+        dst_categories[AnnotationType.label] = label_cat
+
+        return dst_categories
+
+    def _merge_label_categories(self, sources):
+        dst_cat = LabelCategories()
+        dst_indices = {}
+        dst_labels = []
+
+        for src_id, src_categories in enumerate(sources):
+            src_cat = src_categories.get(AnnotationType.label)
+            if src_cat is None:
+                continue
+
+            for src_label in src_cat.items:
+                if src_label.name not in dst_labels:
+                    dst_cat.add(src_label.name, src_label.parent, src_label.attributes)
+                    dst_labels.append(src_label.name)
+
+                    if src_cat._indices[src_label.name] in list(dst_indices.values()):
+                        dst_indices[src_label.name] = max(dst_indices.values()) + 1
+                        if self._matching_table.get(src_id, None):
+                            self._matching_table[src_id].update(
+                                {src_cat._indices[src_label.name]: max(dst_indices.values())}
+                            )
+                        else:
+                            self._matching_table[src_id] = {
+                                src_cat._indices[src_label.name]: max(dst_indices.values())
+                            }
+                    else:
+                        dst_indices[src_label.name] = src_cat._indices[src_label.name]
+                else:
+                    if self._matching_table.get(src_id, None):
+                        self._matching_table[src_id].update(
+                            {src_cat._indices[src_label.name]: dst_indices[src_label.name]}
+                        )
+                    else:
+                        self._matching_table[src_id] = {
+                            src_cat._indices[src_label.name]: dst_indices[src_label.name]
+                        }
+
+        return dst_cat
 
 
 @attrs(kw_only=True)

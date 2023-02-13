@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2022 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -862,7 +862,9 @@ class Dataset(IDataset):
         return cls.from_extractors(_extractor(), env=env)
 
     @staticmethod
-    def from_extractors(*sources: IDataset, env: Optional[Environment] = None) -> Dataset:
+    def from_extractors(
+        *sources: IDataset, env: Optional[Environment] = None, merge_policy: str = None
+    ) -> Dataset:
         """
         Creates a new dataset from one or several `Extractor`s.
 
@@ -883,15 +885,18 @@ class Dataset(IDataset):
             source = sources[0]
             dataset = Dataset(source=source, env=env)
         else:
-            from datumaro.components.operations import ExactMerge
+            from datumaro.components.merger import get_merger
 
-            media_type = ExactMerge.merge_media_types(sources)
-            source = ExactMerge.merge(*sources)
-            infos = ExactMerge.merge_infos(s.infos() for s in sources)
-            categories = ExactMerge.merge_categories(s.categories() for s in sources)
+            merger = get_merger(merge_policy)
+
+            categories = merger.merge_categories(s.categories() for s in sources)
+            infos = merger.merge_infos(s.infos() for s in sources)
+            media_type = merger.merge_media_types(sources)
+            source = merger.merge(*sources)
             dataset = Dataset(
                 source=source, infos=infos, categories=categories, media_type=media_type, env=env
             )
+
         return dataset
 
     def __init__(
@@ -1367,6 +1372,7 @@ class Dataset(IDataset):
 
         try:
             extractors = []
+            merge_policy = None
             for src_conf, pbar in zip(detected_sources, pbars):
                 if not isinstance(src_conf, Source):
                     src_conf = Source(src_conf)
@@ -1377,6 +1383,9 @@ class Dataset(IDataset):
                 extractor_kwargs["ctx"] = ImportContext(
                     progress_reporter=pbar, error_policy=error_policy
                 )
+
+                if not merge_policy:
+                    merge_policy = extractor_kwargs.get("merge_policy", None)
 
                 try:
                     extractors.append(
@@ -1400,7 +1409,7 @@ class Dataset(IDataset):
                         env.make_extractor(src_conf.format, src_conf.url, **extractor_kwargs)
                     )
 
-            dataset = cls.from_extractors(*extractors, env=env)
+            dataset = cls.from_extractors(*extractors, env=env, merge_policy=merge_policy)
             if eager:
                 dataset.init_cache()
         except _ImportFail as e:
