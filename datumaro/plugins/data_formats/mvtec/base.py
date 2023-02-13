@@ -90,10 +90,6 @@ class _MvtecBase(SubsetBase):
                     anns.append(Label(label=label_id))
         return items
 
-    @staticmethod
-    def _lazy_extract_mask(mask, c):
-        return lambda: mask == c
-
 
 class MvtecClassificationBase(_MvtecBase):
     def __init__(self, path, **kwargs):
