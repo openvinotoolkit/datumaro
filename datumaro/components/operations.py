@@ -844,7 +844,6 @@ class IntersectMerge(Merger):
                     )
 
 
-@attrs
 class UnionMerge(Merger):
     """
     Merges several datasets using the "simple" algorithm:
@@ -871,7 +870,7 @@ class UnionMerge(Merger):
                 items.put(item)
         return items
 
-    def _merge_categories(self, sources):
+    def merge_categories(self, sources):
         dst_categories = {}
 
         label_cat = self._merge_label_categories(sources)

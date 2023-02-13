@@ -194,6 +194,7 @@ def extract_contours(mask):
         mask.astype(np.uint8), mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_TC89_KCOS
     )
 
+    results = []
     for contour in contours:
         if len(contour) <= 2:
             continue
@@ -202,9 +203,9 @@ def extract_contours(mask):
 
         if not np.array_equal(contour[0], contour[-1]):
             contour = np.vstack((contour, contour[0]))  # make polygon closed
-        contour = contour.flatten().clip(0)  # [x0, y0, ...]
+        results.append(contour.flatten().clip(0))  # [x0, y0, ...]
 
-    return contours
+    return results
 
 
 def mask_to_polygons(mask, area_threshold=1):

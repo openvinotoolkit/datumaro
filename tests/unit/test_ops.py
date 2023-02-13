@@ -23,6 +23,7 @@ from datumaro.components.media import Image, MultiframeImage, PointCloud
 from datumaro.components.operations import (
     FailedAttrVotingError,
     IntersectMerge,
+    UnionMerge,
     NoMatchingAnnError,
     NoMatchingItemError,
     WrongGroupError,
@@ -1028,3 +1029,88 @@ class TestMultimerge(TestCase):
         merged = merger.merge([source0, source1])
 
         compare_datasets(self, expected, merged)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_merge_union(self):
+        source0 = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    0,
+                    annotations=[
+                        Label(0),
+                    ],
+                ),
+                DatasetItem(
+                    1,
+                    annotations=[
+                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)
+                    ],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(["a", "b"]),
+            },
+        )
+
+        source1 = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    2,
+                    annotations=[
+                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=0)
+                    ],
+                ),
+                DatasetItem(
+                    3,
+                    annotations=[
+                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)
+                    ],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(["c", "b"]),
+            },
+        )
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    0,
+                    annotations=[
+                        Label(0),
+                    ],
+                ),
+                DatasetItem(
+                    1,
+                    annotations=[
+                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)
+                    ],
+                ),
+                DatasetItem(
+                    2,
+                    annotations=[
+                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=2)
+                    ],
+                ),
+                DatasetItem(
+                    3,
+                    annotations=[
+                        Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)
+                    ],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(["a", "b", "c"]),
+            },
+        )
+
+        merger = UnionMerge()
+        categories = merger.merge_categories(s.categories() for s in [source0, source1])
+        infos = merger.merge_infos(s.infos() for s in [source0, source1])
+        media_type = merger.merge_media_types([source0, source1])
+        source = merger.merge(*[source0, source1])
+        merged = Dataset(
+            source=source, infos=infos, categories=categories, media_type=media_type
+        )
+
+        compare_datasets(self, expected, merged, ignored_attrs={"score"})
