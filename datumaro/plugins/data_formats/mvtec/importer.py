@@ -19,7 +19,7 @@ class MvtecImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        subset_paths = glob(osp.join(path, "*"), recursive=True)
+        subset_paths = glob(osp.join(path, "*"), recursive=False)
 
         sources = []
         for extractor_type in cls._TASKS.values():
