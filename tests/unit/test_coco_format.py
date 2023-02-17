@@ -1,10 +1,10 @@
 import os
 import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check
+import shutil
 from copy import deepcopy
 from functools import partial
 from itertools import product
-import shutil
 from unittest import TestCase
 
 import numpy as np
