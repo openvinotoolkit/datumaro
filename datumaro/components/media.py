@@ -108,6 +108,7 @@ class Image(MediaElement):
             data = self._data
 
         if self._size is None and data is not None:
+            assert data.ndim == 3, "An image should have 3 dims."
             self._size = tuple(map(int, data.shape[:2]))
         return data
 
