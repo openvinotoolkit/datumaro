@@ -4,6 +4,7 @@ import pickle  # nosec - disable B403:import_pickle check
 from copy import deepcopy
 from functools import partial
 from itertools import product
+import shutil
 from unittest import TestCase
 
 import numpy as np
@@ -943,6 +944,30 @@ class CocoImporterTest(TestCase):
                 parsed = pickle.loads(pickle.dumps(source))  # nosec
 
                 compare_datasets_strict(self, source, parsed)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_import_error_on_wrong_directory_structure(self):
+        def _test(move_func):
+            with TestDir() as test_dir:
+                dataset_dir = osp.join(test_dir, "coco")
+                shutil.copytree(osp.join(DUMMY_DATASET_DIR, "coco"), dataset_dir)
+                move_func(dataset_dir)
+                with self.assertRaises(DatasetImportError):
+                    Dataset.import_from(dataset_dir)
+
+        # Wrong structure: ./annotations -> ./labels
+        _test(
+            lambda dataset_dir: shutil.move(
+                osp.join(dataset_dir, "annotations"), osp.join(dataset_dir, "labels")
+            )
+        )
+
+        # Wrong structure: ./images -> ./imgs
+        _test(
+            lambda dataset_dir: shutil.move(
+                osp.join(dataset_dir, "images"), osp.join(dataset_dir, "imgs")
+            )
+        )
 
 
 class CocoExtractorTests(TestCase):
