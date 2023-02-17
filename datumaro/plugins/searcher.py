@@ -102,7 +102,7 @@ class SearcherLauncher(OpenvinoLauncher):
         if not model_dir:
             model_dir = os.path.join(os.path.expanduser("~"), ".cache", "datumaro")
             if not osp.exists(model_dir):
-                os.mkdir(model_dir)
+                os.makedirs(model_dir)
 
         description = osp.join(model_dir, model_name + ".xml")
         if not osp.exists(description):
