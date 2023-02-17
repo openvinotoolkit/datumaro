@@ -100,7 +100,7 @@ class SearcherLauncher(OpenvinoLauncher):
 
         url_folder = "https://storage.openvinotoolkit.org/repositories/datumaro/models/"
         if not model_dir:
-            model_dir = os.path.join(os.path.expanduser("~"), ".cache/datumaro")
+            model_dir = os.path.join(os.path.expanduser("~"), ".cache", "datumaro")
             if not osp.exists(model_dir):
                 os.mkdir(model_dir)
 
