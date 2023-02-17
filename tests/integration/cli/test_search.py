@@ -1,5 +1,4 @@
 import os.path as osp
-import unittest
 from unittest import TestCase
 
 import numpy as np
@@ -17,7 +16,6 @@ from ...requirements import Requirements, mark_requirement
 
 
 class SearchTest(TestCase):
-    @unittest.skip(reason="Searcher model is not uploaded in public storage")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_search_dataset(self):

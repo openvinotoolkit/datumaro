@@ -1,4 +1,3 @@
-import unittest
 from functools import partial
 from unittest import TestCase
 
@@ -77,7 +76,6 @@ class SearcherTest(TestCase):
         )
         return dataset
 
-    @unittest.skip(reason="Searcher model is not uploaded in public storage")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_search_img_query(self):
         """
@@ -106,7 +104,6 @@ class SearcherTest(TestCase):
             result = searcher.search_topk(query, topk=2)
             self.assertEqual(query.subset, result[0].subset)
 
-    @unittest.skip(reason="Searcher model is not uploaded in public storage")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_search_txt_query(self):
         """
@@ -132,7 +129,6 @@ class SearcherTest(TestCase):
             result = searcher.search_topk("a photo of white background", topk=2)
             self.assertEqual(result[0].subset, result[1].subset)
 
-    @unittest.skip(reason="Searcher model is not uploaded in public storage")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_data_none(self):
         """
@@ -159,7 +155,6 @@ class SearcherTest(TestCase):
             searcher.search_topk(query, topk=2)
         self.assertEqual("Database should have hash_key", str(capture.exception))
 
-    @unittest.skip(reason="Searcher model is not uploaded in public storage")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_multiframeimage_assert(self):
         """
@@ -182,7 +177,6 @@ class SearcherTest(TestCase):
             Searcher(imported_dataset)
         self.assertIn("MultiframeImage", str(capture.exception))
 
-    @unittest.skip(reason="Searcher model is not uploaded in public storage")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_pointcloud_assert(self):
         """
