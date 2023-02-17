@@ -379,8 +379,8 @@ class TestOperations(TestCase):
                 DatasetItem(1, subset="a", media=Image(path="1.jpg")),
                 DatasetItem(1, subset="b", media=Image(path="1.jpg")),
                 # same images
-                DatasetItem(2, media=Image(data=np.array([1]))),
-                DatasetItem(3, media=Image(data=np.array([1]))),
+                DatasetItem(2, media=Image(data=np.ones((5, 5, 3)))),
+                DatasetItem(3, media=Image(data=np.ones((5, 5, 3)))),
                 # no image is always a unique image
                 DatasetItem(4),
             ]

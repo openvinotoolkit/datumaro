@@ -1475,7 +1475,7 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_model(self):
         dataset = Dataset.from_iterable(
-            [DatasetItem(i, media=Image(data=np.array([i]))) for i in range(5)],
+            [DatasetItem(i, media=Image(data=np.ones((i, i, 3)))) for i in range(5)],
             categories=["label"],
         )
 
@@ -1485,7 +1485,7 @@ class DatasetTest(TestCase):
             [
                 DatasetItem(
                     i,
-                    media=Image(data=np.array([i])),
+                    media=Image(data=np.ones((i, i, 3))),
                     annotations=[Label(0, attributes={"idx": i % batch_size, "data": i})],
                 )
                 for i in range(5)
@@ -1501,7 +1501,7 @@ class DatasetTest(TestCase):
                 calls += 1
 
                 for i, inp in enumerate(inputs):
-                    yield [Label(0, attributes={"idx": i, "data": inp.item()})]
+                    yield [Label(0, attributes={"idx": i, "data": inp.shape[0]})]
 
         model = TestLauncher()
 

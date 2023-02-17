@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check
+import shutil
 from copy import deepcopy
 from functools import partial
 from itertools import product
@@ -944,6 +945,30 @@ class CocoImporterTest(TestCase):
 
                 compare_datasets_strict(self, source, parsed)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_import_error_on_wrong_directory_structure(self):
+        def _test(move_func):
+            with TestDir() as test_dir:
+                dataset_dir = osp.join(test_dir, "coco")
+                shutil.copytree(osp.join(DUMMY_DATASET_DIR, "coco"), dataset_dir)
+                move_func(dataset_dir)
+                with self.assertRaises(DatasetImportError):
+                    Dataset.import_from(dataset_dir)
+
+        # Wrong structure: ./annotations -> ./labels
+        _test(
+            lambda dataset_dir: shutil.move(
+                osp.join(dataset_dir, "annotations"), osp.join(dataset_dir, "labels")
+            )
+        )
+
+        # Wrong structure: ./images -> ./imgs
+        _test(
+            lambda dataset_dir: shutil.move(
+                osp.join(dataset_dir, "images"), osp.join(dataset_dir, "imgs")
+            )
+        )
+
 
 class CocoExtractorTests(TestCase):
     ANNOTATION_JSON_TEMPLATE = {
@@ -980,12 +1005,22 @@ class CocoExtractorTests(TestCase):
             with self.assertRaisesRegex(DatasetImportError, "JSON file"):
                 CocoInstancesBase(test_dir)
 
+    @staticmethod
+    def _get_dummy_annotation_path(test_dir: str) -> str:
+        ann_dir = osp.join(test_dir, "annotations")
+        if not os.path.exists(ann_dir):
+            os.makedirs(ann_dir)
+        images_dir = osp.join(test_dir, "images")
+        if not os.path.exists(images_dir):
+            os.makedirs(images_dir)
+        return osp.join(test_dir, "annotations", "ann.json")
+
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_missing_item_field(self):
         for field in ["id", "file_name"]:
             with self.subTest(field=field):
                 with TestDir() as test_dir:
-                    ann_path = osp.join(test_dir, "ann.json")
+                    ann_path = self._get_dummy_annotation_path(test_dir)
                     anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns["images"][0].pop(field)
                     dump_json_file(ann_path, anns)
@@ -1000,7 +1035,7 @@ class CocoExtractorTests(TestCase):
         for field in ["id", "image_id", "segmentation", "iscrowd", "category_id", "bbox"]:
             with self.subTest(field=field):
                 with TestDir() as test_dir:
-                    ann_path = osp.join(test_dir, "ann.json")
+                    ann_path = self._get_dummy_annotation_path(test_dir)
                     anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns["annotations"][0].pop(field)
                     dump_json_file(ann_path, anns)
@@ -1015,7 +1050,7 @@ class CocoExtractorTests(TestCase):
         for field in ["images", "annotations", "categories"]:
             with self.subTest(field=field):
                 with TestDir() as test_dir:
-                    ann_path = osp.join(test_dir, "ann.json")
+                    ann_path = self._get_dummy_annotation_path(test_dir)
                     anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns.pop(field)
                     dump_json_file(ann_path, anns)
@@ -1029,7 +1064,7 @@ class CocoExtractorTests(TestCase):
         for field in ["id", "name"]:
             with self.subTest(field=field):
                 with TestDir() as test_dir:
-                    ann_path = osp.join(test_dir, "ann.json")
+                    ann_path = self._get_dummy_annotation_path(test_dir)
                     anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns["categories"][0].pop(field)
                     dump_json_file(ann_path, anns)
@@ -1041,7 +1076,7 @@ class CocoExtractorTests(TestCase):
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_undeclared_label(self):
         with TestDir() as test_dir:
-            ann_path = osp.join(test_dir, "ann.json")
+            ann_path = self._get_dummy_annotation_path(test_dir)
             anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
             anns["annotations"][0]["category_id"] = 2
             dump_json_file(ann_path, anns)
@@ -1054,7 +1089,7 @@ class CocoExtractorTests(TestCase):
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_bbox(self):
         with TestDir() as test_dir:
-            ann_path = osp.join(test_dir, "ann.json")
+            ann_path = self._get_dummy_annotation_path(test_dir)
             anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
             anns["annotations"][0]["bbox"] = [1, 2, 3, 4, 5]
             dump_json_file(ann_path, anns)
@@ -1067,7 +1102,7 @@ class CocoExtractorTests(TestCase):
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_polygon_odd_points(self):
         with TestDir() as test_dir:
-            ann_path = osp.join(test_dir, "ann.json")
+            ann_path = self._get_dummy_annotation_path(test_dir)
             anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
             anns["annotations"][0]["segmentation"] = [[1, 2, 3]]
             dump_json_file(ann_path, anns)
@@ -1080,7 +1115,7 @@ class CocoExtractorTests(TestCase):
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_polygon_less_than_3_points(self):
         with TestDir() as test_dir:
-            ann_path = osp.join(test_dir, "ann.json")
+            ann_path = self._get_dummy_annotation_path(test_dir)
             anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
             anns["annotations"][0]["segmentation"] = [[1, 2, 3, 4]]
             dump_json_file(ann_path, anns)
@@ -1093,7 +1128,7 @@ class CocoExtractorTests(TestCase):
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_image_id(self):
         with TestDir() as test_dir:
-            ann_path = osp.join(test_dir, "ann.json")
+            ann_path = self._get_dummy_annotation_path(test_dir)
             anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
             anns["annotations"][0]["image_id"] = 10
             dump_json_file(ann_path, anns)
@@ -1108,7 +1143,7 @@ class CocoExtractorTests(TestCase):
         with TestDir() as test_dir:
             for field, value in [("id", "q"), ("width", "q"), ("height", "q"), ("file_name", 0)]:
                 with self.subTest(field=field, value=value):
-                    ann_path = osp.join(test_dir, "ann.json")
+                    ann_path = self._get_dummy_annotation_path(test_dir)
                     anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns["images"][0][field] = value
                     dump_json_file(ann_path, anns)
@@ -1132,7 +1167,7 @@ class CocoExtractorTests(TestCase):
                 ("score", "a"),
             ]:
                 with self.subTest(field=field):
-                    ann_path = osp.join(test_dir, "ann.json")
+                    ann_path = self._get_dummy_annotation_path(test_dir)
                     anns = deepcopy(self.ANNOTATION_JSON_TEMPLATE)
                     anns["annotations"][0][field] = value
                     dump_json_file(ann_path, anns)

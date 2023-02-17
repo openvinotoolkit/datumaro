@@ -5,6 +5,7 @@ import numpy as np
 import datumaro.plugins.ndr as ndr
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.errors import MediaShapeError
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 
@@ -97,7 +98,7 @@ class NDRTest(TestCase):
             result = ndr.NDR(source, working_subset="train")
             len(result)
 
-        with self.assertRaisesRegex(ValueError, "unexpected number of dimensions"):
+        with self.assertRaises(MediaShapeError):
             source = self._generate_dataset(config, 10, "invalid_dimension")
             result = ndr.NDR(source, working_subset="train")
             len(result)

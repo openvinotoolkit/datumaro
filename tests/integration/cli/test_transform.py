@@ -1,10 +1,17 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import os.path as osp
 from unittest import TestCase
+
+import numpy as np
 
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import ReadonlyDatasetError
+from datumaro.components.media import Image
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets
@@ -69,7 +76,19 @@ class TransformTest(TestCase):
             dataset_url = osp.join(test_dir, "dataset")
             dataset = Dataset.from_iterable(
                 [
-                    DatasetItem(id=1, annotations=[Bbox(1, 2, 3, 4, label=1)]),
+                    DatasetItem(
+                        id=1,
+                        media=Image(
+                            data=np.ones(
+                                (
+                                    10,
+                                    10,
+                                    3,
+                                )
+                            )
+                        ),
+                        annotations=[Bbox(1, 2, 3, 4, label=1)],
+                    ),
                 ],
                 categories=["a", "b"],
             )
