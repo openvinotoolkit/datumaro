@@ -32,6 +32,7 @@ class FormatDetectionConfidence(IntEnum):
     belonging to the detector's format.
     """
 
+    EXTREAME_LOW = 5
     LOW = 10
     """
     The dataset seems to belong to the format, but the format is too loosely

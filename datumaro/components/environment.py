@@ -273,3 +273,9 @@ class Environment:
                 break
 
         return list(matched_formats)
+
+    def __reduce__(self):  # -> str | tuple[Any, ...]:
+        return (self.__class__, ())
+
+
+DEFAULT_ENVIRONMENT = Environment()

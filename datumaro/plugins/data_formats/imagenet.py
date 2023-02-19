@@ -5,12 +5,15 @@
 import logging as log
 import os
 import os.path as osp
+import sys
+from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
-from datumaro.components.importer import Importer
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
+from datumaro.components.importer import Importer, with_subset_dirs
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
@@ -56,11 +59,55 @@ class ImagenetBase(SubsetBase):
 
 
 class ImagenetImporter(Importer):
+    """TorchVision's ImageFolder style importer.
+    For example, it imports the following directory structure.
+
+    root
+    ├── label_0
+    │   ├── label_0_1.jpg
+    │   └── label_0_2.jpg
+    └── label_1
+        └── label_1_1.jpg
+    """
+
     @classmethod
     def find_sources(cls, path):
         if not osp.isdir(path):
             return []
-        return [{"url": path, "format": ImagenetBase.NAME}]
+
+        for _ in find_images(path, recursive=True, max_depth=1):
+            return [{"url": path, "format": ImagenetBase.NAME}]
+
+        return []
+
+
+@with_subset_dirs
+class ImagenetWithSubsetDirsImporter(ImagenetImporter):
+    """TorchVision ImageFolder style importer.
+    For example, it imports the following directory structure.
+
+    root
+    ├── train
+    │   ├── label_0
+    │   │   ├── label_0_1.jpg
+    │   │   └── label_0_2.jpg
+    │   └── label_1
+    │       └── label_1_1.jpg
+    ├── val
+    │   ├── label_0
+    │   │   ├── label_0_1.jpg
+    │   │   └── label_0_2.jpg
+    │   └── label_1
+    │       └── label_1_1.jpg
+    └── test
+        ├── label_0
+        │   ├── label_0_1.jpg
+        │   └── label_0_2.jpg
+        └── label_1
+            └── label_1_1.jpg
+
+    Then, it will have three subsets: train, val, and test and they have label_0 and label_1 labels.
+    """
 
 
 class ImagenetExporter(Exporter):
