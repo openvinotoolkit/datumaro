@@ -1,5 +1,6 @@
 import os.path as osp
-from unittest import TestCase
+import platform
+from unittest import TestCase, skipIf
 
 import numpy as np
 
@@ -16,6 +17,11 @@ from ...requirements import Requirements, mark_requirement
 
 
 class SearchTest(TestCase):
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_search_dataset(self):
