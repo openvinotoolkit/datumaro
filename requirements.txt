@@ -22,3 +22,4 @@ black>=22.1.0
 markupsafe==2.0.1
 nbconvert>=7.2.3
 ipython>=8.4.0
+numpy>=1.22.2 # not directly required, pinned by Snyk to avoid a vulnerability
