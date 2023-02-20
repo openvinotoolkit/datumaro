@@ -1,5 +1,6 @@
+import platform
 from functools import partial
-from unittest import TestCase
+from unittest import TestCase, skipIf
 
 import numpy as np
 
@@ -76,6 +77,11 @@ class SearcherTest(TestCase):
         )
         return dataset
 
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_search_img_query(self):
         """
@@ -104,6 +110,11 @@ class SearcherTest(TestCase):
             result = searcher.search_topk(query, topk=2)
             self.assertEqual(query.subset, result[0].subset)
 
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_search_txt_query(self):
         """
@@ -129,6 +140,11 @@ class SearcherTest(TestCase):
             result = searcher.search_topk("a photo of white background", topk=2)
             self.assertEqual(result[0].subset, result[1].subset)
 
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_data_none(self):
         """
@@ -155,6 +171,11 @@ class SearcherTest(TestCase):
             searcher.search_topk(query, topk=2)
         self.assertEqual("Database should have hash_key", str(capture.exception))
 
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_multiframeimage_assert(self):
         """
@@ -177,6 +198,11 @@ class SearcherTest(TestCase):
             Searcher(imported_dataset)
         self.assertIn("MultiframeImage", str(capture.exception))
 
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_pointcloud_assert(self):
         """
