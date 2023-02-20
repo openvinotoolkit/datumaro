@@ -13,7 +13,6 @@ from datumaro.plugins.data_formats.imagenet import (
     ImagenetImporter,
     ImagenetWithSubsetDirsImporter,
 )
-from datumaro.plugins.transforms import MapSubsets
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 from ..requirements import Requirements, mark_requirement

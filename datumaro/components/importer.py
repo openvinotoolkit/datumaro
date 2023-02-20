@@ -3,11 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import annotations
-from contextlib import contextmanager
 
 import os
 import os.path as osp
-import sys
+from contextlib import contextmanager
 from glob import iglob
 from typing import Callable, Dict, List, NoReturn, Optional, Tuple, TypeVar
 
