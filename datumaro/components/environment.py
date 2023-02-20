@@ -274,7 +274,7 @@ class Environment:
 
         return list(matched_formats)
 
-    def __reduce__(self):  # -> str | tuple[Any, ...]:
+    def __reduce__(self):
         return (self.__class__, ())
 
 
