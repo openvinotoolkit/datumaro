@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/804>)
 - Fix model remove CLI command
   (<https://github.com/openvinotoolkit/datumaro/pull/805>)
+- Raise ImportError on importing malformed COCO directory
+  (<https://github.com/openvinotoolkit/datumaro/pull/812>)
 
 ## 27/01/2023 - Release v0.5.0
 ### Added

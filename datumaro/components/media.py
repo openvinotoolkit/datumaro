@@ -13,6 +13,7 @@ from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
 import cv2
 import numpy as np
 
+from datumaro.components.errors import MediaShapeError
 from datumaro.util.image import _image_loading_errors, decode_image, lazy_image, save_image
 
 BboxIntCoords = Tuple[int, int, int, int]  # (x, y, w, h)
@@ -108,6 +109,8 @@ class Image(MediaElement):
             data = self._data
 
         if self._size is None and data is not None:
+            if not 2 <= data.ndim <= 3:
+                raise MediaShapeError("An image should have 2 (gray) or 3 (rgb) dims.")
             self._size = tuple(map(int, data.shape[:2]))
         return data
 

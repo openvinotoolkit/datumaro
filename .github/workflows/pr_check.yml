@@ -1,4 +1,4 @@
-name: CI
+name: PR Test
 on:
   push:
     branches:
@@ -11,7 +11,7 @@ defaults:
   run:
     shell: bash
 jobs:
-  build_and_test:
+  pr_test:
     if: |
       github.event.pull_request.draft == false &&
       !startsWith(github.event.pull_request.title, '[WIP]') &&
@@ -20,8 +20,8 @@ jobs:
       fail-fast: false
       matrix:
         os: ['macos-11', 'ubuntu-20.04', 'windows-2019']
-        python-version: ['3.7', '3.8', '3.9', '3.10']
-    name: build and test (${{ matrix.os }}, Python ${{ matrix.python-version }})
+        python-version: ['3.8']
+    name: pr test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
