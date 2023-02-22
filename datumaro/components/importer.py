@@ -7,6 +7,7 @@ from __future__ import annotations
 import os
 import os.path as osp
 from contextlib import contextmanager
+from functools import wraps
 from glob import iglob
 from typing import Callable, Dict, List, NoReturn, Optional, Tuple, TypeVar
 
@@ -182,6 +183,7 @@ class Importer(CliPlugin):
 
 
 def with_subset_dirs(input_cls: Importer):
+    @wraps(input_cls, updated=())
     class WrappedImporter(input_cls):
         NAME = input_cls.NAME
 
