@@ -98,11 +98,11 @@ class SearcherLauncher(OpenvinoLauncher):
         if description or weights:
             model_name = osp.splitext(description)[0]
 
-        url_folder = "http://s3.toolbox.iotg.sclab.intel.com/test/components-data/datumaro/models/"
+        url_folder = "https://storage.openvinotoolkit.org/repositories/datumaro/models/"
         if not model_dir:
-            model_dir = os.path.join(os.path.expanduser("~"), ".cache/datumaro")
+            model_dir = os.path.join(os.path.expanduser("~"), ".cache", "datumaro")
             if not osp.exists(model_dir):
-                os.mkdir(model_dir)
+                os.makedirs(model_dir)
 
         description = osp.join(model_dir, model_name + ".xml")
         if not osp.exists(description):
