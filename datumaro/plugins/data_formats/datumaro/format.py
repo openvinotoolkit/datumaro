@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -10,5 +10,6 @@ class DatumaroPath:
     RELATED_IMAGES_DIR = "related_images"
     MASKS_DIR = "masks"
 
+    ANNOTATION_EXT = ".json"
     IMAGE_EXT = ".jpg"
     MASK_EXT = ".png"

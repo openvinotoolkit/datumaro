@@ -98,7 +98,7 @@ class Importer(CliPlugin):
         return FormatDetectionConfidence.LOW
 
     @classmethod
-    def find_sources(cls, path) -> List[Dict]:
+    def find_sources(cls, path: str) -> List[Dict]:
         raise NotImplementedError()
 
     @classmethod
@@ -177,3 +177,7 @@ class Importer(CliPlugin):
                 if sources:
                     break
         return sources
+
+    @property
+    def extractor_name(cls) -> str:
+        return cls.NAME.replace("_importer", "")
