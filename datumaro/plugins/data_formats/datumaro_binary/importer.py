@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
-from typing import Dict, List, Optional
+from typing import Optional
 
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
