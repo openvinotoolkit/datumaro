@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add MVTec anomaly data support
   (<https://github.com/openvinotoolkit/datumaro/pull/810>)
 
+### Changed
+- Remove the duplicated and cyclical category context
+  (<https://github.com/openvinotoolkit/datumaro/pull/822>)
+
 ### Fixed
 - Fix for importing CVAT image 1.1 data format exported to project level
   (<https://github.com/openvinotoolkit/datumaro/pull/795>)
