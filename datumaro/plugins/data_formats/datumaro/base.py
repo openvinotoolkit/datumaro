@@ -21,10 +21,8 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
-from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
 from datumaro.components.media import Image, MediaElement, PointCloud
-from datumaro.util import parse_json, parse_json_file
+from datumaro.util import parse_json_file
 
 from .format import DatumaroPath
 

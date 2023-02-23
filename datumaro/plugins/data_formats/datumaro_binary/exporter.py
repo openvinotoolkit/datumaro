@@ -4,43 +4,23 @@
 
 # pylint: disable=no-self-use
 
-import os
-import os.path as osp
-import shutil
+from io import TextIOWrapper
 
-import numpy as np
-import pycocotools.mask as mask_utils
-
-from datumaro.components.annotation import (
-    Annotation,
-    Bbox,
-    Caption,
-    Cuboid3d,
-    Ellipse,
-    Label,
-    LabelCategories,
-    Mask,
-    MaskCategories,
-    Points,
-    PointsCategories,
-    Polygon,
-    PolyLine,
-    RleMask,
-    _Shape,
-)
-from datumaro.components.dataset import ItemStatus
-from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
-from datumaro.components.exporter import Exporter
-from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.exporter import _SubsetWriter as __SubsetWriter
-from datumaro.util import cast, dump_json_file
 
 from .format import DatumaroBinaryPath
 
 
 class _SubsetWriter(__SubsetWriter):
     """"""
+
+    def _sign(self, fp: TextIOWrapper):
+        fp.write(DatumaroBinaryPath.SIGNATURE.encode("utf-8"))
+
+    def write(self):
+        with open(self.ann_file, "wb") as fp:
+            self._sign(fp)
 
 
 class DatumaroBinaryExporter(DatumaroExporter):

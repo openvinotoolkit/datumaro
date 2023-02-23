@@ -2,14 +2,18 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os.path as osp
 from typing import Dict, List, Optional
+
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
+
 from .format import DatumaroBinaryPath
-import os.path as osp
 
 
 class DatumaroBinaryImporter(Importer):
+    CLS_PATH = DatumaroBinaryPath
+
     @classmethod
     def detect(
         cls,
@@ -27,12 +31,3 @@ class DatumaroBinaryImporter(Importer):
                 signature = f.read(len(DatumaroBinaryPath.SIGNATURE))
                 if signature != DatumaroBinaryPath.SIGNATURE:
                     raise Exception()
-
-    @classmethod
-    def find_sources(cls, path: str) -> List[Dict]:
-        return cls._find_sources_recursive(
-            path,
-            DatumaroBinaryPath.ANNOTATION_EXT,
-            cls.extractor_name,
-            dirname=DatumaroBinaryPath.ANNOTATIONS_DIR,
-        )

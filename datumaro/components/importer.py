@@ -178,6 +178,6 @@ class Importer(CliPlugin):
                     break
         return sources
 
-    @property
-    def extractor_name(cls) -> str:
+    @classmethod
+    def get_extractor_name(cls) -> str:
         return cls.NAME.replace("_importer", "")
