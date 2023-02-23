@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/816>)
 
 ### Changed
-- Refactor Datumaro format
+- Refactor Datumaro format code and test code
   (<https://github.com/openvinotoolkit/datumaro/pull/824>)
 
 ## 13/02/2023 - Release v1.0.0rc1
