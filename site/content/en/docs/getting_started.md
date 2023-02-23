@@ -38,7 +38,6 @@ pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
 Read more about choosing between `datumaro` and `datumaro[default]`
 [here](#customizing-installation).
 
-
 #### Plugins
 
 Datumaro has many plugins, which are responsible for dataset formats,
