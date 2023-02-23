@@ -36,9 +36,8 @@ pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
 ```
 
 Read more about choosing between `datumaro` and `datumaro[default]`
-[here](#core-install).
+[here](#customizing-installation).
 
-<a id="installation-plugins"></a>
 
 #### Plugins
 
@@ -49,7 +48,7 @@ plugin dependencies in the [plugins](/docs/user-manual/extending) section.
 
 #### Customizing installation
 
-- <a id="core-install"></a>Datumaro has the following installation options:
+- Datumaro has the following installation options:
   - `pip install datumaro` - for core library functionality
   - `pip install datumaro[default]` - for normal CLI experience
 
