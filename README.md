@@ -18,11 +18,9 @@ CVAT annotations                             ---> Publication, statistics etc.
 <!--lint enable fenced-code-flag-->
 
 - [Getting started](https://openvinotoolkit.github.io/datumaro/docs/getting_started)
-- [Examples](https://openvinotoolkit.github.io/datumaro/docs/getting_started/#examples)
 - [Features](#features)
 - [User manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual)
 - [Developer manual](https://openvinotoolkit.github.io/datumaro/api)
-- [Python API](https://openvinotoolkit.github.io/datumaro/docs/python-api)
 - [Contributing](#contributing)
 
 ## Features
