@@ -116,7 +116,6 @@ class CLIPLauncher(OpenvinoLauncher):
 
     def infer(self, inputs):
         color_space_dict = {2: "COLOR_GRAY2RGB", 3: "COLOR_BGR2RGB", 4: "COLOR_RGBA2RGB"}
-        print("####### infer inputs", inputs)
         if isinstance(inputs, str):
             if len(inputs.split()) > 1:
                 prompt_text = inputs
@@ -124,11 +123,10 @@ class CLIPLauncher(OpenvinoLauncher):
                 prompt_text = f"a photo of a {inputs}"
             inputs = self._tokenize(prompt_text)
         else:
-            inputs = inputs.squeeze()
+            # media.data is None case
             if not inputs.any():
-                # media.data is None case
                 return None
-
+            inputs = inputs.squeeze()
             inputs = cv2.cvtColor(inputs, getattr(cv2, color_space_dict.get(inputs.ndim)))
             inputs = cv2.resize(inputs, (256, 256))
             inputs = self._img_center_crop(inputs, 224)
@@ -160,6 +158,8 @@ class SearcherLauncher(CLIPLauncher):
         super().__init__(description, weights, interpreter, device, model_dir, output_layers)
 
     def _compute_hash(self, features):
+        if features is None:
+            return None
         features = np.sign(features)
         hash_key = np.clip(features, 0, None)
         hash_key = hash_key.astype(np.uint8)
@@ -167,9 +167,7 @@ class SearcherLauncher(CLIPLauncher):
         return hash_key
 
     def launch(self, inputs):
-        print("#################### inputs", inputs)
         features = self.infer(inputs)
-        print("#################### features", features)
         hash_key = self._compute_hash(features)
         results = self.process_outputs(inputs, hash_key)
         return results
