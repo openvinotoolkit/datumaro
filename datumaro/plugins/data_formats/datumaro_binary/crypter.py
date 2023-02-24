@@ -2,12 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-import base64
 from typing import Optional
 
 from cryptography.fernet import Fernet
-
-from datumaro.errors import DatumaroError
 
 
 class Crypter:
@@ -30,6 +27,14 @@ class Crypter:
 
     def encrypt(self, msg: bytes):
         return self._fernet.encrypt(msg) if self._fernet is not None else msg
+
+    def handshake(self, key: bytes) -> bool:
+        if self._key is None and key == b"":
+            return True
+        if self._key is not None and self._key == key:
+            return True
+
+        return False
 
     @staticmethod
     def gen_key() -> bytes:

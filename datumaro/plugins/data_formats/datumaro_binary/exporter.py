@@ -14,7 +14,7 @@ from datumaro.components.exporter import ExportContext
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.exporter import _SubsetWriter as __SubsetWriter
 from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
-from datumaro.util import dump_json
+from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 
 from .format import DatumaroBinaryPath
 
@@ -34,13 +34,13 @@ class _SubsetWriter(__SubsetWriter):
         if self._crypter.key is None:
             msg = b""
         else:
-            msg = self._crypter.encrypt(self._crypter.key)
+            msg = self._crypter.key
+            msg = self._crypter.encrypt(msg)
 
-        length = struct.pack("I", len(msg))
-        return self._fp.write(length + msg)
+        return self._fp.write(struct.pack(f"I{len(msg)}s", len(msg), msg))
 
     def _dump_header(self, header: Any):
-        msg = dump_json(header)
+        msg = DictMapper.forward(header)
 
         if self._crypter.key is not None:
             msg = self._crypter.encrypt(msg)
@@ -54,14 +54,17 @@ class _SubsetWriter(__SubsetWriter):
     def _dump_categories(self):
         self._dump_header(self.categories)
 
+    # def add_item(self, item: DatasetItem):
+    #     item.
+
     def write(self):
         try:
             with open(self.ann_file, "wb") as fp:
                 self._fp = fp
                 self._sign()
                 self._dump_encryption_field()
-                self._dump_info()
-                self._dump_categories()
+                self._dump_header(self.infos)
+                self._dump_header(self.categories)
         finally:
             self._fp = None
 

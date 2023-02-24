@@ -8,7 +8,7 @@ from typing import Optional
 
 from datumaro.components.errors import DatasetImportError
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
-from datumaro.util import parse_json
+from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 
 from ..datumaro.base import DatumaroBase
 from .crypter import Crypter
@@ -42,27 +42,24 @@ class DatumaroBinaryBase(DatumaroBase):
 
     def _check_encryption_field(self):
         len_byte = self._fp.read(4)
-        msg = self._fp.read(struct.unpack("I", len_byte)[0])
+        _bytes = self._fp.read(struct.unpack("I", len_byte)[0])
 
-        # TODO: This will be developed later with encryption feature.
-        extracted_key = self._crypter.decrypt(msg)
-        if extracted_key == b"":
-            extracted_key = None
+        extracted_key = self._crypter.decrypt(_bytes)
 
-        if extracted_key != self._crypter.key:
-            raise DatasetImportError("Encryption key handshake fails. You may give a wrong key.")
+        if not self._crypter.handshake(extracted_key):
+            raise DatasetImportError("Encryption key handshake fails. You give a wrong key.")
 
     def _read_info(self):
         len_byte = self._fp.read(4)
-        msg = self._fp.read(struct.unpack("I", len_byte)[0])
-        msg = self._crypter.decrypt(msg)
+        _bytes = self._fp.read(struct.unpack("I", len_byte)[0])
+        _bytes = self._crypter.decrypt(_bytes)
 
-        self._infos = parse_json(msg)
+        self._infos, _ = DictMapper.backward(_bytes)
 
     def _read_categories(self):
         len_byte = self._fp.read(4)
-        msg = self._fp.read(struct.unpack("I", len_byte)[0])
-        msg = self._crypter.decrypt(msg)
+        _bytes = self._fp.read(struct.unpack("I", len_byte)[0])
+        _bytes = self._crypter.decrypt(_bytes)
 
-        categories = parse_json(msg)
+        categories, _ = DictMapper.backward(_bytes)
         self._categories = self._load_categories({"categories": categories})

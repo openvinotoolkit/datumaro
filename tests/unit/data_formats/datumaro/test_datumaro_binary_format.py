@@ -4,16 +4,22 @@
 # SPDX-License-Identifier: MIT
 
 
+from typing import Any
+
 import pytest
 
-from datumaro.components.environment import Environment
-from datumaro.components.project import Dataset
+from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
 from datumaro.plugins.data_formats.datumaro_binary.exporter import DatumaroBinaryExporter
 from datumaro.plugins.data_formats.datumaro_binary.importer import DatumaroBinaryImporter
-from datumaro.util.test_utils import compare_datasets_strict
+from datumaro.plugins.data_formats.datumaro_binary.mapper import (
+    DatasetItemMapper,
+    DictMapper,
+    Mapper,
+    StringMapper,
+)
 
-from ....requirements import Requirements, mark_requirement
 from .test_datumaro_format import DatumaroFormatTest as TestBase
 
 
@@ -82,3 +88,50 @@ class DatumaroBinaryFormatTest(TestBase):
 
     def test_inplace_save_writes_only_updated_data_with_transforms(self):
         pass
+
+
+@pytest.mark.parametrize(
+    "mapper,expected",
+    [
+        (StringMapper, "9sd#&(d!d.x]+="),
+        (
+            DictMapper,
+            {
+                "string": "test",
+                "int": 0,
+                "float": 0.0,
+                "string_list": ["test0", "test1", "test2"],
+                "int_list": [0, 1, 2],
+                "float_list": [0.0, 0.1, 0.2],
+            },
+        ),
+        (
+            DatasetItemMapper,
+            DatasetItem(
+                id="item_0",
+                subset="test",
+                media=Image(path="dummy.png", size=(10, 10)),
+                attributes={"x": 1, "y": 2},
+            ),
+        ),
+        (
+            DatasetItemMapper,
+            DatasetItem(
+                id="item_0",
+                subset="test",
+                media=Image(path="dummy.png", size=None),
+                attributes={"x": 1, "y": 2},
+            ),
+        ),
+    ],
+    # ids=lambda val: str(val) if isinstance(val, Mapper) else ""
+)
+def test_mapper(mapper: Mapper, expected: Any):
+    _bytes = mapper.forward(expected)
+    actual, _ = mapper.backward(_bytes)
+    assert expected == actual
+
+    prefix = bytes("asdf", "utf-8")
+    offset = len(prefix)
+    actual, _ = mapper.backward(prefix + _bytes, offset=offset)
+    assert expected == actual
