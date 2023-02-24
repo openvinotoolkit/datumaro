@@ -11,7 +11,7 @@ from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import Importer, with_subset_dirs
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import generate_colormap, lazy_mask
@@ -124,6 +124,22 @@ class CommonSemanticSegmentationBase(SubsetBase):
 
 
 class CommonSemanticSegmentationImporter(Importer):
+    """CommonSemanticSegmentation is introduced in the accuracy checker tool of OpenVINO™
+    to cover a general format of datasets for semantic segmentation task.
+    This should have the following structure:
+
+    └─ Dataset/
+        ├── dataset_meta.json # a list of labels
+        ├── images/
+        │   ├── <img1>.png
+        │   ├── <img2>.png
+        │   └── ...
+        └── masks/
+            ├── <img1>.png
+            ├── <img2>.png
+            └── ...
+    """
+
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
@@ -142,3 +158,43 @@ class CommonSemanticSegmentationImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return [{"url": path, "format": "common_semantic_segmentation"}]
+
+
+@with_subset_dirs
+class CommonSemanticSegmentationWithSubsetDirsImporter(CommonSemanticSegmentationImporter):
+    """It supports the following subset sub-directory structure for CommonSemanticSegmentation.
+
+    Dataset/
+    ├─ train/
+    │   ├── dataset_meta.json # a list of labels
+    │   ├── images/
+    │   │   ├── <img1>.png
+    │   │   ├── <img2>.png
+    │   │   └── ...
+    │   └── masks/
+    │       ├── <img1>.png
+    │       ├── <img2>.png
+    │       └── ...
+    ├─ val/
+    │   ├── dataset_meta.json # a list of labels
+    │   ├── images/
+    │   │   ├── <img1>.png
+    │   │   ├── <img2>.png
+    │   │   └── ...
+    │   └── masks/
+    │       ├── <img1>.png
+    │       ├── <img2>.png
+    │       └── ...
+    └─ test/
+        ├── dataset_meta.json # a list of labels
+        ├── images/
+        │   ├── <img1>.png
+        │   ├── <img2>.png
+        │   └── ...
+        └── masks/
+            ├── <img1>.png
+            ├── <img2>.png
+            └── ...
+
+    Then, the imported dataset will have train, val, and test CommonSemanticSegmentation subsets.
+    """
