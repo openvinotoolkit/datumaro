@@ -518,4 +518,18 @@ def detect_dataset_format(
             else:  # new confidence is less than max
                 report_insufficient_confidence(format_name, matches[0])
 
+    # TODO: This should be controlled by our priority logic.
+    # However, some datasets' detect() are currently broken,
+    # so that it is inevitable to introduce this.
+    # We must revisit this after fixing detect().
+    def _give_more_priority_to_with_subset_dirs(matches):
+        for idx, match in enumerate(matches):
+            if match + "_with_subset_dirs" in matches:
+                matches = matches.pop(idx)
+                return True
+        return False
+
+    while _give_more_priority_to_with_subset_dirs(matches):
+        continue
+
     return matches

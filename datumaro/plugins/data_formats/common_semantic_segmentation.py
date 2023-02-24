@@ -10,7 +10,7 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
-from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer, with_subset_dirs
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
@@ -148,12 +148,14 @@ class CommonSemanticSegmentationImporter(Importer):
         return parser
 
     @classmethod
-    def detect(cls, context: FormatDetectionContext) -> None:
+    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         path = context.require_file(f"**/{DATASET_META_FILE}")
         path = osp.dirname(path)
 
         context.require_file(osp.join(path, CommonSemanticSegmentationPath.IMAGES_DIR, "**", "*"))
         context.require_file(osp.join(path, CommonSemanticSegmentationPath.MASKS_DIR, "**", "*"))
+
+        return FormatDetectionConfidence.MEDIUM
 
     @classmethod
     def find_sources(cls, path):
@@ -165,27 +167,7 @@ class CommonSemanticSegmentationWithSubsetDirsImporter(CommonSemanticSegmentatio
     """It supports the following subset sub-directory structure for CommonSemanticSegmentation.
 
     Dataset/
-    ├─ train/
-    │   ├── dataset_meta.json # a list of labels
-    │   ├── images/
-    │   │   ├── <img1>.png
-    │   │   ├── <img2>.png
-    │   │   └── ...
-    │   └── masks/
-    │       ├── <img1>.png
-    │       ├── <img2>.png
-    │       └── ...
-    ├─ val/
-    │   ├── dataset_meta.json # a list of labels
-    │   ├── images/
-    │   │   ├── <img1>.png
-    │   │   ├── <img2>.png
-    │   │   └── ...
-    │   └── masks/
-    │       ├── <img1>.png
-    │       ├── <img2>.png
-    │       └── ...
-    └─ test/
+    └─ <split: train,val, ...>
         ├── dataset_meta.json # a list of labels
         ├── images/
         │   ├── <img1>.png
@@ -196,5 +178,5 @@ class CommonSemanticSegmentationWithSubsetDirsImporter(CommonSemanticSegmentatio
             ├── <img2>.png
             └── ...
 
-    Then, the imported dataset will have train, val, and test CommonSemanticSegmentation subsets.
+    Then, the imported dataset will have train, val, ... CommonSemanticSegmentation subsets.
     """
