@@ -157,6 +157,14 @@ def fxt_test_datumaro_format_dataset():
             AnnotationType.mask: mask_categories,
             AnnotationType.points: points_categories,
         },
+        infos={
+            "string": "test",
+            "int": 0,
+            "float": 0.0,
+            "string_list": ["test0", "test1", "test2"],
+            "int_list": [0, 1, 2],
+            "float_list": [0.0, 0.1, 0.2],
+        },
     )
 
 

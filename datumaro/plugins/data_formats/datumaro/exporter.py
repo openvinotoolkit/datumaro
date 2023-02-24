@@ -342,8 +342,13 @@ class _SubsetWriter:
 
 class DatumaroExporter(Exporter):
     DEFAULT_IMAGE_EXT = DatumaroPath.IMAGE_EXT
-    WRITER_CLS = _SubsetWriter
     PATH_CLS = DatumaroPath
+
+    def create_writer(self, subset: str) -> _SubsetWriter:
+        return self._SubsetWriter(
+            context=self,
+            ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
+        )
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
@@ -359,13 +364,8 @@ class DatumaroExporter(Exporter):
         self._pcd_dir = osp.join(self._save_dir, self.PATH_CLS.PCD_DIR)
         self._related_images_dir = osp.join(self._save_dir, self.PATH_CLS.RELATED_IMAGES_DIR)
 
-        writers = {
-            subset: self.WRITER_CLS(
-                context=self,
-                ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
-            )
-            for subset in self._extractor.subsets()
-        }
+        writers = {subset: self.create_writer(subset) for subset in self._extractor.subsets()}
+
         for writer in writers.values():
             writer.add_infos(self._extractor.infos())
             writer.add_categories(self._extractor.categories())

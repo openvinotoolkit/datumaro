@@ -3,16 +3,16 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
-from typing import Optional
+from typing import Dict, List, Optional
 
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.plugins.data_formats.datumaro.importer import DatumaroImporter
 
 from .format import DatumaroBinaryPath
 
 
-class DatumaroBinaryImporter(Importer):
-    CLS_PATH = DatumaroBinaryPath
+class DatumaroBinaryImporter(DatumaroImporter):
+    PATH_CLS = DatumaroBinaryPath
 
     @classmethod
     def detect(
@@ -28,6 +28,4 @@ class DatumaroBinaryImporter(Importer):
                 annot_file,
                 f"{annot_file} has no Datumaro binary format signature",
             ) as f:
-                signature = f.read(len(DatumaroBinaryPath.SIGNATURE))
-                if signature != DatumaroBinaryPath.SIGNATURE:
-                    raise Exception()
+                DatumaroBinaryPath.check_signature(f.read(DatumaroBinaryPath.SIGNATURE_LEN))
