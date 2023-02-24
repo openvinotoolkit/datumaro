@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
-## 13/02/2023 - Release v1.0.0rc1
+## 24/02/2023 - Release v1.0.0
 ### Added
 - Add Data Explorer
   (<https://github.com/openvinotoolkit/datumaro/pull/773>)
