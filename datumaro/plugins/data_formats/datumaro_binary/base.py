@@ -3,12 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 import struct
-from io import BufferedWriter
+from io import BufferedReader
 from typing import Optional
 
 from datumaro.components.errors import DatasetImportError
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
 from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
+from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
 
 from ..datumaro.base import DatumaroBase
 from .crypter import Crypter
@@ -18,7 +19,7 @@ class DatumaroBinaryBase(DatumaroBase):
     """"""
 
     def __init__(self, path: str, encryption_key: Optional[bytes] = None):
-        self._fp: Optional[BufferedWriter] = None
+        self._fp: Optional[BufferedReader] = None
         self._crypter = Crypter(encryption_key)
         super().__init__(path)
 
@@ -31,6 +32,7 @@ class DatumaroBinaryBase(DatumaroBase):
                 self._check_encryption_field()
                 self._read_info()
                 self._read_categories()
+                self._read_items()
         finally:
             self._fp = None
 
@@ -63,3 +65,14 @@ class DatumaroBinaryBase(DatumaroBase):
 
         categories, _ = DictMapper.backward(_bytes)
         self._categories = self._load_categories({"categories": categories})
+
+    def _read_items(self):
+        (n_items,) = struct.unpack("I", self._fp.read(4))
+        offset = 0
+        _bytes = self._fp.read()
+
+        self._items = []
+
+        for _ in range(n_items):
+            item, offset = DatasetItemMapper.backward(_bytes, offset)
+            self._items.append(item)

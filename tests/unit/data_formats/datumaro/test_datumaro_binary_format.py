@@ -6,19 +6,35 @@
 
 from typing import Any
 
+import numpy as np
 import pytest
 
+from datumaro.components.annotation import (
+    Bbox,
+    Caption,
+    Cuboid3d,
+    Ellipse,
+    Label,
+    Mask,
+    Points,
+    Polygon,
+    PolyLine,
+)
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
 from datumaro.plugins.data_formats.datumaro_binary.exporter import DatumaroBinaryExporter
 from datumaro.plugins.data_formats.datumaro_binary.importer import DatumaroBinaryImporter
-from datumaro.plugins.data_formats.datumaro_binary.mapper import (
-    DatasetItemMapper,
-    DictMapper,
-    Mapper,
-    StringMapper,
-)
+from datumaro.plugins.data_formats.datumaro_binary.mapper import *
+
+#     DatasetItemMapper,
+#     DictMapper,
+#     Mapper,
+#     StringMapper,
+#     MaskMapper,
+#     BboxMapper,
+# )
+from datumaro.plugins.data_formats.datumaro_binary.mapper.annotation import LabelMapper
 
 from .test_datumaro_format import DatumaroFormatTest as TestBase
 
@@ -58,7 +74,7 @@ class DatumaroBinaryFormatTest(TestBase):
             ),
         ],
     )
-    def test_can_save_and_load(
+    def test_develop(
         self,
         fxt_dataset,
         compare,
@@ -123,8 +139,124 @@ class DatumaroBinaryFormatTest(TestBase):
                 attributes={"x": 1, "y": 2},
             ),
         ),
+        (
+            LabelMapper,
+            Label(
+                label=1,
+                id=2,
+                attributes={"x": 1, "y": 2},
+                group=3,
+            ),
+        ),
+        (
+            MaskMapper,
+            Mask(
+                label=3,
+                id=5,
+                z_order=2,
+                image=np.ones((2, 3)),
+                attributes={
+                    "x": 1,
+                    "y": "2",
+                },
+            ),
+        ),
+        (
+            PointsMapper,
+            Points(
+                [1, 2, 2, 0, 1, 1],
+                label=0,
+                id=5,
+                z_order=4,
+                attributes={
+                    "x": 1,
+                    "y": "2",
+                },
+            ),
+        ),
+        (
+            PolyLineMapper,
+            PolyLine([1, 2, 3, 4, 5, 6, 7, 8], id=11, z_order=1),
+        ),
+        (
+            PolygonMapper,
+            Polygon([1, 2, 3, 4, 5, 6, 7, 8], id=12, z_order=4),
+        ),
+        (
+            BboxMapper,
+            Bbox(
+                5,
+                6,
+                7,
+                8,
+                id=5,
+                group=5,
+                attributes={
+                    "a": 1.5,
+                    "b": "text",
+                },
+            ),
+        ),
+        (
+            CaptionMapper,
+            Caption("test"),
+        ),
+        (
+            Cuboid3dMapper,
+            Cuboid3d(
+                [1.0, 2.0, 3.0],
+                [2.0, 2.0, 4.0],
+                [1.0, 3.0, 4.0],
+                id=6,
+                label=0,
+                attributes={"occluded": True},
+                group=6,
+            ),
+        ),
+        (
+            EllipseMapper,
+            Ellipse(
+                5,
+                6,
+                7,
+                8,
+                label=3,
+                id=5,
+                z_order=2,
+                attributes={
+                    "x": 1,
+                    "y": "2",
+                },
+            ),
+        ),
+        (
+            AnnotationListMapper,
+            [
+                Cuboid3d(
+                    [1.0, 2.0, 3.0],
+                    [2.0, 2.0, 4.0],
+                    [1.0, 3.0, 4.0],
+                    id=6,
+                    label=0,
+                    attributes={"occluded": True},
+                    group=6,
+                ),
+                Ellipse(
+                    5,
+                    6,
+                    7,
+                    8,
+                    label=3,
+                    id=5,
+                    z_order=2,
+                    attributes={
+                        "x": 1,
+                        "y": "2",
+                    },
+                ),
+            ],
+        ),
     ],
-    # ids=lambda val: str(val) if isinstance(val, Mapper) else ""
 )
 def test_mapper(mapper: Mapper, expected: Any):
     _bytes = mapper.forward(expected)
