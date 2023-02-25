@@ -27,5 +27,8 @@ class DatumaroBinaryImporter(DatumaroImporter):
             with context.probe_text_file(
                 annot_file,
                 f"{annot_file} has no Datumaro binary format signature",
+                is_binary_file=True,
             ) as f:
-                DatumaroBinaryPath.check_signature(f.read(DatumaroBinaryPath.SIGNATURE_LEN))
+                signature = f.read(DatumaroBinaryPath.SIGNATURE_LEN)
+                signature = signature.decode()
+                DatumaroBinaryPath.check_signature(signature)
