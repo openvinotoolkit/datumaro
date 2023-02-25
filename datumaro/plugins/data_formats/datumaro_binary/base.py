@@ -36,8 +36,6 @@ class DatumaroBinaryBase(DatumaroBase):
         finally:
             self._fp = None
 
-        return
-
     def _check_signature(self):
         signature = self._fp.read(DatumaroBinaryPath.SIGNATURE_LEN).decode()
         DatumaroBinaryPath.check_signature(signature)

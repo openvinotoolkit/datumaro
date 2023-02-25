@@ -88,7 +88,13 @@ class MvtecExporter(Exporter):
                     mask = np.zeros((*item.media.size,), dtype=np.uint8)
                     for bbox in bboxes:
                         x, y, h, w = bbox.get_bbox()
-                        mask = cv2.rectangle(mask, (x, y), (x + w, y + h), (1), -1)
+                        mask = cv2.rectangle(
+                            mask,
+                            np.array((x, y), dtype=np.int32),
+                            np.array((x + w, y + h), dtype=np.int32),
+                            (1),
+                            -1,
+                        )
 
                     if not osp.exists(osp.join(self._save_dir, osp.dirname(mask_path))):
                         os.mkdir(osp.join(self._save_dir, osp.dirname(mask_path)))
