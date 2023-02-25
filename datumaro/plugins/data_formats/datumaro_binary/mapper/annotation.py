@@ -34,7 +34,7 @@ class AnnotationListMapper(Mapper):
     @staticmethod
     def forward(anns: List[Annotation]) -> bytes:
         _bytearray = bytearray()
-        _bytearray.extend(struct.pack("I", len(anns)))
+        _bytearray.extend(struct.pack("<I", len(anns)))
 
         for ann in anns:
             if isinstance(ann, Label):
@@ -62,12 +62,11 @@ class AnnotationListMapper(Mapper):
 
     @staticmethod
     def backward(_bytes: bytes, offset: int = 0) -> Tuple[List[Annotation], int]:
-        (n_anns,) = struct.unpack_from("I", _bytes, offset)
+        (n_anns,) = struct.unpack_from("<I", _bytes, offset)
         offset += 4
         anns = []
         for _ in range(n_anns):
-            (ann_type,) = struct.unpack_from("I", _bytes, offset)
-            ann_type = AnnotationType(ann_type)
+            ann_type = AnnotationMapper.parse_ann_type(_bytes, offset)
 
             if ann_type == AnnotationType.label:
                 ann, offset = LabelMapper.backward(_bytes, offset)
@@ -101,15 +100,15 @@ class AnnotationMapper(Mapper):
     @classmethod
     def forward(cls, ann: Annotation) -> bytes:
         _bytearray = bytearray()
-        _bytearray.extend(struct.pack("Iii", ann.type, ann.id, ann.group))
+        _bytearray.extend(struct.pack("<Bqq", ann.type, ann.id, ann.group))
         _bytearray.extend(DictMapper.forward(ann.attributes))
         return bytes(_bytearray)
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Annotation, int]:
-        ann_type, id, group = struct.unpack_from("Iii", _bytes, offset)
+        ann_type, id, group = struct.unpack_from("<Bqq", _bytes, offset)
         assert ann_type == cls.ann_type
-        offset += 12
+        offset += 17  # struct.calcsize("<Bqq") = 17
         attributes, offset = DictMapper.backward(_bytes, offset)
         return Annotation(id=id, attributes=attributes, group=group), offset
 
@@ -121,6 +120,11 @@ class AnnotationMapper(Mapper):
     def backward_optional_label(label: int) -> Optional[int]:
         return label if label != MAGIC_NUM_FOR_NONE else None
 
+    @staticmethod
+    def parse_ann_type(_bytes: bytes, offset: int = 0) -> AnnotationType:
+        (ann_type,) = struct.unpack_from("<B", _bytes, offset)
+        return AnnotationType(ann_type)
+
 
 class LabelMapper(AnnotationMapper):
     ann_type = AnnotationType.label
@@ -129,13 +133,13 @@ class LabelMapper(AnnotationMapper):
     def forward(cls, ann: Label) -> bytes:
         _bytearray = bytearray()
         _bytearray.extend(super().forward(ann))
-        _bytearray.extend(struct.pack("i", ann.label))
+        _bytearray.extend(struct.pack("<i", ann.label))
         return bytes(_bytearray)
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Label, int]:
         ann, offset = super().backward(_bytes, offset)
-        (label,) = struct.unpack_from("i", _bytes, offset)
+        (label,) = struct.unpack_from("<i", _bytes, offset)
         offset += 4
         return Label(label=label, id=ann.id, attributes=ann.attributes, group=ann.group), offset
 
@@ -150,25 +154,25 @@ class MaskMapper(AnnotationMapper):
         else:
             rle = mask_utils.encode(np.require(ann.image, dtype=np.uint8, requirements="F"))
 
-            h, w = rle["size"]
+        h, w = rle["size"]
         counts = rle["counts"]
         len_counts = len(counts)
 
         _bytearray = bytearray()
         _bytearray.extend(super().forward(ann))
-        _bytearray.extend(struct.pack("ii", cls.forward_optional_label(ann.label), ann.z_order))
-        _bytearray.extend(struct.pack(f"iiI{len_counts}s", h, w, len_counts, counts))
+        _bytearray.extend(struct.pack("<ii", cls.forward_optional_label(ann.label), ann.z_order))
+        _bytearray.extend(struct.pack(f"<iiI{len_counts}s", h, w, len_counts, counts))
         return bytes(_bytearray)
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Mask, int]:
         ann, offset = super().backward(_bytes, offset)
-        label, z_order = struct.unpack_from("ii", _bytes, offset)
+        label, z_order = struct.unpack_from("<ii", _bytes, offset)
         label = cls.backward_optional_label(label)
         offset += 8
-        h, w, len_counts = struct.unpack_from("iiI", _bytes, offset)
+        h, w, len_counts = struct.unpack_from("<iiI", _bytes, offset)
         offset += 12
-        (counts,) = struct.unpack_from(f"{len_counts}s", _bytes, offset)
+        (counts,) = struct.unpack_from(f"<{len_counts}s", _bytes, offset)
         offset += len_counts
 
         return (
@@ -189,14 +193,14 @@ class _ShapeMapper(AnnotationMapper):
     def forward(cls, ann: _Shape) -> bytes:
         _bytearray = bytearray()
         _bytearray.extend(super().forward(ann))
-        _bytearray.extend(struct.pack("ii", cls.forward_optional_label(ann.label), ann.z_order))
+        _bytearray.extend(struct.pack("<ii", cls.forward_optional_label(ann.label), ann.z_order))
         _bytearray.extend(FloatListMapper.forward(ann.points))
         return bytes(_bytearray)
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[_Shape, int]:
         ann, offset = super().backward(_bytes, offset)
-        label, z_order = struct.unpack_from("ii", _bytes, offset)
+        label, z_order = struct.unpack_from("<ii", _bytes, offset)
         offset += 8
         points, offset = FloatListMapper.backward(_bytes, offset)
 
@@ -341,14 +345,14 @@ class Cuboid3dMapper(AnnotationMapper):
     def forward(cls, ann: Cuboid3d) -> bytes:
         _bytearray = bytearray()
         _bytearray.extend(super().forward(ann))
-        _bytearray.extend(struct.pack("i", cls.forward_optional_label(ann.label)))
+        _bytearray.extend(struct.pack("<i", cls.forward_optional_label(ann.label)))
         _bytearray.extend(FloatListMapper.forward(ann._points))
         return bytes(_bytearray)
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Cuboid3d, int]:
         ann, offset = super().backward(_bytes, offset)
-        (label,) = struct.unpack_from("i", _bytes, offset)
+        (label,) = struct.unpack_from("<i", _bytes, offset)
         offset += 4
         points, offset = FloatListMapper.backward(_bytes, offset)
         return (
