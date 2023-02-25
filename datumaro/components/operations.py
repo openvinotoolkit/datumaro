@@ -629,7 +629,9 @@ class IntersectMerge(Merger):
             return c(**{k: v for k, v in kwargs.items() if k in fields}, context=self)
 
         def _for_type(t, **kwargs):
-            if t is AnnotationType.label:
+            if t is AnnotationType.unknown:
+                return _make(AnnotationMerger, **kwargs)
+            elif t is AnnotationType.label:
                 return _make(LabelMerger, **kwargs)
             elif t is AnnotationType.bbox:
                 return _make(BboxMerger, **kwargs)
@@ -1124,7 +1126,7 @@ class HashKeyMatcher(AnnotationMatcher):
 
 
 @attrs(kw_only=True)
-class AnnotationMerger:
+class AnnotationMerger(AnnotationMatcher):
     def merge_clusters(self, clusters):
         raise NotImplementedError()
 

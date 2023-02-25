@@ -235,6 +235,7 @@ class TestOperations(TestCase):
                 "depth_annotation": {"count": 0},
                 "ellipse": {"count": 1},
                 "hash_key": {"count": 0},
+                "unknown": {"count": 0},
             },
             "annotations": {
                 "labels": {
@@ -292,6 +293,7 @@ class TestOperations(TestCase):
 
         actual = compute_ann_statistics(dataset)
 
+        self.maxDiff = None
         self.assertEqual(expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -336,6 +338,7 @@ class TestOperations(TestCase):
                 "depth_annotation": {"count": 0},
                 "ellipse": {"count": 0},
                 "hash_key": {"count": 0},
+                "unknown": {"count": 0},
             },
             "annotations": {
                 "labels": {

@@ -35,14 +35,14 @@ class MediaMapper(Mapper):
         path = getattr(obj, "_path", "")
 
         bytes_arr = bytearray()
-        bytes_arr.extend(struct.pack(f"Iii", media_type, size[0], size[1]))
+        bytes_arr.extend(struct.pack(f"<Iii", media_type, size[0], size[1]))
         bytes_arr.extend(StringMapper.forward(path))
 
         return bytes_arr
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Optional[MediaElement], int]:
-        media_type, height, width = struct.unpack_from("Iii", _bytes, offset)
+        media_type, height, width = struct.unpack_from("<Iii", _bytes, offset)
         size = (height, width)
         offset += 12
         path, offset = StringMapper.backward(_bytes, offset)
