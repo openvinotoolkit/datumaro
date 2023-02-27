@@ -12,16 +12,12 @@ import pytest
 from datumaro.components.annotation import Annotation
 from datumaro.plugins.data_formats.datumaro_binary import *
 from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
+from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
 from datumaro.plugins.data_formats.datumaro_binary.mapper import *
 from datumaro.plugins.data_formats.datumaro_binary.mapper.annotation import AnnotationMapper
+from datumaro.util.test_utils import compare_datasets_strict
 
 from .test_datumaro_format import DatumaroFormatTest as TestBase
-
-
-def tmp_compare(test, expected, actual, *args, **kwargs):
-    assert expected.infos() == actual.infos()
-    assert expected.categories() == actual.categories()
-
 
 ENCRYPTION_KEY = Crypter.gen_key()
 
@@ -29,6 +25,8 @@ ENCRYPTION_KEY = Crypter.gen_key()
 class DatumaroBinaryFormatTest(TestBase):
     exporter = DatumaroBinaryExporter
     importer = DatumaroBinaryImporter
+    format = DatumaroBinaryImporter.NAME
+    ann_ext = DatumaroBinaryPath.ANNOTATION_EXT
 
     # Implementation has not been finished.
     # Those tests will be enabled after implementations.
@@ -37,7 +35,7 @@ class DatumaroBinaryFormatTest(TestBase):
         [
             pytest.param(
                 "fxt_test_datumaro_format_dataset",
-                tmp_compare,
+                compare_datasets_strict,
                 True,
                 {},
                 {},
@@ -45,7 +43,7 @@ class DatumaroBinaryFormatTest(TestBase):
             ),
             pytest.param(
                 "fxt_test_datumaro_format_dataset",
-                tmp_compare,
+                compare_datasets_strict,
                 True,
                 {"encryption_key": ENCRYPTION_KEY},
                 {"encryption_key": ENCRYPTION_KEY},
@@ -74,12 +72,6 @@ class DatumaroBinaryFormatTest(TestBase):
             helper_tc,
             request,
         )
-
-    def test_inplace_save_writes_only_updated_data_with_direct_changes(self):
-        pass
-
-    def test_inplace_save_writes_only_updated_data_with_transforms(self):
-        pass
 
 
 class MapperTest:
