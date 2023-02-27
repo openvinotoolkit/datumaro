@@ -65,7 +65,7 @@ class _SubsetWriter(__SubsetWriter):
         self._item_cnt += 1
 
     def _dump_items(self):
-        items_bytes = bytes(self.items)
+        items_bytes = self._crypter.encrypt(bytes(self.items))
         n_items_bytes = len(items_bytes)
         self._fp.write(struct.pack(f"I{n_items_bytes}s", self._item_cnt, items_bytes))
 

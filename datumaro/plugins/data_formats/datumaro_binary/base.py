@@ -79,7 +79,7 @@ class DatumaroBinaryBase(DatumaroBase):
     def _read_items(self):
         (n_items,) = struct.unpack("I", self._fp.read(4))
         offset = 0
-        _bytes = self._fp.read()
+        _bytes = self._crypter.decrypt(self._fp.read())
 
         self._items = []
 
