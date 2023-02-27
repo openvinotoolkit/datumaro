@@ -12,7 +12,7 @@ from typing import Any, Optional
 
 from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.exporter import ExportContext
-from datumaro.components.media import Image
+from datumaro.components.media import Image, PointCloud
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.exporter import _SubsetWriter as __SubsetWriter
 from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
@@ -60,28 +60,9 @@ class _SubsetWriter(__SubsetWriter):
         self._dump_header(self.categories)
 
     def add_item(self, item: DatasetItem):
-        with self.media_context(item):
+        with self.save_media(item):
             self.items.extend(DatasetItemMapper.forward(item))
         self._item_cnt += 1
-
-    @contextmanager
-    def media_context(self, item: DatasetItem):
-        if item.media is None:
-            yield
-        elif isinstance(item.media, Image):
-            image = item.media_as(Image)
-            _path = image.path
-
-            if self._context._save_media:
-                path = self._context._make_image_filename(item)
-                full_path = osp.join(self._context._images_dir, item.subset, path)
-                self._context._save_image(item, full_path)
-                image._path = full_path
-
-            yield
-            image._path = _path
-        else:
-            raise NotImplementedError
 
     def _dump_items(self):
         items_bytes = bytes(self.items)
