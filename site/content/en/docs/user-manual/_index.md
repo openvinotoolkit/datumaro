@@ -7,9 +7,6 @@ weight: 3
 ---
 
 ## Contents
-- [Installation](./installation)
-  - [Plugins](./installation/#installation-plugins)
-  - [Customizing installation](./installation/#customizing-installation)
 - [How to use Datumaro](./how_to_use_datumaro)
   - [Glossary](./how_to_use_datumaro/#glossary)
   - [Command-line workflow](./how_to_use_datumaro/#command-line-workflow)
