@@ -7,6 +7,7 @@ from io import BufferedReader
 from typing import Optional
 
 from datumaro.components.errors import DatasetImportError
+from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
 from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
@@ -32,6 +33,7 @@ class DatumaroBinaryBase(DatumaroBase):
                 self._check_encryption_field()
                 self._read_info()
                 self._read_categories()
+                self._read_media_type()
                 self._read_items()
         finally:
             self._fp = None
@@ -49,20 +51,30 @@ class DatumaroBinaryBase(DatumaroBase):
         if not self._crypter.handshake(extracted_key):
             raise DatasetImportError("Encryption key handshake fails. You give a wrong key.")
 
-    def _read_info(self):
+    def _read_header(self):
         len_byte = self._fp.read(4)
         _bytes = self._fp.read(struct.unpack("I", len_byte)[0])
         _bytes = self._crypter.decrypt(_bytes)
+        header, _ = DictMapper.backward(_bytes)
+        return header
 
-        self._infos, _ = DictMapper.backward(_bytes)
+    def _read_info(self):
+        self._infos = self._read_header()
 
     def _read_categories(self):
-        len_byte = self._fp.read(4)
-        _bytes = self._fp.read(struct.unpack("I", len_byte)[0])
-        _bytes = self._crypter.decrypt(_bytes)
-
-        categories, _ = DictMapper.backward(_bytes)
+        categories = self._read_header()
         self._categories = self._load_categories({"categories": categories})
+
+    def _read_media_type(self):
+        media_type = self._read_header()["media_type"]
+        if media_type == MediaType.IMAGE:
+            self._media_type = Image
+        elif media_type == MediaType.POINT_CLOUD:
+            self._media_type = PointCloud
+        elif media_type == MediaType.UNKNOWN:
+            self._media_type = MediaElement
+        else:
+            raise NotImplementedError(f"media_type={media_type} is currently not supported.")
 
     def _read_items(self):
         (n_items,) = struct.unpack("I", self._fp.read(4))

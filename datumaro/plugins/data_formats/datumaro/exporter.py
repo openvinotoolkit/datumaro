@@ -4,10 +4,10 @@
 
 # pylint: disable=no-self-use
 
-from contextlib import contextmanager
 import os
 import os.path as osp
 import shutil
+from contextlib import contextmanager
 
 import numpy as np
 import pycocotools.mask as mask_utils
@@ -30,7 +30,7 @@ from datumaro.components.annotation import (
     _Shape,
 )
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
+from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import cast, dump_json_file
@@ -99,16 +99,15 @@ class _SubsetWriter:
                 # Temporarily update pcd related images paths and save them.
                 for i, img in enumerate(sorted(pcd.extra_images, key=lambda v: v.path)):
                     img.__path = img.path
-                    img._path = f"image_{i}{self._context._find_image_ext(img)}"
+                    img._path = osp.join(
+                        self._context._related_images_dir,
+                        item.subset,
+                        item.id,
+                        f"image_{i}{self._context._find_image_ext(img)}",
+                    )
+
                     if img.has_data:
-                        img.save(
-                            osp.join(
-                                self._context._related_images_dir,
-                                item.subset,
-                                item.id,
-                                img.path,
-                            )
-                        )
+                        img.save(img.path)
 
             yield
             pcd._path = path

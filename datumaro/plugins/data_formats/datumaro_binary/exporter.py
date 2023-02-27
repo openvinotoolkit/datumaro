@@ -6,13 +6,11 @@
 
 import os.path as osp
 import struct
-from contextlib import contextmanager
 from io import BufferedWriter
 from typing import Any, Optional
 
 from datumaro.components.dataset_base import DatasetItem, IDataset
-from datumaro.components.exporter import ExportContext
-from datumaro.components.media import Image, PointCloud
+from datumaro.components.exporter import ExportContext, Exporter
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.exporter import _SubsetWriter as __SubsetWriter
 from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
@@ -25,12 +23,14 @@ from .format import DatumaroBinaryPath
 class _SubsetWriter(__SubsetWriter):
     """"""
 
-    def __init__(self, context: IDataset, ann_file: str, encryption_key: Optional[bytes] = None):
+    def __init__(self, context: Exporter, ann_file: str, encryption_key: Optional[bytes] = None):
         super().__init__(context, ann_file)
         self._fp: Optional[BufferedWriter] = None
         self._crypter = Crypter(encryption_key)
         self._data["items"] = bytearray()
         self._item_cnt = 0
+        media_type = context._extractor.media_type()
+        self._media_type = {"media_type": media_type.MEDIA_TYPE}
 
     def _sign(self):
         self._fp.write(DatumaroBinaryPath.SIGNATURE.encode())
@@ -77,6 +77,7 @@ class _SubsetWriter(__SubsetWriter):
                 self._dump_encryption_field()
                 self._dump_header(self.infos)
                 self._dump_header(self.categories)
+                self._dump_header(self._media_type)
                 self._dump_items()
         finally:
             self._fp = None
