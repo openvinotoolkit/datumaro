@@ -181,6 +181,10 @@ class Importer(CliPlugin):
                     break
         return sources
 
+    @classmethod
+    def get_extractor_name(cls) -> str:
+        return cls.NAME.replace("_importer", "")
+
 
 def with_subset_dirs(input_cls: Importer):
     @wraps(input_cls, updated=())

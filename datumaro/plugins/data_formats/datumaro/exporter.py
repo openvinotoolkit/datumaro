@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -29,7 +29,7 @@ from datumaro.components.annotation import (
     _Shape,
 )
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import cast, dump_json_file
@@ -38,7 +38,7 @@ from .format import DatumaroPath
 
 
 class _SubsetWriter:
-    def __init__(self, context):
+    def __init__(self, context: IDataset, ann_file: str):
         self._context = context
 
         self._data = {
@@ -46,6 +46,8 @@ class _SubsetWriter:
             "categories": {},
             "items": [],
         }
+
+        self.ann_file = ann_file
 
     @property
     def infos(self):
@@ -168,8 +170,8 @@ class _SubsetWriter:
                 raise NotImplementedError()
             self.categories[ann_type.name] = converted_desc
 
-    def write(self, ann_file):
-        dump_json_file(ann_file, self._data)
+    def write(self):
+        dump_json_file(self.ann_file, self._data)
 
     def _convert_annotation(self, obj):
         assert isinstance(obj, Annotation)
@@ -340,22 +342,30 @@ class _SubsetWriter:
 
 class DatumaroExporter(Exporter):
     DEFAULT_IMAGE_EXT = DatumaroPath.IMAGE_EXT
+    WRITER_CLS = _SubsetWriter
+    PATH_CLS = DatumaroPath
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
 
-        images_dir = osp.join(self._save_dir, DatumaroPath.IMAGES_DIR)
+        images_dir = osp.join(self._save_dir, self.PATH_CLS.IMAGES_DIR)
         os.makedirs(images_dir, exist_ok=True)
         self._images_dir = images_dir
 
-        annotations_dir = osp.join(self._save_dir, DatumaroPath.ANNOTATIONS_DIR)
+        annotations_dir = osp.join(self._save_dir, self.PATH_CLS.ANNOTATIONS_DIR)
         os.makedirs(annotations_dir, exist_ok=True)
         self._annotations_dir = annotations_dir
 
-        self._pcd_dir = osp.join(self._save_dir, DatumaroPath.PCD_DIR)
-        self._related_images_dir = osp.join(self._save_dir, DatumaroPath.RELATED_IMAGES_DIR)
+        self._pcd_dir = osp.join(self._save_dir, self.PATH_CLS.PCD_DIR)
+        self._related_images_dir = osp.join(self._save_dir, self.PATH_CLS.RELATED_IMAGES_DIR)
 
-        writers = {s: _SubsetWriter(self) for s in self._extractor.subsets()}
+        writers = {
+            subset: self.WRITER_CLS(
+                context=self,
+                ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
+            )
+            for subset in self._extractor.subsets()
+        }
         for writer in writers.values():
             writer.add_infos(self._extractor.infos())
             writer.add_categories(self._extractor.categories())
@@ -365,15 +375,13 @@ class DatumaroExporter(Exporter):
             writers[subset].add_item(item)
 
         for subset, writer in writers.items():
-            ann_file = osp.join(self._annotations_dir, "%s.json" % subset)
-
             if self._patch and subset in self._patch.updated_subsets and writer.is_empty():
-                if osp.isfile(ann_file):
+                if osp.isfile(writer.ann_file):
                     # Remove subsets that became empty
-                    os.remove(ann_file)
+                    os.remove(writer.ann_file)
                 continue
 
-            writer.write(ann_file)
+            writer.write()
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
@@ -393,19 +401,19 @@ class DatumaroExporter(Exporter):
                 continue
 
             image_path = osp.join(
-                save_dir, DatumaroPath.IMAGES_DIR, item.subset, conv._make_image_filename(item)
+                save_dir, cls.PATH_CLS.IMAGES_DIR, item.subset, conv._make_image_filename(item)
             )
             if osp.isfile(image_path):
                 os.unlink(image_path)
 
             pcd_path = osp.join(
-                save_dir, DatumaroPath.PCD_DIR, item.subset, conv._make_pcd_filename(item)
+                save_dir, cls.PATH_CLS.PCD_DIR, item.subset, conv._make_pcd_filename(item)
             )
             if osp.isfile(pcd_path):
                 os.unlink(pcd_path)
 
             related_images_path = osp.join(
-                save_dir, DatumaroPath.RELATED_IMAGES_DIR, item.subset, item.id
+                save_dir, cls.PATH_CLS.RELATED_IMAGES_DIR, item.subset, item.id
             )
             if osp.isdir(related_images_path):
                 shutil.rmtree(related_images_path)
