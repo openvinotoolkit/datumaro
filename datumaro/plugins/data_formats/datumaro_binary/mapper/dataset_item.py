@@ -12,8 +12,6 @@ from datumaro.plugins.data_formats.datumaro_binary.mapper.annotation import Anno
 
 from .common import DictMapper, Mapper, StringMapper
 
-# from .annotations import AnnotationListMapper
-
 
 class MediaMapper(Mapper):
     MAGIC_SIZE_FOR_NONE = (-1, -1)

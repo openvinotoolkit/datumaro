@@ -2,29 +2,16 @@
 #
 # SPDX-License-Identifier: MIT
 
-from .annotation import (
-    AnnotationListMapper,
-    BboxMapper,
-    CaptionMapper,
-    Cuboid3dMapper,
-    EllipseMapper,
-    LabelMapper,
-    MaskMapper,
-    PointsMapper,
-    PolygonMapper,
-    PolyLineMapper,
-)
-from .common import DictMapper, Mapper, StringMapper
-from .dataset_item import DatasetItemMapper
+from .annotation import *
+from .common import *
+from .dataset_item import *
 
 __all__ = [
-    "DictMapper",
-    "StringMapper",
-    "DatasetItemMapper",
-    "Mapper",
+    # anns
     "AnnotationListMapper",
     "LabelMapper",
     "MaskMapper",
+    "RleMaskMapper",
     "PointsMapper",
     "PolygonMapper",
     "PolyLineMapper",
@@ -32,4 +19,13 @@ __all__ = [
     "CaptionMapper",
     "Cuboid3dMapper",
     "EllipseMapper",
+    # common
+    "Mapper",
+    "DictMapper",
+    "StringMapper",
+    "IntListMapper",
+    "FloatListMapper",
+    # dataset_item
+    "DatasetItemMapper",
+    "MediaMapper",
 ]

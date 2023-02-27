@@ -5,6 +5,7 @@
 import os.path as osp
 
 import numpy as np
+import pycocotools.mask as mask_tools
 import pytest
 
 from datumaro.components.annotation import (
@@ -21,6 +22,7 @@ from datumaro.components.annotation import (
     PointsCategories,
     Polygon,
     PolyLine,
+    RleMask,
 )
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
@@ -149,7 +151,20 @@ def fxt_test_datumaro_format_dataset():
                 ],
             ),
             DatasetItem(id=42, subset="test", attributes={"a1": 5, "a2": "42"}),
-            DatasetItem(id=42),
+            DatasetItem(
+                id=42,
+                # id and group integer value can be higher than 32bits limits (COCO instances).
+                annotations=[
+                    Mask(
+                        id=900100087038, group=900100087038, image=np.ones((2, 3), dtype=np.uint8)
+                    ),
+                    RleMask(
+                        rle=mask_tools.encode(np.ones((2, 3), dtype=np.uint8, order="F")),
+                        id=900100087038,
+                        group=900100087038,
+                    ),
+                ],
+            ),
             DatasetItem(id=43, media=Image(path="1/b/c.qq", size=(2, 4))),
         ],
         categories={
