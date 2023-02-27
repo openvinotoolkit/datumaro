@@ -61,10 +61,6 @@ class FloatListMapper(ListMapper):
     _format = "f"
 
 
-class BoolListMapper(ListMapper):
-    _format = "?"
-
-
 class DictMapper(Mapper):
     @staticmethod
     def forward(obj: Dict[str, Any]) -> bytes:

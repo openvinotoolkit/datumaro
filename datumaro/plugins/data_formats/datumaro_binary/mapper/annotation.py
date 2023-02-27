@@ -188,6 +188,10 @@ class MaskMapper(AnnotationMapper):
         )
 
 
+class RleMaskMapper(MaskMapper):
+    """Just clone MaskMapper."""
+
+
 class _ShapeMapper(AnnotationMapper):
     @classmethod
     def forward(cls, ann: _Shape) -> bytes:
