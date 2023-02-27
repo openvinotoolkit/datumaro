@@ -75,9 +75,6 @@ class DatumaroBinaryFormatTest(TestBase):
             request,
         )
 
-    def test_source_target_pair(self):
-        pass
-
     def test_inplace_save_writes_only_updated_data_with_direct_changes(self):
         pass
 

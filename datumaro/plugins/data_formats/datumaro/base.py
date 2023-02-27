@@ -136,9 +136,7 @@ class DatumaroBase(SubsetBase):
                     related_images = [
                         Image(
                             size=ri.get("size"),
-                            path=osp.join(
-                                self._related_images_dir, self._subset, item_id, ri.get("path")
-                            ),
+                            path=osp.join(ri.get("path")),
                         )
                         for ri in ri_info
                     ]

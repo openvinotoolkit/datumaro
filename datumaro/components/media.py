@@ -22,7 +22,7 @@ BboxIntCoords = Tuple[int, int, int, int]  # (x, y, w, h)
 
 class MediaType(IntEnum):
     NONE = 0
-    UNKNOWN = 1
+    MEDIA_ELEMENT = 1
     IMAGE = 2
     BYTE_IMAGE = 3
     VIDEO_FRAME = 4
@@ -34,7 +34,7 @@ class MediaType(IntEnum):
 
 
 class MediaElement:
-    MEDIA_TYPE = MediaType.UNKNOWN
+    MEDIA_TYPE = MediaType.MEDIA_ELEMENT
 
     def __init__(self, path: str) -> None:
         assert path, "Path can't be empty"
