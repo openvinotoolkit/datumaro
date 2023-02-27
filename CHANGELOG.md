@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor Datumaro format code and test code
   (<https://github.com/openvinotoolkit/datumaro/pull/824>)
 
-## 13/02/2023 - Release v1.0.0rc1
+## 24/02/2023 - Release v1.0.0
 ### Added
 - Add Data Explorer
   (<https://github.com/openvinotoolkit/datumaro/pull/773>)
@@ -23,21 +23,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add MVTec anomaly data support
   (<https://github.com/openvinotoolkit/datumaro/pull/810>)
 
+### Changed
+- Refactor existing tests
+  (<https://github.com/openvinotoolkit/datumaro/pull/803>)
+- Raise ImportError on importing malformed COCO directory
+  (<https://github.com/openvinotoolkit/datumaro/pull/812>)
+- Remove the duplicated and cyclical category context in documentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/822>)
+
 ### Fixed
 - Fix for importing CVAT image 1.1 data format exported to project level
   (<https://github.com/openvinotoolkit/datumaro/pull/795>)
-- Fix problem setting loglevel via CLI
+- Fix a problem on setting log-level via CLI
   (<https://github.com/openvinotoolkit/datumaro/pull/800>)
 - Fix code format with the latest black==23.1.0
   (<https://github.com/openvinotoolkit/datumaro/pull/802>)
-- Refactor existing tests
-  (<https://github.com/openvinotoolkit/datumaro/pull/803>)
-- Fix [Explain command cannot find the model (#721)](https://github.com/openvinotoolkit/datumaro/issues/721)
-  (<https://github.com/openvinotoolkit/datumaro/pull/804>)
-- Fix model remove CLI command
+- Fix [Explain command cannot find the model (#721)](https://github.com/openvinotoolkit/datumaro/issues/721)  (<https://github.com/openvinotoolkit/datumaro/pull/804>)
+- Fix a problem found on model remove CLI command
   (<https://github.com/openvinotoolkit/datumaro/pull/805>)
-- Raise ImportError on importing malformed COCO directory
-  (<https://github.com/openvinotoolkit/datumaro/pull/812>)
 
 ## 27/01/2023 - Release v0.5.0
 ### Added
