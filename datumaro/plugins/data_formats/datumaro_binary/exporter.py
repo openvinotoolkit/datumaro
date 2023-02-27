@@ -9,11 +9,11 @@ import struct
 from io import BufferedWriter
 from typing import Any, Optional
 
+from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.exporter import ExportContext, Exporter
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.exporter import _SubsetWriter as __SubsetWriter
-from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
 from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
 
@@ -26,7 +26,7 @@ class _SubsetWriter(__SubsetWriter):
     def __init__(self, context: Exporter, ann_file: str, encryption_key: Optional[bytes] = None):
         super().__init__(context, ann_file)
         self._fp: Optional[BufferedWriter] = None
-        self._crypter = Crypter(encryption_key)
+        self._crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
         self._data["items"] = bytearray()
         self._item_cnt = 0
         media_type = context._extractor.media_type()

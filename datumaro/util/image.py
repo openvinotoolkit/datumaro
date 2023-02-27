@@ -6,6 +6,7 @@ import importlib
 import os
 import os.path as osp
 import shlex
+import shutil
 import warnings
 import weakref
 from enum import Enum, auto
@@ -13,6 +14,9 @@ from io import BytesIO
 from typing import Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union
 
 import numpy as np
+
+from datumaro.components.crypter import NULL_CRYPTER, Crypter, NullCrypter
+from datumaro.components.errors import DatumaroError
 
 try:
     # Introduced in 1.20
@@ -56,7 +60,7 @@ def __getattr__(name: str):
     raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
-def load_image(path: str, dtype: DTypeLike = np.float32):
+def load_image(path: str, dtype: DTypeLike = np.float32, crypter: Crypter = NULL_CRYPTER):
     """
     Reads an image in the HWC Grayscale/BGR(A) float [0; 255] format.
     """
@@ -67,11 +71,14 @@ def load_image(path: str, dtype: DTypeLike = np.float32):
         # ourselves.
 
         with open(path, "rb") as f:
-            image_bytes = f.read()
+            image_bytes = crypter.decrypt(f.read())
 
         return decode_image(image_bytes, dtype=dtype)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
+
+        if crypter.is_null_crypter:
+            raise DatumaroError("PIL backend should have crypter=NullCrypter.")
 
         image = Image.open(path)
         image = np.asarray(image, dtype=dtype)
@@ -86,8 +93,25 @@ def load_image(path: str, dtype: DTypeLike = np.float32):
     return image
 
 
+def copyto_image(src_path: str, dst_path: str, crypter: Crypter = NULL_CRYPTER) -> None:
+    if src_path == dst_path and not crypter.is_null_crypter:
+        raise DatumaroError("Overwriting the file with encryption is not allowed.")
+    elif crypter.is_null_crypter:
+        shutil.copyfile(src_path, dst_path)
+        return
+
+    with open(src_path, "rb") as read_fp, open(dst_path, "wb") as write_fp:
+        _bytes = read_fp.read()
+        write_fp.write(crypter.encrypt(_bytes))
+
+
 def save_image(
-    path: str, image: np.ndarray, create_dir: bool = False, dtype: DTypeLike = np.uint8, **kwargs
+    path: str,
+    image: np.ndarray,
+    create_dir: bool = False,
+    dtype: DTypeLike = np.uint8,
+    crypter: Crypter = NULL_CRYPTER,
+    **kwargs,
 ) -> None:
     # NOTE: Check destination path for existence
     # OpenCV silently fails if target directory does not exist
@@ -116,9 +140,12 @@ def save_image(
         image_bytes = encode_image(image, ext, dtype=dtype, **kwargs)
 
         with open(path, "wb") as f:
-            f.write(image_bytes)
+            f.write(crypter.encrypt(image_bytes))
     elif backend == _IMAGE_BACKENDS.PIL:
         from PIL import Image
+
+        if crypter.is_null_crypter:
+            raise DatumaroError("PIL backend should have crypter=NullCrypter.")
 
         params = {}
         params["quality"] = kwargs.get("jpeg_quality")

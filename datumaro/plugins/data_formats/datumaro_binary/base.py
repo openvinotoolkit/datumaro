@@ -6,6 +6,7 @@ import struct
 from io import BufferedReader
 from typing import Optional
 
+from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
@@ -13,7 +14,6 @@ from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
 
 from ..datumaro.base import DatumaroBase
-from .crypter import Crypter
 
 
 class DatumaroBinaryBase(DatumaroBase):
@@ -21,7 +21,7 @@ class DatumaroBinaryBase(DatumaroBase):
 
     def __init__(self, path: str, encryption_key: Optional[bytes] = None):
         self._fp: Optional[BufferedReader] = None
-        self._crypter = Crypter(encryption_key)
+        self._crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
         super().__init__(path)
 
     def _load_impl(self, path: str) -> None:
@@ -85,4 +85,6 @@ class DatumaroBinaryBase(DatumaroBase):
 
         for _ in range(n_items):
             item, offset = DatasetItemMapper.backward(_bytes, offset)
+            if item.media is not None:
+                item.media.set_crypter(self._crypter)
             self._items.append(item)

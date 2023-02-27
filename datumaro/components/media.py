@@ -14,8 +14,16 @@ from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
 import cv2
 import numpy as np
 
+from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.errors import MediaShapeError
-from datumaro.util.image import _image_loading_errors, decode_image, lazy_image, save_image
+from datumaro.util.image import (
+    _image_loading_errors,
+    copyto_image,
+    decode_image,
+    lazy_image,
+    load_image,
+    save_image,
+)
 
 BboxIntCoords = Tuple[int, int, int, int]  # (x, y, w, h)
 
@@ -36,9 +44,10 @@ class MediaType(IntEnum):
 class MediaElement:
     MEDIA_TYPE = MediaType.MEDIA_ELEMENT
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, crypter: Optional[Crypter] = None) -> None:
         assert path, "Path can't be empty"
         self._path = path
+        self._crypter = crypter if crypter is not None else NULL_CRYPTER
 
     @property
     def path(self) -> str:
@@ -49,6 +58,13 @@ class MediaElement:
     def ext(self) -> str:
         """Media file extension (with the leading dot)"""
         return osp.splitext(osp.basename(self.path))[1]
+
+    @property
+    def is_encrypted(self) -> bool:
+        return self._crypter.key is not None
+
+    def set_crypter(self, crypter: Crypter):
+        self._crypter = crypter
 
     def __eq__(self, other: object) -> bool:
         # We need to compare exactly with this type
@@ -67,6 +83,7 @@ class Image(MediaElement):
         path: Optional[str] = None,
         ext: Optional[str] = None,
         size: Optional[Tuple[int, int]] = None,
+        crypter: Optional[Crypter] = None,
     ) -> None:
         """
         Creates an image.
@@ -110,11 +127,15 @@ class Image(MediaElement):
             ext = None
         self._ext = ext
 
+        self._crypter = crypter if crypter is not None else NULL_CRYPTER
+
         if not isinstance(data, np.ndarray):
             assert path or callable(data) or size, "Image can not be empty"
             assert data is None or callable(data), f"Image data has unexpected type '{type(data)}'"
-            if data or path and osp.isfile(path):
+            if data:
                 data = lazy_image(path, loader=data)
+            elif path and osp.isfile(path):
+                data = lazy_image(path, loader=lambda path: load_image(path, crypter=self._crypter))
         self._data = data
 
     @property
@@ -180,10 +201,9 @@ class Image(MediaElement):
 
         os.makedirs(osp.dirname(path), exist_ok=True)
         if cur_ext == new_ext and osp.isfile(cur_path):
-            if cur_path != path:
-                shutil.copyfile(cur_path, path)
+            copyto_image(src_path=cur_path, dst_path=path, crypter=self._crypter)
         else:
-            save_image(path, self.data)
+            save_image(path, self.data, crypter=self._crypter)
 
 
 class ByteImage(Image):
@@ -202,6 +222,7 @@ class ByteImage(Image):
         path: Optional[str] = None,
         ext: Optional[str] = None,
         size: Optional[Tuple[int, int]] = None,
+        crypter: Optional[Crypter] = None,
     ):
         if not isinstance(data, bytes):
             assert path or callable(data), "Image can not be empty"
@@ -223,6 +244,8 @@ class ByteImage(Image):
             # data to avoid using default image loader for loading binaries
             # from the path, when no data is provided.
             self._data = None
+
+        self._crypter = crypter if crypter is not None else NULL_CRYPTER
 
     @classmethod
     def _guess_ext(cls, data: bytes) -> Optional[str]:
@@ -527,10 +550,17 @@ class Video(MediaElement, Iterable[VideoFrame]):
 class PointCloud(MediaElement):
     MEDIA_TYPE = MediaType.POINT_CLOUD
 
-    def __init__(self, path: str, extra_images: Optional[List[Image]] = None):
+    def __init__(
+        self,
+        path: str,
+        extra_images: Optional[List[Image]] = None,
+        crypter: Optional[Crypter] = None,
+    ):
         self._path = path
 
         self.extra_images: List[Image] = extra_images or []
+
+        self._crypter = crypter if crypter is not None else NULL_CRYPTER
 
 
 class MultiframeImage(MediaElement):
