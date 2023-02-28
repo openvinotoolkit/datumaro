@@ -54,9 +54,6 @@ class _SubsetWriter(__SubsetWriter):
     def _dump_categories(self):
         self._dump_header(self.categories)
 
-    # def add_item(self, item: DatasetItem):
-    #     item.
-
     def write(self):
         try:
             with open(self.ann_file, "wb") as fp:
