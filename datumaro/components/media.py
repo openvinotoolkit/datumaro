@@ -65,6 +65,8 @@ class MediaElement:
 
     def set_crypter(self, crypter: Crypter):
         self._crypter = crypter
+        if isinstance(self._data, lazy_image):
+            self._data._crypter = crypter
 
     def __eq__(self, other: object) -> bool:
         # We need to compare exactly with this type
@@ -132,10 +134,8 @@ class Image(MediaElement):
         if not isinstance(data, np.ndarray):
             assert path or callable(data) or size, "Image can not be empty"
             assert data is None or callable(data), f"Image data has unexpected type '{type(data)}'"
-            if data:
-                data = lazy_image(path, loader=data)
-            elif path and osp.isfile(path):
-                data = lazy_image(path, loader=lambda path: load_image(path, crypter=self._crypter))
+            if data or path and osp.isfile(path):
+                data = lazy_image(path, loader=data, crypter=self._crypter)
         self._data = data
 
     @property
@@ -192,7 +192,7 @@ class Image(MediaElement):
             and (self.has_data and np.array_equal(self.data, other.data) or not self.has_data)
         )
 
-    def save(self, path):
+    def save(self, path, crypter: Crypter = NULL_CRYPTER):
         cur_path = osp.abspath(self.path)
         path = osp.abspath(path)
 
@@ -201,9 +201,11 @@ class Image(MediaElement):
 
         os.makedirs(osp.dirname(path), exist_ok=True)
         if cur_ext == new_ext and osp.isfile(cur_path):
-            copyto_image(src_path=cur_path, dst_path=path, crypter=self._crypter)
+            copyto_image(
+                src_path=cur_path, dst_path=path, src_crypter=self._crypter, dst_crypter=crypter
+            )
         else:
-            save_image(path, self.data, crypter=self._crypter)
+            save_image(path, self.data, crypter=crypter)
 
 
 class ByteImage(Image):

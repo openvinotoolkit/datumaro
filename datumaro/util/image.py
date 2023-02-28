@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -77,7 +77,7 @@ def load_image(path: str, dtype: DTypeLike = np.float32, crypter: Crypter = NULL
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
 
-        if crypter.is_null_crypter:
+        if not crypter.is_null_crypter:
             raise DatumaroError("PIL backend should have crypter=NullCrypter.")
 
         image = Image.open(path)
@@ -93,16 +93,19 @@ def load_image(path: str, dtype: DTypeLike = np.float32, crypter: Crypter = NULL
     return image
 
 
-def copyto_image(src_path: str, dst_path: str, crypter: Crypter = NULL_CRYPTER) -> None:
-    if src_path == dst_path and not crypter.is_null_crypter:
-        raise DatumaroError("Overwriting the file with encryption is not allowed.")
-    elif crypter.is_null_crypter:
+def copyto_image(src_path: str, dst_path: str, src_crypter: Crypter, dst_crypter: Crypter) -> None:
+    if src_crypter == dst_crypter:
+        if src_path == dst_path:
+            return
+
         shutil.copyfile(src_path, dst_path)
         return
 
-    with open(src_path, "rb") as read_fp, open(dst_path, "wb") as write_fp:
-        _bytes = read_fp.read()
-        write_fp.write(crypter.encrypt(_bytes))
+    with open(src_path, "rb") as read_fp:
+        _bytes = src_crypter.decrypt(read_fp.read())
+
+    with open(dst_path, "wb") as write_fp:
+        write_fp.write(dst_crypter.encrypt(_bytes))
 
 
 def save_image(
@@ -144,7 +147,7 @@ def save_image(
     elif backend == _IMAGE_BACKENDS.PIL:
         from PIL import Image
 
-        if crypter.is_null_crypter:
+        if not crypter.is_null_crypter:
             raise DatumaroError("PIL backend should have crypter=NullCrypter.")
 
         params = {}
@@ -279,6 +282,7 @@ class lazy_image:
         path: str,
         loader: Callable[[str], np.ndarray] = None,
         cache: Union[bool, ImageCache] = True,
+        crypter: Crypter = NULL_CRYPTER,
     ) -> None:
         """
         Cache:
@@ -287,13 +291,18 @@ class lazy_image:
             - ImageCache instance: an object to be used as cache
         """
 
+        self._custom_loader = True
+
         if loader is None:
             loader = load_image
+            self._custom_loader = False
+
         self._path = path
         self._loader = loader
 
         assert isinstance(cache, (ImageCache, bool))
         self._cache = cache
+        self._crypter = crypter
 
     def __call__(self) -> np.ndarray:
         image = None
@@ -304,7 +313,11 @@ class lazy_image:
             image = cache.get(cache_key)
 
         if image is None:
-            image = self._loader(self._path)
+            image = (
+                self._loader(self._path)
+                if self._custom_loader
+                else self._loader(self._path, crypter=self._crypter)
+            )
             if cache is not None:
                 cache.push(cache_key, image)
         return image

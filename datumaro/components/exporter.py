@@ -14,6 +14,7 @@ import attr
 from attrs import define, field
 
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.errors import (
     AnnotationExportError,
@@ -234,7 +235,16 @@ class Exporter(CliPlugin):
     def _make_pcd_filename(self, item, *, name=None, subdir=None):
         return self._make_item_filename(item, name=name, subdir=subdir) + ".pcd"
 
-    def _save_image(self, item, path=None, *, name=None, subdir=None, basedir=None):
+    def _save_image(
+        self,
+        item,
+        path=None,
+        *,
+        name=None,
+        subdir=None,
+        basedir=None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
         assert not (
             (subdir or name or basedir) and path
         ), "Can't use both subdir or name or basedir and path arguments"
@@ -247,7 +257,7 @@ class Exporter(CliPlugin):
         path = path or osp.join(basedir, self._make_image_filename(item, name=name, subdir=subdir))
         path = osp.abspath(path)
 
-        item.media.save(path)
+        item.media.save(path, crypter=crypter)
 
     def _save_point_cloud(self, item=None, path=None, *, name=None, subdir=None, basedir=None):
         assert not (

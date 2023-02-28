@@ -77,19 +77,16 @@ class _SubsetWriter:
         elif isinstance(item.media, Image):
             image = item.media_as(Image)
             path = image.path
-            crypter = image._crypter
-            image.set_crypter(self._crypter)
 
             if self._context._save_media:
                 # Temporarily update image path and save it.
                 image._path = osp.join(
                     self._context._images_dir, item.subset, self._context._make_image_filename(item)
                 )
-                self._context._save_image(item, image.path)
+                self._context._save_image(item, image.path, crypter=self._crypter)
 
             yield
             image._path = path
-            image.set_crypter(crypter)
         elif isinstance(item.media, PointCloud):
             pcd = item.media_as(PointCloud)
             path = pcd.path
