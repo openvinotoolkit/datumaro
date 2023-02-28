@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 import struct
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pycocotools.mask as mask_utils
@@ -28,72 +28,6 @@ from .common import DictMapper, FloatListMapper, IntListMapper, Mapper, StringMa
 MAGIC_NUM_FOR_NONE = 2**31 - 1
 
 
-class AnnotationListMapper(Mapper):
-    """"""
-
-    @staticmethod
-    def forward(anns: List[Annotation]) -> bytes:
-        _bytearray = bytearray()
-        _bytearray.extend(struct.pack("<I", len(anns)))
-
-        for ann in anns:
-            if isinstance(ann, Label):
-                _bytearray.extend(LabelMapper.forward(ann))
-            elif isinstance(ann, Mask):
-                _bytearray.extend(MaskMapper.forward(ann))
-            elif isinstance(ann, Points):
-                _bytearray.extend(PointsMapper.forward(ann))
-            elif isinstance(ann, PolyLine):
-                _bytearray.extend(PolyLineMapper.forward(ann))
-            elif isinstance(ann, Polygon):
-                _bytearray.extend(PolygonMapper.forward(ann))
-            elif isinstance(ann, Bbox):
-                _bytearray.extend(BboxMapper.forward(ann))
-            elif isinstance(ann, Caption):
-                _bytearray.extend(CaptionMapper.forward(ann))
-            elif isinstance(ann, Cuboid3d):
-                _bytearray.extend(Cuboid3dMapper.forward(ann))
-            elif isinstance(ann, Ellipse):
-                _bytearray.extend(EllipseMapper.forward(ann))
-            else:
-                raise NotImplementedError()
-
-        return bytes(_bytearray)
-
-    @staticmethod
-    def backward(_bytes: bytes, offset: int = 0) -> Tuple[List[Annotation], int]:
-        (n_anns,) = struct.unpack_from("<I", _bytes, offset)
-        offset += 4
-        anns = []
-        for _ in range(n_anns):
-            ann_type = AnnotationMapper.parse_ann_type(_bytes, offset)
-
-            if ann_type == AnnotationType.label:
-                ann, offset = LabelMapper.backward(_bytes, offset)
-            elif ann_type == AnnotationType.mask:
-                ann, offset = MaskMapper.backward(_bytes, offset)
-            elif ann_type == AnnotationType.points:
-                ann, offset = PointsMapper.backward(_bytes, offset)
-            elif ann_type == AnnotationType.polyline:
-                ann, offset = PolyLineMapper.backward(_bytes, offset)
-            elif ann_type == AnnotationType.polygon:
-                ann, offset = PolygonMapper.backward(_bytes, offset)
-            elif ann_type == AnnotationType.bbox:
-                ann, offset = BboxMapper.backward(_bytes, offset)
-            elif ann_type == AnnotationType.caption:
-                ann, offset = CaptionMapper.backward(_bytes, offset)
-            elif ann_type == AnnotationType.cuboid_3d:
-                ann, offset = Cuboid3dMapper.backward(_bytes, offset)
-            elif ann_type == AnnotationType.ellipse:
-                ann, offset = EllipseMapper.backward(_bytes, offset)
-            else:
-                raise NotImplementedError()
-
-            anns.append(ann)
-
-        return anns, offset
-
-
 class AnnotationMapper(Mapper):
     ann_type = AnnotationType.unknown
 
@@ -105,12 +39,16 @@ class AnnotationMapper(Mapper):
         return bytes(_bytearray)
 
     @classmethod
-    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Annotation, int]:
-        ann_type, id, group = struct.unpack_from("<Bqq", _bytes, offset)
-        assert ann_type == cls.ann_type
+    def backward_dict(cls, _bytes: bytes, offset: int = 0) -> Tuple[Dict, int]:
+        _, id, group = struct.unpack_from("<Bqq", _bytes, offset)
         offset += 17  # struct.calcsize("<Bqq") = 17
         attributes, offset = DictMapper.backward(_bytes, offset)
-        return Annotation(id=id, attributes=attributes, group=group), offset
+        return {"id": id, "attributes": attributes, "group": group}, offset
+
+    @classmethod
+    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Annotation, int]:
+        ann_dict, offset = cls.backward_dict(_bytes, offset)
+        return Annotation(**ann_dict), offset
 
     @staticmethod
     def forward_optional_label(label: Optional[int]) -> int:
@@ -138,10 +76,10 @@ class LabelMapper(AnnotationMapper):
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Label, int]:
-        ann, offset = super().backward(_bytes, offset)
+        ann_dict, offset = super().backward_dict(_bytes, offset)
         (label,) = struct.unpack_from("<i", _bytes, offset)
         offset += 4
-        return Label(label=label, id=ann.id, attributes=ann.attributes, group=ann.group), offset
+        return Label(label=label, **ann_dict), offset
 
 
 class MaskMapper(AnnotationMapper):
@@ -166,7 +104,7 @@ class MaskMapper(AnnotationMapper):
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Mask, int]:
-        ann, offset = super().backward(_bytes, offset)
+        ann_dict, offset = super().backward_dict(_bytes, offset)
         label, z_order = struct.unpack_from("<ii", _bytes, offset)
         label = cls.backward_optional_label(label)
         offset += 8
@@ -177,12 +115,7 @@ class MaskMapper(AnnotationMapper):
 
         return (
             RleMask(
-                rle={"size": [h, w], "counts": counts},
-                label=label,
-                id=ann.id,
-                attributes=ann.attributes,
-                group=ann.group,
-                z_order=z_order,
+                rle={"size": [h, w], "counts": counts}, label=label, z_order=z_order, **ann_dict
             ),
             offset,
         )
@@ -202,23 +135,22 @@ class _ShapeMapper(AnnotationMapper):
         return bytes(_bytearray)
 
     @classmethod
-    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[_Shape, int]:
-        ann, offset = super().backward(_bytes, offset)
+    def backward_dict(cls, _bytes: bytes, offset: int = 0) -> Tuple[Dict, int]:
+        ann_dict, offset = super().backward_dict(_bytes, offset)
         label, z_order = struct.unpack_from("<ii", _bytes, offset)
         offset += 8
         points, offset = FloatListMapper.backward(_bytes, offset)
+        return {
+            "points": points,
+            "label": cls.backward_optional_label(label),
+            "z_order": z_order,
+            **ann_dict,
+        }, offset
 
-        return (
-            _Shape(
-                points=points,
-                id=ann.id,
-                attributes=ann.attributes,
-                group=ann.group,
-                label=cls.backward_optional_label(label),
-                z_order=z_order,
-            ),
-            offset,
-        )
+    @classmethod
+    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[_Shape, int]:
+        ann_dict, offset = cls.backward_dict(_bytes, offset)
+        return _Shape(**ann_dict), offset
 
 
 class PointsMapper(_ShapeMapper):
@@ -233,20 +165,9 @@ class PointsMapper(_ShapeMapper):
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Points, int]:
-        shape, offset = super().backward(_bytes, offset)
+        shape_dict, offset = super().backward_dict(_bytes, offset)
         visibility, offset = IntListMapper.backward(_bytes, offset)
-        return (
-            Points(
-                points=shape.points,
-                visibility=[Points.Visibility(v) for v in visibility],
-                id=shape.id,
-                attributes=shape.attributes,
-                group=shape.group,
-                label=shape.label,
-                z_order=shape.z_order,
-            ),
-            offset,
-        )
+        return Points(visibility=[Points.Visibility(v) for v in visibility], **shape_dict), offset
 
 
 class PolyLineMapper(_ShapeMapper):
@@ -258,18 +179,8 @@ class PolyLineMapper(_ShapeMapper):
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[PolyLine, int]:
-        shape, offset = super().backward(_bytes, offset)
-        return (
-            PolyLine(
-                points=shape.points,
-                id=shape.id,
-                attributes=shape.attributes,
-                group=shape.group,
-                label=shape.label,
-                z_order=shape.z_order,
-            ),
-            offset,
-        )
+        shape_dict, offset = super().backward_dict(_bytes, offset)
+        return PolyLine(**shape_dict), offset
 
 
 class PolygonMapper(_ShapeMapper):
@@ -281,18 +192,8 @@ class PolygonMapper(_ShapeMapper):
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Polygon, int]:
-        shape, offset = super().backward(_bytes, offset)
-        return (
-            Polygon(
-                points=shape.points,
-                id=shape.id,
-                attributes=shape.attributes,
-                group=shape.group,
-                label=shape.label,
-                z_order=shape.z_order,
-            ),
-            offset,
-        )
+        shape_dict, offset = super().backward_dict(_bytes, offset)
+        return Polygon(**shape_dict), offset
 
 
 class BboxMapper(_ShapeMapper):
@@ -304,22 +205,9 @@ class BboxMapper(_ShapeMapper):
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Bbox, int]:
-        shape, offset = super().backward(_bytes, offset)
-        x, y, x2, y2 = shape.points
-        return (
-            Bbox(
-                x,
-                y,
-                x2 - x,
-                y2 - y,
-                id=shape.id,
-                attributes=shape.attributes,
-                group=shape.group,
-                label=shape.label,
-                z_order=shape.z_order,
-            ),
-            offset,
-        )
+        shape_dict, offset = super().backward_dict(_bytes, offset)
+        x, y, x2, y2 = shape_dict["points"]
+        return Bbox(x, y, x2 - x, y2 - y, **shape_dict), offset
 
 
 class CaptionMapper(AnnotationMapper):
@@ -334,12 +222,9 @@ class CaptionMapper(AnnotationMapper):
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Caption, int]:
-        ann, offset = super().backward(_bytes, offset)
+        ann_dict, offset = super().backward_dict(_bytes, offset)
         caption, offset = StringMapper.backward(_bytes, offset)
-        return (
-            Caption(caption=caption, id=ann.id, attributes=ann.attributes, group=ann.group),
-            offset,
-        )
+        return Caption(caption=caption, **ann_dict), offset
 
 
 class Cuboid3dMapper(AnnotationMapper):
@@ -355,7 +240,7 @@ class Cuboid3dMapper(AnnotationMapper):
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Cuboid3d, int]:
-        ann, offset = super().backward(_bytes, offset)
+        ann_dict, offset = super().backward_dict(_bytes, offset)
         (label,) = struct.unpack_from("<i", _bytes, offset)
         offset += 4
         points, offset = FloatListMapper.backward(_bytes, offset)
@@ -365,9 +250,7 @@ class Cuboid3dMapper(AnnotationMapper):
                 rotation=points[3:6],
                 scale=points[6:],
                 label=cls.backward_optional_label(label),
-                id=ann.id,
-                attributes=ann.attributes,
-                group=ann.group,
+                **ann_dict,
             ),
             offset,
         )
@@ -382,19 +265,63 @@ class EllipseMapper(_ShapeMapper):
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Ellipse, int]:
-        shape, offset = super().backward(_bytes, offset)
-        x, y, x2, y2 = shape.points
-        return (
-            Ellipse(
-                x,
-                y,
-                x2,
-                y2,
-                id=shape.id,
-                attributes=shape.attributes,
-                group=shape.group,
-                label=shape.label,
-                z_order=shape.z_order,
-            ),
-            offset,
-        )
+        shape_dict, offset = super().backward_dict(_bytes, offset)
+        x, y, x2, y2 = shape_dict["points"]
+        return Ellipse(x, y, x2, y2, **shape_dict), offset
+
+
+class AnnotationListMapper(Mapper):
+    """"""
+
+    backward_map = {
+        AnnotationType.label: LabelMapper.backward,
+        AnnotationType.mask: MaskMapper.backward,
+        AnnotationType.points: PointsMapper.backward,
+        AnnotationType.polyline: PolyLineMapper.backward,
+        AnnotationType.polygon: PolygonMapper.backward,
+        AnnotationType.bbox: BboxMapper.backward,
+        AnnotationType.caption: CaptionMapper.backward,
+        AnnotationType.cuboid_3d: Cuboid3dMapper.backward,
+        AnnotationType.ellipse: EllipseMapper.backward,
+    }
+
+    @classmethod
+    def forward(cls, anns: List[Annotation]) -> bytes:
+        _bytearray = bytearray()
+        _bytearray.extend(struct.pack("<I", len(anns)))
+
+        for ann in anns:
+            if isinstance(ann, Label):
+                _bytearray.extend(LabelMapper.forward(ann))
+            elif isinstance(ann, Mask):
+                _bytearray.extend(MaskMapper.forward(ann))
+            elif isinstance(ann, Points):
+                _bytearray.extend(PointsMapper.forward(ann))
+            elif isinstance(ann, PolyLine):
+                _bytearray.extend(PolyLineMapper.forward(ann))
+            elif isinstance(ann, Polygon):
+                _bytearray.extend(PolygonMapper.forward(ann))
+            elif isinstance(ann, Bbox):
+                _bytearray.extend(BboxMapper.forward(ann))
+            elif isinstance(ann, Caption):
+                _bytearray.extend(CaptionMapper.forward(ann))
+            elif isinstance(ann, Cuboid3d):
+                _bytearray.extend(Cuboid3dMapper.forward(ann))
+            elif isinstance(ann, Ellipse):
+                _bytearray.extend(EllipseMapper.forward(ann))
+            else:
+                raise NotImplementedError()
+
+        return bytes(_bytearray)
+
+    @classmethod
+    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[List[Annotation], int]:
+        (n_anns,) = struct.unpack_from("<I", _bytes, offset)
+        offset += 4
+        anns = []
+        for _ in range(n_anns):
+            ann_type = AnnotationMapper.parse_ann_type(_bytes, offset)
+            ann, offset = cls.backward_map[ann_type](_bytes, offset)
+            anns.append(ann)
+
+        return anns, offset
