@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
-- Add with_subset_dirs decorator
+- Add with_subset_dirs decorator (Add ImagenetWithSubsetDirsImporter)
   (<https://github.com/openvinotoolkit/datumaro/pull/816>)
+- Add CommonSemanticSegmentationWithSubsetDirsImporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/826>)
 
 ### Changed
 - Refactor Datumaro format code and test code
