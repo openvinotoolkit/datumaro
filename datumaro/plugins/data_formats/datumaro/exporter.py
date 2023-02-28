@@ -345,7 +345,7 @@ class DatumaroExporter(Exporter):
     PATH_CLS = DatumaroPath
 
     def create_writer(self, subset: str) -> _SubsetWriter:
-        return self._SubsetWriter(
+        return _SubsetWriter(
             context=self,
             ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
         )
