@@ -17,7 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/824>)
 
 ## 24/02/2023 - Release v1.0.0
+### Added
+- Add Data Explorer
   (<https://github.com/openvinotoolkit/datumaro/pull/773>)
+- Add Ellipse annotation type
   (<https://github.com/openvinotoolkit/datumaro/pull/807>)
 - Add MVTec anomaly data support
   (<https://github.com/openvinotoolkit/datumaro/pull/810>)
