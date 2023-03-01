@@ -51,7 +51,10 @@ class DatumaroBase(SubsetBase):
         self._related_images_dir = related_images_dir
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
+        self._load_impl(path)
 
+    def _load_impl(self, path: str) -> None:
+        """Actual implementation of loading Datumaro format."""
         parsed_anns = parse_json_file(path)
         self._infos = self._load_infos(parsed_anns)
         self._categories = self._load_categories(parsed_anns)

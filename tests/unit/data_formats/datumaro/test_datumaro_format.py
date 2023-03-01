@@ -45,7 +45,7 @@ class DatumaroFormatTest:
             source_dataset,
             converter,
             test_dir,
-            importer=self.importer.get_extractor_name(),
+            importer=self.importer.NAME,
             target_dataset=target_dataset,
             importer_args=importer_args,
             compare=compare,
@@ -101,16 +101,25 @@ class DatumaroFormatTest:
         ],
     )
     def test_can_save_and_load(
-        self, fxt_dataset, compare, require_media, test_dir, helper_tc, request
+        self,
+        fxt_dataset,
+        compare,
+        require_media,
+        test_dir,
+        fxt_import_kwargs,
+        fxt_export_kwargs,
+        helper_tc,
+        request,
     ):
         fxt_dataset = request.getfixturevalue(fxt_dataset)
         self._test_save_and_load(
             helper_tc,
             fxt_dataset,
-            partial(self.exporter.convert, save_media=True),
+            partial(self.exporter.convert, save_media=True, **fxt_export_kwargs),
             test_dir,
             compare=compare,
             require_media=require_media,
+            importer_args=fxt_import_kwargs,
         )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
