@@ -3,13 +3,17 @@
 # SPDX-License-Identifier: MIT
 
 import logging as log
+from typing import Optional, Union
+
 from cryptography.fernet import Fernet, InvalidToken
 
 
 class Crypter:
     FERNET_KEY_LEN = 44
 
-    def __init__(self, key: bytes) -> None:
+    def __init__(self, key: Union[str, bytes]) -> None:
+        if isinstance(key, str):
+            key = key.encode()
         self._key = key
         self._fernet = Fernet(self._key)
 
@@ -31,8 +35,12 @@ class Crypter:
             return False
 
     @staticmethod
-    def gen_key() -> bytes:
-        return Fernet.generate_key()
+    def gen_key(key: Optional[bytes] = None) -> bytes:
+        """If "key" is not None, return the different key with "key"."""
+        _key = Fernet.generate_key()
+        while _key == key:
+            _key = Fernet.generate_key()
+        return _key
 
     def __eq__(self, __o: object) -> bool:
         if not isinstance(__o, Crypter):

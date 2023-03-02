@@ -4,13 +4,12 @@
 
 # pylint: disable=no-self-use
 
+import argparse
+import logging as log
 import os.path as osp
 import struct
 from io import BufferedWriter
 from typing import Any, Optional
-import argparse
-
-import logging as log
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.dataset_base import DatasetItem, IDataset
@@ -85,7 +84,7 @@ class _SubsetWriter(__SubsetWriter):
             if not self._crypter.is_null_crypter:
                 log.info(
                     "Please see the generated encryption secret key file in the following path.\n"
-                    "{self.secret_key_file}\n"
+                    f"{self.secret_key_file}\n"
                     "It must be kept it separate from the dataset to protect your dataset safely. "
                     "You also need it to import the encrpted dataset in later, so that be careful not to lose."
                 )
