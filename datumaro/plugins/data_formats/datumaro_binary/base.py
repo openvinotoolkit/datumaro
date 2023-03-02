@@ -46,9 +46,7 @@ class DatumaroBinaryBase(DatumaroBase):
         len_byte = self._fp.read(4)
         _bytes = self._fp.read(struct.unpack("I", len_byte)[0])
 
-        extracted_key = self._crypter.decrypt(_bytes)
-
-        if not self._crypter.handshake(extracted_key):
+        if not self._crypter.handshake(_bytes):
             raise DatasetImportError("Encryption key handshake fails. You give a wrong key.")
 
     def _read_header(self):

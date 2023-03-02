@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-
-from cryptography.fernet import Fernet
+import logging as log
+from cryptography.fernet import Fernet, InvalidToken
 
 
 class Crypter:
@@ -24,7 +24,11 @@ class Crypter:
         return self._fernet.encrypt(msg)
 
     def handshake(self, key: bytes) -> bool:
-        return self._key == key
+        try:
+            return self.decrypt(key) == self._key
+        except InvalidToken as e:
+            log.debug(e)
+            return False
 
     @staticmethod
     def gen_key() -> bytes:
@@ -53,7 +57,7 @@ class NullCrypter(Crypter):
         return msg
 
     def handshake(self, key: bytes) -> bool:
-        return key == b""
+        return self.decrypt(key) == b""
 
 
 NULL_CRYPTER = NullCrypter()

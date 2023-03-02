@@ -8,6 +8,9 @@ import os.path as osp
 import struct
 from io import BufferedWriter
 from typing import Any, Optional
+import argparse
+
+import logging as log
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.dataset_base import DatasetItem, IDataset
@@ -23,8 +26,16 @@ from .format import DatumaroBinaryPath
 class _SubsetWriter(__SubsetWriter):
     """"""
 
-    def __init__(self, context: Exporter, ann_file: str, encryption_key: Optional[bytes] = None):
+    def __init__(
+        self,
+        context: Exporter,
+        ann_file: str,
+        secret_key_file: str,
+        encryption_key: Optional[bytes] = None,
+    ):
         super().__init__(context, ann_file)
+        self.secret_key_file = secret_key_file
+
         self._fp: Optional[BufferedWriter] = None
         self._crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
         self._data["items"] = bytearray()
@@ -71,6 +82,17 @@ class _SubsetWriter(__SubsetWriter):
 
     def write(self):
         try:
+            if not self._crypter.is_null_crypter:
+                log.info(
+                    "Please see the generated encryption secret key file in the following path.\n"
+                    "{self.secret_key_file}\n"
+                    "It must be kept it separate from the dataset to protect your dataset safely. "
+                    "You also need it to import the encrpted dataset in later, so that be careful not to lose."
+                )
+
+                with open(self.secret_key_file, "w") as fp:
+                    fp.write(self._crypter.key.decode())
+
             with open(self.ann_file, "wb") as fp:
                 self._fp = fp
                 self._sign()
@@ -83,9 +105,38 @@ class _SubsetWriter(__SubsetWriter):
             self._fp = None
 
 
+class EncryptAction(argparse.BooleanOptionalAction):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.key_dest = "encryption_key"
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        super().__call__(parser, namespace, values, option_string)
+        encrypt = getattr(namespace, self.dest)
+        if encrypt:
+            key = Crypter.gen_key()
+        else:
+            key = None
+
+        setattr(namespace, self.key_dest, key)
+        delattr(namespace, self.dest)
+
+
 class DatumaroBinaryExporter(DatumaroExporter):
     DEFAULT_IMAGE_EXT = DatumaroBinaryPath.IMAGE_EXT
     PATH_CLS = DatumaroBinaryPath
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+
+        parser.add_argument(
+            "--encrypt",
+            action=EncryptAction,
+            help="Encrypt dataset",
+        )
+
+        return parser
 
     def __init__(
         self,
@@ -116,5 +167,6 @@ class DatumaroBinaryExporter(DatumaroExporter):
         return _SubsetWriter(
             context=self,
             ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
+            secret_key_file=osp.join(self._save_dir, self.PATH_CLS.SECRET_KEY_FILE),
             encryption_key=self._encryption_key,
         )

@@ -65,7 +65,7 @@ class MediaElement:
 
     def set_crypter(self, crypter: Crypter):
         self._crypter = crypter
-        if isinstance(self._data, lazy_image):
+        if isinstance(self, Image) and isinstance(self._data, lazy_image):
             self._data._crypter = crypter
 
     def __eq__(self, other: object) -> bool:

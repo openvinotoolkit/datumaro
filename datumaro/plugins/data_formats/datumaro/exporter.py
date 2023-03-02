@@ -8,6 +8,7 @@ import os
 import os.path as osp
 import shutil
 from contextlib import contextmanager
+from typing import Optional
 
 import numpy as np
 import pycocotools.mask as mask_utils
