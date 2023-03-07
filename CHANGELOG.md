@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add MVTec anomaly data support
   (<https://github.com/openvinotoolkit/datumaro/pull/810>)
 
+### Fixed
+- Fix CIFAR10 and 100 detect function
+  (<https://github.com/openvinotoolkit/datumaro/pull/836>)
+
 ### Changed
 - Refactor existing tests
   (<https://github.com/openvinotoolkit/datumaro/pull/803>)
