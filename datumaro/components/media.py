@@ -21,7 +21,7 @@ BboxIntCoords = Tuple[int, int, int, int]  # (x, y, w, h)
 
 
 class MediaType(IntEnum):
-    NO_MEDIA = 0
+    NONE = 0
     UNKNOWN = 1
     IMAGE = 2
     BYTE_IMAGE = 3

@@ -235,6 +235,7 @@ class TestOperations(TestCase):
                 "depth_annotation": {"count": 0},
                 "ellipse": {"count": 1},
                 "hash_key": {"count": 0},
+                "unknown": {"count": 0},
             },
             "annotations": {
                 "labels": {
@@ -336,6 +337,7 @@ class TestOperations(TestCase):
                 "depth_annotation": {"count": 0},
                 "ellipse": {"count": 0},
                 "hash_key": {"count": 0},
+                "unknown": {"count": 0},
             },
             "annotations": {
                 "labels": {
