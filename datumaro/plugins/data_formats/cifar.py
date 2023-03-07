@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -6,14 +6,16 @@ import os
 import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check - fixed
 from collections import OrderedDict
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.exporter import Exporter
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util import cast
@@ -160,17 +162,46 @@ class CifarBase(SubsetBase):
 
 class CifarImporter(Importer):
     @classmethod
-    def find_sources(cls, path):
-        return cls._find_sources_recursive(
-            path,
-            "",
-            "cifar",
-            file_filter=lambda p: not osp.splitext(  # subset files have no extension in the format
-                osp.basename(p)
-            )[1]
-            and osp.basename(p)
-            not in {CifarPath.META_10_FILE, CifarPath.META_100_FILE, CifarPath.USELESS_FILE},
-        )
+    def detect(
+        cls,
+        context: FormatDetectionContext,
+    ) -> Optional[FormatDetectionConfidence]:
+        super().detect(context)
+
+        return FormatDetectionConfidence.MEDIUM
+
+    @classmethod
+    def find_sources(cls, path: str) -> List[Dict[str, Any]]:
+        def _find(path: str, meta_file_name: str) -> List[Dict[str, Any]]:
+            # Find dataset root by looking for the meta file
+            roots = cls._find_sources_recursive(
+                path,
+                "",
+                "cifar",
+                file_filter=lambda p: osp.basename(p) == meta_file_name,
+            )
+
+            sources = []
+            # Extract subset files from the root path
+            for root in roots:
+                root_dir = osp.dirname(root["url"])
+                sources += cls._find_sources_recursive(
+                    root_dir,
+                    "",
+                    "cifar",
+                    # Subset files have no extension in the format, and
+                    # should not be the meta file.
+                    file_filter=lambda p: not osp.splitext(osp.basename(p))[1]
+                    and osp.basename(p) != meta_file_name,
+                )
+
+            return sources
+
+        sources = []
+        sources += _find(path, CifarPath.META_10_FILE)
+        sources += _find(path, CifarPath.META_100_FILE)
+
+        return sources
 
 
 class CifarExporter(Exporter):

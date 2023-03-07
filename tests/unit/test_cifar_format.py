@@ -1,6 +1,11 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import os
 import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check
+import shutil
 from unittest import TestCase
 
 import numpy as np
@@ -16,6 +21,9 @@ from datumaro.util.test_utils import TestDir, compare_datasets
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+
+DUMMY_10_DATASET_DIR = get_test_asset_path("cifar10_dataset")
+DUMMY_100_DATASET_DIR = get_test_asset_path("cifar100_dataset")
 
 
 class CifarFormatTest(TestCase):
@@ -224,11 +232,15 @@ class CifarFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_catch_pickle_exception(self):
         with TestDir() as test_dir:
-            anno_file = osp.join(test_dir, "test")
+            # Create dummy CIFAR100 dataset by copy
+            dst_dir = osp.join(test_dir, "cifar100")
+            shutil.copytree(DUMMY_100_DATASET_DIR, dst_dir)
+            anno_file = osp.join(dst_dir, "test")
+            # Create a malformed annotation file, "test"
             with open(anno_file, "wb") as file:
                 pickle.dump(enumerate([1, 2, 3]), file)
             with self.assertRaisesRegex(pickle.UnpicklingError, "Global"):
-                Dataset.import_from(test_dir, "cifar")
+                Dataset.import_from(dst_dir, "cifar")
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_meta_file(self):
@@ -257,11 +269,6 @@ class CifarFormatTest(TestCase):
 
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
-
-
-DUMMY_10_DATASET_DIR = get_test_asset_path("cifar10_dataset")
-
-DUMMY_100_DATASET_DIR = get_test_asset_path("cifar100_dataset")
 
 
 class CifarImporterTest(TestCase):
@@ -310,7 +317,8 @@ class CifarImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_10(self):
         detected_formats = Environment().detect_dataset(DUMMY_10_DATASET_DIR)
-        self.assertIn(CifarImporter.NAME, detected_formats)
+        self.assertEqual(len(detected_formats), 1)
+        self.assertEqual(detected_formats[0], CifarImporter.NAME)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_100(self):
@@ -370,4 +378,5 @@ class CifarImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_100(self):
         detected_formats = Environment().detect_dataset(DUMMY_100_DATASET_DIR)
-        self.assertIn(CifarImporter.NAME, detected_formats)
+        self.assertEqual(len(detected_formats), 1)
+        self.assertEqual(detected_formats[0], CifarImporter.NAME)
