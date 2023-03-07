@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 import numpy as np
+import cv2
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Mask
 from datumaro.components.dataset import Dataset
@@ -226,3 +227,48 @@ class MvtecImporterTest(TestCase):
             with self.subTest(path=path, task=subtask):
                 detected_formats = env.detect_dataset(path)
                 self.assertIn(subtask.NAME, detected_formats)
+
+
+class MVTecExporterTest(TestCase):
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_segmentation_masks_saved_as_binary_image(self):
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="label_1/000",
+                    media=Image(data=np.ones((8, 8, 3))),
+                    annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(
+                    "label_" + str(label) for label in range(2)
+                ),
+            },
+        )
+
+        with TestDir() as test_dir:
+            MvtecExporter.convert(source_dataset, test_dir, save_media=True)
+            assert cv2.imread(test_dir + "/ground_truth/label_1/000_mask.png").max() == 255
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_detection_masks_saved_as_binary_image(self):
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="label_1/000",
+                    media=Image(data=np.ones((8, 8, 3))),
+                    annotations=[Bbox(0, 0, 8, 8, label=1)],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(
+                    "label_" + str(label) for label in range(2)
+                ),
+            },
+        )
+
+        with TestDir() as test_dir:
+            MvtecExporter.convert(source_dataset, test_dir, save_media=True)
+            assert cv2.imread(test_dir + "/ground_truth/label_1/000_mask.png").max() == 255
