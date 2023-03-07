@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-import numpy as np
 import cv2
+import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Mask
 from datumaro.components.dataset import Dataset
@@ -230,7 +230,6 @@ class MvtecImporterTest(TestCase):
 
 
 class MVTecExporterTest(TestCase):
-
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_segmentation_masks_saved_as_binary_image(self):
         source_dataset = Dataset.from_iterable(
