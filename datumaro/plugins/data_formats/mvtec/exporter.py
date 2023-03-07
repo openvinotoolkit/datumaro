@@ -92,7 +92,7 @@ class MvtecExporter(Exporter):
 
                     if not osp.exists(osp.join(self._save_dir, osp.dirname(mask_path))):
                         os.mkdir(osp.join(self._save_dir, osp.dirname(mask_path)))
-                    cv2.imwrite(osp.join(self._save_dir, mask_path), mask)
+                    cv2.imwrite(osp.join(self._save_dir, mask_path), mask * 255)
 
                 masks = [a for a in item.annotations if a.type == AnnotationType.mask]
                 if masks and MvtecTask.segmentation in self._tasks:
