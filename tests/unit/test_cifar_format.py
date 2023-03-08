@@ -317,8 +317,7 @@ class CifarImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_10(self):
         detected_formats = Environment().detect_dataset(DUMMY_10_DATASET_DIR)
-        self.assertEqual(len(detected_formats), 1)
-        self.assertEqual(detected_formats[0], CifarImporter.NAME)
+        self.assertEqual(detected_formats, [CifarImporter.NAME])
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_100(self):
@@ -378,5 +377,4 @@ class CifarImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_100(self):
         detected_formats = Environment().detect_dataset(DUMMY_100_DATASET_DIR)
-        self.assertEqual(len(detected_formats), 1)
-        self.assertEqual(detected_formats[0], CifarImporter.NAME)
+        self.assertEqual(detected_formats, [CifarImporter.NAME])
