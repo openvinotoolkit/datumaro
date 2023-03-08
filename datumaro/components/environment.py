@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -8,10 +8,15 @@ import logging as log
 import os.path as osp
 from functools import partial
 from inspect import isclass
-from typing import Callable, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar
+from typing import Callable, Dict, Generic, Iterable, Iterator, List, Optional, Set, Type, TypeVar
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
-from datumaro.components.format_detection import RejectionReason, detect_dataset_format
+from datumaro.components.format_detection import (
+    DetectedFormat,
+    FormatDetectionConfidence,
+    RejectionReason,
+    detect_dataset_format,
+)
 from datumaro.util.os_util import import_foreign_module, split_path
 
 T = TypeVar("T")
@@ -251,7 +256,8 @@ class Environment:
         rejection_callback: Optional[Callable[[str, RejectionReason, str], None]] = None,
     ) -> List[str]:
         ignore_dirs = {"__MSOSX", "__MACOSX"}
-        matched_formats = set()
+        all_matched_formats: Set[DetectedFormat] = set()
+
         for _ in range(depth + 1):
             detected_formats = detect_dataset_format(
                 (
@@ -262,18 +268,21 @@ class Environment:
                 rejection_callback=rejection_callback,
             )
 
-            # If no matched format until now and detect only one format, return it.
-            if len(matched_formats) == 0 and detected_formats and len(detected_formats) == 1:
-                return detected_formats
-            elif detected_formats:
-                matched_formats |= set(detected_formats)
+            if detected_formats:
+                all_matched_formats |= set(detected_formats)
 
             paths = glob.glob(osp.join(path, "*"))
             path = "" if len(paths) != 1 else paths[0]
             if not osp.isdir(path) or osp.basename(path) in ignore_dirs:
                 break
 
-        return list(matched_formats)
+        max_conf = (
+            max(all_matched_formats).confidence
+            if len(all_matched_formats) > 0
+            else FormatDetectionConfidence.NONE
+        )
+
+        return [str(format) for format in all_matched_formats if format.confidence == max_conf]
 
     def __reduce__(self):
         return (self.__class__, ())
