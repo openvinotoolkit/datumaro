@@ -23,19 +23,9 @@ Contents
    :maxdepth: 1
    :glob:
 
-   /api/developer_manual.rst
-   /api/datumaro/datumaro.rst
-   /api/cli/cli.rst
-   /api/components/*
-   /api/plugins/*
-   /api/util/util/util.rst
+   api/developer_manual
+   api/reference
 
-Navigation
-**********
-
-.. toctree::
-
-   Back to main documentation <https://openvinotoolkit.github.io/datumaro/docs/>
 
 Indices and tables
 ******************
