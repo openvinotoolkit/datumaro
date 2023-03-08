@@ -13,6 +13,7 @@ from typing import Callable, Dict, Generic, Iterable, Iterator, List, Optional, 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
 from datumaro.components.format_detection import (
     DetectedFormat,
+    FormatDetectionConfidence,
     RejectionReason,
     detect_dataset_format,
 )
@@ -255,9 +256,7 @@ class Environment:
         rejection_callback: Optional[Callable[[str, RejectionReason, str], None]] = None,
     ) -> List[str]:
         ignore_dirs = {"__MSOSX", "__MACOSX"}
-        matched_formats: Set[DetectedFormat] = set()
-
-        _to_names = lambda matches: [match.name for match in matches]
+        all_matched_formats: Set[DetectedFormat] = set()
 
         for _ in range(depth + 1):
             detected_formats = detect_dataset_format(
@@ -269,17 +268,21 @@ class Environment:
                 rejection_callback=rejection_callback,
             )
 
-            if detected_formats and len(detected_formats) == 1:
-                return _to_names(detected_formats)
-            elif detected_formats:
-                matched_formats |= set(detected_formats)
+            if detected_formats:
+                all_matched_formats |= set(detected_formats)
 
             paths = glob.glob(osp.join(path, "*"))
             path = "" if len(paths) != 1 else paths[0]
             if not osp.isdir(path) or osp.basename(path) in ignore_dirs:
                 break
 
-        return _to_names(detected_formats)
+        max_conf = (
+            max(all_matched_formats).confidence
+            if len(all_matched_formats) > 0
+            else FormatDetectionConfidence.NONE
+        )
+
+        return [str(format) for format in all_matched_formats if format.confidence == max_conf]
 
     def __reduce__(self):
         return (self.__class__, ())

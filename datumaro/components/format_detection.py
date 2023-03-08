@@ -51,10 +51,16 @@ class FormatDetectionConfidence(IntEnum):
     # has explicit identification via magic numbers/files.
 
 
-@dataclass(eq=True, frozen=True)
+@dataclass(order=True, frozen=True)
 class DetectedFormat:
-    confidence: FormatDetectionConfidence
+    confidence: FormatDetectionConfidence = field(compare=True)
     name: str
+
+    def __eq__(self, __o: "DetectedFormat") -> bool:
+        return self.name == __o.name
+
+    def __str__(self) -> str:
+        return self.name
 
 
 # All confidence levels should be positive for a couple of reasons:
