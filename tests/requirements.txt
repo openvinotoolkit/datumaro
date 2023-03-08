@@ -1,0 +1,9 @@
+-r requirements-linters.txt
+
+# testing
+pytest>=5.3.5
+pytest-cov>=4.0.0
+pytest-stress
+pytest-html
+
+tensorflow-datasets[dev]!=4.5.0,!=4.5.1

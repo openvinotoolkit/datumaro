@@ -10,10 +10,10 @@ from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.kitti_raw.base import KittiRawImporter
 from datumaro.plugins.data_formats.kitti_raw.exporter import KittiRawExporter
-from datumaro.util.test_utils import Dimensions, TestDir, check_save_and_load, compare_datasets_3d
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import Dimensions, TestDir, check_save_and_load, compare_datasets_3d
 
 DUMMY_DATASET_DIR = get_test_asset_path("kitti_dataset", "kitti_raw")
 

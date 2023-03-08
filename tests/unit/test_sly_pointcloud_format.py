@@ -10,11 +10,11 @@ from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.sly_pointcloud.base import SuperviselyPointCloudImporter
 from datumaro.plugins.data_formats.sly_pointcloud.exporter import SuperviselyPointCloudExporter
-from datumaro.util.test_utils import Dimensions, TestDir, check_save_and_load, compare_datasets_3d
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import Dimensions, TestDir, check_save_and_load, compare_datasets_3d
 
 DUMMY_DATASET_DIR = get_test_asset_path("sly_pointcloud_dataset")
 

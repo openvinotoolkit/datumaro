@@ -17,11 +17,11 @@ from datumaro.plugins.data_formats.mapillary_vistas.format import (
     MapillaryVistasLabelMaps,
     make_mapillary_instance_categories,
 )
-from datumaro.util.test_utils import TestDir, compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, compare_datasets
 
 DUMMY_DATASET_V1_2 = get_test_asset_path("mapillary_vistas_dataset", "v1.2")
 DUMMY_DATASET_V2_0 = get_test_asset_path("mapillary_vistas_dataset", "v2.0")

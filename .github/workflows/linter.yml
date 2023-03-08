@@ -4,51 +4,51 @@ jobs:
   Bandit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: 3.8
 
       - name: Run checks
         run: |
-          pip install --user -r <(grep "^bandit" ./requirements.txt)
+          pip install --user -r tests/requirements-linters.txt
           echo "Bandit version: "`bandit --version | head -1`
           bandit -r -c ipas_default.config ./
   isort:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: 3.8
 
       - name: Run checks
         run: |
-          pip install --user -r <(grep "^isort" ./requirements.txt)
+          pip install --user -r tests/requirements-linters.txt
           isort --check --diff .
   black:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: 3.8
 
       - name: Run checks
         run: |
-          pip install --user -r <(grep "^black" ./requirements.txt)
+          pip install --user -r tests/requirements-linters.txt
           black --check --diff --color .
   Pylint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: 3.8
 
       - name: Run checks
         run: |
-          pip install --user -r <(grep "^pylint" ./requirements.txt)
+          pip install --user -r tests/requirements-linters.txt
           echo "Pylint version: "`pylint --version | head -1`
           git ls-files -z '*.py' | xargs -0 pylint
   # remark:
@@ -67,12 +67,12 @@ jobs:
   markdownlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: DavidAnson/markdownlint-cli2-action@v7
   whitespace:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Check whitespace
         run: |
           empty_tree="$(git hash-object -t tree --stdin < /dev/null)"

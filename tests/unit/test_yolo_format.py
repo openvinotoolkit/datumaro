@@ -21,11 +21,11 @@ from datumaro.components.media import Image
 from datumaro.plugins.data_formats.yolo.base import YoloBase, YoloImporter
 from datumaro.plugins.data_formats.yolo.exporter import YoloExporter
 from datumaro.util.image import save_image
-from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 
 class YoloExportertTest(TestCase):

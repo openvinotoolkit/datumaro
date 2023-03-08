@@ -11,9 +11,10 @@ from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.components.searcher import Searcher
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
-from datumaro.util.test_utils import TestDir
 
 from ..requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir
 
 
 class SearcherTest(TestCase):

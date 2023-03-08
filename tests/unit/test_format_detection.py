@@ -9,9 +9,9 @@ from datumaro.components.format_detection import (
     apply_format_detector,
     detect_dataset_format,
 )
-from datumaro.util.test_utils import TestDir
 
 from tests.requirements import Requirements, mark_requirement
+from tests.utils.test_utils import TestDir
 
 
 class FormatDetectionTest(TestCase):

@@ -1,5 +1,6 @@
 name: Build
 on:
+  workflow_dispatch: # for testing
   push:
     branches:
       - 'develop'
@@ -11,17 +12,18 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10']
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Installing python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install -e '.[default,tf,tfds]' pytest pytest-cov
+          python -m pip install -r tests/requirements.txt
+          python -m pip install -e '.[default,tf]'
       - name: Code instrumentation
         run: |
-          pytest -v --cov --cov-report xml:coverage.xml
+          python -m pytest -v --cov --cov-report xml:coverage.xml
           datum -h
       - name: Sending coverage results
         if: matrix.python-version == '3.7'

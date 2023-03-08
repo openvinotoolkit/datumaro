@@ -18,11 +18,11 @@ from datumaro.plugins.data_formats.mpii.mpii_json import (
     MPII_POINTS_LABELS,
     MpiiJsonImporter,
 )
-from datumaro.util.test_utils import compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import compare_datasets
 
 DUMMY_DATASET_DIR_WITH_NUMPY_FILES = get_test_asset_path(
     "mpii_json_dataset", "dataset_with_numpy_files"

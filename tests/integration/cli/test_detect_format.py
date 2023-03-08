@@ -11,11 +11,11 @@ from datumaro.plugins.data_formats.ade20k2020 import Ade20k2020Importer
 from datumaro.plugins.data_formats.image_dir import ImageDirImporter
 from datumaro.plugins.data_formats.lfw import LfwImporter
 from datumaro.util.os_util import suppress_output
-from datumaro.util.test_utils import TestDir
-from datumaro.util.test_utils import run_datum as run
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir
+from tests.utils.test_utils import run_datum as run
 
 ADE20K2017_DIR = get_test_asset_path("ade20k2017_dataset", "dataset")
 ADE20K2020_DIR = get_test_asset_path("ade20k2020_dataset", "dataset")

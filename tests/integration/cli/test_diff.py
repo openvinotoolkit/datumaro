@@ -22,10 +22,11 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.operations import DistanceComparator
 from datumaro.components.project import Dataset
-from datumaro.util.test_utils import TestDir
-from datumaro.util.test_utils import run_datum as run
 
 from ...requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir
+from tests.utils.test_utils import run_datum as run
 
 
 class DiffTest(TestCase):
