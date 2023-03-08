@@ -141,3 +141,12 @@ class MapperTest:
             for ann in item.annotations:
                 mapper = self._get_ann_mapper(ann)
                 self._test(mapper, ann)
+
+
+class EncryptActionTest:
+    @pytest.mark.parametrize("args,flag", [(["--encrypt"], True), ([], False)], ids=["on", "off"])
+    def test_action(self, args, flag):
+        parser = DatumaroBinaryExporter.build_cmdline_parser()
+        args = parser.parse_args(args)
+
+        assert hasattr(args, "encryption_key") == flag

@@ -104,20 +104,18 @@ class _SubsetWriter(__SubsetWriter):
             self._fp = None
 
 
-class EncryptAction(argparse.BooleanOptionalAction):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.key_dest = "encryption_key"
+class EncryptAction(argparse.Action):
+    def __init__(self, option_strings, dest, **kwargs):
+        super().__init__(option_strings, dest, nargs=0, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        super().__call__(parser, namespace, values, option_string)
-        encrypt = getattr(namespace, self.dest)
+        encrypt = True if option_string in self.option_strings else False
         if encrypt:
             key = Crypter.gen_key()
         else:
             key = None
 
-        setattr(namespace, self.key_dest, key)
+        setattr(namespace, "encryption_key", key)
         delattr(namespace, self.dest)
 
 
@@ -132,6 +130,7 @@ class DatumaroBinaryExporter(DatumaroExporter):
         parser.add_argument(
             "--encrypt",
             action=EncryptAction,
+            default=False,
             help="Encrypt dataset",
         )
 
