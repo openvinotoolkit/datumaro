@@ -271,8 +271,6 @@ class EllipseMapper(_ShapeMapper):
 
 
 class AnnotationListMapper(Mapper):
-    """"""
-
     backward_map = {
         AnnotationType.label: LabelMapper.backward,
         AnnotationType.mask: MaskMapper.backward,

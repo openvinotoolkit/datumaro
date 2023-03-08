@@ -21,7 +21,6 @@ from datumaro.util.image import (
     copyto_image,
     decode_image,
     lazy_image,
-    load_image,
     save_image,
 )
 
@@ -42,12 +41,12 @@ class MediaType(IntEnum):
 
 
 class MediaElement:
-    MEDIA_TYPE = MediaType.MEDIA_ELEMENT
+    _type = MediaType.MEDIA_ELEMENT
 
-    def __init__(self, path: str, crypter: Optional[Crypter] = None) -> None:
+    def __init__(self, path: str, crypter: Crypter = NULL_CRYPTER) -> None:
         assert path, "Path can't be empty"
         self._path = path
-        self._crypter = crypter if crypter is not None else NULL_CRYPTER
+        self._crypter = crypter
 
     @property
     def path(self) -> str:
@@ -61,12 +60,10 @@ class MediaElement:
 
     @property
     def is_encrypted(self) -> bool:
-        return self._crypter.key is not None
+        return self._crypter.is_null_crypter
 
     def set_crypter(self, crypter: Crypter):
         self._crypter = crypter
-        if isinstance(self, Image) and isinstance(self._data, lazy_image):
-            self._data._crypter = crypter
 
     def __eq__(self, other: object) -> bool:
         # We need to compare exactly with this type
@@ -74,9 +71,13 @@ class MediaElement:
             return False
         return self._path == other._path
 
+    @property
+    def type(self) -> MediaType:
+        return self._type
+
 
 class Image(MediaElement):
-    MEDIA_TYPE = MediaType.IMAGE
+    _type = MediaType.IMAGE
 
     def __init__(
         self,
@@ -85,7 +86,7 @@ class Image(MediaElement):
         path: Optional[str] = None,
         ext: Optional[str] = None,
         size: Optional[Tuple[int, int]] = None,
-        crypter: Optional[Crypter] = None,
+        crypter: Crypter = NULL_CRYPTER,
     ) -> None:
         """
         Creates an image.
@@ -129,7 +130,7 @@ class Image(MediaElement):
             ext = None
         self._ext = ext
 
-        self._crypter = crypter if crypter is not None else NULL_CRYPTER
+        self._crypter = crypter
 
         if not isinstance(data, np.ndarray):
             assert path or callable(data) or size, "Image can not be empty"
@@ -207,9 +208,14 @@ class Image(MediaElement):
         else:
             save_image(path, self.data, crypter=crypter)
 
+    def set_crypter(self, crypter: Crypter):
+        super().set_crypter(crypter)
+        if isinstance(self._data, lazy_image):
+            self._data._crypter = crypter
+
 
 class ByteImage(Image):
-    MEDIA_TYPE = MediaType.BYTE_IMAGE
+    _type = MediaType.BYTE_IMAGE
 
     _FORMAT_MAGICS = (
         (b"\x89PNG\r\n\x1a\n", ".png"),
@@ -224,7 +230,7 @@ class ByteImage(Image):
         path: Optional[str] = None,
         ext: Optional[str] = None,
         size: Optional[Tuple[int, int]] = None,
-        crypter: Optional[Crypter] = None,
+        crypter: Crypter = NULL_CRYPTER,
     ):
         if not isinstance(data, bytes):
             assert path or callable(data), "Image can not be empty"
@@ -247,7 +253,7 @@ class ByteImage(Image):
             # from the path, when no data is provided.
             self._data = None
 
-        self._crypter = crypter if crypter is not None else NULL_CRYPTER
+        self._crypter = crypter
 
     @classmethod
     def _guess_ext(cls, data: bytes) -> Optional[str]:
@@ -261,7 +267,12 @@ class ByteImage(Image):
             return self._bytes_data()
         return self._bytes_data
 
-    def save(self, path):
+    def save(self, path, crypter: Crypter = NULL_CRYPTER):
+        if not crypter.is_null_crypter:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
+            )
+
         cur_path = osp.abspath(self.path)
         path = osp.abspath(path)
 
@@ -280,7 +291,7 @@ class ByteImage(Image):
 
 
 class VideoFrame(Image):
-    MEDIA_TYPE = MediaType.VIDEO_FRAME
+    _type = MediaType.VIDEO_FRAME
 
     def __init__(self, video: Video, index: int):
         self._video = video
@@ -380,7 +391,7 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
 
 
 class Video(MediaElement, Iterable[VideoFrame]):
-    MEDIA_TYPE = MediaType.VIDEO
+    _type = MediaType.VIDEO
 
     """
     Provides random access to the video frames.
@@ -550,23 +561,23 @@ class Video(MediaElement, Iterable[VideoFrame]):
 
 
 class PointCloud(MediaElement):
-    MEDIA_TYPE = MediaType.POINT_CLOUD
+    _type = MediaType.POINT_CLOUD
 
     def __init__(
         self,
         path: str,
         extra_images: Optional[List[Image]] = None,
-        crypter: Optional[Crypter] = None,
+        crypter: Crypter = NULL_CRYPTER,
     ):
         self._path = path
 
         self.extra_images: List[Image] = extra_images or []
 
-        self._crypter = crypter if crypter is not None else NULL_CRYPTER
+        self._crypter = crypter
 
 
 class MultiframeImage(MediaElement):
-    MEDIA_TYPE = MediaType.MULTIFRAME_IMAGE
+    _type = MediaType.MULTIFRAME_IMAGE
 
     def __init__(
         self,
@@ -598,7 +609,7 @@ class MultiframeImage(MediaElement):
 
 
 class RoIImage(Image):
-    MEDIA_TYPE = MediaType.ROI_IMAGE
+    _type = MediaType.ROI_IMAGE
 
     def __init__(
         self,
@@ -632,7 +643,11 @@ class RoIImage(Image):
         img = super().data
         return img[y : y + h, x : x + w]
 
-    def save(self, path):
+    def save(self, path, crypter: Crypter = NULL_CRYPTER):
+        if not crypter.is_null_crypter:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
+            )
         path = osp.abspath(path)
         os.makedirs(osp.dirname(path), exist_ok=True)
         save_image(path, self.data)
@@ -642,7 +657,7 @@ ImageWithRoI = Tuple[Image, BboxIntCoords]
 
 
 class MosaicImage(Image):
-    MEDIA_TYPE = MediaType.MOSAIC_IMAGE
+    _type = MediaType.MOSAIC_IMAGE
 
     def __init__(self, imgs: List[ImageWithRoI], size: Tuple[int, int]) -> None:
         def _get_mosaic_img(_) -> np.ndarray:
@@ -656,7 +671,11 @@ class MosaicImage(Image):
 
         super().__init__(data=_get_mosaic_img, path=None, ext=None, size=size)
 
-    def save(self, path):
+    def save(self, path, crypter: Crypter = NULL_CRYPTER):
+        if not crypter.is_null_crypter:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
+            )
         path = osp.abspath(path)
         os.makedirs(osp.dirname(path), exist_ok=True)
         save_image(path, self.data)

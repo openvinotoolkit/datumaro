@@ -15,7 +15,7 @@ from typing import Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Uni
 
 import numpy as np
 
-from datumaro.components.crypter import NULL_CRYPTER, Crypter, NullCrypter
+from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.errors import DatumaroError
 
 try:

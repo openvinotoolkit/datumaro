@@ -1,8 +1,8 @@
 name: Weekly Stability Test
 on:
   workflow_dispatch: # run on request (no need for PR)
-  schedule:
-    - cron: "0 0 * * 7" # every 9AM on Saturday
+#   schedule:
+#     - cron: "0 0 * * 7" # every 9AM on Saturday
 defaults:
   run:
     shell: bash

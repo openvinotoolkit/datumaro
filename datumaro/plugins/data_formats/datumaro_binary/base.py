@@ -69,7 +69,7 @@ class DatumaroBinaryBase(DatumaroBase):
             self._media_type = Image
         elif media_type == MediaType.POINT_CLOUD:
             self._media_type = PointCloud
-        elif media_type == MediaType.UNKNOWN:
+        elif media_type == MediaType.MEDIA_ELEMENT:
             self._media_type = MediaElement
         else:
             raise NotImplementedError(f"media_type={media_type} is currently not supported.")

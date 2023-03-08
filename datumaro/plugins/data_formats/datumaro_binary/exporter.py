@@ -40,7 +40,7 @@ class _SubsetWriter(__SubsetWriter):
         self._data["items"] = bytearray()
         self._item_cnt = 0
         media_type = context._extractor.media_type()
-        self._media_type = {"media_type": media_type.MEDIA_TYPE}
+        self._media_type = {"media_type": media_type._type}
 
     def _sign(self):
         self._fp.write(DatumaroBinaryPath.SIGNATURE.encode())
@@ -70,7 +70,7 @@ class _SubsetWriter(__SubsetWriter):
         self._dump_header(self.categories)
 
     def add_item(self, item: DatasetItem):
-        with self.save_media(item):
+        with self.context_save_media(item):
             self.items.extend(DatasetItemMapper.forward(item))
         self._item_cnt += 1
 

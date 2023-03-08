@@ -293,7 +293,6 @@ class TestOperations(TestCase):
 
         actual = compute_ann_statistics(dataset)
 
-        self.maxDiff = None
         self.assertEqual(expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

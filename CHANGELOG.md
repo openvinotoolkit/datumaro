@@ -11,10 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/816>)
 - Add CommonSemanticSegmentationWithSubsetDirsImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/826>)
+- Add Searcher CLI documentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/838>)
 
 ### Changed
 - Refactor Datumaro format code and test code
   (<https://github.com/openvinotoolkit/datumaro/pull/824>)
+
+### Fixed
+- Fix image filenames and anomaly mask appearance in MVTec exporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/835>)
 
 ## 24/02/2023 - Release v1.0.0
 ### Added

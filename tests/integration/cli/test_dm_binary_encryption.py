@@ -86,7 +86,7 @@ def test_yolo_to_dm_binary_encryption(test_dir: str, export_dir: str, helper_tc:
                 fpath = osp.join(root, file)
                 _, ext = osp.splitext(fpath)
                 if ext == ".jpg":
-                    Image(path=fpath).data
+                    assert Image(path=fpath).data is None
 
     # 5. Succeed to import the encrypted dataset with the true key
     run(
