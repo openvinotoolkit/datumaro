@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor Datumaro format code and test code
   (<https://github.com/openvinotoolkit/datumaro/pull/824>)
 
+### Fixed
+- Choose the top priority detect format for all directory depths
+  (<https://github.com/openvinotoolkit/datumaro/pull/839>)
+
 ## 24/02/2023 - Release v1.0.0
 ### Added
 - Add Data Explorer
