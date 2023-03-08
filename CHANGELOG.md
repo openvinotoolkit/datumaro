@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/824>)
 
 ### Fixed
+- Fix image filenames and anomaly mask appearance in MVTec exporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/835>)
 - Choose the top priority detect format for all directory depths
   (<https://github.com/openvinotoolkit/datumaro/pull/839>)
 
