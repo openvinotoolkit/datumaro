@@ -215,18 +215,18 @@ class MvtecImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_mvtec(self):
-        matrix = [
-            (DUMMY_DATASET_DIR, MvtecClassificationImporter),
-            (DUMMY_DATASET_DIR, MvtecSegmentationImporter),
-            (DUMMY_DATASET_DIR, MvtecDetectionImporter),
-        ]
-
         env = Environment()
+        path = DUMMY_DATASET_DIR
 
-        for path, subtask in matrix:
-            with self.subTest(path=path, task=subtask):
-                detected_formats = env.detect_dataset(path)
-                self.assertIn(subtask.NAME, detected_formats)
+        detected_formats = env.detect_dataset(path)
+        self.assertEqual(
+            detected_formats,
+            [
+                MvtecClassificationImporter.NAME,
+                MvtecDetectionImporter.NAME,
+                MvtecSegmentationImporter.NAME,
+            ],
+        )
 
 
 class MVTecExporterTest(TestCase):
