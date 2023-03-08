@@ -4,9 +4,8 @@
 
 import os.path as osp
 from glob import glob
-from typing import Optional
-from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 
 from .format import MvtecPath, MvtecTask
