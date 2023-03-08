@@ -34,7 +34,7 @@ class MediaType(IntEnum):
 
 
 class MediaElement:
-    MEDIA_TYPE = MediaType.MEDIA_ELEMENT
+    _type = MediaType.MEDIA_ELEMENT
 
     def __init__(self, path: str) -> None:
         assert path, "Path can't be empty"
@@ -56,9 +56,13 @@ class MediaElement:
             return False
         return self._path == other._path
 
+    @property
+    def type(self) -> MediaType:
+        return self._type
+
 
 class Image(MediaElement):
-    MEDIA_TYPE = MediaType.IMAGE
+    _type = MediaType.IMAGE
 
     def __init__(
         self,
@@ -187,7 +191,7 @@ class Image(MediaElement):
 
 
 class ByteImage(Image):
-    MEDIA_TYPE = MediaType.BYTE_IMAGE
+    _type = MediaType.BYTE_IMAGE
 
     _FORMAT_MAGICS = (
         (b"\x89PNG\r\n\x1a\n", ".png"),
@@ -255,7 +259,7 @@ class ByteImage(Image):
 
 
 class VideoFrame(Image):
-    MEDIA_TYPE = MediaType.VIDEO_FRAME
+    _type = MediaType.VIDEO_FRAME
 
     def __init__(self, video: Video, index: int):
         self._video = video
@@ -355,7 +359,7 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
 
 
 class Video(MediaElement, Iterable[VideoFrame]):
-    MEDIA_TYPE = MediaType.VIDEO
+    _type = MediaType.VIDEO
 
     """
     Provides random access to the video frames.
@@ -525,7 +529,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
 
 
 class PointCloud(MediaElement):
-    MEDIA_TYPE = MediaType.POINT_CLOUD
+    _type = MediaType.POINT_CLOUD
 
     def __init__(self, path: str, extra_images: Optional[List[Image]] = None):
         self._path = path
@@ -534,7 +538,7 @@ class PointCloud(MediaElement):
 
 
 class MultiframeImage(MediaElement):
-    MEDIA_TYPE = MediaType.MULTIFRAME_IMAGE
+    _type = MediaType.MULTIFRAME_IMAGE
 
     def __init__(
         self,
@@ -566,7 +570,7 @@ class MultiframeImage(MediaElement):
 
 
 class RoIImage(Image):
-    MEDIA_TYPE = MediaType.ROI_IMAGE
+    _type = MediaType.ROI_IMAGE
 
     def __init__(
         self,
@@ -610,7 +614,7 @@ ImageWithRoI = Tuple[Image, BboxIntCoords]
 
 
 class MosaicImage(Image):
-    MEDIA_TYPE = MediaType.MOSAIC_IMAGE
+    _type = MediaType.MOSAIC_IMAGE
 
     def __init__(self, imgs: List[ImageWithRoI], size: Tuple[int, int]) -> None:
         def _get_mosaic_img(_) -> np.ndarray:
