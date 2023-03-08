@@ -8,10 +8,14 @@ import logging as log
 import os.path as osp
 from functools import partial
 from inspect import isclass
-from typing import Callable, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar
+from typing import Callable, Dict, Generic, Iterable, Iterator, List, Optional, Set, Type, TypeVar
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
-from datumaro.components.format_detection import RejectionReason, detect_dataset_format
+from datumaro.components.format_detection import (
+    DetectedFormat,
+    RejectionReason,
+    detect_dataset_format,
+)
 from datumaro.util.os_util import import_foreign_module, split_path
 
 T = TypeVar("T")
@@ -251,7 +255,10 @@ class Environment:
         rejection_callback: Optional[Callable[[str, RejectionReason, str], None]] = None,
     ) -> List[str]:
         ignore_dirs = {"__MSOSX", "__MACOSX"}
-        matched_formats = set()
+        matched_formats: Set[DetectedFormat] = set()
+
+        _to_names = lambda matches: [match.name for match in matches]
+
         for _ in range(depth + 1):
             detected_formats = detect_dataset_format(
                 (
@@ -263,7 +270,7 @@ class Environment:
             )
 
             if detected_formats and len(detected_formats) == 1:
-                return detected_formats
+                return _to_names(detected_formats)
             elif detected_formats:
                 matched_formats |= set(detected_formats)
 
@@ -272,7 +279,7 @@ class Environment:
             if not osp.isdir(path) or osp.basename(path) in ignore_dirs:
                 break
 
-        return list(matched_formats)
+        return _to_names(detected_formats)
 
     def __reduce__(self):
         return (self.__class__, ())
