@@ -4,7 +4,7 @@ linkTitle: 'search'
 description: ''
 ---
 
-This command search similar data results for query on dataset. The result includes top-k similar data among target dataset and the visualization of result is saved as png file. This tool is supposed to help users to figure out dataset property and 
+This command search similar data results for query on dataset. The result includes top-k similar data among target dataset and the visualization of result is saved as png file. This tool is supposed to help users to figure out dataset property.
 
 Currently, hash of each data is computed based on the CLIP ([article](https://arxiv.org/abs/2103.00020)), which could support both image and text modality. Supported model format is Openvino IR and those are uploaded in [openvinotoolkit storage](https://storage.openvinotoolkit.org/repositories/datumaro/models/). When you call `Searcher` class, hash of whole dataset is started to compute. Through CLIP, we extracted feature of data, converted to binary value and pack the elements into bits. Each hash information is saved as `HashKey` in annotations.
 
