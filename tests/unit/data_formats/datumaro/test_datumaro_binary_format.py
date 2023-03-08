@@ -4,21 +4,16 @@
 # SPDX-License-Identifier: MIT
 
 
+import sys
 from typing import Any
 
 import pytest
 
-from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.media import Image
+from datumaro.components.annotation import Annotation
+from datumaro.plugins.data_formats.datumaro_binary import *
 from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
-from datumaro.plugins.data_formats.datumaro_binary.exporter import DatumaroBinaryExporter
-from datumaro.plugins.data_formats.datumaro_binary.importer import DatumaroBinaryImporter
-from datumaro.plugins.data_formats.datumaro_binary.mapper import (
-    DatasetItemMapper,
-    DictMapper,
-    Mapper,
-    StringMapper,
-)
+from datumaro.plugins.data_formats.datumaro_binary.mapper import *
+from datumaro.plugins.data_formats.datumaro_binary.mapper.annotation import AnnotationMapper
 
 from .test_datumaro_format import DatumaroFormatTest as TestBase
 
@@ -58,7 +53,7 @@ class DatumaroBinaryFormatTest(TestBase):
             ),
         ],
     )
-    def test_can_save_and_load(
+    def test_develop(
         self,
         fxt_dataset,
         compare,
@@ -90,48 +85,70 @@ class DatumaroBinaryFormatTest(TestBase):
         pass
 
 
-@pytest.mark.parametrize(
-    "mapper,expected",
-    [
-        (StringMapper, "9sd#&(d!d.x]+="),
-        (
-            DictMapper,
-            {
-                "string": "test",
-                "int": 0,
-                "float": 0.0,
-                "string_list": ["test0", "test1", "test2"],
-                "int_list": [0, 1, 2],
-                "float_list": [0.0, 0.1, 0.2],
-            },
-        ),
-        (
-            DatasetItemMapper,
-            DatasetItem(
-                id="item_0",
-                subset="test",
-                media=Image(path="dummy.png", size=(10, 10)),
-                attributes={"x": 1, "y": 2},
-            ),
-        ),
-        (
-            DatasetItemMapper,
-            DatasetItem(
-                id="item_0",
-                subset="test",
-                media=Image(path="dummy.png", size=None),
-                attributes={"x": 1, "y": 2},
-            ),
-        ),
-    ],
-    # ids=lambda val: str(val) if isinstance(val, Mapper) else ""
-)
-def test_mapper(mapper: Mapper, expected: Any):
-    _bytes = mapper.forward(expected)
-    actual, _ = mapper.backward(_bytes)
-    assert expected == actual
+class MapperTest:
+    @staticmethod
+    def _test(mapper: Mapper, expected: Any):
+        _bytes = mapper.forward(expected)
+        actual, _ = mapper.backward(_bytes)
+        assert expected == actual
 
-    prefix = bytes("asdf", "utf-8")
-    offset = len(prefix)
-    actual, _ = mapper.backward(prefix + _bytes, offset=offset)
-    assert expected == actual
+        prefix = bytes("asdf4312", "utf-8")
+        suffix = bytes("qwer5332", "utf-8")
+        offset = len(prefix)
+        _bytes = prefix + _bytes + suffix
+        actual, offset = mapper.backward(_bytes, offset=offset)
+
+        assert expected == actual
+        assert offset == len(_bytes) - len(suffix)
+
+    @staticmethod
+    def _get_ann_mapper(ann: Annotation) -> AnnotationMapper:
+        name = ann.__class__.__name__
+        return getattr(sys.modules[__name__], name + "Mapper")
+
+    @pytest.mark.parametrize(
+        "mapper,expected",
+        [
+            (
+                StringMapper,
+                "9sd#&(d!d.x]+=",
+            ),
+            (
+                IntListMapper,
+                (
+                    0,
+                    1,
+                    2,
+                ),
+            ),
+            (
+                FloatListMapper,
+                (
+                    0.0,
+                    1.0,
+                    2.0,
+                ),
+            ),
+            (
+                DictMapper,
+                {
+                    "string": "test",
+                    "int": 0,
+                    "float": 0.0,
+                    "string_list": ["test0", "test1", "test2"],
+                    "int_list": [0, 1, 2],
+                    "float_list": [0.0, 0.1, 0.2],
+                },
+            ),
+        ],
+    )
+    def test_common_mapper(self, mapper: Mapper, expected: Any):
+        self._test(mapper, expected)
+
+    def test_annotations_mapper(self, fxt_test_datumaro_format_dataset):
+        """Test all annotations in fxt_test_datumaro_format_dataset"""
+        mapper = DatasetItemMapper
+        for item in fxt_test_datumaro_format_dataset:
+            for ann in item.annotations:
+                mapper = self._get_ann_mapper(ann)
+                self._test(mapper, ann)

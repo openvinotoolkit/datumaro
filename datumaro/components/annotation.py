@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from enum import Enum, auto
+from enum import IntEnum
 from functools import partial
 from itertools import zip_longest
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
@@ -19,19 +19,20 @@ from datumaro.components.media import Image
 from datumaro.util.attrs_util import default_if_none, not_empty
 
 
-class AnnotationType(Enum):
-    label = auto()
-    mask = auto()
-    points = auto()
-    polygon = auto()
-    polyline = auto()
-    bbox = auto()
-    caption = auto()
-    cuboid_3d = auto()
-    super_resolution_annotation = auto()
-    depth_annotation = auto()
-    ellipse = auto()
-    hash_key = auto()
+class AnnotationType(IntEnum):
+    unknown = 0
+    label = 1
+    mask = 2
+    points = 3
+    polygon = 4
+    polyline = 5
+    bbox = 6
+    caption = 7
+    cuboid_3d = 8
+    super_resolution_annotation = 9
+    depth_annotation = 10
+    ellipse = 11
+    hash_key = 12
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -66,6 +67,8 @@ class Annotation:
     # Annotations can be grouped, which means they describe parts of a
     # single object. The value of 0 means there is no group.
     group: int = field(default=NO_GROUP, validator=default_if_none(int))
+
+    _type = AnnotationType.unknown
 
     @property
     def type(self) -> AnnotationType:
@@ -539,7 +542,9 @@ class CompiledMask:
 class _Shape(Annotation):
     # Flattened list of point coordinates
     points: List[float] = field(
-        converter=lambda x: np.around(x, COORDINATE_ROUNDING_DIGITS).tolist()
+        converter=lambda x: np.around(
+            np.array(x, dtype=np.float32), COORDINATE_ROUNDING_DIGITS
+        ).tolist()
     )
 
     label: Optional[int] = field(
@@ -607,7 +612,7 @@ class Cuboid3d(Annotation):
     @_points.validator
     def _points_validator(self, attribute, points):
         if points is None:
-            points = [0, 0, 0, 0, 0, 0, 1, 1, 1]
+            points = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
         else:
             assert len(points) == 3 + 3 + 3, points
             points = np.around(points, COORDINATE_ROUNDING_DIGITS).tolist()
@@ -805,14 +810,14 @@ class Points(_Shape):
     Represents an ordered set of points.
     """
 
-    class Visibility(Enum):
+    class Visibility(IntEnum):
         absent = 0
         hidden = 1
         visible = 2
 
     _type = AnnotationType.points
 
-    visibility: List[bool] = field(default=None)
+    visibility: List[IntEnum] = field(default=None)
 
     @visibility.validator
     def _visibility_validator(self, attribute, visibility):

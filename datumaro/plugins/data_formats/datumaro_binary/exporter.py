@@ -6,15 +6,18 @@
 
 import os.path as osp
 import struct
+from contextlib import contextmanager
 from io import BufferedWriter
 from typing import Any, Optional
 
-from datumaro.components.dataset_base import IDataset
+from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.exporter import ExportContext
+from datumaro.components.media import Image
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.exporter import _SubsetWriter as __SubsetWriter
 from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
 from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
+from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
 
 from .format import DatumaroBinaryPath
 
@@ -26,6 +29,8 @@ class _SubsetWriter(__SubsetWriter):
         super().__init__(context, ann_file)
         self._fp: Optional[BufferedWriter] = None
         self._crypter = Crypter(encryption_key)
+        self._data["items"] = bytearray()
+        self._item_cnt = 0
 
     def _sign(self):
         self._fp.write(DatumaroBinaryPath.SIGNATURE.encode())
@@ -54,6 +59,35 @@ class _SubsetWriter(__SubsetWriter):
     def _dump_categories(self):
         self._dump_header(self.categories)
 
+    def add_item(self, item: DatasetItem):
+        with self.media_context(item):
+            self.items.extend(DatasetItemMapper.forward(item))
+        self._item_cnt += 1
+
+    @contextmanager
+    def media_context(self, item: DatasetItem):
+        if item.media is None:
+            yield
+        elif isinstance(item.media, Image):
+            image = item.media_as(Image)
+            _path = image.path
+
+            if self._context._save_media:
+                path = self._context._make_image_filename(item)
+                full_path = osp.join(self._context._images_dir, item.subset, path)
+                self._context._save_image(item, full_path)
+                image._path = full_path
+
+            yield
+            image._path = _path
+        else:
+            raise NotImplementedError
+
+    def _dump_items(self):
+        items_bytes = bytes(self.items)
+        n_items_bytes = len(items_bytes)
+        self._fp.write(struct.pack(f"I{n_items_bytes}s", self._item_cnt, items_bytes))
+
     def write(self):
         try:
             with open(self.ann_file, "wb") as fp:
@@ -62,6 +96,7 @@ class _SubsetWriter(__SubsetWriter):
                 self._dump_encryption_field()
                 self._dump_header(self.infos)
                 self._dump_header(self.categories)
+                self._dump_items()
         finally:
             self._fp = None
 
