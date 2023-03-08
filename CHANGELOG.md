@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix image filenames and anomaly mask appearance in MVTec exporter
   (<https://github.com/openvinotoolkit/datumaro/pull/835>)
+- Fix CIFAR10 and 100 detect function
+  (<https://github.com/openvinotoolkit/datumaro/pull/836>)
 
 ## 24/02/2023 - Release v1.0.0
 ### Added
@@ -28,10 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/807>)
 - Add MVTec anomaly data support
   (<https://github.com/openvinotoolkit/datumaro/pull/810>)
-
-### Fixed
-- Fix CIFAR10 and 100 detect function
-  (<https://github.com/openvinotoolkit/datumaro/pull/836>)
 
 ### Changed
 - Refactor existing tests
