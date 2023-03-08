@@ -66,7 +66,7 @@ class _SubsetWriter:
         return not self.items
 
     @contextmanager
-    def save_media(self, item: DatasetItem):
+    def context_save_media(self, item: DatasetItem):
         """Implicitly change the media path and save it if save_media=True.
         When done, revert it's path as before.
         """
@@ -128,7 +128,7 @@ class _SubsetWriter:
         if item.attributes:
             item_desc["attr"] = item.attributes
 
-        with self.save_media(item):
+        with self.context_save_media(item):
             if isinstance(item.media, Image):
                 image = item.media_as(Image)
                 item_desc["image"] = {
