@@ -262,7 +262,8 @@ class Environment:
                 rejection_callback=rejection_callback,
             )
 
-            if detected_formats and len(detected_formats) == 1:
+            # If no matched format until now and detect only one format, return it.
+            if len(matched_formats) == 0 and detected_formats and len(detected_formats) == 1:
                 return detected_formats
             elif detected_formats:
                 matched_formats |= set(detected_formats)

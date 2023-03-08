@@ -82,7 +82,7 @@ class DetectFormatTest(TestCase):
             output_file = io.StringIO()
 
             with contextlib.redirect_stdout(output_file):
-                run(self, "detect-format", test_dir, "--depth", "1")
+                run(self, "detect-format", test_dir)
 
             output = output_file.getvalue()
 
