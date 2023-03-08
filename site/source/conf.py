@@ -19,8 +19,8 @@ from datumaro.version import VERSION
 # -- Project information -----------------------------------------------------
 
 project = "Datumaro API documentation"
-copyright = '2023, Datumaro Contributors'
-author = 'Datumaro Contributors'
+copyright = "2023, Datumaro Contributors"
+author = "Datumaro Contributors"
 
 # The full version, including alpha/beta/rc tags
 release = VERSION
@@ -56,8 +56,8 @@ html_theme = "pydata_sphinx_theme"
 html_theme_options = {
    "navbar_center": [],
    "logo": {
-      "image_light": 'logo/datumaro-logo.png',
-      "image_dark": 'logo/datumaro-logo.png',
+      "image_light": "logo/datumaro-logo.png",
+      "image_dark": "logo/datumaro-logo.png",
    }
 }
 
