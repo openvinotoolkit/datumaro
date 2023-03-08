@@ -14,6 +14,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
+from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
 from datumaro.plugins.data_formats.datumaro.importer import DatumaroImporter
 from datumaro.util.test_utils import (
     Dimensions,
@@ -28,6 +29,8 @@ from ....requirements import Requirements, mark_requirement
 class DatumaroFormatTest:
     exporter = DatumaroExporter
     importer = DatumaroImporter
+    format = DatumaroImporter.NAME
+    ann_ext = DatumaroPath.ANNOTATION_EXT
 
     def _test_save_and_load(
         self,
@@ -179,17 +182,20 @@ class DatumaroFormatTest:
                 DatasetItem(3, subset="c", media=Image(data=np.ones((2, 2, 3)))),
             ]
         )
-        dataset.save(test_dir, save_media=True)
+        dataset.export(test_dir, format=self.format, save_media=True)
 
         dataset.put(DatasetItem(2, subset="a", media=Image(data=np.ones((3, 2, 3)))))
         dataset.remove(3, "c")
         dataset.save(save_media=True)
 
         helper_tc.assertEqual(
-            {"a.json", "b.json"}, set(os.listdir(osp.join(test_dir, "annotations")))
+            {f"a{self.ann_ext}", f"b{self.ann_ext}"},
+            set(os.listdir(osp.join(test_dir, "annotations"))),
         )
         helper_tc.assertEqual({"2.jpg"}, set(os.listdir(osp.join(test_dir, "images", "a"))))
-        compare_datasets_strict(helper_tc, expected, Dataset.load(test_dir))
+        compare_datasets_strict(
+            helper_tc, expected, Dataset.import_from(test_dir, format=self.format)
+        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data_with_transforms(self, test_dir, helper_tc):
@@ -211,7 +217,7 @@ class DatumaroFormatTest:
             media_type=Image,
         )
 
-        dataset.save(test_dir, save_media=True)
+        dataset.export(test_dir, format=self.format, save_media=True)
 
         dataset.filter("/item[id >= 2]")
         dataset.transform("random_split", splits=(("train", 0.5), ("test", 0.5)), seed=42)
@@ -219,7 +225,8 @@ class DatumaroFormatTest:
 
         helper_tc.assertEqual({"images", "annotations"}, set(os.listdir(test_dir)))
         helper_tc.assertEqual(
-            {"train.json", "test.json"}, set(os.listdir(osp.join(test_dir, "annotations")))
+            {f"train{self.ann_ext}", f"test{self.ann_ext}"},
+            set(os.listdir(osp.join(test_dir, "annotations"))),
         )
         helper_tc.assertEqual({"3.jpg"}, set(os.listdir(osp.join(test_dir, "images", "train"))))
         helper_tc.assertEqual({"4.jpg"}, set(os.listdir(osp.join(test_dir, "images", "test"))))
@@ -228,4 +235,4 @@ class DatumaroFormatTest:
         )
         helper_tc.assertEqual(set(), set(os.listdir(osp.join(test_dir, "images", "c"))))
         helper_tc.assertEqual(set(), set(os.listdir(osp.join(test_dir, "images", "d"))))
-        compare_datasets(helper_tc, expected, Dataset.load(test_dir))
+        compare_datasets(helper_tc, expected, Dataset.import_from(test_dir, format=self.format))
