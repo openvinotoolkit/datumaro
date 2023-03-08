@@ -126,7 +126,7 @@ class CLIPLauncher(OpenvinoLauncher):
             # media.data is None case
             if not inputs.any():
                 return None
-            inputs = inputs.squeeze()
+            inputs = inputs.squeeze().astype(np.uint8)
             inputs = cv2.cvtColor(inputs, getattr(cv2, color_space_dict.get(inputs.ndim)))
             inputs = cv2.resize(inputs, (256, 256))
             inputs = self._img_center_crop(inputs, 224)
