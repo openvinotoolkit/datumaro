@@ -27,11 +27,7 @@ This documentation is divided into the following sections:
    :caption: Contents
 
    /api/developer_manual
-   /api/datumaro/datumaro
-   /api/cli/cli
-   /api/components/components
-   /api/plugins/plugins
-   /api/util/util/util
+   /api/reference
 
 
 Indices and tables
