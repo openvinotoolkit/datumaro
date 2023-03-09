@@ -13,7 +13,6 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
 
 import os
 import re
@@ -31,6 +30,7 @@ author = "Datumaro Contributors"
 
 # The full version, including alpha/beta/rc tags
 release = VERSION
+
 
 # -- General configuration ---------------------------------------------------
 
@@ -63,7 +63,6 @@ exclude_patterns = []
 
 # The theme to use for HTML and HTML Help pages. See the documentation for
 # a list of builtin themes.
-#
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
