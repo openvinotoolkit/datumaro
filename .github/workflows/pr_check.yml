@@ -7,6 +7,12 @@ on:
       - 'releases/*'
   pull_request:
     types: [edited, ready_for_review, opened, synchronize, reopened]
+
+# This is what will cancel the workflow concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: bash
