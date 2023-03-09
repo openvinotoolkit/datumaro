@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+message Label {
+  string name = 1;
+  int32 label_id = 2;
+  enum LabelType {
+    PERSON_MOVEMENT = 0;
+    OBJECT_MANIPULATION = 1;
+    PERSON_INTERACTION = 2;
+  }
+  LabelType label_type = 3;
+}
+
+message LabelList {
+  repeated Label label = 1;
+}
