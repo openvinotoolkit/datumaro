@@ -10,7 +10,7 @@ from datumaro.components.annotation import AnnotationType, Label, LabelCategorie
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
-from datumaro.components.importer import Importer
+from datumaro.components.importer import Importer, with_subset_dirs
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
@@ -37,7 +37,9 @@ class ImagenetBase(SubsetBase):
     def _load_items(self, path):
         items = {}
 
-        for image_path in find_images(path, recursive=True, max_depth=1):
+        # Images should be in root/label_dir/*.img and root/*.img is not allowed.
+        # => max_depth=1, min_depth=1
+        for image_path in find_images(path, recursive=True, max_depth=1, min_depth=1):
             label = osp.basename(osp.dirname(image_path))
             image_name = osp.splitext(osp.basename(image_path))[0]
 
@@ -56,11 +58,57 @@ class ImagenetBase(SubsetBase):
 
 
 class ImagenetImporter(Importer):
+    """TorchVision's ImageFolder style importer.
+    For example, it imports the following directory structure.
+
+    root
+    ├── label_0
+    │   ├── label_0_1.jpg
+    │   └── label_0_2.jpg
+    └── label_1
+        └── label_1_1.jpg
+    """
+
     @classmethod
     def find_sources(cls, path):
         if not osp.isdir(path):
             return []
-        return [{"url": path, "format": ImagenetBase.NAME}]
+
+        # Images should be in root/label_dir/*.img and root/*.img is not allowed.
+        # => max_depth=1, min_depth=1
+        for _ in find_images(path, recursive=True, max_depth=1, min_depth=1):
+            return [{"url": path, "format": ImagenetBase.NAME}]
+
+        return []
+
+
+@with_subset_dirs
+class ImagenetWithSubsetDirsImporter(ImagenetImporter):
+    """TorchVision ImageFolder style importer.
+    For example, it imports the following directory structure.
+
+    root
+    ├── train
+    │   ├── label_0
+    │   │   ├── label_0_1.jpg
+    │   │   └── label_0_2.jpg
+    │   └── label_1
+    │       └── label_1_1.jpg
+    ├── val
+    │   ├── label_0
+    │   │   ├── label_0_1.jpg
+    │   │   └── label_0_2.jpg
+    │   └── label_1
+    │       └── label_1_1.jpg
+    └── test
+        ├── label_0
+        │   ├── label_0_1.jpg
+        │   └── label_0_2.jpg
+        └── label_1
+            └── label_1_1.jpg
+
+    Then, it will have three subsets: train, val, and test and they have label_0 and label_1 labels.
+    """
 
 
 class ImagenetExporter(Exporter):

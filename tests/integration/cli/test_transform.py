@@ -14,10 +14,11 @@ from datumaro.components.errors import ReadonlyDatasetError
 from datumaro.components.media import Image
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
-from datumaro.util.test_utils import TestDir, compare_datasets
-from datumaro.util.test_utils import run_datum as run
 
 from ...requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir, compare_datasets
+from tests.utils.test_utils import run_datum as run
 
 
 class TransformTest(TestCase):

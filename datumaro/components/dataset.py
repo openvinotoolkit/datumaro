@@ -24,7 +24,7 @@ from datumaro.components.dataset_base import (
     DatasetItem,
     IDataset,
 )
-from datumaro.components.environment import Environment
+from datumaro.components.environment import DEFAULT_ENVIRONMENT, Environment
 from datumaro.components.errors import (
     CategoriesRedefinedError,
     ConflictingCategoriesError,
@@ -1174,8 +1174,8 @@ class Dataset(IDataset):
 
     @property
     def env(self) -> Environment:
-        if not self._env:
-            self._env = Environment()
+        if self._env is None:
+            return DEFAULT_ENVIRONMENT
         return self._env
 
     @property
@@ -1344,7 +1344,7 @@ class Dataset(IDataset):
         """
 
         if env is None:
-            env = Environment()
+            env = DEFAULT_ENVIRONMENT
 
         if not format:
             format = cls.detect(path, env=env)

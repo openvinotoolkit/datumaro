@@ -28,6 +28,7 @@ except ModuleNotFoundError:
 from . import cast
 
 DEFAULT_MAX_DEPTH = 10
+DEFAULT_MIN_DEPTH = 0
 
 
 def check_instruction_set(instruction):
@@ -56,13 +57,18 @@ def import_foreign_module(name, path):
     return module
 
 
-def walk(path, max_depth=None):
+def walk(path, max_depth: Optional[int] = None, min_depth: Optional[int] = None):
     if max_depth is None:
         max_depth = DEFAULT_MAX_DEPTH
+    if min_depth is None:
+        min_depth = DEFAULT_MIN_DEPTH
 
     baselevel = path.count(osp.sep)
     for dirpath, dirnames, filenames in os.walk(path, topdown=True):
         curlevel = dirpath.count(osp.sep)
+        if baselevel + min_depth > curlevel:
+            continue
+
         if baselevel + max_depth <= curlevel:
             dirnames.clear()  # topdown=True allows to modify the list
 
@@ -70,7 +76,11 @@ def walk(path, max_depth=None):
 
 
 def find_files(
-    dirpath: str, exts: Union[str, Iterable[str]], recursive: bool = False, max_depth: int = None
+    dirpath: str,
+    exts: Union[str, Iterable[str]],
+    recursive: bool = False,
+    max_depth: Optional[int] = None,
+    min_depth: Optional[int] = None,
 ) -> Iterator[str]:
     if isinstance(exts, str):
         exts = {"." + exts.lower().lstrip(".")}
@@ -85,7 +95,9 @@ def find_files(
                 return True
         return False
 
-    for d, _, filenames in walk(dirpath, max_depth=max_depth if recursive else 0):
+    for d, _, filenames in walk(
+        dirpath, max_depth=max_depth if recursive else 0, min_depth=min_depth if recursive else 0
+    ):
         for filename in filenames:
             if not _check_ext(filename):
                 continue

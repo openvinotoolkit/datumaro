@@ -32,11 +32,11 @@ from datumaro.components.operations import (
     find_unique_images,
     mean_std,
 )
-from datumaro.util.test_utils import compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import compare_datasets
 
 
 class TestOperations(TestCase):
@@ -235,6 +235,7 @@ class TestOperations(TestCase):
                 "depth_annotation": {"count": 0},
                 "ellipse": {"count": 1},
                 "hash_key": {"count": 0},
+                "unknown": {"count": 0},
             },
             "annotations": {
                 "labels": {
@@ -336,6 +337,7 @@ class TestOperations(TestCase):
                 "depth_annotation": {"count": 0},
                 "ellipse": {"count": 0},
                 "hash_key": {"count": 0},
+                "unknown": {"count": 0},
             },
             "annotations": {
                 "labels": {

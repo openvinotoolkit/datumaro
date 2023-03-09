@@ -1,6 +1,10 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+import pytest
+
+from tests.utils.test_utils import TestCaseHelper, TestDir
 
 
 def pytest_configure(config):
@@ -16,3 +20,14 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "components(ids): link a test with a component")
     config.addinivalue_line("markers", "reqids(ids): link a test with a requirement")
     config.addinivalue_line("markers", "bugs(ids): link a test with a bug")
+
+
+@pytest.fixture(scope="function")
+def test_dir():
+    with TestDir() as test_dir:
+        yield test_dir
+
+
+@pytest.fixture
+def helper_tc():
+    return TestCaseHelper()

@@ -229,10 +229,15 @@ def find_images(
     dirpath: str,
     exts: Union[str, Iterable[str]] = None,
     recursive: bool = False,
-    max_depth: int = None,
+    max_depth: Optional[int] = None,
+    min_depth: Optional[int] = None,
 ) -> Iterator[str]:
     yield from find_files(
-        dirpath, exts=exts or IMAGE_EXTENSIONS, recursive=recursive, max_depth=max_depth
+        dirpath,
+        exts=exts or IMAGE_EXTENSIONS,
+        recursive=recursive,
+        max_depth=max_depth,
+        min_depth=min_depth,
     )
 
 

@@ -2,10 +2,13 @@ name: Weekly Stability Test
 on:
   workflow_dispatch: # run on request (no need for PR)
   schedule:
-    - cron: "0 0 * * 7" # every 9AM on Saturday
+    # every 7PM on Sunday
+    - cron: "0 19 * * 0"
+
 defaults:
   run:
     shell: bash
+
 jobs:
   weekly_stability_test:
     strategy:
@@ -16,19 +19,20 @@ jobs:
     name: stability test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Installing python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install -e '.[default,tf,tfds]' pytest pytest-stress pytest-html
+          python -m pip install -r tests/requirements.txt
+          python -m pip install -e '.[default,tf]'
       - name: Stability testing
         run: |
-          pytest --html=stability_test_report.html --minutes 5
+          python -m pytest --html=stability_test_report.html --minutes 5
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-results
           path: report/stability_test_report.html

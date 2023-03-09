@@ -8,6 +8,7 @@ import glob
 import logging as log
 import os.path as osp
 from enum import Enum, IntEnum, auto
+from io import BufferedReader
 from typing import (
     Any,
     Callable,
@@ -282,10 +283,8 @@ class FormatDetectionContext:
 
     @contextlib.contextmanager
     def probe_text_file(
-        self,
-        path: str,
-        requirement_desc: str,
-    ) -> Iterator[TextIO]:
+        self, path: str, requirement_desc: str, is_binary_file: bool = False
+    ) -> Iterator[Union[BufferedReader, TextIO]]:
         """
         Returns a context manager that can be used to place a requirement on
         the contents of the file referred to by `path`. To do so, you must
@@ -318,8 +317,12 @@ class FormatDetectionContext:
             self.fail(requirement_desc_full)
 
         try:
-            with open(osp.join(self._root_path, path), encoding="utf-8") as f:
-                yield f
+            if is_binary_file:
+                with open(osp.join(self._root_path, path), "rb") as f:
+                    yield f
+            else:
+                with open(osp.join(self._root_path, path), encoding="utf-8") as f:
+                    yield f
         except _FormatRejected:
             raise
         except Exception:
@@ -517,5 +520,19 @@ def detect_dataset_format(
                 matches.append(format_name)
             else:  # new confidence is less than max
                 report_insufficient_confidence(format_name, matches[0])
+
+    # TODO: This should be controlled by our priority logic.
+    # However, some datasets' detect() are currently broken,
+    # so that it is inevitable to introduce this.
+    # We must revisit this after fixing detect().
+    def _give_more_priority_to_with_subset_dirs(matches):
+        for idx, match in enumerate(matches):
+            if match + "_with_subset_dirs" in matches:
+                matches = matches.pop(idx)
+                return True
+        return False
+
+    while _give_more_priority_to_with_subset_dirs(matches):
+        continue
 
     return matches

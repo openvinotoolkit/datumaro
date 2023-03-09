@@ -77,7 +77,7 @@ class MvtecExporter(Exporter):
                         labels.append(self.get_label(ann.label))
 
                 if self._save_media:
-                    self._save_image(item, subdir=osp.join(subset_name, labels[0]))
+                    self._save_image(item, subdir=subset_name)
 
                 bboxes = [a for a in item.annotations if a.type == AnnotationType.bbox]
                 if bboxes and MvtecTask.detection in self._tasks:
@@ -88,11 +88,17 @@ class MvtecExporter(Exporter):
                     mask = np.zeros((*item.media.size,), dtype=np.uint8)
                     for bbox in bboxes:
                         x, y, h, w = bbox.get_bbox()
-                        mask = cv2.rectangle(mask, (x, y), (x + w, y + h), (1), -1)
+                        mask = cv2.rectangle(
+                            mask,
+                            np.array((x, y), dtype=np.int32),
+                            np.array((x + w, y + h), dtype=np.int32),
+                            (1),
+                            -1,
+                        )
 
                     if not osp.exists(osp.join(self._save_dir, osp.dirname(mask_path))):
                         os.mkdir(osp.join(self._save_dir, osp.dirname(mask_path)))
-                    cv2.imwrite(osp.join(self._save_dir, mask_path), mask)
+                    cv2.imwrite(osp.join(self._save_dir, mask_path), mask * 255)
 
                 masks = [a for a in item.annotations if a.type == AnnotationType.mask]
                 if masks and MvtecTask.segmentation in self._tasks:
@@ -103,7 +109,7 @@ class MvtecExporter(Exporter):
                     if not osp.exists(osp.join(self._save_dir, osp.dirname(mask_path))):
                         os.mkdir(osp.join(self._save_dir, osp.dirname(mask_path)))
                     cv2.imwrite(
-                        osp.join(self._save_dir, mask_path), masks[0].image.astype(np.uint8)
+                        osp.join(self._save_dir, mask_path), masks[0].image.astype(np.uint8) * 255
                     )
 
     def get_label(self, label_id):

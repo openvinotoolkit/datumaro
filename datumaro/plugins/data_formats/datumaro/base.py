@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -21,10 +21,8 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
-from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
 from datumaro.components.media import Image, MediaElement, PointCloud
-from datumaro.util import parse_json, parse_json_file
+from datumaro.util import parse_json_file
 
 from .format import DatumaroPath
 
@@ -53,7 +51,10 @@ class DatumaroBase(SubsetBase):
         self._related_images_dir = related_images_dir
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
+        self._load_impl(path)
 
+    def _load_impl(self, path: str) -> None:
+        """Actual implementation of loading Datumaro format."""
         parsed_anns = parse_json_file(path)
         self._infos = self._load_infos(parsed_anns)
         self._categories = self._load_categories(parsed_anns)
@@ -133,13 +134,7 @@ class DatumaroBase(SubsetBase):
                 ri_info = item_desc.get("related_images")
                 if ri_info:
                     related_images = [
-                        Image(
-                            size=ri.get("size"),
-                            path=osp.join(
-                                self._related_images_dir, self._subset, item_id, ri.get("path")
-                            ),
-                        )
-                        for ri in ri_info
+                        Image(size=ri.get("size"), path=ri.get("path")) for ri in ri_info
                     ]
 
                 media = PointCloud(point_cloud, extra_images=related_images)
@@ -281,21 +276,3 @@ class DatumaroBase(SubsetBase):
                 raise NotImplementedError()
 
         return loaded
-
-
-class DatumaroImporter(Importer):
-    @classmethod
-    def detect(cls, context: FormatDetectionContext) -> None:
-        annot_file = context.require_file("annotations/*.json")
-
-        with context.probe_text_file(
-            annot_file,
-            'must be a JSON object with "categories" ' 'and "items" keys',
-        ) as f:
-            contents = parse_json(f.read())
-            if not {"categories", "items"} <= contents.keys():
-                raise Exception
-
-    @classmethod
-    def find_sources(cls, path):
-        return cls._find_sources_recursive(path, ".json", "datumaro", dirname="annotations")

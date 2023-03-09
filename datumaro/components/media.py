@@ -8,6 +8,7 @@ import os
 import os.path as osp
 import shutil
 import weakref
+from enum import IntEnum
 from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
 
 import cv2
@@ -19,7 +20,22 @@ from datumaro.util.image import _image_loading_errors, decode_image, lazy_image,
 BboxIntCoords = Tuple[int, int, int, int]  # (x, y, w, h)
 
 
+class MediaType(IntEnum):
+    NONE = 0
+    MEDIA_ELEMENT = 1
+    IMAGE = 2
+    BYTE_IMAGE = 3
+    VIDEO_FRAME = 4
+    VIDEO = 5
+    POINT_CLOUD = 6
+    MULTIFRAME_IMAGE = 7
+    ROI_IMAGE = 8
+    MOSAIC_IMAGE = 9
+
+
 class MediaElement:
+    _type = MediaType.MEDIA_ELEMENT
+
     def __init__(self, path: str) -> None:
         assert path, "Path can't be empty"
         self._path = path
@@ -40,8 +56,14 @@ class MediaElement:
             return False
         return self._path == other._path
 
+    @property
+    def type(self) -> MediaType:
+        return self._type
+
 
 class Image(MediaElement):
+    _type = MediaType.IMAGE
+
     def __init__(
         self,
         data: Union[np.ndarray, Callable[[str], np.ndarray], None] = None,
@@ -169,6 +191,8 @@ class Image(MediaElement):
 
 
 class ByteImage(Image):
+    _type = MediaType.BYTE_IMAGE
+
     _FORMAT_MAGICS = (
         (b"\x89PNG\r\n\x1a\n", ".png"),
         (b"\xff\xd8\xff", ".jpg"),
@@ -235,6 +259,8 @@ class ByteImage(Image):
 
 
 class VideoFrame(Image):
+    _type = MediaType.VIDEO_FRAME
+
     def __init__(self, video: Video, index: int):
         self._video = video
         self._index = index
@@ -333,6 +359,8 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
 
 
 class Video(MediaElement, Iterable[VideoFrame]):
+    _type = MediaType.VIDEO
+
     """
     Provides random access to the video frames.
     """
@@ -501,6 +529,8 @@ class Video(MediaElement, Iterable[VideoFrame]):
 
 
 class PointCloud(MediaElement):
+    _type = MediaType.POINT_CLOUD
+
     def __init__(self, path: str, extra_images: Optional[List[Image]] = None):
         self._path = path
 
@@ -508,6 +538,8 @@ class PointCloud(MediaElement):
 
 
 class MultiframeImage(MediaElement):
+    _type = MediaType.MULTIFRAME_IMAGE
+
     def __init__(
         self,
         images: Optional[Iterable[Union[str, Image, np.ndarray, Callable[[str], np.ndarray]]]],
@@ -538,6 +570,8 @@ class MultiframeImage(MediaElement):
 
 
 class RoIImage(Image):
+    _type = MediaType.ROI_IMAGE
+
     def __init__(
         self,
         data: Union[np.ndarray, Callable[[str], np.ndarray], None] = None,
@@ -580,6 +614,8 @@ ImageWithRoI = Tuple[Image, BboxIntCoords]
 
 
 class MosaicImage(Image):
+    _type = MediaType.MOSAIC_IMAGE
+
     def __init__(self, imgs: List[ImageWithRoI], size: Tuple[int, int]) -> None:
         def _get_mosaic_img(_) -> np.ndarray:
             h, w = self.size

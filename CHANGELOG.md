@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+### Added
+- Add with_subset_dirs decorator (Add ImagenetWithSubsetDirsImporter)
+  (<https://github.com/openvinotoolkit/datumaro/pull/816>)
+- Add CommonSemanticSegmentationWithSubsetDirsImporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/826>)
+- Add Searcher CLI documentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/838>)
+
+### Changed
+- Refactor Datumaro format code and test code
+  (<https://github.com/openvinotoolkit/datumaro/pull/824>)
+
+### Fixed
+- Fix image filenames and anomaly mask appearance in MVTec exporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/835>)
+- Fix CIFAR10 and 100 detect function
+  (<https://github.com/openvinotoolkit/datumaro/pull/836>)
 
 ## 24/02/2023 - Release v1.0.0
 ### Added
