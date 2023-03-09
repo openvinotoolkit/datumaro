@@ -1,8 +1,8 @@
 name: Weekly Stability Test
 on:
   workflow_dispatch: # run on request (no need for PR)
-#   schedule:
-#     - cron: "0 0 * * 7" # every 9AM on Saturday
+  schedule:
+    - cron: "0 0 * * 7" # every 9AM on Saturday
 defaults:
   run:
     shell: bash
@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Installing python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
