@@ -2,7 +2,7 @@ syntax = "proto3";
 
 message Label {
   string name = 1;
-  int32 label_id = 2;
+  uint32 label_id = 2;
   enum LabelType {
     PERSON_MOVEMENT = 0;
     OBJECT_MANIPULATION = 1;
