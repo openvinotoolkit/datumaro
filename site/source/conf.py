@@ -25,7 +25,6 @@ from datumaro.version import VERSION
 # -- Project information -----------------------------------------------------
 
 project = "Datumaro"
-copyright = "2023, Datumaro Contributors"
 author = "Datumaro Contributors"
 
 # The full version, including alpha/beta/rc tags
@@ -72,11 +71,11 @@ html_static_path = [
 ]
 
 html_theme_options = {
-   "navbar_center": [],
-   "logo": {
-      "image_light": "datumaro-logo.png",
-      "image_dark": "datumaro-logo.png",
-   }
+    "navbar_center": [],
+    "logo": {
+        "image_light": "datumaro-logo.png",
+        "image_dark": "datumaro-logo.png",
+    },
 }
 html_css_files = [
     "css/custom.css",
