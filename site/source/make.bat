@@ -37,7 +37,5 @@ goto end
 :html
 %SPHINXBUILD% -b %1 %SOURCEDIR% %BUILDDIR%\html %SPHINXOPTS% %O%
 
-copy _static\redirects\guide-homepage-redirect.html %BUILDDIR%\html\index.html
-
 :end
 popd
