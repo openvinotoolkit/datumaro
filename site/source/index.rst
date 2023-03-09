@@ -23,8 +23,12 @@ Contents
    :maxdepth: 1
    :glob:
 
-   api/developer_manual
-   api/reference
+   /api/developer_manual
+   /api/datumaro/datumaro
+   /api/cli/cli
+   /api/components/components
+   /api/plugins/plugins
+   /api/util/util/util
 
 
 Indices and tables
