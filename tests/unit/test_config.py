@@ -7,9 +7,10 @@ import yaml
 
 from datumaro.components.config import Config, DictConfig, SchemaBuilder
 from datumaro.components.errors import ImmutableObjectError
-from datumaro.util.test_utils import TestDir
 
 from ..requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir
 
 
 class ConfigTest(TestCase):

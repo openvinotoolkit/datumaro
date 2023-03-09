@@ -16,14 +16,15 @@ from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
 from datumaro.plugins.data_formats.datumaro.importer import DatumaroImporter
-from datumaro.util.test_utils import (
+
+from ....requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import (
     Dimensions,
     check_save_and_load,
     compare_datasets,
     compare_datasets_strict,
 )
-
-from ....requirements import Requirements, mark_requirement
 
 
 class DatumaroFormatTest:

@@ -53,9 +53,10 @@ from datumaro.components.operations import IntersectMerge
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.plugins.transforms import ProjectInfos
-from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 from ..requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 
 class DatasetTest(TestCase):

@@ -16,19 +16,20 @@ jobs:
     name: nightly regression test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Installing python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install -e '.[default,tf,tfds]' pytest pytest-html
+          python -m pip install -r tests/requirements.txt
+          python -m pip install -e '.[default,tf]'
       - name: Nightly regression testing
         run: |
-          pytest -v --html=nightly_regression_test_report.html
+          python -m pytest -v --html=nightly_regression_test_report.html
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-results
           path: nightly_regression_test_report.html

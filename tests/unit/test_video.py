@@ -15,10 +15,11 @@ from datumaro.components.media import Image, Video
 from datumaro.components.media_manager import MediaManager
 from datumaro.components.project import Project
 from datumaro.util.scope import Scope, on_exit_do, scope_add, scoped
-from datumaro.util.test_utils import TestDir, compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 from ..utils.video import make_sample_video
+
+from tests.utils.test_utils import TestDir, compare_datasets
 
 
 @pytest.fixture()
