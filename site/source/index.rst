@@ -16,12 +16,15 @@ store datasets, and so on.
 This Documentation should point you toward the right
 Datumaro integration process.
 
-Contents
-********
+Structure of the Documentation
+==============================
+
+This documentation is divided into the following sections:
 
 .. toctree::
    :maxdepth: 1
-   :glob:
+   :name: start
+   :caption: Contents
 
    /api/developer_manual
    /api/datumaro/datumaro
@@ -32,7 +35,7 @@ Contents
 
 
 Indices and tables
-******************
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`
