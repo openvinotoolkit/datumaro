@@ -15,9 +15,10 @@ from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
 from datumaro.plugins.data_formats.datumaro_binary.mapper import *
 from datumaro.plugins.data_formats.datumaro_binary.mapper.annotation import AnnotationMapper
-from datumaro.util.test_utils import compare_datasets_strict
 
 from .test_datumaro_format import DatumaroFormatTest as TestBase
+
+from tests.utils.test_utils import compare_datasets_strict
 
 ENCRYPTION_KEY = Crypter.gen_key()
 
