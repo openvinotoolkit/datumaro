@@ -6,7 +6,9 @@ weight: 3
 ---
 
 ## What is Python API
-Need to update the description.
+Datuamro provides Python API, which allows you to use the Datumaro features directly in your code.
+
+There are some python API examples with Jupyter Notebook.
 
 ## Contents
 - [Python API examples](./python-api-examples)
