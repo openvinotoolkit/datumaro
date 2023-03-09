@@ -23,5 +23,3 @@ html:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-	cp _static/redirects/guide-homepage-redirect.html "$(BUILDDIR)"/index.html

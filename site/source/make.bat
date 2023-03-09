@@ -30,8 +30,6 @@ if "%1" == "" goto help
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 
-copy _static/redirects/guide-homepage-redirect.html %BUILDDIR%\index.html
-
 goto end
 
 :help
