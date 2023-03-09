@@ -134,4 +134,4 @@ def replace(app, what, name, obj, options, lines):
 
 def setup(app):
     app.connect("autodoc-skip-member", skip_member)
-    #app.connect("autodoc-process-docstring", replace)
+    app.connect("autodoc-process-docstring", replace)

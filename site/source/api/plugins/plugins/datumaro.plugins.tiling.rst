@@ -1,5 +1,5 @@
 tiling module
-----------
+-------------
 
 .. automodule:: datumaro.plugins.tiling
    :members:
