@@ -25,7 +25,6 @@ from datumaro.version import VERSION
 # -- Project information -----------------------------------------------------
 
 project = "Datumaro"
-copyright = '2023, Datumaro Contributors'
 author = "Datumaro Contributors"
 
 # The full version, including alpha/beta/rc tags
