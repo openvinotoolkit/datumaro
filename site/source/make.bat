@@ -7,8 +7,8 @@ REM Command file for Sphinx documentation
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
-set SOURCEDIR=.
-set BUILDDIR=_build
+set SOURCEDIR=source
+set BUILDDIR=build
 
 if "%1" == "" goto help
 if "%1" == "html" goto html
@@ -29,6 +29,9 @@ if errorlevel 9009 (
 if "%1" == "" goto help
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+
+copy _static/redirects/guide-homepage-redirect.html %BUILDDIR%\index.html
+
 goto end
 
 :help
@@ -36,6 +39,8 @@ goto end
 
 :html
 %SPHINXBUILD% -b %1 %SOURCEDIR% %BUILDDIR%\html %SPHINXOPTS% %O%
+
+copy _static/redirects/guide-homepage-redirect.html %BUILDDIR%\html\index.html
 
 :end
 popd
