@@ -39,8 +39,8 @@ class DatumaroBase(SubsetBase):
         dm_version = self._get_dm_format_version(self._parsed_anns)
 
         # when backward compatibility happend, we should implement version specific readers
-        if dm_version == DatumaroBase.LEGACY_VERSION:
-            self.default_reader(path=path)
+        if dm_version not in self.ALLOWED_VERSIONS:
+            raise DatasetImportError(f"Datumaro format version of the given dataset is {dm_version}, but not supported by this Datumaro version: {<datumaro-library-version>}. The allowed datumaro format versions are {self.ALLOWED_VERSIONS}. Please install the latest Datumaro."
         else:
             self.default_reader(path=path)
 
