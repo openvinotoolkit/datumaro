@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import glob
 import os.path as osp
 
 from datumaro.components.annotation import (
@@ -34,10 +33,11 @@ class DatumaroBase(SubsetBase):
     def __init__(self, path):
         assert osp.isfile(path), path
 
-        dm_version = DatumaroBase.get_dm_version(path=path)
+        self._parsed_anns = parse_json_file(path)
+        dm_version = self._get_dm_format_version(self._parsed_anns)
 
         # when backward compatibility happend, we should implement version specific readers
-        if dm_version == DatumaroBase.REGACY_VERSION:
+        if dm_version == DatumaroBase.LEGACY_VERSION:
             self.default_reader(path=path)
         else:
             self.default_reader(path=path)
@@ -68,35 +68,20 @@ class DatumaroBase(SubsetBase):
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
         self._load_impl(path)
 
-    @classmethod
-    def get_dm_version(cls, path: str):
+    def _get_dm_format_version(self, parsed_anns):
         """
-        Get Datumaro library version at exporting the dataset
+        Get Datumaro format at exporting the dataset
 
         Note that the regacy Datumaro doesn't store the version into exported dataset.
-        Thus it returns DatumaroBase.REGACY_VERSION when
+        Thus it returns DatumaroBase.REGACY_VERSION
         """
-        versions = []
-        for annot_file in glob.glob(
-            osp.join(path, DatumaroPath.ANNOTATIONS_DIR, "**", "*" + DatumaroPath.ANNOTATION_EXT),
-            recursive=True,
-        ):
-            versions.append(parse_json_file(annot_file).get("dm_version", cls.REGACY_VERSION))
-
-        if len(versions) == 0:
-            return cls.REGACY_VERSION
-
-        if any(v != versions[0] for v in versions):
-            raise ValueError(f"versions of subsets are mismatching: {', '.join(versions)}")
-
-        return versions[0]
+        return parsed_anns.get("dm_format_version", self.LEGACY_VERSION)
 
     def _load_impl(self, path: str) -> None:
         """Actual implementation of loading Datumaro format."""
-        parsed_anns = parse_json_file(path)
-        self._infos = self._load_infos(parsed_anns)
-        self._categories = self._load_categories(parsed_anns)
-        self._items = self._load_items(parsed_anns)
+        self._infos = self._load_infos(self._parsed_anns)
+        self._categories = self._load_categories(self._parsed_anns)
+        self._items = self._load_items(self._parsed_anns)
 
     @staticmethod
     def _load_infos(parsed):
