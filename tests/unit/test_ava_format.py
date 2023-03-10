@@ -8,10 +8,10 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.ava.ava import *
-from datumaro.util.test_utils import TestDir, compare_datasets
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, compare_datasets
 
 
 class AvaFormatTest(TestCase):
