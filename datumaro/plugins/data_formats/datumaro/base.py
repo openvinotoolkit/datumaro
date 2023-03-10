@@ -39,10 +39,9 @@ class DatumaroBase(SubsetBase):
     def __init__(self, path):
         assert osp.isfile(path), path
 
-        self._parsed_anns = parse_json_file(path)
-        dm_version = self._get_dm_format_version(self._parsed_anns)
+        dm_version = self._get_dm_format_version(path)
 
-        # when backward compatibility happend, we should implement version specific readers
+        # when backward compatibility happen, we should implement version specific readers
         if dm_version not in self.ALLOWED_VERSIONS:
             raise DatasetImportError(
                 f"Datumaro format version of the given dataset is {dm_version}, "
@@ -79,14 +78,15 @@ class DatumaroBase(SubsetBase):
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
         self._load_impl(path)
 
-    def _get_dm_format_version(self, parsed_anns):
+    def _get_dm_format_version(self, path: str):
         """
         Get Datumaro format at exporting the dataset
 
         Note that the regacy Datumaro doesn't store the version into exported dataset.
         Thus it returns DatumaroBase.REGACY_VERSION
         """
-        return parsed_anns.get("dm_format_version", self.LEGACY_VERSION)
+        self._parsed_anns = parse_json_file(path)
+        return self._parsed_anns.get("dm_format_version", self.LEGACY_VERSION)
 
     def _load_impl(self, path: str) -> None:
         """Actual implementation of loading Datumaro format."""

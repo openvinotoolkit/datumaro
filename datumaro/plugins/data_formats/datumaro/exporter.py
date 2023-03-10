@@ -43,8 +43,8 @@ class _SubsetWriter:
         self._context = context
 
         self._data = {
-            "infos": {},
             "dm_format_version": DATUMARO_FORMAT_VERSION,
+            "infos": {},
             "categories": {},
             "items": [],
         }
