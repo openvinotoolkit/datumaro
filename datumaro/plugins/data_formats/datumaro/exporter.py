@@ -34,6 +34,7 @@ from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import cast, dump_json_file
+from datumaro.version import VERSION
 
 from .format import DatumaroPath
 
@@ -44,6 +45,7 @@ class _SubsetWriter:
 
         self._data = {
             "infos": {},
+            "dm_version": VERSION,
             "categories": {},
             "items": [],
         }

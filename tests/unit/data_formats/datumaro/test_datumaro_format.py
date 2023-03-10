@@ -13,9 +13,11 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
+from datumaro.plugins.data_formats.datumaro.base import DatumaroBase
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
 from datumaro.plugins.data_formats.datumaro.importer import DatumaroImporter
+from datumaro.version import VERSION
 
 from ....requirements import Requirements, mark_requirement
 
@@ -236,4 +238,19 @@ class DatumaroFormatTest:
         )
         helper_tc.assertEqual(set(), set(os.listdir(osp.join(test_dir, "images", "c"))))
         helper_tc.assertEqual(set(), set(os.listdir(osp.join(test_dir, "images", "d"))))
+
         compare_datasets(helper_tc, expected, Dataset.import_from(test_dir, format=self.format))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_export_dm_version(self, test_dir):
+        dataset = Dataset.from_iterable(
+            [DatasetItem(id=1, media=Image(data=np.ones((5, 4, 3))))], media_type=Image
+        )
+
+        dataset.export(save_dir=test_dir, format="datumaro")
+        assert DatumaroBase.get_dm_version(path=test_dir) == VERSION
+
+        assert (
+            DatumaroBase.get_dm_version(path="./tests/assets/datumaro_dataset")
+            == DatumaroBase.REGACY_VERSION
+        )

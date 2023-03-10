@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import glob
 import os.path as osp
 
 from datumaro.components.annotation import (
@@ -28,9 +29,23 @@ from .format import DatumaroPath
 
 
 class DatumaroBase(SubsetBase):
+    REGACY_VERSION = "regacy"
+
     def __init__(self, path):
         assert osp.isfile(path), path
 
+        dm_version = DatumaroBase.get_dm_version(path=path)
+
+        # when backward compatibility happend, we should implement version specific readers
+        if dm_version == DatumaroBase.REGACY_VERSION:
+            self.default_reader(path=path)
+        else:
+            self.default_reader(path=path)
+
+    def default_reader(self, path: str):
+        """
+        Default Datumaro reader for the latest version
+        """
         rootpath = ""
         if path.endswith(osp.join(DatumaroPath.ANNOTATIONS_DIR, osp.basename(path))):
             rootpath = path.rsplit(DatumaroPath.ANNOTATIONS_DIR, maxsplit=1)[0]
@@ -52,6 +67,29 @@ class DatumaroBase(SubsetBase):
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
         self._load_impl(path)
+
+    @classmethod
+    def get_dm_version(cls, path: str):
+        """
+        Get Datumaro library version at exporting the dataset
+
+        Note that the regacy Datumaro doesn't store the version into exported dataset.
+        Thus it returns DatumaroBase.REGACY_VERSION when
+        """
+        versions = []
+        for annot_file in glob.glob(
+            osp.join(path, DatumaroPath.ANNOTATIONS_DIR, "**", "*" + DatumaroPath.ANNOTATION_EXT),
+            recursive=True,
+        ):
+            versions.append(parse_json_file(annot_file).get("dm_version", cls.REGACY_VERSION))
+
+        if len(versions) == 0:
+            return cls.REGACY_VERSION
+
+        if any(v != versions[0] for v in versions):
+            raise ValueError(f"versions of subsets are mismatching: {', '.join(versions)}")
+
+        return versions[0]
 
     def _load_impl(self, path: str) -> None:
         """Actual implementation of loading Datumaro format."""
