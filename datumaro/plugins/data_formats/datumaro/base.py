@@ -29,7 +29,7 @@ from .format import DatumaroPath
 
 
 class DatumaroBase(SubsetBase):
-    REGACY_VERSION = "regacy"
+    LEGACY_VERSION = "legacy"
 
     def __init__(self, path):
         assert osp.isfile(path), path
