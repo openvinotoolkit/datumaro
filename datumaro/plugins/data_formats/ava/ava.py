@@ -81,7 +81,7 @@ class AvaBase(SubsetBase):
                 f"Label lists cannot be found in ({category_path}). "
                 "If not, Datumaro fails to import AVA action dataset."
             )
-        
+
         with open(category_path, "r") as f:
             pbtxt_data = f.read()
 
@@ -105,7 +105,7 @@ class AvaBase(SubsetBase):
                 line_split = line.strip().split(",")
 
                 video_id = line_split[0]
-                timestamp = line_split[1] # .zfill(6)  # 6-digits
+                timestamp = line_split[1]  # .zfill(6)  # 6-digits
 
                 item_id = video_id + "/" + timestamp
                 image_path = osp.join(
