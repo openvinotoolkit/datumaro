@@ -337,7 +337,7 @@ class YoloExportertTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset)
 
 
-DUMMY_DATASET_DIR = get_test_asset_path("yolo_dataset")
+DUMMY_DATASET_DIR = get_test_asset_path("yolo_dataset", "strict")
 
 
 class YoloImporterTest(TestCase):

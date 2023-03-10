@@ -7,7 +7,7 @@ from __future__ import annotations
 import os.path as osp
 import re
 from collections import OrderedDict
-from typing import Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetBase, DatasetItem, SubsetBase
@@ -16,7 +16,7 @@ from datumaro.components.errors import (
     InvalidAnnotationError,
     UndeclaredLabelError,
 )
-from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import DEFAULT_IMAGE_META_FILE_NAME, ImageMeta, load_image_meta_file
@@ -28,26 +28,27 @@ from .format import YoloPath
 T = TypeVar("T")
 
 
-class YoloBase(SubsetBase):
-    class Subset(DatasetBase):
-        def __init__(self, name: str, parent: YoloBase):
-            super().__init__()
-            self._name = name
-            self._parent = parent
-            self.items: Dict[str, Union[str, DatasetItem]] = OrderedDict()
+class _Subset(DatasetBase):
+    def __init__(self, name: str, parent: YoloStrictFormat):
+        super().__init__()
+        self._name = name
+        self._parent = parent
+        self.items: Dict[str, Union[str, DatasetItem]] = OrderedDict()
 
-        def __iter__(self):
-            for item_id in self.items:
-                item = self._parent._get(item_id, self._name)
-                if item is not None:
-                    yield item
+    def __iter__(self):
+        for item_id in self.items:
+            item = self._parent._get(item_id, self._name)
+            if item is not None:
+                yield item
 
-        def __len__(self):
-            return len(self.items)
+    def __len__(self):
+        return len(self.items)
 
-        def categories(self):
-            return self._parent.categories()
+    def categories(self):
+        return self._parent.categories()
 
+
+class YoloStrictFormat(SubsetBase):
     def __init__(
         self,
         config_path: str,
@@ -95,14 +96,14 @@ class YoloBase(SubsetBase):
             if not osp.isfile(list_path):
                 raise InvalidAnnotationError(f"Can't find '{subset_name}' subset list file")
 
-            subset = YoloBase.Subset(subset_name, self)
+            subset = _Subset(subset_name, self)
             with open(list_path, "r", encoding="utf-8") as f:
                 subset.items = OrderedDict(
                     (self.name_from_path(p), self.localize_path(p)) for p in f if p.strip()
                 )
             subsets[subset_name] = subset
 
-        self._subsets: Dict[str, YoloBase.Subset] = subsets
+        self._subsets: Dict[str, _Subset] = subsets
 
         self._categories = {
             AnnotationType.label: self._load_categories(
@@ -272,11 +273,71 @@ class YoloBase(SubsetBase):
         return self._subsets[name]
 
 
+class YoloBase(SubsetBase):
+    def __new__(
+        cls,
+        config_path: str,
+        image_info: Union[None, str, ImageMeta] = None,
+        yolo_format: str = "strict",
+        **kwargs,
+    ):
+        if yolo_format == "strict":
+            return YoloStrictFormat(config_path=config_path, image_info=image_info, **kwargs)
+        else:
+            raise DatasetImportError(f"yolo_format={yolo_format} is not supported.")
+
+
 class YoloImporter(Importer):
     @classmethod
-    def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file("obj.data")
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "--subset",
+            help="The name of the subset for the produced dataset items " "(default: none)",
+        )
+        return parser
 
     @classmethod
-    def find_sources(cls, path):
-        return cls._find_sources_recursive(path, ".data", "yolo")
+    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+        with context.require_any():
+            with context.alternative():
+                context.require_file("obj.data")
+            with context.alternative():
+                context.require_file("[Aa]nnotations/**/*.txt")
+            with context.alternative():
+                context.require_file("[Ll]abels/**/*.txt")
+        return FormatDetectionConfidence.MEDIUM
+
+    @classmethod
+    def _find_strict(cls, path: str) -> List[Dict[str, Any]]:
+        sources = cls._find_sources_recursive(path, ".data", "yolo")
+        for source in sources:
+            source["options"] = {"yolo_format": "strict"}
+        return sources
+
+    @classmethod
+    def _find_annotations_dir(cls, path: str) -> List[Dict[str, Any]]:
+        sources = cls._find_sources_recursive(
+            path, ext=".txt", extractor_name="yolo", dirname="[Aa]nnotations", filename="**/*"
+        )
+        for source in sources:
+            source["options"] = {"yolo_format": "annotations"}
+        return sources
+
+    @classmethod
+    def _find_labels_dir(cls, path: str) -> List[Dict[str, Any]]:
+        sources = cls._find_sources_recursive(path, ".data", "yolo")
+        for source in sources:
+            source["options"] = {"yolo_format": "strict"}
+        return sources
+
+    @classmethod
+    def find_sources(cls, path: str):
+        # TODO: From Python >= 3.8, we can use "if (sources := cls._find_strict(path)):"
+        sources = cls._find_strict(path)
+        if sources:
+            return sources
+
+        sources = cls._find_strict(path)
+        if sources:
+            return sources
