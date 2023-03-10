@@ -9,9 +9,10 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import Importer
-from datumaro.util.test_utils import compare_datasets
 
 from ...requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import compare_datasets
 
 
 class TestDataFormatBase:

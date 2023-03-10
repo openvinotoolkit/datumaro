@@ -6,9 +6,10 @@ from unittest import TestCase, mock
 from datumaro.util import is_method_redefined
 from datumaro.util.os_util import walk
 from datumaro.util.scope import Scope, on_error_do, on_exit_do, scoped
-from datumaro.util.test_utils import TestDir
 
 from ..requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir
 
 
 class TestException(Exception):

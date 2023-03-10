@@ -3,21 +3,6 @@
 
 opencv-python-headless>=4.1.0.25
 
-# TODO: move to requirements-default
-# A library to send the telemetry data from the OpenVINO toolkit components.
-openvino-telemetry>=2022.1.0
-
-# testing
-pytest>=5.3.5
-pytest-cov>=4.0.0
-
-# linters
-bandit>=1.7.0
-isort~=5.9
-pylint>=2.7.0
-coverage
-black>=22.1.0
-
 # docs
 markupsafe==2.0.1
 nbconvert>=7.2.3

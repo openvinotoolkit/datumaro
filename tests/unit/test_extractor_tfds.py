@@ -10,9 +10,9 @@ from datumaro.components.environment import Environment
 from datumaro.components.extractor_tfds import AVAILABLE_TFDS_DATASETS, TFDS_EXTRACTOR_AVAILABLE
 from datumaro.components.media import Image, MediaElement
 from datumaro.util.image import decode_image, encode_image
-from datumaro.util.test_utils import compare_datasets, mock_tfds_data
 
 from tests.requirements import Requirements, mark_requirement
+from tests.utils.test_utils import compare_datasets, mock_tfds_data
 
 if TFDS_EXTRACTOR_AVAILABLE:
     import tensorflow_datasets as tfds

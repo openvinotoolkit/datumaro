@@ -14,11 +14,11 @@ from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.camvid import CamvidExporter, CamvidImporter
 from datumaro.util.meta_file_util import parse_meta_file
-from datumaro.util.test_utils import TestDir, check_save_and_load, compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, check_save_and_load, compare_datasets
 
 
 class CamvidFormatTest(TestCase):
