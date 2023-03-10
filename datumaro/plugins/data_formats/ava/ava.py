@@ -26,7 +26,8 @@ class AvaPath:
     ANNOTATION_EXT = ".csv"
     ANNOTATION_PREFIX = "ava_"
     ANNOTATION_VERSION = "_v2.2"
-    CATEGORY_FILE = ANNOTATION_PREFIX + "action_list" + ANNOTATION_VERSION + ".pbtxt"
+    LABEL_LIST = ANNOTATION_PREFIX + "action_list" + ANNOTATION_VERSION + ".pbtxt"
+    PROPOSAL_EXT = ".pkl"
 
 
 class AvaBase(SubsetBase):
@@ -58,11 +59,29 @@ class AvaBase(SubsetBase):
                 "If not, Datumaro fails to find the image directory path."
             )
 
-        category_path = osp.join(self._rootpath, AvaPath.ANNOTATION_DIR, AvaPath.CATEGORY_FILE)
+        self._infos = self._load_infos(osp.dirname(path))
+
+        category_path = osp.join(self._rootpath, AvaPath.ANNOTATION_DIR, AvaPath.LABEL_LIST)
         self._categories = self._load_categories(category_path)
+
         self._items = self._load_items(path)
 
+    def _load_infos(self, path):
+        infos = {}
+        for file in os.listdir(path):
+            if file.endswith(AvaPath.PROPOSAL_EXT):
+                name = file.split(".")[0].split("_")[-1]
+                infos[name + "_proposals"] = file
+
+        return infos
+
     def _load_categories(self, category_path):
+        if not osp.exists(category_path):
+            raise DatasetImportError(
+                f"Label lists cannot be found in ({category_path}). "
+                "If not, Datumaro fails to import AVA action dataset."
+            )
+        
         with open(category_path, "r") as f:
             pbtxt_data = f.read()
 
@@ -86,7 +105,7 @@ class AvaBase(SubsetBase):
                 line_split = line.strip().split(",")
 
                 video_id = line_split[0]
-                timestamp = line_split[1].zfill(6)  # 6-digits
+                timestamp = line_split[1] # .zfill(6)  # 6-digits
 
                 item_id = video_id + "/" + timestamp
                 image_path = osp.join(
@@ -161,7 +180,7 @@ class AvaExporter(Exporter):
             # the label with label_id=0 will be ignored in the written pbtxt.
             # But this is well interpreted as zero during reading the pbtxt.
             pbtxt_string = text_format.MessageToString(message)
-            with open(osp.join(ann_dir, AvaPath.CATEGORY_FILE), "w") as f:
+            with open(osp.join(ann_dir, AvaPath.LABEL_LIST), "w") as f:
                 f.write(pbtxt_string)
 
         for subset_name, subset in self._extractor.subsets().items():
