@@ -28,7 +28,9 @@ from .format import DatumaroPath
 
 
 class DatumaroBase(SubsetBase):
-    LEGACY_VERSION = "legacy"
+    ALLOWED_VERSIONS = {LEGACY_VERSION, CURRENT_DATUMARO_FORMAT_VERSION}
+    # If Datumaro format version goes up, it will be
+    # ALLOWED_VERSIONS = {LEGACY_VERSION, 1.0, ..., CURRENT_DATUMARO_FORMAT_VERSION}
 
     def __init__(self, path):
         assert osp.isfile(path), path
