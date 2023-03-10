@@ -90,7 +90,7 @@ class AvaBase(SubsetBase):
 
                 item_id = video_id + "/" + timestamp
                 image_path = osp.join(
-                    self._images_dir, video_id, item_id.replace("/", "_"), AvaPath.IMAGE_EXT
+                    self._images_dir, video_id, item_id.replace("/", "_") + AvaPath.IMAGE_EXT
                 )
 
                 item = items.get(item_id)
@@ -105,7 +105,7 @@ class AvaBase(SubsetBase):
                 if "excluded_timestamps" in self._subset:
                     continue
 
-                bbox = list(map(float, line_split[2:6]))
+                bbox = list(map(float, line_split[2:6])) # (x1, y1, x2, y2)
                 label = int(line_split[6])
                 entity_id = int(line_split[7])
 
@@ -113,9 +113,9 @@ class AvaBase(SubsetBase):
                 anns.append(
                     Bbox(
                         x=bbox[0],
-                        y=bbox[2],
-                        w=bbox[1],
-                        h=bbox[3],
+                        y=bbox[1],
+                        w=bbox[2] - bbox[0],
+                        h=bbox[3] - bbox[1],
                         label=label,
                         attributes={"track_id": entity_id},
                     )
@@ -178,11 +178,10 @@ class AvaExporter(Exporter):
                     item_row = item.id.split("/")
 
                     if self._save_media:
-                        video_dir = osp.join(frame_dir, item_row[0])
-                        os.makedirs(video_dir, exist_ok=True)
+                        image_path = osp.join(osp.join(frame_dir, item_row[0]), item.id.replace("/", "_") + AvaPath.IMAGE_EXT)
                         self._save_image(
                             item,
-                            path=osp.join(video_dir, item.id.replace("/", "_") + AvaPath.IMAGE_EXT),
+                            path=image_path,
                         )
 
                     bboxes = [a for a in item.annotations if a.type == AnnotationType.bbox]
@@ -192,9 +191,9 @@ class AvaExporter(Exporter):
                                 item_row
                                 + [
                                     bbox.x,
-                                    bbox.w,
                                     bbox.y,
-                                    bbox.h,
+                                    bbox.x + bbox.w,
+                                    bbox.y + bbox.h,
                                     bbox.label,
                                     bbox.attributes.get("track_id", 0),
                                 ]
