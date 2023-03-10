@@ -23,14 +23,18 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import parse_json_file
+from datumaro.version import VERSION
 
-from .format import DatumaroPath
+from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
 
 
 class DatumaroBase(SubsetBase):
-    ALLOWED_VERSIONS = {LEGACY_VERSION, CURRENT_DATUMARO_FORMAT_VERSION}
+    LEGACY_VERSION = "legacy"
+    CURRENT_DATUMARO_FORMAT_VERSION = DATUMARO_FORMAT_VERSION
+
     # If Datumaro format version goes up, it will be
     # ALLOWED_VERSIONS = {LEGACY_VERSION, 1.0, ..., CURRENT_DATUMARO_FORMAT_VERSION}
+    ALLOWED_VERSIONS = {LEGACY_VERSION, CURRENT_DATUMARO_FORMAT_VERSION}
 
     def __init__(self, path):
         assert osp.isfile(path), path
@@ -40,9 +44,14 @@ class DatumaroBase(SubsetBase):
 
         # when backward compatibility happend, we should implement version specific readers
         if dm_version not in self.ALLOWED_VERSIONS:
-            raise DatasetImportError(f"Datumaro format version of the given dataset is {dm_version}, but not supported by this Datumaro version: {<datumaro-library-version>}. The allowed datumaro format versions are {self.ALLOWED_VERSIONS}. Please install the latest Datumaro."
-        else:
-            self.default_reader(path=path)
+            raise DatasetImportError(
+                f"Datumaro format version of the given dataset is {dm_version}, "
+                f"but not supported by this Datumaro version: {VERSION}. "
+                f"The allowed datumaro format versions are {self.ALLOWED_VERSIONS}. "
+                "Please install the latest Datumaro."
+            )
+
+        self.default_reader(path=path)
 
     def default_reader(self, path: str):
         """
