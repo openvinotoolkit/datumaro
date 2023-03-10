@@ -105,7 +105,7 @@ class AvaBase(SubsetBase):
                 if "excluded_timestamps" in self._subset:
                     continue
 
-                bbox = list(map(float, line_split[2:6])) # (x1, y1, x2, y2)
+                bbox = list(map(float, line_split[2:6]))  # (x1, y1, x2, y2)
                 label = int(line_split[6])
                 entity_id = int(line_split[7])
 
@@ -178,7 +178,10 @@ class AvaExporter(Exporter):
                     item_row = item.id.split("/")
 
                     if self._save_media:
-                        image_path = osp.join(osp.join(frame_dir, item_row[0]), item.id.replace("/", "_") + AvaPath.IMAGE_EXT)
+                        image_path = osp.join(
+                            osp.join(frame_dir, item_row[0]),
+                            item.id.replace("/", "_") + AvaPath.IMAGE_EXT,
+                        )
                         self._save_image(
                             item,
                             path=image_path,
