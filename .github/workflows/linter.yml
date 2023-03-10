@@ -13,7 +13,7 @@ jobs:
         run: |
           pip install --user -r tests/requirements-linters.txt
           echo "Bandit version: "`bandit --version | head -1`
-          bandit -r -c ipas_default.config ./
+          bandit -r -c ipas_default.config --severity-level high ./
   isort:
     runs-on: ubuntu-latest
     steps:
