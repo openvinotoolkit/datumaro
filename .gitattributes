@@ -26,3 +26,5 @@ LICENSE         text
 *.gif           binary
 *.ttf           binary
 *.pdf           binary
+
+notebooks/**    linguist-vendored
