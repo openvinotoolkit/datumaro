@@ -101,11 +101,11 @@ class AvaBase(SubsetBase):
     def _load_items(self, ann_file):
         items = {}
         with open(ann_file, "r", encoding="utf-8") as f:
-            for line in f:
-                line_split = line.strip().split(",")
-
-                video_id = line_split[0]
-                timestamp = line_split[1]  # .zfill(6)  # 6-digits
+            reader = csv.reader(f)
+            datas = list(reader)
+            for data in datas:
+                video_id = data[0]
+                timestamp = data[1]
 
                 item_id = video_id + "/" + timestamp
                 image_path = osp.join(
@@ -124,9 +124,9 @@ class AvaBase(SubsetBase):
                 if "excluded_timestamps" in self._subset:
                     continue
 
-                bbox = list(map(float, line_split[2:6]))  # (x1, y1, x2, y2)
-                label = int(line_split[6])
-                entity_id = int(line_split[7])
+                bbox = list(map(float, data[2:6]))  # (x1, y1, x2, y2)
+                label = int(data[6])
+                entity_id = int(data[7])
 
                 anns = item.annotations
                 anns.append(
