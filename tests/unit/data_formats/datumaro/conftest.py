@@ -2,6 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+import glob
+import json
+import os
 import os.path as osp
 
 import numpy as np
@@ -27,6 +30,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
+from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
 from datumaro.util.mask_tools import generate_colormap
 
 
@@ -181,6 +185,27 @@ def fxt_test_datumaro_format_dataset():
             "float_list": [0.0, 0.1, 0.2],
         },
     )
+
+
+@pytest.fixture
+def fxt_wrong_version_dir(fxt_test_datumaro_format_dataset, test_dir):
+    dest_dir = osp.join(test_dir, "wrong_version")
+    fxt_test_datumaro_format_dataset.export(dest_dir, "datumaro")
+
+    # exchange the dm_format version string to wrong string
+    for path_annt in glob.glob(os.path.join(dest_dir, DatumaroPath.ANNOTATIONS_DIR, "**")):
+        if not path_annt.endswith(DatumaroPath.ANNOTATION_EXT):
+            continue
+
+        with open(path_annt, "r") as f_annt:
+            annt_json = json.load(f_annt)
+
+        annt_json["dm_format_version"] = "wrong_version_string"
+
+        with open(path_annt, "w") as f_annt:
+            json.dump(annt_json, f_annt)
+
+    yield dest_dir
 
 
 @pytest.fixture

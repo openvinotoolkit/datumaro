@@ -11,6 +11,7 @@ import pytest
 
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
+from datumaro.components.importer import DatasetImportError
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
@@ -245,3 +246,8 @@ class DatumaroFormatTest:
         helper_tc.assertEqual(set(), set(os.listdir(osp.join(test_dir, "images", "d"))))
 
         compare_datasets(helper_tc, expected, Dataset.import_from(test_dir, format=self.format))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_version_compatibility(self, fxt_wrong_version_dir):
+        with pytest.raises(DatasetImportError):
+            Dataset.import_from(fxt_wrong_version_dir, "datumaro")
