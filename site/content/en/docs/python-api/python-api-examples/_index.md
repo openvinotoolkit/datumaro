@@ -5,5 +5,4 @@ description: ''
 weight: 6
 ---
 
-### How to use Python API
-Need to update the description.
+You can learn how to interact with the Datumaro python APIs via Jupyter Notebook examples as follows.

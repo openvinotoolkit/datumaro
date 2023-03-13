@@ -18,11 +18,11 @@ from datumaro.plugins.data_formats.cityscapes import (
     CityscapesImporter,
 )
 from datumaro.util.meta_file_util import parse_meta_file
-from datumaro.util.test_utils import IGNORE_ALL, TestDir, check_save_and_load, compare_datasets
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import IGNORE_ALL, TestDir, check_save_and_load, compare_datasets
 
 DUMMY_DATASET_DIR = get_test_asset_path("cityscapes_dataset", "dataset")
 DUMMY_TRAIN_DATASET_DIR = get_test_asset_path("cityscapes_dataset", "train_dataset")

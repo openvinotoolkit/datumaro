@@ -5,6 +5,7 @@
 from .annotation import *
 from .common import *
 from .dataset_item import *
+from .media import *
 
 __all__ = [
     # anns
@@ -27,5 +28,6 @@ __all__ = [
     "FloatListMapper",
     # dataset_item
     "DatasetItemMapper",
+    # media
     "MediaMapper",
 ]

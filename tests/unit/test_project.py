@@ -31,11 +31,11 @@ from datumaro.components.media import Image
 from datumaro.components.project import DiffStatus, Project
 from datumaro.components.transformer import ItemTransform
 from datumaro.util.scope import scope_add, scoped
-from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, compare_datasets, compare_dirs
 
 
 class ProjectTest(TestCase):

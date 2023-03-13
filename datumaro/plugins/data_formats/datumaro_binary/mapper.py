@@ -59,17 +59,17 @@ class MediaMapper(Mapper):
 
     @staticmethod
     def forward(obj: MediaElement) -> bytes:
-        if obj.MEDIA_TYPE == MediaType.IMAGE:
+        if obj._type == MediaType.IMAGE:
             size = obj.size if obj.has_size else (-1, -1)
-        elif obj.MEDIA_TYPE == MediaType.POINT_CLOUD:
+        elif obj._type == MediaType.POINT_CLOUD:
             size = (-1, -1)
-        elif obj.MEDIA_TYPE == MediaType.UNKNOWN:
+        elif obj._type == MediaType.UNKNOWN:
             size = (-1, -1)
         else:
-            raise DatumaroError(f"{obj.MEDIA_TYPE} is not allowed for MediaMapper.")
+            raise DatumaroError(f"{obj._type} is not allowed for MediaMapper.")
 
         bytes_arr = bytearray()
-        bytes_arr.extend(struct.pack(f"Iii", obj.MEDIA_TYPE, size[0], size[1]))
+        bytes_arr.extend(struct.pack(f"Iii", obj._type, size[0], size[1]))
         bytes_arr.extend(StringMapper.forward(obj.path))
 
         return bytes_arr

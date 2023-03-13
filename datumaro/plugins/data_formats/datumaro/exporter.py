@@ -7,6 +7,7 @@
 import os
 import os.path as osp
 import shutil
+from contextlib import contextmanager
 
 import numpy as np
 import pycocotools.mask as mask_utils
@@ -29,7 +30,7 @@ from datumaro.components.annotation import (
     _Shape,
 )
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
+from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import cast, dump_json_file
@@ -38,7 +39,7 @@ from .format import DatumaroPath
 
 
 class _SubsetWriter:
-    def __init__(self, context: IDataset, ann_file: str):
+    def __init__(self, context: Exporter, ann_file: str):
         self._context = context
 
         self._data = {
@@ -64,6 +65,59 @@ class _SubsetWriter:
     def is_empty(self):
         return not self.items
 
+    @contextmanager
+    def context_save_media(self, item: DatasetItem):
+        """Implicitly change the media path and save it if save_media=True.
+        When done, revert it's path as before.
+        """
+        if item.media is None:
+            yield
+        elif isinstance(item.media, Image):
+            image = item.media_as(Image)
+            path = image.path
+
+            if self._context._save_media:
+                # Temporarily update image path and save it.
+                image._path = osp.join(
+                    self._context._images_dir, item.subset, self._context._make_image_filename(item)
+                )
+                self._context._save_image(item, image.path)
+
+            yield
+            image._path = path
+        elif isinstance(item.media, PointCloud):
+            pcd = item.media_as(PointCloud)
+            path = pcd.path
+
+            if self._context._save_media:
+                # Temporarily update pcd path and save it.
+                pcd._path = osp.join(
+                    self._context._pcd_dir, item.subset, self._context._make_pcd_filename(item)
+                )
+                self._context._save_point_cloud(item, pcd.path)
+
+                # Temporarily update pcd related images paths and save them.
+                for i, img in enumerate(sorted(pcd.extra_images, key=lambda v: v.path)):
+                    img.__path = img.path
+                    img._path = osp.join(
+                        self._context._related_images_dir,
+                        item.subset,
+                        item.id,
+                        f"image_{i}{self._context._find_image_ext(img)}",
+                    )
+
+                    if img.has_data:
+                        img.save(img.path)
+
+            yield
+            pcd._path = path
+            if self._context._save_media:
+                for img in pcd.extra_images:
+                    img._path = img.__path
+                    del img.__path
+        else:
+            raise NotImplementedError
+
     def add_item(self, item: DatasetItem):
         annotations = []
         item_desc = {
@@ -74,58 +128,26 @@ class _SubsetWriter:
         if item.attributes:
             item_desc["attr"] = item.attributes
 
-        if isinstance(item.media, Image):
-            image = item.media_as(Image)
-            path = image.path
-            if self._context._save_media:
-                path = self._context._make_image_filename(item)
-                self._context._save_image(
-                    item, osp.join(self._context._images_dir, item.subset, path)
-                )
+        with self.context_save_media(item):
+            if isinstance(item.media, Image):
+                image = item.media_as(Image)
+                item_desc["image"] = {
+                    "path": image.path,
+                }
+                if item.media.has_size:  # avoid occasional loading
+                    item_desc["image"]["size"] = image.size
+            elif isinstance(item.media, PointCloud):
+                pcd = item.media_as(PointCloud)
 
-            item_desc["image"] = {
-                "path": path,
-            }
-            if item.media.has_size:  # avoid occasional loading
-                item_desc["image"]["size"] = item.media.size
-        elif isinstance(item.media, PointCloud):
-            pcd = item.media_as(PointCloud)
-            path = pcd.path
-            if self._context._save_media:
-                path = self._context._make_pcd_filename(item)
-                self._context._save_point_cloud(
-                    item, osp.join(self._context._pcd_dir, item.subset, path)
-                )
+                item_desc["point_cloud"] = {"path": pcd.path}
 
-            item_desc["point_cloud"] = {"path": path}
+                related_images = [
+                    {"path": img.path, "size": img.size} if img.has_size else {"path": img.path}
+                    for img in pcd.extra_images
+                ]
 
-            images = sorted(pcd.extra_images, key=lambda v: v.path)
-            if self._context._save_media:
-                related_images = []
-                for i, img in enumerate(images):
-                    ri_desc = {}
-
-                    # Images can have completely the same names or don't
-                    # have them at all, so we just rename them
-                    ri_desc["path"] = f"image_{i}{self._context._find_image_ext(img)}"
-
-                    if img.has_data:
-                        img.save(
-                            osp.join(
-                                self._context._related_images_dir,
-                                item.subset,
-                                item.id,
-                                ri_desc["path"],
-                            )
-                        )
-                    if img.has_size:
-                        ri_desc["size"] = img.size
-                    related_images.append(ri_desc)
-            else:
-                related_images = [{"path": img.path} for img in images]
-
-            if related_images:
-                item_desc["related_images"] = related_images
+                if related_images:
+                    item_desc["related_images"] = related_images
 
         if isinstance(item.media, MediaElement):
             item_desc["media"] = {"path": item.media.path}

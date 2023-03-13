@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/816>)
 - Add CommonSemanticSegmentationWithSubsetDirsImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/826>)
+- Add Searcher CLI documentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/838>)
 
 ### Changed
 - Refactor Datumaro format code and test code
@@ -19,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix image filenames and anomaly mask appearance in MVTec exporter
   (<https://github.com/openvinotoolkit/datumaro/pull/835>)
+- Fix CIFAR10 and 100 detect function
+  (<https://github.com/openvinotoolkit/datumaro/pull/836>)
 - Choose the top priority detect format for all directory depths
   (<https://github.com/openvinotoolkit/datumaro/pull/839>)
 
