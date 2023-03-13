@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -7,71 +7,66 @@ from __future__ import annotations
 import os.path as osp
 import re
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetBase, DatasetItem, SubsetBase
 from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
+    ItemImportError,
     UndeclaredLabelError,
 )
-from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
-from datumaro.components.importer import Importer
 from datumaro.components.media import Image
-from datumaro.util.image import DEFAULT_IMAGE_META_FILE_NAME, ImageMeta, load_image_meta_file
+from datumaro.util.image import (
+    DEFAULT_IMAGE_META_FILE_NAME,
+    IMAGE_EXTENSIONS,
+    ImageMeta,
+    load_image_meta_file,
+)
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
-from datumaro.util.os_util import split_path
+from datumaro.util.os_util import extract_subset_name_from_parent, find_files, split_path
 
-from .format import YoloPath
+from .format import YoloPath, YoloLoosePath
 
 T = TypeVar("T")
 
 
-class _Subset(DatasetBase):
-    def __init__(self, name: str, parent: YoloStrictFormat):
-        super().__init__()
-        self._name = name
-        self._parent = parent
-        self.items: Dict[str, Union[str, DatasetItem]] = OrderedDict()
+class YoloStrictBase(SubsetBase):
+    class _Subset(DatasetBase):
+        def __init__(self, name: str, parent: YoloStrictBase):
+            super().__init__()
+            self._name = name
+            self._parent = parent
+            self.items: Dict[str, Union[str, DatasetItem]] = OrderedDict()
 
-    def __iter__(self):
-        for item_id in self.items:
-            item = self._parent._get(item_id, self._name)
-            if item is not None:
-                yield item
+        def __iter__(self):
+            for item_id in self.items:
+                item = self._parent._get(item_id, self._name)
+                if item is not None:
+                    yield item
 
-    def __len__(self):
-        return len(self.items)
+        def __len__(self):
+            return len(self.items)
 
-    def categories(self):
-        return self._parent.categories()
+        def categories(self):
+            return self._parent.categories()
 
-
-class YoloStrictFormat(SubsetBase):
     def __init__(
         self,
         config_path: str,
         image_info: Union[None, str, ImageMeta] = None,
         **kwargs,
     ) -> None:
+        super().__init__(**kwargs)
+
         if not osp.isfile(config_path):
             raise DatasetImportError(f"Can't read dataset descriptor file '{config_path}'")
-
-        super().__init__(**kwargs)
 
         rootpath = osp.dirname(config_path)
         self._path = rootpath
 
-        assert image_info is None or isinstance(image_info, (str, dict))
-        if image_info is None:
-            image_info = osp.join(rootpath, DEFAULT_IMAGE_META_FILE_NAME)
-            if not osp.isfile(image_info):
-                image_info = {}
-        if isinstance(image_info, str):
-            image_info = load_image_meta_file(image_info)
-
-        self._image_info = image_info
+        self._image_info = self.parse_image_info(rootpath, image_info)
 
         config = self._parse_config(config_path)
 
@@ -96,20 +91,32 @@ class YoloStrictFormat(SubsetBase):
             if not osp.isfile(list_path):
                 raise InvalidAnnotationError(f"Can't find '{subset_name}' subset list file")
 
-            subset = _Subset(subset_name, self)
+            subset = self._Subset(subset_name, self)
             with open(list_path, "r", encoding="utf-8") as f:
                 subset.items = OrderedDict(
                     (self.name_from_path(p), self.localize_path(p)) for p in f if p.strip()
                 )
             subsets[subset_name] = subset
 
-        self._subsets: Dict[str, _Subset] = subsets
+        self._subsets: Dict[str, self._Subset] = subsets
 
         self._categories = {
             AnnotationType.label: self._load_categories(
                 osp.join(self._path, self.localize_path(names_path))
             )
         }
+
+    @staticmethod
+    def parse_image_info(rootpath: str, image_info: Optional[Union[str, ImageMeta]] = None):
+        assert image_info is None or isinstance(image_info, (str, dict))
+        if image_info is None:
+            image_info = osp.join(rootpath, DEFAULT_IMAGE_META_FILE_NAME)
+            if not osp.isfile(image_info):
+                image_info = {}
+        if isinstance(image_info, str):
+            image_info = load_image_meta_file(image_info)
+
+        return image_info
 
     @staticmethod
     def _parse_config(path: str) -> Dict[str, str]:
@@ -169,13 +176,19 @@ class YoloStrictFormat(SubsetBase):
 
                 anno_path = osp.splitext(image.path)[0] + ".txt"
                 annotations = self._parse_annotations(
-                    anno_path, image, item_id=(item_id, subset_name)
+                    anno_path,
+                    image,
+                    label_categories=self._categories[AnnotationType.label],
                 )
 
                 item = DatasetItem(
                     id=item_id, subset=subset_name, media=image, annotations=annotations
                 )
                 subset.items[item_id] = item
+            except (UndeclaredLabelError, InvalidAnnotationError) as e:
+                self._ctx.error_policy.report_annotation_error(e, item_id=(item_id, subset_name))
+                subset.items.pop(item_id)
+                item = None
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(item_id, subset_name))
                 subset.items.pop(item_id)
@@ -192,8 +205,13 @@ class YoloStrictFormat(SubsetBase):
                 f"Can't parse {field_name} from '{value}'. Expected {cls}"
             ) from e
 
+    @classmethod
     def _parse_annotations(
-        self, anno_path: str, image: Image, *, item_id: Tuple[str, str]
+        cls,
+        anno_path: str,
+        image: Image,
+        *,
+        label_categories: LabelCategories,
     ) -> List[Annotation]:
         lines = []
         with open(anno_path, "r", encoding="utf-8") as f:
@@ -208,39 +226,36 @@ class YoloStrictFormat(SubsetBase):
             # Use image info as late as possible to avoid unnecessary image loading
             if image.size is None:
                 raise DatasetImportError(
-                    f"Can't find image info for '{self.localize_path(image.path)}'"
+                    f"Can't find image info for '{cls.localize_path(image.path)}'"
                 )
             image_height, image_width = image.size
 
         for line in lines:
-            try:
-                parts = line.split()
-                if len(parts) != 5:
-                    raise InvalidAnnotationError(
-                        f"Unexpected field count {len(parts)} in the bbox description. "
-                        "Expected 5 fields (label, xc, yc, w, h)."
-                    )
-                label_id, xc, yc, w, h = parts
-
-                label_id = self._parse_field(label_id, int, "bbox label id")
-                if label_id not in self._categories[AnnotationType.label]:
-                    raise UndeclaredLabelError(str(label_id))
-
-                w = self._parse_field(w, float, "bbox width")
-                h = self._parse_field(h, float, "bbox height")
-                x = self._parse_field(xc, float, "bbox center x") - w * 0.5
-                y = self._parse_field(yc, float, "bbox center y") - h * 0.5
-                annotations.append(
-                    Bbox(
-                        x * image_width,
-                        y * image_height,
-                        w * image_width,
-                        h * image_height,
-                        label=label_id,
-                    )
+            parts = line.split()
+            if len(parts) != 5:
+                raise InvalidAnnotationError(
+                    f"Unexpected field count {len(parts)} in the bbox description. "
+                    "Expected 5 fields (label, xc, yc, w, h)."
                 )
-            except Exception as e:
-                self._ctx.error_policy.report_annotation_error(e, item_id=item_id)
+            label_id, xc, yc, w, h = parts
+
+            label_id = cls._parse_field(label_id, int, "bbox label id")
+            if label_id not in label_categories:
+                raise UndeclaredLabelError(str(label_id))
+
+            w = cls._parse_field(w, float, "bbox width")
+            h = cls._parse_field(h, float, "bbox height")
+            x = cls._parse_field(xc, float, "bbox center x") - w * 0.5
+            y = cls._parse_field(yc, float, "bbox center y") - h * 0.5
+            annotations.append(
+                Bbox(
+                    x * image_width,
+                    y * image_height,
+                    w * image_width,
+                    h * image_height,
+                    label=label_id,
+                )
+            )
 
         return annotations
 
@@ -273,71 +288,74 @@ class YoloStrictFormat(SubsetBase):
         return self._subsets[name]
 
 
-class YoloBase(SubsetBase):
-    def __new__(
-        cls,
+class YoloLooseBase(SubsetBase):
+    def __init__(
+        self,
         config_path: str,
         image_info: Union[None, str, ImageMeta] = None,
-        yolo_format: str = "strict",
+        urls: Optional[List[str]] = None,
         **kwargs,
-    ):
-        if yolo_format == "strict":
-            return YoloStrictFormat(config_path=config_path, image_info=image_info, **kwargs)
-        else:
-            raise DatasetImportError(f"yolo_format={yolo_format} is not supported.")
+    ) -> None:
+        super().__init__(**kwargs)
 
+        if not osp.isdir(config_path):
+            raise DatasetImportError(f"{config_path} should be a directory.")
 
-class YoloImporter(Importer):
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument(
-            "--subset",
-            help="The name of the subset for the produced dataset items " "(default: none)",
+        rootpath = config_path
+        self._path = rootpath
+
+        self._image_info = YoloStrictBase.parse_image_info(rootpath, image_info)
+
+        # Init label categories
+        label_categories = YoloStrictBase._load_categories(
+            osp.join(rootpath, YoloLoosePath.NAMES_FILE)
         )
-        return parser
+        self._categories = {AnnotationType.label: label_categories}
 
-    @classmethod
-    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-        with context.require_any():
-            with context.alternative():
-                context.require_file("obj.data")
-            with context.alternative():
-                context.require_file("[Aa]nnotations/**/*.txt")
-            with context.alternative():
-                context.require_file("[Ll]abels/**/*.txt")
-        return FormatDetectionConfidence.MEDIUM
+        # Parse dataset items
+        def _get_fname(fpath: str) -> str:
+            return osp.splitext(osp.basename(fpath))[0]
 
-    @classmethod
-    def _find_strict(cls, path: str) -> List[Dict[str, Any]]:
-        sources = cls._find_sources_recursive(path, ".data", "yolo")
-        for source in sources:
-            source["options"] = {"yolo_format": "strict"}
-        return sources
+        img_files = {
+            _get_fname(img_file): img_file
+            for img_file in find_files(rootpath, IMAGE_EXTENSIONS, recursive=True, max_depth=2)
+            if extract_subset_name_from_parent(img_file, rootpath) == self._subset
+        }
 
-    @classmethod
-    def _find_annotations_dir(cls, path: str) -> List[Dict[str, Any]]:
-        sources = cls._find_sources_recursive(
-            path, ext=".txt", extractor_name="yolo", dirname="[Aa]nnotations", filename="**/*"
-        )
-        for source in sources:
-            source["options"] = {"yolo_format": "annotations"}
-        return sources
+        try:
+            for url in urls:
+                fname = _get_fname(url)
+                img = Image(path=img_files[fname])
+                anns = YoloStrictBase._parse_annotations(
+                    url,
+                    img,
+                    label_categories=label_categories,
+                )
+                self._items.append(
+                    DatasetItem(id=fname, subset=self._subset, media=img, annotations=anns)
+                )
+        except Exception as e:
+            self._ctx.error_policy.report_item_error(e, item_id=(fname, self._subset))
 
-    @classmethod
-    def _find_labels_dir(cls, path: str) -> List[Dict[str, Any]]:
-        sources = cls._find_sources_recursive(path, ".data", "yolo")
-        for source in sources:
-            source["options"] = {"yolo_format": "strict"}
-        return sources
 
-    @classmethod
-    def find_sources(cls, path: str):
-        # TODO: From Python >= 3.8, we can use "if (sources := cls._find_strict(path)):"
-        sources = cls._find_strict(path)
-        if sources:
-            return sources
-
-        sources = cls._find_strict(path)
-        if sources:
-            return sources
+# class YoloBase(SubsetBase):
+#     def __new__(
+#         cls,
+#         config_path: str,
+#         image_info: Union[None, str, ImageMeta] = None,
+#         yolo_format_type: str = "strict",
+#         urls: Optional[List[str]] = None,
+#         **kwargs,
+#     ) -> SubsetBase:
+#         if yolo_format_type == "strict":
+#             return YoloStrictFormat(config_path=config_path, image_info=image_info, **kwargs)
+#         if yolo_format_type == "annotations" or yolo_format_type == "labels":
+#             return YoloLooseFormat(
+#                 config_path=config_path,
+#                 image_info=image_info,
+#                 yolo_format_type=yolo_format_type,
+#                 urls=urls,
+#                 **kwargs,
+#             )
+#         else:
+#             raise DatasetImportError(f"yolo_format_type={yolo_format_type} is not supported.")
