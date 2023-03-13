@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import glob
 import os
 import os.path as osp
 from functools import partial
@@ -14,9 +13,8 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
-from datumaro.plugins.data_formats.datumaro.base import DatumaroBase
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
-from datumaro.plugins.data_formats.datumaro.format import DATUMARO_FORMAT_VERSION, DatumaroPath
+from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
 from datumaro.plugins.data_formats.datumaro.importer import DatumaroImporter
 
 from ....requirements import Requirements, mark_requirement
@@ -139,6 +137,13 @@ class DatumaroFormatTest:
                 Dimensions.dim_3d,
                 id="test_can_save_and_load_point_cloud",
             ),
+            pytest.param(
+                "fxt_legacy_dataset_pair",
+                None,
+                True,
+                Dimensions.dim_2d,
+                id="test_can_save_and_load_legacy",
+            ),
         ],
     )
     def test_source_target_pair(
@@ -240,34 +245,3 @@ class DatumaroFormatTest:
         helper_tc.assertEqual(set(), set(os.listdir(osp.join(test_dir, "images", "d"))))
 
         compare_datasets(helper_tc, expected, Dataset.import_from(test_dir, format=self.format))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_export_dm_version(self, test_dir):
-        dataset = Dataset.from_iterable(
-            [DatasetItem(id=1, media=Image(data=np.ones((5, 4, 3))))], media_type=Image
-        )
-
-        legacy_dataset_path = "./tests/assets/datumaro_dataset"
-        for annot_file in glob.glob(
-            osp.join(
-                legacy_dataset_path,
-                DatumaroPath.ANNOTATIONS_DIR,
-                "**",
-                "*" + DatumaroPath.ANNOTATION_EXT,
-            ),
-            recursive=True,
-        ):
-            dm_base = DatumaroBase(path=annot_file)
-            assert (
-                dm_base._get_dm_format_version(dm_base._parsed_anns) == DatumaroBase.LEGACY_VERSION
-            )
-
-        dataset.export(save_dir=test_dir, format="datumaro")
-        for annot_file in glob.glob(
-            osp.join(
-                test_dir, DatumaroPath.ANNOTATIONS_DIR, "**", "*" + DatumaroPath.ANNOTATION_EXT
-            ),
-            recursive=True,
-        ):
-            dm_base = DatumaroBase(path=annot_file)
-            assert dm_base._get_dm_format_version(dm_base._parsed_anns) == DATUMARO_FORMAT_VERSION

@@ -336,3 +336,49 @@ def fxt_point_cloud_dataset_pair(test_dir):
     )
 
     yield source_dataset, target_dataset
+
+
+@pytest.fixture
+def fxt_legacy_dataset_pair(test_dir):
+    source_dataset = Dataset.import_from(
+        "./tests/assets/datumaro_dataset/legacy", format="datumaro"
+    )
+
+    target_dataset = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="a",
+                subset="train",
+                media=Image(np.zeros((8, 6, 3))),
+                annotations=[Label(id=0, attributes={"score": 1.0}, label=0)],
+            ),
+            DatasetItem(
+                id="b",
+                subset="train",
+                media=Image(np.zeros((2, 8, 3))),
+                annotations=[
+                    Label(id=0, label=0),
+                    Label(id=1, label=1),
+                    Label(id=2, label=2),
+                    Label(id=3, label=5),
+                ],
+            ),
+            DatasetItem(
+                id="c",
+                subset="test",
+                media=Image(np.zeros((8, 6, 3))),
+                annotations=[
+                    Label(id=0, attributes={"score": 1.0}, label=1),
+                    Label(id=0, attributes={"score": 1.0}, label=3),
+                ],
+            ),
+            DatasetItem(
+                id="d", subset="validation", media=Image(np.zeros((2, 8, 3))), annotations=[]
+            ),
+        ],
+        infos={"author": "anonymous", "task": "classification"},
+        categories=["car", "bicycle", "tom", "mary"],
+        media_type=Image,
+    )
+
+    yield source_dataset, target_dataset
