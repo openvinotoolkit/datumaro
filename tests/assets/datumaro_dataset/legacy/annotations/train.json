@@ -57,10 +57,10 @@
                 }
             ],
             "image": {
-                "path": "../tests/assets/datumaro_dataset/images/train/a.jpg"
+                "path": "train/a.jpg"
             },
             "media": {
-                "path": "../tests/assets/datumaro_dataset/images/train/a.jpg"
+                "path": "train/a.jpg"
             }
         },
         {
@@ -92,14 +92,10 @@
                 }
             ],
             "image": {
-                "path": "../tests/assets/datumaro_dataset/images/train/b.jpg",
-                "size": [
-                    2,
-                    8
-                ]
+                "path": "train/b.jpg"
             },
             "media": {
-                "path": "../tests/assets/datumaro_dataset/images/train/b.jpg"
+                "path": "train/b.jpg"
             }
         }
     ]

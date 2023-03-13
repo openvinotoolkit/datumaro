@@ -66,14 +66,10 @@
                 }
             ],
             "image": {
-                "path": "../tests/assets/datumaro_dataset/images/test/c.jpg",
-                "size": [
-                    10,
-                    5
-                ]
+                "path": "test/c.jpg"
             },
             "media": {
-                "path": "../tests/assets/datumaro_dataset/images/test/c.jpg"
+                "path": "test/c.jpg"
             }
         }
     ]
