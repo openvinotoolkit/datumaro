@@ -220,7 +220,7 @@ class MvtecImporterTest(TestCase):
 
         detected_formats = env.detect_dataset(path)
         self.assertEqual(
-            detected_formats,
+            sorted(detected_formats),
             [
                 MvtecClassificationImporter.NAME,
                 MvtecDetectionImporter.NAME,
