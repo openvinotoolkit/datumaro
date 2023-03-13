@@ -10,13 +10,12 @@ from io import BufferedWriter
 from typing import Any, Optional
 
 from datumaro.components.dataset_base import DatasetItem, IDataset
-from datumaro.components.errors import DatasetExportError
 from datumaro.components.exporter import ExportContext, Exporter
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.exporter import _SubsetWriter as __SubsetWriter
 from datumaro.plugins.data_formats.datumaro.format import DATUMARO_FORMAT_VERSION
 from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
-from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper, StringMapper
+from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
 
 from .format import DatumaroBinaryPath
@@ -46,13 +45,8 @@ class _SubsetWriter(__SubsetWriter):
 
         return self._fp.write(struct.pack(f"I{len(msg)}s", len(msg), msg))
 
-    def _dump_header(self, header: Any, elem_type: type):
-        if elem_type == str:
-            msg = StringMapper.forward(header)
-        elif elem_type == dict:
-            msg = DictMapper.forward(header)
-        else:
-            raise DatasetExportError(f"unsupported element type for binary format: {elem_type}")
+    def _dump_header(self, header: Any):
+        msg = DictMapper.forward(header)
 
         if self._crypter.key is not None:
             msg = self._crypter.encrypt(msg)
@@ -61,16 +55,16 @@ class _SubsetWriter(__SubsetWriter):
         return self._fp.write(length + msg)
 
     def _dump_version(self):
-        self._dump_header(DATUMARO_FORMAT_VERSION, str)
+        self._dump_header({"dm_format_version": DATUMARO_FORMAT_VERSION})
 
     def _dump_info(self):
-        self._dump_header(self.infos, dict)
+        self._dump_header(self.infos)
 
     def _dump_categories(self):
-        self._dump_header(self.categories, dict)
+        self._dump_header(self.categories)
 
     def _dump_media_type(self):
-        self._dump_header(self._media_type, dict)
+        self._dump_header(self._media_type)
 
     def add_item(self, item: DatasetItem):
         with self.context_save_media(item):
@@ -87,8 +81,8 @@ class _SubsetWriter(__SubsetWriter):
             with open(self.ann_file, "wb") as fp:
                 self._fp = fp
                 self._sign()
-                self._dump_encryption_field()
                 self._dump_version()
+                self._dump_encryption_field()
                 self._dump_info()
                 self._dump_categories()
                 self._dump_media_type()

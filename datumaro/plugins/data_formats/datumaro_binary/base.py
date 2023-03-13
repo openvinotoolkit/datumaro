@@ -9,7 +9,7 @@ from typing import Optional
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
-from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper, StringMapper
+from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
 
 from ..datumaro.base import DatumaroBase
@@ -28,7 +28,6 @@ class DatumaroBinaryBase(DatumaroBase):
         with open(path, "rb") as fp:
             self._fp = fp
             self._check_signature()
-            self._check_encryption_field()
             dm_format_version = self._read_version()
         return dm_format_version
 
@@ -38,8 +37,8 @@ class DatumaroBinaryBase(DatumaroBase):
             with open(path, "rb") as fp:
                 self._fp = fp
                 self._check_signature()
-                self._check_encryption_field()
                 self._read_version()
+                self._check_encryption_field()
                 self._read_info()
                 self._read_categories()
                 self._read_media_type()
@@ -60,7 +59,7 @@ class DatumaroBinaryBase(DatumaroBase):
         if not self._crypter.handshake(extracted_key):
             raise DatasetImportError("Encryption key handshake fails. You give a wrong key.")
 
-    def _read_header(self, elem_type: type):
+    def _read_header(self):
         len_byte = self._fp.read(4)
         _bytes = self._fp.read(struct.unpack("I", len_byte)[0])
         _bytes = self._crypter.decrypt(_bytes)
@@ -71,14 +70,14 @@ class DatumaroBinaryBase(DatumaroBase):
         return self._read_header()["dm_format_version"]
 
     def _read_info(self):
-        self._infos = self._read_header(elem_type=dict)
+        self._infos = self._read_header()
 
     def _read_categories(self):
-        categories = self._read_header(elem_type=dict)
+        categories = self._read_header()
         self._categories = self._load_categories({"categories": categories})
 
     def _read_media_type(self):
-        media_type = self._read_header(elem_type=dict)["media_type"]
+        media_type = self._read_header()["media_type"]
         if media_type == MediaType.IMAGE:
             self._media_type = Image
         elif media_type == MediaType.POINT_CLOUD:
