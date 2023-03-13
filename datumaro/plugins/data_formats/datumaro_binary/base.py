@@ -73,7 +73,7 @@ class DatumaroBinaryBase(DatumaroBase):
         return header
 
     def _read_version(self) -> str:
-        return self._read_header(elem_type=str)
+        return self._read_header()["dm_format_version"]
 
     def _read_info(self):
         self._infos = self._read_header(elem_type=dict)
