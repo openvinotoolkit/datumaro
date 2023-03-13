@@ -47,16 +47,16 @@ from datumaro.plugins.data_formats.coco.exporter import (
 )
 from datumaro.plugins.data_formats.coco.importer import CocoImporter
 from datumaro.util import dump_json_file
-from datumaro.util.test_utils import (
+
+from ..requirements import Requirements, mark_requirement
+
+from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import (
     TestDir,
     check_save_and_load,
     compare_datasets,
     compare_datasets_strict,
 )
-
-from ..requirements import Requirements, mark_requirement
-
-from tests.utils.assets import get_test_asset_path
 
 DUMMY_DATASET_DIR = get_test_asset_path("coco_dataset")
 

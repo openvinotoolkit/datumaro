@@ -10,12 +10,12 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
-from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
-from datumaro.util.test_utils import run_datum as run
 
 from ...requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, compare_datasets, compare_dirs
+from tests.utils.test_utils import run_datum as run
 
 
 class ProjectIntegrationScenarios(TestCase):

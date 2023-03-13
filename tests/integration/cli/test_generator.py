@@ -3,10 +3,11 @@ import os.path as osp
 from unittest import TestCase
 
 import datumaro.util.image as image_module
-from datumaro.util.test_utils import TestDir
-from datumaro.util.test_utils import run_datum as run
 
 from ...requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir
+from tests.utils.test_utils import run_datum as run
 
 
 class ImageGeneratorTest(TestCase):
