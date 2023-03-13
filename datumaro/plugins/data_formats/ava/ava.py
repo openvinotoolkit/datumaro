@@ -191,7 +191,7 @@ class AvaExporter(Exporter):
                 + AvaPath.ANNOTATION_VERSION
                 + AvaPath.ANNOTATION_EXT,
             )
-            with open(ann_file, mode="w", newline='', encoding="utf-8") as csvfile:
+            with open(ann_file, mode="w", newline="", encoding="utf-8") as csvfile:
                 csvwriter = csv.writer(csvfile)
                 for item in subset:
                     item_row = item.id.split("/")
