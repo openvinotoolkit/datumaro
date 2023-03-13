@@ -101,8 +101,8 @@ class AvaBase(SubsetBase):
     def _load_items(self, ann_file):
         items = {}
         with open(ann_file, "r", encoding="utf-8") as f:
-            reader = csv.reader(f)
-            datas = list(reader)
+            csvreader = csv.reader(f)
+            datas = list(csvreader)
             for data in datas:
                 video_id = data[0]
                 timestamp = data[1]
@@ -191,7 +191,7 @@ class AvaExporter(Exporter):
                 + AvaPath.ANNOTATION_VERSION
                 + AvaPath.ANNOTATION_EXT,
             )
-            with open(ann_file, mode="w") as csvfile:
+            with open(ann_file, mode="w", newline='', encoding="utf-8") as csvfile:
                 csvwriter = csv.writer(csvfile)
                 for item in subset:
                     item_row = item.id.split("/")
