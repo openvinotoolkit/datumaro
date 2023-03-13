@@ -124,4 +124,4 @@ class AvaImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_ava(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(AvaImporter.NAME, detected_formats)
+        self.assertEqual(AvaImporter.NAME, detected_formats)

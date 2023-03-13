@@ -33,7 +33,7 @@ class AvaPath:
 class AvaBase(SubsetBase):
     def __init__(self, path):
         if not osp.isfile(path):
-            raise DatasetImportError(f"Can't find JSON file at '{path}'")
+            raise DatasetImportError(f"Can't find CSV file at '{path}'")
         self._path = path
 
         subset = (
