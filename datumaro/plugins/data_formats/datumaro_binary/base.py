@@ -64,12 +64,7 @@ class DatumaroBinaryBase(DatumaroBase):
         len_byte = self._fp.read(4)
         _bytes = self._fp.read(struct.unpack("I", len_byte)[0])
         _bytes = self._crypter.decrypt(_bytes)
-        if elem_type == dict:
-            header, _ = DictMapper.backward(_bytes)
-        elif elem_type == str:
-            header, _ = StringMapper.backward(_bytes)
-        else:
-            raise DatasetImportError(f"unsupported element type for binary format: {elem_type}")
+        header, _ = DictMapper.backward(_bytes)
         return header
 
     def _read_version(self) -> str:
