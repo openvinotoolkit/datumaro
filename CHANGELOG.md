@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/838>)
 - Add version to dataset exported as datumaro format
   (<https://github.com/openvinotoolkit/datumaro/pull/842>)
+- Add Ava action data format support
+  (<https://github.com/openvinotoolkit/datumaro/pull/847>)
 
 ### Changed
 - Refactor Datumaro format code and test code

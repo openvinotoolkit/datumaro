@@ -214,7 +214,6 @@ class VideoKeyframesBase(VideoFramesBase):
     def __iter__(self):
         for frame in self._reader:
             frame_data = frame.video.get_frame_data(frame.index)
-            print(frame_data)
             if self._is_keyframe(frame_data):
                 yield DatasetItem(
                     id=self._name_pattern % (frame.index,), subset=self._subset, media=frame
