@@ -2,11 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
-import os
-import os.path as osp
-import urllib
-
 import cv2
 import numpy as np
 from tokenizers import Tokenizer
@@ -48,7 +43,9 @@ class SearcherLauncher(OpenvinoLauncher):
         output_layers=None,
         device=None,
     ):
-        super().__init__(description, weights, interpreter, model_dir, model_name, output_layers, device)
+        super().__init__(
+            description, weights, interpreter, model_dir, model_name, output_layers, device
+        )
 
         self._device = device or "cpu"
         self._output_blobs = next(iter(self._net.outputs))
