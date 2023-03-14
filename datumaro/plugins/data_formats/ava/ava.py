@@ -12,6 +12,7 @@ from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.exporter import Exporter
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.os_util import find_files
@@ -146,13 +147,21 @@ class AvaBase(SubsetBase):
 class AvaImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        ann_files = find_files(path, exts="csv", recursive=True, max_depth=1)
+        ann_files = find_files(
+            osp.join(path, AvaPath.ANNOTATION_DIR), exts="csv", recursive=True, max_depth=1
+        )
 
         sources = []
         for ann_file in ann_files:
-            sources.append({"url": ann_file, "format": AvaBase.NAME})
+            if AvaPath.ANNOTATION_PREFIX in ann_file:
+                sources.append({"url": ann_file, "format": AvaBase.NAME})
 
         return sources
+
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+        super().detect(context)
+        return FormatDetectionConfidence.MEDIUM
 
 
 class AvaExporter(Exporter):
