@@ -5,14 +5,12 @@
 import os
 import os.path as osp
 import re
-
-import sys
 import subprocess
-
-from distutils.util import strtobool
-from distutils.command.clean import clean as _clean
+import sys
 from distutils.command.build_py import build_py as _build_py
+from distutils.command.clean import clean as _clean
 from distutils.spawn import find_executable
+from distutils.util import strtobool
 
 import setuptools
 from pybind11.setup_helpers import Pybind11Extension, build_ext
@@ -43,13 +41,14 @@ def find_version(project_dir=None):
 
 
 # Find the Protocol Compiler.
-if 'PROTOC' in os.environ and os.path.exists(os.environ['PROTOC']):
-    protoc = os.environ['PROTOC']
+if "PROTOC" in os.environ and os.path.exists(os.environ["PROTOC"]):
+    protoc = os.environ["PROTOC"]
 else:
     protoc = find_executable("protoc")
 
 # List of all .proto files
-proto_src = ['datumaro/plugins/data_formats/ava/ava_label.proto']
+proto_src = ["datumaro/plugins/data_formats/ava/ava_label.proto"]
+
 
 class build_py(_build_py):
     def run(self):
@@ -58,10 +57,11 @@ class build_py(_build_py):
                 sys.stderr.write("Can't find required file: %s\n" % src)
                 sys.exit(-1)
 
-            if protoc == None:
+            if protoc is None:
                 sys.stderr.write(
                     "protoc is not installed nor found. Please compile it "
-                    "or install the binary package.\n")
+                    "or install the binary package.\n"
+                )
                 sys.exit(-1)
 
             protoc_command = [protoc, "-I.", "--python_out=.", src]
@@ -69,10 +69,11 @@ class build_py(_build_py):
                 sys.exit(-1)
         _build_py.run(self)
 
+
 class clean(_clean):
     def run(self):
         # Delete generated files in the code tree.
-        for (dirpath, _, filenames) in os.walk("."):
+        for dirpath, _, filenames in os.walk("."):
             for filename in filenames:
                 filepath = os.path.join(dirpath, filename)
                 if filepath.endswith("_pb2.py"):
@@ -144,7 +145,7 @@ setuptools.setup(
             "datum=datumaro.cli.__main__:main",
         ],
     },
-    cmdclass={"build_ext": build_ext, 'build_py': build_py, 'clean': clean},
+    cmdclass={"build_ext": build_ext, "build_py": build_py, "clean": clean},
     package_data={"datumaro.plugins.synthetic_data": ["background_colors.txt"]},
     include_package_data=True,
 )
