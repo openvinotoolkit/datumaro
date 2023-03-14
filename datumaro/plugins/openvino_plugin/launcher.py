@@ -91,13 +91,22 @@ class OpenvinoLauncher(Launcher):
     cli_plugin = _OpenvinoImporter
 
     def __init__(
-        self, description=None, weights=None, interpreter=None, model_dir=None, model_name=None, output_layers=None, device=None
+        self,
+        description=None,
+        weights=None,
+        interpreter=None,
+        model_dir=None,
+        model_name=None,
+        output_layers=None,
+        device=None,
     ):
         if model_name:
             model_dir = os.path.join(os.path.expanduser("~"), ".cache", "datumaro")
             if not osp.exists(model_dir):
                 os.makedirs(model_dir)
 
+            # Please visit open-model-zoo repository for OpenVINO public models if you are interested in
+            # https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/index.md
             url_folder = "https://storage.openvinotoolkit.org/repositories/datumaro/models/"
 
             description = osp.join(model_dir, model_name + ".xml")
@@ -133,7 +142,7 @@ class OpenvinoLauncher(Launcher):
             interpreter = osp.join(model_dir, interpreter)
         if not osp.isfile(interpreter):
             raise Exception('Failed to open model interpreter script file "%s"' % (interpreter))
-            
+
         self._interpreter = InterpreterScript(interpreter)
 
         self._device = device or "CPU"

@@ -6,9 +6,9 @@ from collections import defaultdict
 from typing import Dict, List, Optional
 
 import numpy as np
+import pyemd
 from scipy import linalg
 from scipy.stats import anderson_ksamp
-import pyemd
 
 from datumaro.components.dataset import IDataset
 from datumaro.plugins.shift_analyzer import ShiftAnalyzerLauncher
@@ -31,14 +31,14 @@ class RunningStats1D:
 
         self.num += batch_size
 
-        if self.running_mean:
+        if self.running_mean is not None:
             self.running_mean = self.running_mean + batch_size / float(self.num) * (
                 mean - self.running_mean
             )
         else:
             self.running_mean = mean
 
-        if self.running_sq_mean:
+        if self.running_sq_mean is not None:
             self.running_sq_mean = self.running_sq_mean + batch_size / float(self.num) * (
                 sq_mean - self.running_sq_mean
             )
@@ -113,7 +113,10 @@ class ShiftAnalyzer:
         topk:
             Number of images.
         """
-        self._model = ShiftAnalyzerLauncher(model_name='inception_resnet_v2')
+        self._model = ShiftAnalyzerLauncher(
+            model_name="googlenet-v4-tf",
+            output_layers="InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape",
+        )
 
     def _frechet_distance(
         self,
@@ -164,9 +167,7 @@ class ShiftAnalyzer:
         sigma1 = np.atleast_2d(sigma1).astype(np.float64)
         sigma2 = np.atleast_2d(sigma2).astype(np.float64)
 
-        assert (
-            mu1.shape == mu2.shape
-        ), "Training and test mean vectors have different lengths."
+        assert mu1.shape == mu2.shape, "Training and test mean vectors have different lengths."
         assert (
             sigma1.shape == sigma2.shape
         ), "Training and test covariances have different dimensions."
@@ -208,15 +209,17 @@ class ShiftAnalyzer:
         w_2[len(w_s) :] = w_t / np.sum(w_t)
 
         f_concat = np.concatenate([f_s, f_t], axis=0)
-        distances = np.linalg.norm(f_concat[:,None] - f_concat[None,:], axis=2).astype(np.float64)
+        distances = np.linalg.norm(f_concat[:, None] - f_concat[None, :], axis=2).astype(np.float64)
 
         emd = pyemd.emd(w_1, w_2, distances)
         return np.exp(-gamma * emd).item()
 
-    def compute_covariate_shift(self, sources: List[IDataset], method: Optional[str] = 'fid'):
-        assert len(sources) == 2, "Shift analyzer should get two datasets to compute shifts between them."
+    def compute_covariate_shift(self, sources: List[IDataset], method: Optional[str] = "fid"):
+        assert (
+            len(sources) == 2
+        ), "Shift analyzer should get two datasets to compute shifts between them."
 
-        if method == 'fid':
+        if method == "fid":
             _feat_aggregator = FeatureAccumulator(model=self._model)
 
             src_stats = _feat_aggregator.get_activation_stats(sources[0])
@@ -227,7 +230,7 @@ class ShiftAnalyzer:
 
             return self._frechet_distance(src_mu, src_sigma, tgt_mu, tgt_sigma, atol=1e-3)
 
-        elif method == 'emd':
+        elif method == "emd":
             _feat_aggregator = FeatureAccumulatorByLabel(model=self._model)
 
             src_stats = _feat_aggregator.get_activation_stats(sources[0])
@@ -244,8 +247,10 @@ class ShiftAnalyzer:
             return 1.0 - self._earth_mover_distance(w_s, f_s, w_t, f_t, gamma=0.01)
 
     def compute_label_shift(self, sources: List[IDataset]):
-        assert len(sources) == 2, "Shift analyzer should get two datasets to compute shifts between them."
-        
+        assert (
+            len(sources) == 2
+        ), "Shift analyzer should get two datasets to compute shifts between them."
+
         labels = defaultdict(list)
         for idx, source in enumerate(sources):
             for item in source:
