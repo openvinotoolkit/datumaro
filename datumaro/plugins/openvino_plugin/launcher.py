@@ -5,15 +5,19 @@
 # pylint: disable=exec-used
 
 import logging as log
+import os
 import os.path as osp
 import shutil
+import urllib
 
 import cv2
 import numpy as np
 from openvino.inference_engine import IECore
+from tqdm import tqdm
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.launcher import Launcher
+from datumaro.util.samples import get_samples_path
 
 
 class _OpenvinoImporter(CliPlugin):
@@ -87,10 +91,34 @@ class OpenvinoLauncher(Launcher):
     cli_plugin = _OpenvinoImporter
 
     def __init__(
-        self, description, weights, interpreter, device=None, model_dir=None, output_layers=None
+        self, description=None, weights=None, interpreter=None, model_dir=None, model_name=None, output_layers=None, device=None
     ):
+        if model_name:
+            model_dir = os.path.join(os.path.expanduser("~"), ".cache", "datumaro")
+            if not osp.exists(model_dir):
+                os.makedirs(model_dir)
+
+            url_folder = "https://storage.openvinotoolkit.org/repositories/datumaro/models/"
+
+            description = osp.join(model_dir, model_name + ".xml")
+            if not osp.exists(description):
+                cached_description_url = osp.join(url_folder, model_name + ".xml")
+                log.info('Downloading: "{}" to {}\n'.format(cached_description_url, description))
+                self._download_file(cached_description_url, description)
+
+            weights = osp.join(model_dir, model_name + ".bin")
+            if not osp.exists(weights):
+                cached_weights_url = osp.join(url_folder, model_name + ".bin")
+                log.info('Downloading: "{}" to {}\n'.format(cached_weights_url, weights))
+                self._download_file(cached_weights_url, weights)
+
+            if not interpreter:
+                openvino_plugin_samples_dir = get_samples_path()
+                interpreter = osp.join(openvino_plugin_samples_dir, model_name + "_interp.py")
+
         if not model_dir:
             model_dir = ""
+
         if not osp.isfile(description):
             description = osp.join(model_dir, description)
         if not osp.isfile(description):
@@ -105,7 +133,7 @@ class OpenvinoLauncher(Launcher):
             interpreter = osp.join(model_dir, interpreter)
         if not osp.isfile(interpreter):
             raise Exception('Failed to open model interpreter script file "%s"' % (interpreter))
-
+            
         self._interpreter = InterpreterScript(interpreter)
 
         self._device = device or "CPU"
@@ -115,6 +143,25 @@ class OpenvinoLauncher(Launcher):
         self._network = self._ie.read_network(description, weights)
         self._check_model_support(self._network, self._device)
         self._load_executable_net()
+
+    def _download_file(self, url: str, file_root: str):
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as source, open(file_root, "wb") as output:  # nosec B310
+            with tqdm(
+                total=int(source.info().get("Content-Length")),
+                ncols=80,
+                unit="iB",
+                unit_scale=True,
+                unit_divisor=1024,
+            ) as loop:
+                while True:
+                    buffer = source.read(8192)
+                    if not buffer:
+                        break
+
+                    output.write(buffer)
+                    loop.update(len(buffer))
+        return 0
 
     def _check_model_support(self, net, device):
         not_supported_layers = set(

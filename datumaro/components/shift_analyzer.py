@@ -11,7 +11,7 @@ from scipy.stats import anderson_ksamp
 import pyemd
 
 from datumaro.components.dataset import IDataset
-from datumaro.plugins.searcher import CLIPLauncher
+from datumaro.plugins.shift_analyzer import ShiftAnalyzerLauncher
 from datumaro.util import take_by
 
 
@@ -113,7 +113,7 @@ class ShiftAnalyzer:
         topk:
             Number of images.
         """
-        self._model = CLIPLauncher()
+        self._model = ShiftAnalyzerLauncher(model_name='inception_resnet_v2')
 
     def _frechet_distance(
         self,
@@ -158,7 +158,6 @@ class ShiftAnalyzer:
         ----------
         .. [1] https://github.com/mseitzer/pytorch-fid/blob/3d604a25516746c3a4a5548c8610e99010b2c819/src/pytorch_fid/fid_score.py#L150
         """
-        # start = time()
         mu1 = np.atleast_1d(mu1).astype(np.float64)
         mu2 = np.atleast_1d(mu2).astype(np.float64)
 

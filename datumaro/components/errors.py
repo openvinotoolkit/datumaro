@@ -277,6 +277,7 @@ class DatasetNotFoundError(DatasetImportError):
     def __str__(self):
         return f"Failed to find dataset at '{self.path}'"
 
+    
 
 @define(auto_exc=False)
 class MultipleFormatsMatchError(DatasetImportError):
