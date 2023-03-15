@@ -432,6 +432,7 @@ class DatasetTest(TestCase):
         dataset.remove(1)
 
         self.assertEqual(2, len(dataset))
+        self.assertEqual(2, len(dataset.get_subset(DEFAULT_SUBSET_NAME)))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compute_length_when_created_from_extractor(self):
