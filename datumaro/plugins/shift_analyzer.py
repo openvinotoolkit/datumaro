@@ -52,21 +52,15 @@ class ShiftAnalyzerLauncher(OpenvinoLauncher):
 
     def infer(self, inputs):
         color_space_dict = {2: "COLOR_GRAY2RGB", 3: "COLOR_BGR2RGB", 4: "COLOR_RGBA2RGB"}
-        if isinstance(inputs, str):
-            if len(inputs.split()) > 1:
-                prompt_text = inputs
-            else:
-                prompt_text = f"a photo of a {inputs}"
-            inputs = self._tokenize(prompt_text)
-        else:
-            # media.data is None case
-            if not inputs.any():
-                return None
-            inputs = inputs.squeeze().astype(np.uint8)
-            inputs = cv2.cvtColor(inputs, getattr(cv2, color_space_dict.get(inputs.ndim)))
-            inputs = cv2.resize(inputs, (299, 299))
-            inputs = img_normalize(inputs)
-            inputs = np.expand_dims(inputs, axis=0)
+
+        # media.data is None case
+        if not inputs.any():
+            return None
+        inputs = inputs.squeeze().astype(np.uint8)
+        inputs = cv2.cvtColor(inputs, getattr(cv2, color_space_dict.get(inputs.ndim)))
+        inputs = cv2.resize(inputs, (299, 299))
+        inputs = img_normalize(inputs)
+        inputs = np.expand_dims(inputs, axis=0)
 
         features = self._net.infer(inputs={self._input_blobs: inputs})
         return features[self._output_blobs]

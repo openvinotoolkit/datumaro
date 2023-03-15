@@ -50,11 +50,13 @@ class SearcherLauncher(OpenvinoLauncher):
         self._device = device or "cpu"
         self._output_blobs = next(iter(self._net.outputs))
         self._input_blobs = next(iter(self._net.input_info))
+        self._tokenizer = None
 
     def _tokenize(self, texts: str, context_length: int = 77, truncate: bool = True):
-        checkpoint = "openai/clip-vit-base-patch32"
-        tokenizer = Tokenizer.from_pretrained(checkpoint)
-        tokens = tokenizer.encode(texts).ids
+        if not self._tokenizer:
+            checkpoint = "openai/clip-vit-base-patch32"
+            self._tokenizer = Tokenizer.from_pretrained(checkpoint)
+        tokens = self._tokenizer.encode(texts).ids
         result = np.zeros((1, context_length))
 
         if len(tokens) > context_length:
