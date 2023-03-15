@@ -196,6 +196,12 @@ class YoloUltralyticsExporter(YoloExporter):
     def __init__(self, extractor: IDataset, save_dir: str, **kwargs) -> None:
         super().__init__(extractor, save_dir, **kwargs)
 
+        if self._save_media is False:
+            log.warning(
+                "It is recommended to turn on `save_media=True` when export to `yolo_ultralytics` format. "
+                "If not, you will need to copy your image files and paste them into the appropriate directories."
+            )
+
     def _check_dataset(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
@@ -257,13 +263,13 @@ class YoloUltralyticsExporter(YoloExporter):
         for subset_name, img_fpath_list in image_fpaths.items():
             subset_fname = subset_name + ".txt"
             with open(osp.join(save_dir, subset_fname), "w") as fp:
-                fp.writelines(img_fpath_list)
+                fp.writelines([img_fpath + "\n" for img_fpath in img_fpath_list])
             yaml_dict[subset_name] = subset_fname
 
         label_categories = extractor.categories()[AnnotationType.label]
         label_ids = {idx: label.name for idx, label in enumerate(label_categories.items)}
         yaml_dict["names"] = label_ids
-        yaml_dict["path"] = "." # PWD which has data.yaml
+        yaml_dict["path"] = "."  # PWD which has data.yaml
 
         with open(osp.join(save_dir, "data.yaml"), "w") as fp:
             yaml.safe_dump(yaml_dict, fp, sort_keys=False, allow_unicode=True)
