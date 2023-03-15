@@ -8,6 +8,7 @@ import os.path as osp
 
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.exporter import Exporter
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
@@ -17,6 +18,11 @@ class ImageDirImporter(Importer):
     """
     Reads images from a directory as a dataset.
     """
+
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+        super().detect(context)
+        return FormatDetectionConfidence.LOW
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
