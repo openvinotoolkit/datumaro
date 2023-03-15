@@ -321,8 +321,8 @@ class YoloLooseBase(SubsetBase):
             if extract_subset_name_from_parent(img_file, rootpath) == self._subset
         }
 
-        try:
-            for url in urls:
+        for url in urls:
+            try:
                 fname = _get_fname(url)
                 img = Image(path=img_files[fname])
                 anns = YoloStrictBase._parse_annotations(
@@ -333,28 +333,5 @@ class YoloLooseBase(SubsetBase):
                 self._items.append(
                     DatasetItem(id=fname, subset=self._subset, media=img, annotations=anns)
                 )
-        except Exception as e:
-            self._ctx.error_policy.report_item_error(e, item_id=(fname, self._subset))
-
-
-# class YoloBase(SubsetBase):
-#     def __new__(
-#         cls,
-#         config_path: str,
-#         image_info: Union[None, str, ImageMeta] = None,
-#         yolo_format_type: str = "strict",
-#         urls: Optional[List[str]] = None,
-#         **kwargs,
-#     ) -> SubsetBase:
-#         if yolo_format_type == "strict":
-#             return YoloStrictFormat(config_path=config_path, image_info=image_info, **kwargs)
-#         if yolo_format_type == "annotations" or yolo_format_type == "labels":
-#             return YoloLooseFormat(
-#                 config_path=config_path,
-#                 image_info=image_info,
-#                 yolo_format_type=yolo_format_type,
-#                 urls=urls,
-#                 **kwargs,
-#             )
-#         else:
-#             raise DatasetImportError(f"yolo_format_type={yolo_format_type} is not supported.")
+            except Exception as e:
+                self._ctx.error_policy.report_item_error(e, item_id=(fname, self._subset))
