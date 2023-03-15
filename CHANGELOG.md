@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/826>)
 - Add Searcher CLI documentation
   (<https://github.com/openvinotoolkit/datumaro/pull/838>)
+- Add YOLO Loose format
+  (<https://github.com/openvinotoolkit/datumaro/pull/856>)
 
 ### Changed
 - Refactor Datumaro format code and test code
