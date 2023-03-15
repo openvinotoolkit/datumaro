@@ -263,13 +263,16 @@ class YoloUltralyticsExporter(YoloExporter):
         for subset_name, img_fpath_list in image_fpaths.items():
             subset_fname = subset_name + ".txt"
             with open(osp.join(save_dir, subset_fname), "w") as fp:
-                fp.writelines([img_fpath + "\n" for img_fpath in img_fpath_list])
+                # Prefix (os.curdir + os.sep) is required by Ultralytics
+                # Please see https://github.com/ultralytics/ultralytics/blob/30fc4b537ff1d9b115bc1558884f6bc2696a282c/ultralytics/yolo/data/utils.py#L40-L43
+                fp.writelines(
+                    [os.curdir + os.sep + img_fpath + "\n" for img_fpath in img_fpath_list]
+                )
             yaml_dict[subset_name] = subset_fname
 
         label_categories = extractor.categories()[AnnotationType.label]
         label_ids = {idx: label.name for idx, label in enumerate(label_categories.items)}
         yaml_dict["names"] = label_ids
-        yaml_dict["path"] = "."  # PWD which has data.yaml
 
         with open(osp.join(save_dir, "data.yaml"), "w") as fp:
             yaml.safe_dump(yaml_dict, fp, sort_keys=False, allow_unicode=True)
