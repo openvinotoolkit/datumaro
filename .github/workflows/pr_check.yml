@@ -5,8 +5,12 @@ on:
       - 'master'
       - 'develop'
       - 'releases/*'
+    paths-ignore:
+      - 'CHANGELOG.md'
   pull_request:
     types: [edited, ready_for_review, opened, synchronize, reopened]
+    paths-ignore:
+      - 'CHANGELOG.md'
 
 # This is what will cancel the workflow concurrency
 concurrency:
