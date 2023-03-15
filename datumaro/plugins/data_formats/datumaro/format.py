@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+DATUMARO_FORMAT_VERSION = "1.0"
+
 
 class DatumaroPath:
     IMAGES_DIR = "images"

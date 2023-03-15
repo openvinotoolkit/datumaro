@@ -23,14 +23,39 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import parse_json_file
+from datumaro.version import VERSION
 
-from .format import DatumaroPath
+from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
 
 
 class DatumaroBase(SubsetBase):
+    LEGACY_VERSION = "legacy"
+    CURRENT_DATUMARO_FORMAT_VERSION = DATUMARO_FORMAT_VERSION
+
+    # If Datumaro format version goes up, it will be
+    # ALLOWED_VERSIONS = {LEGACY_VERSION, 1.0, ..., CURRENT_DATUMARO_FORMAT_VERSION}
+    ALLOWED_VERSIONS = {LEGACY_VERSION, CURRENT_DATUMARO_FORMAT_VERSION}
+
     def __init__(self, path):
         assert osp.isfile(path), path
 
+        dm_version = self._get_dm_format_version(path)
+
+        # when backward compatibility happen, we should implement version specific readers
+        if dm_version not in self.ALLOWED_VERSIONS:
+            raise DatasetImportError(
+                f"Datumaro format version of the given dataset is {dm_version}, "
+                f"but not supported by this Datumaro version: {VERSION}. "
+                f"The allowed datumaro format versions are {self.ALLOWED_VERSIONS}. "
+                "Please install the latest Datumaro."
+            )
+
+        self.default_reader(path=path)
+
+    def default_reader(self, path: str):
+        """
+        Default Datumaro reader for the latest version
+        """
         rootpath = ""
         if path.endswith(osp.join(DatumaroPath.ANNOTATIONS_DIR, osp.basename(path))):
             rootpath = path.rsplit(DatumaroPath.ANNOTATIONS_DIR, maxsplit=1)[0]
@@ -53,12 +78,21 @@ class DatumaroBase(SubsetBase):
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
         self._load_impl(path)
 
+    def _get_dm_format_version(self, path: str):
+        """
+        Get Datumaro format at exporting the dataset
+
+        Note that the regacy Datumaro doesn't store the version into exported dataset.
+        Thus it returns DatumaroBase.REGACY_VERSION
+        """
+        self._parsed_anns = parse_json_file(path)
+        return self._parsed_anns.get("dm_format_version", self.LEGACY_VERSION)
+
     def _load_impl(self, path: str) -> None:
         """Actual implementation of loading Datumaro format."""
-        parsed_anns = parse_json_file(path)
-        self._infos = self._load_infos(parsed_anns)
-        self._categories = self._load_categories(parsed_anns)
-        self._items = self._load_items(parsed_anns)
+        self._infos = self._load_infos(self._parsed_anns)
+        self._categories = self._load_categories(self._parsed_anns)
+        self._items = self._load_items(self._parsed_anns)
 
     @staticmethod
     def _load_infos(parsed):
