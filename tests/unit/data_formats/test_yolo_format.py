@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from copy import deepcopy
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pytest
@@ -11,6 +11,8 @@ import pytest
 from datumaro.components.annotation import Bbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.exporter import Exporter
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.yolo.exporter import YoloExporter
 from datumaro.plugins.data_formats.yolo.importer import YoloImporter
@@ -111,6 +113,8 @@ class YoloFormatTest(TestDataFormatBase):
         fxt_import_kwargs: Dict[str, Any],
         fxt_export_kwargs: Dict[str, Any],
         request: pytest.FixtureRequest,
+        exporter: Optional[Exporter] = YoloExporter,
+        importer: Optional[Importer] = None,
     ):
         return super().test_can_export_and_import(
             fxt_expected_dataset,
@@ -118,5 +122,6 @@ class YoloFormatTest(TestDataFormatBase):
             fxt_import_kwargs,
             fxt_export_kwargs,
             request,
-            exporter=YoloExporter,
+            exporter=exporter,
+            importer=importer,
         )

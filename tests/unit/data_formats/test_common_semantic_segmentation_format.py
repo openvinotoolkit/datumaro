@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pytest
@@ -11,6 +11,8 @@ import pytest
 from datumaro.components.annotation import Mask
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.exporter import Exporter
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.common_semantic_segmentation import (
     CommonSemanticSegmentationImporter,
@@ -150,6 +152,8 @@ class CommonSemanticSegmentationImporterTest(TestDataFormatBase):
         fxt_import_kwargs: Dict[str, Any],
         fxt_export_kwargs: Dict[str, Any],
         request: pytest.FixtureRequest,
+        exporter: Optional[Exporter] = None,
+        importer: Optional[Importer] = None,
     ):
         """CommonSemanticSegmentation does not have exporter."""
 
@@ -204,5 +208,7 @@ class CommonSemanticSegmentationWithSubsetDirsImporterTest(TestDataFormatBase):
         fxt_import_kwargs: Dict[str, Any],
         fxt_export_kwargs: Dict[str, Any],
         request: pytest.FixtureRequest,
+        exporter: Optional[Exporter] = None,
+        importer: Optional[Importer] = None,
     ):
         """CommonSemanticSegmentation does not have exporter."""
