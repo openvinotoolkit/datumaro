@@ -18,3 +18,4 @@ class YoloLoosePath:
 class YoloFormatType(IntEnum):
     yolo_strict = 0
     yolo_loose = 1
+    yolo_ultralytics = 2
