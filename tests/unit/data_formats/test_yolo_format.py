@@ -2,23 +2,16 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
 from copy import deepcopy
 from typing import Any, Dict
 
 import numpy as np
 import pytest
 
-from datumaro.components.annotation import Bbox, Mask
+from datumaro.components.annotation import Bbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
-from datumaro.plugins.data_formats.common_semantic_segmentation import (
-    CommonSemanticSegmentationImporter,
-    CommonSemanticSegmentationWithSubsetDirsImporter,
-    make_categories,
-)
 from datumaro.plugins.data_formats.yolo.exporter import YoloExporter
 from datumaro.plugins.data_formats.yolo.importer import YoloImporter
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME

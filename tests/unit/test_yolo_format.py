@@ -8,7 +8,6 @@ import numpy as np
 from datumaro.components.annotation import Bbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AnnotationImportError,
     DatasetExportError,
@@ -20,7 +19,6 @@ from datumaro.components.errors import (
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.yolo.base import YoloStrictBase
 from datumaro.plugins.data_formats.yolo.exporter import YoloExporter
-from datumaro.plugins.data_formats.yolo.importer import YoloImporter
 from datumaro.util.image import save_image
 
 from ..requirements import Requirements, mark_requirement

@@ -7,14 +7,13 @@ from __future__ import annotations
 import os.path as osp
 import re
 from collections import OrderedDict
-from typing import Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Dict, List, Optional, Type, TypeVar, Union
 
 from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetBase, DatasetItem, SubsetBase
 from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
-    ItemImportError,
     UndeclaredLabelError,
 )
 from datumaro.components.media import Image
@@ -27,7 +26,7 @@ from datumaro.util.image import (
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import extract_subset_name_from_parent, find_files, split_path
 
-from .format import YoloPath, YoloLoosePath
+from .format import YoloLoosePath, YoloPath
 
 T = TypeVar("T")
 

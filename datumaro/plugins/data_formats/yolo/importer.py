@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-from io import TextIOWrapper
 import os.path as osp
 from collections import defaultdict
+from io import TextIOWrapper
 from typing import Any, Dict, List
 
 from datumaro.components.errors import DatasetImportError
