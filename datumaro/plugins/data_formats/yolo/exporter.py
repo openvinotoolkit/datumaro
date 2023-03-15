@@ -252,7 +252,7 @@ class YoloUltralyticsExporter(YoloExporter):
                 image_fpath = self._export_media(item, subset_img_dir)
                 self._export_item_annotation(item, subset_label_dir)
 
-                image_fpaths[subset_name].append(osp.relpath(image_fpath, subset_img_dir))
+                image_fpaths[subset_name].append(osp.relpath(image_fpath, save_dir))
 
         for subset_name, img_fpath_list in image_fpaths.items():
             subset_fname = subset_name + ".txt"
@@ -263,24 +263,10 @@ class YoloUltralyticsExporter(YoloExporter):
         label_categories = extractor.categories()[AnnotationType.label]
         label_ids = {idx: label.name for idx, label in enumerate(label_categories.items)}
         yaml_dict["names"] = label_ids
+        yaml_dict["path"] = "." # PWD which has data.yaml
 
         with open(osp.join(save_dir, "data.yaml"), "w") as fp:
             yaml.safe_dump(yaml_dict, fp, sort_keys=False, allow_unicode=True)
-
-    def _export_item_annotation(self, item):
-        height, width = item.media.size
-
-        yolo_annotation = ""
-
-        for bbox in item.annotations:
-            if not isinstance(bbox, Bbox) or bbox.label is None:
-                continue
-
-            yolo_bb = _make_yolo_bbox((width, height), bbox.points)
-            yolo_bb = " ".join("%.6f" % p for p in yolo_bb)
-            yolo_annotation += "%s %s\n" % (bbox.label, yolo_bb)
-
-        return yolo_annotation
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):

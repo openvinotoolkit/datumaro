@@ -15,6 +15,10 @@ class YoloLoosePath:
     NAMES_FILE = "obj.names"
 
 
+class YoloUltralyticsPath:
+    META_FILE = "data.yaml"
+
+
 class YoloFormatType(IntEnum):
     yolo_strict = 0
     yolo_loose = 1
