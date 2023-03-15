@@ -33,6 +33,8 @@ datum create
 datum import --format yolo <path/to/dataset>
 ```
 
+### Directory structure
+
 YOLO dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
@@ -60,6 +62,8 @@ YOLO dataset directory should have the following structure:
         └── ...
 ```
 
+#### Meta file
+
 - `obj.data` should have the following content, it is not necessary to have both
   subsets, but necessary to have one of them:
 ``` txt
@@ -69,6 +73,9 @@ train = <path/to/train.txt>
 valid = <path/to/valid.txt>
 backup = backup/ # optional
 ```
+
+#### Class names file
+
 - `obj.names` contains a list of classes.
 The line number for the class is the same as its index:
 ``` txt
@@ -77,12 +84,18 @@ label2  # label2 has index 1
 label3  # label2 has index 2
 ...
 ```
+
+#### Subset files
+
 - Files `train.txt` and `valid.txt` should have the following structure:
 ``` txt
 <path/to/image1.jpg>
 <path/to/image2.jpg>
 ...
 ```
+
+#### Bounding box annotation text file
+
 - Files in directories `obj_train_data/` and `obj_valid_data/`
 should contain information about labeled bounding boxes
 for images:
@@ -97,6 +110,64 @@ width and height. The `x_center` and `y_center` are center of rectangle
 (are not top-left corner).
 
 To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+
+## Import YOLO dataset with more loose format
+
+Because the original YOLO format is too strict and require many meta files,
+Datumaro supports to import more loose format for YOLO dataset.
+Therefore, you can freely import a dataset with [a bounding box text file](#bounding-box-annotation-text-file),
+which is the standing-out identity of the yolo format.
+For examples, please see the following directory structures.
+
+### Directory structure
+#### Without subset directories
+```bash
+└─ yolo_dataset/
+   ├── dataset_meta.json # a list of non-format labels (optional)
+   ├── obj.names  # file with list of classes
+   ├── <Annotations or Labels>/  # directory with annotations which can be Annotations/ or Labels/
+   │    ├── image1.txt # list of labeled bounding boxes for image1
+   │    ├── image2.txt
+   │    └── ...
+   └── Images/  # directory with images
+        ├── image1.jpg # The image name ("image1") should be exactly paired with the annotation txt file ("image1.txt")
+        ├── image2.jpg
+        └── ...
+```
+
+#### With subset directories
+```bash
+└─ yolo_dataset/
+    ├── dataset_meta.json # a list of non-format labels (optional)
+    ├── obj.names  # file with list of classes
+    ├── <Annotations or Labels>/ # directory with annotations which can be Annotations/ or Labels/
+    ├── labels
+    │   ├── train # Subset name "train"
+    │   │   ├── image1.txt # list of labeled bounding boxes for image1
+    │   │   ├── image2.txt
+    │   │   └── ...
+    │   └── val # Subset name "val"
+    │   │   ├── image1.txt
+    │   │   ├── image2.txt
+    │   │   └── ...
+    └── Images/  # directory with images
+        ├── train
+        │   ├── image1.jpg # The image name ("image1") should be exactly paired with the annotation txt file ("image1.txt")
+        │   ├── image2.jpg
+        │   └── ...
+        └── val
+            ├── image1.jpg
+            ├── image2.jpg
+            └── ...
+```
+
+#### Class names file
+
+Same as [Import YOLO dataset - Class names file section](#class-names-file). If it is not existed in the dataset, you can make this file easily. Please see the example [here](../python-api/python-api-examples/tiling.md).
+
+#### Bounding box annotation text file
+
+Same as [Import YOLO dataset - Bounding box annotation text file section](#bounding-box-annotation-text-file).
 
 ## Export to other formats
 
