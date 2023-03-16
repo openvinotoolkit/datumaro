@@ -1,7 +1,6 @@
 # Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from io import TextIOWrapper
 import logging as log
 import os
 import os.path as osp

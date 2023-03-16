@@ -4,11 +4,12 @@
 
 from __future__ import annotations
 
-import yaml
 import os.path as osp
 import re
 from collections import OrderedDict
 from typing import Dict, List, Optional, Type, TypeVar, Union
+
+import yaml
 
 from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetBase, DatasetItem, SubsetBase
