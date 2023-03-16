@@ -118,6 +118,53 @@ class ShiftAnalyzer:
             output_layers="InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape",
         )
 
+    def compute_covariate_shift(self, sources: List[IDataset], method: Optional[str] = "fid"):
+        assert (
+            len(sources) == 2
+        ), "Shift analyzer should get two datasets to compute shifts between them."
+
+        if method == "fid":
+            _feat_aggregator = FeatureAccumulator(model=self._model)
+
+            src_stats = _feat_aggregator.get_activation_stats(sources[0])
+            tgt_stats = _feat_aggregator.get_activation_stats(sources[1])
+
+            src_mu, src_sigma = src_stats.mean, src_stats.cov
+            tgt_mu, tgt_sigma = tgt_stats.mean, tgt_stats.cov
+
+            return self._frechet_distance(src_mu, src_sigma, tgt_mu, tgt_sigma, atol=1e-3)
+
+        elif method == "emd":
+            _feat_aggregator = FeatureAccumulatorByLabel(model=self._model)
+
+            src_stats = _feat_aggregator.get_activation_stats(sources[0])
+            tgt_stats = _feat_aggregator.get_activation_stats(sources[1])
+
+            w_s = np.array([stats.num for stats in src_stats.values()])
+            w_t = np.array([stats.num for stats in tgt_stats.values()])
+
+            f_s = np.stack([stats.mean for stats in src_stats.values()], axis=0)
+            f_t = np.stack([stats.mean for stats in tgt_stats.values()], axis=0)
+
+            # earth_mover_distance returns the similarity score in [0, 1].
+            # We return the dissimilarity score by 1 - similarity score.
+            return 1.0 - self._earth_mover_distance(w_s, f_s, w_t, f_t, gamma=0.01)
+
+    def compute_label_shift(self, sources: List[IDataset]):
+        assert (
+            len(sources) == 2
+        ), "Shift analyzer should get two datasets to compute shifts between them."
+
+        labels = defaultdict(list)
+        for idx, source in enumerate(sources):
+            for item in source:
+                for ann in item.annotations:
+                    labels[idx].append(ann.label)
+
+        _, _, pv = anderson_ksamp([labels[0], labels[1]])
+
+        return 1 - pv
+
     def _frechet_distance(
         self,
         mu1: np.ndarray,
@@ -213,50 +260,3 @@ class ShiftAnalyzer:
 
         emd = pyemd.emd(w_1, w_2, distances)
         return np.exp(-gamma * emd).item()
-
-    def compute_covariate_shift(self, sources: List[IDataset], method: Optional[str] = "fid"):
-        assert (
-            len(sources) == 2
-        ), "Shift analyzer should get two datasets to compute shifts between them."
-
-        if method == "fid":
-            _feat_aggregator = FeatureAccumulator(model=self._model)
-
-            src_stats = _feat_aggregator.get_activation_stats(sources[0])
-            tgt_stats = _feat_aggregator.get_activation_stats(sources[1])
-
-            src_mu, src_sigma = src_stats.mean, src_stats.cov
-            tgt_mu, tgt_sigma = tgt_stats.mean, tgt_stats.cov
-
-            return self._frechet_distance(src_mu, src_sigma, tgt_mu, tgt_sigma, atol=1e-3)
-
-        elif method == "emd":
-            _feat_aggregator = FeatureAccumulatorByLabel(model=self._model)
-
-            src_stats = _feat_aggregator.get_activation_stats(sources[0])
-            tgt_stats = _feat_aggregator.get_activation_stats(sources[1])
-
-            w_s = np.array([stats.num for stats in src_stats.values()])
-            w_t = np.array([stats.num for stats in tgt_stats.values()])
-
-            f_s = np.stack([stats.mean for stats in src_stats.values()], axis=0)
-            f_t = np.stack([stats.mean for stats in tgt_stats.values()], axis=0)
-
-            # earth_mover_distance returns the similarity score in [0, 1].
-            # We return the dissimilarity score by 1 - similarity score.
-            return 1.0 - self._earth_mover_distance(w_s, f_s, w_t, f_t, gamma=0.01)
-
-    def compute_label_shift(self, sources: List[IDataset]):
-        assert (
-            len(sources) == 2
-        ), "Shift analyzer should get two datasets to compute shifts between them."
-
-        labels = defaultdict(list)
-        for idx, source in enumerate(sources):
-            for item in source:
-                for ann in item.annotations:
-                    labels[idx].append(ann.label)
-
-        _, _, pv = anderson_ksamp([labels[0], labels[1]])
-
-        return 1 - pv
