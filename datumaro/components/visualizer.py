@@ -262,7 +262,9 @@ class Visualizer:
         context = defaultdict(list)
         for ann in annotations:
             if ann.type in self.ignored_types:
-                warnings.warn(f"{ann.type} in self.ignored_types. Skip it.")
+                ignore_type = AnnotationType(ann.type).name
+                msg = f"{ignore_type} in self.ignored_types. Skip it."
+                warnings.warn(msg)
                 continue
             self._draw(ann, label_categories, fig, ax, context[ann.type])
 
@@ -303,11 +305,19 @@ class Visualizer:
         context: List,
     ) -> None:
         h, w = ann.image.shape
+        source = ann.image
+        if source.dtype != bool:
+            warnings.warn(
+                f"Mask should has dtype == bool, but its dtype == {source.dtype}. "
+                "Try to change it to bool dtype."
+            )
+            source = source.astype(bool)
+
         mask_map = np.zeros((h, w, 4), dtype=np.uint8)
         color = self._get_color(ann)
         rgba_color = (*ImageColor.getcolor(color, "RGB"), 0.0)
-        mask_map[ann.image] = rgba_color
-        mask_map[ann.image, 3] = int(255 * self.alpha)
+        mask_map[source] = rgba_color
+        mask_map[source, 3] = int(255 * self.alpha)
 
         ax.imshow(mask_map)
 
