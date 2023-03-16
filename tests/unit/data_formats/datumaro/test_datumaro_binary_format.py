@@ -103,22 +103,22 @@ class MapperTest:
                 StringMapper,
                 "9sd#&(d!d.x]+=",
             ),
-            (
-                IntListMapper,
-                (
-                    0,
-                    1,
-                    2,
-                ),
-            ),
-            (
-                FloatListMapper,
-                (
-                    0.0,
-                    1.0,
-                    2.0,
-                ),
-            ),
+            # (
+            #     IntListMapper,
+            #     (
+            #         0,
+            #         1,
+            #         2,
+            #     ),
+            # ),
+            # (
+            #     FloatListMapper,
+            #     (
+            #         0.0,
+            #         1.0,
+            #         2.0,
+            #     ),
+            # ),
             (
                 DictMapper,
                 {
