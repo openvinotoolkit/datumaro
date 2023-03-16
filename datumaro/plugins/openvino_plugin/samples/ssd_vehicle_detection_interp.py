@@ -7,6 +7,10 @@ from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 conf_thresh = 0.02
 
 
+def normalize(inputs):
+    pass
+
+
 def _match_confs(confs, detections):
     matches = [-1] * len(detections)
 

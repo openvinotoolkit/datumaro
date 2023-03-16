@@ -68,6 +68,11 @@ class InterpreterScript:
         context = {}
         exec(script, context, context)
 
+        normalize = context.get("normalize")
+        if not callable(normalize):
+            raise Exception("Can't find 'normalize' function in " "the interpreter script")
+        self.__dict__["normalize"] = normalize
+
         process_outputs = context.get("process_outputs")
         if not callable(process_outputs):
             raise Exception("Can't find 'process_outputs' function in " "the interpreter script")
@@ -84,6 +89,10 @@ class InterpreterScript:
 
     @staticmethod
     def process_outputs(inputs, outputs):
+        raise NotImplementedError("Function should be implemented in the interpreter script")
+
+    @staticmethod
+    def normalize(inputs):
         raise NotImplementedError("Function should be implemented in the interpreter script")
 
 
@@ -205,30 +214,7 @@ class OpenvinoLauncher(Launcher):
         self._net = self._ie.load_network(network=network, num_requests=1, device_name=self._device)
 
     def infer(self, inputs):
-        assert len(inputs.shape) == 4, "Expected an input image in (N, H, W, C) format, got %s" % (
-            inputs.shape,
-        )
-
-        if inputs.shape[3] == 1:  # A batch of single-channel images
-            inputs = np.repeat(inputs, 3, axis=3)
-
-        assert inputs.shape[3] == 3, "Expected BGR input, got %s" % (inputs.shape,)
-
-        n, c, h, w = self._input_layout
-        if inputs.shape[1:3] != (h, w):
-            resized_inputs = np.empty((n, h, w, c), dtype=inputs.dtype)
-            for inp, resized_input in zip(inputs, resized_inputs):
-                cv2.resize(inp, (w, h), resized_input)
-            inputs = resized_inputs
-        inputs = inputs.transpose((0, 3, 1, 2))  # NHWC to NCHW
-        inputs = {self._input_blob: inputs}
-        if self._require_image_info:
-            info = np.zeros([1, 3])
-            info[0, 0] = h
-            info[0, 1] = w
-            info[0, 2] = 1.0  # scale
-            inputs["image_info"] = info
-
+        inputs = self.process_inputs(inputs)
         results = self._net.infer(inputs)
         if len(results) == 1:
             return next(iter(results.values()))
@@ -249,3 +235,33 @@ class OpenvinoLauncher(Launcher):
 
     def process_outputs(self, inputs, outputs):
         return self._interpreter.process_outputs(inputs, outputs)
+
+    def process_inputs(self, inputs):
+        assert len(inputs.shape) == 4, "Expected an input image in (N, H, W, C) format, got %s" % (
+            inputs.shape,
+        )
+
+        if inputs.shape[3] == 1:  # A batch of single-channel images
+            inputs = np.repeat(inputs, 3, axis=3)
+
+        assert inputs.shape[3] == 3, "Expected BGR input, got %s" % (inputs.shape,)
+
+        n, c, h, w = self._input_layout
+        if inputs.shape[1:3] != (h, w):
+            resized_inputs = np.empty((n, h, w, c), dtype=inputs.dtype)
+            for inp, resized_input in zip(inputs, resized_inputs):
+                cv2.resize(inp, (w, h), resized_input)
+            inputs = resized_inputs
+        inputs = inputs.transpose((0, 3, 1, 2))  # NHWC to NCHW
+
+        inputs = self._interpreter.normalize(inputs)
+
+        inputs = {self._input_blob: inputs}
+        if self._require_image_info:
+            info = np.zeros([1, 3])
+            info[0, 0] = h
+            info[0, 1] = w
+            info[0, 2] = 1.0  # scale
+            inputs["image_info"] = info
+
+        return inputs

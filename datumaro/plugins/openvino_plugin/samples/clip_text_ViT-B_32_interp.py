@@ -5,6 +5,10 @@
 from datumaro.components.annotation import AnnotationType, HashKey, LabelCategories
 
 
+def normalize(inputs):
+    pass
+
+
 def process_outputs(inputs, outputs):
     results = [[HashKey(outputs)]]
     return results

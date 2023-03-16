@@ -6,6 +6,10 @@ from datumaro.components.annotation import Label
 from datumaro.util.annotation_util import softmax
 
 
+def normalize(inputs):
+    pass
+
+
 def process_outputs(inputs, outputs):
     # inputs = model input; array or images; shape = (B, H, W, C)
     # outputs = model output; shape = (B, 3);
