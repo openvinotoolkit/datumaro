@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/847>)
 - Add YOLO Loose format
   (<https://github.com/openvinotoolkit/datumaro/pull/856>)
+- Add Ultralytics YOLO format
+  (<https://github.com/openvinotoolkit/datumaro/pull/859>)
 
 ### Changed
 - Refactor Datumaro format code and test code
