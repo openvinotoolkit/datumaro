@@ -8,7 +8,7 @@ conf_thresh = 0.02
 
 
 def normalize(inputs):
-    pass
+    return inputs
 
 
 def _match_confs(confs, detections):

@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import List
 
 import numpy as np
@@ -16,23 +17,15 @@ from ..requirements import Requirements, mark_requirement
 def fxt_dataset_ideal():
     src_dataset = Dataset.from_iterable(
         [
-            DatasetItem(id=0, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(0)]),
-            DatasetItem(id=1, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(0)]),
-            DatasetItem(id=2, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(1)]),
-            DatasetItem(id=3, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(1)]),
+            DatasetItem(
+                id=i, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(i // 2)]
+            )
+            for i in range(4)
         ],
         categories=["a", "b"],
     )
+    tgt_dataset = deepcopy(src_dataset)
 
-    tgt_dataset = Dataset.from_iterable(
-        [
-            DatasetItem(id=0, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(0)]),
-            DatasetItem(id=1, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(0)]),
-            DatasetItem(id=2, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(1)]),
-            DatasetItem(id=3, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(1)]),
-        ],
-        categories=["a", "b"],
-    )
     return [src_dataset, tgt_dataset]
 
 
@@ -40,20 +33,18 @@ def fxt_dataset_ideal():
 def fxt_dataset_different():
     src_dataset = Dataset.from_iterable(
         [
-            DatasetItem(id=0, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(0)]),
-            DatasetItem(id=1, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(0)]),
-            DatasetItem(id=2, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(1)]),
-            DatasetItem(id=3, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(1)]),
+            DatasetItem(
+                id=i, media=Image(data=255 * np.ones((8, 8, 3))), annotations=[Label(i // 2)]
+            )
+            for i in range(4)
         ],
         categories=["a", "b"],
     )
 
     tgt_dataset = Dataset.from_iterable(
         [
-            DatasetItem(id=0, media=Image(data=np.zeros((8, 8, 3))), annotations=[Label(1)]),
-            DatasetItem(id=1, media=Image(data=np.zeros((8, 8, 3))), annotations=[Label(1)]),
-            DatasetItem(id=2, media=Image(data=np.zeros((8, 8, 3))), annotations=[Label(1)]),
-            DatasetItem(id=3, media=Image(data=np.zeros((8, 8, 3))), annotations=[Label(1)]),
+            DatasetItem(id=i, media=Image(data=np.zeros((8, 8, 3))), annotations=[Label(1)])
+            for i in range(4)
         ],
         categories=["a", "b"],
     )

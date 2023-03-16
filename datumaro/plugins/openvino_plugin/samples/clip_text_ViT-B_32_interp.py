@@ -6,7 +6,7 @@ from datumaro.components.annotation import AnnotationType, HashKey, LabelCategor
 
 
 def normalize(inputs):
-    pass
+    return inputs
 
 
 def process_outputs(inputs, outputs):

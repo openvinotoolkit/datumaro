@@ -9,7 +9,7 @@ model_class_num = 91
 
 
 def normalize(inputs):
-    pass
+    return inputs
 
 
 def _match_confs(confs, detections):

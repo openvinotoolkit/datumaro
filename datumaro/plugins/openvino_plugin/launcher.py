@@ -70,12 +70,12 @@ class InterpreterScript:
 
         normalize = context.get("normalize")
         if not callable(normalize):
-            raise Exception("Can't find 'normalize' function in " "the interpreter script")
+            raise Exception("Can't find 'normalize' function in the interpreter script")
         self.__dict__["normalize"] = normalize
 
         process_outputs = context.get("process_outputs")
         if not callable(process_outputs):
-            raise Exception("Can't find 'process_outputs' function in " "the interpreter script")
+            raise Exception("Can't find 'process_outputs' function in the interpreter script")
         self.__dict__["process_outputs"] = process_outputs
 
         get_categories = context.get("get_categories")
