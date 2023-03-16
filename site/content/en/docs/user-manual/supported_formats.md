@@ -161,6 +161,10 @@ List of supported formats:
   - [Format specification](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/yolo_dataset)
   - [Format documentation](/docs/formats/yolo)
+- YOLO-Ultralytics (`bboxes`)
+  - [Format specification](https://github.com/ultralytics/ultralytics/blob/main/ultralytics/datasets/coco.yaml)
+  - [Dataset example](https://github.com/ultralytics/ultralytics/blob/main/ultralytics/datasets/coco.yaml)
+  - [Format documentation](/docs/formats/yolo)
 
 <a id="annotation-types"></a>
 ### Supported annotation types
