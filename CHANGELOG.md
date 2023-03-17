@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/855>)
 - Add YOLO Loose format
   (<https://github.com/openvinotoolkit/datumaro/pull/856>)
+- Add Ultralytics YOLO format
+  (<https://github.com/openvinotoolkit/datumaro/pull/859>)
 
 ### Changed
 - Refactor Datumaro format code and test code
@@ -39,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/843>)
 - Fix wrong `__len__()` of Subset when the item is removed
   (<https://github.com/openvinotoolkit/datumaro/pull/854>)
+- Fix mask visualization bug
+  (<https://github.com/openvinotoolkit/datumaro/pull/860>)
 
 ## 24/02/2023 - Release v1.0.0
 ### Added

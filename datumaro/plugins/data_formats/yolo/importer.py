@@ -12,7 +12,7 @@ from datumaro.components.format_detection import FormatDetectionConfidence, Form
 from datumaro.components.importer import Importer
 from datumaro.util.os_util import extract_subset_name_from_parent
 
-from .format import YoloFormatType, YoloLoosePath
+from .format import YoloFormatType, YoloLoosePath, YoloUltralyticsPath
 
 
 class _YoloStrictImporter(Importer):
@@ -26,9 +26,12 @@ class _YoloStrictImporter(Importer):
 
 
 class _YoloLooseImporter(Importer):
+    META_FILE = YoloLoosePath.NAMES_FILE
+    FORMAT = YoloFormatType.yolo_loose.name
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-        context.require_file(YoloLoosePath.NAMES_FILE)
+        context.require_file(cls.META_FILE)
 
         with context.require_any():
             with context.alternative():
@@ -94,7 +97,7 @@ class _YoloLooseImporter(Importer):
         sources = [
             {
                 "url": osp.join(path),
-                "format": YoloFormatType.yolo_loose.name,
+                "format": cls.FORMAT,
                 "options": {
                     "subset": subset,
                     "urls": urls,
@@ -107,7 +110,7 @@ class _YoloLooseImporter(Importer):
     @classmethod
     def find_sources(cls, path: str) -> List[Dict[str, Any]]:
         # Check obj.names first
-        filename, ext = osp.splitext(YoloLoosePath.NAMES_FILE)
+        filename, ext = osp.splitext(cls.META_FILE)
         sources = cls._find_sources_recursive(
             path,
             ext=ext,
@@ -133,10 +136,16 @@ class _YoloLooseImporter(Importer):
         return []
 
 
+class _YoloUltralyticsImporter(_YoloLooseImporter):
+    META_FILE = YoloUltralyticsPath.META_FILE
+    FORMAT = YoloFormatType.yolo_ultralytics.name
+
+
 class YoloImporter(Importer):
     SUB_IMPORTERS: Dict[YoloFormatType, Importer] = {
         YoloFormatType.yolo_strict: _YoloStrictImporter,
         YoloFormatType.yolo_loose: _YoloLooseImporter,
+        YoloFormatType.yolo_ultralytics: _YoloUltralyticsImporter,
     }
 
     @classmethod

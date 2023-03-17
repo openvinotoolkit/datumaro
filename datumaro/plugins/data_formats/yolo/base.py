@@ -9,6 +9,8 @@ import re
 from collections import OrderedDict
 from typing import Dict, List, Optional, Type, TypeVar, Union
 
+import yaml
+
 from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetBase, DatasetItem, SubsetBase
 from datumaro.components.errors import (
@@ -26,7 +28,7 @@ from datumaro.util.image import (
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import extract_subset_name_from_parent, find_files, split_path
 
-from .format import YoloLoosePath, YoloPath
+from .format import YoloLoosePath, YoloPath, YoloUltralyticsPath
 
 T = TypeVar("T")
 
@@ -288,6 +290,8 @@ class YoloStrictBase(SubsetBase):
 
 
 class YoloLooseBase(SubsetBase):
+    META_FILE = YoloLoosePath.NAMES_FILE
+
     def __init__(
         self,
         config_path: str,
@@ -306,9 +310,7 @@ class YoloLooseBase(SubsetBase):
         self._image_info = YoloStrictBase.parse_image_info(rootpath, image_info)
 
         # Init label categories
-        label_categories = YoloStrictBase._load_categories(
-            osp.join(rootpath, YoloLoosePath.NAMES_FILE)
-        )
+        label_categories = self._load_categories(osp.join(rootpath, self.META_FILE))
         self._categories = {AnnotationType.label: label_categories}
 
         # Parse dataset items
@@ -335,3 +337,32 @@ class YoloLooseBase(SubsetBase):
                 )
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(fname, self._subset))
+
+    def _load_categories(self, names_path: str) -> LabelCategories:
+        return YoloStrictBase._load_categories(names_path)
+
+
+class YoloUltralyticsBase(YoloLooseBase):
+    META_FILE = YoloUltralyticsPath.META_FILE
+
+    def __init__(
+        self,
+        config_path: str,
+        image_info: Union[None, str, ImageMeta] = None,
+        urls: Optional[List[str]] = None,
+        **kwargs,
+    ) -> None:
+        super().__init__(config_path, image_info, urls, **kwargs)
+
+    def _load_categories(self, names_path: str) -> LabelCategories:
+        if has_meta_file(osp.dirname(names_path)):
+            return LabelCategories.from_iterable(parse_meta_file(osp.dirname(names_path)).keys())
+
+        label_categories = LabelCategories()
+
+        with open(names_path, "r") as fp:
+            loaded = yaml.safe_load(fp.read())
+            for label_name in loaded["names"].values():
+                label_categories.add(label_name)
+
+        return label_categories

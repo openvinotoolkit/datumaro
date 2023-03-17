@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+# pylint: disable=signature-differs
+
 from copy import deepcopy
 from typing import Any, Dict, Optional
 
@@ -14,7 +16,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
-from datumaro.plugins.data_formats.yolo.exporter import YoloExporter
+from datumaro.plugins.data_formats.yolo.exporter import YoloExporter, YoloUltralyticsExporter
 from datumaro.plugins.data_formats.yolo.importer import YoloImporter
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
 
@@ -51,7 +53,7 @@ def fxt_default_dataset(fxt_train_dataset):
 
 
 @pytest.fixture
-def fxt_train_and_val_dataset(fxt_train_dataset):
+def fxt_train_val_dataset(fxt_train_dataset):
     return Dataset.from_extractors(
         *[
             deepcopy(fxt_train_dataset).transform("map_subsets", mapping={"train": subset_name})
@@ -80,7 +82,7 @@ class YoloFormatTest(TestDataFormatBase):
         [
             (STRICT_DIR, "fxt_train_dataset", {}),
             (ANNOTATIONS_DIR, "fxt_default_dataset", {}),
-            (LABELS_DIR, "fxt_train_and_val_dataset", {}),
+            (LABELS_DIR, "fxt_train_val_dataset", {}),
         ],
         indirect=["fxt_expected_dataset"],
         ids=["strict", "annotations", "labels"],
@@ -100,9 +102,10 @@ class YoloFormatTest(TestDataFormatBase):
         )
 
     @pytest.mark.parametrize(
-        "fxt_expected_dataset",
+        "fxt_expected_dataset, exporter",
         [
-            "fxt_train_dataset",
+            ("fxt_train_dataset", YoloExporter),
+            ("fxt_train_val_dataset", YoloUltralyticsExporter),
         ],
         indirect=["fxt_expected_dataset"],
     )
@@ -113,7 +116,7 @@ class YoloFormatTest(TestDataFormatBase):
         fxt_import_kwargs: Dict[str, Any],
         fxt_export_kwargs: Dict[str, Any],
         request: pytest.FixtureRequest,
-        exporter: Optional[Exporter] = YoloExporter,
+        exporter: Optional[Exporter],
         importer: Optional[Importer] = None,
     ):
         return super().test_can_export_and_import(
