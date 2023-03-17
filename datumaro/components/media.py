@@ -15,9 +15,8 @@ import cv2
 import numpy as np
 
 from datumaro.components.errors import MediaShapeError
+from datumaro.util.definitions import BboxIntCoords
 from datumaro.util.image import _image_loading_errors, decode_image, lazy_image, save_image
-
-BboxIntCoords = Tuple[int, int, int, int]  # (x, y, w, h)
 
 
 class MediaType(IntEnum):

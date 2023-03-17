@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/847>)
 - Add Shift Analyzer (both covariate and label shifts)
   (<https://github.com/openvinotoolkit/datumaro/pull/855>)
+- Add YOLO Loose format
+  (<https://github.com/openvinotoolkit/datumaro/pull/856>)
 
 ### Changed
 - Refactor Datumaro format code and test code
@@ -29,10 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/835>)
 - Fix CIFAR10 and 100 detect function
   (<https://github.com/openvinotoolkit/datumaro/pull/836>)
+- Fix celeba and align_celeba detect function
+  (<https://github.com/openvinotoolkit/datumaro/pull/837>)
 - Choose the top priority detect format for all directory depths
   (<https://github.com/openvinotoolkit/datumaro/pull/839>)
 - Fix MVTec format detect function
   (<https://github.com/openvinotoolkit/datumaro/pull/843>)
+- Fix wrong `__len__()` of Subset when the item is removed
+  (<https://github.com/openvinotoolkit/datumaro/pull/854>)
 
 ## 24/02/2023 - Release v1.0.0
 ### Added

@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -13,20 +13,16 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
-from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
+from .celeba import CelebaImporter, CelebaPath
 
-class AlignCelebaPath:
-    IMAGES_DIR = "Img/img_align_celeba"
-    LABELS_FILE = "Anno/identity_CelebA.txt"
-    ATTRS_FILE = "Anno/list_attr_celeba.txt"
-    LANDMARKS_FILE = "Anno/list_landmarks_align_celeba.txt"
-    SUBSETS_FILE = "Eval/list_eval_partition.txt"
-    SUBSETS = {"0": "train", "1": "val", "2": "test"}
-    BBOXES_HEADER = "image_id x_1 y_1 width height"
+
+class AlignCelebaPath(CelebaPath):
+    IMAGES_DIR = osp.join("Img", "img_align_celeba")
+    LANDMARKS_FILE = osp.join("Anno", "list_landmarks_align_celeba.txt")
     LANDMARKS_HEADER = (
         "lefteye_x lefteye_y righteye_x righteye_y "
         "nose_x nose_y leftmouth_x leftmouth_y rightmouth_x rightmouth_y"
@@ -196,7 +192,5 @@ class AlignCelebaBase(SubsetBase):
         return item_id, item[1:]
 
 
-class AlignCelebaImporter(Importer):
-    @classmethod
-    def find_sources(cls, path):
-        return [{"url": path, "format": "align_celeba"}]
+class AlignCelebaImporter(CelebaImporter):
+    PATH_CLS = AlignCelebaPath
