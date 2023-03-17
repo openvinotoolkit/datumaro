@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+# pylint: disable=signature-differs
+
 from copy import deepcopy
 from typing import Any, Dict, Optional
 
@@ -114,7 +116,7 @@ class YoloFormatTest(TestDataFormatBase):
         fxt_import_kwargs: Dict[str, Any],
         fxt_export_kwargs: Dict[str, Any],
         request: pytest.FixtureRequest,
-        exporter: Optional[Exporter] = None,
+        exporter: Optional[Exporter],
         importer: Optional[Importer] = None,
     ):
         return super().test_can_export_and_import(
