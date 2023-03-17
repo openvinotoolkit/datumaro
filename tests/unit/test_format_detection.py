@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import os.path as osp
 from unittest import TestCase
 
@@ -9,9 +13,9 @@ from datumaro.components.format_detection import (
     apply_format_detector,
     detect_dataset_format,
 )
-from datumaro.util.test_utils import TestDir
 
 from tests.requirements import Requirements, mark_requirement
+from tests.utils.test_utils import TestDir
 
 
 class FormatDetectionTest(TestCase):
@@ -265,7 +269,9 @@ class DetectDatasetFormat(FormatDetectionTest):
             formats, self._dataset_root, rejection_callback=rejection_callback
         )
 
-        self.assertEqual(set(detected_datasets), {"bbb", "eee"})
+        detected_dataset_names = [detected_dataset.name for detected_dataset in detected_datasets]
+
+        self.assertEqual(set(detected_dataset_names), {"bbb", "eee"})
 
         self.assertEqual(rejected_formats.keys(), {"aaa", "ccc", "ddd", "fff"})
 
@@ -285,4 +291,7 @@ class DetectDatasetFormat(FormatDetectionTest):
         ]
 
         detected_datasets = detect_dataset_format(formats, self._dataset_root)
-        self.assertEqual(detected_datasets, ["bbb"])
+
+        detected_dataset_names = [detected_dataset.name for detected_dataset in detected_datasets]
+
+        self.assertEqual(detected_dataset_names, ["bbb"])

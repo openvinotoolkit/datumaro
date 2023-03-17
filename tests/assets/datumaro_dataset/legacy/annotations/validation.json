@@ -47,10 +47,10 @@
             "id": "d",
             "annotations": [],
             "image": {
-                "path": "../tests/assets/datumaro_dataset/images/validation/d.png"
+                "path": "validation/d.jpg"
             },
             "media": {
-                "path": "../tests/assets/datumaro_dataset/images/validation/d.png"
+                "path": "validation/d.jpg"
             }
         }
     ]

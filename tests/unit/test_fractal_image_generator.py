@@ -6,11 +6,11 @@ import numpy as np
 
 from datumaro.plugins.synthetic_data import FractalImageGenerator
 from datumaro.util.image import load_image
-from datumaro.util.test_utils import TestDir
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir
 
 
 class FractalImageGeneratorTest(TestCase):

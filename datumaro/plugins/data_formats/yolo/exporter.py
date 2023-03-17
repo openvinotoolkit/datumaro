@@ -1,16 +1,17 @@
 # Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
+
+import yaml
 
 from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
-from datumaro.components.errors import DatasetExportError, MediaTypeError
+from datumaro.components.errors import DatasetExportError, DatumaroError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
@@ -86,26 +87,14 @@ class YoloExporter(Exporter):
             image_paths = OrderedDict()
             for item in pbar.iter(subset, desc=f"Exporting '{subset_name}'"):
                 try:
-                    if not item.media or not (item.media.has_data or item.media.has_size):
-                        raise Exception(
-                            "Failed to export item '%s': " "item has no image info" % item.id
-                        )
-
-                    image_name = self._make_image_filename(item)
-                    if self._save_media:
-                        if item.media:
-                            self._save_image(item, osp.join(subset_dir, image_name))
-                        else:
-                            log.warning("Item '%s' has no image" % item.id)
+                    image_fpath = self._export_media(item, subset_dir)
+                    image_name = osp.relpath(image_fpath, subset_dir)
                     image_paths[item.id] = osp.join(
                         self._prefix, osp.basename(subset_dir), image_name
                     )
 
-                    yolo_annotation = self._export_item_annotation(item)
-                    annotation_path = osp.join(subset_dir, "%s.txt" % item.id)
-                    os.makedirs(osp.dirname(annotation_path), exist_ok=True)
-                    with open(annotation_path, "w", encoding="utf-8") as f:
-                        f.write(yolo_annotation)
+                    self._export_item_annotation(item, subset_dir)
+
                 except Exception as e:
                     self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
 
@@ -132,20 +121,160 @@ class YoloExporter(Exporter):
             f.write("names = %s\n" % osp.join(self._prefix, "obj.names"))
             f.write("backup = backup/\n")
 
-    def _export_item_annotation(self, item):
-        height, width = item.media.size
+    def _export_media(self, item: DatasetItem, subset_img_dir: str) -> str:
+        try:
+            if not item.media or not (item.media.has_data or item.media.has_size):
+                raise Exception("Failed to export item '%s': " "item has no image info" % item.id)
 
-        yolo_annotation = ""
+            image_name = self._make_image_filename(item)
+            image_fpath = osp.join(subset_img_dir, image_name)
 
-        for bbox in item.annotations:
-            if not isinstance(bbox, Bbox) or bbox.label is None:
+            if self._save_media:
+                self._save_image(item, image_fpath)
+
+            return image_fpath
+
+        except Exception as e:
+            self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
+
+    def _export_item_annotation(self, item: DatasetItem, subset_dir: str) -> None:
+        try:
+            height, width = item.media.size
+
+            yolo_annotation = ""
+
+            for bbox in item.annotations:
+                if not isinstance(bbox, Bbox) or bbox.label is None:
+                    continue
+
+                yolo_bb = _make_yolo_bbox((width, height), bbox.points)
+                yolo_bb = " ".join("%.6f" % p for p in yolo_bb)
+                yolo_annotation += "%s %s\n" % (bbox.label, yolo_bb)
+
+            annotation_path = osp.join(subset_dir, "%s.txt" % item.id)
+            os.makedirs(osp.dirname(annotation_path), exist_ok=True)
+
+            with open(annotation_path, "w", encoding="utf-8") as f:
+                f.write(yolo_annotation)
+
+        except Exception as e:
+            self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        conv = cls(dataset, save_dir=save_dir, **kwargs)
+        conv._patch = patch
+        conv.apply()
+
+        for (item_id, subset), status in patch.updated_items.items():
+            if status != ItemStatus.removed:
+                item = patch.data.get(item_id, subset)
+            else:
+                item = DatasetItem(item_id, subset=subset)
+
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
-            yolo_bb = _make_yolo_bbox((width, height), bbox.points)
-            yolo_bb = " ".join("%.6f" % p for p in yolo_bb)
-            yolo_annotation += "%s %s\n" % (bbox.label, yolo_bb)
+            if subset == DEFAULT_SUBSET_NAME:
+                subset = YoloPath.DEFAULT_SUBSET_NAME
+            subset_dir = osp.join(save_dir, "obj_%s_data" % subset)
 
-        return yolo_annotation
+            image_path = osp.join(subset_dir, conv._make_image_filename(item))
+            if osp.isfile(image_path):
+                os.remove(image_path)
+
+            ann_path = osp.join(subset_dir, "%s.txt" % item.id)
+            if osp.isfile(ann_path):
+                os.remove(ann_path)
+
+
+class YoloUltralyticsExporter(YoloExporter):
+    allowed_subset_names = {"train", "val", "test"}
+    must_subset_names = {"train", "val"}
+
+    def __init__(self, extractor: IDataset, save_dir: str, **kwargs) -> None:
+        super().__init__(extractor, save_dir, **kwargs)
+
+        if self._save_media is False:
+            log.warning(
+                "It is recommended to turn on `save_media=True` when export to `yolo_ultralytics` format. "
+                "If not, you will need to copy your image files and paste them into the appropriate directories."
+            )
+
+    def _check_dataset(self):
+        if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
+            raise MediaTypeError("Media type is not an image")
+
+        subset_names = set(self._extractor.subsets().keys())
+
+        for subset in subset_names:
+            if subset not in self.allowed_subset_names:
+                raise DatasetExportError(
+                    f"The allowed subset name is in {self.allowed_subset_names}, "
+                    f'so that subset "{subset}" is not allowed.'
+                )
+
+        for must_name in self.must_subset_names:
+            if must_name not in subset_names:
+                raise DatasetExportError(
+                    f'Subset "{must_name}" is not in {subset_names}, '
+                    "but YoloUltralytics requires both of them."
+                )
+
+    def apply(self):
+        extractor = self._extractor
+        save_dir = self._save_dir
+
+        os.makedirs(save_dir, exist_ok=True)
+
+        try:
+            self._check_dataset()
+        except DatumaroError as e:
+            self._ctx.error_policy.fail(e)
+
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
+        yaml_dict = {}
+
+        subsets = self._extractor.subsets()
+        pbars = self._ctx.progress_reporter.split(len(subsets))
+
+        image_fpaths = defaultdict(list)
+
+        for (subset_name, subset), pbar in zip(subsets.items(), pbars):
+            subset_fpath = osp.join(save_dir, subset_name + ".txt")
+
+            subset_img_dir = osp.join(save_dir, "images", subset_name)
+            os.makedirs(subset_img_dir, exist_ok=True)
+
+            subset_label_dir = osp.join(save_dir, "labels", subset_name)
+            os.makedirs(subset_label_dir, exist_ok=True)
+
+            yaml_dict[subset_name] = subset_fpath
+
+            for item in pbar.iter(subset, desc=f"Exporting '{subset_name}'"):
+                image_fpath = self._export_media(item, subset_img_dir)
+                self._export_item_annotation(item, subset_label_dir)
+
+                image_fpaths[subset_name].append(osp.relpath(image_fpath, save_dir))
+
+        for subset_name, img_fpath_list in image_fpaths.items():
+            subset_fname = subset_name + ".txt"
+            with open(osp.join(save_dir, subset_fname), "w") as fp:
+                # Prefix (os.curdir + os.sep) is required by Ultralytics
+                # Please see https://github.com/ultralytics/ultralytics/blob/30fc4b537ff1d9b115bc1558884f6bc2696a282c/ultralytics/yolo/data/utils.py#L40-L43
+                fp.writelines(
+                    [os.curdir + os.sep + img_fpath + "\n" for img_fpath in img_fpath_list]
+                )
+            yaml_dict[subset_name] = subset_fname
+
+        label_categories = extractor.categories()[AnnotationType.label]
+        label_ids = {idx: label.name for idx, label in enumerate(label_categories.items)}
+        yaml_dict["names"] = label_ids
+
+        with open(osp.join(save_dir, "data.yaml"), "w") as fp:
+            yaml.safe_dump(yaml_dict, fp, sort_keys=False, allow_unicode=True)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):

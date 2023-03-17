@@ -14,10 +14,10 @@ from datumaro.plugins.data_formats.mvtec.importer import (
     MvtecDetectionImporter,
     MvtecSegmentationImporter,
 )
-from datumaro.util.test_utils import TestDir, compare_datasets
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, compare_datasets
 
 
 class MVTecFormatTest(TestCase):
@@ -215,18 +215,18 @@ class MvtecImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_mvtec(self):
-        matrix = [
-            (DUMMY_DATASET_DIR, MvtecClassificationImporter),
-            (DUMMY_DATASET_DIR, MvtecSegmentationImporter),
-            (DUMMY_DATASET_DIR, MvtecDetectionImporter),
-        ]
-
         env = Environment()
+        path = DUMMY_DATASET_DIR
 
-        for path, subtask in matrix:
-            with self.subTest(path=path, task=subtask):
-                detected_formats = env.detect_dataset(path)
-                self.assertIn(subtask.NAME, detected_formats)
+        detected_formats = env.detect_dataset(path)
+        self.assertEqual(
+            sorted(detected_formats),
+            [
+                MvtecClassificationImporter.NAME,
+                MvtecDetectionImporter.NAME,
+                MvtecSegmentationImporter.NAME,
+            ],
+        )
 
 
 class MVTecExporterTest(TestCase):

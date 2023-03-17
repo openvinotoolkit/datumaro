@@ -13,11 +13,11 @@ from datumaro.components.errors import (
 )
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
-from datumaro.util.test_utils import TestDir
 
 from ...requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir
 
 
 class TestRevpath(TestCase):

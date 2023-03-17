@@ -1,7 +1,8 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import logging as log
 import os.path as osp
 
 from datumaro.components.annotation import (
@@ -14,6 +15,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
@@ -21,12 +23,12 @@ from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class CelebaPath:
-    IMAGES_DIR = "Img/img_celeba"
-    LABELS_FILE = "Anno/identity_CelebA.txt"
-    BBOXES_FILE = "Anno/list_bbox_celeba.txt"
-    ATTRS_FILE = "Anno/list_attr_celeba.txt"
-    LANDMARKS_FILE = "Anno/list_landmarks_celeba.txt"
-    SUBSETS_FILE = "Eval/list_eval_partition.txt"
+    IMAGES_DIR = osp.join("Img", "img_celeba")
+    LABELS_FILE = osp.join("Anno", "identity_CelebA.txt")
+    BBOXES_FILE = osp.join("Anno", "list_bbox_celeba.txt")
+    ATTRS_FILE = osp.join("Anno", "list_attr_celeba.txt")
+    LANDMARKS_FILE = osp.join("Anno", "list_landmarks_celeba.txt")
+    SUBSETS_FILE = osp.join("Eval", "list_eval_partition.txt")
     SUBSETS = {"0": "train", "1": "val", "2": "test"}
     BBOXES_HEADER = "image_id x_1 y_1 width height"
 
@@ -230,6 +232,35 @@ class CelebaBase(SubsetBase):
 
 
 class CelebaImporter(Importer):
+    PATH_CLS = CelebaPath
+
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+        super().detect(context)
+        return FormatDetectionConfidence.MEDIUM
+
     @classmethod
     def find_sources(cls, path):
-        return [{"url": path, "format": "celeba"}]
+        dirname = osp.dirname(cls.PATH_CLS.LABELS_FILE)
+        filename, ext = osp.splitext(osp.basename(cls.PATH_CLS.LABELS_FILE))
+        sources = cls._find_sources_recursive(
+            path, ext=ext, extractor_name=cls.NAME, filename=filename, dirname=dirname
+        )
+
+        if len(sources) > 1:
+            log.error(
+                f"{cls.NAME} label file ({cls.PATH_CLS.LABELS_FILE}) must be unique "
+                f"but the found sources have multiple duplicates. sources = {sources}"
+            )
+            return []
+
+        for source in sources:
+            anno_dir = osp.dirname(source["url"])
+            root_dir = osp.dirname(anno_dir)
+            img_dir = osp.join(root_dir, cls.PATH_CLS.IMAGES_DIR)
+            if not osp.exists(img_dir):
+                log.error(f"Cannot find {cls.NAME}'s images directory at {img_dir}")
+                return []
+            source["url"] = root_dir
+
+        return sources

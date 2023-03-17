@@ -4,7 +4,7 @@
 
 import pytest
 
-from datumaro.util.test_utils import TestCaseHelper, TestDir
+from tests.utils.test_utils import TestCaseHelper, TestDir
 
 
 def pytest_configure(config):

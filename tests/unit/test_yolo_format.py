@@ -8,7 +8,6 @@ import numpy as np
 from datumaro.components.annotation import Bbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AnnotationImportError,
     DatasetExportError,
@@ -18,14 +17,14 @@ from datumaro.components.errors import (
     UndeclaredLabelError,
 )
 from datumaro.components.media import Image
-from datumaro.plugins.data_formats.yolo.base import YoloBase, YoloImporter
+from datumaro.plugins.data_formats.yolo.base import YoloStrictBase
 from datumaro.plugins.data_formats.yolo.exporter import YoloExporter
 from datumaro.util.image import save_image
-from datumaro.util.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, compare_datasets, compare_datasets_strict
 
 
 class YoloExportertTest(TestCase):
@@ -337,36 +336,10 @@ class YoloExportertTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset)
 
 
-DUMMY_DATASET_DIR = get_test_asset_path("yolo_dataset")
+DUMMY_DATASET_DIR = get_test_asset_path("yolo_dataset", "strict")
 
 
 class YoloImporterTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect(self):
-        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertEqual([YoloImporter.NAME], detected_formats)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
-        expected_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=1,
-                    subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
-                    annotations=[
-                        Bbox(0, 2, 4, 2, label=2),
-                        Bbox(3, 3, 2, 3, label=4),
-                    ],
-                ),
-            ],
-            categories=["label_" + str(i) for i in range(10)],
-        )
-
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR, "yolo")
-
-        compare_datasets(self, expected_dataset, dataset)
-
     @mark_requirement(Requirements.DATUM_673)
     def test_can_pickle(self):
         source = Dataset.import_from(DUMMY_DATASET_DIR, format="yolo")
@@ -376,7 +349,7 @@ class YoloImporterTest(TestCase):
         compare_datasets_strict(self, source, parsed)
 
 
-class YoloBaseTest(TestCase):
+class YoloStrictBaseTest(TestCase):
     def _prepare_dataset(self, path: str) -> Dataset:
         dataset = Dataset.from_iterable(
             [
@@ -405,7 +378,7 @@ class YoloBaseTest(TestCase):
     def test_can_report_invalid_data_file(self):
         with TestDir() as test_dir:
             with self.assertRaisesRegex(DatasetImportError, "Can't read dataset descriptor file"):
-                YoloBase(test_dir)
+                YoloStrictBase(test_dir)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_ann_line_format(self):

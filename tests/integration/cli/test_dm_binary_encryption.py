@@ -12,11 +12,11 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.media import Image
 from datumaro.errors import DatasetImportError
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
-from datumaro.util.test_utils import TestCaseHelper, TestDir, compare_datasets
-from datumaro.util.test_utils import run_datum as run
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestCaseHelper, TestDir, compare_datasets
+from tests.utils.test_utils import run_datum as run
 
 yolo_dir = get_test_asset_path("yolo_dataset")
 

@@ -7,12 +7,11 @@ from contextlib import redirect_stdout
 from io import StringIO
 from unittest import TestCase
 
-from datumaro.util.test_utils import TestDir
-from datumaro.util.test_utils import run_datum as run
-
 from ...requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir
+from tests.utils.test_utils import run_datum as run
 
 
 class ModelIntegrationScenarios(TestCase):

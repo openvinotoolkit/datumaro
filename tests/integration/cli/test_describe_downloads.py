@@ -6,10 +6,11 @@ from unittest.case import skipIf
 
 from datumaro.components.extractor_tfds import AVAILABLE_TFDS_DATASETS, TFDS_EXTRACTOR_AVAILABLE
 from datumaro.util import parse_json
-from datumaro.util.test_utils import TestDir, mock_tfds_data
-from datumaro.util.test_utils import run_datum as run
 
 from ...requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir, mock_tfds_data
+from tests.utils.test_utils import run_datum as run
 
 
 @skipIf(not TFDS_EXTRACTOR_AVAILABLE, reason="TFDS is not installed")

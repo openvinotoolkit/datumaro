@@ -10,10 +10,11 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
-from datumaro.util.test_utils import TestDir
-from datumaro.util.test_utils import run_datum as run
 
 from ...requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir
+from tests.utils.test_utils import run_datum as run
 
 
 class SearchTest(TestCase):

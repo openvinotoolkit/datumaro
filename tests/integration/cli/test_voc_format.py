@@ -8,12 +8,12 @@ import datumaro.plugins.data_formats.voc.format as VOC
 from datumaro.components.annotation import Bbox, Label, Mask
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.media import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
-from datumaro.util.test_utils import run_datum as run
 
 from ...requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, compare_datasets
+from tests.utils.test_utils import run_datum as run
 
 DUMMY_DATASETS_DIR = get_test_asset_path("voc_dataset")
 

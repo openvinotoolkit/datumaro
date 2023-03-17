@@ -11,9 +11,10 @@ from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.components.searcher import Searcher
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
-from datumaro.util.test_utils import TestDir
 
 from ..requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir
 
 
 class SearcherTest(TestCase):
@@ -162,7 +163,7 @@ class SearcherTest(TestCase):
         2. Set Searcher and try search_topk to find similar media of query.
         3. Check whether ValueError raised properly or not.
         """
-        imported_dataset = Dataset.import_from("./tests/assets/datumaro_dataset", "datumaro")
+        imported_dataset = Dataset.import_from("./tests/assets/datumaro_dataset/legacy", "datumaro")
         for i, item in enumerate(imported_dataset):
             if i == 0:
                 query = item

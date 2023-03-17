@@ -7,12 +7,12 @@ import numpy as np
 
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.media import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
-from datumaro.util.test_utils import run_datum as run
 
 from ...requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, compare_datasets
+from tests.utils.test_utils import run_datum as run
 
 
 def make_zip_archive(src_path, dst_path):

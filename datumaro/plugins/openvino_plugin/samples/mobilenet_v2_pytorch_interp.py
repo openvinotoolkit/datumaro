@@ -6,6 +6,10 @@ from datumaro.components.annotation import AnnotationType, Label, LabelCategorie
 from datumaro.util.annotation_util import softmax
 
 
+def normalize(inputs):
+    return inputs
+
+
 def process_outputs(inputs, outputs):
     # inputs = model input; array or images; shape = (B, H, W, C)
     # outputs = model output; shape = (1, 1, N, 7); N is the number of detected bounding boxes.

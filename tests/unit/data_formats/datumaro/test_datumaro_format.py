@@ -11,19 +11,21 @@ import pytest
 
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
+from datumaro.components.importer import DatasetImportError
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
 from datumaro.plugins.data_formats.datumaro.importer import DatumaroImporter
-from datumaro.util.test_utils import (
+
+from ....requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import (
     Dimensions,
     check_save_and_load,
     compare_datasets,
     compare_datasets_strict,
 )
-
-from ....requirements import Requirements, mark_requirement
 
 
 class DatumaroFormatTest:
@@ -136,6 +138,13 @@ class DatumaroFormatTest:
                 Dimensions.dim_3d,
                 id="test_can_save_and_load_point_cloud",
             ),
+            pytest.param(
+                "fxt_legacy_dataset_pair",
+                None,
+                True,
+                Dimensions.dim_2d,
+                id="test_can_save_and_load_legacy",
+            ),
         ],
     )
     def test_source_target_pair(
@@ -235,4 +244,10 @@ class DatumaroFormatTest:
         )
         helper_tc.assertEqual(set(), set(os.listdir(osp.join(test_dir, "images", "c"))))
         helper_tc.assertEqual(set(), set(os.listdir(osp.join(test_dir, "images", "d"))))
+
         compare_datasets(helper_tc, expected, Dataset.import_from(test_dir, format=self.format))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_version_compatibility(self, fxt_wrong_version_dir):
+        with pytest.raises(DatasetImportError):
+            Dataset.import_from(fxt_wrong_version_dir, "datumaro")

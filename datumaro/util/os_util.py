@@ -26,6 +26,7 @@ except ModuleNotFoundError:
     from shutil import rmtree as rmtree  # pylint: disable=unused-import
 
 from . import cast
+from .definitions import DEFAULT_SUBSET_NAME
 
 DEFAULT_MAX_DEPTH = 10
 DEFAULT_MIN_DEPTH = 0
@@ -271,3 +272,32 @@ def generate_next_name(
     else:
         idx = sep + str(max_idx + 1)
     return basename + idx + suffix
+
+
+def extract_subset_name_from_parent(url: str, start: str) -> str:
+    """Extract subset name from the given url.
+
+    For example, if url = "/a/b/images/train/img.jpg" and start = "/a/b",
+    it will return "train". On the other hand, if url = "/a/b/images/img.jpg"
+    and start = "/a/b", it will return DEFAULT_SUBSET_NAME.
+
+    Parameters
+    ----------
+    url: str
+        Given url to extract subset
+    start:
+        The head path of url to obtain the relative path from the url
+
+    Returns
+    -------
+    str
+        Subset name
+    """
+    relpath = osp.relpath(url, start)
+    relpath, _ = osp.split(relpath)
+    relpath, subdir_name = osp.split(relpath)
+
+    if relpath == "":
+        return DEFAULT_SUBSET_NAME
+
+    return subdir_name

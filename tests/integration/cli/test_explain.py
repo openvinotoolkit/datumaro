@@ -10,12 +10,12 @@ from unittest import TestCase, skipIf
 import numpy as np
 
 from datumaro.util.image import save_image
-from datumaro.util.test_utils import TestDir
-from datumaro.util.test_utils import run_datum as run
 
 from ...requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir
+from tests.utils.test_utils import run_datum as run
 
 
 class ExplainIntegrationScenarios(TestCase):

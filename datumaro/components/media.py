@@ -16,6 +16,7 @@ import numpy as np
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.errors import MediaShapeError
+from datumaro.util.definitions import BboxIntCoords
 from datumaro.util.image import (
     _image_loading_errors,
     copyto_image,
@@ -23,8 +24,6 @@ from datumaro.util.image import (
     lazy_image,
     save_image,
 )
-
-BboxIntCoords = Tuple[int, int, int, int]  # (x, y, w, h)
 
 
 class MediaType(IntEnum):

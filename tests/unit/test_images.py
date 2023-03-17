@@ -14,9 +14,10 @@ from datumaro.util.image import (
     save_image_meta_file,
 )
 from datumaro.util.image_cache import ImageCache
-from datumaro.util.test_utils import TestDir
 
 from ..requirements import Requirements, mark_requirement
+
+from tests.utils.test_utils import TestDir
 
 
 class ImageCacheTest(TestCase):

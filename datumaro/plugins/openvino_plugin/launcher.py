@@ -5,15 +5,19 @@
 # pylint: disable=exec-used
 
 import logging as log
+import os
 import os.path as osp
 import shutil
+import urllib
 
 import cv2
 import numpy as np
 from openvino.inference_engine import IECore
+from tqdm import tqdm
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.launcher import Launcher
+from datumaro.util.samples import get_samples_path
 
 
 class _OpenvinoImporter(CliPlugin):
@@ -64,9 +68,14 @@ class InterpreterScript:
         context = {}
         exec(script, context, context)
 
+        normalize = context.get("normalize")
+        if not callable(normalize):
+            raise Exception("Can't find 'normalize' function in the interpreter script")
+        self.__dict__["normalize"] = normalize
+
         process_outputs = context.get("process_outputs")
         if not callable(process_outputs):
-            raise Exception("Can't find 'process_outputs' function in " "the interpreter script")
+            raise Exception("Can't find 'process_outputs' function in the interpreter script")
         self.__dict__["process_outputs"] = process_outputs
 
         get_categories = context.get("get_categories")
@@ -82,15 +91,52 @@ class InterpreterScript:
     def process_outputs(inputs, outputs):
         raise NotImplementedError("Function should be implemented in the interpreter script")
 
+    @staticmethod
+    def normalize(inputs):
+        raise NotImplementedError("Function should be implemented in the interpreter script")
+
 
 class OpenvinoLauncher(Launcher):
     cli_plugin = _OpenvinoImporter
 
     def __init__(
-        self, description, weights, interpreter, device=None, model_dir=None, output_layers=None
+        self,
+        description=None,
+        weights=None,
+        interpreter=None,
+        model_dir=None,
+        model_name=None,
+        output_layers=None,
+        device=None,
     ):
+        if model_name:
+            model_dir = os.path.join(os.path.expanduser("~"), ".cache", "datumaro")
+            if not osp.exists(model_dir):
+                os.makedirs(model_dir)
+
+            # Please visit open-model-zoo repository for OpenVINO public models if you are interested in
+            # https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/index.md
+            url_folder = "https://storage.openvinotoolkit.org/repositories/datumaro/models/"
+
+            description = osp.join(model_dir, model_name + ".xml")
+            if not osp.exists(description):
+                cached_description_url = osp.join(url_folder, model_name + ".xml")
+                log.info('Downloading: "{}" to {}\n'.format(cached_description_url, description))
+                self._download_file(cached_description_url, description)
+
+            weights = osp.join(model_dir, model_name + ".bin")
+            if not osp.exists(weights):
+                cached_weights_url = osp.join(url_folder, model_name + ".bin")
+                log.info('Downloading: "{}" to {}\n'.format(cached_weights_url, weights))
+                self._download_file(cached_weights_url, weights)
+
+            if not interpreter:
+                openvino_plugin_samples_dir = get_samples_path()
+                interpreter = osp.join(openvino_plugin_samples_dir, model_name + "_interp.py")
+
         if not model_dir:
             model_dir = ""
+
         if not osp.isfile(description):
             description = osp.join(model_dir, description)
         if not osp.isfile(description):
@@ -115,6 +161,25 @@ class OpenvinoLauncher(Launcher):
         self._network = self._ie.read_network(description, weights)
         self._check_model_support(self._network, self._device)
         self._load_executable_net()
+
+    def _download_file(self, url: str, file_root: str):
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as source, open(file_root, "wb") as output:  # nosec B310
+            with tqdm(
+                total=int(source.info().get("Content-Length")),
+                ncols=80,
+                unit="iB",
+                unit_scale=True,
+                unit_divisor=1024,
+            ) as loop:
+                while True:
+                    buffer = source.read(8192)
+                    if not buffer:
+                        break
+
+                    output.write(buffer)
+                    loop.update(len(buffer))
+        return 0
 
     def _check_model_support(self, net, device):
         not_supported_layers = set(
@@ -149,30 +214,7 @@ class OpenvinoLauncher(Launcher):
         self._net = self._ie.load_network(network=network, num_requests=1, device_name=self._device)
 
     def infer(self, inputs):
-        assert len(inputs.shape) == 4, "Expected an input image in (N, H, W, C) format, got %s" % (
-            inputs.shape,
-        )
-
-        if inputs.shape[3] == 1:  # A batch of single-channel images
-            inputs = np.repeat(inputs, 3, axis=3)
-
-        assert inputs.shape[3] == 3, "Expected BGR input, got %s" % (inputs.shape,)
-
-        n, c, h, w = self._input_layout
-        if inputs.shape[1:3] != (h, w):
-            resized_inputs = np.empty((n, h, w, c), dtype=inputs.dtype)
-            for inp, resized_input in zip(inputs, resized_inputs):
-                cv2.resize(inp, (w, h), resized_input)
-            inputs = resized_inputs
-        inputs = inputs.transpose((0, 3, 1, 2))  # NHWC to NCHW
-        inputs = {self._input_blob: inputs}
-        if self._require_image_info:
-            info = np.zeros([1, 3])
-            info[0, 0] = h
-            info[0, 1] = w
-            info[0, 2] = 1.0  # scale
-            inputs["image_info"] = info
-
+        inputs = self.process_inputs(inputs)
         results = self._net.infer(inputs)
         if len(results) == 1:
             return next(iter(results.values()))
@@ -193,3 +235,33 @@ class OpenvinoLauncher(Launcher):
 
     def process_outputs(self, inputs, outputs):
         return self._interpreter.process_outputs(inputs, outputs)
+
+    def process_inputs(self, inputs):
+        assert len(inputs.shape) == 4, "Expected an input image in (N, H, W, C) format, got %s" % (
+            inputs.shape,
+        )
+
+        if inputs.shape[3] == 1:  # A batch of single-channel images
+            inputs = np.repeat(inputs, 3, axis=3)
+
+        assert inputs.shape[3] == 3, "Expected BGR input, got %s" % (inputs.shape,)
+
+        n, c, h, w = self._input_layout
+        if inputs.shape[1:3] != (h, w):
+            resized_inputs = np.empty((n, h, w, c), dtype=inputs.dtype)
+            for inp, resized_input in zip(inputs, resized_inputs):
+                cv2.resize(inp, (w, h), resized_input)
+            inputs = resized_inputs
+        inputs = inputs.transpose((0, 3, 1, 2))  # NHWC to NCHW
+
+        inputs = self._interpreter.normalize(inputs)
+
+        inputs = {self._input_blob: inputs}
+        if self._require_image_info:
+            info = np.zeros([1, 3])
+            info[0, 0] = h
+            info[0, 1] = w
+            info[0, 2] = 1.0  # scale
+            inputs["image_info"] = info
+
+        return inputs

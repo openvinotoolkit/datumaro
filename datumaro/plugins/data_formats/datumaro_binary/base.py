@@ -24,12 +24,20 @@ class DatumaroBinaryBase(DatumaroBase):
         self._crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
         super().__init__(path)
 
+    def _get_dm_format_version(self, path: str) -> str:
+        with open(path, "rb") as fp:
+            self._fp = fp
+            self._check_signature()
+            dm_format_version = self._read_version()
+        return dm_format_version
+
     def _load_impl(self, path: str) -> None:
         """Actual implementation of loading Datumaro binary format."""
         try:
             with open(path, "rb") as fp:
                 self._fp = fp
                 self._check_signature()
+                self._read_version()
                 self._check_encryption_field()
                 self._read_info()
                 self._read_categories()
@@ -55,6 +63,9 @@ class DatumaroBinaryBase(DatumaroBase):
         _bytes = self._crypter.decrypt(_bytes)
         header, _ = DictMapper.backward(_bytes)
         return header
+
+    def _read_version(self) -> str:
+        return self._read_header()["dm_format_version"]
 
     def _read_info(self):
         self._infos = self._read_header()
