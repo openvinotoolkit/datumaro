@@ -10,7 +10,10 @@ from typing import Any
 import pytest
 
 from datumaro.components.annotation import Annotation
-from datumaro.plugins.data_formats.datumaro_binary import *
+from datumaro.plugins.data_formats.datumaro_binary import (
+    DatumaroBinaryExporter,
+    DatumaroBinaryImporter,
+)
 from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
 from datumaro.plugins.data_formats.datumaro_binary.mapper import *

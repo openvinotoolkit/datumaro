@@ -41,10 +41,8 @@ class Searcher:
         topk:
             Number of images.
         """
-        self._model = SearcherLauncher()
-        self._text_model = SearcherLauncher(
-            description="clip_text_ViT-B_32.xml", weights="clip_text_ViT-B_32.bin"
-        )
+        self._model = SearcherLauncher(model_name="clip_visual_ViT-B_32")
+        self._text_model = SearcherLauncher(model_name="clip_text_ViT-B_32")
         inference = dataset.run_model(self._model, append_annotation=True)
         self._topk = topk
 

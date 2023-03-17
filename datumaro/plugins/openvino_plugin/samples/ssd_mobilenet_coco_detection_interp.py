@@ -8,6 +8,10 @@ conf_thresh = 0.3
 model_class_num = 91
 
 
+def normalize(inputs):
+    return inputs
+
+
 def _match_confs(confs, detections):
     matches = [-1] * len(detections)
 

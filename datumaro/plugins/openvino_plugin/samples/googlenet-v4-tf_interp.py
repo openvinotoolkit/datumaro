@@ -2,11 +2,22 @@
 #
 # SPDX-License-Identifier: MIT
 
+import numpy as np
+
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.util.annotation_util import softmax
 
 
 def normalize(inputs):
+    # https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/googlenet-v4-tf/README.md
+    mean = np.array([127.5] * 3)
+    std = np.array([127.5] * 3)
+
+    normalized_inputs = np.empty_like(inputs, dtype=inputs.dtype)
+    for k, inp in enumerate(inputs):
+        normalized_inputs[k] = (inp - mean[:, None, None]) / std[:, None, None]
+    inputs = normalized_inputs
+
     return inputs
 
 
