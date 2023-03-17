@@ -35,14 +35,21 @@ class FormatDetectionConfidence(IntEnum):
     """
 
     NONE = 1
+    """
+    """
+    EXTREME_LOW = 5
+    """
+    EXTREME_LOW: This is currently only assigned to ImageDir format. This is because
+    ImageDir format can be detected in every image dataset format.
+    """
     LOW = 10
     """
-    The dataset seems to belong to the format, but the format is too loosely
+    LOW: The dataset seems to belong to the format, but the format is too loosely
     defined to be able to distinguish it from other formats.
     """
     MEDIUM = 20
     """
-    The dataset seems to belong to the format, and is likely not to belong
+    MEDIUM: The dataset seems to belong to the format, and is likely not to belong
     to any other format.
     """
     # There's no HIGH confidence yet, because none of the detectors

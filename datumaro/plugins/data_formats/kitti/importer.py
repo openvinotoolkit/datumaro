@@ -6,12 +6,15 @@ import logging as log
 import os.path as osp
 from glob import glob
 
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 
 from .format import KittiPath, KittiTask
 
 
 class KittiImporter(Importer):
+    DETECT_CONFIDENCE = FormatDetectionConfidence.MEDIUM
+
     _TASKS = {
         KittiTask.segmentation: ("kitti_segmentation", KittiPath.INSTANCES_DIR),
         KittiTask.detection: ("kitti_detection", KittiPath.LABELS_DIR),
@@ -69,12 +72,35 @@ class KittiImporter(Importer):
 
         return subsets
 
+    @classmethod
+    def detect(
+        cls,
+        context: FormatDetectionContext,
+    ) -> FormatDetectionConfidence:
+        sub_importers = [KittiDetectionImporter, KittiSegmentationImporter]
+        with context.require_any():
+            for importer_cls in sub_importers:
+                with context.alternative():
+                    importer_cls.detect(context)
+
 
 class KittiDetectionImporter(KittiImporter):
     _TASK = KittiTask.detection
     _TASKS = {_TASK: KittiImporter._TASKS[_TASK]}
 
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+        # left color camera label files
+        context.require_file("**/label_2/*.txt")
+        return cls.DETECT_CONFIDENCE
+
 
 class KittiSegmentationImporter(KittiImporter):
     _TASK = KittiTask.segmentation
     _TASKS = {_TASK: KittiImporter._TASKS[_TASK]}
+
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+        # instance segmentation masks
+        context.require_file("**/instance/*.png")
+        return cls.DETECT_CONFIDENCE
