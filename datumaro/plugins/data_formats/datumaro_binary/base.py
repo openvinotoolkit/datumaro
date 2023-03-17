@@ -57,15 +57,16 @@ class DatumaroBinaryBase(DatumaroBase):
         if not self._crypter.handshake(_bytes):
             raise DatasetImportError("Encryption key handshake fails. You give a wrong key.")
 
-    def _read_header(self):
+    def _read_header(self, use_crypter: bool = True):
         len_byte = self._fp.read(4)
         _bytes = self._fp.read(struct.unpack("I", len_byte)[0])
-        _bytes = self._crypter.decrypt(_bytes)
+        if use_crypter:
+            _bytes = self._crypter.decrypt(_bytes)
         header, _ = DictMapper.backward(_bytes)
         return header
 
     def _read_version(self) -> str:
-        return self._read_header()["dm_format_version"]
+        return self._read_header(use_crypter=False)["dm_format_version"]
 
     def _read_info(self):
         self._infos = self._read_header()

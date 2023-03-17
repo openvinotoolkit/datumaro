@@ -55,17 +55,17 @@ class _SubsetWriter(__SubsetWriter):
 
         return self._fp.write(struct.pack(f"I{len(msg)}s", len(msg), msg))
 
-    def _dump_header(self, header: Any):
+    def _dump_header(self, header: Any, use_crypter: bool = True):
         msg = DictMapper.forward(header)
 
-        if self._crypter.key is not None:
+        if use_crypter and self._crypter.key is not None:
             msg = self._crypter.encrypt(msg)
 
         length = struct.pack("I", len(msg))
         return self._fp.write(length + msg)
 
     def _dump_version(self):
-        self._dump_header({"dm_format_version": DATUMARO_FORMAT_VERSION})
+        self._dump_header({"dm_format_version": DATUMARO_FORMAT_VERSION}, use_crypter=False)
 
     def _dump_info(self):
         self._dump_header(self.infos)
