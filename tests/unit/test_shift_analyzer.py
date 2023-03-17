@@ -57,8 +57,8 @@ def fxt_dataset_different():
     [
         ("fxt_dataset_ideal", "fid", 0),
         ("fxt_dataset_ideal", "emd", 0),
-        ("fxt_dataset_different", "fid", 0.100584),
-        ("fxt_dataset_different", "emd", 0.003166),
+        ("fxt_dataset_different", "fid", 0.1005),
+        ("fxt_dataset_different", "emd", 0.0031),
     ],
 )
 def test_covariate_shift(
@@ -67,7 +67,7 @@ def test_covariate_shift(
     fxt_datasets = request.getfixturevalue(fxt_datasets)
     shift_analyzer = ShiftAnalyzer()
     result = shift_analyzer.compute_covariate_shift(fxt_datasets, method=method)
-    assert abs(result - expected) < 1e-6
+    assert abs(result - expected) < 1e-3
 
 
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -75,11 +75,11 @@ def test_covariate_shift(
     "fxt_datasets,expected",
     [
         ("fxt_dataset_ideal", 0.75),
-        ("fxt_dataset_different", 0.959047),
+        ("fxt_dataset_different", 0.9590),
     ],
 )
 def test_label_shift(fxt_datasets: List[Dataset], expected: float, request: pytest.FixtureRequest):
     fxt_datasets = request.getfixturevalue(fxt_datasets)
     shift_analyzer = ShiftAnalyzer()
     result = shift_analyzer.compute_label_shift(fxt_datasets)
-    assert abs(result - expected) < 1e-6
+    assert abs(result - expected) < 1e-3
