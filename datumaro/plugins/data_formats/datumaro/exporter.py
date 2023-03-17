@@ -29,6 +29,7 @@ from datumaro.components.annotation import (
     RleMask,
     _Shape,
 )
+from datumaro.components.crypter import NULL_CRYPTER
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.exporter import Exporter
@@ -50,6 +51,7 @@ class _SubsetWriter:
         }
 
         self.ann_file = ann_file
+        self._crypter = NULL_CRYPTER
 
     @property
     def infos(self):
@@ -82,7 +84,7 @@ class _SubsetWriter:
                 image._path = osp.join(
                     self._context._images_dir, item.subset, self._context._make_image_filename(item)
                 )
-                self._context._save_image(item, image.path)
+                self._context._save_image(item, image.path, crypter=self._crypter)
 
             yield
             image._path = path

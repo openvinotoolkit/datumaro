@@ -10,11 +10,11 @@ from typing import Any
 import pytest
 
 from datumaro.components.annotation import Annotation
+from datumaro.components.crypter import Crypter
 from datumaro.plugins.data_formats.datumaro_binary import (
     DatumaroBinaryExporter,
     DatumaroBinaryImporter,
 )
-from datumaro.plugins.data_formats.datumaro_binary.crypter import Crypter
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
 
 # pylint: disable=undefined-variable
@@ -151,3 +151,12 @@ class MapperTest:
             for ann in item.annotations:
                 mapper = self._get_ann_mapper(ann)
                 self._test(mapper, ann)
+
+
+class EncryptActionTest:
+    @pytest.mark.parametrize("args,flag", [(["--encrypt"], True), ([], False)], ids=["on", "off"])
+    def test_action(self, args, flag):
+        parser = DatumaroBinaryExporter.build_cmdline_parser()
+        args = parser.parse_args(args)
+
+        assert hasattr(args, "encryption_key") == flag

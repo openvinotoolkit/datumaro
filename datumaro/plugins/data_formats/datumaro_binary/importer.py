@@ -15,6 +15,17 @@ class DatumaroBinaryImporter(DatumaroImporter):
     PATH_CLS = DatumaroBinaryPath
 
     @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "--encryption-key",
+            type=str,
+            default=None,
+            help="Encryption key",
+        )
+        return parser
+
+    @classmethod
     def detect(
         cls,
         context: FormatDetectionContext,

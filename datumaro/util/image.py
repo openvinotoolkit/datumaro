@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -6,6 +6,7 @@ import importlib
 import os
 import os.path as osp
 import shlex
+import shutil
 import warnings
 import weakref
 from enum import Enum, auto
@@ -13,6 +14,9 @@ from io import BytesIO
 from typing import Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union
 
 import numpy as np
+
+from datumaro.components.crypter import NULL_CRYPTER, Crypter
+from datumaro.components.errors import DatumaroError
 
 try:
     # Introduced in 1.20
@@ -56,7 +60,7 @@ def __getattr__(name: str):
     raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
-def load_image(path: str, dtype: DTypeLike = np.float32):
+def load_image(path: str, dtype: DTypeLike = np.float32, crypter: Crypter = NULL_CRYPTER):
     """
     Reads an image in the HWC Grayscale/BGR(A) float [0; 255] format.
     """
@@ -67,11 +71,14 @@ def load_image(path: str, dtype: DTypeLike = np.float32):
         # ourselves.
 
         with open(path, "rb") as f:
-            image_bytes = f.read()
+            image_bytes = crypter.decrypt(f.read())
 
         return decode_image(image_bytes, dtype=dtype)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
+
+        if not crypter.is_null_crypter:
+            raise DatumaroError("PIL backend should have crypter=NullCrypter.")
 
         image = Image.open(path)
         image = np.asarray(image, dtype=dtype)
@@ -86,8 +93,28 @@ def load_image(path: str, dtype: DTypeLike = np.float32):
     return image
 
 
+def copyto_image(src_path: str, dst_path: str, src_crypter: Crypter, dst_crypter: Crypter) -> None:
+    if src_crypter == dst_crypter:
+        if src_path == dst_path:
+            return
+
+        shutil.copyfile(src_path, dst_path)
+        return
+
+    with open(src_path, "rb") as read_fp:
+        _bytes = src_crypter.decrypt(read_fp.read())
+
+    with open(dst_path, "wb") as write_fp:
+        write_fp.write(dst_crypter.encrypt(_bytes))
+
+
 def save_image(
-    path: str, image: np.ndarray, create_dir: bool = False, dtype: DTypeLike = np.uint8, **kwargs
+    path: str,
+    image: np.ndarray,
+    create_dir: bool = False,
+    dtype: DTypeLike = np.uint8,
+    crypter: Crypter = NULL_CRYPTER,
+    **kwargs,
 ) -> None:
     # NOTE: Check destination path for existence
     # OpenCV silently fails if target directory does not exist
@@ -116,9 +143,12 @@ def save_image(
         image_bytes = encode_image(image, ext, dtype=dtype, **kwargs)
 
         with open(path, "wb") as f:
-            f.write(image_bytes)
+            f.write(crypter.encrypt(image_bytes))
     elif backend == _IMAGE_BACKENDS.PIL:
         from PIL import Image
+
+        if not crypter.is_null_crypter:
+            raise DatumaroError("PIL backend should have crypter=NullCrypter.")
 
         params = {}
         params["quality"] = kwargs.get("jpeg_quality")
@@ -252,6 +282,7 @@ class lazy_image:
         path: str,
         loader: Callable[[str], np.ndarray] = None,
         cache: Union[bool, ImageCache] = True,
+        crypter: Crypter = NULL_CRYPTER,
     ) -> None:
         """
         Cache:
@@ -260,13 +291,18 @@ class lazy_image:
             - ImageCache instance: an object to be used as cache
         """
 
+        self._custom_loader = True
+
         if loader is None:
             loader = load_image
+            self._custom_loader = False
+
         self._path = path
         self._loader = loader
 
         assert isinstance(cache, (ImageCache, bool))
         self._cache = cache
+        self._crypter = crypter
 
     def __call__(self) -> np.ndarray:
         image = None
@@ -277,7 +313,11 @@ class lazy_image:
             image = cache.get(cache_key)
 
         if image is None:
-            image = self._loader(self._path)
+            image = (
+                self._loader(self._path)
+                if self._custom_loader
+                else self._loader(self._path, crypter=self._crypter)
+            )
             if cache is not None:
                 cache.push(cache_key, image)
         return image

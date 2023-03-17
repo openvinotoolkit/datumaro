@@ -20,6 +20,8 @@ class DatumaroBinaryPath:
     SIGNATURE = _SIGNATURE
     SIGNATURE_LEN = len(_SIGNATURE)
 
+    SECRET_KEY_FILE = "secret_key.txt"
+
     @classmethod
     def check_signature(cls, signature: str):
         if signature != cls.SIGNATURE:
