@@ -135,6 +135,7 @@ class Importer(CliPlugin):
         dirname: str = "",
         file_filter: Optional[Callable[[str], bool]] = None,
         max_depth: int = 3,
+        recursive: bool = False,
     ):
         """
         Finds sources in the specified location, using the matching pattern
@@ -151,6 +152,8 @@ class Importer(CliPlugin):
             dirname: a glob pattern for filename prefixes
             file_filter: a callable (abspath: str) -> bool, to filter paths found
             max_depth: the maximum depth for recursive search.
+            recursive: If recursive is true, the pattern '**' will match any files and
+                zero or more directories and subdirectories.
 
         Returns: a list of source configurations
             (i.e. Extractor type names and c-tor parameters)
@@ -174,7 +177,9 @@ class Importer(CliPlugin):
             for d in range(max_depth + 1):
                 sources.extend(
                     {"url": p, "format": extractor_name}
-                    for p in iglob(osp.join(path, *("*" * d), dirname, filename + ext))
+                    for p in iglob(
+                        osp.join(path, *("*" * d), dirname, filename + ext), recursive=recursive
+                    )
                     if (callable(file_filter) and file_filter(p)) or (not callable(file_filter))
                 )
                 if sources:

@@ -1,7 +1,7 @@
 # Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import pytest
 
@@ -44,11 +44,18 @@ class TestDataFormatBase:
         fxt_import_kwargs: Dict[str, Any],
         fxt_export_kwargs: Dict[str, Any],
         request: pytest.FixtureRequest,
+        exporter: Optional[Exporter] = None,
+        importer: Optional[Importer] = None,
     ):
+        if exporter is None:
+            exporter = self.EXPORTER
+        if importer is None:
+            importer = self.IMPORTER
+
         helper_tc = request.getfixturevalue("helper_tc")
 
-        self.EXPORTER.convert(
+        exporter.convert(
             fxt_expected_dataset, save_dir=test_dir, save_media=True, **fxt_export_kwargs
         )
-        dataset = Dataset.import_from(test_dir, self.IMPORTER.NAME, **fxt_import_kwargs)
+        dataset = Dataset.import_from(test_dir, importer.NAME, **fxt_import_kwargs)
         compare_datasets(helper_tc, fxt_expected_dataset, dataset, require_media=True)

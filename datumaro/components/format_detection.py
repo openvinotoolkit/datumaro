@@ -298,7 +298,7 @@ class FormatDetectionContext:
     @contextlib.contextmanager
     def probe_text_file(
         self, path: str, requirement_desc: str, is_binary_file: bool = False
-    ) -> Iterator[Union[BufferedReader, TextIO]]:
+    ) -> Union[BufferedReader, TextIO]:
         """
         Returns a context manager that can be used to place a requirement on
         the contents of the file referred to by `path`. To do so, you must
