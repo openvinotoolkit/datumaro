@@ -96,6 +96,7 @@ class DatasetItemStorage:
         is_removed = subset_data.get(id) is not None
         subset_data[id] = None
         if is_removed:
+            # TODO : investigate why "del subset_data[id]" cannot replace "subset_data[id] = None".
             self._traversal_order.pop((id, subset))
         return is_removed
 
@@ -139,6 +140,7 @@ class DatasetItemStorageDatasetView(IDataset):
             super().__init__()
             self.parent = parent
             self.name = name
+            self._length = None
 
         @property
         def _data(self):
@@ -150,9 +152,17 @@ class DatasetItemStorageDatasetView(IDataset):
                     yield item
 
         def __len__(self):
-            return len(self._data)
+            if self._length is not None:
+                return self._length
+
+            self._length = 0
+            for item in self._data.values():
+                if item is not None:
+                    self._length += 1
+            return self._length
 
         def put(self, item):
+            self._length = None
             return self._data.put(item)
 
         def get(self, id, subset=None):
@@ -161,6 +171,7 @@ class DatasetItemStorageDatasetView(IDataset):
 
         def remove(self, id, subset=None):
             assert (subset or DEFAULT_SUBSET_NAME) == (self.name or DEFAULT_SUBSET_NAME)
+            self._length = None
             return self._data.remove(id, subset)
 
         def get_subset(self, name):
@@ -278,7 +289,9 @@ class DatasetSubset(IDataset):  # non-owning view
         yield from self.parent._data.get_subset(self.name)
 
     def __len__(self):
-        return len(self.parent._data.get_subset(self.name))
+        subset: DatasetItemStorageDatasetView.Subset = self.parent._data.get_subset(self.name)
+
+        return len(subset)
 
     def put(self, item):
         return self.parent.put(item, subset=self.name)
