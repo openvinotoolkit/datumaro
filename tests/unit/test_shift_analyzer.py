@@ -1,3 +1,4 @@
+import platform
 from copy import deepcopy
 from typing import List
 
@@ -52,6 +53,11 @@ def fxt_dataset_different():
 
 
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+@pytest.mark.skipif(
+    platform.system() == "Darwin",
+    reason="Segmentation fault only occurs on MacOS: "
+    "https://github.com/openvinotoolkit/datumaro/actions/runs/4442957907/jobs/7799740769",
+)
 @pytest.mark.parametrize(
     "fxt_datasets,method,expected",
     [
@@ -71,6 +77,11 @@ def test_covariate_shift(
 
 
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+@pytest.mark.skipif(
+    platform.system() == "Darwin",
+    reason="Segmentation fault only occurs on MacOS: "
+    "https://github.com/openvinotoolkit/datumaro/actions/runs/4442957907/jobs/7799740769",
+)
 @pytest.mark.parametrize(
     "fxt_datasets,expected",
     [
