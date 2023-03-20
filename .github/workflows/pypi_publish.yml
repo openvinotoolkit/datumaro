@@ -4,9 +4,6 @@ on:
   release:
     types: [published]
 
-  pull_request:
-    types: [edited, ready_for_review, opened, synchronize, reopened]
-
 jobs:
   pypi-publish:
     name: Upload release to PyPI
@@ -36,5 +33,4 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
-        repository-url: https://test.pypi.org/legacy/
         verbose: true
