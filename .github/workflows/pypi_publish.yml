@@ -3,11 +3,15 @@ name: Publish to PyPI
 on:
   release:
     types: [published]
+  pull_request:
+    types: [edited, ready_for_review, opened, synchronize, reopened]
 
 jobs:
   pypi-publish:
     name: Upload release to PyPI
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -34,3 +38,4 @@ jobs:
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
         verbose: true
+        repository-url: https://test.pypi.org/legacy/
