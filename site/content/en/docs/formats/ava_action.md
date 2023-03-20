@@ -42,21 +42,21 @@ The AVA action dataset directory should have the following structure:
 ```
 └─ Dataset/Category
    ├── frames/
-   │  ├── video0/ # directory with list of frames extracted from video0
-   │  │  ├── img1.jpg
-   │  |  ├── img2.jpg
-   │  |  └── ...
-   │  ├── video1/ # directory with list of frames extracted from video1
-   │  │  ├── img1.jpg
-   │  |  ├── img2.jpg
-   │  |  └── ...
+   │   ├── video0/ # directory with list of frames extracted from video0
+   │   │   ├── img1.jpg
+   │   |   ├── img2.jpg
+   │   |   └── ...
+   │   ├── video1/ # directory with list of frames extracted from video1
+   │   │   ├── img1.jpg
+   │   |   ├── img2.jpg
+   │   |   └── ...
    └── annotations/
-      ├── ava_action_list_v2.2.pbtxt # list of action categories
-      ├── ava_train_v2.2.csv # annotations for training data
-      ├── ava_val_v2.2.csv # annotations for validation data
-      ├── ava_dense_proposals_train.FAIR.recall_93.9.pkl # region proposals for training data
-      ├── ava_dense_proposals_val.FAIR.recall_93.9.pkl # region proposals for validation data
-      └── ...
+       ├── ava_action_list_v2.2.pbtxt # list of action categories
+       ├── ava_train_v2.2.csv # annotations for training data
+       ├── ava_val_v2.2.csv # annotations for validation data
+       ├── ava_dense_proposals_train.FAIR.recall_93.9.pkl # region proposals for training data
+       ├── ava_dense_proposals_val.FAIR.recall_93.9.pkl # region proposals for validation data
+       └── ...
 ```
 
 To make sure that the selected dataset has been added to the project, you
