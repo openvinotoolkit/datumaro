@@ -6,4 +6,4 @@ Quick Start Guide
 
    installation
    usage
-   examples  
+   examples
