@@ -6,11 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
-### Added
+
+## 17/03/2023 - Release 1.1.0rc1
+### New features
 - Add with_subset_dirs decorator (Add ImagenetWithSubsetDirsImporter)
   (<https://github.com/openvinotoolkit/datumaro/pull/816>)
 - Add CommonSemanticSegmentationWithSubsetDirsImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/826>)
+- Add DatumaroBinary format
+  (<https://github.com/openvinotoolkit/datumaro/pull/828>, <https://github.com/openvinotoolkit/datumaro/pull/829>, <https://github.com/openvinotoolkit/datumaro/pull/830>, <https://github.com/openvinotoolkit/datumaro/pull/831>)
 - Add Searcher CLI documentation
   (<https://github.com/openvinotoolkit/datumaro/pull/838>)
 - Add version to dataset exported as datumaro format
@@ -24,11 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Ultralytics YOLO format
   (<https://github.com/openvinotoolkit/datumaro/pull/859>)
 
-### Changed
+### Enhancements
 - Refactor Datumaro format code and test code
   (<https://github.com/openvinotoolkit/datumaro/pull/824>)
 
-### Fixed
+### Bug fixes
 - Fix image filenames and anomaly mask appearance in MVTec exporter
   (<https://github.com/openvinotoolkit/datumaro/pull/835>)
 - Fix CIFAR10 and 100 detect function
@@ -45,7 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/860>)
 
 ## 24/02/2023 - Release v1.0.0
-### Added
+### New features
 - Add Data Explorer
   (<https://github.com/openvinotoolkit/datumaro/pull/773>)
 - Add Ellipse annotation type
@@ -53,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add MVTec anomaly data support
   (<https://github.com/openvinotoolkit/datumaro/pull/810>)
 
-### Changed
+### Enhancements
 - Refactor existing tests
   (<https://github.com/openvinotoolkit/datumaro/pull/803>)
 - Raise ImportError on importing malformed COCO directory
@@ -61,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove the duplicated and cyclical category context in documentation
   (<https://github.com/openvinotoolkit/datumaro/pull/822>)
 
-### Fixed
+### Bug fixes
 - Fix for importing CVAT image 1.1 data format exported to project level
   (<https://github.com/openvinotoolkit/datumaro/pull/795>)
 - Fix a problem on setting log-level via CLI
@@ -73,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/805>)
 
 ## 27/01/2023 - Release v0.5.0
-### Added
+### New features
 - Add Tile transformation
   (<https://github.com/openvinotoolkit/datumaro/pull/790>)
 - Add Video keyframe extraction
@@ -83,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add MergeTile transformation
   (<https://github.com/openvinotoolkit/datumaro/pull/796>)
 
-### Changed
+### Enhancements
 - Improved mask_to_rle performance
   (<https://github.com/openvinotoolkit/datumaro/pull/770>)
 
@@ -93,7 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - N/A
 
-### Fixed
+### Bug fixes
 - Fix MacOS CI failures
   (<https://github.com/openvinotoolkit/datumaro/pull/789>)
 - Fix auto-documentation for the data_format plugins
@@ -104,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/798>)
 
 ## 06/12/2022 - Release v0.4.0.1
-### Added
+### New features
 - Support for exclusive of labels with LabelGroup
   (<https://github.com/openvinotoolkit/datumaro/pull/742>)
 - Jupyter samples
@@ -140,7 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 'bbox' annotation when importing a COCO dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/772>)
 
-### Changed
+### Enhancements
 - Wrap title text according to its plot width
   (<https://github.com/openvinotoolkit/datumaro/pull/769>)
 - Get list of subsets and support only Image media type in visualizer
@@ -152,7 +156,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - N/A
 
-### Fixed
+### Bug fixes
 - Correcting static type checking
   (<https://github.com/openvinotoolkit/datumaro/pull/743>)
 - Fixing a VOC dataset export when a label contains 'space'
@@ -162,7 +166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A
 
 ## 06/09/2022 - Release v0.3.1
-### Added
+### New features
 - Support for custom media types, new `PointCloud` media type,
   `DatasetItem.media` and `.media_as(type)` members
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
@@ -189,7 +193,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NYU Depth Dataset V2 format (import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/712>)
 
-### Changed
+### Enhancements
 - `env.detect_dataset()` now returns a list of detected formats at all recursion levels
   instead of just the lowest one
   (<https://github.com/openvinotoolkit/datumaro/pull/680>)
@@ -213,7 +217,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - N/A
 
-### Fixed
+### Bug fixes
 - Detection for LFW format
   (<https://github.com/openvinotoolkit/datumaro/pull/680>)
 - Adding depth value of image when dataset is exported in VOC format
@@ -228,7 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A
 
 ## 21/02/2022 - Release v0.3
-### Added
+### New features
 - Ability to import a video as frames with the `video_frames` format and
   to split a video into frames with the `datum util split_video` command
   (<https://github.com/openvinotoolkit/datumaro/pull/555>)
@@ -261,7 +265,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`remove_items`, `remove_annotations`, `remove_attributes`)
   (<https://github.com/openvinotoolkit/datumaro/pull/670>)
 
-### Changed
+### Enhancements
 - Allowed direct file paths in `datum import`. Such sources are imported like
   when the `rpath` parameter is specified, however, only the selected path
   is copied into the project
@@ -290,7 +294,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backward compatibility annotation symbols in `components.extractor`
   (<https://github.com/openvinotoolkit/datumaro/pull/630>)
 
-### Fixed
+### Bug fixes
 - Prohibited calling `add`, `import` and `export` commands without a project
   (<https://github.com/openvinotoolkit/datumaro/pull/555>)
 - Calling `make_dataset` on empty project tree now produces the error properly
@@ -315,7 +319,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 28/01/2022 - Release v0.2.3
-### Added
+### New features
 - Command to download public datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/582>)
 - Extension autodetection in `ByteImage`
@@ -325,7 +329,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MARS format (import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/585>)
 
-### Changed
+### Enhancements
 - The `pycocotools` dependency lower bound is raised to `2.0.4`.
   (<https://github.com/openvinotoolkit/datumaro/pull/449>)
 - `smooth_line` from `datumaro.util.annotation_util` - the function
@@ -338,7 +342,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - Fails in multimerge when lines are not approximated and when there are no
   label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 - Cannot convert LabelMe dataset, that has no subsets
@@ -348,7 +352,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 24/12/2021 - Release v0.2.2
-### Added
+### New features
 - Video reading API
   (<https://github.com/openvinotoolkit/datumaro/pull/521>)
 - Python API documentation
@@ -370,7 +374,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image resizing transform
   (<https://github.com/openvinotoolkit/datumaro/pull/581>)
 
-### Changed
+### Enhancements
 - The following formats can now be detected unambiguously:
   `ade20k2017`, `ade20k2020`, `camvid`, `coco`, `cvat`, `datumaro`,
   `icdar_text_localization`, `icdar_text_segmentation`,
@@ -396,7 +400,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `numpy.ndarray`
   (<https://github.com/openvinotoolkit/datumaro/pull/568>)
 
-### Fixed
+### Bug fixes
 - Bug #560: import issue with MOT dataset when using seqinfo.ini file
   (<https://github.com/openvinotoolkit/datumaro/pull/564>)
 - Empty lines in VOC subset lists are not ignored
@@ -406,11 +410,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 16/11/2021 - Release v0.2.1
-### Added
+### New features
 - Import for CelebA dataset format.
   (<https://github.com/openvinotoolkit/datumaro/pull/484>)
 
-### Changed
+### Enhancements
 - File `people.txt` became optional in LFW
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
 - File `image_ids_and_rotation.csv` became optional Open Images
@@ -430,7 +434,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - Unhandled exception when a file is specified as the source for a COCO or
   MOTS dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/530>)
@@ -441,7 +445,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 14/10/2021 - Release v0.2
-### Added
+### New features
 - A new installation target: `pip install datumaro[default]`, which should
   be used by default. The simple `datumaro` is supposed for library users.
   (<https://github.com/openvinotoolkit/datumaro/pull/238>)
@@ -468,7 +472,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/434>,
   <https://github.com/openvinotoolkit/datumaro/pull/489>)
 
-### Changed
+### Enhancements
 - A project can contain and manage multiple datasets instead of a single one.
   CLI operations can be applied to the whole project, or to separate datasets.
   Datasets are modified inplace, by default
@@ -509,7 +513,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unused `path` field of `DatasetItem`
   (<https://github.com/openvinotoolkit/datumaro/pull/455>)
 
-### Fixed
+### Bug fixes
 - Deprecation warning in `open_images_format.py`
   (<https://github.com/openvinotoolkit/datumaro/pull/440>)
 - `lazy_image` returning unrelated data sometimes
@@ -533,7 +537,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 24/08/2021 - Release v0.1.11
-### Added
+### New features
 - The Open Images format now supports bounding box
   and segmentation mask annotations
   (<https://github.com/openvinotoolkit/datumaro/pull/352>,
@@ -543,7 +547,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support ADE20K format (import only) (<https://github.com/openvinotoolkit/datumaro/pull/400>)
 - Documentation website at <https://openvinotoolkit.github.io/datumaro> (<https://github.com/openvinotoolkit/datumaro/pull/420>)
 
-### Changed
+### Enhancements
 - Datumaro no longer depends on scikit-image
   (<https://github.com/openvinotoolkit/datumaro/pull/379>)
 - `Dataset` remembers export options on saving / exporting for the first time (<https://github.com/openvinotoolkit/datumaro/pull/386>)
@@ -554,7 +558,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - Application of `remap_labels` to dataset categories of different length (<https://github.com/openvinotoolkit/datumaro/issues/314>)
 - Patching of datasets in formats (<https://github.com/openvinotoolkit/datumaro/issues/348>)
 - Improved Cityscapes export performance (<https://github.com/openvinotoolkit/datumaro/pull/367>)
@@ -576,7 +580,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
 
 ## 14/07/2021 - Release v0.1.10
-### Added
+### New features
 - Support for import/export zip archives with images (<https://github.com/openvinotoolkit/datumaro/pull/273>)
 - Subformat importers for VOC and COCO (<https://github.com/openvinotoolkit/datumaro/pull/281>)
 - Support for KITTI dataset segmentation and detection format (<https://github.com/openvinotoolkit/datumaro/pull/282>)
@@ -592,7 +596,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for KITTI Raw / Velodyne Points dataset format (<https://github.com/openvinotoolkit/datumaro/pull/245>)
 - Support for CIFAR-100 and documentation for CIFAR-10/100 (<https://github.com/openvinotoolkit/datumaro/pull/301>)
 
-### Changed
+### Enhancements
 - Tensorflow AVX check is made optional in API and disabled by default (<https://github.com/openvinotoolkit/datumaro/pull/305>)
 - Extensions for images in ImageNet_txt are now mandatory (<https://github.com/openvinotoolkit/datumaro/pull/302>)
 - Several dependencies now have lower bounds (<https://github.com/openvinotoolkit/datumaro/pull/308>)
@@ -603,7 +607,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - Incorrect image layout on saving and a problem with ecoding on loading (<https://github.com/openvinotoolkit/datumaro/pull/284>)
 - An error when XPath filter is applied to the dataset or its subset (<https://github.com/openvinotoolkit/datumaro/issues/259>)
 - Tracking of `Dataset` changes done by transforms (<https://github.com/openvinotoolkit/datumaro/pull/297>)
@@ -613,7 +617,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Known issue: loading CIFAR can result in arbitrary code execution (<https://github.com/openvinotoolkit/datumaro/issues/327>)
 
 ## 03/06/2021 - Release v0.1.9
-### Added
+### New features
 - Support for escaping in attribute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
 - Support for Segmentation Splitting (<https://github.com/openvinotoolkit/datumaro/pull/223>)
 - Support for CIFAR-10/100 dataset format (<https://github.com/openvinotoolkit/datumaro/pull/225>, <https://github.com/openvinotoolkit/datumaro/pull/243>)
@@ -625,7 +629,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Cityscapes dataset format (<https://github.com/openvinotoolkit/datumaro/pull/249>)
 - Support for Validator configurable threshold (<https://github.com/openvinotoolkit/datumaro/pull/250>)
 
-### Changed
+### Enhancements
 - LabelMe format saves dataset items with their relative paths by subsets
   without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
 - Allowed arbitrary subset count and names in classification and detection
@@ -640,7 +644,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - Added support for auto-merging (joining) of datasets with no labels and
   having labels (<https://github.com/openvinotoolkit/datumaro/pull/200>)
 - Allowed explicit label removal in `remap_labels` transform (<https://github.com/openvinotoolkit/datumaro/pull/203>)
@@ -656,10 +660,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 31/03/2021 - Release v0.1.8
-### Added
+### New features
 - TBD
 
-### Changed
+### Enhancements
 - Added an option to allow undeclared annotation attributes in CVAT format
   export (<https://github.com/openvinotoolkit/datumaro/pull/192>)
 - COCO exports images in separate dirs by subsets. Added an option to control
@@ -671,7 +675,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - Instance masks of `background` class no more introduce an instance (<https://github.com/openvinotoolkit/datumaro/pull/188>)
 - Added support for label attributes in Datumaro format (<https://github.com/openvinotoolkit/datumaro/pull/192>)
 
@@ -679,14 +683,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 24/03/2021 - Release v0.1.7
-### Added
+### New features
 - OpenVINO plugin examples (<https://github.com/openvinotoolkit/datumaro/pull/159>)
 - Dataset validation for classification and detection datasets (<https://github.com/openvinotoolkit/datumaro/pull/160>)
 - Arbitrary image extensions in formats (import and export) (<https://github.com/openvinotoolkit/datumaro/issues/166>)
 - Ability to set a custom subset name for an imported dataset (<https://github.com/openvinotoolkit/datumaro/issues/166>)
 - CLI support for NDR(<https://github.com/openvinotoolkit/datumaro/pull/178>)
 
-### Changed
+### Enhancements
 - Common ICDAR format is split into 3 sub-formats (<https://github.com/openvinotoolkit/datumaro/pull/174>)
 
 ### Deprecated
@@ -695,7 +699,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - The ability to work with file names containing Cyrillic and spaces (<https://github.com/openvinotoolkit/datumaro/pull/148>)
 - Image reading and saving in ICDAR formats (<https://github.com/openvinotoolkit/datumaro/pull/174>)
 - Unnecessary image loading on dataset saving (<https://github.com/openvinotoolkit/datumaro/pull/176>)
@@ -706,10 +710,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 03/02/2021 - Release v0.1.6.1 (hotfix)
-### Added
+### New features
 - TBD
 
-### Changed
+### Enhancements
 - TBD
 
 ### Deprecated
@@ -718,7 +722,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - Images with no annotations are exported again in VOC formats (<https://github.com/openvinotoolkit/datumaro/pull/123>)
 - Inference result for only one output layer in OpenVINO launcher (<https://github.com/openvinotoolkit/datumaro/pull/125>)
 
@@ -726,7 +730,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 02/26/2021 - Release v0.1.6
-### Added
+### New features
 - `Icdar13/15` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/96>)
 - Laziness, source caching, tracking of changes and partial updating for `Dataset` (<https://github.com/openvinotoolkit/datumaro/pull/102>)
 - `Market-1501` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/108>)
@@ -737,7 +741,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sampler Plugin that analyzes inference result from the given dataset and
   selects samples for annotation(<https://github.com/openvinotoolkit/datumaro/pull/115>)
 
-### Changed
+### Enhancements
 - OpenVINO model launcher is updated for OpenVINO r2021.1 (<https://github.com/openvinotoolkit/datumaro/pull/100>)
 
 ### Deprecated
@@ -746,7 +750,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - High memory consumption and low performance of mask import/export, #53 (<https://github.com/openvinotoolkit/datumaro/pull/101>)
 - Masks, covered by class 0 (background), should be exported with holes inside
 (<https://github.com/openvinotoolkit/datumaro/pull/104>)
@@ -756,7 +760,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 01/23/2021 - Release v0.1.5
-### Added
+### New features
 - `WiderFace` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/65>, <https://github.com/openvinotoolkit/datumaro/pull/90>)
 - Function to transform annotations to labels (<https://github.com/openvinotoolkit/datumaro/pull/66>)
 - Dataset splits for classification, detection and re-id tasks (<https://github.com/openvinotoolkit/datumaro/pull/68>, <https://github.com/openvinotoolkit/datumaro/pull/81>)
@@ -764,7 +768,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unique image count statistic (<https://github.com/openvinotoolkit/datumaro/pull/87>)
 - Installation with pip by name `datumaro`
 
-### Changed
+### Enhancements
 - `Dataset` class extended with new operations: `save`, `load`, `export`, `import_from`, `detect`, `run_model` (<https://github.com/openvinotoolkit/datumaro/pull/71>)
 - Allowed importing `Extractor`-only defined formats
   (in `Project.import_from`, `dataset.import_from` and CLI/`project import`) (<https://github.com/openvinotoolkit/datumaro/pull/71>)
@@ -779,7 +783,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - Allow plugins inherited from `Extractor` (instead of only `SourceExtractor`)
   (<https://github.com/openvinotoolkit/datumaro/pull/70>)
 - Windows installation with `pip` for `pycocotools` (<https://github.com/openvinotoolkit/datumaro/pull/73>)
@@ -792,12 +796,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 12/10/2020 - Release v0.1.4
-### Added
+### New features
 - `CamVid` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/57>)
 - Ability to install `opencv-python-headless` dependency with `DATUMARO_HEADLESS=1`
   environment variable instead of `opencv-python` (<https://github.com/openvinotoolkit/datumaro/pull/62>)
 
-### Changed
+### Enhancements
 - Allow empty supercategory in COCO (<https://github.com/openvinotoolkit/datumaro/pull/54>)
 - Allow Pascal VOC to search in subdirectories (<https://github.com/openvinotoolkit/datumaro/pull/50>)
 
@@ -807,17 +811,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - TBD
 
 ### Security
 - TBD
 
 ## 10/28/2020 - Release v0.1.3
-### Added
+### New features
 - `ImageNet` and `ImageNetTxt` dataset formats (<https://github.com/openvinotoolkit/datumaro/pull/41>)
 
-### Changed
+### Enhancements
 - TBD
 
 ### Deprecated
@@ -826,7 +830,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - Default `label-map` parameter value for VOC converter (<https://github.com/openvinotoolkit/datumaro/pull/34>)
 - Randomness of random split transform (<https://github.com/openvinotoolkit/datumaro/pull/38>)
 - `Transform.subsets()` method (<https://github.com/openvinotoolkit/datumaro/pull/38>)
@@ -837,11 +841,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ## 10/05/2020 - Release v0.1.2
-### Added
+### New features
 - `ByteImage` class to represent encoded images in memory and avoid recoding
   on save (<https://github.com/openvinotoolkit/datumaro/pull/27>)
 
-### Changed
+### Enhancements
 - Implementation of format plugins simplified (<https://github.com/openvinotoolkit/datumaro/pull/22>)
 - `default` is now a default subset name, instead of `None`. The values are
   interchangeable. (<https://github.com/openvinotoolkit/datumaro/pull/22>)
@@ -853,19 +857,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - `image/depth` value from VOC export (<https://github.com/openvinotoolkit/datumaro/pull/27>)
 
-### Fixed
+### Bug fixes
 - Zero division errors in dataset statistics (<https://github.com/openvinotoolkit/datumaro/pull/31>)
 
 ### Security
 - TBD
 
 ## 09/24/2020 - Release v0.1.1
-### Added
+### New features
 - `reindex` option in COCO and CVAT converters (<https://github.com/openvinotoolkit/datumaro/pull/18>)
 - Support for relative paths in LabelMe format (<https://github.com/openvinotoolkit/datumaro/pull/19>)
 - MOTS png mask format support (<https://github.com/openvinotoolkit/datumaro/21>)
 
-### Changed
+### Enhancements
 - TBD
 
 ### Deprecated
@@ -874,23 +878,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - TBD
 
 ### Security
 - TBD
 
 ## 09/10/2020 - Release v0.1.0
-### Added
+### New features
 - Initial release
 
 ## Template
 ```
 ## [Unreleased]
-### Added
+### New features
 - TBD
 
-### Changed
+### Enhancements
 - TBD
 
 ### Deprecated
@@ -899,7 +903,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - TBD
 
-### Fixed
+### Bug fixes
 - TBD
 
 ### Security
