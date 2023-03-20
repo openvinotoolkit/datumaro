@@ -11,8 +11,8 @@ The MVTec AD format specification is available
 
 The dataset has annotations for detecting abnormal pixels through binary masks
 and it turns into bounding boxes or abnormal labels for supporting classification,
-detection, and segmentation tasks. The MVTec AD dataset is composed of training data only 
-for `good` category without any annotation and testing data for both `good` and multiple 
+detection, and segmentation tasks. The MVTec AD dataset is composed of training data only
+for `good` category without any annotation and testing data for both `good` and multiple
 `defective` categories with masks. The dataset contains total 15 kinds of objects or textures.
 
 Supported tasks / formats:
