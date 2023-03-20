@@ -13,6 +13,11 @@ jobs:
     permissions:
       id-token: write
     steps:
+    - name: Test
+      env:
+        TEST_SECRET: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        echo ${TEST_SECRET}
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up Python 3.9
