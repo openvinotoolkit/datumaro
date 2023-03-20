@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Refactor Datumaro format code and test code
   (<https://github.com/openvinotoolkit/datumaro/pull/824>)
+- Add publish to PyPI Github action
+  (<https://github.com/openvinotoolkit/datumaro/pull/867>)
 
 ### Bug fixes
 - Fix image filenames and anomaly mask appearance in MVTec exporter
