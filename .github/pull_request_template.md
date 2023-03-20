@@ -26,14 +26,14 @@ not fully covered by unit tests or manual testing can be complicated. -->
 - [ ] I have updated the documentation in my target branch accordingly. (e.g., [documentation](
   https://github.com/openvinotoolkit/datumaro/tree/develop/site) in develop)
 - [ ] I have [linked related issues](
-  https://help.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)
+  https://help.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword).
 
 ### License
 
 - [ ] I submit _my code changes_ under the same [MIT License](
   https://github.com/openvinotoolkit/datumaro/blob/develop/LICENSE) that covers the project.
   Feel free to contact the maintainers if that's a concern.
-- [ ] I have updated the license header for each file (see an example below)
+- [ ] I have updated the license header for each file. (see an example below)
 
 ```python
 # Copyright (C) 2023 Intel Corporation
