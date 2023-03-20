@@ -19,7 +19,7 @@ Supported tasks / formats:
 - The combined format - `mvtec`
 - Image classification - `mvtec_classification`
 - Object detection - `mvtec_detection`
-- Class and segmentation - `mvtec_segmentation`
+- Instance segmentation - `mvtec_segmentation`
 
 Supported annotation types:
 - `Label` (classification)
@@ -47,32 +47,32 @@ The MVTec AD dataset directory should have the following structure:
 ```
 └─ Dataset/Category
    ├── train/
-      ├── good/ # directory with list of good images
-      │   ├── img1.png
-      |   ├── img2.png
-      |   └── ...
+   │   ├── good/ # directory with list of good images
+   │   │   ├── img1.png
+   │   |   ├── img2.png
+   │   |   └── ...
    ├── test/
-      ├── good/ # directory with list of good images
-      │   ├── img1.png
-      |   ├── img2.png
-      |   └── ...
-      ├── defective1/ # directory with list of defective images
-      │   ├── img1.png
-      |   ├── img2.png
-      |   └── ...
-      ├── defective2/ # directory with list of defective images
-      │   ├── img1.png
-      |   ├── img2.png
-      |   └── ...
+   │   ├── good/ # directory with list of good images
+   │   │   ├── img1.png
+   │   |   ├── img2.png
+   │   |   └── ...
+   │   ├── defective1/ # directory with list of defective images
+   │   │   ├── img1.png
+   │   |   ├── img2.png
+   │   |   └── ...
+   │   ├── defective2/ # directory with list of defective images
+   │   │   ├── img1.png
+   │   |   ├── img2.png
+   │   |   └── ...
    └── ground_truth/ # directory with semantic segmentation masks
-      ├── defective1/ # directory with list of defective images for detection and segmentation task
-      │   ├── img1_mask.png
-      |   ├── img2_mask.png
-      |   └── ...
-      ├── defective2/ # directory with list of defective images for detection and segmentation task
-      │   ├── img1_mask.png
-      |   ├── img2_mask.png
-      |   └── ...
+       ├── defective1/ # directory with list of defective images for detection and segmentation task
+       │   ├── img1_mask.png
+       |   ├── img2_mask.png
+       |   └── ...
+       ├── defective2/ # directory with list of defective images for detection and segmentation task
+       │   ├── img1_mask.png
+       |   ├── img2_mask.png
+       |   └── ...
 ```
 
 To make sure that the selected dataset has been added to the project, you

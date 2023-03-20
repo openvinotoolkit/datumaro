@@ -42,14 +42,14 @@ The AVA action dataset directory should have the following structure:
 ```
 └─ Dataset/Category
    ├── frames/
-      ├── video0/ # directory with list of frames extracted from video0
-      │   ├── img1.jpg
-      |   ├── img2.jpg
-      |   └── ...
-      ├── video1/ # directory with list of frames extracted from video1
-      │   ├── img1.jpg
-      |   ├── img2.jpg
-      |   └── ...
+   │  ├── video0/ # directory with list of frames extracted from video0
+   │  │  ├── img1.jpg
+   │  |  ├── img2.jpg
+   │  |  └── ...
+   │  ├── video1/ # directory with list of frames extracted from video1
+   │  │  ├── img1.jpg
+   │  |  ├── img2.jpg
+   │  |  └── ...
    └── annotations/
       ├── ava_action_list_v2.2.pbtxt # list of action categories
       ├── ava_train_v2.2.csv # annotations for training data
