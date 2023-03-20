@@ -113,7 +113,7 @@ Extra options for exporting to AVA action format:
   (by default `False`).
 
 ```bash
-datum export -f ava --
+datum export -f ava -- --extra-option-1 --extra-option-2 ...
 ```
 
 ## Examples
