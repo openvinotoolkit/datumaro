@@ -5,32 +5,24 @@ description: ''
 ---
 
 ## Format specification
-ImageNet is one of the most popular datasets for image classification task,
-this dataset is available for downloading
-[here](https://image-net.org/download.php)
+There are many kinds of video extensions as listed up [here]
+(https://github.com/openvinotoolkit/datumaro/blob/develop/datumaro/plugins/data_formats/video.py).
 
-Supported types of annotations:
-- `Label`
-
-Format doesn't support any attributes for annotations objects.
-
-The original ImageNet dataset contains about 1.2M images and information
+Datumaro can import the video data and The original ImageNet dataset contains about 1.2M images and information
 about class name for each image. Datumaro supports two versions of ImageNet
 format: `imagenet` and `imagenet_txt`. The `imagenet_txt` format assumes storing
 information about the class of the image in `*.txt` files. And `imagenet` format
 assumes storing information about the class of the image in the name of
 directory where is this image stored.
 
-## Import ImageNet dataset
+## Import Video
 
-A Datumaro project with a ImageNet dataset can be created
+A Datumaro project with a video frames can be created
 in the following way:
 
 ```
 datum create
 datum import -f imagenet <path_to_dataset>
-# or
-datum import -f imagenet_txt <path_to_dataset>
 ```
 
 > Note: if you use `datum import` then <path_to_dataset> should not be a
@@ -92,7 +84,7 @@ use the `--` after the main command argument.
 Usage:
 
 ``` bash
-datum util split_video [-h] -i SRC_PATH [-o DST_DIR] [--overwrite]
+datum import -f video_frames [-h] SRC_PATH [-o DST_DIR] [--overwrite]
   [-n NAME_PATTERN] [-s STEP] [-b START_FRAME] [-e END_FRAME] [-x IMAGE_EXT]
 ```
 
@@ -102,7 +94,7 @@ Parameters:
   in the current directory is used
 - `--overwrite` - Allows overwriting existing files in the output directory,
   when it is not empty
-- `-n, --name-pattern` (string) - Name pattern for the produced
+- `-p, --name-pattern` (string) - Name pattern for the produced
   images (default: `%06d`)
 - `-s, --step` (integer) - Frame step (default: 1)
 - `-b, --start-frame` (integer) - Starting frame (default: 0)
@@ -110,21 +102,17 @@ Parameters:
 - `-x, --image-ext` (string) Output image extension (default: `.jpg`)
 - `-h, --help` - Print the help message and exit
 
-Example: split a video into frames, use each 30-rd frame:
+Example: import a video into frames, use each 30-rd frame:
 ```bash
-datum util split_video -i video.mp4 -o video.mp4-frames --step 30
+datum import -f video_frames video.mp4 -o video-frames --step 30
 ```
 
-Example: split a video into frames, save as 'frame_xxxxxx.png' files:
+Example: import a video into frames, save as 'frame_xxxxxx.png' files:
 ```bash
-datum util split_video -i video.mp4 --image-ext=.png --name-pattern='frame_%%06d'
+datum import -f video_frames video.mp4 -o video-frames --image-ext=.png --name-pattern='frame_%%06d'
 ```
 
-Example: split a video, add frames and annotations into dataset, export as YOLO:
+Example: import a video into keyfraems:
 ```bash
-datum util split_video -i video.avi -o video-frames
-datum create -o proj
-datum import -p proj -f image_dir video-frames
-datum import -p proj -f coco_instances annotations.json
-datum export -p proj -f yolo -- --save-images
+datum import -f video_keyframes video.mp4 -o video-frames --step 30
 ```
