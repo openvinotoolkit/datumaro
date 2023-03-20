@@ -36,8 +36,8 @@ Docs
   reference/plugins/plugins
   reference/util/util/util
   reference/jupyter_notebook_examples/index
-  
-  
+
+
 .. toctree::
   :hidden:
   :caption: Release Notes

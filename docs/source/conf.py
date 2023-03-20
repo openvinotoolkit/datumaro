@@ -53,7 +53,7 @@ templates_path = [
     "_templates",
 ]
 
-nb_execution_mode = 'off'
+nb_execution_mode = "off"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
