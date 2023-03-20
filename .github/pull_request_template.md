@@ -1,6 +1,7 @@
 <!-- Contributing guide: https://github.com/openvinotoolkit/datumaro/blob/develop/CONTRIBUTING.md -->
 
 ### Summary
+
 <!--
 Resolves #111 and #222.
 Depends on #1000 (for series of dependent commits).
@@ -18,13 +19,13 @@ not fully covered by unit tests or manual testing can be complicated. -->
 
 ### Checklist
 <!-- Put an 'x' in all the boxes that apply -->
-- [ ] I submit my changes into the `develop` branch
-- [ ] I have added description of my changes into [CHANGELOG](https://github.com/openvinotoolkit/datumaro/blob/develop/CHANGELOG.md)
+- [ ] I have tested the changes. It works.​
+- [ ] I have tested the features that may be affected by this changes.​
+- [ ] I have added unit tests to cover my changes.​
+- [ ] I have added integration tests to cover my changes.​
+- [ ] I have added the description of my changes into [CHANGELOG](https://github.com/openvinotoolkit/datumaro/blob/develop/CHANGELOG.md).​
 - [ ] I have updated the [documentation](
   https://github.com/openvinotoolkit/datumaro/tree/develop/docs) accordingly
-- [ ] I have added tests to cover my changes
-- [ ] I have [linked related issues](
-  https://help.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)
 
 ### License
 
