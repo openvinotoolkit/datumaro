@@ -9,9 +9,8 @@ on:
 jobs:
   pypi-publish:
     name: Upload release to PyPI
+    environment: pypi
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
     steps:
     - name: Test
       env:
