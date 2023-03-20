@@ -21,6 +21,7 @@ not fully covered by unit tests or manual testing can be complicated. -->
 <!-- Put an 'x' in all the boxes that apply -->
 - [ ] I have added unit tests to cover my changes.​
 - [ ] I have added integration tests to cover my changes.​
+- [ ] I have added e2e tests for validation.
 - [ ] I have added the description of my changes into [CHANGELOG](https://github.com/openvinotoolkit/datumaro/blob/releases/1.1.0/CHANGELOG.md).​
 - [ ] I have updated the [documentation](
   https://github.com/openvinotoolkit/datumaro/tree/releases/1.1.0/site) accordingly
