@@ -40,7 +40,7 @@ The AVA action dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
 ```
-└─ Dataset/Category
+└─ Dataset
    ├── frames/
    │   ├── video0/ # directory with list of frames extracted from video0
    │   │   ├── img1.jpg
