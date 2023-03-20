@@ -19,8 +19,6 @@ not fully covered by unit tests or manual testing can be complicated. -->
 
 ### Checklist
 <!-- Put an 'x' in all the boxes that apply -->
-- [ ] I have tested the changes. It works.​
-- [ ] I have tested the features that may be affected by this changes.​
 - [ ] I have added unit tests to cover my changes.​
 - [ ] I have added integration tests to cover my changes.​
 - [ ] I have added the description of my changes into [CHANGELOG](https://github.com/openvinotoolkit/datumaro/blob/develop/CHANGELOG.md).​
