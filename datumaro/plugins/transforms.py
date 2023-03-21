@@ -501,25 +501,26 @@ class Rename(ItemTransform, CliPlugin):
     the pattern and replacement parts. Replacement part can also
     contain `str.format` replacement fields with the `item`
     (of type `DatasetItem`) object available.|n
+    Please use doulbe quotes to represent regex.|n
     |n
     Examples:|n
     |s|s- Replace 'pattern' with 'replacement':|n
 
       .. code-block::
 
-    |s|s|s|srename -e '|pattern|replacement|'|n
+    |s|s|s|srename -e "|pattern|replacement|"|n
     |n
     |s|s- Remove 'frame_' from item ids:|n
 
       .. code-block::
 
-    |s|s|s|srename -e '|^frame_||'|n
+    |s|s|s|srename -e "|^frame_||"|n
     |n
     |s|s- Rename by regex:|n
 
       .. code-block::
 
-    |s|s|s|srename -e '|frame_(\d+)_extra|{item.subset}_id_\1|'
+    |s|s|s|srename -e "|frame_(\d+)_extra|{item.subset}_id_\1|"
     """
 
     @classmethod
