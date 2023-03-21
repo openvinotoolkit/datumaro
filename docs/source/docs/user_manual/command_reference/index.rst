@@ -9,12 +9,12 @@ are mostly the same. By default, commands look for a project in the current
 directory. If the project you're working on is located somewhere else, you
 can pass the ``-p/--project <path>`` argument to the command.
 
-.. note:: 
+.. note::
 
     **Note**: command behavior is subject to change, so this text might be outdated,
     **always check the ``--help`` output of the specific command**
 
-.. note:: 
+.. note::
 
     **Note**: command parameters must be passed prior to the positional arguments.
 

@@ -13,4 +13,3 @@ You can learn how to interact with the Datumaro python APIs via Jupyter Notebook
    tiling
    visualizer
    e2e_example_yolo_ultralytics_trainer
-   
