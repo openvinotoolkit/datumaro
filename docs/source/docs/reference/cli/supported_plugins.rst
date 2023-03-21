@@ -13,9 +13,9 @@ Learn more about :mod:`transform <datumaro.plugins.transforms>`
 
 To get help, run:
 
-    .. code-block::
+.. code-block::
 
-        datum transform -h
+    datum transform -h
 
 To get help by class and modules, run:
 
