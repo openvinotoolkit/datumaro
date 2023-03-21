@@ -161,7 +161,7 @@ class ImagenetImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_imagenet(self):
         detected_formats = Environment().detect_dataset(self.DUMMY_DATASET_DIR)
-        self.assertIn(self.IMPORTER_NAME, detected_formats)
+        self.assertEqual([self.IMPORTER_NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_673)
     def test_can_pickle(self):

@@ -23,7 +23,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(SuperviselyPointCloudImporter.NAME, detected_formats)
+        self.assertEqual([SuperviselyPointCloudImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load(self):

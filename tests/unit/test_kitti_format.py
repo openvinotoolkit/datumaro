@@ -224,6 +224,11 @@ class KittiImportTest(TestCase):
             with self.subTest(path=path, task=subtask):
                 detected_formats = env.detect_dataset(path)
                 self.assertIn(subtask.NAME, detected_formats)
+                # Test false positives too
+                for detected_format in detected_formats:
+                    self.assertIn(
+                        detected_format, {"kitti", "kitti_segmentation", "kitti_detection"}
+                    )
 
 
 class TestExtractorBase(DatasetBase):

@@ -233,4 +233,4 @@ class MnistImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(MnistImporter.NAME, detected_formats)
+        self.assertEqual([MnistImporter.NAME], detected_formats)
