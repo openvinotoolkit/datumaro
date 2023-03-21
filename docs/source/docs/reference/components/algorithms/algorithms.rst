@@ -1,0 +1,7 @@
+algorithms module
+-----------------
+
+.. toctree::
+   :glob:
+
+   *
