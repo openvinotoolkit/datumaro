@@ -11,5 +11,7 @@ You can learn how to interact with the Datumaro python APIs via Jupyter Notebook
    dataset_handler
    filter
    tiling
+   transform
    visualizer
-   e2e_example_yolo_ultralytics_trainer
+   explore
+   e2e_example

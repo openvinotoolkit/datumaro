@@ -8,12 +8,9 @@ dataset. Since the manipulations such as reidentification, label redefinition, o
 mostly the topic of transformation, we here describe how to merge two heterogeneous datasets
 through `IntersectMerge`.
 
-Jupyter Notebook Example
-------------------------
-
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Jupyter Notebook Example:
 
    notebooks/01_merge_multiple_datasets_for_classification
    notebooks/02_merge_heterogeneous_datasets_for_detection

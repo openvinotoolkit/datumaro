@@ -40,7 +40,6 @@ goto end
 %SPHINXBUILD% -b %1 %SOURCEDIR% %BUILDDIR%\html %SPHINXOPTS% %O%
 
 copy source/_static/redirects/guide-homepage-redirect.html %BUILDDIR%\html\index.html
-copy  ../notebooks "$(BUILDDIR)"/html/docs/reference/jupyter_notebook_examples
 
 :end
 popd

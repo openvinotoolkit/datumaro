@@ -9,11 +9,8 @@ visualization tool. That is, regardless of annotation types, `vis_gallery` descr
 annotation-overlapped images from a list of multiple media ids. We can control the transparency of
 annotations over images by adjusting `alpha`.
 
-Jupyter Notebook Example
-------------------------
-
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Jupyter Notebook Example:
 
    notebooks/03_visualize

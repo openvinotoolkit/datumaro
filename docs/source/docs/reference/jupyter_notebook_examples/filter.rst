@@ -47,11 +47,8 @@ For the annotation-based filtration, we need to set the argument `filter_annotat
 We provide the argument `remove_empty` to remove all media with an empty annotation. We note that
 datasets are updated in-place by default.
 
-Jupyter Notebook Example
-------------------------
-
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Jupyter Notebook Example:
 
    notebooks/04_filter

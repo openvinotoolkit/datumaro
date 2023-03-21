@@ -17,3 +17,4 @@ nbsphinx
 tensorflow
 jupyter
 jupytext
+pandoc

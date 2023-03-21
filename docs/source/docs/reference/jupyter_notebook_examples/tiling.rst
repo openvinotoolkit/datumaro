@@ -11,11 +11,8 @@ References
 
 F., Ozge Unel, Burak O. Ozkalayci, and Cevahir Cigla. "The power of tiling for small object detection." Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops. 2019.
 
-Jupyter Notebook Example
-------------------------
-
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Jupyter Notebook Example:
 
    notebooks/06_tiling

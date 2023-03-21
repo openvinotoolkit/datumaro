@@ -18,7 +18,6 @@ html:
     @$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(BUILDDIR)"/html $(SPHINXOPTS) $(O)
 
     cp source/_static/redirects/guide-homepage-redirect.html "$(BUILDDIR)"/html/index.html
-    cp -rf ../notebooks "$(BUILDDIR)"/html/docs/reference/jupyter_notebook_examples
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
