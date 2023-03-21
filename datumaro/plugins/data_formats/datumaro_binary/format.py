@@ -14,7 +14,7 @@ class DatumaroBinaryPath:
     RELATED_IMAGES_DIR = "related_images"
     MASKS_DIR = "masks"
 
-    ANNOTATION_EXT = ".datumaro"
+    ANNOTATION_EXT = ".datum"
     IMAGE_EXT = ".jpg"
     MASK_EXT = ".png"
     SIGNATURE = _SIGNATURE

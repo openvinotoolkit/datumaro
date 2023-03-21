@@ -69,9 +69,14 @@ class _SubsetWriter:
         return not self.items
 
     @contextmanager
-    def context_save_media(self, item: DatasetItem):
+    def context_save_media(self, item: DatasetItem, encryption: bool = False) -> None:
         """Implicitly change the media path and save it if save_media=True.
         When done, revert it's path as before.
+
+        Parameters
+        ----------
+            item: Dataset item to save its media
+            encryption: If false, prevent the media from being encrypted
         """
         if item.media is None:
             yield
@@ -84,7 +89,9 @@ class _SubsetWriter:
                 image._path = osp.join(
                     self._context._images_dir, item.subset, self._context._make_image_filename(item)
                 )
-                self._context._save_image(item, image.path, crypter=self._crypter)
+                self._context._save_image(
+                    item, image.path, crypter=self._crypter if encryption else NULL_CRYPTER
+                )
 
             yield
             image._path = path

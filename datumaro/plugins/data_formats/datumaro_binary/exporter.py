@@ -32,6 +32,7 @@ class _SubsetWriter(__SubsetWriter):
         ann_file: str,
         secret_key_file: str,
         encryption_key: Optional[bytes] = None,
+        no_media_encryption: bool = False,
     ):
         super().__init__(context, ann_file)
         self.secret_key_file = secret_key_file
@@ -42,6 +43,8 @@ class _SubsetWriter(__SubsetWriter):
         self._item_cnt = 0
         media_type = context._extractor.media_type()
         self._media_type = {"media_type": media_type._type}
+
+        self._media_encryption = not no_media_encryption
 
     def _sign(self):
         self._fp.write(DatumaroBinaryPath.SIGNATURE.encode())
@@ -65,7 +68,13 @@ class _SubsetWriter(__SubsetWriter):
         return self._fp.write(length + msg)
 
     def _dump_version(self):
-        self._dump_header({"dm_format_version": DATUMARO_FORMAT_VERSION}, use_crypter=False)
+        self._dump_header(
+            {
+                "dm_format_version": DATUMARO_FORMAT_VERSION,
+                "media_encryption": self._media_encryption,
+            },
+            use_crypter=False,
+        )
 
     def _dump_info(self):
         self._dump_header(self.infos)
@@ -77,7 +86,7 @@ class _SubsetWriter(__SubsetWriter):
         self._dump_header(self._media_type)
 
     def add_item(self, item: DatasetItem):
-        with self.context_save_media(item):
+        with self.context_save_media(item, encryption=self._media_encryption):
             self.items.extend(DatasetItemMapper.forward(item))
         self._item_cnt += 1
 
@@ -112,13 +121,13 @@ class _SubsetWriter(__SubsetWriter):
             self._fp = None
 
 
-class EncryptAction(argparse.Action):
+class EncryptionAction(argparse.Action):
     def __init__(self, option_strings, dest, **kwargs):
         super().__init__(option_strings, dest, nargs=0, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        encrypt = True if option_string in self.option_strings else False
-        if encrypt:
+        encryption = True if option_string in self.option_strings else False
+        if encryption:
             key = Crypter.gen_key()
         else:
             key = None
@@ -136,10 +145,17 @@ class DatumaroBinaryExporter(DatumaroExporter):
         parser = super().build_cmdline_parser(**kwargs)
 
         parser.add_argument(
-            "--encrypt",
-            action=EncryptAction,
+            "--encryption",
+            action=EncryptionAction,
             default=False,
-            help="Encrypt dataset",
+            help="Encrypt your dataset with the auto-generated secret key.",
+        )
+
+        parser.add_argument(
+            "--no-media-encryption",
+            action="store_true",
+            help="Only encrypt the annotation file, not media files. "
+            'This option is effective only if "--encryption" is enabled.',
         )
 
         return parser
@@ -156,8 +172,10 @@ class DatumaroBinaryExporter(DatumaroExporter):
         save_dataset_meta: bool = False,
         ctx: Optional[ExportContext] = None,
         encryption_key: Optional[bytes] = None,
+        no_media_encryption: bool = False,
     ):
         self._encryption_key = encryption_key
+        self._no_media_encryption = no_media_encryption
         super().__init__(
             extractor,
             save_dir,
@@ -175,4 +193,5 @@ class DatumaroBinaryExporter(DatumaroExporter):
             ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
             secret_key_file=osp.join(self._save_dir, self.PATH_CLS.SECRET_KEY_FILE),
             encryption_key=self._encryption_key,
+            no_media_encryption=self._no_media_encryption,
         )
