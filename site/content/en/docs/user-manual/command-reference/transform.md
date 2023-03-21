@@ -75,7 +75,7 @@ datum transform -t random_split --overwrite path/to/dataset:voc
 
 - Rename images in a project data source by a regex from `frame_XXX` to `XXX`:
 
-  **__note:__** Please use double quotes (`"`) for regex representation. Check [Reason to use double quotes](https://stackoverflow.com/questions/51080215/differences-between-single-and-double-quotes-in-cmd).
+  **NOTE:** Please use double quotes (`"`) for regex representation. Check [Reason to use double quotes](https://stackoverflow.com/questions/51080215/differences-between-single-and-double-quotes-in-cmd).
 
 ``` bash
 datum create <...>
