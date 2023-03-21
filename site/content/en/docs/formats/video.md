@@ -37,37 +37,32 @@ Datumaro has few import options for `video_frames` format, to apply them
 use the `--` after the main command argument.
 
 `video_frames` import options:
-- `-i, --input-path` (string) - Path to the video file
-- `-o, --output-dir` (string) - Output directory. By default, a subdirectory
-  in the current directory is used
-- `--overwrite` - Allows overwriting existing files in the output directory,
-  when it is not empty
+- `--subset` (string) - Name of subset (default: none)
 - `-p, --name-pattern` (string) - Name pattern for the produced
   images (default: `%06d`)
 - `-s, --step` (integer) - Frame step (default: 1)
 - `-b, --start-frame` (integer) - Starting frame (default: 0)
 - `-e, --end-frame` (integer) - Finishing frame (default: none)
-- `-x, --image-ext` (string) Output image extension (default: `.jpg`)
 - `-h, --help` - Print the help message and exit
 
 Usage:
 
-``` bash
-datum import -f video_frames [-h] SRC_PATH [-o DST_DIR] [--overwrite]
-  [-n NAME_PATTERN] [-s STEP] [-b START_FRAME] [-e END_FRAME] [-x IMAGE_EXT]
+``` console
+datum import -f video_frames [-h] [-n NAME] [-r RPATH] [-p PROJECT_DIR]
+  [--no-check] [-s STEP] [-b START_FRAME] [-e END_FRAME] url ...
 ```
 
 Example: import a video into frames, use each 30-rd frame:
-```bash
+```console
 datum import -f video_frames video.mp4 -o video-frames --step 30
 ```
 
 Example: import a video into frames, save as 'frame_xxxxxx.png' files:
-```bash
+```console
 datum import -f video_frames video.mp4 -o video-frames --image-ext=.png --name-pattern='frame_%%06d'
 ```
 
 Example: import a video into keyframes:
-```bash
+```console
 datum import -f video_keyframes video.mp4 -o video-frames
 ```
