@@ -100,7 +100,7 @@ def test_yolo_to_dm_binary_encryption(
     if not no_media_encryption:
         for img in get_image(export_dir):
             with pytest.raises(Exception):
-                img.data
+                assert img.data is None
     # 4-2-2. You can open the encrypted image (--no-media-encryption).
     else:
         for img in get_image(export_dir):
