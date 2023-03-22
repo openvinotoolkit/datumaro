@@ -9,6 +9,7 @@ import re
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
+from datumaro.components.format_detection import FormatDetectionConfidence
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
@@ -102,6 +103,8 @@ class Market1501Base(DatasetBase):
 
 
 class Market1501Importer(Importer):
+    DETECT_CONFIDENCE = FormatDetectionConfidence.MEDIUM
+
     @classmethod
     def find_sources(cls, path):
         for dirname in os.listdir(path):
