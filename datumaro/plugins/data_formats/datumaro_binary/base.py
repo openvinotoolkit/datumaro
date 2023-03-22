@@ -4,7 +4,7 @@
 
 import struct
 from io import BufferedReader
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.errors import DatasetImportError
@@ -22,6 +22,7 @@ class DatumaroBinaryBase(DatumaroBase):
     def __init__(self, path: str, encryption_key: Optional[bytes] = None):
         self._fp: Optional[BufferedReader] = None
         self._crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
+        self._media_encryption = False
         super().__init__(path)
 
     def _get_dm_format_version(self, path: str) -> str:
@@ -65,8 +66,10 @@ class DatumaroBinaryBase(DatumaroBase):
         header, _ = DictMapper.backward(_bytes)
         return header
 
-    def _read_version(self) -> str:
-        return self._read_header(use_crypter=False)["dm_format_version"]
+    def _read_version(self) -> Dict[str, Any]:
+        version_header = self._read_header(use_crypter=False)
+        self._media_encryption = version_header["media_encryption"]
+        return version_header["dm_format_version"]
 
     def _read_info(self):
         self._infos = self._read_header()
@@ -95,6 +98,6 @@ class DatumaroBinaryBase(DatumaroBase):
 
         for _ in range(n_items):
             item, offset = DatasetItemMapper.backward(_bytes, offset)
-            if item.media is not None:
+            if item.media is not None and self._media_encryption:
                 item.media.set_crypter(self._crypter)
             self._items.append(item)

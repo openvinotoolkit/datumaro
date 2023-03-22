@@ -4,7 +4,9 @@
 
 import os
 import os.path as osp
+from typing import Generator
 
+import numpy as np
 import pytest
 
 from datumaro.components.crypter import Crypter
@@ -21,6 +23,15 @@ from tests.utils.test_utils import run_datum as run
 yolo_dir = get_test_asset_path("yolo_dataset")
 
 
+def get_image(export_dir: str) -> Generator[Image, None, None]:
+    for root, _, files in os.walk(export_dir):
+        for file in files:
+            fpath = osp.join(root, file)
+            _, ext = osp.splitext(fpath)
+            if ext == ".jpg":
+                yield Image(path=fpath)
+
+
 @pytest.fixture
 def export_dir():
     with TestDir() as export_dir:
@@ -28,7 +39,10 @@ def export_dir():
 
 
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-def test_yolo_to_dm_binary_encryption(test_dir: str, export_dir: str, helper_tc: TestCaseHelper):
+@pytest.mark.parametrize("no_media_encryption", [True, False])
+def test_yolo_to_dm_binary_encryption(
+    test_dir: str, export_dir: str, helper_tc: TestCaseHelper, no_media_encryption: bool
+):
     """
     1. Create project
     2. Import yolo format dataset as "src_yolo" name
@@ -47,8 +61,7 @@ def test_yolo_to_dm_binary_encryption(test_dir: str, export_dir: str, helper_tc:
     run(helper_tc, "import", "-n", "src_yolo", "-p", test_dir, "-f", "yolo", yolo_dir)
 
     # 3. Export it to DatumaroBinary format with encryption
-    run(
-        helper_tc,
+    cmd = [
         "export",
         "-p",
         test_dir,
@@ -58,8 +71,12 @@ def test_yolo_to_dm_binary_encryption(test_dir: str, export_dir: str, helper_tc:
         "datumaro_binary",
         "--",
         "--save-media",
-        "--encrypt",
-    )
+        "--encryption",
+    ]
+    if no_media_encryption:
+        cmd += ["--no-media-encryption"]
+
+    run(helper_tc, *cmd)
 
     # Remove src_yolo dataset from the project
     run(helper_tc, "remove", "-p", test_dir, "src_yolo")
@@ -79,14 +96,15 @@ def test_yolo_to_dm_binary_encryption(test_dir: str, export_dir: str, helper_tc:
             osp.join(export_dir, "dm_binary"), format="datumaro_binary", encryption_key=wrong_key
         )
 
-    # 4-2. You cannot open the encrypted image.
-    with pytest.raises(Exception):
-        for root, _, files in os.walk(export_dir):
-            for file in files:
-                fpath = osp.join(root, file)
-                _, ext = osp.splitext(fpath)
-                if ext == ".jpg":
-                    assert Image(path=fpath).data is None
+    # 4-2-1. You cannot open the encrypted image.
+    if not no_media_encryption:
+        for img in get_image(export_dir):
+            with pytest.raises(Exception):
+                assert img.data is None
+    # 4-2-2. You can open the encrypted image (--no-media-encryption).
+    else:
+        for img in get_image(export_dir):
+            assert isinstance(img.data, np.ndarray)
 
     # 5. Succeed to import the encrypted dataset with the true key
     run(
