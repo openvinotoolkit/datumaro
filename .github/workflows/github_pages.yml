@@ -3,7 +3,8 @@ name: Github pages
 on:
   push:
     branches:
-      - releases/v1.0.0
+      # - releases/v1.0.0
+      emily/docs
 
 jobs:
   deploy:
@@ -55,4 +56,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
+          destination_dir: legacy
           force_orphan: true
