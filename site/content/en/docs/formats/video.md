@@ -37,7 +37,8 @@ Datumaro has few import options for `video_frames` format, to apply them
 use the `--` after the main command argument.
 
 `video_frames` import options:
-- `--subset` (string) - Name of subset (default: none)
+- `--subset` (string) - The name of the subset for the produced
+  dataset items (default: none)
 - `-p, --name-pattern` (string) - Name pattern for the produced
   images (default: `%06d`)
 - `-s, --step` (integer) - Frame step (default: 1)
@@ -52,7 +53,7 @@ datum import -f video_frames [-h] [-n NAME] [-r RPATH] [-p PROJECT_DIR]
   [--no-check] [-s STEP] [-b START_FRAME] [-e END_FRAME] url ...
 ```
 
-Example: import a video into frames, use each 30-rd frame:
+Example: import a video into frames, use each 30th frame:
 ```console
 datum import -f video_frames video.mp4 -o video-frames --step 30
 ```
