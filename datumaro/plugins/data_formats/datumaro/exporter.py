@@ -8,6 +8,8 @@ import os
 import os.path as osp
 import shutil
 from contextlib import contextmanager
+from multiprocessing.pool import Pool
+from typing import Optional
 
 import numpy as np
 import pycocotools.mask as mask_utils
@@ -76,6 +78,7 @@ class _SubsetWriter:
         Parameters
         ----------
             item: Dataset item to save its media
+            save_media: If true, save the media as well
             encryption: If false, prevent the media from being encrypted
         """
         if item.media is None:
@@ -128,7 +131,7 @@ class _SubsetWriter:
         else:
             raise NotImplementedError
 
-    def add_item(self, item: DatasetItem):
+    def add_item(self, item: DatasetItem, pool: Optional[Pool] = None):
         annotations = []
         item_desc = {
             "id": item.id,
@@ -202,7 +205,7 @@ class _SubsetWriter:
                 raise NotImplementedError()
             self.categories[ann_type.name] = converted_desc
 
-    def write(self):
+    def write(self, pool: Optional[Pool] = None):
         dump_json_file(self.ann_file, self._data)
 
     def _convert_annotation(self, obj):
@@ -382,7 +385,7 @@ class DatumaroExporter(Exporter):
             ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
         )
 
-    def apply(self):
+    def apply(self, pool: Optional[Pool] = None):
         os.makedirs(self._save_dir, exist_ok=True)
 
         images_dir = osp.join(self._save_dir, self.PATH_CLS.IMAGES_DIR)
@@ -404,7 +407,7 @@ class DatumaroExporter(Exporter):
 
         for item in self._extractor:
             subset = item.subset or DEFAULT_SUBSET_NAME
-            writers[subset].add_item(item)
+            writers[subset].add_item(item, pool)
 
         for subset, writer in writers.items():
             if self._patch and subset in self._patch.updated_subsets and writer.is_empty():
@@ -413,7 +416,7 @@ class DatumaroExporter(Exporter):
                     os.remove(writer.ann_file)
                 continue
 
-            writer.write()
+            writer.write(pool)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
