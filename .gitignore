@@ -72,3 +72,6 @@ site/static/api
 
 # C extension
 datumaro/*.so
+
+# Secrets
+.secrets

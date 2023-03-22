@@ -5,7 +5,7 @@
 import os.path as osp
 from glob import glob
 
-from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
+from datumaro.components.format_detection import FormatDetectionConfidence
 from datumaro.components.importer import Importer
 
 from .format import MvtecPath, MvtecTask
@@ -42,30 +42,18 @@ class MvtecImporter(Importer):
 
 
 class MvtecClassificationImporter(MvtecImporter):
+    DETECT_CONFIDENCE = FormatDetectionConfidence.MEDIUM
     _TASK = MvtecTask.classification
     _TASKS = {_TASK: MvtecImporter._TASKS[_TASK]}
 
-    @classmethod
-    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-        super().detect(context)
-        return FormatDetectionConfidence.MEDIUM
-
 
 class MvtecDetectionImporter(MvtecImporter):
+    DETECT_CONFIDENCE = FormatDetectionConfidence.MEDIUM
     _TASK = MvtecTask.detection
     _TASKS = {_TASK: MvtecImporter._TASKS[_TASK]}
 
-    @classmethod
-    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-        super().detect(context)
-        return FormatDetectionConfidence.MEDIUM
-
 
 class MvtecSegmentationImporter(MvtecImporter):
+    DETECT_CONFIDENCE = FormatDetectionConfidence.MEDIUM
     _TASK = MvtecTask.segmentation
     _TASKS = {_TASK: MvtecImporter._TASKS[_TASK]}
-
-    @classmethod
-    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-        super().detect(context)
-        return FormatDetectionConfidence.MEDIUM

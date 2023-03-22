@@ -953,7 +953,7 @@ class CocoImporterTest(TestCase):
                 shutil.copytree(osp.join(DUMMY_DATASET_DIR, "coco"), dataset_dir)
                 move_func(dataset_dir)
                 with self.assertRaises(DatasetImportError):
-                    Dataset.import_from(dataset_dir)
+                    Dataset.import_from(dataset_dir, format="coco")
 
         # Wrong structure: ./annotations -> ./labels
         _test(

@@ -171,4 +171,4 @@ class CelebaImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_475)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(CelebaImporter.NAME, detected_formats)
+        self.assertEqual([CelebaImporter.NAME], detected_formats)
