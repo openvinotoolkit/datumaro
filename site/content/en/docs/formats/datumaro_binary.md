@@ -26,14 +26,22 @@ The table below shows the sizes of each format:
 For this experiment, we used the training and validation annotation files of [2017 COCO instance segmentation task](https://cocodataset.org):
 
 ```console
-annotations/
-├── instances_train2017.json
-└── instances_val2017.json
+Dataset/
+├── images/
+│   ├── train/
+│   │   ├── <image_name1.ext>
+│   │   └── ...
+│   └── val/
+│       ├── <image_name1.ext>
+│       └── ...
+└── annotations/
+    ├── instances_train2017.json
+    └── instances_val2017.json
 ```
 
 ### Dataset encryption
 
-Another advantage of the DatumaroBinary format is that it supports dataset encryption. If your dataset is hijacked by a potential attacker and you are concerned that your intellectual properties may be damaged, you can use this feature to protect your dataset from attackers. Enabling the dataset encryption feature allows you to encrypt both annotations and media or only the annotations. If you export the dataset to DatumaroBinary format with encryption, the secret key is automatically generated at the same time. You must keep this secret key separate from the exported dataset. This is because the secret key should be needed to read the exported dataset. Therefore, you have to be careful not to lose the secret key.
+Another advantage of the DatumaroBinary format is that it supports dataset encryption. If your dataset is hijacked by a potential attacker and you are concerned that your intellectual properties may be damaged, you can use this feature to protect your dataset from attackers. Enabling the dataset encryption feature allows you to encrypt both annotations and media or only the annotations. If you export the dataset to DatumaroBinary format with encryption, the secret key is automatically generated at the same time. You must keep this secret key separate from the exported dataset. This is because the secret key should be needed to read the exported dataset. Therefore, you have to be careful not to lose the secret key. If you would like to see an example of dataset encryption using Datumaro's Python API, please see [here](https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/09_encrypt_dataset.ipynb).
 
 ### Usage for model training
 

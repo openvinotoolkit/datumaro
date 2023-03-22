@@ -47,7 +47,7 @@ jobs:
           pip install -r requirements.txt
           pip install 'click<8.1' git+https://github.com/pytorch-ignite/sphinxcontrib-versioning.git@a1a1a94ca80a0233f0df3eaf9876812484901e76
           pip install -e '.[default,tf,tfds]'
-          sphinx-versioning -l site/source/conf.py build -r develop -w develop site/source site/static/api
+          # sphinx-versioning -l site/source/conf.py build -r develop -w develop site/source site/static/api
           python site/build_docs.py
 
       - name: Deploy
