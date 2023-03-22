@@ -3,8 +3,7 @@ name: Github pages
 on:
   push:
     branches:
-      # - releases/v1.0.0
-      emily/docs
+      - releases/**
 
 jobs:
   deploy:
