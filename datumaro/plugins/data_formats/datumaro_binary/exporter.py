@@ -39,11 +39,11 @@ class _SubsetWriter(__SubsetWriter):
         no_media_encryption: bool = False,
         max_blob_size: int = DatumaroBinaryPath.MAX_BLOB_SIZE,
     ):
-        super().__init__(context, ann_file)
+        crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
+        super().__init__(context, ann_file, crypter)
         self.secret_key_file = secret_key_file
 
         self._fp: Optional[BufferedWriter] = None
-        self._crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
         self._data["items"]: List[Union[bytes, ApplyResult]] = []
         self._bytes: List[Union[bytes, ApplyResult]] = self._data["items"]
         self._item_cnt = 0
@@ -112,9 +112,11 @@ class _SubsetWriter(__SubsetWriter):
             return DatasetItemMapper.forward(item)
 
     def _dump_items(self, pool: Optional[Pool] = None):
-        # Receive async results
+        # Await async results
         if pool is not None:
-            self._bytes = [result.get() for result in self._bytes]
+            self._bytes = [
+                result.get() for result in self._bytes if isinstance(result, ApplyResult)
+            ]
 
         # Divide items to blobs
         blobs = [bytearray()]

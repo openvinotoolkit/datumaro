@@ -34,7 +34,7 @@ from datumaro.components.annotation import (
 from datumaro.components.crypter import NULL_CRYPTER
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
-from datumaro.components.exporter import Exporter
+from datumaro.components.exporter import ExportContextComponent, Exporter
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import cast, dump_json_file
 
@@ -42,7 +42,7 @@ from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
 
 
 class _SubsetWriter:
-    def __init__(self, context: Exporter, ann_file: str):
+    def __init__(self, context: Exporter, ann_file: str, export_context: ExportContextComponent):
         self._context = context
 
         self._data = {
@@ -53,7 +53,7 @@ class _SubsetWriter:
         }
 
         self.ann_file = ann_file
-        self._crypter = NULL_CRYPTER
+        self.export_context = export_context
 
     @property
     def infos(self):
@@ -70,15 +70,18 @@ class _SubsetWriter:
     def is_empty(self):
         return not self.items
 
+    @staticmethod
     @contextmanager
-    def context_save_media(self, item: DatasetItem, encryption: bool = False) -> None:
+    def context_save_media(
+        item: DatasetItem, context: ExportContextComponent, encryption: bool = False
+    ) -> None:
         """Implicitly change the media path and save it if save_media=True.
         When done, revert it's path as before.
 
         Parameters
         ----------
             item: Dataset item to save its media
-            save_media: If true, save the media as well
+            context: Context instance to help the media export
             encryption: If false, prevent the media from being encrypted
         """
         if item.media is None:
@@ -87,14 +90,12 @@ class _SubsetWriter:
             image = item.media_as(Image)
             path = image.path
 
-            if self._context._save_media:
+            if context.save_media:
                 # Temporarily update image path and save it.
                 image._path = osp.join(
-                    self._context._images_dir, item.subset, self._context._make_image_filename(item)
+                    context.images_dir, item.subset, context.make_image_filename(item)
                 )
-                self._context._save_image(
-                    item, image.path, crypter=self._crypter if encryption else NULL_CRYPTER
-                )
+                context.save_image(item, encryption=encryption, path=image.path)
 
             yield
             image._path = path
@@ -102,21 +103,19 @@ class _SubsetWriter:
             pcd = item.media_as(PointCloud)
             path = pcd.path
 
-            if self._context._save_media:
+            if context.save_media:
                 # Temporarily update pcd path and save it.
-                pcd._path = osp.join(
-                    self._context._pcd_dir, item.subset, self._context._make_pcd_filename(item)
-                )
-                self._context._save_point_cloud(item, pcd.path)
+                pcd._path = osp.join(context.pcd_dir, item.subset, context.make_pcd_filename(item))
+                context.save_point_cloud(item, pcd.path)
 
                 # Temporarily update pcd related images paths and save them.
                 for i, img in enumerate(sorted(pcd.extra_images, key=lambda v: v.path)):
                     img.__path = img.path
                     img._path = osp.join(
-                        self._context._related_images_dir,
+                        context.related_images_dir,
                         item.subset,
                         item.id,
-                        f"image_{i}{self._context._find_image_ext(img)}",
+                        f"image_{i}{context.find_image_ext(img)}",
                     )
 
                     if img.has_data:
@@ -124,7 +123,7 @@ class _SubsetWriter:
 
             yield
             pcd._path = path
-            if self._context._save_media:
+            if context._save_media:
                 for img in pcd.extra_images:
                     img._path = img.__path
                     del img.__path
@@ -141,7 +140,7 @@ class _SubsetWriter:
         if item.attributes:
             item_desc["attr"] = item.attributes
 
-        with self.context_save_media(item):
+        with self.context_save_media(item, self.export_context):
             if isinstance(item.media, Image):
                 image = item.media_as(Image)
                 item_desc["image"] = {
@@ -379,10 +378,24 @@ class DatumaroExporter(Exporter):
     DEFAULT_IMAGE_EXT = DatumaroPath.IMAGE_EXT
     PATH_CLS = DatumaroPath
 
-    def create_writer(self, subset: str) -> _SubsetWriter:
+    def create_writer(
+        self, subset: str, images_dir: str, pcd_dir: str, related_images_dir: str
+    ) -> _SubsetWriter:
+        export_context = ExportContextComponent(
+            save_dir=self._save_dir,
+            save_media=self._save_media,
+            images_dir=images_dir,
+            pcd_dir=pcd_dir,
+            related_images_dir=related_images_dir,
+            crypter=NULL_CRYPTER,
+            image_ext=self._image_ext,
+            default_image_ext=self._default_image_ext,
+        )
+
         return _SubsetWriter(
             context=self,
             ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
+            export_context=export_context,
         )
 
     def apply(self, pool: Optional[Pool] = None):
@@ -399,7 +412,12 @@ class DatumaroExporter(Exporter):
         self._pcd_dir = osp.join(self._save_dir, self.PATH_CLS.PCD_DIR)
         self._related_images_dir = osp.join(self._save_dir, self.PATH_CLS.RELATED_IMAGES_DIR)
 
-        writers = {subset: self.create_writer(subset) for subset in self._extractor.subsets()}
+        writers = {
+            subset: self.create_writer(
+                subset, self._images_dir, self._pcd_dir, self._related_images_dir
+            )
+            for subset in self._extractor.subsets()
+        }
 
         for writer in writers.values():
             writer.add_infos(self._extractor.infos())
