@@ -394,3 +394,7 @@ class ExportContextComponent:
     @property
     def save_media(self) -> bool:
         return self._save_media
+
+    @property
+    def crypter(self) -> Crypter:
+        return self._crypter

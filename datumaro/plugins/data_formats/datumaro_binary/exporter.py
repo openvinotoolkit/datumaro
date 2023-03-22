@@ -16,7 +16,7 @@ from typing import Any, List, Optional, Union
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.errors import DatumaroError
-from datumaro.components.exporter import ExportContext, Exporter
+from datumaro.components.exporter import ExportContext, ExportContextComponent, Exporter
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.exporter import _SubsetWriter as __SubsetWriter
 from datumaro.plugins.data_formats.datumaro.format import DATUMARO_FORMAT_VERSION
@@ -34,13 +34,13 @@ class _SubsetWriter(__SubsetWriter):
         self,
         context: Exporter,
         ann_file: str,
+        export_context: ExportContextComponent,
         secret_key_file: str,
-        encryption_key: Optional[bytes] = None,
         no_media_encryption: bool = False,
         max_blob_size: int = DatumaroBinaryPath.MAX_BLOB_SIZE,
     ):
-        crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
-        super().__init__(context, ann_file, crypter)
+        super().__init__(context, ann_file, export_context)
+        self._crypter = self.export_context.crypter
         self.secret_key_file = secret_key_file
 
         self._fp: Optional[BufferedWriter] = None
@@ -101,14 +101,28 @@ class _SubsetWriter(__SubsetWriter):
 
     def add_item(self, item: DatasetItem, pool: Optional[Pool] = None):
         if pool is not None:
-            self._bytes.append(pool.apply_async(self.add_item_impl, (item,)))
+            self._bytes.append(
+                pool.apply_async(
+                    self.add_item_impl,
+                    (
+                        item,
+                        self.export_context,
+                        self._media_encryption,
+                    ),
+                )
+            )
         else:
-            self._bytes.append(self.add_item_impl(item))
+            self._bytes.append(
+                self.add_item_impl(item, self.export_context, self._media_encryption)
+            )
 
         self._item_cnt += 1
 
-    def add_item_impl(self, item: DatasetItem) -> bytes:
-        with self.context_save_media(item, encryption=self._media_encryption):
+    @staticmethod
+    def add_item_impl(
+        item: DatasetItem, context: ExportContextComponent, media_encryption: bool
+    ) -> bytes:
+        with _SubsetWriter.context_save_media(item, context=context, encryption=media_encryption):
             return DatasetItemMapper.forward(item)
 
     def _dump_items(self, pool: Optional[Pool] = None):
@@ -206,6 +220,14 @@ class DatumaroBinaryExporter(DatumaroExporter):
             'This option is effective only if "--encryption" is enabled.',
         )
 
+        parser.add_argument(
+            "--num-workers",
+            type=int,
+            default=0,
+            help="The number of multi-processing workers for export. "
+            "If num_workers = 0, do not use multiprocessing (default: %(default)s).",
+        )
+
         return parser
 
     def __init__(
@@ -235,7 +257,7 @@ class DatumaroBinaryExporter(DatumaroExporter):
         encryption
             If true and encryption_key is None, generate a random secret key.
         num_workers
-            The number of multi-processing workers. If num_workers = 0, do not use multiprocessing.
+            The number of multi-processing workers for export. If num_workers = 0, do not use multiprocessing.
         max_blob_size
             The maximum size of DatasetItem serialization blob. Changing from the default is not recommended.
         """
@@ -258,6 +280,8 @@ class DatumaroBinaryExporter(DatumaroExporter):
 
         self._max_blob_size = max_blob_size
 
+        self._crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
+
         super().__init__(
             extractor,
             save_dir,
@@ -269,12 +293,25 @@ class DatumaroBinaryExporter(DatumaroExporter):
             ctx=ctx,
         )
 
-    def create_writer(self, subset: str):
+    def create_writer(
+        self, subset: str, images_dir: str, pcd_dir: str, related_images_dir: str
+    ) -> _SubsetWriter:
+        export_context = ExportContextComponent(
+            save_dir=self._save_dir,
+            save_media=self._save_media,
+            images_dir=images_dir,
+            pcd_dir=pcd_dir,
+            related_images_dir=related_images_dir,
+            crypter=self._crypter,
+            image_ext=self._image_ext,
+            default_image_ext=self._default_image_ext,
+        )
+
         return _SubsetWriter(
             context=self,
             ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
+            export_context=export_context,
             secret_key_file=osp.join(self._save_dir, self.PATH_CLS.SECRET_KEY_FILE),
-            encryption_key=self._encryption_key,
             no_media_encryption=self._no_media_encryption,
             max_blob_size=self._max_blob_size,
         )

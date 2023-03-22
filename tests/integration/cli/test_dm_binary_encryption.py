@@ -39,9 +39,14 @@ def export_dir():
 
 
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+@pytest.mark.parametrize("num_workers", [0, 2])
 @pytest.mark.parametrize("no_media_encryption", [True, False])
 def test_yolo_to_dm_binary_encryption(
-    test_dir: str, export_dir: str, helper_tc: TestCaseHelper, no_media_encryption: bool
+    test_dir: str,
+    export_dir: str,
+    helper_tc: TestCaseHelper,
+    no_media_encryption: bool,
+    num_workers: int,
 ):
     """
     1. Create project
@@ -72,6 +77,8 @@ def test_yolo_to_dm_binary_encryption(
         "--",
         "--save-media",
         "--encryption",
+        "--num-workers",
+        str(num_workers),
     ]
     if no_media_encryption:
         cmd += ["--no-media-encryption"]
