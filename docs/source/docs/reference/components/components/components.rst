@@ -1,0 +1,7 @@
+components module
+-----------------
+
+.. toctree::
+   :glob:
+
+   *

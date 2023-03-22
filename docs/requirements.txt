@@ -1,0 +1,21 @@
+-r ../requirements-core.txt
+-r ../requirements-default.txt
+
+opencv-python-headless>=4.1.0.25
+
+# docs
+markupsafe==2.0.1
+nbconvert>=7.2.3
+ipython>=8.4.0
+sphinx==5.3.0
+pydata-sphinx-theme==0.12.0
+sphinx-copybutton
+sphinxcontrib-mermaid
+sphinx-autoapi
+myst-parser
+nbsphinx
+tensorflow
+jupyter
+jupytext
+pandoc
+mermaid
