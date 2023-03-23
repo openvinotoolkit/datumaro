@@ -44,7 +44,6 @@ extensions = [
     "sphinx.ext.autosectionlabel",  # Refer sections its title
     "sphinx.ext.intersphinx",  # Generate links to the documentation
     # of objects in external projects
-    "sphinxcontrib.mermaid",  # allows Mermaid graphs
     "myst_parser",
     "nbsphinx",
 ]
@@ -72,11 +71,18 @@ html_theme_path = [
     "_themes",
 ]
 html_theme_options = {
-    "navbar_center": [],
     "logo": {
         "image_light": "datumaro-logo.png",
         "image_dark": "datumaro-logo.png",
     },
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/openvinotoolkit/datumaro",
+            "icon": "_static/github_icon.png",
+            "type": "local",
+        },
+    ],
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
