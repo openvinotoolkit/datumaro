@@ -99,7 +99,7 @@ class _SubsetWriter(__SubsetWriter):
     def _dump_media_type(self):
         self._dump_header(self._media_type)
 
-    def add_item(self, item: DatasetItem, pool: Optional[Pool] = None):
+    def add_item(self, item: DatasetItem, pool: Optional[Pool] = None, *args, **kwargs):
         if pool is not None:
             self._bytes.append(
                 pool.apply_async(
@@ -157,7 +157,7 @@ class _SubsetWriter(__SubsetWriter):
             n_items_bytes = len(items_bytes)
             self._fp.write(struct.pack(f"<{n_items_bytes}s", items_bytes))
 
-    def write(self, pool: Optional[Pool] = None):
+    def write(self, pool: Optional[Pool] = None, *args, **kwargs):
         try:
             if not self._crypter.is_null_crypter:
                 log.info(
@@ -316,7 +316,7 @@ class DatumaroBinaryExporter(DatumaroExporter):
             max_blob_size=self._max_blob_size,
         )
 
-    def apply(self):  # pylint: disable=arguments-differ
+    def apply(self, *args, **kwargs):
         if self._num_workers == 0:
             return super().apply()
 

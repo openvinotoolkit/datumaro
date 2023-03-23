@@ -130,7 +130,7 @@ class _SubsetWriter:
         else:
             raise NotImplementedError
 
-    def add_item(self, item: DatasetItem, pool: Optional[Pool] = None):
+    def add_item(self, item: DatasetItem, *args, **kwargs):
         annotations = []
         item_desc = {
             "id": item.id,
@@ -204,7 +204,7 @@ class _SubsetWriter:
                 raise NotImplementedError()
             self.categories[ann_type.name] = converted_desc
 
-    def write(self, pool: Optional[Pool] = None):
+    def write(self, *args, **kwargs):
         dump_json_file(self.ann_file, self._data)
 
     def _convert_annotation(self, obj):
@@ -398,7 +398,7 @@ class DatumaroExporter(Exporter):
             export_context=export_context,
         )
 
-    def apply(self, pool: Optional[Pool] = None):
+    def apply(self, pool: Optional[Pool] = None, *args, **kwargs):
         os.makedirs(self._save_dir, exist_ok=True)
 
         images_dir = osp.join(self._save_dir, self.PATH_CLS.IMAGES_DIR)
