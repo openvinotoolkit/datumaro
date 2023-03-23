@@ -14,7 +14,7 @@ Examples
                   -- --reindex 1 # avoid annotation id conflicts
 
 - Convert only non-``occluded`` annotations from a
-  `CVAT <https://github.com/openvinotoolkit/cvat>`_ project to TFrecord:
+  `CVAT <https://github.com/opencv/cvat>`_ project to TFrecord:
 
 .. code-block::
 
