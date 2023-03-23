@@ -1,6 +1,6 @@
 # validate
 
-# Validate Dataset
+## Validate Dataset
 
 This command inspects annotations with respect to the task type
 and stores the results in JSON file.
