@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
-## 17/03/2023 - Release 1.1.0rc1
+## 23/03/2023 - Release 1.1.0
 ### New features
 - Add with_subset_dirs decorator (Add ImagenetWithSubsetDirsImporter)
   (<https://github.com/openvinotoolkit/datumaro/pull/816>)
