@@ -23,7 +23,7 @@ Examples
     datum export --format tf_detection_api -- --save-images
 
 - Annotate MS COCO dataset, extract image subset, re-annotate it in
-  `CVAT <https://github.com/openvinotoolkit/cvat>`_, update old dataset:
+  `CVAT <https://github.com/opencv/cvat>`_, update old dataset:
 
 .. code-block::
 
@@ -38,7 +38,7 @@ Examples
     datum export --format coco
 
 - Annotate instance polygons in
-  `CVAT <https://github.com/openvinotoolkit/cvat>`_, export as masks in COCO:
+  `CVAT <https://github.com/opencv/cvat>`_, export as masks in COCO:
 
 .. code-block::
 
