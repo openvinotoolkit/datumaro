@@ -1,4 +1,4 @@
-# model (context)
+# Model (context)
 
 ## Models
 

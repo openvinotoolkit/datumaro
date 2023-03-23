@@ -1,4 +1,4 @@
-filter
+Filter
 ######
 
 This API allows you to filter a dataset to satisfy some conditions.

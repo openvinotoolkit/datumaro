@@ -1,4 +1,4 @@
-# info
+# Info
 
 ## Print dataset info
 

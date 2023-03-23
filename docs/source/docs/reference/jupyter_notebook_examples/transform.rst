@@ -1,4 +1,4 @@
-transform
+Transform
 #########
 
 .. toctree::

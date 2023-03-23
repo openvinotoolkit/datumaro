@@ -1,4 +1,4 @@
-visualizer
+Visualizer
 ##########
 
 This API allows you to visualize a dataset with media ids.

@@ -47,7 +47,6 @@ These components are only required for plugins and not installed by default:
 - PyTorch
 - MxNet
 - Caffe
-- Usag
 
 Customizing installation
 ^^^^^^^^^^^^^^^^^^^^^^^^

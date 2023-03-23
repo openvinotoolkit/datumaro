@@ -8,10 +8,4 @@ You can learn how to interact with the Datumaro python APIs via Jupyter Notebook
 .. toctree::
    :maxdepth: 1
 
-   dataset_handler
-   filter
-   tiling
-   transform
-   visualizer
-   explore
-   e2e_example
+   *

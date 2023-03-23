@@ -1,4 +1,4 @@
-# source (context)
+# Source (context)
 
 These commands are specific for Data Sources. Read more about them [here](/docs/user-manual/how_to_use_datumaro#data-sources).
 

@@ -1,4 +1,4 @@
-# checkout
+# Checkout
 
 This command allows to restore a specific project revision in the project
 tree or to restore separate revisions of sources. A revision can be a commit

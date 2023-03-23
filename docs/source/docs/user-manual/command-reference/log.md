@@ -1,4 +1,4 @@
-# log
+# Log
 
 This command prints the history of the current project revision.
 

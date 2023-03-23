@@ -1,4 +1,4 @@
-# download
+# Download
 
 ## Download datasets
 

@@ -1,4 +1,4 @@
-# generate
+# Generate
 
 ## Generate Datasets
 

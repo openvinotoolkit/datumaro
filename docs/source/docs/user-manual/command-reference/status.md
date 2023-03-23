@@ -1,4 +1,4 @@
-# status
+# Status
 
 This command prints the summary of the source changes between
 the working tree of a project and its HEAD revision.
