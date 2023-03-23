@@ -1,4 +1,4 @@
-# search
+# Search
 
 ## Search datasets
 

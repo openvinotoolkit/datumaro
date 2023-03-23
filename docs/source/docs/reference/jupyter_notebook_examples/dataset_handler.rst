@@ -1,5 +1,5 @@
 
-dataset-handler
+Dataset Handler
 ###############
 
 Datumaro provides the dataset import and export functionalities.

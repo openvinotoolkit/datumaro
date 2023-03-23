@@ -1,4 +1,4 @@
-# filter
+# Filter
 
 ## Filter datasets
 

@@ -1,4 +1,4 @@
-# commit
+# Commit
 
 This command allows to fix the current state of a project and
 create a new revision from the working tree.

@@ -1,4 +1,4 @@
-# project (context)
+# Project (context)
 
 <a id="project-migrate"></a>
 ## Migrate project

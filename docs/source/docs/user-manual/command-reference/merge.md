@@ -1,4 +1,4 @@
-# merge
+# Merge
 
 ## Merge Datasets
 

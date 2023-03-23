@@ -1,4 +1,4 @@
-# describe-downloads
+# Describe Downloads
 
 ## Describe downloadable datasets
 

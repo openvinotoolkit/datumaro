@@ -1,4 +1,4 @@
-# detect-format
+# Detect Format
 
 ## Detect dataset format
 

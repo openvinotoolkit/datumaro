@@ -1,4 +1,4 @@
-# stats
+# Stats
 
 ## Get Project Statistics
 

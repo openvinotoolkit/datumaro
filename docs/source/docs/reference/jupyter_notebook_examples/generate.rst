@@ -1,4 +1,4 @@
-generate
+Generate
 ########
 
 Need to update the description.

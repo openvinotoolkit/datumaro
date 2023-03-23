@@ -1,4 +1,4 @@
-# diff
+# Diff
 
 ## Compare datasets
 

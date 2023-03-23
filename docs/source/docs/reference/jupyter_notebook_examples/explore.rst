@@ -1,4 +1,4 @@
-explore
+Explore
 #######
 
 .. toctree::
