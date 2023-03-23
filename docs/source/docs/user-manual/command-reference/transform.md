@@ -72,10 +72,13 @@ datum transform -t random_split --overwrite path/to/dataset:voc
 ```
 
 - Rename images in a project data source by a regex from `frame_XXX` to `XXX`:
+
+  **NOTE:** Please use double quotes (`"`) for regex representation. Check [Reason to use double quotes](https://stackoverflow.com/questions/51080215/differences-between-single-and-double-quotes-in-cmd).
+
 ``` bash
 datum create <...>
 datum import <...> -n source-1
-datum transform -t rename source-1 -- -e '|^frame_||'
+datum transform -t rename source-1 -- -e "|^frame_||"
 ```
 
 <a id="builtin-transforms"></a>
@@ -150,22 +153,22 @@ Optional arguments:
 Examples:
 Replace 'pattern' with 'replacement':
 ```bash
-datum transform -t rename -- -e '|pattern|replacement|'
+datum transform -t rename -- -e "|pattern|replacement|"
 ```
 
 Remove the `frame_` prefix from item ids:
 ```bash
-datum transform -t rename -- -e '|^frame_|\1|'
+datum transform -t rename -- -e "|^frame_|\1|"
 ```
 
 Collect images from subdirectories into the base image directory using regex:
 ```bash
-datum transform -t rename -- -e '|^((.+[/\\])*)?(.+)$|\2|'
+datum transform -t rename -- -e "|^((.+[/\\])*)?(.+)$|\2|"
 ```
 
 Add subset prefix to images:
 ```bash
-datum transform -t rename -- -e '|(.*)|{item.subset}_\1|'
+datum transform -t rename -- -e "|(.*)|{item.subset}_\1|"
 ```
 
 <a id="id_from_image_name-transform"></a>
