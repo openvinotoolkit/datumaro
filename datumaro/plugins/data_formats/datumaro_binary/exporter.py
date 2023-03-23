@@ -316,7 +316,7 @@ class DatumaroBinaryExporter(DatumaroExporter):
             max_blob_size=self._max_blob_size,
         )
 
-    def apply(self):
+    def apply(self):  # pylint: disable=arguments-differ
         if self._num_workers == 0:
             return super().apply()
 
