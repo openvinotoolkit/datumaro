@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add CommonSemanticSegmentationWithSubsetDirsImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/826>)
 - Add DatumaroBinary format
-  (<https://github.com/openvinotoolkit/datumaro/pull/828>, <https://github.com/openvinotoolkit/datumaro/pull/829>, <https://github.com/openvinotoolkit/datumaro/pull/830>, <https://github.com/openvinotoolkit/datumaro/pull/831>, <https://github.com/openvinotoolkit/datumaro/pull/883>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/828>, <https://github.com/openvinotoolkit/datumaro/pull/829>, <https://github.com/openvinotoolkit/datumaro/pull/830>, <https://github.com/openvinotoolkit/datumaro/pull/831>, <https://github.com/openvinotoolkit/datumaro/pull/880>, <https://github.com/openvinotoolkit/datumaro/pull/883>)
 - Add Searcher CLI documentation
   (<https://github.com/openvinotoolkit/datumaro/pull/838>)
 - Add version to dataset exported as datumaro format
@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/824>)
 - Add publish to PyPI Github action
   (<https://github.com/openvinotoolkit/datumaro/pull/867>)
+- Add --no-media-encryption option
+  (<https://github.com/openvinotoolkit/datumaro/pull/875>)
 
 ### Bug fixes
 - Fix image filenames and anomaly mask appearance in MVTec exporter
