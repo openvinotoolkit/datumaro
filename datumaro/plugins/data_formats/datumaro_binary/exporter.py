@@ -173,8 +173,16 @@ class DatumaroBinaryExporter(DatumaroExporter):
         ctx: Optional[ExportContext] = None,
         encryption_key: Optional[bytes] = None,
         no_media_encryption: bool = False,
+        encryption: bool = False,
     ):
+        if encryption and encryption_key is None:
+            encryption_key = Crypter.gen_key()
+
         self._encryption_key = encryption_key
+
+        if not save_media:
+            no_media_encryption = True
+
         self._no_media_encryption = no_media_encryption
         super().__init__(
             extractor,
