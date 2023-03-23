@@ -113,6 +113,7 @@ To make sure that the selected dataset has been added to the project, you can
 run `datum project info`, which will display the project information.
 
 ### Import encrypted datasets
+
 If you want to import the dataset with encryption, please give `--encryption-key <secret-key>` to the optional arguments:
 
 ```console
@@ -200,6 +201,7 @@ Extra options for exporting to DatumaroBinary format:
 - `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--encryption` allow to encrypt your dataset with the auto-generated secret key.
+- `--num-workers NUM_WORKERS` allow to multi-processing for the export. If num_workers = 0, do not use multiprocessing (default: 0).
 
 ## Examples
 

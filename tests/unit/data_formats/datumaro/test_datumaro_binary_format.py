@@ -67,9 +67,25 @@ class DatumaroBinaryFormatTest(TestBase):
                 {"encryption_key": ENCRYPTION_KEY, "no_media_encryption": True},
                 id="test_no_media_encryption",
             ),
+            pytest.param(
+                "fxt_test_datumaro_format_dataset",
+                compare_datasets_strict,
+                True,
+                {"encryption_key": ENCRYPTION_KEY},
+                {"encryption_key": ENCRYPTION_KEY, "max_blob_size": 1},  # 1 byte
+                id="test_multi_blobs",
+            ),
+            pytest.param(
+                "fxt_test_datumaro_format_dataset",
+                compare_datasets_strict,
+                True,
+                {"encryption_key": ENCRYPTION_KEY},
+                {"encryption_key": ENCRYPTION_KEY, "num_workers": 2},
+                id="test_multi_processing",
+            ),
         ],
     )
-    def test_develop(
+    def test_dm_binary_own_features(
         self,
         fxt_dataset,
         compare,
