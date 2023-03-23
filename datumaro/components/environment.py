@@ -165,7 +165,7 @@ class Environment:
                     continue
                 exports.append(getattr(module, symbol))
 
-        exports = [s for s in exports if isclass(s) and issubclass(s, types) and not s in types]
+        exports = [s for s in exports if isclass(s) and issubclass(s, types) and s not in types]
 
         return exports
 

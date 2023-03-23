@@ -994,7 +994,7 @@ class Dataset(IDataset):
         return self._data.get_annotations()
 
     def get_datasetitem_by_path(self, path):
-        if not self._source_path in path:
+        if self._source_path not in path:
             path = osp.join(self._source_path, path)
         return self._data.get_datasetitem_by_path(path)
 

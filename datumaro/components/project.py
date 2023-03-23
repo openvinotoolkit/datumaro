@@ -856,7 +856,7 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
     def add_transform_stage(
         self, target: str, transform: str, params: Optional[Dict] = None, name: Optional[str] = None
     ):
-        if not transform in self._tree.env.transforms:
+        if transform not in self._tree.env.transforms:
             raise KeyError("Unknown transform '%s'" % transform)
 
         return self.add_stage(
@@ -872,7 +872,7 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
     def add_inference_stage(
         self, target: str, model: str, params: Optional[Dict] = None, name: Optional[str] = None
     ):
-        if not model in self._tree._project.models:
+        if model not in self._tree._project.models:
             raise KeyError("Unknown model '%s'" % model)
 
         return self.add_stage(
@@ -968,7 +968,7 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
         return pipeline
 
     def make_pipeline(self, target: str) -> Pipeline:
-        if not target in self:
+        if target not in self:
             raise UnknownTargetError(target)
 
         # a subgraph with all the target dependencies
@@ -2483,7 +2483,7 @@ class Project:
 
             # Check targets
             for s in sources:
-                if not s in rev_tree.sources:
+                if s not in rev_tree.sources:
                     raise UnknownSourceError(s)
 
             rev_dir = rev_tree.config.base_dir
@@ -2670,7 +2670,7 @@ class Project:
         if self.readonly:
             raise ReadonlyProjectError()
 
-        if not launcher in self.env.launchers:
+        if launcher not in self.env.launchers:
             raise KeyError("Unknown launcher '%s'" % launcher)
 
         if not name:
