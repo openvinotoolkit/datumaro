@@ -123,7 +123,7 @@ class _SubsetWriter:
 
             yield
             pcd._path = path
-            if context._save_media:
+            if context.save_media:
                 for img in pcd.extra_images:
                     img._path = img.__path
                     del img.__path
