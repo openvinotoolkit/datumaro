@@ -20,8 +20,10 @@ COCO (JSON), Datumaro (JSON), and DatumaroBinary (binary).
 The table below shows the sizes of each format:
 
 | Format | COCO (JSON) | Datumaro (JSON) | DatumaroBinary (binary) |
-|:------:|:-----------:|:---------------:|:-----------------------:|
-|  Size  |    468Mb    |      1046Mb     |          301Mb          |
+| :----: | :---------: | :-------------: | :---------------------: |
+|  Size  |    468Mb    |     1046Mb      |          301Mb          |
+
+This table shows that DatumaroBinary reduces the size of annotation files to **64.3% (COCO) and 28.8% (Datumaro).**
 
 For this experiment, we used the training and validation annotation files of [2017 COCO instance segmentation task](https://cocodataset.org):
 
@@ -41,7 +43,7 @@ Dataset/
 
 ### Dataset encryption
 
-Another advantage of the DatumaroBinary format is that it supports dataset encryption. If your dataset is hijacked by a potential attacker and you are concerned that your intellectual properties may be damaged, you can use this feature to protect your dataset from attackers. Enabling the dataset encryption feature allows you to encrypt both annotations and media or only the annotations. If you export the dataset to DatumaroBinary format with encryption, the secret key is automatically generated at the same time. You must keep this secret key separate from the exported dataset. This is because the secret key should be needed to read the exported dataset. Therefore, you have to be careful not to lose the secret key. If you would like to see an example of dataset encryption using Datumaro's Python API, please see [here](https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/09_encrypt_dataset.ipynb).
+Another advantage of the DatumaroBinary format is that it supports dataset encryption. If your dataset is hijacked by a potential attacker and you are concerned that your intellectual properties may be damaged, you can use this feature to protect your dataset from attackers. Enabling the dataset encryption feature allows you to encrypt both annotations and media or only the annotations. If you export the dataset to DatumaroBinary format with encryption, the secret key is automatically generated at the same time. You must keep this secret key separate from the exported dataset. This is because the secret key should be needed to read the exported dataset. Therefore, you have to be careful not to lose the secret key. If you would like to see an example of dataset encryption using Datumaro's Python API, please see [here](https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/09_encrypt_dataset.ipynb). For CLI usage of encryption, please see [Import encrypted datasets](#import-encrypted-datasets) and [Export datasets with encryption](#export-datasets-with-encryption) sections.
 
 ### Usage for model training
 
@@ -110,6 +112,16 @@ To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/suppo
 To make sure that the selected dataset has been added to the project, you can
 run `datum project info`, which will display the project information.
 
+### Import encrypted datasets
+If you want to import the dataset with encryption, please give `--encryption-key <secret-key>` to the optional arguments:
+
+```console
+datum create
+datum import --format datumaro_binary <path/to/dataset> -- --encryption-key <secret-key>
+```
+
+`<secret-key>` is a 50-bytes long base64 encoded string prefixed with `datum-`. It is auto-generated in `<output/dir>/secret_key.txt` when the dataset is exported to DatumaroBinary format with `--encryption` option. You must have a correct `<secret-key>` to import the dataset encrypted by Datumaro.
+
 ## Export to other formats
 
 It can convert DatumaroBinary dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
@@ -118,6 +130,8 @@ that support the specified task (e.g. for panoptic segmentation - VOC, CamVID)
 
 There are several ways to convert a DatumaroBinary dataset to other dataset formats
 using CLI:
+
+- Export a dataset from DatumaroBinary to VOC format:
 
 ```console
 datum create
@@ -144,17 +158,48 @@ dataset.export('save_dir', 'voc', save_media=True)
 
 There are several ways to convert a dataset to DatumaroBinary format:
 
+- Export a dataset from an existing project to DatumaroBinary:
+
 ```console
-# export dataset into Datumaro format from existing project
+# export dataset into DatumaroBinary format from existing project
 datum export -p <path/to/project> -f datumaro_binary -o <output/dir> \
     -- --save-media
 ```
 
+- Convert a dataset from VOC format to DatumaroBinary:
+
 ```console
-# converting to Datumaro format from other format
+# converting to DatumaroBinary format from other format
 datum convert -if voc -i <path/to/dataset> \
     -f datumaro_binary -o <output/dir> -- --save-media
 ```
+
+## Export datasets with encryption
+
+If you want to encrypt your dataset, please add ``--encryption` directive to your command:
+
+```console
+# export dataset into DatumaroBinary format from existing project
+datum export -p <path/to/project> -f datumaro_binary -o <output/dir> \
+    -- --save-media --encryption
+```
+
+> Note:
+> Please keep your secret key file seperate from the exported dataset. The secret key file is in `<output/dir>/secret_key.txt`. You should have this secret key whenever you want to import your dataset. **We are not responsible for you permanently losing access to your datasets if you lose this secret key.**
+
+If you want to encrypt the annotation files only, not the media files, please add `--no-media-encryption` in addition to ``--encryption` directive to your command:
+
+```console
+# export dataset into DatumaroBinary format from existing project
+datum export -p <path/to/project> -f datumaro_binary -o <output/dir> \
+    -- --save-media --encryption --no-media-encryption
+```
+
+Extra options for exporting to DatumaroBinary format:
+
+- `--save-media` allow to export dataset with saving media files
+  (by default `False`)
+- `--encryption` allow to encrypt your dataset with the auto-generated secret key.
 
 ## Examples
 

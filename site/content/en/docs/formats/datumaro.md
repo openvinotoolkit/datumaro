@@ -83,6 +83,8 @@ that support the specified task (e.g. for panoptic segmentation - VOC, CamVID)
 There are several ways to convert a Datumaro dataset to other dataset formats
 using CLI:
 
+- Export a dataset from Datumaro format to VOC format:
+
 ```console
 datum create
 datum import -f datumaro <path/to/dataset>
@@ -108,17 +110,23 @@ dataset.export('save_dir', 'voc', save_media=True)
 
 There are several ways to convert a dataset to Datumaro format:
 
+- Export a dataset from an existing project to Datumaro format:
 ```console
 # export dataset into Datumaro format from existing project
 datum export -p <path/to/project> -f datumaro -o <output/dir> \
     -- --save-media
 ```
 
+- Convert a dataset from VOC format to Datumaro format:
 ```console
 # converting to Datumaro format from other format
 datum convert -if voc -i <path/to/dataset> \
     -f datumaro -o <output/dir> -- --save-media
 ```
+
+Extra options for exporting to Datumaro format:
+- `--save-media` allow to export dataset with saving media files
+  (by default `False`)
 
 ## Examples
 
