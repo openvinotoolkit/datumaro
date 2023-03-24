@@ -15,7 +15,7 @@ class MediaMapper(Mapper):
     @classmethod
     def forward(cls, obj: Optional[MediaElement]) -> bytes:
         if obj is None:
-            return struct.pack(f"<I", MediaType.NONE)
+            return struct.pack("<I", MediaType.NONE)
         elif obj._type == MediaType.IMAGE:
             return ImageMapper.forward(obj)
         elif obj._type == MediaType.POINT_CLOUD:
@@ -47,7 +47,7 @@ class MediaElementMapper(Mapper):
     @classmethod
     def forward(cls, obj: MediaElement) -> bytes:
         bytes_arr = bytearray()
-        bytes_arr.extend(struct.pack(f"<I", obj.type))
+        bytes_arr.extend(struct.pack("<I", obj.type))
         bytes_arr.extend(StringMapper.forward(obj.path))
 
         return bytes(bytes_arr)
@@ -76,7 +76,7 @@ class ImageMapper(MediaElementMapper):
 
         bytes_arr = bytearray()
         bytes_arr.extend(super().forward(obj))
-        bytes_arr.extend(struct.pack(f"<ii", size[0], size[1]))
+        bytes_arr.extend(struct.pack("<ii", size[0], size[1]))
 
         return bytes(bytes_arr)
 
@@ -99,7 +99,7 @@ class PointCloudMapper(MediaElementMapper):
     def forward(cls, obj: PointCloud) -> bytes:
         bytes_arr = bytearray()
         bytes_arr.extend(super().forward(obj))
-        bytes_arr.extend(struct.pack(f"<I", len(obj.extra_images)))
+        bytes_arr.extend(struct.pack("<I", len(obj.extra_images)))
         for img in obj.extra_images:
             bytes_arr.extend(ImageMapper.forward(img))
 

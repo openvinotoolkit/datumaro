@@ -88,7 +88,11 @@ def info_command(args):
     except DatasetMergeError as e:
         dataset_problem = (
             "Can't merge project sources automatically: %s. "
-            "The conflicting sources are: %s" % (e, ", ".join(e.sources))
+            "The conflicting sources are: %s"
+            % (
+                e,
+                ", ".join(e.sources),
+            )
         )
     except MissingObjectError as e:
         dataset_problem = str(e)

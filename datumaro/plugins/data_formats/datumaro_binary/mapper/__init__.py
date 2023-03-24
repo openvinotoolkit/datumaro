@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+# ruff: noqa: F405
+
 from .annotation import *
 from .common import *
 from .dataset_item import *

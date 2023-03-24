@@ -1,79 +1,13 @@
 name: Linter
 on: pull_request
 jobs:
-  Bandit:
-    runs-on: ubuntu-latest
+  pre-commit:
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: 3.8
-
-      - name: Run checks
-        run: |
-          pip install --user -r tests/requirements-linters.txt
-          echo "Bandit version: "`bandit --version | head -1`
-          bandit -r -c ipas_default.config --severity-level high ./
-  isort:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: pre-commit/action@v3.0.0
         with:
-          python-version: 3.8
-
-      - name: Run checks
-        run: |
-          pip install --user -r tests/requirements-linters.txt
-          isort --check --diff .
-  black:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.8
-
-      - name: Run checks
-        run: |
-          pip install --user -r tests/requirements-linters.txt
-          black --check --diff --color .
-  Pylint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.8
-
-      - name: Run checks
-        run: |
-          pip install --user -r tests/requirements-linters.txt
-          echo "Pylint version: "`pylint --version | head -1`
-          git ls-files -z '*.py' | xargs -0 pylint
-  # remark:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #           node-version: 12
-
-  #     - name: Run checks
-  #       run: |
-  #         npm ci
-  #         echo "remark version: "`npx remark --version`
-  #         npx remark --frail .
-  markdownlint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: DavidAnson/markdownlint-cli2-action@v7
-  whitespace:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Check whitespace
-        run: |
-          empty_tree="$(git hash-object -t tree --stdin < /dev/null)"
-          git diff --check "$empty_tree"
+          extra_args: --all-files

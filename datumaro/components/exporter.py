@@ -281,8 +281,8 @@ class Exporter(CliPlugin):
         save_meta_file(path, self._extractor.categories())
 
 
-# TODO: Currently, ExportContextComponent is introduced only for Datumaro and DatumaroBinary format for multi-processing.
-# We need to propagate this to everywhere in Datumaro 1.2.0
+# TODO: Currently, ExportContextComponent is introduced only for Datumaro and DatumaroBinary format
+# for multi-processing. We need to propagate this to everywhere in Datumaro 1.2.0
 class ExportContextComponent:
     def __init__(
         self,
