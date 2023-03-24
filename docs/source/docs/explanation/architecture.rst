@@ -417,76 +417,11 @@ and also special commands, which are hard to be put into any specific context.
 `Docker <https://www.docker.com/>`_ is an example of similar approach.
 
 .. raw:: html
-
-   <div class="text-center large-scheme-two">
-
-.. mermaid::
-
-  %%{init { 'theme':'neutral' }}%%
-  flowchart LR
-    d(("#0009; datum #0009;")):::mainclass
-    s(source):::nofillclass
-    m(model):::nofillclass
-    p(project):::nofillclass
-
-    d===s
-      s===id1[add]:::hideclass
-      s===id2[remove]:::hideclass
-      s===id3[info]:::hideclass
-    d===m
-      m===id4[add]:::hideclass
-      m===id5[remove]:::hideclass
-      m===id6[run]:::hideclass
-      m===id7[info]:::hideclass
-    d===p
-      p===migrate:::hideclass
-      p===info:::hideclass
-    d====str1[create]:::filloneclass
-    d====str2[add]:::filloneclass
-    d====str3[remove]:::filloneclass
-    d====str4[export]:::filloneclass
-    d====str5[info]:::filloneclass
-    d====str6[transform]:::filltwoclass
-    d====str7[filter]:::filltwoclass
-    d====str8[diff]:::fillthreeclass
-    d====str9[merge]:::fillthreeclass
-    d====str10[validate]:::fillthreeclass
-    d====str11[explain]:::fillthreeclass
-    d====str12[stats]:::fillthreeclass
-    d====str13[commit]:::fillfourclass
-    d====str14[checkout]:::fillfourclass
-    d====str15[status]:::fillfourclass
-    d====str16[log]:::fillfourclass
-
-    classDef nofillclass fill-opacity:0;
-    classDef hideclass fill-opacity:0,stroke-opacity:0;
-    classDef filloneclass fill:#CCCCFF,stroke-opacity:0;
-    classDef filltwoclass fill:#FFFF99,stroke-opacity:0;
-    classDef fillthreeclass fill:#CCFFFF,stroke-opacity:0;
-    classDef fillfourclass fill:#CCFFCC,stroke-opacity:0;
-
-.. raw:: html
-
-   </div>
+   :file: ../../../images/command_diag1.svg
 
 :ref:`List of plugins available through the CLI <supported_formats>`
 
 Model-View-ViewModel (MVVM) UI pattern is used.
 
-
 .. raw:: html
-
-   <div class="text-center">
-
-.. mermaid::
-
-  %%{init { 'theme':'neutral' }}%%
-  flowchart LR
-      c((CLI))<--CliModel--->d((Domain))
-      g((GUI))<--GuiModel--->d
-      a((API))<--->d
-      t((Tests))<--->d
-
-.. raw:: html
-
-   </div>
+   :file: ../../../images/command_diag2.svg

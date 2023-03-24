@@ -10,7 +10,6 @@ ipython>=8.4.0
 sphinx==5.3.0
 pydata-sphinx-theme==0.12.0
 sphinx-copybutton
-sphinxcontrib-mermaid
 sphinx-autoapi
 myst-parser
 nbsphinx
@@ -18,4 +17,3 @@ tensorflow
 jupyter
 jupytext
 pandoc
-mermaid
