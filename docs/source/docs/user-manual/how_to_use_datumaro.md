@@ -111,7 +111,7 @@ to use Datumaro from the command-line:
 
 Basically, a project is a combination of datasets, models and environment.
 
-A project can contain an arbitrary number of datasets ([data sources](/docs/user-manual/how_to_use_datumaro#data-sources)).
+A project can contain an arbitrary number of datasets ([data sources](#data-sources)).
 A project acts as a manager for them and allows to manipulate them
 separately or as a whole, in which case it combines dataset items
 from all the sources into one composite dataset. You can manage separate
