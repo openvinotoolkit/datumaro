@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
-## 17/03/2023 - Release 1.1.0rc1
+## 23/03/2023 - Release 1.1.0
 ### New features
 - Add with_subset_dirs decorator (Add ImagenetWithSubsetDirsImporter)
   (<https://github.com/openvinotoolkit/datumaro/pull/816>)
 - Add CommonSemanticSegmentationWithSubsetDirsImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/826>)
 - Add DatumaroBinary format
-  (<https://github.com/openvinotoolkit/datumaro/pull/828>, <https://github.com/openvinotoolkit/datumaro/pull/829>, <https://github.com/openvinotoolkit/datumaro/pull/830>, <https://github.com/openvinotoolkit/datumaro/pull/831>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/828>, <https://github.com/openvinotoolkit/datumaro/pull/829>, <https://github.com/openvinotoolkit/datumaro/pull/830>, <https://github.com/openvinotoolkit/datumaro/pull/831>, <https://github.com/openvinotoolkit/datumaro/pull/880>, <https://github.com/openvinotoolkit/datumaro/pull/883>)
 - Add Searcher CLI documentation
   (<https://github.com/openvinotoolkit/datumaro/pull/838>)
 - Add version to dataset exported as datumaro format
@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Refactor Datumaro format code and test code
   (<https://github.com/openvinotoolkit/datumaro/pull/824>)
+- Add publish to PyPI Github action
+  (<https://github.com/openvinotoolkit/datumaro/pull/867>)
+- Add --no-media-encryption option
+  (<https://github.com/openvinotoolkit/datumaro/pull/875>)
 
 ### Bug fixes
 - Fix image filenames and anomaly mask appearance in MVTec exporter
@@ -47,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/854>)
 - Fix mask visualization bug
   (<https://github.com/openvinotoolkit/datumaro/pull/860>)
+- Fix detect unit tests to test false negatives as well
+  (<https://github.com/openvinotoolkit/datumaro/pull/868>)
 
 ## 24/02/2023 - Release v1.0.0
 ### New features

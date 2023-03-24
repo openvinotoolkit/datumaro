@@ -4,13 +4,14 @@
 
 import struct
 from io import BufferedReader
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
 from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
+from datumaro.plugins.data_formats.datumaro_binary.mapper.common import IntListMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
 
 from ..datumaro.base import DatumaroBase
@@ -22,6 +23,7 @@ class DatumaroBinaryBase(DatumaroBase):
     def __init__(self, path: str, encryption_key: Optional[bytes] = None):
         self._fp: Optional[BufferedReader] = None
         self._crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
+        self._media_encryption = False
         super().__init__(path)
 
     def _get_dm_format_version(self, path: str) -> str:
@@ -65,8 +67,10 @@ class DatumaroBinaryBase(DatumaroBase):
         header, _ = DictMapper.backward(_bytes)
         return header
 
-    def _read_version(self) -> str:
-        return self._read_header(use_crypter=False)["dm_format_version"]
+    def _read_version(self) -> Dict[str, Any]:
+        version_header = self._read_header(use_crypter=False)
+        self._media_encryption = version_header["media_encryption"]
+        return version_header["dm_format_version"]
 
     def _read_info(self):
         self._infos = self._read_header()
@@ -87,14 +91,21 @@ class DatumaroBinaryBase(DatumaroBase):
             raise NotImplementedError(f"media_type={media_type} is currently not supported.")
 
     def _read_items(self):
-        (n_items,) = struct.unpack("I", self._fp.read(4))
-        offset = 0
-        _bytes = self._crypter.decrypt(self._fp.read())
+        (n_blob_sizes_bytes,) = struct.unpack("<I", self._fp.read(4))
+        blob_sizes_bytes = self._crypter.decrypt(self._fp.read(n_blob_sizes_bytes))
+        blob_sizes, _ = IntListMapper.backward(blob_sizes_bytes, 0)
 
         self._items = []
 
-        for _ in range(n_items):
-            item, offset = DatasetItemMapper.backward(_bytes, offset)
-            if item.media is not None:
-                item.media.set_crypter(self._crypter)
-            self._items.append(item)
+        # For each blob, we decrypt the blob first, then extract items.
+        for blob_size in blob_sizes:
+            blob_bytes = self._crypter.decrypt(self._fp.read(blob_size))
+            offset = 0
+
+            while offset < len(blob_bytes):
+                item, offset = DatasetItemMapper.backward(blob_bytes, offset)
+                if item.media is not None and self._media_encryption:
+                    item.media.set_crypter(self._crypter)
+                self._items.append(item)
+
+            assert offset == len(blob_bytes)

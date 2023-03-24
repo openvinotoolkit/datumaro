@@ -30,7 +30,7 @@ not fully covered by unit tests or manual testing can be complicated. -->
 - [ ] I submit _my code changes_ under the same [MIT License](
   https://github.com/openvinotoolkit/datumaro/blob/develop/LICENSE) that covers the project.
   Feel free to contact the maintainers if that's a concern.
-- [ ] I have updated the license header for each file (see an example below)
+- [ ] I have updated the license header for each file (see an example below).
 
 ```python
 # Copyright (C) 2023 Intel Corporation

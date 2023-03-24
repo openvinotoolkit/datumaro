@@ -24,6 +24,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
+from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
 
 T = TypeVar("T")
 
@@ -90,15 +91,17 @@ class NullImportContext(ImportContext):
 
 
 class Importer(CliPlugin):
+    DETECT_CONFIDENCE = FormatDetectionConfidence.LOW
+
     @classmethod
     def detect(
         cls,
         context: FormatDetectionContext,
-    ) -> Optional[FormatDetectionConfidence]:
+    ) -> FormatDetectionConfidence:
         if not cls.find_sources_with_params(context.root_path):
             context.fail("specific requirement information unavailable")
 
-        return FormatDetectionConfidence.LOW
+        return cls.DETECT_CONFIDENCE
 
     @classmethod
     def find_sources(cls, path: str) -> List[Dict]:
@@ -218,6 +221,9 @@ def with_subset_dirs(input_cls: Importer):
                 )
 
             for sub_dir in os.listdir(path):
+                if sub_dir.lower() in SUBSET_NAME_BLACKLIST:
+                    continue
+
                 sub_path = osp.join(path, sub_dir)
                 if osp.isdir(sub_path):
                     with _change_context_root_path(context, sub_path):
