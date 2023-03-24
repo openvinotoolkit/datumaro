@@ -28,7 +28,6 @@ from datumaro.components.operations import (
     UnionMerge,
     WrongGroupError,
     compute_ann_statistics,
-    compute_image_statistics,
     find_unique_images,
     mean_std,
 )
@@ -57,43 +56,6 @@ class TestOperations(TestCase):
 
         actual_mean, actual_std = mean_std(dataset)
 
-        for em, am in zip(expected_mean, actual_mean):
-            self.assertAlmostEqual(em, am, places=0)
-        for estd, astd in zip(expected_std, actual_std):
-            self.assertAlmostEqual(estd, astd, places=0)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_image_stats(self):
-        expected_mean = [100, 50, 150]
-        expected_std = [20, 50, 10]
-
-        dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=i,
-                    media=Image(data=np.random.normal(expected_mean, expected_std, size=(h, w, 3))),
-                )
-                for i, (w, h) in enumerate([(3000, 100), (800, 600), (400, 200), (700, 300)])
-            ]
-        )
-        dataset.put(dataset.get("1"), id="5", subset="train")
-
-        actual = compute_image_statistics(dataset)
-
-        self.assertEqual(
-            actual["dataset"],
-            {
-                "images count": 5,
-                "unique images count": 4,
-                "repeated images count": 1,
-                "repeated images": [[("1", "default"), ("5", "train")]],
-            },
-        )
-        self.assertEqual(actual["subsets"]["default"]["images count"], 4)
-        self.assertEqual(actual["subsets"]["train"]["images count"], 1)
-
-        actual_mean = actual["subsets"]["default"]["image mean"][::-1]
-        actual_std = actual["subsets"]["default"]["image std"][::-1]
         for em, am in zip(expected_mean, actual_mean):
             self.assertAlmostEqual(em, am, places=0)
         for estd, astd in zip(expected_std, actual_std):
