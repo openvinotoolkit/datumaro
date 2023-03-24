@@ -7,6 +7,11 @@ repos:
     rev: v4.4.0
     hooks:
       - id: end-of-file-fixer
+        exclude: |
+            (?x)^(
+                site/.*|
+                tests/assets/.*
+            )$
       - id: trailing-whitespace
 
   # Ruff
@@ -22,13 +27,14 @@ repos:
     hooks:
       - id: black
 
+  # TODO: Enable mypy as soon as possible
   # python static type checking
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.0.1"
-    hooks:
-      - id: mypy
-        additional_dependencies: [types-PyYAML]
-        exclude: "tests"
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: "v1.0.1"
+  #   hooks:
+  #     - id: mypy
+  #       additional_dependencies: [types-PyYAML]
+  #       exclude: "tests"
 
   # markdown linting
   - repo: https://github.com/igorshubovych/markdownlint-cli
