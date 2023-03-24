@@ -27,6 +27,13 @@ repos:
     hooks:
       - id: black
 
+  # Sort Python import
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        name: isort (python)
+
   # TODO: Enable mypy as soon as possible
   # python static type checking
   # - repo: https://github.com/pre-commit/mirrors-mypy
