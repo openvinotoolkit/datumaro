@@ -1,0 +1,30 @@
+name: Code Scanning
+
+on:
+  workflow_dispatch: # run on request (no need for PR)
+  schedule:
+    # every UTC 6PM from Mon to Fri
+    - cron: "0 18 * * 1-5"
+
+jobs:
+  Bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Run checks
+        run: |
+          pip install --user -r tests/requirements-linters.txt
+          echo "Bandit version: "`bandit --version | head -1`
+          bandit -r -c ipas_default.config ./ -f txt -o bandit-report.txt
+      - name: Upload Bandit artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: bandit-report
+          path: .tox/bandit-report.txt
+        # Use always() to always run this step to publish scan results when there are test failures
+        if: ${{ always() }}

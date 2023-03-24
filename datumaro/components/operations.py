@@ -4,6 +4,7 @@
 
 import hashlib
 import logging as log
+import warnings
 from collections import OrderedDict
 from copy import deepcopy
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
@@ -29,6 +30,7 @@ from datumaro.components.errors import (
     AnnotationsTooCloseError,
     ConflictingCategoriesError,
     DatasetMergeError,
+    DatumaroError,
     FailedAttrVotingError,
     FailedLabelVotingError,
     MismatchingAttributesError,
@@ -1458,26 +1460,45 @@ class _MeanStdCounter:
             *__class__._compute_stats(stats[h:], counts[h:], m, v),
         )
 
+    def __len__(self) -> int:
+        return len(self._stats)
+
+
+IMAGE_STATS_SCHEMA = {
+    "dataset": {
+        "images count": 0,
+        "unique images count": 0,
+        "repeated images count": 0,
+        "repeated images": [],  # [[id1, id2], [id3, id4, id5], ...]
+    },
+    "subsets": {},
+}
+
 
 def compute_image_statistics(dataset: IDataset):
-    stats = {
-        "dataset": {
-            "images count": 0,
-            "unique images count": 0,
-            "repeated images count": 0,
-            "repeated images": [],  # [[id1, id2], [id3, id4, id5], ...]
-        },
-        "subsets": {},
-    }
+    if dataset.media_type() != Image:
+        raise DatumaroError(
+            f"Your dataset's media_type is {dataset.media_type()}, "
+            "but only Image media_type is allowed."
+        )
+
+    stats = deepcopy(IMAGE_STATS_SCHEMA)
 
     stats_counter = _MeanStdCounter()
     unique_counter = _ItemMatcher()
 
     for item in dataset:
+        if not isinstance(item.media, Image):
+            warnings.warn(
+                f"item (id: {item.id}, subset: {item.subset})"
+                f" has media_type, {item.media} but only Image media_type is allowed."
+            )
+            continue
+
         stats_counter.accumulate(item)
         unique_counter.process_item(item)
 
-    def _extractor_stats(subset_name, extractor):
+    def _extractor_stats(subset_name):
         sub_counter = _MeanStdCounter()
         sub_counter._stats = {
             k: v
@@ -1488,7 +1509,7 @@ def compute_image_statistics(dataset: IDataset):
         available = len(sub_counter._stats) != 0
 
         stats = {
-            "images count": len(extractor),
+            "images count": len(sub_counter),
         }
 
         if available:
@@ -1510,16 +1531,14 @@ def compute_image_statistics(dataset: IDataset):
         return stats
 
     for subset_name in dataset.subsets():
-        stats["subsets"][subset_name] = _extractor_stats(
-            subset_name, dataset.get_subset(subset_name)
-        )
+        stats["subsets"][subset_name] = _extractor_stats(subset_name)
 
     unique_items = unique_counter.get_result()
     repeated_items = [sorted(g) for g in unique_items.values() if 1 < len(g)]
 
     stats["dataset"].update(
         {
-            "images count": len(dataset),
+            "images count": len(stats_counter),
             "unique images count": len(unique_items),
             "repeated images count": len(repeated_items),
             "repeated images": repeated_items,  # [[id1, id2], [id3, id4, id5], ...]

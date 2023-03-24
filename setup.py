@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+# ruff: noqa: E501
+
 import os
 import os.path as osp
 import re

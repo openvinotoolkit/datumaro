@@ -46,7 +46,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     def _parse_task_type(s):
         try:
             return TaskType[s.lower()].name
-        except:
+        except Exception:
             raise argparse.ArgumentTypeError(
                 "Unknown task type %s. Expected " "one of: %s" % (s, task_types)
             )
@@ -126,7 +126,7 @@ def validate_command(args):
     if target_project:
         scope_add(target_project)
 
-    dst_file_name = f"validation-report"
+    dst_file_name = "validation-report"
     if args.subset_name is not None:
         dataset = dataset.get_subset(args.subset_name)
         dst_file_name += f"-{args.subset_name}"

@@ -73,7 +73,7 @@ class YoloStrictBase(SubsetBase):
 
         names_path = config.get("names")
         if not names_path:
-            raise InvalidAnnotationError(f"Failed to parse names file path from config")
+            raise InvalidAnnotationError("Failed to parse names file path from config")
 
         # The original format is like this:
         #

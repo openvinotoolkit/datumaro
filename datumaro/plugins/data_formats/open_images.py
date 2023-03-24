@@ -481,10 +481,11 @@ class OpenImagesBase(DatasetBase):
             with self._open_csv_annotation(mask_path) as mask_reader:
                 for mask_description in mask_reader:
                     mask_path = mask_description["MaskPath"]
-                    if _RE_INVALID_PATH_COMPONENT.fullmatch(mask_path):
-                        raise UnsupportedMaskPathError(item_id=item.id, mask_path=mask_path)
-
                     image_id = mask_description["ImageID"]
+
+                    if _RE_INVALID_PATH_COMPONENT.fullmatch(mask_path):
+                        raise UnsupportedMaskPathError(item_id=image_id, mask_path=mask_path)
+
                     item = items_by_id.get(image_id)
                     if item is None:
                         item = items_by_id.setdefault(

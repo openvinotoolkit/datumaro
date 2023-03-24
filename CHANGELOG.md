@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+### Bug fixes
+- Add UserWarning if an invalid media_type comes to image statistics computation
+  (<https://github.com/openvinotoolkit/datumaro/pull/891>)
+
 ## 23/03/2023 - Release 1.1.0
 ### New features
 - Add with_subset_dirs decorator (Add ImagenetWithSubsetDirsImporter)
