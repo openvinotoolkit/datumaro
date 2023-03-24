@@ -42,5 +42,10 @@ Formats
    vott_csv
    vott_json
    wider_face
+<<<<<<< HEAD
    yolo_ultralytics
    yolo
+=======
+   yolo
+   yolo_ultralytics
+>>>>>>> Revert index
