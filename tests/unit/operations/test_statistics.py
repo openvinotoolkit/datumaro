@@ -6,9 +6,10 @@ from typing import List, Tuple
 
 import numpy as np
 import pytest
-
+from unittest.mock import patch
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.errors import DatumaroError
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.operations import IMAGE_STATS_SCHEMA, compute_image_statistics
 
@@ -89,6 +90,12 @@ class ImageStatisticsTest:
         self,
         fxt_point_cloud_dataset: Dataset,
     ):
-        with pytest.warns(UserWarning, match="only Image media_type is allowed"):
+        # PointCloud media_type at dataset level
+        with pytest.raises(DatumaroError, match="only Image media_type is allowed"):
             actual = compute_image_statistics(fxt_point_cloud_dataset)
-        assert actual["dataset"] == IMAGE_STATS_SCHEMA["dataset"]
+
+        # Exceptional case of #873, dataset has Image media_type but DatasetItem has PointCloud.
+        with patch.object(Dataset, "media_type", return_value=Image):
+            with pytest.warns(UserWarning, match="only Image media_type is allowed"):
+                actual = compute_image_statistics(fxt_point_cloud_dataset)
+            assert actual["dataset"] == IMAGE_STATS_SCHEMA["dataset"]

@@ -1476,9 +1476,9 @@ IMAGE_STATS_SCHEMA = {
 
 
 def compute_image_statistics(dataset: IDataset):
-    if not isinstance(dataset.media_type, Image):
+    if dataset.media_type() != Image:
         raise DatumaroError(
-            f"Your dataset's media_type is {dataset.media_type}, "
+            f"Your dataset's media_type is {dataset.media_type()}, "
             "but only Image media_type is allowed."
         )
 
