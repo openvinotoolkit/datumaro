@@ -1,7 +1,18 @@
 default_language_version:
-  node: 18.15.0
+  node: system
 
 repos:
+  # EOF and whitespace checker
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: end-of-file-fixer
+        exclude: |
+            (?x)^(
+                site/.*|
+                tests/assets/.*
+            )$
+
   # Ruff
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: "v0.0.258"
@@ -15,13 +26,21 @@ repos:
     hooks:
       - id: black
 
-  # python static type checking
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.0.1"
+  # Sort Python import
+  - repo: https://github.com/pycqa/isort
+    rev: 5.11.5
     hooks:
-      - id: mypy
-        additional_dependencies: [types-PyYAML]
-        exclude: "tests"
+      - id: isort
+        name: isort (python)
+
+  # TODO: Enable mypy as soon as possible
+  # python static type checking
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: "v1.0.1"
+  #   hooks:
+  #     - id: mypy
+  #       additional_dependencies: [types-PyYAML]
+  #       exclude: "tests"
 
   # markdown linting
   - repo: https://github.com/igorshubovych/markdownlint-cli
@@ -30,7 +49,7 @@ repos:
       - id: markdownlint
         args: [--config=.markdownlint.yaml]
 
-  # whitespace & git conflict marker
+  # Git conflict marker
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: 3.0.0
     hooks:

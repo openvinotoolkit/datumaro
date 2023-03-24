@@ -4,6 +4,6 @@
 opencv-python-headless>=4.1.0.25
 
 # docs
-markupsafe==2.0.1
+markupsafe>=2.0.1
 nbconvert>=7.2.3
 ipython>=8.4.0
