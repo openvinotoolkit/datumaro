@@ -12,7 +12,6 @@ repos:
                 site/.*|
                 tests/assets/.*
             )$
-      - id: trailing-whitespace
 
   # Ruff
   - repo: https://github.com/charliermarsh/ruff-pre-commit
