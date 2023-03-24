@@ -14,13 +14,15 @@ class DatumaroBinaryPath:
     RELATED_IMAGES_DIR = "related_images"
     MASKS_DIR = "masks"
 
-    ANNOTATION_EXT = ".datumaro"
+    ANNOTATION_EXT = ".datum"
     IMAGE_EXT = ".jpg"
     MASK_EXT = ".png"
     SIGNATURE = _SIGNATURE
     SIGNATURE_LEN = len(_SIGNATURE)
 
     SECRET_KEY_FILE = "secret_key.txt"
+
+    MAX_BLOB_SIZE = 2**20  # 1 Mega bytes
 
     @classmethod
     def check_signature(cls, signature: str):

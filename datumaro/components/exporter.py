@@ -279,3 +279,122 @@ class Exporter(CliPlugin):
 
     def _save_meta_file(self, path):
         save_meta_file(path, self._extractor.categories())
+
+
+# TODO: Currently, ExportContextComponent is introduced only for Datumaro and DatumaroBinary format for multi-processing.
+# We need to propagate this to everywhere in Datumaro 1.2.0
+class ExportContextComponent:
+    def __init__(
+        self,
+        save_dir: str,
+        save_media: bool,
+        images_dir: str,
+        pcd_dir: str,
+        related_images_dir: str,
+        crypter: Crypter = NULL_CRYPTER,
+        image_ext: Optional[str] = None,
+        default_image_ext: Optional[str] = None,
+    ):
+        self._save_dir = save_dir
+        self._save_media = save_media
+        self._images_dir = images_dir
+        self._pcd_dir = pcd_dir
+        self._related_images_dir = related_images_dir
+        self._crypter = crypter
+        self._image_ext = image_ext
+        self._default_image_ext = default_image_ext
+
+    def find_image_ext(self, item: Union[DatasetItem, Image]):
+        src_ext = None
+
+        if isinstance(item, DatasetItem) and isinstance(item.media, Image):
+            src_ext = item.media.ext
+        elif isinstance(item, Image):
+            src_ext = item.ext
+
+        return self._image_ext or src_ext or self._default_image_ext
+
+    def _make_item_filename(self, item, *, name=None, subdir=None):
+        name = name or item.id
+        subdir = subdir or ""
+        return osp.join(subdir, name)
+
+    def make_image_filename(self, item, *, name=None, subdir=None):
+        return self._make_item_filename(item, name=name, subdir=subdir) + self.find_image_ext(item)
+
+    def make_pcd_filename(self, item, *, name=None, subdir=None):
+        return self._make_item_filename(item, name=name, subdir=subdir) + ".pcd"
+
+    def save_image(
+        self,
+        item: DatasetItem,
+        encryption: bool = False,
+        path: Optional[str] = None,
+        *,
+        name: Optional[str] = None,
+        subdir: Optional[str] = None,
+        basedir: Optional[str] = None,
+    ):
+        assert not (
+            (subdir or name or basedir) and path
+        ), "Can't use both subdir or name or basedir and path arguments"
+
+        if not isinstance(item.media, Image) or not item.media.has_data:
+            log.warning("Item '%s' has no image", item.id)
+            return
+
+        basedir = basedir or self._save_dir
+        path = path or osp.join(basedir, self.make_image_filename(item, name=name, subdir=subdir))
+        path = osp.abspath(path)
+
+        item.media.save(path, crypter=self._crypter if encryption else NULL_CRYPTER)
+
+    def save_point_cloud(
+        self,
+        item: DatasetItem,
+        path: Optional[str] = None,
+        *,
+        name: Optional[str] = None,
+        subdir: Optional[str] = None,
+        basedir: Optional[str] = None,
+    ):
+        assert not (
+            (subdir or name or basedir) and path
+        ), "Can't use both subdir or name or basedir and path arguments"
+
+        if not item.media or not isinstance(item.media, PointCloud):
+            log.warning("Item '%s' has no pcd", item.id)
+            return
+
+        basedir = basedir or self._save_dir
+        path = path or osp.join(basedir, self.make_pcd_filename(item, name=name, subdir=subdir))
+        path = osp.abspath(path)
+
+        os.makedirs(osp.dirname(path), exist_ok=True)
+        if item.media and osp.isfile(item.media.path):
+            if item.media.path != path:
+                shutil.copyfile(item.media.path, path)
+
+    @property
+    def images_dir(self) -> str:
+        return self._images_dir
+
+    @property
+    def pcd_dir(self) -> str:
+        return self._pcd_dir
+
+    @property
+    def related_images_dir(self) -> str:
+        return self._related_images_dir
+
+    @property
+    def save_dir(self) -> str:
+        return self._save_dir
+
+    @property
+    def save_media(self) -> bool:
+        return self._save_media
+
+    @property
+    def crypter(self) -> Crypter:
+        return self._crypter

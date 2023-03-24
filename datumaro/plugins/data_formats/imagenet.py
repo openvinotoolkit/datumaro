@@ -10,8 +10,10 @@ from datumaro.components.annotation import AnnotationType, Label, LabelCategorie
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer, with_subset_dirs
 from datumaro.components.media import Image
+from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
 from datumaro.util.image import find_images
 
 
@@ -68,6 +70,20 @@ class ImagenetImporter(Importer):
     └── label_1
         └── label_1_1.jpg
     """
+
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+        # Images must not be under a directory whose name is blacklisted.
+        for dname in os.listdir(context.root_path):
+            dpath = osp.join(context.root_path, dname)
+            if osp.isdir(dpath) and dname.lower() in SUBSET_NAME_BLACKLIST:
+                context.fail(
+                    f"{dname} is found in {context.root_path}. "
+                    "However, Images must not be under a directory whose name is blacklisted "
+                    f"(SUBSET_NAME_BLACKLIST={SUBSET_NAME_BLACKLIST})."
+                )
+
+        return super().detect(context)
 
     @classmethod
     def find_sources(cls, path):

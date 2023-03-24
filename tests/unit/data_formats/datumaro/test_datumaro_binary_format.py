@@ -59,9 +59,33 @@ class DatumaroBinaryFormatTest(TestBase):
                 {"encryption_key": ENCRYPTION_KEY},
                 id="test_with_encryption",
             ),
+            pytest.param(
+                "fxt_test_datumaro_format_dataset",
+                compare_datasets_strict,
+                True,
+                {"encryption_key": ENCRYPTION_KEY},
+                {"encryption_key": ENCRYPTION_KEY, "no_media_encryption": True},
+                id="test_no_media_encryption",
+            ),
+            pytest.param(
+                "fxt_test_datumaro_format_dataset",
+                compare_datasets_strict,
+                True,
+                {"encryption_key": ENCRYPTION_KEY},
+                {"encryption_key": ENCRYPTION_KEY, "max_blob_size": 1},  # 1 byte
+                id="test_multi_blobs",
+            ),
+            pytest.param(
+                "fxt_test_datumaro_format_dataset",
+                compare_datasets_strict,
+                True,
+                {"encryption_key": ENCRYPTION_KEY},
+                {"encryption_key": ENCRYPTION_KEY, "num_workers": 2},
+                id="test_multi_processing",
+            ),
         ],
     )
-    def test_develop(
+    def test_dm_binary_own_features(
         self,
         fxt_dataset,
         compare,
@@ -154,7 +178,9 @@ class MapperTest:
 
 
 class EncryptActionTest:
-    @pytest.mark.parametrize("args,flag", [(["--encrypt"], True), ([], False)], ids=["on", "off"])
+    @pytest.mark.parametrize(
+        "args,flag", [(["--encryption"], True), ([], False)], ids=["on", "off"]
+    )
     def test_action(self, args, flag):
         parser = DatumaroBinaryExporter.build_cmdline_parser()
         args = parser.parse_args(args)

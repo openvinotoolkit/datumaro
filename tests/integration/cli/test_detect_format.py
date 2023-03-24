@@ -4,6 +4,7 @@ import json
 import os
 import os.path as osp
 import shutil
+from typing import List
 from unittest.case import TestCase
 
 from datumaro.plugins.data_formats.ade20k2017 import Ade20k2017Importer
@@ -23,6 +24,16 @@ LFW_DIR = get_test_asset_path("lfw_dataset")
 
 
 class DetectFormatTest(TestCase):
+    def _extract_detect_format_name(self, output_file: io.StringIO) -> List[str]:
+        output = output_file.getvalue()
+        if "Ambiguous dataset; detected the following formats:\n\n" in output:
+            tokens = output.replace(
+                "Ambiguous dataset; detected the following formats:\n\n", ""
+            ).split("- ")[1:]
+            return [token.replace("\n", "") for token in tokens]
+
+        return [output.replace("Detected format: ", "").replace("\n", "")]
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_unambiguous(self):
         output_file = io.StringIO()
@@ -30,10 +41,10 @@ class DetectFormatTest(TestCase):
         with contextlib.redirect_stdout(output_file):
             run(self, "detect-format", ADE20K2017_DIR)
 
-        output = output_file.getvalue()
+        output = self._extract_detect_format_name(output_file)
 
-        self.assertIn(Ade20k2017Importer.NAME, output)
-        self.assertNotIn(Ade20k2020Importer.NAME, output)
+        self.assertEqual([Ade20k2017Importer.NAME], output)
+        self.assertNotEqual([Ade20k2020Importer.NAME], output)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_deep_nested_folders(self):
@@ -47,9 +58,9 @@ class DetectFormatTest(TestCase):
             with contextlib.redirect_stdout(output_file):
                 run(self, "detect-format", test_dir, "--depth", "3")
 
-            output = output_file.getvalue()
+            output = self._extract_detect_format_name(output_file)
 
-            self.assertIn(LfwImporter.NAME, output)
+            self.assertEqual([LfwImporter.NAME], output)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_nested_folders(self):
@@ -63,9 +74,9 @@ class DetectFormatTest(TestCase):
             with contextlib.redirect_stdout(output_file):
                 run(self, "detect-format", test_dir)
 
-            output = output_file.getvalue()
+            output = self._extract_detect_format_name(output_file)
 
-            self.assertIn(Ade20k2020Importer.NAME, output)
+            self.assertEqual([Ade20k2020Importer.NAME], output)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ambiguous(self):
@@ -84,10 +95,9 @@ class DetectFormatTest(TestCase):
             with contextlib.redirect_stdout(output_file):
                 run(self, "detect-format", test_dir)
 
-            output = output_file.getvalue()
+            output = self._extract_detect_format_name(output_file)
 
-            self.assertIn(Ade20k2017Importer.NAME, output)
-            self.assertIn(Ade20k2020Importer.NAME, output)
+            self.assertEqual([Ade20k2017Importer.NAME, Ade20k2020Importer.NAME], output)
 
     # Ideally, there should be a test for the case where no formats match,
     # but currently that's impossible, because some low-confidence detectors
