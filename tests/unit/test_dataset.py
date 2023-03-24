@@ -1711,8 +1711,8 @@ class DatasetTest(TestCase):
                 ),
                 # Must be added
                 DatasetItem(
-                    id=2, annotations=[Bbox(1, 2, 3, 2, label=1)]  # Label must be remapped
-                ),
+                    id=2, annotations=[Bbox(1, 2, 3, 2, label=1)]
+                ),  # Label must be remapped
             ],
             categories=["b", "a", "c"],
         )

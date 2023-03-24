@@ -23,7 +23,7 @@ class MvtecImporter(Importer):
         subset_paths = glob(osp.join(path, "*"), recursive=False)
 
         # MVTec format should have MvtecPath.MASK_DIR directory.
-        if not MvtecPath.MASK_DIR in [osp.basename(path) for path in subset_paths]:
+        if MvtecPath.MASK_DIR not in [osp.basename(path) for path in subset_paths]:
             return []
 
         sources = []

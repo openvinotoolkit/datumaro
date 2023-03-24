@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+# ruff: noqa: F401
+
 from ..requirements import Requirements, mark_requirement
 
 
@@ -22,7 +24,6 @@ class ApiTest:
 
     @mark_requirement(Requirements.DATUM_API)
     def test_can_import_from_module_aliases(self):
-        # pylint: disable=unused-import
         from datumaro.errors import DatumaroError
         from datumaro.ops import ExactMerge
         from datumaro.project import Project

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-# pylint: disable=unused-import
+# ruff: noqa: F401
 
 # This module is a usability proxy for components.project
 

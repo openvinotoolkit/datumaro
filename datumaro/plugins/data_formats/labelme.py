@@ -416,7 +416,7 @@ class LabelMeExporter(Exporter):
 
         obj_id = 0
         for ann in item.annotations:
-            if not ann.type in {AnnotationType.polygon, AnnotationType.bbox, AnnotationType.mask}:
+            if ann.type not in {AnnotationType.polygon, AnnotationType.bbox, AnnotationType.mask}:
                 continue
 
             obj_elem = ET.SubElement(root_elem, "object")

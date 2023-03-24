@@ -20,10 +20,10 @@ try:
     # Use rmtree from GitPython to avoid the problem with removal of
     # readonly files on Windows, which Git uses extensively
     # It double checks if a file cannot be removed because of readonly flag
-    from git.util import rmfile, rmtree  # pylint: disable=unused-import
+    from git.util import rmfile, rmtree  # noqa: F401
 except ModuleNotFoundError:
-    from os import remove as rmfile  # pylint: disable=unused-import
-    from shutil import rmtree as rmtree  # pylint: disable=unused-import
+    from os import remove as rmfile  # noqa: F401
+    from shutil import rmtree as rmtree  # noqa: F401
 
 from . import cast
 from .definitions import DEFAULT_SUBSET_NAME
@@ -37,9 +37,11 @@ def check_instruction_set(instruction):
         # Let's ignore a warning from bandit about using shell=True.
         # In this case it isn't a security issue and we use some
         # shell features like pipes.
-        subprocess.check_output(  # nosec B602
+        subprocess.check_output(
             'lscpu | grep -o "%s" | head -1' % instruction, shell=True
-        ).decode("utf-8")
+        ).decode(  # nosec B602
+            "utf-8"
+        )
     )
 
 

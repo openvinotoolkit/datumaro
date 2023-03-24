@@ -1,0 +1,44 @@
+default_language_version:
+  node: 18.15.0
+
+repos:
+  # Ruff
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: "v0.0.258"
+    hooks:
+      - id: ruff
+        exclude: "tests"
+
+  # python code formatting
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+
+  # python static type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: "v1.0.1"
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-PyYAML]
+        exclude: "tests"
+
+  # markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.33.0
+    hooks:
+      - id: markdownlint
+        args: [--config=.markdownlint.yaml]
+
+  # whitespace & git conflict marker
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: git-check  # Configure in .gitattributes
+
+  # notebooks
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.6.3
+    hooks:
+      - id: nbqa-black
+      - id: nbqa-ruff

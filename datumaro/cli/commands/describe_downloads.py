@@ -58,8 +58,8 @@ def describe_downloads_command(args):
             dataset_metas[f"tfds:{dataset_name}"] = dataset.query_remote_metadata()
 
     if args.report_format == "text":
-        with (
-            open(args.report_file, "w") if args.report_file else contextlib.nullcontext(sys.stdout)
+        with open(args.report_file, "w") if args.report_file else contextlib.nullcontext(
+            sys.stdout
         ) as report_file:
             if dataset_metas:
                 print("Available datasets:", file=report_file)

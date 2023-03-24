@@ -201,7 +201,7 @@ class Tile(Transform, CliPlugin):
             default=0.5,
             help="Threshold for dropping Polygon and Bbox annotations when tiling."
             " Polygon and Bbox should be cropped if they exist on the edge of the tiled image."
-            " If an area of the cropped annotation / an area of the original annoation  < `threshold_drop_ann`,"
+            " If an area of the cropped annotation / an area of the original annoation < `threshold_drop_ann`,"
             " drop the corresponding annotation.",
         )
         return parser

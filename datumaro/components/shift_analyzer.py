@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+# ruff: noqa: E501
+
 from collections import defaultdict
 from typing import Dict, List, Optional
 

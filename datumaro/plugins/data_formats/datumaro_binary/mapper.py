@@ -69,7 +69,7 @@ class MediaMapper(Mapper):
             raise DatumaroError(f"{obj._type} is not allowed for MediaMapper.")
 
         bytes_arr = bytearray()
-        bytes_arr.extend(struct.pack(f"Iii", obj._type, size[0], size[1]))
+        bytes_arr.extend(struct.pack("Iii", obj._type, size[0], size[1]))
         bytes_arr.extend(StringMapper.forward(obj.path))
 
         return bytes_arr

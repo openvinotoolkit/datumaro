@@ -119,22 +119,22 @@ class RISE:
 
         heatmap_id = 0
 
-        label_heatmaps = None
+        # label_heatmaps = None
         label_total_counts = None
         label_confs = None
         if len(predicted_labels) != 0:
             step = len(predicted_labels)
-            label_heatmaps = heatmaps[heatmap_id : heatmap_id + step]
+            # label_heatmaps = heatmaps[heatmap_id : heatmap_id + step]
             label_total_counts = total_counts[heatmap_id : heatmap_id + step]
             label_confs = confs[heatmap_id : heatmap_id + step]
             heatmap_id += step
 
-        bbox_heatmaps = None
+        # bbox_heatmaps = None
         bbox_total_counts = None
         bbox_confs = None
         if len(predicted_bboxes) != 0:
             step = len(predicted_bboxes)
-            bbox_heatmaps = heatmaps[heatmap_id : heatmap_id + step]
+            # bbox_heatmaps = heatmaps[heatmap_id : heatmap_id + step]
             bbox_total_counts = total_counts[heatmap_id : heatmap_id + step]
             bbox_confs = confs[heatmap_id : heatmap_id + step]
             heatmap_id += step
