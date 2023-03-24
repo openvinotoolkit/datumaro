@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: MIT
 
 from typing import List, Tuple
+from unittest.mock import patch
 
 import numpy as np
 import pytest
-from unittest.mock import patch
+
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError
