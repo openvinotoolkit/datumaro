@@ -1,7 +1,14 @@
 default_language_version:
-  node: 18.15.0
+  node: system
 
 repos:
+  # EOF and whitespace checker
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
   # Ruff
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: "v0.0.258"
@@ -30,7 +37,7 @@ repos:
       - id: markdownlint
         args: [--config=.markdownlint.yaml]
 
-  # whitespace & git conflict marker
+  # Git conflict marker
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: 3.0.0
     hooks:
