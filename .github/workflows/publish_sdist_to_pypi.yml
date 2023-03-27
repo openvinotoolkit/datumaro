@@ -1,0 +1,57 @@
+name: Publish Source Distribution to PyPI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-sdist-to-pypi:
+    environment: pypi
+    name: Publish Source Distribution to PyPI
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+    - name: Install pypa/build
+      run: >-
+        python -m
+        pip install
+        build
+        --user
+    - name: Build a source tarball
+      run: >-
+        python -m
+        build
+        --sdist
+        --outdir dist/
+        .
+    - name: Upload package distributions to github
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: dist/*
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+    - name: Check tag to determine where to publish the source distribution to PyPI or TestPyPI
+      id: check-tag
+      uses: actions-ecosystem/action-regex-match@v2
+      with:
+        text: ${{ github.ref }}
+        regex: '^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$'
+    - name: Publish package distributions to PyPI
+      if: ${{ steps.check-tag.outputs.match != '' }}
+      uses: pypa/gh-action-pypi-publish@v1.7.1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+    - name: Publish package distributions to TestPyPI
+      if: ${{ steps.check-tag.outputs.match == '' }}
+      uses: pypa/gh-action-pypi-publish@v1.7.1
+      with:
+        password: ${{ secrets.TESTPYPI_API_TOKEN }}
+        repository-url: https://test.pypi.org/legacy/
