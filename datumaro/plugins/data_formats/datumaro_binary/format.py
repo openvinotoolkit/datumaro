@@ -23,6 +23,7 @@ class DatumaroBinaryPath:
     SECRET_KEY_FILE = "secret_key.txt"
 
     MAX_BLOB_SIZE = 2**20  # 1 Mega bytes
+    MP_TIMEOUT = 30.0  # 30 secs
 
     @classmethod
     def check_signature(cls, signature: str):

@@ -23,6 +23,13 @@ class DatumaroBinaryImporter(DatumaroImporter):
             default=None,
             help="Encryption key",
         )
+        parser.add_argument(
+            "--num-workers",
+            type=int,
+            default=0,
+            help="The number of multi-processing workers for import. "
+            "If num_workers = 0, do not use multiprocessing (default: %(default)s).",
+        )
         return parser
 
     @classmethod
