@@ -92,10 +92,9 @@ class _SubsetWriter:
 
             if context.save_media:
                 # Temporarily update image path and save it.
-                image._path = osp.join(
-                    context.images_dir, item.subset, context.make_image_filename(item)
-                )
-                context.save_image(item, encryption=encryption, path=image.path)
+                fname = context.make_image_filename(item)
+                context.save_image(item, encryption=encryption, fname=fname, subdir=item.subset)
+                image._path = fname
 
             yield
             image._path = path
@@ -105,21 +104,23 @@ class _SubsetWriter:
 
             if context.save_media:
                 # Temporarily update pcd path and save it.
-                pcd._path = osp.join(context.pcd_dir, item.subset, context.make_pcd_filename(item))
-                context.save_point_cloud(item, pcd.path)
+                fname = context.make_pcd_filename(item)
+                context.save_point_cloud(item, fname=fname, subdir=item.subset)
+                pcd._path = fname
 
                 # Temporarily update pcd related images paths and save them.
                 for i, img in enumerate(sorted(pcd.extra_images, key=lambda v: v.path)):
                     img.__path = img.path
-                    img._path = osp.join(
-                        context.related_images_dir,
-                        item.subset,
-                        item.id,
-                        f"image_{i}{context.find_image_ext(img)}",
-                    )
+                    fname = osp.join(item.id, f"image_{i}{context.find_image_ext(img)}")
+                    img._path = fname
 
                     if img.has_data:
-                        img.save(img.path)
+                        context.save_image(
+                            item,
+                            basedir=context.related_images_dir,
+                            subdir=item.subset,
+                            fname=fname,
+                        )
 
             yield
             pcd._path = path
@@ -160,9 +161,8 @@ class _SubsetWriter:
 
                 if related_images:
                     item_desc["related_images"] = related_images
-
-        if isinstance(item.media, MediaElement):
-            item_desc["media"] = {"path": item.media.path}
+            elif isinstance(item.media, MediaElement):
+                item_desc["media"] = {"path": item.media.path}
 
         self.items.append(item_desc)
 

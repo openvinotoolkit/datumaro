@@ -328,46 +328,41 @@ class ExportContextComponent:
     def save_image(
         self,
         item: DatasetItem,
-        encryption: bool = False,
-        path: Optional[str] = None,
         *,
-        name: Optional[str] = None,
-        subdir: Optional[str] = None,
+        encryption: bool = False,
         basedir: Optional[str] = None,
+        subdir: Optional[str] = None,
+        fname: Optional[str] = None,
     ):
-        assert not (
-            (subdir or name or basedir) and path
-        ), "Can't use both subdir or name or basedir and path arguments"
-
         if not isinstance(item.media, Image) or not item.media.has_data:
             log.warning("Item '%s' has no image", item.id)
             return
 
-        basedir = basedir or self._save_dir
-        path = path or osp.join(basedir, self.make_image_filename(item, name=name, subdir=subdir))
+        basedir = self._images_dir if basedir is None else basedir
+        basedir = osp.join(basedir, subdir) if subdir is not None else basedir
+        fname = self.make_image_filename(item) if fname is None else fname
+        path = osp.join(basedir, fname)
         path = osp.abspath(path)
 
+        os.makedirs(osp.dirname(path), exist_ok=True)
         item.media.save(path, crypter=self._crypter if encryption else NULL_CRYPTER)
 
     def save_point_cloud(
         self,
         item: DatasetItem,
-        path: Optional[str] = None,
         *,
-        name: Optional[str] = None,
-        subdir: Optional[str] = None,
         basedir: Optional[str] = None,
+        subdir: Optional[str] = None,
+        fname: Optional[str] = None,
     ):
-        assert not (
-            (subdir or name or basedir) and path
-        ), "Can't use both subdir or name or basedir and path arguments"
-
         if not item.media or not isinstance(item.media, PointCloud):
             log.warning("Item '%s' has no pcd", item.id)
             return
 
-        basedir = basedir or self._save_dir
-        path = path or osp.join(basedir, self.make_pcd_filename(item, name=name, subdir=subdir))
+        basedir = self._pcd_dir if basedir is None else basedir
+        basedir = osp.join(basedir, subdir) if subdir is not None else basedir
+        fname = self.make_pcd_filename(item) if fname is None else fname
+        path = osp.join(basedir, fname)
         path = osp.abspath(path)
 
         os.makedirs(osp.dirname(path), exist_ok=True)

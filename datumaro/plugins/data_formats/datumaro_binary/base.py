@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os.path as osp
 import struct
 from io import BufferedReader
 from typing import Any, Dict, Optional
@@ -97,13 +98,18 @@ class DatumaroBinaryBase(DatumaroBase):
 
         self._items = []
 
+        media_path_prefix = {
+            MediaType.IMAGE: osp.join(self._images_dir, self._subset),
+            MediaType.POINT_CLOUD: osp.join(self._pcd_dir, self._subset),
+        }
+
         # For each blob, we decrypt the blob first, then extract items.
         for blob_size in blob_sizes:
             blob_bytes = self._crypter.decrypt(self._fp.read(blob_size))
             offset = 0
 
             while offset < len(blob_bytes):
-                item, offset = DatasetItemMapper.backward(blob_bytes, offset)
+                item, offset = DatasetItemMapper.backward(blob_bytes, offset, media_path_prefix)
                 if item.media is not None and self._media_encryption:
                     item.media.set_crypter(self._crypter)
                 self._items.append(item)

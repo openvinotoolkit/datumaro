@@ -59,6 +59,7 @@ class DatumaroBase(SubsetBase):
         rootpath = ""
         if path.endswith(osp.join(DatumaroPath.ANNOTATIONS_DIR, osp.basename(path))):
             rootpath = path.rsplit(DatumaroPath.ANNOTATIONS_DIR, maxsplit=1)[0]
+        self._rootpath = rootpath
 
         images_dir = ""
         if rootpath and osp.isdir(osp.join(rootpath, DatumaroPath.IMAGES_DIR)):
