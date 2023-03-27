@@ -259,7 +259,6 @@ def compare_datasets_3d(
             # Ultimately, we must implement a comparison of the contents of the point cloud as same as images.
             item_a_fname = osp.basename(item_a.media.path)
             item_b_fname = osp.basename(item_b.media.path)
-            test.assertEqual(item_a_fname, item_b_fname)
             test.assertEqual(item_a_fname, item_b_fname, item_a.id)
             test.assertEqual(
                 set(osp.basename(img.path) for img in item_a.media.extra_images),
