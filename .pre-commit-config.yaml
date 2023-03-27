@@ -57,7 +57,8 @@ repos:
 
   # notebooks
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.5.3
+    rev: 1.6.3
     hooks:
       - id: nbqa-black
       - id: nbqa-ruff
+        language_version: python3.8
