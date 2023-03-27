@@ -18,7 +18,6 @@ from datumaro.plugins.data_formats.datumaro_binary.mapper.common import IntListM
 from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
 
 from ..datumaro.base import DatumaroBase
-from .format import DatumaroBinaryPath
 
 
 class DatumaroBinaryBase(DatumaroBase):
