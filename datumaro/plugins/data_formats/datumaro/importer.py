@@ -37,6 +37,6 @@ class DatumaroImporter(Importer):
         return cls._find_sources_recursive(
             path,
             cls.PATH_CLS.ANNOTATION_EXT,
-            cls.get_extractor_name(),
+            cls.NAME,
             dirname=cls.PATH_CLS.ANNOTATIONS_DIR,
         )
