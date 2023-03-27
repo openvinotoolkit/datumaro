@@ -54,6 +54,7 @@ class DatumaroFormatTest:
             target_dataset=target_dataset,
             importer_args=importer_args,
             compare=compare,
+            move_save_dir=True,
             **kwargs,
         )
 
