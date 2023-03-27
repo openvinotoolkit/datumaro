@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # run on request (no need for PR)
   push:
     branches:
-      - releases/v1.1.0
+      - releases/1.1.0
 
 jobs:
   deploy:
