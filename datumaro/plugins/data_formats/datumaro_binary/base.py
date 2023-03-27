@@ -98,7 +98,7 @@ class DatumaroBinaryBase(DatumaroBase):
 
         self._items = []
 
-        path_prefixes = {
+        media_path_prefix = {
             MediaType.IMAGE: osp.join(self._images_dir, self._subset),
             MediaType.POINT_CLOUD: osp.join(self._pcd_dir, self._subset),
         }
@@ -109,7 +109,7 @@ class DatumaroBinaryBase(DatumaroBase):
             offset = 0
 
             while offset < len(blob_bytes):
-                item, offset = DatasetItemMapper.backward(blob_bytes, offset, path_prefixes)
+                item, offset = DatasetItemMapper.backward(blob_bytes, offset, media_path_prefix)
                 if item.media is not None and self._media_encryption:
                     item.media.set_crypter(self._crypter)
                 self._items.append(item)

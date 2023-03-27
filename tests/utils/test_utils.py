@@ -250,8 +250,10 @@ def compare_datasets_3d(
 
         if (require_point_cloud and item_a.media) or (item_a.media and item_b.media):
             # TODO: Currently, this legacy test is very weird just to compare the path of point cloud files.
-            # However, Datumaro format keeps an absolute path in the media after import.
-            # The absolute path is also required to import the content of point cloud too.
+            # However, although the Datumaro format annotation file has a relative path in it,
+            # Datumaro Dataset stores an absolute path in the media after import.
+            # For example, {"path": relative/path/to/image.jpg} => {Media.path: absolute/path/to/image.jpg}
+            # The absolute path is also required to import the content of media too.
             # As a result, it cannot pass this test to the two same datasets in different locations.
             # So I changed this test just to compare both file names temporariliy.
             # Ultimately, we must implement a comparison of the contents of the point cloud as same as images.
