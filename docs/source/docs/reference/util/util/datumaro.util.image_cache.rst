@@ -1,9 +1,7 @@
-image\_cache module
--------------------
+Image Cache module
+==================
 
 .. automodule:: datumaro.util.image_cache
    :members:
    :undoc-members:
-   :private-members:
-   :special-members:
    :show-inheritance:

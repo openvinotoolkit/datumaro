@@ -1,0 +1,7 @@
+Mapper package
+==============
+
+.. toctree::
+   :glob:
+
+   *

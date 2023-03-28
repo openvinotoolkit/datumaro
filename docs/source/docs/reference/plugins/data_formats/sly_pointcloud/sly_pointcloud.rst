@@ -1,5 +1,5 @@
-sly Pointcloud package
-=============================
+Sly Pointcloud package
+======================
 
 .. toctree::
    :glob:

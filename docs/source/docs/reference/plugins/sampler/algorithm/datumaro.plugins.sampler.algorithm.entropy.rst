@@ -1,4 +1,4 @@
-entropy module
+Entropy module
 --------------
 
 .. automodule:: datumaro.plugins.sampler.algorithm.entropy

@@ -1,9 +1,7 @@
-os\_util module
----------------
+OS Util module
+==============
 
 .. automodule:: datumaro.util.os_util
    :members:
    :undoc-members:
-   :private-members:
-   :special-members:
    :show-inheritance:

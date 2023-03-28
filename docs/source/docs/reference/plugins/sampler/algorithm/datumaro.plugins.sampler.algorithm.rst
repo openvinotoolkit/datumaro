@@ -1,4 +1,4 @@
-algorithm module
+Algorithm module
 ----------------
 
 .. automodule:: datumaro.plugins.sampler.algorithm.algorithm

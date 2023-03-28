@@ -1,4 +1,4 @@
-mobilenet v2 pytorch interp module
+Mobilenet v2 pytorch interp module
 ----------------------------------
 
 .. automodule:: datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp

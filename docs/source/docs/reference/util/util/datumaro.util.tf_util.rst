@@ -1,9 +1,7 @@
-tf\_util module
----------------
+TF Util module
+==============
 
 .. automodule:: datumaro.util.tf_util
    :members:
    :undoc-members:
-   :private-members:
-   :special-members:
    :show-inheritance:

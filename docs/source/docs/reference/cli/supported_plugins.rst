@@ -1,4 +1,4 @@
-Supported plugins
+Supported Plugins
 #################
 .. _supported_formats:
 

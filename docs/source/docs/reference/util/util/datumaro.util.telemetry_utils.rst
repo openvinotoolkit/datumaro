@@ -1,9 +1,7 @@
-telemetry\_utils module
------------------------
+Telemetry Utils module
+======================
 
 .. automodule:: datumaro.util.telemetry_utils
    :members:
    :undoc-members:
-   :private-members:
-   :special-members:
    :show-inheritance:

@@ -1,5 +1,5 @@
-algorithms module
------------------
+Algorithms module
+=================
 
 .. toctree::
    :glob:

@@ -8,4 +8,6 @@ Plugins
    data_formats/data_formats
    openvino_plugin/openvino_plugin
    sampler/sampler
+   synthetic_data/synthetic_data
+   tiling/tiling
    plugins/*
