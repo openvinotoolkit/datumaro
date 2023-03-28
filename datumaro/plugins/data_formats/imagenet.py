@@ -76,6 +76,7 @@ class ImagenetImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         # Images must not be under a directory whose name is blacklisted.
+        context.is_root_dir()
         for dname in os.listdir(context.root_path):
             dpath = osp.join(context.root_path, dname)
             if osp.isdir(dpath) and dname.lower() in SUBSET_NAME_BLACKLIST:
