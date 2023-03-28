@@ -6,12 +6,14 @@ import contextlib
 import inspect
 import os
 import os.path as osp
+import shutil
 import tempfile
 import unittest
 import unittest.mock
 import warnings
 from enum import Enum, auto
 from glob import glob
+from tempfile import TemporaryDirectory
 from typing import Any, Collection, List, Optional, Union
 
 from typing_extensions import Literal
@@ -247,10 +249,20 @@ def compare_datasets_3d(
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
         if (require_point_cloud and item_a.media) or (item_a.media and item_b.media):
-            test.assertEqual(item_a.media.path, item_b.media.path, item_a.id)
+            # TODO: Currently, this legacy test is very weird just to compare the path of point cloud files.
+            # However, although the Datumaro format annotation file has a relative path in it,
+            # Datumaro Dataset stores an absolute path in the media after import.
+            # For example, {"path": relative/path/to/image.jpg} => {Media.path: absolute/path/to/image.jpg}
+            # The absolute path is also required to import the content of media too.
+            # As a result, it cannot pass this test to the two same datasets in different locations.
+            # So I changed this test just to compare both file names temporariliy.
+            # Ultimately, we must implement a comparison of the contents of the point cloud as same as images.
+            item_a_fname = osp.basename(item_a.media.path)
+            item_b_fname = osp.basename(item_b.media.path)
+            test.assertEqual(item_a_fname, item_b_fname, item_a.id)
             test.assertEqual(
-                set(img.path for img in item_a.media.extra_images),
-                set(img.path for img in item_b.media.extra_images),
+                set(osp.basename(img.path) for img in item_a.media.extra_images),
+                set(osp.basename(img.path) for img in item_b.media.extra_images),
                 item_a.id,
             )
         test.assertEqual(len(item_a.annotations), len(item_b.annotations))
@@ -279,23 +291,37 @@ def check_save_and_load(
     target_dataset=None,
     importer_args=None,
     compare=None,
+    move_save_dir: bool = False,
     **cmp_kwargs,
 ):
-    converter(source_dataset, test_dir)
+    """
+    Parameters
+    ----------
+        move_save_dir: If true, move the saved directory again to somewhere.
+        This option is useful for testing whether an absolute path exists in the exported dataset.
+    """
+    with TemporaryDirectory(prefix=test_dir) as tmp_dir:
+        converter(source_dataset, test_dir)
+        if move_save_dir:
+            save_dir = tmp_dir
+            for file in os.listdir(test_dir):
+                shutil.move(osp.join(test_dir, file), save_dir)
+        else:
+            save_dir = test_dir
 
-    if importer_args is None:
-        importer_args = {}
-    parsed_dataset = Dataset.import_from(test_dir, importer, **importer_args)
+        if importer_args is None:
+            importer_args = {}
+        parsed_dataset = Dataset.import_from(save_dir, importer, **importer_args)
 
-    if target_dataset is None:
-        target_dataset = source_dataset
+        if target_dataset is None:
+            target_dataset = source_dataset
 
-    if not compare and cmp_kwargs.get("dimension") is Dimensions.dim_3d:
-        compare = compare_datasets_3d
-        del cmp_kwargs["dimension"]
-    elif not compare:
-        compare = compare_datasets
-    compare(test, expected=target_dataset, actual=parsed_dataset, **cmp_kwargs)
+        if not compare and cmp_kwargs.get("dimension") is Dimensions.dim_3d:
+            compare = compare_datasets_3d
+            del cmp_kwargs["dimension"]
+        elif not compare:
+            compare = compare_datasets
+        compare(test, expected=target_dataset, actual=parsed_dataset, **cmp_kwargs)
 
 
 def compare_dirs(test, expected: str, actual: str):

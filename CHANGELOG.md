@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add UserWarning if an invalid media_type comes to image statistics computation
   (<https://github.com/openvinotoolkit/datumaro/pull/891>)
 
+## 28/03/2023 - Release 1.1.1
+### Bug fixes
+- Fix to not export absolute media path in Datumaro and DatumaroBinary formats
+  (<https://github.com/openvinotoolkit/datumaro/pull/896>)
+- Change pypi_publish.yml to publish_sdist_to_pypi.yml
+  (<https://github.com/openvinotoolkit/datumaro/pull/895>)
+
 ## 23/03/2023 - Release 1.1.0
 ### New features
 - Add with_subset_dirs decorator (Add ImagenetWithSubsetDirsImporter)
