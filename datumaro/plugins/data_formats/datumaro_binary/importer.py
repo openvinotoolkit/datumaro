@@ -21,7 +21,17 @@ class DatumaroBinaryImporter(DatumaroImporter):
             "--encryption-key",
             type=str,
             default=None,
-            help="Encryption key",
+            help="If the dataset is encrypted, "
+            "it (secret key) is needed to import the dataset. "
+            "If the incorrect key is given, it cannot be imported."
+            "Ignore this argument if your dataset does not require encryption.",
+        )
+        parser.add_argument(
+            "--num-workers",
+            type=int,
+            default=0,
+            help="The number of multi-processing workers for import. "
+            "If num_workers = 0, do not use multiprocessing (default: %(default)s).",
         )
         return parser
 

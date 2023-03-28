@@ -129,7 +129,9 @@ class _SubsetWriter(__SubsetWriter):
         # Await async results
         if pool is not None:
             self._bytes = [
-                result.get() for result in self._bytes if isinstance(result, ApplyResult)
+                result.get(timeout=DatumaroBinaryPath.MP_TIMEOUT)
+                for result in self._bytes
+                if isinstance(result, ApplyResult)
             ]
 
         # Divide items to blobs

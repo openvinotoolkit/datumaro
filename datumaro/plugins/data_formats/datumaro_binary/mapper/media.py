@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os.path as osp
 import struct
 from typing import Dict, Optional, Tuple
 
@@ -26,17 +27,22 @@ class MediaMapper(Mapper):
             raise DatumaroError(f"{obj._type} is not allowed for MediaMapper.")
 
     @classmethod
-    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Optional[MediaElement], int]:
+    def backward(
+        cls,
+        _bytes: bytes,
+        offset: int = 0,
+        media_path_prefix: Optional[Dict[MediaType, str]] = None,
+    ) -> Tuple[Optional[MediaElement], int]:
         (media_type,) = struct.unpack_from("<I", _bytes, offset)
 
         if media_type == MediaType.NONE:
             return None, offset + 4
         elif media_type == MediaType.IMAGE:
-            return ImageMapper.backward(_bytes, offset)
+            return ImageMapper.backward(_bytes, offset, media_path_prefix)
         elif media_type == MediaType.POINT_CLOUD:
-            return PointCloudMapper.backward(_bytes, offset)
+            return PointCloudMapper.backward(_bytes, offset, media_path_prefix)
         elif media_type == MediaType.MEDIA_ELEMENT:
-            return MediaElementMapper.backward(_bytes, offset)
+            return MediaElementMapper.backward(_bytes, offset, media_path_prefix)
         else:
             raise DatumaroError(f"{media_type} is not allowed for MediaMapper.")
 
@@ -53,16 +59,31 @@ class MediaElementMapper(Mapper):
         return bytes(bytes_arr)
 
     @classmethod
-    def backward_dict(cls, _bytes: bytes, offset: int = 0) -> Tuple[Dict, int]:
+    def backward_dict(
+        cls,
+        _bytes: bytes,
+        offset: int = 0,
+        media_path_prefix: Optional[Dict[MediaType, str]] = None,
+    ) -> Tuple[Dict, int]:
         (media_type,) = struct.unpack_from("<I", _bytes, offset)
         assert media_type == cls.MEDIA_TYPE, f"Expect {cls.MEDIA_TYPE} but actual is {media_type}."
         offset += 4
         path, offset = StringMapper.backward(_bytes, offset)
-        return {"type": media_type, "path": path}, offset
+        return {
+            "type": media_type,
+            "path": path
+            if media_path_prefix is None
+            else osp.join(media_path_prefix[cls.MEDIA_TYPE], path),
+        }, offset
 
     @classmethod
-    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[MediaElement, int]:
-        media_dict, offset = cls.backward_dict(_bytes, offset)
+    def backward(
+        cls,
+        _bytes: bytes,
+        offset: int = 0,
+        media_path_prefix: Optional[Dict[MediaType, str]] = None,
+    ) -> Tuple[MediaElement, int]:
+        media_dict, offset = cls.backward_dict(_bytes, offset, media_path_prefix)
         return MediaElement(path=media_dict["path"]), offset
 
 
@@ -81,8 +102,13 @@ class ImageMapper(MediaElementMapper):
         return bytes(bytes_arr)
 
     @classmethod
-    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Image, int]:
-        media_dict, offset = cls.backward_dict(_bytes, offset)
+    def backward(
+        cls,
+        _bytes: bytes,
+        offset: int = 0,
+        media_path_prefix: Optional[Dict[MediaType, str]] = None,
+    ) -> Tuple[Image, int]:
+        media_dict, offset = cls.backward_dict(_bytes, offset, media_path_prefix)
         height, width = struct.unpack_from("<ii", _bytes, offset)
         size = (height, width)
         offset += 8
@@ -106,8 +132,13 @@ class PointCloudMapper(MediaElementMapper):
         return bytes(bytes_arr)
 
     @classmethod
-    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[PointCloud, int]:
-        media_dict, offset = cls.backward_dict(_bytes, offset)
+    def backward(
+        cls,
+        _bytes: bytes,
+        offset: int = 0,
+        media_path_prefix: Optional[Dict[MediaType, str]] = None,
+    ) -> Tuple[PointCloud, int]:
+        media_dict, offset = cls.backward_dict(_bytes, offset, media_path_prefix)
         (len_extra_images,) = struct.unpack_from("<I", _bytes, offset)
         offset += 4
 
