@@ -1,4 +1,4 @@
-algorithm package
+Algorithm package
 =================
 
 .. toctree::

@@ -1,4 +1,4 @@
-datumaro module
+Datumaro module
 ===============
 .. _datumaro:
 

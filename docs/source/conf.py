@@ -18,6 +18,8 @@ import os
 import re
 import sys
 
+sys.setrecursionlimit(1500)
+
 sys.path.insert(0, os.path.abspath("../.."))
 
 from datumaro.version import __version__
@@ -39,6 +41,7 @@ release = __version__
 extensions = [
     "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
     "sphinx.ext.autodoc",  # Core library for html generation from docstrings
+    "sphinx.ext.autosummary",  # Create neat summary tables
     "sphinx.ext.viewcode",  # Find the source files
     "sphinx_copybutton",  # Copy buttons for code blocks
     "sphinx.ext.autosectionlabel",  # Refer sections its title
@@ -48,12 +51,24 @@ extensions = [
     "nbsphinx",
 ]
 
+autosummary_generate = True  # Turn on sphinx.ext.autosummary
+autodoc_member_order = "groupwise"
+autoclass_content = "both"
+
+autodoc_default_options = {
+    "members": True,
+    "methods": True,
+    "special-members": "__call__",
+    "exclude-members": "_abc_impl",
+    "show-inheritance": True,
+}
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = [
     "_templates",
 ]
 
-nb_execution_mode = "off"
+# nb_execution_mode = "off"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

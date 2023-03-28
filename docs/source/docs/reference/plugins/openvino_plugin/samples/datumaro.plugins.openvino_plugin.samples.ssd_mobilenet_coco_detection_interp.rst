@@ -1,4 +1,4 @@
-ssd mobilenet coco detection interp
+SSD mobilenet coco detection interp
 ----------------------------------------
 
 .. automodule:: datumaro.plugins.openvino_plugin.samples.ssd_mobilenet_coco_detection_interp

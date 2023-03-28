@@ -1,4 +1,4 @@
-ssd face detection interp module
+SSD face detection interp module
 --------------------------------
 
 .. automodule:: datumaro.plugins.openvino_plugin.samples.ssd_face_detection_interp

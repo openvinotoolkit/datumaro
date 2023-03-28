@@ -1,9 +1,7 @@
-log\_utils module
------------------
+Log Utils module
+================
 
 .. automodule:: datumaro.util.log_utils
    :members:
    :undoc-members:
-   :private-members:
-   :special-members:
    :show-inheritance:

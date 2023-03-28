@@ -1,5 +1,5 @@
-tf detection api package
-===============================
+TF Detection API package
+========================
 
 .. toctree::
    :glob:

@@ -1,4 +1,4 @@
-ssd vehicle detection interp module
+SSD vehicle detection interp module
 -----------------------------------
 
 .. automodule:: datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp

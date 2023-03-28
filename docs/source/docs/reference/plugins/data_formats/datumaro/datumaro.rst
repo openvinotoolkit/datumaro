@@ -1,5 +1,5 @@
 Datumaro package
-=======================
+================
 
 .. toctree::
    :glob:
