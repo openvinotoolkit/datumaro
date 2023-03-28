@@ -125,6 +125,8 @@ def test_yolo_to_dm_binary_encryption(
         "--",
         "--encryption-key",
         true_key.decode(),
+        "--num-workers",
+        str(num_workers),
     )
 
     # 6. Re-export it to the yolo format

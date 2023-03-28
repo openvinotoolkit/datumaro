@@ -79,7 +79,7 @@ class DatumaroBinaryFormatTest(TestBase):
                 "fxt_test_datumaro_format_dataset",
                 compare_datasets_strict,
                 True,
-                {"encryption_key": ENCRYPTION_KEY},
+                {"encryption_key": ENCRYPTION_KEY, "num_workers": 2},
                 {"encryption_key": ENCRYPTION_KEY, "num_workers": 2},
                 id="test_multi_processing",
             ),
