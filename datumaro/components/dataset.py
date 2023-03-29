@@ -40,6 +40,7 @@ from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilte
 from datumaro.components.importer import ImportContext, ImportErrorPolicy, _ImportFail
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.media import Image, MediaElement
+from datumaro.components.merge import DEFAULT_MERGE_POLICY
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.plugins.transforms import ProjectLabels
@@ -876,7 +877,9 @@ class Dataset(IDataset):
 
     @staticmethod
     def from_extractors(
-        *sources: IDataset, env: Optional[Environment] = None, merge_policy: str = None
+        *sources: IDataset,
+        env: Optional[Environment] = None,
+        merge_policy: str = DEFAULT_MERGE_POLICY,
     ) -> Dataset:
         """
         Creates a new dataset from one or several `Extractor`s.
@@ -889,6 +892,8 @@ class Dataset(IDataset):
             sources: one or many input extractors
             env: A context for plugins, which will be used for this dataset.
                 If not specified, the builtin plugins will be used.
+            merge_policy: Policy on how to merge multiple datasets.
+                Possible options are "exact", "intersect", and "union".
 
         Returns:
             dataset: A new dataset with contents produced by input extractors
@@ -898,7 +903,7 @@ class Dataset(IDataset):
             source = sources[0]
             dataset = Dataset(source=source, env=env)
         else:
-            from datumaro.components.merger import get_merger
+            from datumaro.components.merge import get_merger
 
             merger = get_merger(merge_policy)
 
@@ -1385,7 +1390,6 @@ class Dataset(IDataset):
 
         try:
             extractors = []
-            merge_policy = None
             for src_conf, pbar in zip(detected_sources, pbars):
                 if not isinstance(src_conf, Source):
                     src_conf = Source(src_conf)
@@ -1397,8 +1401,7 @@ class Dataset(IDataset):
                     progress_reporter=pbar, error_policy=error_policy
                 )
 
-                if not merge_policy:
-                    merge_policy = extractor_kwargs.get("merge_policy", None)
+                merge_policy = extractor_kwargs.get("merge_policy", DEFAULT_MERGE_POLICY)
 
                 try:
                     extractors.append(
