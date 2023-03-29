@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import struct
 from functools import partial
 from typing import Any, Callable, Dict, Optional, Union
@@ -18,27 +19,37 @@ class ImageFileMapper:
     AVAILABLE_SCHEMES = ("JPEG/75", "JPEG/95", "PNG", "TIFF", "AS-IS", "NONE")
 
     @classmethod
-    def forward(cls, path, scheme: str = "JPEG/75") -> Optional[bytes]:
+    def forward(
+        cls,
+        path: Optional[str] = None,
+        data: Optional[np.ndarray] = None,
+        scheme: str = "JPEG/75",
+    ) -> Optional[bytes]:
+        assert (path is not None) ^ (data is not None), "Either one of path or data must be given."
+
         if scheme == "NONE":
             return None
         elif scheme == "AS-IS":
+            assert path is not None
             encoded = open(path, "rb").read()
             return encoded
 
-        kwargs = {}
+        options = {}
         if scheme.startswith("JPEG"):
             quality = int(scheme.split("/")[-1])
-            kwargs["ext"] = "JPEG"
-            kwargs["jpeg_quality"] = quality
+            options["ext"] = "JPEG"
+            options["jpeg_quality"] = quality
         elif scheme == "PNG":
-            kwargs["ext"] = "PNG"
+            options["ext"] = "PNG"
         elif scheme == "TIFF":
-            kwargs["ext"] = "TIFF"
+            options["ext"] = "TIFF"
         else:
             raise NotImplementedError
 
-        image = load_image(path, np.uint8)
-        encoded = encode_image(image, **kwargs)
+        if path:
+            data = load_image(path, np.uint8)
+        assert data is not None
+        encoded = encode_image(data, **options)
         return encoded
 
     @classmethod
@@ -87,17 +98,15 @@ class MediaElementMapper(Mapper):
 
     @classmethod
     def forward(cls, obj: MediaElement) -> Dict[str, Any]:
-        bytes_arr = bytearray()
-        bytes_arr.extend(struct.pack(f"<I", obj.type))
         return {
-            "type": bytes(bytes_arr),
+            "type": obj.type,
             "path": obj.path,
         }
 
     @classmethod
     def backward_dict(cls, obj: Dict[str, Any]) -> Dict[str, Any]:
         obj = obj.copy()
-        (media_type,) = struct.unpack_from("<I", obj["type"], 0)
+        media_type = obj["type"]
         assert media_type == cls.MEDIA_TYPE, f"Expect {cls.MEDIA_TYPE} but actual is {media_type}."
         obj["type"] = media_type
         return obj
@@ -113,13 +122,20 @@ class ImageMapper(MediaElementMapper):
 
     @classmethod
     def forward(
-        cls, obj: Image, encoder: Union[str, Callable[[str], bytes]] = "JPEG/75"
+        cls, obj: Image, encoder: Union[str, Callable[[str, np.ndarray], bytes]] = "JPEG/75"
     ) -> Dict[str, Any]:
         out = super().forward(obj)
-        if isinstance(encoder, Callable):
-            _bytes = encoder(out["path"])
+
+        options = {}
+        if os.path.exists(out["path"]):
+            options["path"] = out["path"]
         else:
-            _bytes = ImageFileMapper.forward(out["path"], encoder)
+            options["data"] = obj.data
+
+        if isinstance(encoder, Callable):
+            _bytes = encoder(**options)
+        else:
+            _bytes = ImageFileMapper.forward(**options, scheme=encoder)
         out["bytes"] = _bytes
 
         out["attributes"] = DictMapper.forward(dict(size=obj.size))
@@ -138,6 +154,7 @@ class ImageMapper(MediaElementMapper):
         return Image(data=image_decoder, path=path, size=attributes["size"])
 
 
+# TODO: share binary for extra images
 class PointCloudMapper(MediaElementMapper):
     MEDIA_TYPE = MediaType.POINT_CLOUD
 

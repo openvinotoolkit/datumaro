@@ -340,7 +340,10 @@ class DatasetSubset(IDataset):  # non-owning view
         return list(set(annotation_types))
 
     def as_dataset(self) -> Dataset:
-        return Dataset.from_extractors(self, env=self.parent.env)
+        dataset = Dataset.from_extractors(self, env=self.parent.env)
+        dataset._format = self.parent._format
+        dataset._source_path = self.parent._source_path
+        return dataset
 
 
 class DatasetStorage(IDataset):

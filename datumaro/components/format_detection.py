@@ -228,7 +228,7 @@ class FormatDetectionContext:
 
         raise FormatRequirementsUnmet((requirement_desc,))
 
-    def is_root_dir(self):
+    def raise_if_root_is_not_dir(self):
         raise_if_path_is_not_dir(self.root_path)
 
     def require_file(

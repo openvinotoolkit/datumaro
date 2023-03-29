@@ -18,12 +18,11 @@ from .media import ImageFileMapper, MediaMapper
 DEFAULT_DECODE_KEYS = {
     "attributes": lambda obj: DictMapper.backward(obj)[0],
     "annotations": lambda obj: AnnotationListMapper.backward(obj)[0],
-    "media.type": lambda obj: struct.unpack_from("<I", obj, 0)[0],
     "media.attributes": lambda obj: DictMapper.backward(obj)[0],
 }
 
 
-def base_decoder(batches, column=None):
+def arrow_decoder(batches, column=None):
     if not isinstance(batches, list):
         batches = [batches]
     table = pa.Table.from_batches(batches)
@@ -41,15 +40,15 @@ def base_decoder(batches, column=None):
     return data
 
 
-def media_decoder(batches, idx=0):
-    _type = base_decoder(batches, "media.type")[idx]
+def media_decode_helper(batches, idx=0):
+    _type = arrow_decoder(batches, "media.type")[idx]
     if _type == MediaType.IMAGE:
         def image_decoder(path):
-            data = base_decoder(batches, "media.bytes")[idx]
+            data = arrow_decoder(batches, "media.bytes")[idx]
             return ImageFileMapper.backward(data=data)
 
-        path = base_decoder(batches, "media.path")[idx]
-        attributes = base_decoder(batches, "media.attributes")[idx]
+        path = arrow_decoder(batches, "media.path")[idx]
+        attributes = arrow_decoder(batches, "media.attributes")[idx]
         return Image(data=image_decoder, path=path, size=attributes["size"])
     else:
         raise NotImplementedError
@@ -78,10 +77,10 @@ class DatasetItemMapper(Mapper):
 
     @staticmethod
     def backward_from_batches(batches: List[pa.lib.RecordBatch]) -> List[DatasetItem]:
-        ids = base_decoder(batches, "id")
-        subsets = base_decoder(batches, "subset")
-        annotations_ = base_decoder(batches, "annotations")
-        attributes_ = base_decoder(batches, "attributes")
+        ids = arrow_decoder(batches, "id")
+        subsets = arrow_decoder(batches, "subset")
+        annotations_ = arrow_decoder(batches, "annotations")
+        attributes_ = arrow_decoder(batches, "attributes")
 
         items = []
         for i, (id, subset, annotations, attributes) in enumerate(
@@ -91,7 +90,7 @@ class DatasetItemMapper(Mapper):
                 DatasetItem(
                     id=id,
                     subset=subset,
-                    media=media_decoder(batches, i),
+                    media=media_decode_helper(batches, i),
                     annotations=annotations,
                     attributes=attributes,
                 )

@@ -21,7 +21,7 @@ class DatumaroArrow:
                 "media",
                 pa.struct(
                     [
-                        pa.field("type", pa.binary()),
+                        pa.field("type", pa.uint32()),
                         pa.field("path", pa.string()),
                         pa.field("bytes", pa.binary()),
                         pa.field("attributes", pa.binary()),
