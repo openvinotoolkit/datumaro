@@ -15,7 +15,7 @@ from ..util.telemetry_utils import (
     send_command_failure_info,
     send_command_success_info,
 )
-from ..version import VERSION
+from ..version import __version__
 from . import commands, contexts
 from .util import add_subparser
 from .util.errors import CliException
@@ -143,7 +143,7 @@ def make_parser():
     if parser.prog == osp.basename(__file__):  # python -m datumaro ...
         parser.prog = "datumaro"
 
-    parser.add_argument("--version", action="version", version=VERSION)
+    parser.add_argument("--version", action="version", version=__version__)
     _LogManager._define_loglevel_option(parser)
 
     known_contexts = _get_known_contexts()
@@ -188,7 +188,7 @@ def main(args=None):
         return 1
 
     sensitive_args = _get_sensitive_args()
-    telemetry = init_telemetry_session(app_name="Datumaro", app_version=VERSION)
+    telemetry = init_telemetry_session(app_name="Datumaro", app_version=__version__)
 
     try:
         retcode = args.command(args)

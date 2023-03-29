@@ -23,7 +23,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import parse_json_file
-from datumaro.version import VERSION
+from datumaro.version import __version__
 
 from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
 
@@ -45,7 +45,7 @@ class DatumaroBase(SubsetBase):
         if dm_version not in self.ALLOWED_VERSIONS:
             raise DatasetImportError(
                 f"Datumaro format version of the given dataset is {dm_version}, "
-                f"but not supported by this Datumaro version: {VERSION}. "
+                f"but not supported by this Datumaro version: {__version__}. "
                 f"The allowed datumaro format versions are {self.ALLOWED_VERSIONS}. "
                 "Please install the latest Datumaro."
             )
