@@ -138,7 +138,7 @@ class ArrowExporter(Exporter):
             writer.add_categories(self._extractor.categories())
             writer.init_writer()
 
-        for item in tqdm(self._extractor):
+        for item in tqdm(self._extractor, desc="Building arrow", ncols=81):
             subset = item.subset or DEFAULT_SUBSET_NAME
             writers[subset].add_item(item)
             writers[subset].write()
