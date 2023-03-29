@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from attr import attrib, attrs
-from pytest import LineMatcher
 
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.errors import FailedLabelVotingError
@@ -17,6 +16,7 @@ from .matcher import (
     HashKeyMatcher,
     ImageAnnotationMatcher,
     LabelMatcher,
+    LineMatcher,
     MaskMatcher,
     PointsMatcher,
     PolygonMatcher,
