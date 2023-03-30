@@ -20,16 +20,14 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.media import Image, MultiframeImage, PointCloud
-from datumaro.components.operations import (
+from datumaro.components.merge.intersect_merge import IntersectMerge
+from datumaro.components.merge.union_merge import UnionMerge
+from datumaro.components.operations import compute_ann_statistics, find_unique_images, mean_std
+from datumaro.errors import (
     FailedAttrVotingError,
-    IntersectMerge,
     NoMatchingAnnError,
     NoMatchingItemError,
-    UnionMerge,
     WrongGroupError,
-    compute_ann_statistics,
-    find_unique_images,
-    mean_std,
 )
 
 from ..requirements import Requirements, mark_requirement
