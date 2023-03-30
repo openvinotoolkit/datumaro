@@ -53,20 +53,3 @@ class Merger(CliPlugin):
             return media_type
 
         return None
-
-
-def get_merger(key):
-    if key == "union":
-        from datumaro.components.operations import UnionMerge
-
-        merger = UnionMerge()
-    elif key == "intersect":
-        from datumaro.components.operations import IntersectMerge
-
-        merger = IntersectMerge()
-    else:
-        from datumaro.components.operations import ExactMerge
-
-        merger = ExactMerge()
-
-    return merger
