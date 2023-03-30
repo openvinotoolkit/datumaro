@@ -1912,7 +1912,7 @@ class Project:
 
         try:
             obj_type, obj_hash = self._git.rev_parse(ref)
-        except Exception:  # nosec - B110:try_except_pass
+        except Exception:  # nosec try_except_pass
             pass  # Ignore git errors
         else:
             if obj_type != "commit":

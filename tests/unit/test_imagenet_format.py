@@ -1,4 +1,4 @@
-import pickle  # nosec - disable B403:import_pickle check
+import pickle  # nosec import_pickle
 from unittest import TestCase
 
 import numpy as np

@@ -5,7 +5,7 @@
 import logging as log
 
 # Disable B410: import_lxml - the library is used for writing
-from lxml import etree as ET  # nosec, lxml has proper XPath implementation
+from lxml import etree as ET  # nosec
 
 from datumaro.components.annotation import (
     Annotation,

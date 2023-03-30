@@ -4,7 +4,7 @@
 
 import os
 import os.path as osp
-import pickle  # nosec - disable B403:import_pickle check - fixed
+import pickle  # nosec import_pickle
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional
 
