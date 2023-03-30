@@ -36,3 +36,9 @@ jobs:
         with:
           name: test-results
           path: report/stability_test_report.html
+      - name: Microsoft Teams Notification
+        uses: skitionek/notify-microsoft-teams@master
+        if: failure()
+        with:
+          webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
+          overwrite: "{title: `Weekly Stability Test failure`, text: Failure in `${workflow_link}`}"

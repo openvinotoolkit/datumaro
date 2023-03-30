@@ -33,3 +33,9 @@ jobs:
         with:
           name: test-results
           path: nightly_regression_test_report.html
+      - name: Microsoft Teams Notification
+        uses: skitionek/notify-microsoft-teams@master
+        if: failure()
+        with:
+          webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
+          overwrite: "{title: `Nightly Regression Test failure`, text: Failure in `${workflow_link}`}"
