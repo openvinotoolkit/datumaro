@@ -1,0 +1,43 @@
+name: Notify to Microsoft Teams
+
+on:
+  workflow_call:
+    secrets:
+      MSTEAMS_WEBHOOK:
+        required: true
+
+jobs:
+  notify-to-teams:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Microsoft Teams Notification
+        uses: skitionek/notify-microsoft-teams@master
+        if: always()
+        with:
+          webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
+          raw: >-
+            {
+              "@type": "MessageCard",
+              "@context": "http://schema.org/extensions",
+              "title": "Failure on ${{ github.workflow }}",
+              "summary": "Failure on ${{ github.workflow }}",
+              "sections": [
+                {
+                  "activityTitle": "Failure on ${{ github.workflow }}",
+                  "activitySubtitle": "",
+                  "activityImage": "https://raw.githubusercontent.com/Skitionek/notify-microsoft-teams/master/icons/failure.png"
+                }
+              ],
+              "potentialAction": [
+                {
+                  "@type": "OpenUri",
+                  "name": "Go to failure",
+                  "targets": [
+                    {
+                      "os": "default",
+                      "uri": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
