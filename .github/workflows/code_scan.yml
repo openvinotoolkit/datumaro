@@ -33,4 +33,4 @@ jobs:
         if: failure()
         with:
           webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
-          overwrite: "{title: `Code Scanning failure`, text: Failure in `${workflow_link}`}"
+          overwrite: "{title: `Code Scanning failure`, text: `Failure in ${workflow_link}`}"

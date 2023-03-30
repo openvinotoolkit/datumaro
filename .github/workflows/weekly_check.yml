@@ -41,4 +41,4 @@ jobs:
         if: failure()
         with:
           webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
-          overwrite: "{title: `Weekly Stability Test failure`, text: Failure in `${workflow_link}`}"
+          overwrite: "{title: `Weekly Stability Test failure`, text: `Failure in ${workflow_link}`}"
