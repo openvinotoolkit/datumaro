@@ -20,7 +20,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../.."))
 
-from datumaro.version import VERSION
+from datumaro.version import __version__
 
 # -- Project information -----------------------------------------------------
 
@@ -28,7 +28,7 @@ project = "Datumaro API documentation"
 author = "Intel"
 
 # The full version, including alpha/beta/rc tags
-release = VERSION
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------

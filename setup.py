@@ -28,7 +28,7 @@ def find_version(project_dir=None):
     # PEP440:
     # https://www.python.org/dev/peps/pep-0440/#appendix-b-parsing-version-strings-with-regular-expressions
     pep_regex = r"([1-9]\d*!)?(0|[1-9]\d*)(\.(0|[1-9]\d*))*((a|b|rc)(0|[1-9]\d*))?(\.post(0|[1-9]\d*))?(\.dev(0|[1-9]\d*))?"
-    version_regex = r"VERSION\s*=\s*.(" + pep_regex + ")."
+    version_regex = r"__version__\s*=\s*.(" + pep_regex + ")."
     match = re.match(version_regex, version_text)
     if not match:
         raise RuntimeError("Failed to find version string in '%s'" % file_path)
