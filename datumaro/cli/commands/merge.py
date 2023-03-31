@@ -11,7 +11,7 @@ from collections import OrderedDict
 from datumaro.components.dataset import DEFAULT_FORMAT
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetMergeError, DatasetQualityError, ProjectNotFoundError
-from datumaro.components.operations import IntersectMerge
+from datumaro.components.merge.intersect_merge import IntersectMerge
 from datumaro.components.project import ProjectBuildTargets
 from datumaro.util import dump_json_file
 from datumaro.util.scope import scope_add, scoped
