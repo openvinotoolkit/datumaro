@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import base64
 import struct
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple
@@ -62,50 +61,13 @@ class FloatListMapper(ListMapper):
     _format = "f"
 
 
-def _b64encode(obj):
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            obj[k] = _b64encode(v)
-    elif isinstance(obj, (list, tuple)):
-        _obj = []
-        for v in obj:
-            _obj.append(_b64encode(v))
-        if isinstance(obj, list):
-            _obj = list(_obj)
-        obj = _obj
-    elif isinstance(obj, bytes):
-        obj = base64.b64encode(obj).decode()
-    return obj
-
-
-def _b64decode(obj):
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            obj[k] = _b64decode(v)
-    elif isinstance(obj, (list, tuple)):
-        _obj = []
-        for v in obj:
-            _obj.append(_b64decode(v))
-        if isinstance(obj, list):
-            _obj = list(_obj)
-        obj = _obj
-    elif isinstance(obj, str):
-        try:
-            _obj = base64.b64decode(obj)
-            if base64.b64encode(_obj).decode() == obj:
-                obj = _obj
-        except Exception:
-            pass
-    return obj
-
-
 class DictMapper(Mapper):
     @staticmethod
     def forward(obj: Dict[str, Any]) -> bytes:
         if len(obj) == 0:
             msg = b""
         else:
-            msg = dump_json(_b64encode(obj))
+            msg = dump_json(obj)
         length = len(msg)
         return struct.pack(f"<I{length}s", length, msg)
 
@@ -117,5 +79,4 @@ class DictMapper(Mapper):
             parsed_dict = {}
         else:
             parsed_dict = parse_json(_bytes[offset : offset + length])
-
-        return _b64decode(parsed_dict), offset + length
+        return parsed_dict, offset + length
