@@ -3,6 +3,7 @@ name: Issue assignment
 on:
   issues:
     types: [opened]
+  workflow_dispatch:
 
 jobs:
   auto-assign:
