@@ -1,9 +1,9 @@
 name: Issue assignment
 
 on:
+  workflow_dispatch: # For testing
   issues:
     types: [opened]
-  workflow_dispatch:
 
 jobs:
   auto-assign:
