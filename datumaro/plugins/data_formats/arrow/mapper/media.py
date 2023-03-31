@@ -5,14 +5,17 @@
 import os
 import struct
 from functools import partial
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union, List
 
+import pyarrow as pa
 import numpy as np
 
 from datumaro.components.errors import DatumaroError
 from datumaro.components.media import Image, MediaElement, MediaType
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper, Mapper
 from datumaro.util.image import decode_image, encode_image, load_image
+
+from .utils import pa_batches_decoder
 
 
 class ImageFileMapper:
@@ -53,13 +56,12 @@ class ImageFileMapper:
         return encoded
 
     @classmethod
-    def backward(cls, *, path: Optional[str] = None, data: Optional[bytes] = None) -> np.ndarray:
-        assert (path is not None) ^ (data is not None), "Either one of path or data must be given"
-
+    def backward(cls, *, path: Optional[str] = None, data: Optional[bytes] = None) -> Optional[np.ndarray]:
+        if path is not None and data is not None:
+            return None
         if data is not None:
             return decode_image(data, np.uint8)
-        else:
-            assert path is not None
+        if path is not None:
             return load_image(path, np.uint8)
 
 
@@ -67,15 +69,14 @@ class MediaMapper(Mapper):
     @classmethod
     def forward(cls, obj: Optional[MediaElement], **options) -> Dict[str, Any]:
         if obj is None:
-            return struct.pack(f"<I", MediaType.NONE)
-        elif obj._type == MediaType.IMAGE:
+            return {"type": int(MediaType.NONE)}
+        if obj._type == MediaType.IMAGE:
             return ImageMapper.forward(obj, **options)
-        #  elif obj._type == MediaType.POINT_CLOUD:
+        #  if obj._type == MediaType.POINT_CLOUD:
         #      return PointCloudMapper.forward(obj)
-        elif obj._type == MediaType.MEDIA_ELEMENT:
+        if obj._type == MediaType.MEDIA_ELEMENT:
             return MediaElementMapper.forward(obj)
-        else:
-            raise DatumaroError(f"{obj._type} is not allowed for MediaMapper.")
+        raise DatumaroError(f"{obj._type} is not allowed for MediaMapper.")
 
     @classmethod
     def backward(cls, obj: Dict[str, Any]) -> Optional[MediaElement]:
@@ -83,14 +84,30 @@ class MediaMapper(Mapper):
 
         if media_type == MediaType.NONE:
             return None
-        elif media_type == MediaType.IMAGE:
+        if media_type == MediaType.IMAGE:
             return ImageMapper.backward(obj)
-        #  elif media_type == MediaType.POINT_CLOUD:
+        #  if media_type == MediaType.POINT_CLOUD:
         #      return PointCloudMapper.backward(obj)
-        elif media_type == MediaType.MEDIA_ELEMENT:
+        if media_type == MediaType.MEDIA_ELEMENT:
             return MediaElementMapper.backward(obj)
-        else:
-            raise DatumaroError(f"{media_type} is not allowed for MediaMapper.")
+        raise DatumaroError(f"{media_type} is not allowed for MediaMapper.")
+
+    @classmethod
+    def backward_from_batches(
+        cls,
+        batches: List[pa.lib.RecordBatch],
+        parent: Optional[str] = None,
+    ) -> List[Optional[MediaElement]]:
+        types = pa_batches_decoder(batches, f"{parent}.type" if parent else "type")
+        assert len(set(types)) == 1, "The types in batch are not identical."
+
+        if types[0] == MediaType.NONE:
+            return [None for _ in types]
+        if types[0] == MediaType.IMAGE:
+            return ImageMapper.backward_from_batches(batches, parent)
+        if types[0] == MediaType.MEDIA_ELEMENT:
+            return MediaElementMapper.backward_from_batches(batches, parent)
+        raise NotImplementedError
 
 
 class MediaElementMapper(Mapper):
@@ -99,7 +116,7 @@ class MediaElementMapper(Mapper):
     @classmethod
     def forward(cls, obj: MediaElement) -> Dict[str, Any]:
         return {
-            "type": obj.type,
+            "type": int(obj.type),
             "path": obj.path,
         }
 
@@ -116,6 +133,15 @@ class MediaElementMapper(Mapper):
         media_dict = cls.backward_dict(obj)
         return MediaElement(path=media_dict["path"])
 
+    @classmethod
+    def backward_from_batches(
+        cls,
+        batches: List[pa.lib.RecordBatch],
+        parent: Optional[str] = None,
+    ) -> List[MediaElement]:
+        paths = pa_batches_decoder(batches, f"{parent}.path" if parent else "path")
+        return [MediaElement(path=path) for path in paths]
+
 
 class ImageMapper(MediaElementMapper):
     MEDIA_TYPE = MediaType.IMAGE
@@ -126,17 +152,18 @@ class ImageMapper(MediaElementMapper):
     ) -> Dict[str, Any]:
         out = super().forward(obj)
 
-        options = {}
+        options = {"path": None, "data": None}
         if os.path.exists(out["path"]):
             options["path"] = out["path"]
         else:
             options["data"] = obj.data
 
-        if isinstance(encoder, Callable):
-            _bytes = encoder(**options)
-        else:
-            _bytes = ImageFileMapper.forward(**options, scheme=encoder)
-        out["bytes"] = _bytes
+        if options.get("data", "NO_DATA") is not None:
+            if isinstance(encoder, Callable):
+                _bytes = encoder(**options)
+            else:
+                _bytes = ImageFileMapper.forward(**options, scheme=encoder)
+            out["bytes"] = _bytes
 
         out["attributes"] = DictMapper.forward(dict(size=obj.size))
 
@@ -152,3 +179,25 @@ class ImageMapper(MediaElementMapper):
         if "bytes" in media_dict:
             image_decoder = partial(ImageFileMapper.backward, data=media_dict["bytes"])
         return Image(data=image_decoder, path=path, size=attributes["size"])
+
+    @classmethod
+    def backward_from_batches(
+        cls,
+        batches: List[pa.lib.RecordBatch],
+        parent: Optional[str] = None,
+    ) -> List[Image]:
+        paths = pa_batches_decoder(batches, f"{parent}.path" if parent else "path")
+        attributes_ = pa_batches_decoder(batches, f"{parent}.attributes" if parent else "attributes")
+        attributes_ = [DictMapper.backward(attributes)[0] for attributes in attributes_]
+
+        images = []
+        def image_decoder(path, idx):
+            options = {
+                "path": path if os.path.exists(path) else None,
+                "data": pa_batches_decoder(batches, f"{parent}.bytes" if parent else "bytes")[idx],
+            }
+            return ImageFileMapper.backward(**options)
+
+        for idx, (path, attributes) in enumerate(zip(paths, attributes_)):
+            images.append(Image(data=partial(image_decoder, idx=idx), path=path, size=attributes["size"]))
+        return images

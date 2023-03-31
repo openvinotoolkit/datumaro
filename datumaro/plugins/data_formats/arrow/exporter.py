@@ -4,7 +4,9 @@
 
 import datetime
 import os
+import tempfile
 from copy import deepcopy
+from shutil import move, rmtree
 from typing import Callable, Optional, Union
 
 import pyarrow as pa
@@ -68,10 +70,12 @@ class _SubsetWriter(__SubsetWriter):
 
     def add_item(self, item: DatasetItem):
         item = DatasetItemMapper.forward(item, media={"encoder": self._context._image_ext})
-        if item["media"]["bytes"] is not None:
-            item["media"]["path"] = item["media"]["path"].replace(
-                self.export_context.source_path, ""
-            )
+
+        # truncate source path since the media is embeded in arrow
+        if item["media"].get("bytes", None) is not None:
+            path = item["media"].get("path")
+            if path is not None:
+                item["media"]["path"] = path.replace(self.export_context.source_path, "")
         self.items.append(item)
 
     def write(self, writer_batch_size: Optional[int] = None):
@@ -131,7 +135,11 @@ class ArrowExporter(Exporter):
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
 
-        writers = {subset: self.create_writer(subset) for subset in self._extractor.subsets()}
+        writers = {
+            subset_name: self.create_writer(subset_name)
+            for subset_name, subset in self._extractor.subsets().items()
+            if len(subset)
+        }
 
         for writer in writers.values():
             writer.add_infos(self._extractor.infos())
@@ -148,7 +156,12 @@ class ArrowExporter(Exporter):
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
-        raise NotImplementedError
+        # no patch supported
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cls.convert(dataset, save_dir=temp_dir, **kwargs)
+            if os.path.exists(save_dir):
+                rmtree(save_dir)
+            move(temp_dir, save_dir)
 
     def __init__(
         self,

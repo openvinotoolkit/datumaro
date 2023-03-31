@@ -29,7 +29,7 @@ class ArrowBase(SubsetBase):
         with pa.ipc.open_stream(self._path) as reader:
             self._schema = reader.schema
 
-            infos, _ = DictMapper.backward(self._schema.metadata.get(b"info", b"\x00\x00\x00\x00"))
+            infos, _ = DictMapper.backward(self._schema.metadata.get(b"infos", b"\x00\x00\x00\x00"))
             self._infos = DatumaroBase._load_infos({"infos": infos})
 
             categories, _ = DictMapper.backward(
