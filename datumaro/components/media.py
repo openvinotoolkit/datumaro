@@ -567,28 +567,41 @@ class PointCloud(MediaElement):
         data: Union[bytes, Callable[[str], bytes], None] = None,
         *,
         path: Optional[str] = None,
-        extra_images: Optional[List[Image]] = None,
+        extra_images: Union[List[Image], Callable[[], List[Image]], None] = None,
         crypter: Crypter = NULL_CRYPTER,
     ):
         if not isinstance(data, bytes):
             assert path or callable(data), "PointCloud can not be empty"
             assert data is None or callable(data)
+
         self._bytes_data = data
         self._path = path
 
-        self.extra_images: List[Image] = extra_images or []
+        self._extra_images = extra_images or []
 
         self._crypter = crypter
 
-    def get_bytes(self) -> bytes:
+    @property
+    def extra_images(self) -> List[Image]:
+        if callable(self._extra_images):
+            extra_images = self._extra_images()
+            assert isinstance(extra_images, list) and all(
+                [isinstance(image, Image) for image in extra_images]
+            )
+            return extra_images
+        return self._extra_images
+
+    def get_bytes(self) -> Optional[bytes]:
         if callable(self._bytes_data):
             return self._bytes_data(self.path)
         if isinstance(self._bytes_data, bytes):
             return self._bytes_data
         else:
-            with open(self.path, "rb") as f:
-                bytes_data = f.read()
-            return bytes_data
+            if os.path.exists(self.path):
+                with open(self.path, "rb") as f:
+                    bytes_data = f.read()
+                return bytes_data
+            return None
 
     def save(self, path, crypter: Crypter = NULL_CRYPTER):
         if not crypter.is_null_crypter:
