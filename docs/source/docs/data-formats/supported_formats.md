@@ -1,4 +1,4 @@
-# Dataset Formats
+# Supported Dataset Formats
 
 List of supported formats:
 - ADE20k (v2017) (import-only)
