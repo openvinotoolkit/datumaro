@@ -182,7 +182,9 @@ class PointCloudConverterTest(TestCase):
                                 attributes={"occluded": True, "track_id": 2},
                             ),
                         ],
-                        media=PointCloud(path=osp.join(test_dir, "ds0", "pointcloud", "frame_1.pcd")),
+                        media=PointCloud(
+                            path=osp.join(test_dir, "ds0", "pointcloud", "frame_1.pcd")
+                        ),
                         attributes={"frame": 0, "description": "zzz"},
                     ),
                     DatasetItem(
