@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/897>)
 - Refactor merge code
   (<https://github.com/openvinotoolkit/datumaro/pull/901>, <https://github.com/openvinotoolkit/datumaro/pull/906>)
+- Refactor download CLI commands
+  (<https://github.com/openvinotoolkit/datumaro/pull/909>)
 
 ### Bug fixes
 - Add UserWarning if an invalid media_type comes to image statistics computation
