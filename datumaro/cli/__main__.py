@@ -16,8 +16,10 @@ from ..util.telemetry_utils import (
     send_command_success_info,
 )
 from ..version import __version__
-from . import commands, contexts
-from .util import add_subparser
+from . import contexts
+from .non_project_commands import get_non_project_commands
+from .project_commands import get_project_commands
+from .util import add_subparser, make_subcommands_help
 from .util.errors import CliException
 
 _log_levels = {
@@ -67,16 +69,7 @@ class _LogManager:
         return parser
 
 
-def _make_subcommands_help(commands, help_line_start=0):
-    desc = ""
-    for command_name, _, command_help in commands:
-        desc += ("  %-" + str(max(0, help_line_start - 2 - 1)) + "s%s\n") % (
-            command_name,
-            command_help,
-        )
-    return desc
-
-
+# TODO: revisit during CLI refactoring
 def _get_known_contexts():
     return [
         ("model", contexts.model, "Actions with models"),
@@ -86,42 +79,9 @@ def _get_known_contexts():
     ]
 
 
-def _get_known_commands():
-    return [
-        ("Project modification:", None, ""),
-        ("add", commands.add, "Add dataset"),
-        ("create", commands.create, "Create empty project"),
-        ("import", commands.import_, "Import dataset"),
-        ("remove", commands.remove, "Remove dataset"),
-        ("", None, ""),
-        ("Project versioning:", None, ""),
-        ("checkout", commands.checkout, "Switch to another branch or revision"),
-        ("commit", commands.commit, "Commit changes in tracked files"),
-        ("log", commands.log, "List history"),
-        ("status", commands.status, "Display current status"),
-        ("", None, ""),
-        ("Dataset operations:", None, ""),
-        ("convert", commands.convert, "Convert dataset between formats"),
-        ("detect-format", commands.detect_format, "Detect the format of a dataset"),
-        ("diff", commands.diff, "Compare datasets"),
-        ("download", commands.download, "Download a publicly available dataset"),
-        ("explain", commands.explain, "Run Explainable AI algorithm for model"),
-        ("export", commands.export, "Export dataset in some format"),
-        ("filter", commands.filter, "Filter dataset items"),
-        ("generate", commands.generate, "Generate synthetic dataset"),
-        ("info", commands.info, "Print dataset info"),
-        ("merge", commands.merge, "Merge datasets"),
-        ("patch", commands.patch, "Update dataset from another one"),
-        ("stats", commands.stats, "Compute dataset statistics"),
-        ("transform", commands.transform, "Modify dataset items"),
-        ("validate", commands.validate, "Validate dataset"),
-        ("search", commands.search, "Search similar datasetitems of query"),
-    ]
-
-
 def _get_sensitive_args():
     known_contexts = _get_known_contexts()
-    known_commands = _get_known_commands()
+    known_commands = get_project_commands() + get_non_project_commands()
 
     res = {}
     for _, command, _ in known_contexts + known_commands:
@@ -142,7 +102,7 @@ def make_parser():
     _LogManager._define_loglevel_option(parser)
 
     known_contexts = _get_known_contexts()
-    known_commands = _get_known_commands()
+    known_commands = get_non_project_commands()
 
     # Argparse doesn't support subparser groups:
     # https://stackoverflow.com/questions/32017020/grouping-argparse-subparser-arguments
@@ -151,12 +111,12 @@ def make_parser():
     subcommands_desc = ""
     if known_contexts:
         subcommands_desc += "Contexts:\n"
-        subcommands_desc += _make_subcommands_help(known_contexts, help_line_start)
+        subcommands_desc += make_subcommands_help(known_contexts, help_line_start)
     if known_commands:
         if subcommands_desc:
             subcommands_desc += "\n"
-        subcommands_desc += "Commands:\n"
-        subcommands_desc += _make_subcommands_help(known_commands, help_line_start)
+        subcommands_desc += "Basic Commands:\n"
+        subcommands_desc += make_subcommands_help(known_commands, help_line_start)
     if subcommands_desc:
         subcommands_desc += (
             "\nRun '%s COMMAND --help' for more information on a command." % parser.prog

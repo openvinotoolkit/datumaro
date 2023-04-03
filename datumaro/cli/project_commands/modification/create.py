@@ -10,8 +10,8 @@ import os.path as osp
 from datumaro.components.project import Project
 from datumaro.util.os_util import rmtree
 
-from ..util import MultilineFormatter
-from ..util.errors import CliException
+from ...util import MultilineFormatter
+from ...util.errors import CliException
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):

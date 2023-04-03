@@ -23,11 +23,12 @@ class VideoTest(TestCase):
             make_sample_video(osp.join(video_dir, "video.avi"), frames=4)
 
             proj_dir = osp.join(test_dir, "proj")
-            run(self, "create", "-o", proj_dir)
+            run(self, "project", "create", "-o", proj_dir)
 
             with self.assertLogs() as capture:
                 run(
                     self,
+                    "project",
                     "import",
                     "-f",
                     "video_frames",
@@ -44,14 +45,25 @@ class VideoTest(TestCase):
     def test_can_display_video_import_warning_in_add(self):
         with TestDir() as test_dir:
             proj_dir = osp.join(test_dir, "proj")
-            run(self, "create", "-o", proj_dir)
+            run(self, "project", "create", "-o", proj_dir)
 
             video_dir = osp.join(proj_dir, "src")
             os.makedirs(video_dir)
             make_sample_video(osp.join(video_dir, "video.avi"), frames=4)
 
             with self.assertLogs() as capture:
-                run(self, "add", "-f", "video_frames", "-p", proj_dir, "-r", "video.avi", video_dir)
+                run(
+                    self,
+                    "project",
+                    "add",
+                    "-f",
+                    "video_frames",
+                    "-p",
+                    proj_dir,
+                    "-r",
+                    "video.avi",
+                    video_dir,
+                )
 
             self.assertTrue("results across multiple runs" in "\n".join(capture.output))
 
@@ -61,10 +73,11 @@ class VideoTest(TestCase):
 
         with TestDir() as test_dir:
             proj_dir = osp.join(test_dir, "proj")
-            run(self, "create", "-o", proj_dir)
+            run(self, "project", "create", "-o", proj_dir)
 
             run(
                 self,
+                "project",
                 "import",
                 "-f",
                 "video_frames",
@@ -82,7 +95,7 @@ class VideoTest(TestCase):
             )
 
             result_dir = osp.join(proj_dir, "result")
-            run(self, "export", "-f", "image_dir", "-p", proj_dir, "-o", result_dir)
+            run(self, "project", "export", "-f", "image_dir", "-p", proj_dir, "-o", result_dir)
             parsed_dataset = Dataset.import_from(result_dir, "image_dir")
 
             compare_datasets(self, expected, parsed_dataset)
@@ -100,10 +113,11 @@ class VideoTest(TestCase):
 
         with TestDir() as test_dir:
             proj_dir = osp.join(test_dir, "proj")
-            run(self, "create", "-o", proj_dir)
+            run(self, "project", "create", "-o", proj_dir)
 
             run(
                 self,
+                "project",
                 "import",
                 "-f",
                 "video_keyframes",
@@ -117,7 +131,7 @@ class VideoTest(TestCase):
             )
 
             result_dir = osp.join(proj_dir, "result")
-            run(self, "export", "-f", "image_dir", "-p", proj_dir, "-o", result_dir)
+            run(self, "project", "export", "-f", "image_dir", "-p", proj_dir, "-o", result_dir)
             parsed_dataset = Dataset.import_from(result_dir, "image_dir")
 
             compare_datasets(self, expected, parsed_dataset)

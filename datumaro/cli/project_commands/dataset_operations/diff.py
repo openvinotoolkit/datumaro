@@ -14,10 +14,10 @@ from datumaro.util import dump_json_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
-from ..contexts.project.diff import DiffVisualizer
-from ..util import MultilineFormatter
-from ..util.errors import CliException
-from ..util.project import generate_next_file_name, load_project, parse_full_revpath
+from ...util import MultilineFormatter
+from ...util.diff import DiffVisualizer
+from ...util.errors import CliException
+from ...util.project import generate_next_file_name, load_project, parse_full_revpath
 
 
 class ComparisonMethod(Enum):

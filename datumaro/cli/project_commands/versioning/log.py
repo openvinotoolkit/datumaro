@@ -6,7 +6,7 @@ import argparse
 
 from datumaro.util.scope import scope_add, scoped
 
-from ..util.project import load_project
+from ...util.project import load_project
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
