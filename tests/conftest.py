@@ -28,6 +28,6 @@ def test_dir():
         yield test_dir
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def helper_tc():
     return TestCaseHelper()

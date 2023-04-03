@@ -10,10 +10,8 @@ from . import (
     commit,
     convert,
     create,
-    describe_downloads,
     detect_format,
     diff,
-    download,
     explain,
     export,
     filter,
@@ -30,3 +28,4 @@ from . import (
     transform,
     validate,
 )
+from .no_project import download
