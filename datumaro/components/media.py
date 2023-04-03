@@ -564,15 +564,48 @@ class PointCloud(MediaElement):
 
     def __init__(
         self,
-        path: str,
+        data: Union[bytes, Callable[[str], bytes], None] = None,
+        *,
+        path: Optional[str] = None,
         extra_images: Optional[List[Image]] = None,
         crypter: Crypter = NULL_CRYPTER,
     ):
+        if not isinstance(data, bytes):
+            assert path or callable(data), "PointCloud can not be empty"
+            assert data is None or callable(data)
+        self._bytes_data = data
         self._path = path
 
         self.extra_images: List[Image] = extra_images or []
 
         self._crypter = crypter
+
+    def get_bytes(self) -> bytes:
+        if callable(self._bytes_data):
+            return self._bytes_data(self.path)
+        if isinstance(self._bytes_data, bytes):
+            return self._bytes_data
+        else:
+            with open(self.path, "rb") as f:
+                bytes_data = f.read()
+            return bytes_data
+
+    def save(self, path, crypter: Crypter = NULL_CRYPTER):
+        if not crypter.is_null_crypter:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
+            )
+
+        cur_path = osp.abspath(self.path) if self.path else None
+        path = osp.abspath(path)
+
+        os.makedirs(osp.dirname(path), exist_ok=True)
+        if cur_path is not None and osp.isfile(cur_path) and cur_path != path:
+            shutil.copyfile(cur_path, path)
+        elif self._bytes_data is not None:
+            data = self.get_bytes()
+            with open(path, "wb") as f:
+                f.write(data)
 
 
 class MultiframeImage(MediaElement):

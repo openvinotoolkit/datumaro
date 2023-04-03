@@ -242,7 +242,7 @@ class KittiRawBase(SubsetBase):
                 id=name,
                 subset=self._subset,
                 media=PointCloud(
-                    osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + ".pcd"),
+                    path=osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + ".pcd"),
                     extra_images=[Image(path=image) for image in sorted(images.get(name, []))],
                 ),
                 annotations=item_desc.get("annotations"),
@@ -257,7 +257,7 @@ class KittiRawBase(SubsetBase):
                 id=name,
                 subset=self._subset,
                 media=PointCloud(
-                    osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + ".pcd"),
+                    path=osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + ".pcd"),
                     extra_images=[Image(path=image) for image in sorted(images.get(name, []))],
                 ),
                 attributes={"frame": int(frame_id)},

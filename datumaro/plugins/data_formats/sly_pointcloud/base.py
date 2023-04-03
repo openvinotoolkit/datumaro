@@ -166,7 +166,7 @@ class SuperviselyPointCloudBase(SubsetBase):
             parsed[frame_id] = DatasetItem(
                 id=name,
                 subset=self._subset,
-                media=PointCloud(pcd_path, extra_images=related_images),
+                media=PointCloud(path=pcd_path, extra_images=related_images),
                 annotations=frame_desc.get("annotations"),
                 attributes={"frame": int(frame_id), **frame_desc["attributes"]},
             )

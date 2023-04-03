@@ -172,7 +172,7 @@ class DatumaroBase(SubsetBase):
                         Image(size=ri.get("size"), path=ri.get("path")) for ri in ri_info
                     ]
 
-                media = PointCloud(point_cloud, extra_images=related_images)
+                media = PointCloud(path=point_cloud, extra_images=related_images)
                 self._media_type = PointCloud
 
             media_desc = item_desc.get("media")

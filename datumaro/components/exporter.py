@@ -273,9 +273,7 @@ class Exporter(CliPlugin):
         path = osp.abspath(path)
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if item.media and osp.isfile(item.media.path):
-            if item.media.path != path:
-                shutil.copyfile(item.media.path, path)
+        item.media.save(path, crypter=NULL_CRYPTER)
 
     def _save_meta_file(self, path):
         save_meta_file(path, self._extractor.categories())
@@ -366,9 +364,7 @@ class ExportContextComponent:
         path = osp.abspath(path)
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if item.media and osp.isfile(item.media.path):
-            if item.media.path != path:
-                shutil.copyfile(item.media.path, path)
+        item.media.save(path, crypter=NULL_CRYPTER)
 
     @property
     def images_dir(self) -> str:

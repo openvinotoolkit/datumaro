@@ -61,7 +61,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
                             attributes={"track_id": 231831, "tag1": "v12", "tag3": ""},
                         ),
                     ],
-                    media=PointCloud(pcd1, extra_images=[image1]),
+                    media=PointCloud(path=pcd1, extra_images=[image1]),
                     attributes={"frame": 0, "description": "", "tag1": "25dsd", "tag2": 65},
                 ),
                 DatasetItem(
@@ -74,7 +74,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
                             attributes={"track_id": 36, "tag1": "", "tag3": ""},
                         )
                     ],
-                    media=PointCloud(pcd2, extra_images=[image2]),
+                    media=PointCloud(path=pcd2, extra_images=[image2]),
                     attributes={"frame": 1, "description": ""},
                 ),
             ],
@@ -138,7 +138,7 @@ class PointCloudConverterTest(TestCase):
                             attributes={"occluded": True, "track_id": 2},
                         ),
                     ],
-                    media=PointCloud(self.pcd1),
+                    media=PointCloud(path=self.pcd1),
                     attributes={"frame": 0, "description": "zzz"},
                 ),
                 DatasetItem(
@@ -151,7 +151,7 @@ class PointCloudConverterTest(TestCase):
                             attributes={"occluded": False, "track_id": 2},
                         )
                     ],
-                    media=PointCloud(self.pcd2, extra_images=[self.image2]),
+                    media=PointCloud(path=self.pcd2, extra_images=[self.image2]),
                     attributes={"frame": 1},
                 ),
             ],
@@ -182,7 +182,7 @@ class PointCloudConverterTest(TestCase):
                                 attributes={"occluded": True, "track_id": 2},
                             ),
                         ],
-                        media=PointCloud(osp.join(test_dir, "ds0", "pointcloud", "frame_1.pcd")),
+                        media=PointCloud(path=osp.join(test_dir, "ds0", "pointcloud", "frame_1.pcd")),
                         attributes={"frame": 0, "description": "zzz"},
                     ),
                     DatasetItem(
@@ -196,7 +196,7 @@ class PointCloudConverterTest(TestCase):
                             ),
                         ],
                         media=PointCloud(
-                            osp.join(test_dir, "ds0", "pointcloud", "frm2.pcd"),
+                            path=osp.join(test_dir, "ds0", "pointcloud", "frm2.pcd"),
                             extra_images=[
                                 Image(
                                     path=osp.join(
@@ -358,7 +358,7 @@ class PointCloudConverterTest(TestCase):
             [
                 DatasetItem(
                     id="a/b/c235",
-                    media=PointCloud(self.pcd1, extra_images=[self.image1]),
+                    media=PointCloud(path=self.pcd1, extra_images=[self.image1]),
                     attributes={"frame": 20},
                 ),
             ],
@@ -372,7 +372,7 @@ class PointCloudConverterTest(TestCase):
                 [
                     DatasetItem(
                         id="a/b/c235",
-                        media=PointCloud(pcd_path, extra_images=[Image(path=img_path)]),
+                        media=PointCloud(path=pcd_path, extra_images=[Image(path=img_path)]),
                         attributes={"frame": 20},
                     ),
                 ],
@@ -404,7 +404,7 @@ class PointCloudConverterTest(TestCase):
                     DatasetItem(
                         id="frame1",
                         annotations=[Cuboid3d(id=215, position=[320.59, 979.48, 1.03], label=0)],
-                        media=PointCloud(self.pcd1, extra_images=[self.image1]),
+                        media=PointCloud(path=self.pcd1, extra_images=[self.image1]),
                         attributes={"frame": 0},
                     )
                 ],
@@ -417,7 +417,7 @@ class PointCloudConverterTest(TestCase):
                 DatasetItem(
                     id="frame2",
                     annotations=[Cuboid3d(id=216, position=[0.59, 14.41, -0.61], label=1)],
-                    media=PointCloud(self.pcd2, extra_images=[self.image2]),
+                    media=PointCloud(path=self.pcd2, extra_images=[self.image2]),
                     attributes={"frame": 1},
                 )
             )
