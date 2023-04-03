@@ -89,10 +89,10 @@ class ProjectIntegrationScenarios(TestCase):
             run(self, "project", "import", "-f", "coco", "-p", test_dir, coco_dir)
 
             with self.subTest("on project"):
-                run(self, "project", "info", "-p", test_dir)
+                run(self, "project", "pinfo", "-p", test_dir)
 
             with self.subTest("on project revision"):
-                run(self, "project", "info", "-p", test_dir, "HEAD")
+                run(self, "project", "pinfo", "-p", test_dir, "HEAD")
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_list_dataset_info(self):
@@ -107,21 +107,20 @@ class ProjectIntegrationScenarios(TestCase):
             run(self, "project", "commit", "-m", "first", "-p", test_dir)
 
             with self.subTest("on current project"):
-                run(self, "project", "info", "-p", test_dir)
+                run(self, "project", "dinfo", "-p", test_dir)
 
             with self.subTest("on current project revision"):
-                run(self, "project", "info", "-p", test_dir, "HEAD")
+                run(self, "project", "dinfo", "-p", test_dir, "HEAD")
 
             with self.subTest("on other project"):
-                run(self, "project", "info", test_dir)
+                run(self, "project", "dinfo", test_dir)
 
             with self.subTest("on other project revision"):
-                run(self, "project", "info", test_dir + "@HEAD")
+                run(self, "project", "dinfo", test_dir + "@HEAD")
 
             with self.subTest("on dataset"):
-                run(self, "project", "info", coco_dir + ":coco")
+                run(self, "project", "dinfo", coco_dir + ":coco")
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_use_vcs(self):
         with TestDir() as test_dir:
             dataset_dir = osp.join(test_dir, "dataset")

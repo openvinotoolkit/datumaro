@@ -23,7 +23,7 @@ NO_TELEMETRY_KEY = "DATUMARO_NO_OV_TELEMETRY"
 
 def _get_action_name(command):
     # TODO: We should clean these nonsense if-else branches.
-    if command is contexts.project.info_command:
+    if command is project_commands.versioning.info.info_command:
         return "project_info_result"
     elif command is project_commands.dataset_operations.stats.stats_command:
         return "project_stats_result"

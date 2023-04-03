@@ -2,4 +2,4 @@
 #
 # SPDX-License-Identifier: MIT
 
-from . import checkout, commit, log, status
+from . import checkout, commit, info, log, status
