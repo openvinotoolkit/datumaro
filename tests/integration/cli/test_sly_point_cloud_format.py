@@ -51,7 +51,7 @@ class SlyPointCloudIntegrationScenarios(TestCase):
                                 },
                             ),
                         ],
-                        media=PointCloud(
+                        media=PointCloud.from_file(
                             path=osp.join(export_dir, "velodyne_points", "data", "frame1.pcd"),
                             extra_images=[
                                 Image(path=osp.join(export_dir, "image_00", "data", "frame1.png"))
@@ -73,7 +73,7 @@ class SlyPointCloudIntegrationScenarios(TestCase):
                                 },
                             )
                         ],
-                        media=PointCloud(
+                        media=PointCloud.from_file(
                             path=osp.join(export_dir, "velodyne_points", "data", "frame2.pcd"),
                             extra_images=[
                                 Image(path=osp.join(export_dir, "image_00", "data", "frame2.png"))

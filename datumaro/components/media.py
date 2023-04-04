@@ -258,11 +258,6 @@ class Image(MediaElement):
         """Path to the media file"""
         return self._path
 
-    @property
-    def ext(self) -> str:
-        """Media file extension (with the leading dot)"""
-        return osp.splitext(osp.basename(self.path))[1]
-
 
 class ByteImage(Image):
     _type = MediaType.BYTE_IMAGE
@@ -610,6 +605,16 @@ class Video(MediaElement, Iterable[VideoFrame]):
         # Required for caching
         return hash((self._path, self._step, self._start_frame, self._end_frame))
 
+    @property
+    def path(self) -> str:
+        """Path to the media file"""
+        return self._path
+
+    @property
+    def ext(self) -> str:
+        """Media file extension (with the leading dot)"""
+        return osp.splitext(osp.basename(self.path))[1]
+
 
 class PointCloud(MediaElement):
     _type = MediaType.POINT_CLOUD
@@ -735,6 +740,16 @@ class MultiframeImage(MediaElement):
     @property
     def data(self) -> List[Image]:
         return self._images
+
+    @property
+    def path(self) -> str:
+        """Path to the media file"""
+        return self._path
+
+    @property
+    def ext(self) -> str:
+        """Media file extension (with the leading dot)"""
+        return osp.splitext(osp.basename(self.path))[1]
 
 
 class RoIImage(Image):
