@@ -374,7 +374,9 @@ class PointCloudConverterTest(TestCase):
                 [
                     DatasetItem(
                         id="a/b/c235",
-                        media=PointCloud.from_file(path=pcd_path, extra_images=[Image(path=img_path)]),
+                        media=PointCloud.from_file(
+                            path=pcd_path, extra_images=[Image(path=img_path)]
+                        ),
                         attributes={"frame": 20},
                     ),
                 ],
