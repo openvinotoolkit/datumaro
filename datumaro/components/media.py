@@ -253,6 +253,16 @@ class Image(MediaElement):
         if isinstance(self._data, lazy_image):
             self._data._crypter = crypter
 
+    @property
+    def path(self) -> str:
+        """Path to the media file"""
+        return self._path
+
+    @property
+    def ext(self) -> str:
+        """Media file extension (with the leading dot)"""
+        return osp.splitext(osp.basename(self.path))[1]
+
 
 class ByteImage(Image):
     _type = MediaType.BYTE_IMAGE
@@ -440,7 +450,8 @@ class Video(MediaElement, Iterable[VideoFrame]):
     def __init__(
         self, path: str, *, step: int = 1, start_frame: int = 0, end_frame: Optional[int] = None
     ) -> None:
-        super().__init__(path)
+        super().__init__()
+        self._path = path
 
         if end_frame:
             assert start_frame < end_frame
