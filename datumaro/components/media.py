@@ -4,12 +4,13 @@
 
 from __future__ import annotations
 
+import errno
 import os
 import os.path as osp
 import shutil
 import weakref
 from enum import IntEnum
-from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import Any, Callable, Iterable, Iterator, List, Optional, Tuple, Union
 
 import cv2
 import numpy as np
@@ -42,10 +43,39 @@ class MediaType(IntEnum):
 class MediaElement:
     _type = MediaType.MEDIA_ELEMENT
 
-    def __init__(self, path: str, crypter: Crypter = NULL_CRYPTER) -> None:
+    def __init__(self, crypter: Crypter = NULL_CRYPTER) -> None:
+        self._crypter = crypter
+
+    @property
+    def is_encrypted(self) -> bool:
+        return not self._crypter.is_null_crypter
+
+    def set_crypter(self, crypter: Crypter):
+        self._crypter = crypter
+
+    @property
+    def type(self) -> MediaType:
+        return self._type
+
+    @property
+    def data(self) -> Any:
+        raise NotImplementedError
+
+    def save(self, path, crypter: Crypter = NULL_CRYPTER):
+        raise NotImplementedError
+
+    def __eq__(self, other: object) -> bool:
+        other_type = getattr(other, "type", None)
+        if self.type != other_type:
+            return False
+        return self.data == other.data
+
+
+class MediaElementFromFileMixin:
+    def __init__(self, path: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         assert path, "Path can't be empty"
         self._path = path
-        self._crypter = crypter
 
     @property
     def path(self) -> str:
@@ -58,21 +88,32 @@ class MediaElement:
         return osp.splitext(osp.basename(self.path))[1]
 
     @property
-    def is_encrypted(self) -> bool:
-        return not self._crypter.is_null_crypter
+    def data(self) -> Any:
+        data = None
+        if os.path.exists(self.path):
+            with open(self.path, "wb") as f:
+                data = f.read()
+        return data
 
-    def set_crypter(self, crypter: Crypter):
-        self._crypter = crypter
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(path={self._path})"
 
-    def __eq__(self, other: object) -> bool:
-        # We need to compare exactly with this type
-        if type(other) is not __class__:  # pylint: disable=unidiomatic-typecheck
-            return False
-        return self._path == other._path
+
+class MediaElementFromDataMixin:
+    def __init__(self, data: Any, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._data = data
 
     @property
-    def type(self) -> MediaType:
-        return self._type
+    def data(self) -> Any:
+        if callable(self._data):
+            data = self._data()
+        else:
+            data = self._data
+        return data
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(data={self._data})"
 
 
 class Image(MediaElement):
@@ -564,22 +605,19 @@ class PointCloud(MediaElement):
 
     def __init__(
         self,
-        data: Union[bytes, Callable[[str], bytes], None] = None,
-        *,
-        path: Optional[str] = None,
         extra_images: Union[List[Image], Callable[[], List[Image]], None] = None,
         crypter: Crypter = NULL_CRYPTER,
     ):
-        if not isinstance(data, bytes):
-            assert path or callable(data), "PointCloud can not be empty"
-            assert data is None or callable(data)
-
-        self._bytes_data = data
-        self._path = path
-
+        super().__init__(crypter)
         self._extra_images = extra_images or []
 
-        self._crypter = crypter
+    @classmethod
+    def from_file(cls, path: str, *args, **kwargs):
+        return PointCloudFromFile(path, *args, **kwargs)
+
+    @classmethod
+    def from_data(cls, data: Union[bytes, Callable[[], bytes]], *args, **kwargs):
+        return PointCloudFromData(data, *args, **kwargs)
 
     @property
     def extra_images(self) -> List[Image]:
@@ -591,17 +629,18 @@ class PointCloud(MediaElement):
             return extra_images
         return self._extra_images
 
-    def get_bytes(self) -> Optional[bytes]:
-        if callable(self._bytes_data):
-            return self._bytes_data(self.path)
-        if isinstance(self._bytes_data, bytes):
-            return self._bytes_data
-        else:
-            if os.path.exists(self.path):
-                with open(self.path, "rb") as f:
-                    bytes_data = f.read()
-                return bytes_data
-            return None
+    def __eq__(self, other: object) -> bool:
+        return super().__eq__(other) and self.extra_images == other.extra_images
+
+
+class PointCloudFromFile(MediaElementFromFileMixin, PointCloud):
+    @property
+    def data(self) -> Optional[bytes]:
+        if os.path.exists(self.path):
+            with open(self.path, "rb") as f:
+                bytes_data = f.read()
+            return bytes_data
+        return None
 
     def save(self, path, crypter: Crypter = NULL_CRYPTER):
         if not crypter.is_null_crypter:
@@ -612,13 +651,42 @@ class PointCloud(MediaElement):
         cur_path = osp.abspath(self.path) if self.path else None
         path = osp.abspath(path)
 
+        if cur_path is not None and osp.isfile(cur_path):
+            if cur_path != path:
+                os.makedirs(osp.dirname(path), exist_ok=True)
+                shutil.copyfile(cur_path, path)
+        else:
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), cur_path)
+
+
+class PointCloudFromData(MediaElementFromDataMixin, PointCloud):
+    def __init__(
+        self,
+        data: Union[bytes, Callable[[], bytes]],
+        *args,
+        **kwargs,
+    ):
+        super().__init__(data=data, *args, **kwargs)
+
+    @property
+    def data(self) -> Optional[bytes]:
+        if callable(self._data):
+            return self._data()
+        if isinstance(self._data, bytes):
+            return self._data
+        return None
+
+    def save(self, path, crypter: Crypter = NULL_CRYPTER):
+        if not crypter.is_null_crypter:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
+            )
+
+        path = osp.abspath(path)
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if cur_path is not None and osp.isfile(cur_path) and cur_path != path:
-            shutil.copyfile(cur_path, path)
-        elif self._bytes_data is not None:
-            data = self.get_bytes()
-            with open(path, "wb") as f:
-                f.write(data)
+        data = self.data
+        with open(path, "wb") as f:
+            f.write(data)
 
 
 class MultiframeImage(MediaElement):
