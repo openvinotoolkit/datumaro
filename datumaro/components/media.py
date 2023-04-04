@@ -608,6 +608,11 @@ class PointCloud(MediaElement):
         extra_images: Union[List[Image], Callable[[], List[Image]], None] = None,
         crypter: Crypter = NULL_CRYPTER,
     ):
+        assert self.__class__ != PointCloud, (
+            f"Directly initalizing {self.__class__.__name__} is not supported. "
+            f"Please use fractory function '{self.__class__.__name__}.from_file()' "
+            f"or '{self.__class__.__name__}.from_data()'."
+        )
         super().__init__(crypter)
         self._extra_images = extra_images or []
 
