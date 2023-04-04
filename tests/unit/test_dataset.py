@@ -6,7 +6,7 @@ from unittest import TestCase, mock
 import numpy as np
 import pytest
 
-import datumaro.components.hl_ops as hl_ops
+from datumaro import HLOps
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
@@ -2157,7 +2157,7 @@ class TestHLOps(TestCase):
             [DatasetItem(10, subset="train")], categories=["cat", "dog"]
         )
 
-        actual = hl_ops.transform(dataset, "reindex", start=0)
+        actual = HLOps.transform(dataset, "reindex", start=0)
 
         compare_datasets(self, expected, actual)
 
@@ -2171,7 +2171,7 @@ class TestHLOps(TestCase):
             categories=["cat", "dog"],
         )
 
-        actual = hl_ops.filter(dataset, "/item[id=0]")
+        actual = HLOps.filter(dataset, "/item[id=0]")
 
         compare_datasets(self, expected, actual)
 
@@ -2196,7 +2196,7 @@ class TestHLOps(TestCase):
             categories=["cat", "dog"],
         )
 
-        actual = hl_ops.filter(
+        actual = HLOps.filter(
             dataset, "/item/annotation[id=1]", filter_annotations=True, remove_empty=True
         )
 
@@ -2226,7 +2226,7 @@ class TestHLOps(TestCase):
         for t in types:
             allowed_types = types - {t}
             cmd = " or ".join([f"type='{allowed_type}'" for allowed_type in allowed_types])
-            actual = hl_ops.filter(
+            actual = HLOps.filter(
                 dataset,
                 f"/item/annotation[{cmd}]",
                 filter_annotations=True,
@@ -2252,7 +2252,7 @@ class TestHLOps(TestCase):
             [DatasetItem(1, subset="train")], categories=["cat", "dog"]
         )
 
-        actual = hl_ops.merge(dataset_a, dataset_b)
+        actual = HLOps.merge(dataset_a, dataset_b)
 
         compare_datasets(self, expected, actual)
 
@@ -2268,7 +2268,7 @@ class TestHLOps(TestCase):
         )
 
         with TestDir() as test_dir:
-            hl_ops.export(dataset, test_dir, "datumaro")
+            HLOps.export(dataset, test_dir, "datumaro")
             actual = Dataset.load(test_dir)
 
             compare_datasets(self, expected, actual)
