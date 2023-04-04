@@ -6,10 +6,11 @@ import inspect
 import os
 import os.path as osp
 import shutil
-from typing import Dict, Optional, Type, Union
+from typing import Dict, Iterable, Optional, Type, Union
 
 from datumaro.components.dataset import Dataset, DatasetItemStorageDatasetView, IDataset
 from datumaro.components.environment import Environment
+from datumaro.components.errors import DatasetError
 from datumaro.components.exporter import Exporter
 from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.launcher import Launcher, ModelTransform
@@ -229,3 +230,17 @@ class HLOps:
 
         validator: Validator = env.validators[task](**kwargs)
         return validator.validate(dataset)
+
+    @staticmethod
+    def aggregate(dataset: Dataset, from_subsets: Iterable[str], to_subset: str) -> Dataset:
+        subset_names = set(dataset.subsets().keys())
+
+        for subset in from_subsets:
+            if subset not in subset_names:
+                raise DatasetError(
+                    f"{subset} is not found in the subset names ({subset_names}) in the dataset."
+                )
+
+        return HLOps.transform(
+            dataset, "map_subsets", mapping={subset: to_subset for subset in from_subsets}
+        )
