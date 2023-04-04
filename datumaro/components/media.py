@@ -59,7 +59,7 @@ class MediaElement:
 
     @property
     def is_encrypted(self) -> bool:
-        return self._crypter.is_null_crypter
+        return not self._crypter.is_null_crypter
 
     def set_crypter(self, crypter: Crypter):
         self._crypter = crypter
