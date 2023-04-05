@@ -10,7 +10,7 @@ import os.path as osp
 import shutil
 import weakref
 from enum import IntEnum
-from typing import Any, Callable, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import Any, Callable, Generic, Iterable, Iterator, List, Optional, Tuple, TypeVar, Union
 
 import cv2
 import numpy as np
@@ -25,6 +25,8 @@ from datumaro.util.image import (
     lazy_image,
     save_image,
 )
+
+AnyData = TypeVar("AnyData", bytes, np.ndarray)
 
 
 class MediaType(IntEnum):
@@ -58,7 +60,7 @@ class MediaElement:
         return self._type
 
     @property
-    def data(self) -> Any:
+    def data(self) -> Optional[Any]:
         raise NotImplementedError
 
     def save(self, path, crypter: Crypter = NULL_CRYPTER):
@@ -88,7 +90,7 @@ class MediaElementFromFileMixin:
         return osp.splitext(osp.basename(self.path))[1]
 
     @property
-    def data(self) -> Any:
+    def data(self) -> Optional[bytes]:
         data = None
         if os.path.exists(self.path):
             with open(self.path, "wb") as f:
@@ -99,18 +101,16 @@ class MediaElementFromFileMixin:
         return f"{self.__class__.__name__}(path={self._path})"
 
 
-class MediaElementFromDataMixin:
-    def __init__(self, data: Any, *args, **kwargs):
+class MediaElementFromDataMixin(Generic[AnyData]):
+    def __init__(self, data: Union[Callable[[], AnyData], AnyData], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._data = data
 
     @property
-    def data(self) -> Any:
+    def data(self) -> Optional[AnyData]:
         if callable(self._data):
-            data = self._data()
-        else:
-            data = self._data
-        return data
+            return self._data()
+        return self._data
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(data={self._data})"
@@ -621,7 +621,7 @@ class PointCloud(MediaElement):
 
     def __init__(
         self,
-        extra_images: Union[List[Image], Callable[[], List[Image]], None] = None,
+        extra_images: Optional[List[Image], Callable[[], List[Image]]] = None,
         crypter: Crypter = NULL_CRYPTER,
     ):
         assert self.__class__ != PointCloud, (
@@ -680,23 +680,7 @@ class PointCloudFromFile(MediaElementFromFileMixin, PointCloud):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), cur_path)
 
 
-class PointCloudFromData(MediaElementFromDataMixin, PointCloud):
-    def __init__(
-        self,
-        data: Union[bytes, Callable[[], bytes]],
-        *args,
-        **kwargs,
-    ):
-        super().__init__(data=data, *args, **kwargs)
-
-    @property
-    def data(self) -> Optional[bytes]:
-        if callable(self._data):
-            return self._data()
-        if isinstance(self._data, bytes):
-            return self._data
-        return None
-
+class PointCloudFromData(MediaElementFromDataMixin[bytes], PointCloud):
     def save(self, path, crypter: Crypter = NULL_CRYPTER):
         if not crypter.is_null_crypter:
             raise NotImplementedError(
