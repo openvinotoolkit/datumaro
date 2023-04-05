@@ -13,6 +13,14 @@ Docs
   :caption: Guides
 
   user-manual/index
+  data-formats/index
+
+.. toctree::
+  :hidden:
+  :caption: Level Up
+
+  level-up/basic_skills/index
+  level-up/intermediate_skills/index
 
 .. toctree::
   :hidden:

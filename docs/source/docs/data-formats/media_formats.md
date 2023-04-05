@@ -1,7 +1,8 @@
-# Media formats
+# Supported Media Formats
 
 Datumaro supports the following media types:
 - 2D RGB(A) images
+- Videos
 - KITTI Point Clouds
 
 To create an unlabelled dataset from an arbitrary directory with images use
