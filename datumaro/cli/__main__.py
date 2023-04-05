@@ -17,8 +17,7 @@ from ..util.telemetry_utils import (
 )
 from ..version import __version__
 from . import contexts
-from .non_project_commands import get_non_project_commands
-from .project_commands import get_project_commands
+from .commands import get_non_project_commands, get_project_commands
 from .util import add_subparser, make_subcommands_help
 from .util.errors import CliException
 

@@ -10,9 +10,9 @@ from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
-from ...util import MultilineFormatter, join_cli_args, show_video_import_warning
-from ...util.errors import CliException
-from ...util.project import load_project
+from ....util import MultilineFormatter, join_cli_args, show_video_import_warning
+from ....util.errors import CliException
+from ....util.project import load_project
 
 __all__ = [
     "build_parser",

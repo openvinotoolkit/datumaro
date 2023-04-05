@@ -6,7 +6,7 @@ import argparse
 
 from datumaro.util.scope import scope_add, scoped
 
-from ..project_commands.modification import add, import_, remove
+from ..commands.require_project.modification import add, import_, remove
 from ..util import MultilineFormatter, add_subparser
 from ..util.project import load_project
 

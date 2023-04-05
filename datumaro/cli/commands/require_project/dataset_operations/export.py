@@ -13,9 +13,9 @@ from datumaro.components.project import ProjectBuildTargets
 from datumaro.util.os_util import make_file_name
 from datumaro.util.scope import scope_add, scoped
 
-from ...util import MultilineFormatter
-from ...util.errors import CliException
-from ...util.project import FilterModes, generate_next_file_name, load_project
+from ....util import MultilineFormatter
+from ....util.errors import CliException
+from ....util.project import FilterModes, generate_next_file_name, load_project
 
 __all__ = [
     "build_parser",

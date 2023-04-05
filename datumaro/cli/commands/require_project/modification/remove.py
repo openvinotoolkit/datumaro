@@ -7,8 +7,8 @@ import logging as log
 
 from datumaro.util.scope import scope_add, scoped
 
-from ...util.errors import CliException
-from ...util.project import load_project
+from ....util.errors import CliException
+from ....util.project import load_project
 
 __all__ = [
     "build_parser",

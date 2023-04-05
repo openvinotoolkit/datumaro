@@ -10,8 +10,8 @@ from datumaro.components.operations import compute_ann_statistics, compute_image
 from datumaro.util import dump_json_file, str_to_bool
 from datumaro.util.scope import scope_add, scoped
 
-from ...util import MultilineFormatter
-from ...util.project import generate_next_file_name, load_project, parse_full_revpath
+from ....util import MultilineFormatter
+from ....util.project import generate_next_file_name, load_project, parse_full_revpath
 
 __all__ = [
     "build_parser",

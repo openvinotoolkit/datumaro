@@ -2,7 +2,7 @@ import json
 import types
 from unittest import TestCase, mock
 
-from datumaro.cli.project_commands.dataset_operations.info import info_command
+from datumaro.cli.commands.require_project.dataset_operations.info import info_command
 from datumaro.util.telemetry_utils import (
     send_command_exception_info,
     send_command_failure_info,

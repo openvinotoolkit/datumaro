@@ -18,8 +18,7 @@ from datumaro.util import dump_json_file, str_to_bool
 from datumaro.util.os_util import make_file_name
 from datumaro.util.scope import scope_add, scoped
 
-from ...project_commands import get_project_commands
-from ...project_commands.dataset_operations import export, stats
+from ...commands import get_project_commands
 from ...util import MultilineFormatter, add_subparser, make_subcommands_help
 from ...util.errors import CliException
 from ...util.project import generate_next_file_name, load_project, parse_full_revpath
