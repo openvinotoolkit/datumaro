@@ -50,7 +50,7 @@ def fxt_point_cloud_dataset():
         [
             DatasetItem(
                 id=i,
-                media=PointCloud(path="dummy.pcd"),
+                media=PointCloud.from_file(path="dummy.pcd"),
             )
             for i in range(5)
         ],
