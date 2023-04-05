@@ -132,8 +132,8 @@ class HLOps:
         **kwargs,
     ) -> IDataset:
         """
-        Applies a model to dataset items' media and produces a dataset with
-        media and annotations.
+        Run the model on the dataset item media entities, such as images,
+        to obtain pseudo labels and add them as dataset annotations.
 
         Args:
             dataset: The dataset to be transformed
