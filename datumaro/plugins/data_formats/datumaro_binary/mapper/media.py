@@ -48,13 +48,15 @@ class MediaMapper(Mapper):
 
 
 class MediaElementMapper(Mapper):
+    MAGIC_PATH = "/NOT/A/REAL/PATH"
     MEDIA_TYPE = MediaType.MEDIA_ELEMENT
 
     @classmethod
     def forward(cls, obj: MediaElement) -> bytes:
         bytes_arr = bytearray()
         bytes_arr.extend(struct.pack("<I", obj.type))
-        bytes_arr.extend(StringMapper.forward(obj.path))
+        path = getattr(obj, "path", cls.MAGIC_PATH)
+        bytes_arr.extend(StringMapper.forward(path))
 
         return bytes(bytes_arr)
 
@@ -69,10 +71,12 @@ class MediaElementMapper(Mapper):
         assert media_type == cls.MEDIA_TYPE, f"Expect {cls.MEDIA_TYPE} but actual is {media_type}."
         offset += 4
         path, offset = StringMapper.backward(_bytes, offset)
+        if path == cls.MAGIC_PATH:
+            path = None
         return {
             "type": media_type,
             "path": path
-            if media_path_prefix is None
+            if path == cls.MAGIC_PATH or media_path_prefix is None
             else osp.join(media_path_prefix[cls.MEDIA_TYPE], path),
         }, offset
 
@@ -83,8 +87,8 @@ class MediaElementMapper(Mapper):
         offset: int = 0,
         media_path_prefix: Optional[Dict[MediaType, str]] = None,
     ) -> Tuple[MediaElement, int]:
-        media_dict, offset = cls.backward_dict(_bytes, offset, media_path_prefix)
-        return MediaElement(path=media_dict["path"]), offset
+        _, offset = cls.backward_dict(_bytes, offset, media_path_prefix)
+        return MediaElement(), offset
 
 
 class ImageMapper(MediaElementMapper):
@@ -147,4 +151,4 @@ class PointCloudMapper(MediaElementMapper):
             img, offset = ImageMapper.backward(_bytes, offset)
             extra_images.append(img)
 
-        return PointCloud(media_dict["path"], extra_images), offset
+        return PointCloud.from_file(path=media_dict["path"], extra_images=extra_images), offset

@@ -44,8 +44,8 @@ class KittiRawIntegrationScenarios(TestCase):
                                 attributes={"occluded": False, "track_id": 2},
                             ),
                         ],
-                        media=PointCloud(
-                            osp.join(export_dir, "ds0", "pointcloud", "0000000000.pcd"),
+                        media=PointCloud.from_file(
+                            path=osp.join(export_dir, "ds0", "pointcloud", "0000000000.pcd"),
                             extra_images=[
                                 Image(
                                     path=osp.join(
@@ -71,8 +71,8 @@ class KittiRawIntegrationScenarios(TestCase):
                                 attributes={"occluded": True, "track_id": 2},
                             )
                         ],
-                        media=PointCloud(
-                            osp.join(export_dir, "ds0", "pointcloud", "0000000001.pcd"),
+                        media=PointCloud.from_file(
+                            path=osp.join(export_dir, "ds0", "pointcloud", "0000000001.pcd"),
                             extra_images=[
                                 Image(
                                     path=osp.join(
@@ -97,8 +97,8 @@ class KittiRawIntegrationScenarios(TestCase):
                                 attributes={"occluded": False, "track_id": 3},
                             )
                         ],
-                        media=PointCloud(
-                            osp.join(export_dir, "ds0", "pointcloud", "0000000002.pcd"),
+                        media=PointCloud.from_file(
+                            path=osp.join(export_dir, "ds0", "pointcloud", "0000000002.pcd"),
                             extra_images=[
                                 Image(
                                     path=osp.join(
