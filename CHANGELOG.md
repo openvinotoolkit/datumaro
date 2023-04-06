@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/891>)
 - Fix negated `is_encrypted`
   (<https://github.com/openvinotoolkit/datumaro/pull/907>)
+- Fix log issue when importing celeba and align celeba dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/919>)
 
 ## 28/03/2023 - Release 1.1.1
 ### Bug fixes
