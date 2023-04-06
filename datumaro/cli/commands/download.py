@@ -19,9 +19,9 @@ from datumaro.components.project import Environment
 from datumaro.util import dump_json
 from datumaro.util.os_util import make_file_name
 
-from ...util import MultilineFormatter
-from ...util.errors import CliException
-from ...util.project import generate_next_file_name
+from ..util import MultilineFormatter
+from ..util.errors import CliException
+from ..util.project import generate_next_file_name
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):

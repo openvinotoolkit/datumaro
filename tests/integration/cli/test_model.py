@@ -21,7 +21,7 @@ class ModelIntegrationScenarios(TestCase):
 
         with TestDir() as project_dir:
             # Create project
-            run(self, "create", "-o", project_dir)
+            run(self, "project", "create", "-o", project_dir)
 
             model_name = "my-model"
 
