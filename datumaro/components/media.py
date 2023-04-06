@@ -806,13 +806,13 @@ class PointCloud(MediaElement[bytes]):
 
     def _save_extra_images(
         self,
-        path_generator: Union[Callable[[int, Image], str], Callable[[int, Image], io.IOBase]],
+        fp_fn: Union[Callable[[int, Image], str], Callable[[int, Image], io.IOBase]],
         crypter: Optional[Crypter] = None,
     ):
         crypter = crypter if crypter else self._crypter
         for i, img in enumerate(self.extra_images):
-            path = path_generator(i, img)
             if img.has_data:
+                path = fp_fn(i, img)
                 img.save(path, crypter=crypter)
 
     def __eq__(self, other: object) -> bool:
@@ -836,7 +836,7 @@ class PointCloudFromFile(FromFileMixin, PointCloud):
     def save(
         self,
         fp: Union[str, io.IOBase],
-        extra_images_path_generator: Optional[
+        extra_images_fp_fn: Optional[
             Union[Callable[[int, Image], str], Callable[[int, Image], io.IOBase]]
         ] = None,
         crypter: Crypter = NULL_CRYPTER,
@@ -860,8 +860,8 @@ class PointCloudFromFile(FromFileMixin, PointCloud):
         else:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), cur_path)
 
-        if extra_images_path_generator is not None:
-            self._save_extra_images(extra_images_path_generator, crypter)
+        if extra_images_fp_fn is not None:
+            self._save_extra_images(extra_images_fp_fn, crypter)
 
 
 class PointCloudFromBytes(FromDataMixin[bytes], PointCloud):
@@ -872,7 +872,7 @@ class PointCloudFromBytes(FromDataMixin[bytes], PointCloud):
     def save(
         self,
         fp: Union[str, io.IOBase],
-        extra_images_path_generator: Optional[
+        extra_images_fp_fn: Optional[
             Union[Callable[[int, Image], str], Callable[[int, Image], io.IOBase]]
         ] = None,
         crypter: Crypter = NULL_CRYPTER,
@@ -892,8 +892,8 @@ class PointCloudFromBytes(FromDataMixin[bytes], PointCloud):
         else:
             fp.write(_bytes)
 
-        if extra_images_path_generator is not None:
-            self._save_extra_images(extra_images_path_generator, crypter)
+        if extra_images_fp_fn is not None:
+            self._save_extra_images(extra_images_fp_fn, crypter)
 
 
 class MultiframeImage(MediaElement):
