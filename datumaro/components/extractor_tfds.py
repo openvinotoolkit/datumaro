@@ -15,7 +15,7 @@ from attrs import field, frozen
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
-from datumaro.components.media import ByteImage, Image, MediaElement
+from datumaro.components.media import Image, MediaElement
 from datumaro.util.tf_util import import_tf
 
 try:
@@ -138,12 +138,7 @@ class _SetImageFromImageFeature:
         item: DatasetItem,
         state: namespace,
     ) -> None:
-        if self.filename_feature_name:
-            filename = tfds_example[self.filename_feature_name].numpy().decode("UTF-8")
-        else:
-            filename = None
-
-        item.media = ByteImage(data=tfds_example[self.feature_name].numpy(), path=filename)
+        item.media = Image.from_data(data=tfds_example[self.feature_name].numpy())
 
 
 @frozen

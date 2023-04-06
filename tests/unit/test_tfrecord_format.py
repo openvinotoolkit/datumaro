@@ -210,9 +210,7 @@ class TfrecordExporterTest(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image.from_data(
-                        data=encode_image(np.ones((5, 4, 3)), "png"), ext=".e"
-                    ),
+                    media=Image.from_data(data=encode_image(np.ones((5, 4, 3)), "png"), ext=".e"),
                     attributes={"source_id": ""},
                 ),
                 DatasetItem(

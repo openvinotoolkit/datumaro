@@ -109,7 +109,7 @@ class MnistBase(SubsetBase):
                     image = images[i].reshape(MnistPath.IMAGE_SIZE, MnistPath.IMAGE_SIZE)
 
             if image is not None:
-                image = Image(data=image)
+                image = Image.from_data(data=image)
 
             if 0 < len(meta) and (len(meta[i]) == 1 or len(meta[i]) == 3):
                 i = meta[i][0]

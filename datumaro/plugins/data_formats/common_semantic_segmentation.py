@@ -100,7 +100,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
 
             image = images.get(item_id)
             if image:
-                image = Image(path=image)
+                image = Image.from_file(path=image)
 
             annotations = []
             mask = lazy_mask(mask_path, self._categories[AnnotationType.mask].inverse_colormap)

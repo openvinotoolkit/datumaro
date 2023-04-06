@@ -137,7 +137,7 @@ class VocClassificationBase(_VocBase):
             log.debug("Reading item '%s'", item_id)
             image = images.get(item_id)
             if image:
-                image = Image(path=image)
+                image = Image.from_file(path=image)
             yield DatasetItem(
                 id=item_id, subset=self._subset, media=image, annotations=annotations.get(item_id)
             )
@@ -221,7 +221,7 @@ class _VocXmlBase(_VocBase):
                     image = images.pop(item_id, None)
 
                 if image or size:
-                    image = Image(path=image, size=size)
+                    image = Image.from_file(path=image, size=size)
 
                 yield DatasetItem(id=item_id, subset=self._subset, media=image, annotations=anns)
             except ElementTree.ParseError as e:
@@ -380,7 +380,7 @@ class VocSegmentationBase(_VocBase):
 
             image = images.get(item_id)
             if image:
-                image = Image(path=image)
+                image = Image.from_file(path=image)
 
             try:
                 yield DatasetItem(

@@ -117,7 +117,9 @@ class ImageMapper(MediaElementMapper):
         size = (height, width)
         offset += 8
         return (
-            Image(path=media_dict["path"], size=size if size != cls.MAGIC_SIZE_FOR_NONE else None),
+            Image.from_file(
+                path=media_dict["path"], size=size if size != cls.MAGIC_SIZE_FOR_NONE else None
+            ),
             offset,
         )
 

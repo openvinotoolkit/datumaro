@@ -5,12 +5,14 @@
 from __future__ import annotations
 
 import errno
+import io
 import os
 import os.path as osp
 import shutil
+import warnings
 import weakref
 from enum import IntEnum
-from typing import Any, Callable, Generic, Iterable, Iterator, List, Optional, Tuple, TypeVar, Union
+from typing import Callable, Generic, Iterable, Iterator, List, Optional, Tuple, TypeVar, Union
 
 import cv2
 import numpy as np
@@ -42,7 +44,7 @@ class MediaType(IntEnum):
     MOSAIC_IMAGE = 9
 
 
-class MediaElement:
+class MediaElement(Generic[AnyData]):
     _type = MediaType.MEDIA_ELEMENT
 
     def __init__(self, crypter: Crypter = NULL_CRYPTER) -> None:
@@ -60,20 +62,32 @@ class MediaElement:
         return self._type
 
     @property
-    def data(self) -> Optional[Any]:
-        raise NotImplementedError
+    def data(self) -> Optional[AnyData]:
+        return None
 
-    def save(self, path, crypter: Crypter = NULL_CRYPTER):
-        raise NotImplementedError
+    @property
+    def has_data(self) -> bool:
+        return False
+
+    @property
+    def bytes(self) -> Optional[bytes]:
+        return None
 
     def __eq__(self, other: object) -> bool:
         other_type = getattr(other, "type", None)
         if self.type != other_type:
             return False
-        return self.data == other.data
+        return True
+
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        crypter: Crypter = NULL_CRYPTER,
+    ):
+        raise NotImplementedError
 
 
-class MediaElementFromFileMixin:
+class FromFileMixin:
     def __init__(self, path: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert path, "Path can't be empty"
@@ -85,23 +99,22 @@ class MediaElementFromFileMixin:
         return self._path
 
     @property
-    def ext(self) -> str:
-        """Media file extension (with the leading dot)"""
-        return osp.splitext(osp.basename(self.path))[1]
+    def bytes(self) -> Optional[bytes]:
+        if self.has_data:
+            with open(self._path, "rb") as f:
+                _bytes = f.read()
+            return _bytes
+        return None
 
     @property
-    def data(self) -> Optional[bytes]:
-        data = None
-        if os.path.exists(self.path):
-            with open(self.path, "wb") as f:
-                data = f.read()
-        return data
+    def has_data(self) -> bool:
+        return os.path.exists(self.path)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(path={self._path})"
+        return f"{self.__class__.__name__}(path={repr(self._path)})"
 
 
-class MediaElementFromDataMixin(Generic[AnyData]):
+class FromDataMixin(Generic[AnyData]):
     def __init__(self, data: Union[Callable[[], AnyData], AnyData], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._data = data
@@ -112,40 +125,50 @@ class MediaElementFromDataMixin(Generic[AnyData]):
             return self._data()
         return self._data
 
+    @property
+    def bytes(self) -> Optional[bytes]:
+        if self.has_data:
+            if callable(self._data):
+               _bytes = self._data()
+            _bytes = self._data
+            if isinstance(_bytes, bytes):
+                return _bytes
+        return None
+
+    @property
+    def has_data(self) -> bool:
+        return self._data is not None
+
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(data={self._data})"
+        return f"{self.__class__.__name__}(data=" + repr(self._data)[:20].replace("\n", "") + "...)"
 
 
-class Image(MediaElement):
+class Image(MediaElement[np.ndarray]):
     _type = MediaType.IMAGE
+
+    _DEFAULT_EXT = ".png"
 
     def __init__(
         self,
-        data: Union[np.ndarray, Callable[[str], np.ndarray], None] = None,
-        *,
-        path: Optional[str] = None,
-        ext: Optional[str] = None,
         size: Optional[Tuple[int, int]] = None,
-        crypter: Crypter = NULL_CRYPTER,
+        ext: Optional[str] = None,
+        *args,
+        **kwargs,
     ) -> None:
-        """
-        Creates an image.
+        assert self.__class__ != Image, (
+            f"Directly initalizing {self.__class__.__name__} is not supported. "
+            f"Please use fractory functions '{self.__class__.__name__}.from_file()' "
+            f"or '{self.__class__.__name__}.from_data()'."
+        )
+        super().__init__(*args, **kwargs)
 
-        Any combination of the `data`, `path` and `size` is possible,
-        but at least one of these arguments must be provided.
-        The `ext` parameter cannot be used as a single argument for
-        construction.
-
-        Args:
-            data: Image pixels or a function to retrieve them. The expected
-                image shape is (H, W [, C]). If a function is provided,
-                it must accept image path as the first argument.
-            path: Image path
-            ext: Image extension. Cannot be used together with `path`. It can
-                be used for saving with a custom extension - in that case,
-                the image need to have the `data` and `ext` fields defined.
-            size: A pair (H, W), which represents image size.
-        """
+        if ext is None:
+            ext = ""
+        else:
+            if not ext.startswith("."):
+                ext = "." + ext
+            ext = ext.lower()
+        self._ext = ext
 
         if size is not None:
             assert (
@@ -154,54 +177,50 @@ class Image(MediaElement):
             size = tuple(map(int, size))
         self._size = size  # (H, W)
 
-        if path is None:
-            path = ""
-        elif path:
-            path = path.replace("\\", "/")
-        self._path = path
+    @classmethod
+    def from_file(cls, path: str, *args, **kwargs):
+        return ImageFromFile(path, *args, **kwargs)
 
-        if ext:
-            assert not path, "Can't specify both 'path' and 'ext' for image"
+    @classmethod
+    def from_data(
+        cls,
+        data: Union[np.ndarray, bytes, Callable[[], np.ndarray], Callable[[], bytes]],
+        *args,
+        **kwargs,
+    ):
+        if isinstance(data, np.ndarray):
+            return cls.from_numpy(data, *args, **kwargs)
+        #  raise ValueError(
+        #      f"Can not determine data type ({type(data)}). "
+        #      f"Please initalize it with '{cls.__name__}.from_numpy()' "
+        #      f"or '{cls.__name__}from_bytes()'."
+        #  )
 
-            if not ext.startswith("."):
-                ext = "." + ext
-            ext = ext.lower()
-        else:
-            ext = None
-        self._ext = ext
+        # TODO: need a better way to determine data type
+        return cls.from_bytes(data, *args, **kwargs)
 
-        self._crypter = crypter
+    @classmethod
+    def from_numpy(
+        cls,
+        data: Union[np.ndarray, Callable[[], np.ndarray]],
+        *args,
+        **kwargs,
+    ):
+        return ImgaeFromNumpy(data, *args, **kwargs)
 
-        if not isinstance(data, np.ndarray):
-            assert path or callable(data) or size, "Image can not be empty"
-            assert data is None or callable(data), f"Image data has unexpected type '{type(data)}'"
-            if data or path and osp.isfile(path):
-                data = lazy_image(path, loader=data, crypter=self._crypter)
-        self._data = data
-
-    @property
-    def data(self) -> np.ndarray:
-        """Image data in BGR HWC [0; 255] (float) format"""
-
-        if callable(self._data):
-            data = self._data()
-        else:
-            data = self._data
-
-        if self._size is None and data is not None:
-            if not 2 <= data.ndim <= 3:
-                raise MediaShapeError("An image should have 2 (gray) or 3 (rgb) dims.")
-            self._size = tuple(map(int, data.shape[:2]))
-        return data
-
-    @property
-    def has_data(self) -> bool:
-        return self._data is not None
+    @classmethod
+    def from_bytes(
+        cls,
+        data: Union[bytes, Callable[[], bytes]],
+        *args,
+        **kwargs,
+    ):
+        return ImageFromBytes(data, *args, **kwargs)
 
     @property
     def has_size(self) -> bool:
         """Indicates that size info is cached and won't require image loading"""
-        return self._size is not None or isinstance(self._data, np.ndarray)
+        return self._size is not None
 
     @property
     def size(self) -> Optional[Tuple[int, int]]:
@@ -218,11 +237,16 @@ class Image(MediaElement):
 
     @property
     def ext(self) -> str:
-        """Media file extension"""
-        if self._ext is not None:
-            return self._ext
+        """Media file extension (with the leading dot)"""
+        return self._ext
+
+    def _get_ext_to_save(self, fp: Union[str, io.IOBase], ext: Optional[str] = None):
+        if isinstance(fp, str):
+            assert ext is None, "'ext' must be empty if string is given."
+            ext = osp.splitext(osp.basename(fp))[1].lower()
         else:
-            return osp.splitext(osp.basename(self.path))[1]
+            ext = ext if ext else self._DEFAULT_EXT
+        return ext
 
     def __eq__(self, other):
         if not isinstance(other, __class__):
@@ -233,33 +257,146 @@ class Image(MediaElement):
             and (self.has_data and np.array_equal(self.data, other.data) or not self.has_data)
         )
 
-    def save(self, path, crypter: Crypter = NULL_CRYPTER):
-        cur_path = osp.abspath(self.path)
-        path = osp.abspath(path)
-
-        cur_ext = self.ext.lower()
-        new_ext = osp.splitext(osp.basename(path))[1].lower()
-
-        os.makedirs(osp.dirname(path), exist_ok=True)
-        if cur_ext == new_ext and osp.isfile(cur_path):
-            copyto_image(
-                src_path=cur_path, dst_path=path, src_crypter=self._crypter, dst_crypter=crypter
-            )
-        else:
-            save_image(path, self.data, crypter=crypter)
-
     def set_crypter(self, crypter: Crypter):
         super().set_crypter(crypter)
-        if isinstance(self._data, lazy_image):
+        if getattr(self, "_data", None) and isinstance(self._data, lazy_image):
             self._data._crypter = crypter
 
+
+class ImageFromFile(FromFileMixin, Image):
+    def __init__(
+        self,
+        path: str,
+        *args,
+        **kwargs,
+    ) -> None:
+        super().__init__(path, *args, **kwargs)
+        self._data = lazy_image(self.path, crypter=self._crypter)
+
+        # TODO: remove
+        assert not self._ext, "Can't specify both 'path' and 'ext' for image"
+        self._ext = osp.splitext(osp.basename(path))[1]
+
     @property
-    def path(self) -> str:
-        """Path to the media file"""
-        return self._path
+    def data(self) -> np.ndarray:
+        """Image data in BGR HWC [0; 255] (float) format"""
+
+        data = self._data()
+
+        if self._size is None and data is not None:
+            if not 2 <= data.ndim <= 3:
+                raise MediaShapeError("An image should have 2 (gray) or 3 (bgr) dims.")
+            self._size = tuple(map(int, data.shape[:2]))
+        return data
+
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        ext: Optional[str] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
+        cur_path = osp.abspath(self.path) if self.path else None
+        cur_ext = self.ext
+        new_ext = self._get_ext_to_save(fp, ext)
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+
+        if cur_path is not None and osp.isfile(cur_path):
+            if cur_ext == new_ext:
+                copyto_image(src=cur_path, dst=fp, src_crypter=self._crypter, dst_crypter=crypter)
+            else:
+                save_image(fp, self.data, ext=new_ext, crypter=crypter)
+        else:
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), cur_path)
 
 
-class ByteImage(Image):
+class ImgaeFromNumpy(FromDataMixin[np.ndarray], Image):
+    @property
+    def data(self) -> Optional[np.ndarray]:
+        """Image data in BGR HWC [0; 255] (float) format"""
+
+        data = super().data
+
+        if isinstance(data, np.ndarray):
+            data = data.astype(np.float32)
+        if self._size is None and data is not None:
+            if not 2 <= data.ndim <= 3:
+                raise MediaShapeError("An image should have 2 (gray) or 3 (rgb) dims.")
+            self._size = tuple(map(int, data.shape[:2]))
+        return data
+
+    @property
+    def has_size(self) -> bool:
+        """Indicates that size info is cached and won't require image loading"""
+        return self._size is not None or isinstance(self._data, np.ndarray)
+
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        ext: Optional[str] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
+        data = self.data
+        if data is None:
+            raise ValueError(f"{self.__class__.__name__} is empty.")
+        new_ext = self._get_ext_to_save(fp, ext)
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+        save_image(fp, data, ext=new_ext, crypter=crypter)
+
+
+class ImageFromBytes(FromDataMixin[bytes], Image):
+    _FORMAT_MAGICS = (
+        (b"\x89PNG\r\n\x1a\n", ".png"),
+        (b"\xff\xd8\xff", ".jpg"),
+        (b"BM", ".bmp"),
+    )
+
+    def __init__(self, data: Union[Callable[[], bytes], bytes], *args, **kwargs):
+        super().__init__(data=data, *args, **kwargs)
+
+        if self._ext is None and isinstance(data, bytes):
+            self._ext = self._guess_ext(data)
+
+    @classmethod
+    def _guess_ext(cls, data: bytes) -> Optional[str]:
+        return next(
+            (ext for magic, ext in cls._FORMAT_MAGICS if data.startswith(magic)),
+            None,
+        )
+
+    @property
+    def data(self) -> Optional[np.ndarray]:
+        """Image data in BGR HWC [0; 255] (float) format"""
+
+        data = super().data
+
+        if isinstance(data, bytes):
+            data = decode_image(data)
+        if isinstance(data, np.ndarray):
+            data = data.astype(np.float32)
+        if self._size is None and data is not None:
+            if not 2 <= data.ndim <= 3:
+                raise MediaShapeError("An image should have 2 (gray) or 3 (rgb) dims.")
+            self._size = tuple(map(int, data.shape[:2]))
+        return data
+
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        ext: Optional[str] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
+        data = self.data
+        if data is None:
+            raise ValueError(f"{self.__class__.__name__} is empty.")
+        new_ext = self._get_ext_to_save(fp, ext)
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+        save_image(fp, data, ext=new_ext, crypter=crypter)
+
+
+class ByteImage(ImageFromBytes):
     _type = MediaType.BYTE_IMAGE
 
     _FORMAT_MAGICS = (
@@ -277,6 +414,13 @@ class ByteImage(Image):
         size: Optional[Tuple[int, int]] = None,
         crypter: Crypter = NULL_CRYPTER,
     ):
+        warnings.warn(
+            f"Using {self.__class__.__name__} is deprecated. "
+            "Please use 'Image.from_data()' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         if not isinstance(data, bytes):
             assert path or callable(data), "Image can not be empty"
             assert data is None or callable(data)
@@ -285,12 +429,13 @@ class ByteImage(Image):
 
         self._bytes_data = data
 
-        if ext is None and path is None and isinstance(data, bytes):
-            ext = self._guess_ext(data)
+        if ext is None:
+            if path:
+                ext = osp.splitext(osp.basename(path))[1]
+            elif isinstance(data, bytes):
+                ext = self._guess_ext(data)
 
-        super().__init__(
-            path=path, ext=ext, size=size, data=lambda _: decode_image(self.get_bytes())
-        )
+        super().__init__(ext=ext, size=size, data=lambda: decode_image(self.get_bytes()))
         if data is None:
             # We don't expect decoder to produce images from nothing,
             # otherwise using this class makes no sense. We undefine
@@ -335,14 +480,16 @@ class ByteImage(Image):
             save_image(path, self.data)
 
 
-class VideoFrame(Image):
+class VideoFrame(ImgaeFromNumpy):
     _type = MediaType.VIDEO_FRAME
+
+    _DEFAULT_EXT = None
 
     def __init__(self, video: Video, index: int):
         self._video = video
         self._index = index
 
-        super().__init__(lambda _: self._video.get_frame_data(self._index))
+        super().__init__(data=lambda: self._video.get_frame_data(self._index))
 
     @property
     def size(self) -> Tuple[int, int]:
@@ -616,20 +763,21 @@ class Video(MediaElement, Iterable[VideoFrame]):
         return osp.splitext(osp.basename(self.path))[1]
 
 
-class PointCloud(MediaElement):
+class PointCloud(MediaElement[bytes]):
     _type = MediaType.POINT_CLOUD
 
     def __init__(
         self,
         extra_images: Optional[List[Image], Callable[[], List[Image]]] = None,
-        crypter: Crypter = NULL_CRYPTER,
+        *args,
+        **kwargs,
     ):
         assert self.__class__ != PointCloud, (
             f"Directly initalizing {self.__class__.__name__} is not supported. "
             f"Please use fractory function '{self.__class__.__name__}.from_file()' "
             f"or '{self.__class__.__name__}.from_data()'."
         )
-        super().__init__(crypter)
+        super().__init__(*args, **kwargs)
         self._extra_images = extra_images or []
 
     @classmethod
@@ -637,8 +785,12 @@ class PointCloud(MediaElement):
         return PointCloudFromFile(path, *args, **kwargs)
 
     @classmethod
+    def from_bytes(cls, data: Union[bytes, Callable[[], bytes]], *args, **kwargs):
+        return PointCloudFromBytes(data, *args, **kwargs)
+
+    @classmethod
     def from_data(cls, data: Union[bytes, Callable[[], bytes]], *args, **kwargs):
-        return PointCloudFromData(data, *args, **kwargs)
+        return cls.from_bytes(data, *args, **kwargs)
 
     @property
     def extra_images(self) -> List[Image]:
@@ -650,11 +802,28 @@ class PointCloud(MediaElement):
             return extra_images
         return self._extra_images
 
+    def _save_extra_images(
+        self,
+        path_generator: Union[Callable[[int, Image], str], Callable[[int, Image], io.IOBase]],
+        crypter: Optional[Crypter] = None,
+    ):
+        crypter = crypter if crypter else self._crypter
+        for i, img in enumerate(self.extra_images):
+            path = path_generator(i, img)
+            if img.has_data:
+                img.save(path, crypter=crypter)
+
     def __eq__(self, other: object) -> bool:
-        return super().__eq__(other) and self.extra_images == other.extra_images
+        return (
+            super().__eq__(other)
+            and (np.array_equal(self.size, other.size))
+            and (self.has_data == other.has_data)
+            and (self.has_data and self.data == other.data or not self.has_data)
+            and self.extra_images == other.extra_images
+        )
 
 
-class PointCloudFromFile(MediaElementFromFileMixin, PointCloud):
+class PointCloudFromFile(FromFileMixin, PointCloud):
     @property
     def data(self) -> Optional[bytes]:
         if os.path.exists(self.path):
@@ -663,35 +832,65 @@ class PointCloudFromFile(MediaElementFromFileMixin, PointCloud):
             return bytes_data
         return None
 
-    def save(self, path, crypter: Crypter = NULL_CRYPTER):
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        extra_images_path_generator: Optional[
+            Union[Callable[[int, Image], str], Callable[[int, Image], io.IOBase]]
+        ] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
         if not crypter.is_null_crypter:
             raise NotImplementedError(
                 f"{self.__class__.__name__} does not implement save() with non NullCrypter."
             )
 
         cur_path = osp.abspath(self.path) if self.path else None
-        path = osp.abspath(path)
 
         if cur_path is not None and osp.isfile(cur_path):
-            if cur_path != path:
-                os.makedirs(osp.dirname(path), exist_ok=True)
-                shutil.copyfile(cur_path, path)
+            with open(cur_path, "rb") as reader:
+                _bytes = reader.read()
+            if isinstance(fp, str):
+                os.makedirs(osp.dirname(fp), exist_ok=True)
+                with open(fp, "wb") as f:
+                    f.write(_bytes)
+            else:
+                fp.write(_bytes)
         else:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), cur_path)
 
+        if extra_images_path_generator is not None:
+            self._save_extra_images(extra_images_path_generator, crypter)
 
-class PointCloudFromData(MediaElementFromDataMixin[bytes], PointCloud):
-    def save(self, path, crypter: Crypter = NULL_CRYPTER):
+
+class PointCloudFromBytes(FromDataMixin[bytes], PointCloud):
+    @property
+    def data(self) -> Optional[bytes]:
+        return super().data
+
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        extra_images_path_generator: Optional[
+            Union[Callable[[int, Image], str], Callable[[int, Image], io.IOBase]]
+        ] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
         if not crypter.is_null_crypter:
             raise NotImplementedError(
                 f"{self.__class__.__name__} does not implement save() with non NullCrypter."
             )
 
-        path = osp.abspath(path)
-        os.makedirs(osp.dirname(path), exist_ok=True)
-        data = self.data
-        with open(path, "wb") as f:
-            f.write(data)
+        _bytes = self.data
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+            with open(fp, "wb") as f:
+                f.write(_bytes)
+        else:
+            fp.write(_bytes)
+
+        if extra_images_path_generator is not None:
+            self._save_extra_images(extra_images_path_generator, crypter)
 
 
 class MultiframeImage(MediaElement):
@@ -713,9 +912,9 @@ class MultiframeImage(MediaElement):
             assert isinstance(image, (str, Image, np.ndarray)) or callable(image)
 
             if isinstance(image, str):
-                image = Image(path=image)
+                image = Image.from_file(path=image)
             elif isinstance(image, np.ndarray) or callable(image):
-                image = Image(data=image)
+                image = Image.from_data(data=image)
 
             self._images[i] = image
 
@@ -741,44 +940,148 @@ class RoIImage(Image):
 
     def __init__(
         self,
-        data: Union[np.ndarray, Callable[[str], np.ndarray], None] = None,
-        *,
-        path: Optional[str] = None,
-        ext: Optional[str] = None,
         roi: BboxIntCoords,
-    ) -> None:
+        *args,
+        **kwargs,
+    ):
+        assert self.__class__ != RoIImage, (
+            f"Directly initalizing {self.__class__.__name__} is not supported. "
+            f"Please use fractory function '{self.__class__.__name__}.from_data()' "
+            f"or '{self.__class__.__name__}.from_data()'."
+        )
+
         assert len(roi) == 4 and all(isinstance(v, int) for v in roi)
         self._roi = roi
         _, _, w, h = self._roi
-        super().__init__(data=data, path=path, ext=ext, size=(h, w))
+        super().__init__(size=(h, w), *args, **kwargs)
 
     @classmethod
-    def create_from_image(cls, img: Image, roi: BboxIntCoords) -> RoIImage:
-        if not isinstance(img, Image):
-            raise TypeError(f"type(img)={type(img)} should be Image.")
+    def from_file(cls, *args, **kwargs):
+        raise NotImplementedError
 
-        data = lambda _: img._data() if isinstance(img._data, lazy_image) else img._data
-        return cls(data=data, path=img._path, ext=img._ext, roi=roi)
+    @classmethod
+    def from_data(
+        cls,
+        data: Union[bytes, np.ndarray, Image, Callable[[], bytes], Callable[[], np.ndarray]],
+        roi: BboxIntCoords,
+        *args,
+        **kwargs,
+    ):
+        if isinstance(data, Image):
+            return cls.from_image(data, roi, *args, **kwargs)
+        if isinstance(data, np.ndarray):
+            return cls.from_numpy(data, roi, *args, **kwargs)
+        # TODO: need a better way to determine data type
+        return cls.from_bytes(data, roi, *args, **kwargs)
+
+    @classmethod
+    def from_image(cls, data: Image, roi: BboxIntCoords, *args, **kwargs):
+        if not isinstance(data, Image):
+            raise TypeError(f"type(image)={type(data)} should be Image.")
+
+        return RoIImageFromBytes(data=data._data, roi=roi, ext=data._ext, *args, **kwargs)
+
+    @classmethod
+    def from_numpy(
+        cls,
+        data: Union[np.ndarray, Callable[[], np.ndarray]],
+        roi: BboxIntCoords,
+        *args,
+        **kwargs,
+    ):
+        return RoIImageFromNumpy(data, roi, *args, **kwargs)
+
+    @classmethod
+    def from_bytes(
+        cls,
+        data: Union[bytes, Callable[[], bytes]],
+        roi: BboxIntCoords,
+        *args,
+        **kwargs,
+    ):
+        return RoIImageFromBytes(data, roi, *args, **kwargs)
 
     @property
     def roi(self) -> BboxIntCoords:
         return self._roi
 
+
+class RoIImageFromBytes(FromDataMixin, RoIImage):
+    def __init__(
+        self,
+        data: Union[bytes, Callable[[], bytes]],
+        roi: BboxIntCoords,
+        *args,
+        **kwargs,
+    ) -> None:
+        super().__init__(data, roi, *args, **kwargs)
+
     @property
     def data(self) -> np.ndarray:
         """Image data in BGR HWC [0; 255] (float) format"""
         x, y, w, h = self._roi
-        img = super().data
-        return img[y : y + h, x : x + w]
+        data = super().data
+        if isinstance(data, bytes):
+            data = decode_image(data)
+        if isinstance(data, np.ndarray):
+            data = data.astype(np.float32)
+        return data[y : y + h, x : x + w]
 
-    def save(self, path, crypter: Crypter = NULL_CRYPTER):
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        ext: Optional[str] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
         if not crypter.is_null_crypter:
             raise NotImplementedError(
                 f"{self.__class__.__name__} does not implement save() with non NullCrypter."
             )
-        path = osp.abspath(path)
-        os.makedirs(osp.dirname(path), exist_ok=True)
-        save_image(path, self.data)
+        data = self.data
+        if data is None:
+            raise ValueError(f"{self.__class__.__name__} is empty.")
+        new_ext = self._get_ext_to_save(fp, ext)
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+        save_image(fp, data, ext=new_ext, crypter=crypter)
+
+
+class RoIImageFromNumpy(FromDataMixin, RoIImage):
+    def __init__(
+        self,
+        data: Union[np.ndarray, Callable[[], np.ndarray]],
+        roi: BboxIntCoords,
+        *args,
+        **kwargs,
+    ) -> None:
+        super().__init__(data, roi, *args, **kwargs)
+
+    @property
+    def data(self) -> np.ndarray:
+        """Image data in BGR HWC [0; 255] (float) format"""
+        x, y, w, h = self._roi
+        data = super().data
+        if isinstance(data, np.ndarray):
+            data = data.astype(np.float32)
+        return data[y : y + h, x : x + w]
+
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        ext: Optional[str] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
+        if not crypter.is_null_crypter:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
+            )
+        data = self.data
+        if data is None:
+            raise ValueError(f"{self.__class__.__name__} is empty.")
+        new_ext = self._get_ext_to_save(fp, ext)
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+        save_image(fp, data, ext=new_ext, crypter=crypter)
 
 
 ImageWithRoI = Tuple[Image, BboxIntCoords]
@@ -787,23 +1090,56 @@ ImageWithRoI = Tuple[Image, BboxIntCoords]
 class MosaicImage(Image):
     _type = MediaType.MOSAIC_IMAGE
 
-    def __init__(self, imgs: List[ImageWithRoI], size: Tuple[int, int]) -> None:
-        def _get_mosaic_img(_) -> np.ndarray:
+    @classmethod
+    def from_file(cls, *args, **kwargs):
+        raise NotImplementedError
+
+    @classmethod
+    def from_data(cls, data: List[ImageWithRoI], size: Tuple[int, int], *args, **kwargs):
+        return cls.from_image_coord_pairs(data, size, *args, **kwargs)
+
+    @classmethod
+    def from_image_coord_pairs(
+        cls, image_coord_pairs: List[ImageWithRoI], size: Tuple[int, int], *args, **kwargs
+    ):
+        return MosiacImageFromData(image_coord_pairs, size)
+
+    @classmethod
+    def from_numpy(cls, *args, **kwargs):
+        raise NotImplementedError
+
+    @classmethod
+    def from_bytes(cls, *args, **kwargs):
+        raise NotImplementedError
+
+
+class MosiacImageFromData(FromDataMixin, MosaicImage):
+    def __init__(self, data: List[ImageWithRoI], size: Tuple[int, int]) -> None:
+        def _get_mosaic_img() -> np.ndarray:
             h, w = self.size
             mosaic_img = np.zeros(shape=(h, w, 3), dtype=np.uint8)
-            for img, roi in imgs:
+            for img, roi in data:
                 assert isinstance(img, Image), "MosaicImage can only take a list of Images."
                 x, y, w, h = roi
                 mosaic_img[y : y + h, x : x + w] = img.data
             return mosaic_img
 
-        super().__init__(data=_get_mosaic_img, path=None, ext=None, size=size)
+        super().__init__(data=_get_mosaic_img, size=size)
 
-    def save(self, path, crypter: Crypter = NULL_CRYPTER):
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        ext: Optional[str] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
         if not crypter.is_null_crypter:
             raise NotImplementedError(
                 f"{self.__class__.__name__} does not implement save() with non NullCrypter."
             )
-        path = osp.abspath(path)
-        os.makedirs(osp.dirname(path), exist_ok=True)
-        save_image(path, self.data)
+        data = self.data
+        if data is None:
+            raise ValueError(f"{self.__class__.__name__} is empty.")
+        new_ext = self._get_ext_to_save(fp, ext)
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+        save_image(fp, data, ext=new_ext, crypter=crypter)

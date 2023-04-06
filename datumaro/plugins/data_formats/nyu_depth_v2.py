@@ -36,8 +36,8 @@ class NyuDepthV2Base(SubsetBase):
 
             items[item_id] = DatasetItem(
                 id=item_id,
-                media=Image(data=image),
-                annotations=[DepthAnnotation(image=Image(data=depth))],
+                media=Image.from_data(data=image),
+                annotations=[DepthAnnotation(image=Image.from_data(data=depth))],
             )
 
         return items

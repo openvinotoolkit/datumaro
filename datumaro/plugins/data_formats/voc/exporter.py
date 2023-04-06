@@ -284,7 +284,7 @@ class VocExporter(Exporter):
                 ET.SubElement(size_elem, "width").text = str(w)
                 ET.SubElement(size_elem, "height").text = str(h)
                 depth = ""
-                if item.media.data is not None:
+                if item.media.has_data:
                     depth = str(item.media.data.shape[-1])
                 ET.SubElement(size_elem, "depth").text = depth
 

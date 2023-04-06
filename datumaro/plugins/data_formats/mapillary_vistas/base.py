@@ -131,7 +131,7 @@ class _MapillaryVistasBase(SubsetBase):
             item_id = item_ann["image_id"]
             image = None
             if images_info.get(item_id):
-                image = Image(
+                image = Image.from_file(
                     path=images_info[item_id]["path"],
                     size=self._get_image_size(images_info[item_id]),
                 )
@@ -216,7 +216,7 @@ class _MapillaryVistasBase(SubsetBase):
 
         for image_path in find_images(self._images_dir, recursive=True):
             item_id = osp.splitext(osp.relpath(image_path, self._images_dir))[0]
-            image = Image(path=image_path)
+            image = Image.from_file(path=image_path)
             if item_id in items:
                 items[item_id].media = image
             else:
@@ -235,7 +235,7 @@ class _MapillaryVistasBase(SubsetBase):
 
             image_size = self._get_image_size(item_info)
             if image_size and item.has_image:
-                item.media = Image(path=item.image.path, size=image_size)
+                item.media = Image.from_file(path=item.image.path, size=image_size)
 
             polygons = item_info["objects"]
             annotations = []

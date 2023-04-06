@@ -11,7 +11,7 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Mask
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import Importer
-from datumaro.components.media import ByteImage
+from datumaro.components.media import Image
 from datumaro.util.image import decode_image, lazy_image
 from datumaro.util.tf_util import import_tf as _import_tf
 
@@ -156,15 +156,11 @@ class TfDetectionApiBase(SubsetBase):
             if frame_height and frame_width:
                 image_size = (frame_height, frame_width)
 
-            image_params = {}
-            if frame_image:
-                image_params["data"] = frame_image
-            if frame_filename:
-                image_params["path"] = osp.join(images_dir, frame_filename)
-
             image = None
-            if image_params:
-                image = ByteImage(**image_params, size=image_size)
+            if frame_image:
+                image = Image.from_data(data=frame_image, size=image_size)
+            elif frame_filename:
+                image = Image.from_file(path=osp.join(images_dir, frame_filename), size=image_size)
 
             dataset_items.append(
                 DatasetItem(

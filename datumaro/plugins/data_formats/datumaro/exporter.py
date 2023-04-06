@@ -88,47 +88,35 @@ class _SubsetWriter:
             yield
         elif isinstance(item.media, Image):
             image = item.media_as(Image)
-            path = image.path
 
             if context.save_media:
                 # Temporarily update image path and save it.
                 fname = context.make_image_filename(item)
                 context.save_image(item, encryption=encryption, fname=fname, subdir=item.subset)
-                image._path = fname
+                item.media = Image.from_file(path=fname, size=image._size)
 
             yield
-            image._path = path
+            item.media = image
         elif isinstance(item.media, PointCloud):
             pcd = item.media_as(PointCloud)
 
             if context.save_media:
-                # Temporarily update pcd path and save it.
-                fname = context.make_pcd_filename(item)
-                context.save_point_cloud(item, fname=fname, subdir=item.subset)
-                saved_pcd = PointCloud.from_file(path=fname, extra_images=pcd._extra_images)
+                pcd_fname = context.make_pcd_filename(item)
+                context.save_point_cloud(item, fname=pcd_fname, subdir=item.subset)
 
-                # Temporarily update pcd related images paths and save them.
-                for i, img in enumerate(sorted(pcd.extra_images, key=lambda v: v.path)):
-                    img.__path = img.path
-                    fname = osp.join(item.id, f"image_{i}{context.find_image_ext(img)}")
-                    img._path = fname
+                extra_images = []
+                extra_images_dir = osp.join(context.related_images_dir, item.subset, item.id)
+                for extra_image_path in os.listdir(extra_images_dir):
+                    extra_images.append(
+                        Image.from_file(path=os.path.join(extra_images_dir, extra_image_path))
+                    )
 
-                    if img.has_data:
-                        item.media = img
-                        context.save_image(
-                            item,
-                            basedir=context.related_images_dir,
-                            subdir=item.subset,
-                            fname=fname,
-                        )
+                # Temporarily update media with a pcd saved into disk.
+                item.media = PointCloud.from_file(path=pcd_fname, extra_images=extra_images)
 
                 item.media = saved_pcd
             yield
             item.media = pcd
-            if context.save_media:
-                for img in pcd.extra_images:
-                    img._path = img.__path
-                    del img.__path
         else:
             raise NotImplementedError
 
@@ -145,18 +133,18 @@ class _SubsetWriter:
         with self.context_save_media(item, self.export_context):
             if isinstance(item.media, Image):
                 image = item.media_as(Image)
-                item_desc["image"] = {
-                    "path": image.path,
-                }
+                item_desc["image"] = {"path": getattr(image, "path", None)}
                 if item.media.has_size:  # avoid occasional loading
                     item_desc["image"]["size"] = image.size
             elif isinstance(item.media, PointCloud):
                 pcd = item.media_as(PointCloud)
 
-                item_desc["point_cloud"] = {"path": pcd.path}
+                item_desc["point_cloud"] = {"path": getattr(pcd, "path", None)}
 
                 related_images = [
-                    {"path": img.path, "size": img.size} if img.has_size else {"path": img.path}
+                    {"path": getattr(img, "path", None), "size": img.size}
+                    if img.has_size
+                    else {"path": getattr(img, "path", None)}
                     for img in pcd.extra_images
                 ]
 
