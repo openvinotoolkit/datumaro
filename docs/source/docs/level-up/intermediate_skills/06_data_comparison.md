@@ -1,4 +1,4 @@
-# Data Explorartion
+# Data Comparison with Two Heterogeneous Datasets
 
 Datumaro aims to refine data
 
