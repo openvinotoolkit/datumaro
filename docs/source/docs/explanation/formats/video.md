@@ -1,8 +1,4 @@
----
-title: 'Video'
-linkTitle: 'Video'
-description: ''
----
+# Video
 
 ## Format specification
 There are many kinds of video extensions as listed up

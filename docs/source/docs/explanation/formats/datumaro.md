@@ -1,8 +1,4 @@
----
-title: "Datumaro"
-linkTitle: "Datumaro"
-description: ""
----
+# Datumaro
 
 ## Format specification
 

@@ -1,8 +1,4 @@
----
-title: 'AVA action'
-linkTitle: 'AVA action'
-description: ''
----
+# AVA Action
 
 ## Format specification
 

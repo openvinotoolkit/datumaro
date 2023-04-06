@@ -1,8 +1,4 @@
----
-title: "DatumaroBinary"
-linkTitle: "DatumaroBinary"
-description: ""
----
+# DatumaroBinary
 
 ## Format specification
 
