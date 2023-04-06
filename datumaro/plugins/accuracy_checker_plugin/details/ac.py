@@ -8,12 +8,12 @@ import_tf()  # prevent TF loading and potential interpreter crash
 
 from itertools import groupby
 
-from accuracy_checker.adapters import create_adapter
-from accuracy_checker.data_readers import DataRepresentation
-from accuracy_checker.launcher import InputFeeder, create_launcher
-from accuracy_checker.postprocessor import PostprocessingExecutor
-from accuracy_checker.preprocessor import PreprocessingExecutor
-from accuracy_checker.utils import extract_image_representations
+from openvino.tools.accuracy_checker.adapters import create_adapter
+from openvino.tools.accuracy_checker.data_readers import DataRepresentation
+from openvino.tools.accuracy_checker.launcher import InputFeeder, create_launcher
+from openvino.tools.accuracy_checker.postprocessor import PostprocessingExecutor
+from openvino.tools.accuracy_checker.preprocessor import PreprocessingExecutor
+from openvino.tools.accuracy_checker.utils import extract_image_representations
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 

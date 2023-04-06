@@ -65,7 +65,7 @@ dataset = dm.Dataset.import_from(path, format)
 
       If a path refers to `project` (i.e. target name is not set, or
       this target is exactly specified), the target dataset is the result of
-      [joining](/docs/explanation/architecture.html#merging) all the project data
+      [joining](docs/explanation/architecture.html#dataset-merging) all the project data
       sources. Otherwise, if the path refers to a data source revision, the
       corresponding stage from the revision build tree will be used.
 
@@ -75,7 +75,7 @@ dataset = dm.Dataset.import_from(path, format)
     A stage is referred by a name.
   - Build tree - A directed graph (tree) with root nodes at data sources
     and a single top node called `project`, which represents
-    a [joined](/docs/explanation/architecture.html#merging) dataset.
+    a [joined](docs/explanation/architecture.html#dataset-merging) dataset.
     Each data source has a starting `root` node, which corresponds to the
     original dataset. The internal graph nodes are stages.
   - Build target - A data source or a stage name. Data source names correspond
@@ -99,7 +99,7 @@ to use Datumaro from the command-line:
 
 - Create a Datumaro project and operate on it:
   - Create an empty project with [`create`](/docs/user-manual/command-reference/create)
-  - Import existing datasets with [`import`](/docs/user-manual/command-reference/sources#source-import)
+  - Import existing datasets with [`import`](/docs/user-manual/command-reference/sources.md#import-dataset)
   - Modify the project with [`transform`](/docs/user-manual/command-reference/transform) and [`filter`](/docs/user-manual/command-reference/filter)
   - Create new revisions of the project with
     [`commit`](/docs/user-manual/command-reference/commit), navigate over
@@ -107,11 +107,11 @@ to use Datumaro from the command-line:
     compare with [`diff`](/docs/user-manual/command-reference/diff), compute
     statistics with [`stats`](/docs/user-manual/command-reference/stats)
   - Export the resulting dataset with [`export`](/docs/user-manual/command-reference/export)
-  - Check project config with [`project info`](/docs/user-manual/command-reference/projects/#print-project-info)
+  - Check project config with [`project info`](/docs/user-manual/command-reference/projects.md#print-project-info)
 
 Basically, a project is a combination of datasets, models and environment.
 
-A project can contain an arbitrary number of datasets ([data sources](#data-sources)).
+A project can contain an arbitrary number of datasets ([data sources](#datasets-and-data-sources)).
 A project acts as a manager for them and allows to manipulate them
 separately or as a whole, in which case it combines dataset items
 from all the sources into one composite dataset. You can manage separate
@@ -122,7 +122,7 @@ Note that **modifying operations** (`transform`, `filter`, `patch`)
 **are applied in-place** to the datasets by default.
 
 If you want to interact with models, you need to add them to the project
-first using the [`model add`](/docs/user-manual/command-reference/models/#register-model) command.
+first using the [`model add`](/docs/user-manual/command-reference/models.md#register-model) command.
 
 A typical way to obtain Datumaro projects is to export tasks in
 [CVAT](https://github.com/opencv/cvat) UI.

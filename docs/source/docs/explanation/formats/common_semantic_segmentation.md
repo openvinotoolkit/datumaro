@@ -38,7 +38,7 @@ CSS dataset directory should have the following structure:
         └── ...
 ```
 
-To describe classes and colors, you should use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To describe classes and colors, you should use [`dataset_meta.json`](/docs/user-manual/supported_formats.md#dataset-meta-info-file).
 
 To make sure that the selected dataset has been added to the project, you can
 run `datum project info`, which will display the project information.

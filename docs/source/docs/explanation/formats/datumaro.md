@@ -65,7 +65,7 @@ A Datumaro dataset directory should have the following structure:
 If your dataset is not following the above directory structure,
 it cannot detect and import your dataset as the Datumaro format properly.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats.md#dataset-meta-info-file).
 
 To make sure that the selected dataset has been added to the project, you can
 run `datum project info`, which will display the project information.

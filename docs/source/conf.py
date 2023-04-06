@@ -117,6 +117,8 @@ html_css_files = [
 ]
 
 # -- Extension configuration -------------------------------------------------
+myst_heading_anchors = 3
+
 autodoc_docstring_signature = True
 autodoc_member_order = "bysource"
 intersphinx_mapping = {

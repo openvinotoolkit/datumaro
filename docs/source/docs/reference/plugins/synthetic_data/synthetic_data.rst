@@ -1,4 +1,4 @@
-Synthetic Data package
+synthetic_data package
 ======================
 
 .. toctree::

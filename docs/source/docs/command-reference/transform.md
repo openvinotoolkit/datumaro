@@ -13,7 +13,7 @@ This command allows to modify dataset images or annotations all at once.
 > This command is designed for batch dataset processing, so if you only
 > need to modify few elements of a dataset, you might want to use
 > other approaches for better performance. A possible solution can be
-> a simple script, which uses [Datumaro API](/docs/explanation/architecture.html).
+> a simple script, which uses [Datumaro API](/docs/explanation/architecture).
 
 The command can be applied to a dataset or a project build target,
 a stage or the combined `project` target, in which case all the project
@@ -85,50 +85,50 @@ datum transform -t rename source-1 -- -e "|^frame_||"
 ### Built-in transforms
 
 Basic dataset item manipulations:
-- [`rename`](#rename-transform) - Renames dataset items by regular expression
-- [`id_from_image_name`](#id_from_image_name-transform) - Renames dataset
+- [`rename`](#rename) - Renames dataset items by regular expression
+- [`id_from_image_name`](#id_from_image_name) - Renames dataset
   items to their image filenames
-- [`reindex`](#reindex-transform) - Renames dataset items with numbers
-- [`ndr`](#ndr-transform) - Removes duplicated images from dataset
-- [`relevancy_sampler`](#relevancy_sampler-transform) - Leaves only the most
+- [`reindex`](#reindex) - Renames dataset items with numbers
+- [`ndr`](#ndr - Removes duplicated images from dataset
+- [`relevancy_sampler`](#relevancy_sampler) - Leaves only the most
   important images
   (requires model inference results)
-- [`random_sampler`](#random_sampler-transform) - Leaves no more than k items
+- [`random_sampler`](#random_sampler) - Leaves no more than k items
   from the dataset randomly
-- [`label_random_sampler`](#label_random_sampler-transform) - Leaves at least
+- [`label_random_sampler`](#label_random_sampler) - Leaves at least
   k images with annotations per class
-- [`resize`](#resize-transform) - Resizes images and annotations in the dataset
-- [`remove_images`](#remove_images-transform) - Removes specific images
-- [`remove_annotations`](#remove_annotations-transform) - Removes annotations
-- [`remove_attributes`](#remove_attributes-transform) - Removes attributes
+- [`resize`](#resize) - Resizes images and annotations in the dataset
+- [`remove_images`](#remove_images) - Removes specific images
+- [`remove_annotations`](#remove_annotations) - Removes annotations
+- [`remove_attributes`](#remove_attributes) - Removes attributes
 
 Subset manipulations:
-- [`random_split`](#random_split-transform) - Splits dataset into subsets
+- [`random_split`](#random_split) - Splits dataset into subsets
   randomly
-- [`split`](#split-transform) - Splits dataset into subsets for classification,
+- [`split`](#split) - Splits dataset into subsets for classification,
   detection, segmentation or re-identification
-- [`map_subsets`](#map_subsets-transform) - Renames and removes subsets
+- [`map_subsets`](#map_subsets) - Renames and removes subsets
 
 Annotation manipulations:
-- [`remap_labels`](#remap_labels-transform) - Renames, adds or removes
+- [`remap_labels`](#remap_labels) - Renames, adds or removes
   labels in dataset
-- [`project_labels`](#project_labels-transform) - Sets dataset labels to
+- [`project_labels`](#project_labels) - Sets dataset labels to
   the requested sequence
-- [`shapes_to_boxes`](#shapes_to_boxes-transform) - Replaces spatial
+- [`shapes_to_boxes`](#shapes_to_boxes) - Replaces spatial
   annotations with bounding boxes
-- [`boxes_to_masks`](#boxes_to_masks-transform) - Converts bounding boxes
+- [`boxes_to_masks`](#boxes_to_masks) - Converts bounding boxes
   to instance masks
-- [`polygons_to_masks`](#polygons_to_masks-transform) - Converts polygons
+- [`polygons_to_masks`](#polygons_to_masks) - Converts polygons
   to instance masks
-- [`masks_to_polygons`](#masks_to_polygons-transform) - Converts instance
+- [`masks_to_polygons`](#masks_to_polygons) - Converts instance
   masks to polygons
-- [`anns_to_labels`](#anns_to_labels-transform) - Replaces annotations having
+- [`anns_to_labels`](#anns_to_labels) - Replaces annotations having
   labels with label annotations
-- [`merge_instance_segments`](#merge_instance_segments-transform) - Merges
+- [`merge_instance_segments`](#merge_instance_segments) - Merges
   grouped spatial annotations into a mask
-- [`crop_covered_segments`](#crop_covered_segments-transform) - Removes
+- [`crop_covered_segments`](#crop_covered_segments) - Removes
   occluded segments of covered masks
-- [`bbox_value_decrement`](#bbox_value_decrement-transform) - Subtracts
+- [`bbox_value_decrement`](#bbox_value_decrement) - Subtracts
   1 from bbox coordinates
 
 <a id="rename-transform"></a>

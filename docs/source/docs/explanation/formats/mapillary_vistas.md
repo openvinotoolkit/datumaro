@@ -160,7 +160,7 @@ dataset
   {{< /tab >}}
 {{< /tabpane >}}
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats.md#dataset-meta-info-file).
 
 See examples of annotation files in
 [test assets](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mapillary_vistas_dataset).

@@ -5,4 +5,4 @@ Components
    :glob:
 
    algorithms/algorithms
-   *
+   components/*

@@ -179,7 +179,6 @@ Datumaro does not separate datasets by tasks like classification, detection
 etc. Instead, datasets can have any annotations. When a dataset is exported
 in a specific format, only relevant annotations are exported.
 
-<a id="dataset-meta-file"></a>
 ## Dataset meta info file
 
 It is possible to use classes that are not original to the format.

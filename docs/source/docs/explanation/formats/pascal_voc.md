@@ -103,7 +103,7 @@ These directories contain `.txt` files with a list of images in a subset,
 the subset name is the same as the `.txt` file name. Subset names can be
 arbitrary.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats.md#dataset-meta-info-file)
 and `labelmap.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `labelmap.txt` will be imported if possible.
@@ -230,7 +230,7 @@ datum export -f voc_segmentation -- --label-map voc
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Pascal VOC format in particular. Follow
-[user manual](/docs/user-manual/)
+[user manual](/docs/user-manual/index/)
 to get more information about these operations.
 
 There are few examples of using Datumaro operations to solve

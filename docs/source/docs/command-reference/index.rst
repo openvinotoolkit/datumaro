@@ -54,6 +54,7 @@ Parameters:
    models
    patch
    projects
+   searcher
    sources
    stats
    status

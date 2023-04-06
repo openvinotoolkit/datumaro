@@ -43,7 +43,7 @@ dataset/
 └── ...
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats.md#dataset-meta-info-file).
 
 ## Export to other formats
 

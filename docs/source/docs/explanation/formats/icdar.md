@@ -96,7 +96,7 @@ For `icdar_text_segmentation`
 ├── ...
 ```
 See more information about adding datasets to the project in the
-[docs](/docs/user-manual/command-reference/sources/#source-add).
+[docs](/docs/user-manual/command-reference/sources.md#add-dataset).
 
 ## Export to other formats
 Datumaro can convert ICDAR dataset into any other format
@@ -113,7 +113,7 @@ datum import -f icdar_text_localization source_dataset
 datum export -f label_me -o ./export_dir -- --save-media
 ```
 > Note: some formats have extra export options. For particular format see the
-> [docs](/docs/formats/) to get information about it.
+> [docs](/docs/user-manual/supported_formats/) to get information about it.
 
 With Datumaro you can also convert your dataset to one of the ICDAR formats,
 but to get expected result, the source dataset should contain required

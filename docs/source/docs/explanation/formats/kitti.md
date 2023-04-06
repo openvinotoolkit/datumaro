@@ -95,7 +95,7 @@ KITTI segmentation dataset directory should have the following structure:
             └── ...
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats.md#dataset-meta-info-file)
 and `label_colors.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `label_colors.txt` will be imported if possible.
@@ -192,7 +192,7 @@ datum export -f kitti -- --tasks detection
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the KITTI format in particular. Follow the
-[user manual](/docs/user-manual/)
+[user manual](/docs/user-manual/index/)
 to get more information about these operations.
 
 There are several examples of using Datumaro operations to solve

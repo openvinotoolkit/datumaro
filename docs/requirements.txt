@@ -1,5 +1,6 @@
 -r ../requirements-core.txt
 -r ../requirements-default.txt
+-r ../requirements-dev.txt
 
 opencv-python-headless>=4.1.0.25
 
