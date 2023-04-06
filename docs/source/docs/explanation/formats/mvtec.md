@@ -1,4 +1,8 @@
-# MVTec AD
+---
+title: 'MVTec AD'
+linkTitle: 'MVTec AD'
+description: ''
+---
 
 ## Format specification
 
