@@ -41,5 +41,5 @@ class ArrowImporter(Importer):
         return cls._find_sources_recursive(
             path,
             ".arrow",
-            cls.get_extractor_name(),
+            cls.NAME,
         )
