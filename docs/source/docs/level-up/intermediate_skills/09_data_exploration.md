@@ -1,4 +1,4 @@
-# Data Refinement
+# Dataset Explorartion from a Query Image/Text
 
 Datumaro aims to refine data
 

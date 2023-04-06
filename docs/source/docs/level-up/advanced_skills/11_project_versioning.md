@@ -1,6 +1,6 @@
-# Data Aggregation
+# Project Versioning
 
-Datumaro aims to refine data
+Datumaro aims to manipulate the project for both model and dataset versioning.
 
 ``` bash
 datum create -o <project/dir>
