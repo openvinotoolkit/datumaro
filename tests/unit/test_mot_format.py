@@ -39,7 +39,7 @@ class MotConverterTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image(data=np.ones((16, 16, 3))),
+                    media=Image.from_data(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(
                             0,
@@ -67,7 +67,7 @@ class MotConverterTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="val",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(1, 2, 4, 2, label=3),
                     ],
@@ -75,7 +75,7 @@ class MotConverterTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="test",
-                    media=Image(data=np.ones((5, 4, 3)) * 3),
+                    media=Image.from_data(data=np.ones((5, 4, 3)) * 3),
                 ),
             ],
             categories={
@@ -89,7 +89,7 @@ class MotConverterTest(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((16, 16, 3))),
+                    media=Image.from_data(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(
                             0,
@@ -130,7 +130,7 @@ class MotConverterTest(TestCase):
                 ),
                 DatasetItem(
                     id=2,
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(
                             1,
@@ -148,7 +148,7 @@ class MotConverterTest(TestCase):
                 ),
                 DatasetItem(
                     id=3,
-                    media=Image(data=np.ones((5, 4, 3)) * 3),
+                    media=Image.from_data(data=np.ones((5, 4, 3)) * 3),
                 ),
             ],
             categories={
@@ -173,7 +173,7 @@ class MotConverterTest(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((16, 16, 3))),
+                    media=Image.from_data(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(
                             0,
@@ -191,7 +191,7 @@ class MotConverterTest(TestCase):
                 ),
                 DatasetItem(
                     id=2,
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(
                             1,
@@ -222,7 +222,7 @@ class MotConverterTest(TestCase):
             [
                 DatasetItem(
                     "1",
-                    media=Image(path="1.JPEG", data=np.zeros((4, 3, 3))),
+                    media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".JPEG"),
                     annotations=[
                         Bbox(
                             0,
@@ -240,7 +240,7 @@ class MotConverterTest(TestCase):
                 ),
                 DatasetItem(
                     "2",
-                    media=Image(path="2.bmp", data=np.zeros((3, 4, 3))),
+                    media=Image.from_data(data=np.zeros((3, 4, 3)), ext=".bmp"),
                 ),
             ],
             categories=["a"],
@@ -260,7 +260,7 @@ class MotConverterTest(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((16, 16, 3))),
+                    media=Image.from_data(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(
                             0,
@@ -278,7 +278,7 @@ class MotConverterTest(TestCase):
                 ),
                 DatasetItem(
                     id=2,
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(
                             1,
@@ -318,7 +318,7 @@ class MotImporterTest(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((16, 16, 3))),
+                    media=Image.from_data(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(
                             0,

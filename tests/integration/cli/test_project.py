@@ -131,7 +131,7 @@ class ProjectIntegrationScenarios(TestCase):
                 [
                     DatasetItem(
                         0,
-                        media=Image(data=np.ones((1, 2, 3))),
+                        media=Image.from_data(data=np.ones((1, 2, 3))),
                         annotations=[
                             Bbox(1, 1, 1, 1, label=0),
                             Bbox(2, 2, 2, 2, label=1),
@@ -193,7 +193,7 @@ class ProjectIntegrationScenarios(TestCase):
                     [
                         DatasetItem(
                             0,
-                            media=Image(data=np.ones((1, 2, 3))),
+                            media=Image.from_data(data=np.ones((1, 2, 3))),
                             annotations=[
                                 Bbox(
                                     2,
@@ -237,7 +237,7 @@ class ProjectIntegrationScenarios(TestCase):
                     [
                         DatasetItem(
                             0,
-                            media=Image(data=np.ones((1, 2, 3))),
+                            media=Image.from_data(data=np.ones((1, 2, 3))),
                             annotations=[
                                 Bbox(
                                     1,

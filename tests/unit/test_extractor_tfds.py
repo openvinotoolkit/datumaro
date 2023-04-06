@@ -96,7 +96,7 @@ class TfdsExtractorTest(TestCase):
                     DatasetItem(
                         id="0",
                         subset="train",
-                        media=Image(data=tfds_example["image"].numpy().squeeze(axis=2)),
+                        media=Image.from_data(data=tfds_example["image"].numpy().squeeze(axis=2)),
                         annotations=[Label(tfds_example["label"].numpy())],
                     ),
                 ],
@@ -118,7 +118,7 @@ class TfdsExtractorTest(TestCase):
                     DatasetItem(
                         id=tfds_example["id"].numpy().decode("UTF-8"),
                         subset="train",
-                        media=Image(data=tfds_example["image"].numpy()[..., ::-1]),
+                        media=Image.from_data(data=tfds_example["image"].numpy()[..., ::-1]),
                         annotations=[Label(tfds_example["label"].numpy())],
                     ),
                 ],
@@ -159,7 +159,7 @@ class TfdsExtractorTest(TestCase):
                     DatasetItem(
                         id="test",
                         subset="train",
-                        media=Image(data=np.ones((20, 10))),
+                        media=Image.from_data(data=np.ones((20, 10))),
                         annotations=[
                             Bbox(2, 2, 2, 4, label=5, attributes={"is_crowd": True}),
                         ],
@@ -198,9 +198,8 @@ class TfdsExtractorTest(TestCase):
                     DatasetItem(
                         id=osp.splitext(example_file_name)[0],
                         subset="train",
-                        media=Image(
+                        media=Image.from_data(
                             data=decode_image(tfds_example["image"].numpy()),
-                            path=example_file_name,
                         ),
                         annotations=[Label(tfds_example["label"].numpy())],
                     ),
@@ -239,7 +238,7 @@ class TfdsExtractorTest(TestCase):
                     DatasetItem(
                         id="test",
                         subset="train",
-                        media=Image(data=np.ones((20, 10))),
+                        media=Image.from_data(data=np.ones((20, 10))),
                         annotations=[
                             Bbox(
                                 2,

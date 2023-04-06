@@ -34,7 +34,7 @@ class AlignCelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000001",
                     subset="train",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[
                         Label(12),
                         Points([69, 109, 106, 113, 77, 142, 73, 152, 108, 154], label=12),
@@ -53,7 +53,7 @@ class AlignCelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000002",
                     subset="train",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[
                         Label(5),
                         Points([69, 110, 107, 112, 81, 135, 70, 151, 108, 153], label=5),
@@ -62,7 +62,7 @@ class AlignCelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000003",
                     subset="val",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[
                         Label(2),
                         Points([76, 112, 104, 106, 108, 128, 74, 156, 98, 158], label=2),
@@ -81,7 +81,7 @@ class AlignCelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000004",
                     subset="test",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[
                         Label(10),
                         Points([72, 113, 108, 108, 101, 138, 71, 155, 101, 151], label=10),
@@ -90,7 +90,7 @@ class AlignCelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000005",
                     subset="test",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[
                         Label(7),
                         Points([66, 114, 112, 112, 86, 119, 71, 147, 104, 150], label=7),
@@ -129,31 +129,31 @@ class AlignCelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000001",
                     subset="train",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[Label(1)],
                 ),
                 DatasetItem(
                     id="000002",
                     subset="train",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[Label(3)],
                 ),
                 DatasetItem(
                     id="000003",
                     subset="val",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[Label(0)],
                 ),
                 DatasetItem(
                     id="000004",
                     subset="test",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[Label(2)],
                 ),
                 DatasetItem(
                     id="000005",
                     subset="test",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[Label(6)],
                 ),
             ],

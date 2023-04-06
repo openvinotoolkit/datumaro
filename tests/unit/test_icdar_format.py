@@ -57,7 +57,7 @@ class IcdarImporterTest(TestCase):
                 DatasetItem(
                     id="word_1",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Caption("PROPER"),
                     ],
@@ -65,7 +65,7 @@ class IcdarImporterTest(TestCase):
                 DatasetItem(
                     id="word_2",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Caption("Canon"),
                     ],
@@ -86,7 +86,7 @@ class IcdarImporterTest(TestCase):
                 DatasetItem(
                     id="img_1",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Polygon([0, 0, 3, 1, 4, 6, 1, 7], attributes={"text": "FOOD"}),
                     ],
@@ -94,7 +94,7 @@ class IcdarImporterTest(TestCase):
                 DatasetItem(
                     id="img_2",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Bbox(0, 0, 2, 3, attributes={"text": "RED"}),
                         Bbox(3, 3, 2, 3, attributes={"text": "LION"}),
@@ -116,7 +116,7 @@ class IcdarImporterTest(TestCase):
                 DatasetItem(
                     id="1",
                     subset="train",
-                    media=Image(data=np.ones((2, 5, 3))),
+                    media=Image.from_data(data=np.ones((2, 5, 3))),
                     annotations=[
                         Mask(
                             group=0,
@@ -189,7 +189,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id="a/b/1",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Caption("caption 0"),
                     ],
@@ -197,7 +197,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Caption("caption_1"),
                     ],
@@ -220,7 +220,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id="a/b/1",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Caption("caption 0"),
                     ],
@@ -243,7 +243,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id="a/b/1",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Bbox(1, 3, 6, 10),
                         Bbox(0, 1, 3, 5, attributes={"text": "word 0"}),
@@ -252,7 +252,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Polygon([0, 0, 3, 0, 4, 7, 1, 8], attributes={"text": "word 1"}),
                         Polygon([1, 2, 5, 3, 6, 8, 0, 7]),
@@ -261,7 +261,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Polygon([2, 2, 8, 3, 7, 10, 2, 9], attributes={"text": "word_2"}),
                         Bbox(0, 2, 5, 9, attributes={"text": "word_3"}),
@@ -285,7 +285,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Polygon([2, 2, 8, 3, 7, 10, 2, 9], attributes={"text": "word_2"}),
                         Bbox(0, 2, 5, 9, attributes={"text": "word_3"}),
@@ -309,7 +309,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id="a/b/1",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Mask(
                             image=np.array([[0, 0, 0, 1, 1]]),
@@ -336,7 +336,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Mask(
                             image=np.array([[0, 0, 0, 0, 0, 1]]),
@@ -398,7 +398,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id="a/b/1",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Mask(
                             image=np.array([[0, 0, 0, 1, 1]]),
@@ -439,7 +439,7 @@ class IcdarConverterTest(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(0, 1, 3, 5),
                     ],
@@ -458,7 +458,7 @@ class IcdarConverterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         expected_dataset = Dataset.from_iterable(
-            [DatasetItem(id="кириллица с пробелом", media=Image(data=np.ones((8, 8, 3))))]
+            [DatasetItem(id="кириллица с пробелом", media=Image.from_data(data=np.ones((8, 8, 3))))]
         )
 
         for importer, converter in [
@@ -479,9 +479,9 @@ class IcdarConverterTest(TestCase):
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable(
             [
-                DatasetItem(id="q/1", media=Image(path="q/1.JPEG", data=np.zeros((4, 3, 3)))),
+                DatasetItem(id="q/1", media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".JPEG")),
                 DatasetItem(
-                    id="a/b/c/2", media=Image(path="a/b/c/2.bmp", data=np.zeros((3, 4, 3)))
+                    id="a/b/c/2", media=Image.from_data(data=np.zeros((3, 4, 3)), ext=".bmp")
                 ),
             ]
         )
@@ -505,7 +505,9 @@ class IcdarConverterTest(TestCase):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="1", media=Image(data=np.ones((5, 5, 3))), annotations=[Caption('caption"')]
+                    id="1",
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
+                    annotations=[Caption('caption"')],
                 )
             ]
         )
@@ -525,7 +527,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id="1",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Mask(
                             image=np.array([[0, 0, 0, 1, 1]]),
@@ -557,7 +559,7 @@ class IcdarConverterTest(TestCase):
                 DatasetItem(
                     id="1",
                     subset="train",
-                    media=Image(data=np.ones((10, 15, 3))),
+                    media=Image.from_data(data=np.ones((10, 15, 3))),
                     annotations=[
                         Mask(
                             image=np.array([[0, 0, 0, 1, 1]]),

@@ -32,7 +32,7 @@ class OpenImagesFormatTest(TestCase):
                 DatasetItem(
                     id="b",
                     subset="train",
-                    media=Image(data=np.zeros((8, 8, 3))),
+                    media=Image.from_data(data=np.zeros((8, 8, 3))),
                     annotations=[
                         Label(1),
                         Label(2, attributes={"score": 0}),
@@ -82,7 +82,7 @@ class OpenImagesFormatTest(TestCase):
             DatasetItem(
                 id="b",
                 subset="train",
-                media=Image(data=np.zeros((8, 8, 3))),
+                media=Image.from_data(data=np.zeros((8, 8, 3))),
                 annotations=[
                     # the converter assumes that annotations without a score
                     # have a score of 100%
@@ -156,9 +156,9 @@ class OpenImagesFormatTest(TestCase):
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="a/1", media=Image(path="a/1.JPEG", data=np.zeros((4, 3, 3)))),
+                DatasetItem(id="a/1", media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".JPEG")),
                 DatasetItem(
-                    id="b/c/d/2", media=Image(path="b/c/d/2.bmp", data=np.zeros((3, 4, 3)))
+                    id="b/c/d/2", media=Image.from_data(data=np.zeros((3, 4, 3)), ext=".bmp")
                 ),
             ],
             categories=[],
@@ -178,7 +178,7 @@ class OpenImagesFormatTest(TestCase):
                 DatasetItem(
                     "a",
                     subset="modified",
-                    media=Image(data=np.ones((2, 1, 3))),
+                    media=Image.from_data(data=np.ones((2, 1, 3))),
                     annotations=[
                         Label(0, attributes={"score": 1}),
                         Bbox(0, 0, 1, 2, label=0),
@@ -188,7 +188,7 @@ class OpenImagesFormatTest(TestCase):
                 DatasetItem(
                     "b",
                     subset="modified",
-                    media=Image(data=np.ones((2, 1, 3))),
+                    media=Image.from_data(data=np.ones((2, 1, 3))),
                     annotations=[
                         Label(1, attributes={"score": 1}),
                     ],
@@ -196,13 +196,13 @@ class OpenImagesFormatTest(TestCase):
                 DatasetItem(
                     "c",
                     subset="removed",
-                    media=Image(data=np.ones((3, 2, 3))),
+                    media=Image.from_data(data=np.ones((3, 2, 3))),
                     annotations=[Label(2, attributes={"score": 1})],
                 ),
                 DatasetItem(
                     "d",
                     subset="unmodified",
-                    media=Image(data=np.ones((4, 3, 3))),
+                    media=Image.from_data(data=np.ones((4, 3, 3))),
                     annotations=[Label(3, attributes={"score": 1})],
                 ),
             ],
@@ -216,7 +216,7 @@ class OpenImagesFormatTest(TestCase):
                 DatasetItem(
                     "e",
                     subset="new",
-                    media=Image(data=np.ones((5, 4, 3))),
+                    media=Image.from_data(data=np.ones((5, 4, 3))),
                     annotations=[Label(1, attributes={"score": 1})],
                 )
             )
@@ -257,7 +257,7 @@ class OpenImagesFormatTest(TestCase):
             [
                 DatasetItem(
                     id="a",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Bbox(1, 2, 3, 4, label=0, group=1, attributes={"score": 1.0}),
                         Mask(
@@ -285,7 +285,7 @@ class OpenImagesFormatTest(TestCase):
             [
                 DatasetItem(
                     id="a",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Bbox(1, 2, 3, 4, label=0, group=1, attributes={"score": 1.0}),
                         Mask(
@@ -321,13 +321,13 @@ class OpenImagesImporterTest(TestCase):
                 DatasetItem(
                     id="a",
                     subset="train",
-                    media=Image(data=np.zeros((8, 6, 3))),
+                    media=Image.from_data(data=np.zeros((8, 6, 3))),
                     annotations=[Label(label=0, attributes={"score": 1})],
                 ),
                 DatasetItem(
                     id="b",
                     subset="train",
-                    media=Image(data=np.zeros((2, 8, 3))),
+                    media=Image.from_data(data=np.zeros((2, 8, 3))),
                     annotations=[
                         Label(label=0, attributes={"score": 0}),
                         Bbox(label=0, x=1.6, y=0.6, w=6.4, h=0.4, group=1, attributes={"score": 1}),
@@ -345,7 +345,7 @@ class OpenImagesImporterTest(TestCase):
                 DatasetItem(
                     id="c",
                     subset="test",
-                    media=Image(data=np.ones((10, 5, 3))),
+                    media=Image.from_data(data=np.ones((10, 5, 3))),
                     annotations=[
                         Label(label=1, attributes={"score": 1}),
                         Label(label=3, attributes={"score": 1}),
@@ -370,7 +370,7 @@ class OpenImagesImporterTest(TestCase):
                 DatasetItem(
                     id="d",
                     subset="validation",
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[],
                 ),
             ],
@@ -398,8 +398,12 @@ class OpenImagesImporterTest(TestCase):
     def test_can_import_v5(self):
         expected_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="aa", subset="train", media=Image(data=np.zeros((8, 6, 3)))),
-                DatasetItem(id="cc", subset="test", media=Image(data=np.ones((10, 5, 3)))),
+                DatasetItem(
+                    id="aa", subset="train", media=Image.from_data(data=np.zeros((8, 6, 3)))
+                ),
+                DatasetItem(
+                    id="cc", subset="test", media=Image.from_data(data=np.ones((10, 5, 3)))
+                ),
             ],
             categories=[
                 "/m/0",
@@ -418,13 +422,13 @@ class OpenImagesImporterTest(TestCase):
                 DatasetItem(
                     id="a",
                     subset="train",
-                    media=Image(data=np.zeros((8, 6, 3))),
+                    media=Image.from_data(data=np.zeros((8, 6, 3))),
                     annotations=[Label(label=0, attributes={"score": 1})],
                 ),
                 DatasetItem(
                     id="b",
                     subset="train",
-                    media=Image(data=np.zeros((2, 8, 3))),
+                    media=Image.from_data(data=np.zeros((2, 8, 3))),
                     annotations=[
                         Label(label=0, attributes={"score": 0}),
                         Bbox(label=0, x=1.6, y=0.6, w=6.4, h=0.4, group=1, attributes={"score": 1}),
@@ -442,7 +446,7 @@ class OpenImagesImporterTest(TestCase):
                 DatasetItem(
                     id="c",
                     subset="test",
-                    media=Image(data=np.ones((10, 5, 3))),
+                    media=Image.from_data(data=np.ones((10, 5, 3))),
                     annotations=[
                         Label(label=1, attributes={"score": 1}),
                         Label(label=3, attributes={"score": 1}),

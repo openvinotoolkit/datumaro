@@ -30,10 +30,10 @@ class SuperviselyPointcloudImporterTest(TestCase):
         pcd1 = osp.join(DUMMY_DATASET_DIR, "ds0", "pointcloud", "frame1.pcd")
         pcd2 = osp.join(DUMMY_DATASET_DIR, "ds0", "pointcloud", "frame2.pcd")
 
-        image1 = Image(
+        image1 = Image.from_file(
             path=osp.join(DUMMY_DATASET_DIR, "ds0", "related_images", "frame1_pcd", "img2.png")
         )
-        image2 = Image(
+        image2 = Image.from_file(
             path=osp.join(DUMMY_DATASET_DIR, "ds0", "related_images", "frame2_pcd", "img1.png")
         )
 
@@ -91,10 +91,10 @@ class PointCloudConverterTest(TestCase):
     pcd1 = osp.join(DUMMY_DATASET_DIR, "ds0", "pointcloud", "frame1.pcd")
     pcd2 = osp.join(DUMMY_DATASET_DIR, "ds0", "pointcloud", "frame2.pcd")
 
-    image1 = Image(
+    image1 = Image.from_file(
         path=osp.join(DUMMY_DATASET_DIR, "ds0", "related_images", "frame1_pcd", "img2.png")
     )
-    image2 = Image(
+    image2 = Image.from_file(
         path=osp.join(DUMMY_DATASET_DIR, "ds0", "related_images", "frame2_pcd", "img1.png")
     )
 
@@ -200,7 +200,7 @@ class PointCloudConverterTest(TestCase):
                         media=PointCloud.from_file(
                             path=osp.join(test_dir, "ds0", "pointcloud", "frm2.pcd"),
                             extra_images=[
-                                Image(
+                                Image.from_file(
                                     path=osp.join(
                                         test_dir, "ds0", "related_images", "frm2_pcd", "img1.png"
                                     )
@@ -375,7 +375,7 @@ class PointCloudConverterTest(TestCase):
                     DatasetItem(
                         id="a/b/c235",
                         media=PointCloud.from_file(
-                            path=pcd_path, extra_images=[Image(path=img_path)]
+                            path=pcd_path, extra_images=[Image.from_file(path=img_path)]
                         ),
                         attributes={"frame": 20},
                     ),

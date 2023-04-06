@@ -136,7 +136,9 @@ class VideoExtractorTest:
         expected = Dataset.from_iterable(
             [
                 DatasetItem(
-                    "frame_%03d" % i, subset="train", media=Image(data=np.ones((4, 6, 3)) * i)
+                    "frame_%03d" % i,
+                    subset="train",
+                    media=Image.from_data(data=np.ones((4, 6, 3)) * i),
                 )
                 for i in range(4)
             ]
@@ -156,7 +158,7 @@ class VideoExtractorTest:
 
         expected = Dataset.from_iterable(
             [
-                DatasetItem("frame_%06d" % i, media=Image(data=np.ones((4, 6, 3)) * i))
+                DatasetItem("frame_%06d" % i, media=Image.from_data(data=np.ones((4, 6, 3)) * i))
                 for i in range(4)
             ]
         )

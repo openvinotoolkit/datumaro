@@ -28,8 +28,8 @@ class ImageZipIntegrationScenarios(TestCase):
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", media=Image(data=np.ones((5, 5, 3)))),
-                DatasetItem(id="2", media=Image(data=np.ones((2, 8, 3)))),
+                DatasetItem(id="1", media=Image.from_data(data=np.ones((5, 5, 3)))),
+                DatasetItem(id="2", media=Image.from_data(data=np.ones((2, 8, 3)))),
             ]
         )
 
@@ -99,8 +99,8 @@ class ImageZipIntegrationScenarios(TestCase):
     def test_can_change_extension_for_images_in_zip(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", media=Image(data=np.ones((5, 5, 3)))),
-                DatasetItem(id="2", media=Image(data=np.ones((2, 8, 3)))),
+                DatasetItem(id="1", media=Image.from_data(data=np.ones((5, 5, 3)))),
+                DatasetItem(id="2", media=Image.from_data(data=np.ones((2, 8, 3)))),
             ]
         )
 

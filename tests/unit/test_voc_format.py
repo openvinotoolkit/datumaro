@@ -165,7 +165,7 @@ class VocImportTest(TestCase):
                         DatasetItem(
                             id="2007_000001",
                             subset="train",
-                            media=Image(data=np.ones((10, 20, 3))),
+                            media=Image.from_data(data=np.ones((10, 20, 3))),
                             annotations=[
                                 Label(self._label(l.name)) for l in VOC.VocLabel if l.value % 2 == 1
                             ]
@@ -218,7 +218,9 @@ class VocImportTest(TestCase):
                             ],
                         ),
                         DatasetItem(
-                            id="2007_000002", subset="test", media=Image(data=np.ones((10, 20, 3)))
+                            id="2007_000002",
+                            subset="test",
+                            media=Image.from_data(data=np.ones((10, 20, 3))),
                         ),
                     ]
                 )
@@ -236,13 +238,15 @@ class VocImportTest(TestCase):
                         DatasetItem(
                             id="2007_000001",
                             subset="train",
-                            media=Image(data=np.ones((10, 20, 3))),
+                            media=Image.from_data(data=np.ones((10, 20, 3))),
                             annotations=[
                                 Label(self._label(l.name)) for l in VOC.VocLabel if l.value % 2 == 1
                             ],
                         ),
                         DatasetItem(
-                            id="2007_000002", subset="test", media=Image(data=np.ones((10, 20, 3)))
+                            id="2007_000002",
+                            subset="test",
+                            media=Image.from_data(data=np.ones((10, 20, 3))),
                         ),
                     ]
                 )
@@ -272,7 +276,7 @@ class VocImportTest(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image(data=np.ones((10, 20, 3))),
+                    media=Image.from_data(data=np.ones((10, 20, 3))),
                     annotations=[
                         Bbox(
                             4.0,
@@ -293,7 +297,9 @@ class VocImportTest(TestCase):
                     ],
                 ),
                 DatasetItem(
-                    id="2007_000002", subset="test", media=Image(data=np.ones((10, 20, 3)))
+                    id="2007_000002",
+                    subset="test",
+                    media=Image.from_data(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(),
@@ -323,7 +329,7 @@ class VocImportTest(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image(data=np.ones((10, 20, 3))),
+                    media=Image.from_data(data=np.ones((10, 20, 3))),
                     annotations=[
                         Bbox(
                             1.0,
@@ -358,7 +364,9 @@ class VocImportTest(TestCase):
                     ],
                 ),
                 DatasetItem(
-                    id="2007_000002", subset="test", media=Image(data=np.ones((10, 20, 3)))
+                    id="2007_000002",
+                    subset="test",
+                    media=Image.from_data(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(),
@@ -387,11 +395,13 @@ class VocImportTest(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image(data=np.ones((10, 20, 3))),
+                    media=Image.from_data(data=np.ones((10, 20, 3))),
                     annotations=[Mask(image=np.ones([10, 20]), label=2, group=1)],
                 ),
                 DatasetItem(
-                    id="2007_000002", subset="test", media=Image(data=np.ones((10, 20, 3)))
+                    id="2007_000002",
+                    subset="test",
+                    media=Image.from_data(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(),
@@ -421,7 +431,7 @@ class VocImportTest(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image(data=np.ones((10, 20, 3))),
+                    media=Image.from_data(data=np.ones((10, 20, 3))),
                     annotations=[
                         Bbox(
                             4.0,
@@ -441,7 +451,9 @@ class VocImportTest(TestCase):
                     ],
                 ),
                 DatasetItem(
-                    id="2007_000002", subset="test", media=Image(data=np.ones((10, 20, 3)))
+                    id="2007_000002",
+                    subset="test",
+                    media=Image.from_data(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(),
@@ -480,7 +492,7 @@ class VocImportTest(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image(data=np.ones((10, 20, 3))),
+                    media=Image.from_data(data=np.ones((10, 20, 3))),
                     annotations=[
                         Bbox(
                             1.0,
@@ -1274,7 +1286,8 @@ class VocExporterTest(TestCase):
                     [
                         DatasetItem(id="кириллица с пробелом 1"),
                         DatasetItem(
-                            id="кириллица с пробелом 2", media=Image(data=np.ones([4, 5, 3]))
+                            id="кириллица с пробелом 2",
+                            media=Image.from_data(data=np.ones([4, 5, 3])),
                         ),
                     ]
                 )
@@ -1294,9 +1307,15 @@ class VocExporterTest(TestCase):
             def __iter__(self):
                 return iter(
                     [
-                        DatasetItem(id=1, subset="a", media=Image(data=np.ones([4, 5, 3]))),
-                        DatasetItem(id=2, subset="a", media=Image(data=np.ones([4, 5, 3]))),
-                        DatasetItem(id=3, subset="b", media=Image(data=np.ones([2, 6, 3]))),
+                        DatasetItem(
+                            id=1, subset="a", media=Image.from_data(data=np.ones([4, 5, 3]))
+                        ),
+                        DatasetItem(
+                            id=2, subset="a", media=Image.from_data(data=np.ones([4, 5, 3]))
+                        ),
+                        DatasetItem(
+                            id=3, subset="b", media=Image.from_data(data=np.ones([2, 6, 3]))
+                        ),
                     ]
                 )
 
@@ -1649,7 +1668,7 @@ class VocExporterTest(TestCase):
             [
                 DatasetItem(
                     1,
-                    media=Image(data=np.zeros((4, 1, 1))),
+                    media=Image.from_data(data=np.zeros((4, 1, 1))),
                     annotations=[
                         Mask([1, 1, 1, 1], label=1, attributes={"z_order": 1}),
                         Mask([0, 0, 1, 1], label=2, attributes={"z_order": 2}),
@@ -1674,7 +1693,7 @@ class VocExporterTest(TestCase):
             def __iter__(self):
                 return iter(
                     [
-                        DatasetItem(id=1, media=Image(path="1.jpg", size=(10, 15))),
+                        DatasetItem(id=1, media=Image.from_file(path="1.jpg", size=(10, 15))),
                     ]
                 )
 
@@ -1693,11 +1712,9 @@ class VocExporterTest(TestCase):
                 return iter(
                     [
                         DatasetItem(
-                            id="q/1", media=Image(path="q/1.JPEG", data=np.zeros((4, 3, 3)))
+                            id="q/1", media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".JPEG")
                         ),
-                        DatasetItem(
-                            id="a/b/c/2", media=Image(path="a/b/c/2.bmp", data=np.zeros((3, 4, 3)))
-                        ),
+                        DatasetItem(id="a/b/c/2", media=Image.from_data(data=np.zeros((3, 4, 3)))),
                     ]
                 )
 
@@ -1716,9 +1733,9 @@ class VocExporterTest(TestCase):
             def __iter__(self):
                 return iter(
                     [
-                        DatasetItem(id="1", media=Image(data=np.ones((4, 2, 3)))),
-                        DatasetItem(id="subdir1/1", media=Image(data=np.ones((2, 6, 3)))),
-                        DatasetItem(id="subdir2/1", media=Image(data=np.ones((5, 4, 3)))),
+                        DatasetItem(id="1", media=Image.from_data(data=np.ones((4, 2, 3)))),
+                        DatasetItem(id="subdir1/1", media=Image.from_data(data=np.ones((2, 6, 3)))),
+                        DatasetItem(id="subdir2/1", media=Image.from_data(data=np.ones((5, 4, 3)))),
                     ]
                 )
 
@@ -1796,7 +1813,7 @@ class VocExporterTest(TestCase):
                 DatasetItem(
                     1,
                     subset="a",
-                    media=Image(data=np.ones((1, 2, 3))),
+                    media=Image.from_data(data=np.ones((1, 2, 3))),
                     annotations=[
                         # Bbox(0, 0, 0, 0, label=1) # won't find removed anns
                     ],
@@ -1804,7 +1821,7 @@ class VocExporterTest(TestCase):
                 DatasetItem(
                     2,
                     subset="b",
-                    media=Image(data=np.ones((3, 2, 3))),
+                    media=Image.from_data(data=np.ones((3, 2, 3))),
                     annotations=[
                         Bbox(
                             0,
@@ -1836,14 +1853,14 @@ class VocExporterTest(TestCase):
                 DatasetItem(
                     1,
                     subset="a",
-                    media=Image(data=np.ones((1, 2, 3))),
+                    media=Image.from_data(data=np.ones((1, 2, 3))),
                     annotations=[Bbox(0, 0, 0, 0, label=1)],
                 ),
                 DatasetItem(2, subset="b", annotations=[Bbox(0, 0, 0, 0, label=2)]),
                 DatasetItem(
                     3,
                     subset="c",
-                    media=Image(data=np.ones((2, 2, 3))),
+                    media=Image.from_data(data=np.ones((2, 2, 3))),
                     annotations=[Bbox(0, 0, 0, 0, label=3), Mask(np.ones((2, 2)), label=1)],
                 ),
             ],
@@ -1860,7 +1877,7 @@ class VocExporterTest(TestCase):
                 DatasetItem(
                     2,
                     subset="b",
-                    media=Image(data=np.ones((3, 2, 3))),
+                    media=Image.from_data(data=np.ones((3, 2, 3))),
                     annotations=[Bbox(0, 0, 0, 0, label=3)],
                 )
             )
@@ -1884,7 +1901,7 @@ class VocExporterTest(TestCase):
                 DatasetItem(
                     3,
                     subset="test",
-                    media=Image(data=np.ones((2, 3, 3))),
+                    media=Image.from_data(data=np.ones((2, 3, 3))),
                     annotations=[
                         Bbox(
                             0,
@@ -1905,7 +1922,7 @@ class VocExporterTest(TestCase):
                 DatasetItem(
                     4,
                     subset="train",
-                    media=Image(data=np.ones((2, 4, 3))),
+                    media=Image.from_data(data=np.ones((2, 4, 3))),
                     annotations=[
                         Bbox(
                             1,
@@ -1938,13 +1955,13 @@ class VocExporterTest(TestCase):
                 DatasetItem(
                     1,
                     subset="a",
-                    media=Image(data=np.ones((2, 1, 3))),
+                    media=Image.from_data(data=np.ones((2, 1, 3))),
                     annotations=[Bbox(0, 0, 0, 1, label=1)],
                 ),
                 DatasetItem(
                     2,
                     subset="b",
-                    media=Image(data=np.ones((2, 2, 3))),
+                    media=Image.from_data(data=np.ones((2, 2, 3))),
                     annotations=[
                         Bbox(0, 0, 1, 0, label=2),
                         Mask(np.ones((2, 2)), label=1),
@@ -1953,13 +1970,13 @@ class VocExporterTest(TestCase):
                 DatasetItem(
                     3,
                     subset="b",
-                    media=Image(data=np.ones((2, 3, 3))),
+                    media=Image.from_data(data=np.ones((2, 3, 3))),
                     annotations=[Bbox(0, 1, 0, 0, label=3)],
                 ),
                 DatasetItem(
                     4,
                     subset="c",
-                    media=Image(data=np.ones((2, 4, 3))),
+                    media=Image.from_data(data=np.ones((2, 4, 3))),
                     annotations=[Bbox(1, 0, 0, 0, label=3), Mask(np.ones((2, 2)), label=1)],
                 ),
             ],
@@ -1994,7 +2011,7 @@ class VocExporterTest(TestCase):
                         DatasetItem(
                             id="frame1",
                             subset="test",
-                            media=Image(path="frame1.jpg"),
+                            media=Image.from_file(path="frame1.jpg"),
                             annotations=[
                                 Bbox(
                                     1.0,

@@ -9,7 +9,7 @@ from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
-from datumaro.components.media import ByteImage, Image
+from datumaro.components.media import Image
 from datumaro.util.image import encode_image
 from datumaro.util.tf_util import check_import
 
@@ -66,7 +66,7 @@ class TfrecordExporterTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image(data=np.ones((16, 16, 3))),
+                    media=Image.from_data(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(0, 4, 4, 8, label=2),
                         Bbox(0, 4, 4, 4, label=3),
@@ -94,7 +94,7 @@ class TfrecordExporterTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image(data=np.ones((4, 5, 3))),
+                    media=Image.from_data(data=np.ones((4, 5, 3))),
                     annotations=[
                         Mask(
                             image=np.array(
@@ -129,7 +129,7 @@ class TfrecordExporterTest(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((16, 16, 3))),
+                    media=Image.from_data(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(2, 1, 4, 4, label=2),
                         Bbox(4, 2, 8, 4, label=3),
@@ -138,14 +138,16 @@ class TfrecordExporterTest(TestCase):
                 ),
                 DatasetItem(
                     id=2,
-                    media=Image(data=np.ones((8, 8, 3)) * 2),
+                    media=Image.from_data(data=np.ones((8, 8, 3)) * 2),
                     annotations=[
                         Bbox(4, 4, 4, 4, label=3),
                     ],
                     attributes={"source_id": ""},
                 ),
                 DatasetItem(
-                    id=3, media=Image(data=np.ones((8, 4, 3)) * 3), attributes={"source_id": ""}
+                    id=3,
+                    media=Image.from_data(data=np.ones((8, 4, 3)) * 3),
+                    attributes={"source_id": ""},
                 ),
             ],
             categories={
@@ -166,7 +168,7 @@ class TfrecordExporterTest(TestCase):
             [
                 DatasetItem(
                     id="кириллица с пробелом",
-                    media=Image(data=np.ones((16, 16, 3))),
+                    media=Image.from_data(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(2, 1, 4, 4, label=2),
                         Bbox(4, 2, 8, 4, label=3),
@@ -192,7 +194,7 @@ class TfrecordExporterTest(TestCase):
             [
                 DatasetItem(
                     id="1/q.e",
-                    media=Image(path="1/q.e", size=(10, 15)),
+                    media=Image.from_file(path="1/q.e", size=(10, 15)),
                     attributes={"source_id": ""},
                 )
             ],
@@ -208,12 +210,14 @@ class TfrecordExporterTest(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=ByteImage(data=encode_image(np.ones((5, 4, 3)), "png"), path="1/q.e"),
+                    media=Image.from_data(
+                        data=encode_image(np.ones((5, 4, 3)), "png"), ext=".e"
+                    ),
                     attributes={"source_id": ""},
                 ),
                 DatasetItem(
                     id=2,
-                    media=ByteImage(data=encode_image(np.ones((6, 4, 3)), "png"), ext="qwe"),
+                    media=Image.from_data(data=encode_image(np.ones((6, 4, 3)), "png"), ext="qwe"),
                     attributes={"source_id": ""},
                 ),
             ],
@@ -235,13 +239,13 @@ class TfrecordExporterTest(TestCase):
                 DatasetItem(
                     "q/1",
                     subset="train",
-                    media=Image(path="q/1.JPEG", data=np.zeros((4, 3, 3))),
+                    media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".JPEG"),
                     attributes={"source_id": ""},
                 ),
                 DatasetItem(
                     "a/b/c/2",
                     subset="valid",
-                    media=Image(path="a/b/c/2.bmp", data=np.zeros((3, 4, 3))),
+                    media=Image.from_data(data=np.zeros((3, 4, 3)), ext=".bmp"),
                     attributes={"source_id": ""},
                 ),
             ],
@@ -262,9 +266,9 @@ class TfrecordExporterTest(TestCase):
             # generate initial dataset
             dataset = Dataset.from_iterable(
                 [
-                    DatasetItem(1, subset="a", media=Image(data=np.ones((2, 3, 3)))),
-                    DatasetItem(2, subset="b", media=Image(data=np.ones((2, 4, 3)))),
-                    DatasetItem(3, subset="c", media=Image(data=np.ones((2, 5, 3)))),
+                    DatasetItem(1, subset="a", media=Image.from_data(data=np.ones((2, 3, 3)))),
+                    DatasetItem(2, subset="b", media=Image.from_data(data=np.ones((2, 4, 3)))),
+                    DatasetItem(3, subset="c", media=Image.from_data(data=np.ones((2, 5, 3)))),
                 ]
             )
             dataset.export(path, "tf_detection_api", save_media=True)
@@ -272,7 +276,7 @@ class TfrecordExporterTest(TestCase):
             os.unlink(osp.join(path, "b.tfrecord"))
             os.unlink(osp.join(path, "c.tfrecord"))
 
-            dataset.put(DatasetItem(2, subset="a", media=Image(data=np.ones((3, 2, 3)))))
+            dataset.put(DatasetItem(2, subset="a", media=Image.from_data(data=np.ones((3, 2, 3)))))
             dataset.remove(3, "c")
             dataset.save(save_media=True)
 
@@ -325,7 +329,7 @@ class TfrecordImporterTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image(data=np.ones((16, 16, 3))),
+                    media=Image.from_data(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(0, 4, 4, 8, label=2),
                         Bbox(0, 4, 4, 4, label=3),
@@ -336,7 +340,7 @@ class TfrecordImporterTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="val",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(1, 2, 4, 2, label=3),
                     ],
@@ -345,7 +349,7 @@ class TfrecordImporterTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="test",
-                    media=Image(data=np.ones((5, 4, 3)) * 3),
+                    media=Image.from_data(data=np.ones((5, 4, 3)) * 3),
                     attributes={"source_id": "3"},
                 ),
             ],
@@ -358,4 +362,4 @@ class TfrecordImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "tf_detection_api")
 
-        compare_datasets(self, target_dataset, dataset)
+        compare_datasets(self, target_dataset, dataset, require_media=True)

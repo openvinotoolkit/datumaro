@@ -51,7 +51,7 @@ def fxt_test_datumaro_format_dataset():
             DatasetItem(
                 id=100,
                 subset="train",
-                media=Image(data=np.ones((10, 6, 3))),
+                media=Image.from_data(data=np.ones((10, 6, 3))),
                 annotations=[
                     Caption("hello", id=1),
                     Caption("world", id=2, group=5),
@@ -169,7 +169,7 @@ def fxt_test_datumaro_format_dataset():
                     ),
                 ],
             ),
-            DatasetItem(id=43, media=Image(path="1/b/c.qq", size=(2, 4))),
+            DatasetItem(id=43, media=Image.from_file(path="1/b/c.qq", size=(2, 4))),
         ],
         categories={
             AnnotationType.label: label_categories,
@@ -212,9 +212,9 @@ def fxt_wrong_version_dir(fxt_test_datumaro_format_dataset, test_dir):
 def fxt_relative_paths():
     return Dataset.from_iterable(
         [
-            DatasetItem(id="1", media=Image(data=np.ones((4, 2, 3)))),
-            DatasetItem(id="subdir1/1", media=Image(data=np.ones((2, 6, 3)))),
-            DatasetItem(id="subdir2/1", media=Image(data=np.ones((5, 4, 3)))),
+            DatasetItem(id="1", media=Image.from_data(data=np.ones((4, 2, 3)))),
+            DatasetItem(id="subdir1/1", media=Image.from_data(data=np.ones((2, 6, 3)))),
+            DatasetItem(id="subdir2/1", media=Image.from_data(data=np.ones((5, 4, 3)))),
         ]
     )
 
@@ -226,7 +226,7 @@ def fxt_can_save_dataset_with_cjk_categories():
             DatasetItem(
                 id=1,
                 subset="train",
-                media=Image(data=np.ones((4, 4, 3))),
+                media=Image.from_data(data=np.ones((4, 4, 3))),
                 annotations=[
                     Bbox(0, 1, 2, 2, label=0, group=1, id=1, attributes={"is_crowd": False}),
                 ],
@@ -235,7 +235,7 @@ def fxt_can_save_dataset_with_cjk_categories():
             DatasetItem(
                 id=2,
                 subset="train",
-                media=Image(data=np.ones((4, 4, 3))),
+                media=Image.from_data(data=np.ones((4, 4, 3))),
                 annotations=[
                     Bbox(1, 0, 2, 2, label=1, group=2, id=2, attributes={"is_crowd": False}),
                 ],
@@ -244,7 +244,7 @@ def fxt_can_save_dataset_with_cjk_categories():
             DatasetItem(
                 id=3,
                 subset="train",
-                media=Image(data=np.ones((4, 4, 3))),
+                media=Image.from_data(data=np.ones((4, 4, 3))),
                 annotations=[
                     Bbox(0, 1, 2, 2, label=2, group=3, id=3, attributes={"is_crowd": False}),
                 ],
@@ -258,7 +258,7 @@ def fxt_can_save_dataset_with_cjk_categories():
 @pytest.fixture
 def fxt_can_save_dataset_with_cyrillic_and_spaces_in_filename():
     return Dataset.from_iterable(
-        [DatasetItem(id="кириллица с пробелом", media=Image(data=np.ones((4, 2, 3))))]
+        [DatasetItem(id="кириллица с пробелом", media=Image.from_data(data=np.ones((4, 2, 3))))]
     )
 
 
@@ -268,12 +268,12 @@ def fxt_can_save_and_load_image_with_arbitrary_extension():
         [
             DatasetItem(
                 id="q/1",
-                media=Image(path="q/1.JPEG", data=np.zeros((4, 3, 3))),
+                media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".jpeg"),
                 attributes={"frame": 1},
             ),
             DatasetItem(
                 id="a/b/c/2",
-                media=Image(path="a/b/c/2.bmp", data=np.zeros((3, 4, 3))),
+                media=Image.from_data(data=np.zeros((3, 4, 3)), ext=".bmp"),
                 attributes={"frame": 2},
             ),
         ]
@@ -285,12 +285,15 @@ def fxt_can_save_and_load_infos():
     infos = {"info 1": 1, "info 2": "test info"}
 
     return Dataset.from_iterable(
-        [DatasetItem(3, subset="train", media=Image(data=np.ones((2, 2, 3))))], infos=infos
+        [DatasetItem(3, subset="train", media=Image.from_data(data=np.ones((2, 2, 3))))],
+        infos=infos,
     )
 
 
 @pytest.fixture
 def fxt_point_cloud_dataset_pair(test_dir):
+    Image.from_data(np.ones((5, 5, 3))).save(os.path.join(test_dir, "test.jpg"))
+
     source_dataset = Dataset.from_iterable(
         [
             DatasetItem(
@@ -299,9 +302,9 @@ def fxt_point_cloud_dataset_pair(test_dir):
                 media=PointCloud.from_data(
                     data=b"11111111",
                     extra_images=[
-                        Image(data=np.ones((5, 5, 3)), path="1/a.jpg"),
-                        Image(data=np.ones((5, 4, 3)), path="1/b.jpg"),
-                        Image(size=(5, 3), path="1/c.jpg"),
+                        Image.from_data(data=np.ones((5, 5, 3))),
+                        Image.from_data(data=np.ones((5, 4, 3))),
+                        Image.from_file(path=os.path.join(test_dir, "test.jpg")),
                     ],
                 ),
                 annotations=[
@@ -329,16 +332,13 @@ def fxt_point_cloud_dataset_pair(test_dir):
                 media=PointCloud.from_file(
                     path=osp.join(test_dir, "point_clouds", "test", "1.pcd"),
                     extra_images=[
-                        Image(
-                            data=np.ones((5, 5, 3)),
+                        Image.from_file(
                             path=osp.join(test_dir, "related_images", "test", "1", "image_0.jpg"),
                         ),
-                        Image(
-                            data=np.ones((5, 4, 3)),
+                        Image.from_file(
                             path=osp.join(test_dir, "related_images", "test", "1", "image_1.jpg"),
                         ),
-                        Image(
-                            size=(5, 3),
+                        Image.from_file(
                             path=osp.join(test_dir, "related_images", "test", "1", "image_2.jpg"),
                         ),
                     ],
@@ -374,13 +374,13 @@ def fxt_legacy_dataset_pair(test_dir):
             DatasetItem(
                 id="a",
                 subset="train",
-                media=Image(np.zeros((8, 6, 3))),
+                media=Image.from_data(data=np.zeros((8, 6, 3))),
                 annotations=[Label(id=0, attributes={"score": 1.0}, label=0)],
             ),
             DatasetItem(
                 id="b",
                 subset="train",
-                media=Image(np.zeros((2, 8, 3))),
+                media=Image.from_data(data=np.zeros((2, 8, 3))),
                 annotations=[
                     Label(id=0, label=0),
                     Label(id=1, label=1),
@@ -391,14 +391,17 @@ def fxt_legacy_dataset_pair(test_dir):
             DatasetItem(
                 id="c",
                 subset="test",
-                media=Image(np.zeros((8, 6, 3))),
+                media=Image.from_data(data=np.zeros((8, 6, 3))),
                 annotations=[
                     Label(id=0, attributes={"score": 1.0}, label=1),
                     Label(id=0, attributes={"score": 1.0}, label=3),
                 ],
             ),
             DatasetItem(
-                id="d", subset="validation", media=Image(np.zeros((2, 8, 3))), annotations=[]
+                id="d",
+                subset="validation",
+                media=Image.from_data(data=np.zeros((2, 8, 3))),
+                annotations=[],
             ),
         ],
         infos={"author": "anonymous", "task": "classification"},

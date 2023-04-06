@@ -46,7 +46,9 @@ class TestOperations(TestCase):
             [
                 DatasetItem(
                     id=i,
-                    media=Image(data=np.random.normal(expected_mean, expected_std, size=(h, w, 3))),
+                    media=Image.from_data(
+                        data=np.random.normal(expected_mean, expected_std, size=(h, w, 3))
+                    ),
                 )
                 for i, (w, h) in enumerate([(3000, 100), (800, 600), (400, 200), (700, 300)])
             ]
@@ -65,7 +67,7 @@ class TestOperations(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Caption("hello"),
                         Caption("world"),
@@ -114,7 +116,7 @@ class TestOperations(TestCase):
                 ),
                 DatasetItem(
                     id=2,
-                    media=Image(data=np.ones((2, 4, 3))),
+                    media=Image.from_data(data=np.ones((2, 4, 3))),
                     annotations=[
                         Label(
                             2,
@@ -158,7 +160,7 @@ class TestOperations(TestCase):
                     ],
                 ),
                 DatasetItem(id=3),
-                DatasetItem(id="2.2", media=Image(data=np.ones((2, 4, 3)))),
+                DatasetItem(id="2.2", media=Image.from_data(data=np.ones((2, 4, 3)))),
             ],
             categories=["label_%s" % i for i in range(4)],
         )
@@ -338,11 +340,11 @@ class TestOperations(TestCase):
         dataset = Dataset.from_iterable(
             [
                 # no image data, but the same path
-                DatasetItem(1, subset="a", media=Image(path="1.jpg")),
-                DatasetItem(1, subset="b", media=Image(path="1.jpg")),
+                DatasetItem(1, subset="a", media=Image.from_file(path="1.jpg")),
+                DatasetItem(1, subset="b", media=Image.from_file(path="1.jpg")),
                 # same images
-                DatasetItem(2, media=Image(data=np.ones((5, 5, 3)))),
-                DatasetItem(3, media=Image(data=np.ones((5, 5, 3)))),
+                DatasetItem(2, media=Image.from_data(data=np.ones((5, 5, 3)))),
+                DatasetItem(3, media=Image.from_data(data=np.ones((5, 5, 3)))),
                 # no image is always a unique image
                 DatasetItem(4),
             ]
@@ -901,10 +903,10 @@ class TestMultimerge(TestCase):
         pcd1 = osp.join(dataset_dir, "ds0", "pointcloud", "frame1.pcd")
         pcd2 = osp.join(dataset_dir, "ds0", "pointcloud", "frame2.pcd")
 
-        image1 = Image(
+        image1 = Image.from_file(
             path=osp.join(dataset_dir, "ds0", "related_images", "frame1_pcd", "img2.png")
         )
-        image2 = Image(
+        image2 = Image.from_file(
             path=osp.join(dataset_dir, "ds0", "related_images", "frame2_pcd", "img1.png")
         )
 

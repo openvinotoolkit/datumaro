@@ -26,13 +26,13 @@ class VottCsvImporterTest(TestCase):
                 DatasetItem(
                     id="img0001",
                     subset="test",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[Bbox(10, 5, 10, 2, label=0)],
                 ),
                 DatasetItem(
                     id="img0002",
                     subset="test",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Bbox(11.5, 12, 10.2, 20.5, label=1),
                     ],
@@ -40,7 +40,7 @@ class VottCsvImporterTest(TestCase):
                 DatasetItem(
                     id="img0003",
                     subset="train",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Bbox(6.7, 10.3, 3.3, 4.7, label=0),
                         Bbox(13.7, 20.2, 31.9, 43.4, label=1),
@@ -49,7 +49,7 @@ class VottCsvImporterTest(TestCase):
                 DatasetItem(
                     id="img0004",
                     subset="train",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Bbox(1, 2, 1, 2, label=0),
                     ],
@@ -69,13 +69,13 @@ class VottCsvImporterTest(TestCase):
                 DatasetItem(
                     id="img0001",
                     subset="test",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[Bbox(10, 5, 10, 2, label=0)],
                 ),
                 DatasetItem(
                     id="img0002",
                     subset="test",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Bbox(11.5, 12, 10.2, 20.5, label=1),
                     ],

@@ -41,7 +41,7 @@ class MotsPngExporterTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="a",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         # overlapping masks, the first should be truncated
                         # the first and third are different instances
@@ -68,7 +68,7 @@ class MotsPngExporterTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="a",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[1, 0, 0, 0, 0]]), label=3, attributes={"track_id": 2}),
                     ],
@@ -76,7 +76,7 @@ class MotsPngExporterTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="b",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[0, 1, 0, 0, 0]]), label=0, attributes={"track_id": 1}),
                     ],
@@ -90,7 +90,7 @@ class MotsPngExporterTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="a",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[0, 0, 0, 1, 0]]), label=3, attributes={"track_id": 1}),
                         Mask(np.array([[0, 0, 1, 0, 0]]), label=2, attributes={"track_id": 2}),
@@ -100,7 +100,7 @@ class MotsPngExporterTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="a",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[1, 0, 0, 0, 0]]), label=3, attributes={"track_id": 2}),
                     ],
@@ -108,7 +108,7 @@ class MotsPngExporterTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="b",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[0, 1, 0, 0, 0]]), label=0, attributes={"track_id": 1}),
                     ],
@@ -132,7 +132,7 @@ class MotsPngExporterTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="a",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[1, 1, 0, 0, 0]]), label=0, attributes={"track_id": 3}),
                         Mask(np.array([[0, 0, 1, 1, 1]]), label=1, attributes={"track_id": 3}),
@@ -154,7 +154,7 @@ class MotsPngExporterTest(TestCase):
                 DatasetItem(
                     id="кириллица с пробелом",
                     subset="a",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[1, 0, 0, 0, 0]]), label=0, attributes={"track_id": 2}),
                     ],
@@ -177,14 +177,14 @@ class MotsPngExporterTest(TestCase):
             [
                 DatasetItem(
                     "q/1",
-                    media=Image(path="q/1.JPEG", data=np.zeros((4, 3, 3))),
+                    media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".JPEG"),
                     annotations=[
                         Mask(np.array([[0, 1, 0, 0, 0]]), label=0, attributes={"track_id": 1}),
                     ],
                 ),
                 DatasetItem(
                     "a/b/c/2",
-                    media=Image(path="a/b/c/2.bmp", data=np.zeros((3, 4, 3))),
+                    media=Image.from_data(data=np.zeros((3, 4, 3)), ext=".bmp"),
                     annotations=[
                         Mask(np.array([[0, 1, 0, 0, 0]]), label=0, attributes={"track_id": 1}),
                     ],
@@ -208,7 +208,7 @@ class MotsPngExporterTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="a",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[1, 1, 0, 0, 0]]), label=0, attributes={"track_id": 3}),
                         Mask(np.array([[0, 0, 1, 1, 1]]), label=1, attributes={"track_id": 3}),
@@ -241,7 +241,7 @@ class MotsImporterTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[0, 0, 0, 1, 0]]), label=3, attributes={"track_id": 1}),
                         Mask(np.array([[0, 0, 1, 0, 0]]), label=2, attributes={"track_id": 2}),
@@ -251,7 +251,7 @@ class MotsImporterTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="train",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[1, 0, 0, 0, 0]]), label=3, attributes={"track_id": 2}),
                     ],
@@ -259,7 +259,7 @@ class MotsImporterTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="val",
-                    media=Image(data=np.ones((5, 1))),
+                    media=Image.from_data(data=np.ones((5, 1))),
                     annotations=[
                         Mask(np.array([[0, 1, 0, 0, 0]]), label=0, attributes={"track_id": 1}),
                     ],

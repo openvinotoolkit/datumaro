@@ -53,7 +53,7 @@ class SplitterTest(TestCase):
                                 idx,
                                 subset=self._get_subset(idx),
                                 annotations=[Label(label_id, attributes=attributes)],
-                                media=Image(data=np.ones((1, 1, 3))),
+                                media=Image.from_data(data=np.ones((1, 1, 3))),
                             )
                         )
             else:
@@ -64,7 +64,7 @@ class SplitterTest(TestCase):
                             idx,
                             subset=self._get_subset(idx),
                             annotations=[Label(label_id)],
-                            media=Image(data=np.ones((1, 1, 3))),
+                            media=Image.from_data(data=np.ones((1, 1, 3))),
                         )
                     )
         categories = {AnnotationType.label: label_cat}

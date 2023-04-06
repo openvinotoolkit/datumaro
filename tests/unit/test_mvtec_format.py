@@ -26,10 +26,14 @@ class MVTecFormatTest(TestCase):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="label_0/000", media=Image(data=np.ones((8, 8, 3))), annotations=[Label(0)]
+                    id="label_0/000",
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    annotations=[Label(0)],
                 ),
                 DatasetItem(
-                    id="label_1/000", media=Image(data=np.ones((8, 8, 3))), annotations=[Label(1)]
+                    id="label_1/000",
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    annotations=[Label(1)],
                 ),
             ],
             categories={
@@ -50,16 +54,18 @@ class MVTecFormatTest(TestCase):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="label_0/000", media=Image(data=np.ones((8, 8, 3))), annotations=[Label(0)]
+                    id="label_0/000",
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    annotations=[Label(0)],
                 ),
                 DatasetItem(
                     id="label_1/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
                 ),
                 DatasetItem(
                     id="label_2/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Mask(image=np.zeros((8, 8), dtype=np.uint8), label=2)],
                 ),
             ],
@@ -81,16 +87,18 @@ class MVTecFormatTest(TestCase):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="label_0/000", media=Image(data=np.ones((8, 8, 3))), annotations=[Label(0)]
+                    id="label_0/000",
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    annotations=[Label(0)],
                 ),
                 DatasetItem(
                     id="label_1/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Bbox(x=0, y=0, w=3, h=3, label=1)],
                 ),
                 DatasetItem(
                     id="label_2/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Bbox(x=4, y=4, w=3, h=3, label=2)],
                 ),
             ],
@@ -118,17 +126,17 @@ class MvtecImporterTest(TestCase):
             [
                 DatasetItem(
                     id="label_0/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Label(label=0)],
                 ),
                 DatasetItem(
                     id="label_1/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Label(label=1)],
                 ),
                 DatasetItem(
                     id="label_2/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Label(label=2)],
                 ),
             ],
@@ -152,12 +160,12 @@ class MvtecImporterTest(TestCase):
             [
                 DatasetItem(
                     id="label_0/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Label(label=0)],
                 ),
                 DatasetItem(
                     id="label_1/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[
                         Mask(
                             image=mask_label_1,
@@ -167,7 +175,7 @@ class MvtecImporterTest(TestCase):
                 ),
                 DatasetItem(
                     id="label_2/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Mask(image=mask_label_2, label=2)],
                 ),
             ],
@@ -188,17 +196,17 @@ class MvtecImporterTest(TestCase):
             [
                 DatasetItem(
                     id="label_0/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Label(label=0)],
                 ),
                 DatasetItem(
                     id="label_1/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Bbox(x=0, y=0, w=3, h=3, label=1)],
                 ),
                 DatasetItem(
                     id="label_2/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Bbox(x=4, y=4, w=3, h=3, label=2)],
                 ),
             ],
@@ -236,7 +244,7 @@ class MVTecExporterTest(TestCase):
             [
                 DatasetItem(
                     id="label_1/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
                 ),
             ],
@@ -257,7 +265,7 @@ class MVTecExporterTest(TestCase):
             [
                 DatasetItem(
                     id="label_1/000",
-                    media=Image(data=np.ones((8, 8, 3))),
+                    media=Image.from_data(data=np.ones((8, 8, 3))),
                     annotations=[Bbox(0, 0, 8, 8, label=1)],
                 ),
             ],

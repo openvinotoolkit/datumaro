@@ -67,7 +67,7 @@ class CamvidImportTest(TestCase):
                 DatasetItem(
                     id="0001TP_008550",
                     subset="test",
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(image=np.array([[1, 1, 0, 0, 0]]), label=1),
                         Mask(image=np.array([[0, 0, 1, 0, 0]]), label=18),
@@ -77,7 +77,7 @@ class CamvidImportTest(TestCase):
                 DatasetItem(
                     id="0001TP_008580",
                     subset="test",
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(image=np.array([[1, 1, 0, 0, 0]]), label=2),
                         Mask(image=np.array([[0, 0, 1, 0, 0]]), label=4),
@@ -87,7 +87,7 @@ class CamvidImportTest(TestCase):
                 DatasetItem(
                     id="0001TP_006690",
                     subset="train",
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(image=np.array([[1, 1, 0, 1, 1]]), label=3),
                         Mask(image=np.array([[0, 0, 1, 0, 0]]), label=18),
@@ -96,7 +96,7 @@ class CamvidImportTest(TestCase):
                 DatasetItem(
                     id="0016E5_07959",
                     subset="val",
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(image=np.array([[1, 1, 1, 0, 0]]), label=1),
                         Mask(image=np.array([[0, 0, 0, 1, 1]]), label=8),
@@ -141,7 +141,7 @@ class CamvidExporterTest(TestCase):
                         DatasetItem(
                             id="a/b/1",
                             subset="test",
-                            media=Image(data=np.ones((1, 5, 3))),
+                            media=Image.from_data(data=np.ones((1, 5, 3))),
                             annotations=[
                                 Mask(image=np.array([[0, 0, 0, 1, 0]]), label=0),
                                 Mask(image=np.array([[0, 1, 1, 0, 0]]), label=3),
@@ -165,7 +165,7 @@ class CamvidExporterTest(TestCase):
                         DatasetItem(
                             id=1,
                             subset="a",
-                            media=Image(data=np.ones((1, 5, 3))),
+                            media=Image.from_data(data=np.ones((1, 5, 3))),
                             annotations=[
                                 Mask(image=np.array([[0, 0, 0, 1, 0]]), label=0),
                                 Mask(image=np.array([[0, 1, 1, 0, 0]]), label=3),
@@ -182,7 +182,7 @@ class CamvidExporterTest(TestCase):
                         DatasetItem(
                             id=1,
                             subset="a",
-                            media=Image(data=np.ones((1, 5, 3))),
+                            media=Image.from_data(data=np.ones((1, 5, 3))),
                             annotations=[
                                 Mask(image=np.array([[0, 0, 0, 1, 0]]), label=0),
                                 Mask(image=np.array([[0, 1, 1, 0, 0]]), label=3),
@@ -208,7 +208,7 @@ class CamvidExporterTest(TestCase):
                     [
                         DatasetItem(
                             id=1,
-                            media=Image(data=np.ones((1, 5, 3))),
+                            media=Image.from_data(data=np.ones((1, 5, 3))),
                             annotations=[
                                 Mask(image=np.array([[1, 0, 0, 1, 0]]), label=0),
                                 Mask(image=np.array([[0, 1, 1, 0, 1]]), label=3),
@@ -216,7 +216,7 @@ class CamvidExporterTest(TestCase):
                         ),
                         DatasetItem(
                             id=2,
-                            media=Image(data=np.ones((1, 5, 3))),
+                            media=Image.from_data(data=np.ones((1, 5, 3))),
                             annotations=[
                                 Mask(image=np.array([[1, 1, 0, 1, 0]]), label=1),
                                 Mask(image=np.array([[0, 0, 1, 0, 1]]), label=2),
@@ -238,7 +238,7 @@ class CamvidExporterTest(TestCase):
                     [
                         DatasetItem(
                             id="кириллица с пробелом",
-                            media=Image(data=np.ones((1, 5, 3))),
+                            media=Image.from_data(data=np.ones((1, 5, 3))),
                             annotations=[
                                 Mask(image=np.array([[1, 0, 0, 1, 0]]), label=0),
                                 Mask(image=np.array([[0, 1, 1, 0, 1]]), label=3),
@@ -261,7 +261,7 @@ class CamvidExporterTest(TestCase):
                         DatasetItem(
                             id="a/b/1",
                             subset="test",
-                            media=Image(data=np.ones((2, 5, 3))),
+                            media=Image.from_data(data=np.ones((2, 5, 3))),
                         ),
                     ]
                 )
@@ -277,7 +277,7 @@ class CamvidExporterTest(TestCase):
             def __iter__(self):
                 yield DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(image=np.array([[1, 1, 0, 1, 0]]), label=0),
                         Mask(image=np.array([[0, 0, 1, 0, 0]]), label=1),
@@ -296,7 +296,7 @@ class CamvidExporterTest(TestCase):
             def __iter__(self):
                 yield DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(image=np.array([[1, 1, 0, 1, 0]]), label=self._label("Label_1")),
                         Mask(image=np.array([[0, 0, 1, 0, 0]]), label=self._label("label_2")),
@@ -324,7 +324,7 @@ class CamvidExporterTest(TestCase):
             def __iter__(self):
                 yield DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(image=np.array([[1, 1, 0, 1, 0]]), label=1),
                         Mask(image=np.array([[0, 0, 1, 0, 1]]), label=2),
@@ -342,7 +342,7 @@ class CamvidExporterTest(TestCase):
             def __iter__(self):
                 yield DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(image=np.array([[1, 1, 0, 1, 0]]), label=self._label("label_1")),
                         Mask(image=np.array([[0, 0, 1, 0, 1]]), label=self._label("label_2")),
@@ -371,11 +371,11 @@ class CamvidExporterTest(TestCase):
                 return iter(
                     [
                         DatasetItem(
-                            id="q/1", media=Image(path="q/1.JPEG", data=np.zeros((4, 3, 3)))
+                            id="q/1", media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".JPEG")
                         ),
                         DatasetItem(
                             id="a/b/c/2",
-                            media=Image(path="a/b/c/2.bmp", data=np.ones((1, 5, 3))),
+                            media=Image.from_data(data=np.ones((1, 5, 3)), ext=".bmp"),
                             annotations=[
                                 Mask(np.array([[0, 0, 0, 1, 0]]), label=self._label("a")),
                                 Mask(np.array([[0, 1, 1, 0, 0]]), label=self._label("b")),
@@ -395,11 +395,11 @@ class CamvidExporterTest(TestCase):
                 return iter(
                     [
                         DatasetItem(
-                            id="q/1", media=Image(path="q/1.JPEG", data=np.zeros((4, 3, 3)))
+                            id="q/1", media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".JPEG")
                         ),
                         DatasetItem(
                             id="a/b/c/2",
-                            media=Image(path="a/b/c/2.bmp", data=np.ones((1, 5, 3))),
+                            media=Image.from_data(data=np.ones((1, 5, 3)), ext=".bmp"),
                             annotations=[
                                 Mask(np.array([[1, 0, 0, 0, 1]]), label=self._label("background")),
                                 Mask(np.array([[0, 0, 0, 1, 0]]), label=self._label("a")),
@@ -434,10 +434,10 @@ class CamvidExporterTest(TestCase):
                 DatasetItem(
                     1,
                     subset="a",
-                    media=Image(data=np.ones((2, 1, 3))),
+                    media=Image.from_data(data=np.ones((2, 1, 3))),
                     annotations=[Mask(np.ones((2, 1)), label=2)],
                 ),
-                DatasetItem(2, subset="a", media=Image(data=np.ones((3, 2, 3)))),
+                DatasetItem(2, subset="a", media=Image.from_data(data=np.ones((3, 2, 3)))),
                 DatasetItem(2, subset="b"),
             ],
             categories=Camvid.make_camvid_categories(
@@ -457,14 +457,14 @@ class CamvidExporterTest(TestCase):
                     DatasetItem(
                         1,
                         subset="a",
-                        media=Image(data=np.ones((2, 1, 3))),
+                        media=Image.from_data(data=np.ones((2, 1, 3))),
                         annotations=[Mask(np.ones((2, 1)), label=1)],
                     ),
                     DatasetItem(2, subset="b"),
                     DatasetItem(
                         3,
                         subset="c",
-                        media=Image(data=np.ones((2, 2, 3))),
+                        media=Image.from_data(data=np.ones((2, 2, 3))),
                         annotations=[Mask(np.ones((2, 2)), label=0)],
                     ),
                 ],
@@ -476,7 +476,7 @@ class CamvidExporterTest(TestCase):
             )
             dataset.export(path, "camvid", save_media=True)
 
-            dataset.put(DatasetItem(2, subset="a", media=Image(data=np.ones((3, 2, 3)))))
+            dataset.put(DatasetItem(2, subset="a", media=Image.from_data(data=np.ones((3, 2, 3)))))
             dataset.remove(3, "c")
             dataset.save(save_media=True)
 
@@ -494,7 +494,7 @@ class CamvidExporterTest(TestCase):
             def __iter__(self):
                 yield DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(image=np.array([[1, 1, 0, 1, 0]]), label=1),
                         Mask(image=np.array([[0, 0, 1, 0, 1]]), label=2),
@@ -512,7 +512,7 @@ class CamvidExporterTest(TestCase):
             def __iter__(self):
                 yield DatasetItem(
                     id=1,
-                    media=Image(data=np.ones((1, 5, 3))),
+                    media=Image.from_data(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(image=np.array([[1, 1, 0, 1, 0]]), label=self._label("label_1")),
                         Mask(image=np.array([[0, 0, 1, 0, 1]]), label=self._label("label_2")),

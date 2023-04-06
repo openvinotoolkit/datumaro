@@ -34,7 +34,7 @@ class MpiiImporterTest(TestCase):
             [
                 DatasetItem(
                     id="000000001",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Points(
                             [
@@ -81,7 +81,7 @@ class MpiiImporterTest(TestCase):
                 ),
                 DatasetItem(
                     id="000000002",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Points(
                             [
@@ -128,7 +128,7 @@ class MpiiImporterTest(TestCase):
                 ),
                 DatasetItem(
                     id="000000003",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Points(
                             [

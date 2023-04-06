@@ -18,7 +18,7 @@ def fxt_crypter():
 
 @pytest.fixture()
 def fxt_image_file(test_dir):
-    img = Image(data=np.random.randint(0, 256, size=(10, 10, 3), dtype=np.uint8))
+    img = Image.from_data(data=np.random.randint(0, 256, size=(10, 10, 3), dtype=np.uint8))
     path = osp.join(test_dir, "test_crypter", "test.png")
     img.save(path)
 
@@ -27,7 +27,7 @@ def fxt_image_file(test_dir):
 
 @pytest.fixture()
 def fxt_encrypted_image_file(test_dir, fxt_image_file, fxt_crypter):
-    img = Image(path=fxt_image_file)
+    img = Image.from_file(path=fxt_image_file)
     path = osp.join(test_dir, "test_crypter", "test_encrypted.png")
     img.save(path, crypter=fxt_crypter)
 
@@ -36,21 +36,21 @@ def fxt_encrypted_image_file(test_dir, fxt_image_file, fxt_crypter):
 
 class CrypterTest:
     def test_load_encrypted_image(self, fxt_image_file, fxt_encrypted_image_file, fxt_crypter):
-        img = Image(path=fxt_image_file)
-        encrypted_img = Image(path=fxt_encrypted_image_file, crypter=fxt_crypter)
+        img = Image.from_file(path=fxt_image_file)
+        encrypted_img = Image.from_file(path=fxt_encrypted_image_file, crypter=fxt_crypter)
 
         assert img == encrypted_img
 
     def _test_save_and_load(
         self, fxt_encrypted_image_file, fxt_crypter, test_dir, fname, new_crypter
     ):
-        src_img = Image(path=fxt_encrypted_image_file, crypter=fxt_crypter)
+        src_img = Image.from_file(path=fxt_encrypted_image_file, crypter=fxt_crypter)
         src_img_data = src_img.data  # Get data first until it is changed
 
         new_path = osp.join(test_dir, "test_crypter", fname)
 
         src_img.save(new_path, crypter=new_crypter)
-        dst_img = Image(path=new_path, crypter=new_crypter)
+        dst_img = Image.from_file(path=new_path, crypter=new_crypter)
 
         assert np.array_equal(src_img_data, dst_img.data)
 

@@ -1,4 +1,5 @@
 import os.path as osp
+from functools import partial
 from typing import Any, Dict, List, Tuple
 from unittest import TestCase
 
@@ -77,16 +78,16 @@ class ImageTest(TestCase):
 
         return image, [
             {"data": image},
-            {"data": image, "path": path},
-            {"data": image, "path": path, "size": (2, 4)},
+            {"data": image},
+            {"data": image, "size": (2, 4)},
             {"data": image, "ext": "png"},
             {"data": image, "ext": "png", "size": (2, 4)},
-            {"data": lambda p: image},
-            {"data": lambda p: image, "path": "somepath"},
-            {"data": lambda p: image, "ext": "jpg"},
+            {"data": lambda: image},
+            {"data": lambda: image},
+            {"data": lambda: image, "ext": "jpg"},
+            {"data": partial(load_image, path)},
+            {"data": partial(load_image, path), "size": (2, 4)},
             {"path": path},
-            {"path": path, "data": load_image},
-            {"path": path, "data": load_image, "size": (2, 4)},
             {"path": path, "size": (2, 4)},
         ]
 
@@ -94,7 +95,7 @@ class ImageTest(TestCase):
     def test_can_report_cached_size(self):
         data = np.ones((5, 6, 3))
 
-        image = Image(data=lambda _: data, size=(2, 4))
+        image = Image.from_data(data=lambda _: data, size=(2, 4))
 
         self.assertEqual((2, 4), image.size)
 
@@ -104,24 +105,27 @@ class ImageTest(TestCase):
             image, args_list = self._gen_image_and_args_list(test_dir)
             for args in args_list:
                 with self.subTest(**args):
-                    img = Image(**args)
+                    if "path" in args:
+                        img = Image.from_file(**args)
+                    else:
+                        img = Image.from_data(**args)
                     self.assertTrue(img.has_data)
                     np.testing.assert_array_equal(img.data, image)
                     self.assertEqual(img.size, tuple(image.shape[:2]))
 
             with self.subTest():
-                img = Image(size=(2, 4))
+                img = Image.from_file(path="somepath", size=(2, 4))
                 self.assertEqual(img.size, (2, 4))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ctor_errors(self):
         with self.subTest("no data specified"):
-            with self.assertRaisesRegex(Exception, "can not be empty"):
+            with self.assertRaisesRegex(Exception, "Directly initalizing"):
                 Image(ext="jpg")
 
         with self.subTest("either path or ext"):
             with self.assertRaisesRegex(Exception, "both 'path' and 'ext'"):
-                Image(path="somepath", ext="someext")
+                Image.from_file(path="somepath", ext="someext")
 
 
 class BytesImageTest(TestCase):
@@ -197,25 +201,31 @@ class RoIImageTest(TestCase):
         for args in args_list:
             # Case 1. Retrieve roi_img.data without retrieving the original image
             with self.subTest(**args):
-                img = img_ctor(**args)
+                if "path" in args:
+                    img = img_ctor.from_file(**args)
+                else:
+                    img = img_ctor.from_data(**args)
                 h, w = img.size
                 new_h, new_w = h // 2, w // 2
                 roi = (0, 0, new_w, new_h)  # xywh
-                roi_img = RoIImage.create_from_image(img, roi)
+                roi_img = RoIImage.from_data(img, roi)
 
                 self.assertEqual(roi_img.size, (new_h, new_w))
                 self.assertEqual(roi_img.data.shape[:2], (new_h, new_w))
 
             # Case 2. Retrieve img.data first and roi_img.data second
             with self.subTest(**args):
-                img = img_ctor(**args)
+                if "path" in args:
+                    img = img_ctor.from_file(**args)
+                else:
+                    img = img_ctor.from_data(**args)
                 h, w = img.size
 
                 self.assertTrue(isinstance(img.data, np.ndarray))
 
                 new_h, new_w = h // 2, w // 2
                 roi = (0, 0, new_w, new_h)  # xywh
-                roi_img = RoIImage.create_from_image(img, roi)
+                roi_img = RoIImage.from_data(img, roi)
 
                 self.assertEqual(roi_img.size, (new_h, new_w))
                 self.assertEqual(roi_img.data.shape[:2], (new_h, new_w))

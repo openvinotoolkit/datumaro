@@ -33,7 +33,7 @@ class CelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000001",
                     subset="train",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Label(12),
                         Bbox(95, 71, 226, 313, label=12),
@@ -53,7 +53,7 @@ class CelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000002",
                     subset="train",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Label(5),
                         Bbox(72, 94, 221, 306, label=5),
@@ -63,7 +63,7 @@ class CelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000003",
                     subset="val",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Label(2),
                         Bbox(216, 59, 91, 126, label=2),
@@ -83,7 +83,7 @@ class CelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000004",
                     subset="test",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Label(10),
                         Bbox(622, 257, 564, 781, label=10),
@@ -93,7 +93,7 @@ class CelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000005",
                     subset="test",
-                    media=Image(data=np.ones((5, 5, 3))),
+                    media=Image.from_data(data=np.ones((5, 5, 3))),
                     annotations=[
                         Label(7),
                         Bbox(236, 109, 120, 166, label=7),
@@ -133,31 +133,31 @@ class CelebaImporterTest(TestCase):
                 DatasetItem(
                     id="000001",
                     subset="train",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[Label(1)],
                 ),
                 DatasetItem(
                     id="000002",
                     subset="train",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[Label(3)],
                 ),
                 DatasetItem(
                     id="000003",
                     subset="val",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[Label(0)],
                 ),
                 DatasetItem(
                     id="000004",
                     subset="test",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[Label(2)],
                 ),
                 DatasetItem(
                     id="000005",
                     subset="test",
-                    media=Image(data=np.ones((3, 4, 3))),
+                    media=Image.from_data(data=np.ones((3, 4, 3))),
                     annotations=[Label(6)],
                 ),
             ],

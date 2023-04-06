@@ -88,7 +88,7 @@ class TransformTest(TestCase):
                 [
                     DatasetItem(
                         id=1,
-                        media=Image(
+                        media=Image.from_data(
                             data=np.ones(
                                 (
                                     10,
