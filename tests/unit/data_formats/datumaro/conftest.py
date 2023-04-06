@@ -296,8 +296,8 @@ def fxt_point_cloud_dataset_pair(test_dir):
             DatasetItem(
                 id=1,
                 subset="test",
-                media=PointCloud(
-                    "1.pcd",
+                media=PointCloud.from_data(
+                    data=b"11111111",
                     extra_images=[
                         Image(data=np.ones((5, 5, 3)), path="1/a.jpg"),
                         Image(data=np.ones((5, 4, 3)), path="1/b.jpg"),
@@ -326,8 +326,8 @@ def fxt_point_cloud_dataset_pair(test_dir):
             DatasetItem(
                 id=1,
                 subset="test",
-                media=PointCloud(
-                    osp.join(test_dir, "point_clouds", "test", "1.pcd"),
+                media=PointCloud.from_file(
+                    path=osp.join(test_dir, "point_clouds", "test", "1.pcd"),
                     extra_images=[
                         Image(
                             data=np.ones((5, 5, 3)),
