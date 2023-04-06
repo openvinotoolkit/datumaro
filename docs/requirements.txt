@@ -17,3 +17,4 @@ tensorflow
 jupyter
 jupytext
 pandoc
+sphinx_panels

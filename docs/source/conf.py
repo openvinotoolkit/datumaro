@@ -49,7 +49,13 @@ extensions = [
     # of objects in external projects
     "myst_parser",
     "nbsphinx",
+    "sphinx_panels",
 ]
+
+panels_add_bootstrap_css = False
+panels_delimiters = (r"^\-{3,}$", r"^\^{3,}$", r"^\+{3,}$")
+
+suppress_warnings = ["myst.xref_missing", "myst.iref_ambiguous"]
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 autodoc_member_order = "groupwise"
