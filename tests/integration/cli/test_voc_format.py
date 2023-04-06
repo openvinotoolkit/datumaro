@@ -28,18 +28,39 @@ class VocIntegrationScenarios(TestCase):
         result_path="",
         label_map=None,
     ):
-        run(self, "create", "-o", project_path)
+        run(self, "project", "create", "-o", project_path)
 
         extra_args = []
         if result_path:
             extra_args += ["-r", result_path]
-        run(self, "import", "-p", project_path, "-f", dataset_format, *extra_args, source_path)
+        run(
+            self,
+            "project",
+            "import",
+            "-p",
+            project_path,
+            "-f",
+            dataset_format,
+            *extra_args,
+            source_path,
+        )
 
         result_dir = osp.join(project_path, "result")
         extra_args = ["--", "--save-images"]
         if label_map:
             extra_args += ["--label-map", label_map]
-        run(self, "export", "-f", dataset_format, "-p", project_path, "-o", result_dir, *extra_args)
+        run(
+            self,
+            "project",
+            "export",
+            "-f",
+            dataset_format,
+            "-p",
+            project_path,
+            "-o",
+            result_dir,
+            *extra_args,
+        )
 
         result_path = osp.join(result_dir, result_path)
         parsed_dataset = Dataset.import_from(result_path, dataset_format)
@@ -104,8 +125,8 @@ class VocIntegrationScenarios(TestCase):
         dataset_path = osp.join(DUMMY_DATASETS_DIR, "voc_dataset2")
 
         with TestDir() as test_dir:
-            run(self, "create", "-o", test_dir)
-            run(self, "import", "-p", test_dir, "-f", "voc", dataset_path)
+            run(self, "project", "create", "-o", test_dir)
+            run(self, "project", "import", "-p", test_dir, "-f", "voc", dataset_path)
 
             run(
                 self,
@@ -120,6 +141,7 @@ class VocIntegrationScenarios(TestCase):
 
             run(
                 self,
+                "project",
                 "transform",
                 "-p",
                 test_dir,
@@ -137,6 +159,7 @@ class VocIntegrationScenarios(TestCase):
             export_path = osp.join(test_dir, "dataset")
             run(
                 self,
+                "project",
                 "export",
                 "-p",
                 test_dir,
@@ -194,12 +217,22 @@ class VocIntegrationScenarios(TestCase):
         with TestDir() as test_dir:
             yolo_dir = get_test_asset_path("yolo_dataset")
 
-            run(self, "create", "-o", test_dir)
-            run(self, "import", "-p", test_dir, "-f", "yolo", yolo_dir)
+            run(self, "project", "create", "-o", test_dir)
+            run(self, "project", "import", "-p", test_dir, "-f", "yolo", yolo_dir)
 
             voc_export = osp.join(test_dir, "voc_export")
             run(
-                self, "export", "-p", test_dir, "-f", "voc", "-o", voc_export, "--", "--save-images"
+                self,
+                "project",
+                "export",
+                "-p",
+                test_dir,
+                "-f",
+                "voc",
+                "-o",
+                voc_export,
+                "--",
+                "--save-images",
             )
 
             parsed_dataset = Dataset.import_from(voc_export, format="voc")
@@ -672,11 +705,12 @@ class VocIntegrationScenarios(TestCase):
         dataset_path = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
 
         with TestDir() as test_dir:
-            run(self, "create", "-o", test_dir)
-            run(self, "import", "-p", test_dir, "-f", "voc", dataset_path)
+            run(self, "project", "create", "-o", test_dir)
+            run(self, "project", "import", "-p", test_dir, "-f", "voc", dataset_path)
 
             run(
                 self,
+                "project",
                 "transform",
                 "-p",
                 test_dir,

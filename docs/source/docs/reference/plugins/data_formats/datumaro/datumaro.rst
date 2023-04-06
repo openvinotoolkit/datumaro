@@ -1,0 +1,7 @@
+Datumaro package
+================
+
+.. toctree::
+   :glob:
+
+   *

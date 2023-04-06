@@ -36,6 +36,7 @@ class TransformTest(TestCase):
 
         run(
             self,
+            "project",
             "transform",
             "-t",
             "remap_labels",
@@ -69,7 +70,15 @@ class TransformTest(TestCase):
                 categories=["a", "b"],
             ).export(test_dir, "coco")
 
-            run(self, "transform", "-t", "random_split", test_dir + ":coco", expected_code=1)
+            run(
+                self,
+                "project",
+                "transform",
+                "-t",
+                "random_split",
+                test_dir + ":coco",
+                expected_code=1,
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_fails_on_inplace_update_of_stage(self):
@@ -103,6 +112,7 @@ class TransformTest(TestCase):
             with self.subTest("without overwrite"):
                 run(
                     self,
+                    "project",
                     "transform",
                     "-p",
                     project_dir,
@@ -116,6 +126,7 @@ class TransformTest(TestCase):
                 with self.assertRaises(ReadonlyDatasetError):
                     run(
                         self,
+                        "project",
                         "transform",
                         "-p",
                         project_dir,

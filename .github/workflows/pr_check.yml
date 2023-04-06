@@ -38,7 +38,7 @@ jobs:
       - name: Installing dependencies
         run: |
           python -m pip install -r tests/requirements.txt
-          python -m pip install -e '.[default,tf]'
+          python -m pip install -e '.[default,tf,tfds-dev]'
       - name: Unit testing
         run: |
           python -m pytest -v tests/unit/ --cov

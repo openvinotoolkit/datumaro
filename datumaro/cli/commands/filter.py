@@ -13,10 +13,9 @@ from datumaro.components.project import ProjectBuildTargets
 from datumaro.util import str_to_bool
 from datumaro.util.scope import scope_add, scoped
 
-from ..contexts.project import FilterModes
 from ..util import MultilineFormatter
 from ..util.errors import CliException
-from ..util.project import load_project, parse_full_revpath
+from ..util.project import FilterModes, load_project, parse_full_revpath
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):

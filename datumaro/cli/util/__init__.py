@@ -109,3 +109,17 @@ def show_video_import_warning():
         "manually using instructions at: "
         "https://openvinotoolkit.github.io/datumaro/docs/user-manual/media_formats/"
     )
+
+
+def make_subcommands_help(commands, help_line_start=0):
+    desc = ""
+    for command_name, command_type, command_help in commands:
+        msg = ("  %-" + str(max(0, help_line_start - 2 - 1)) + "s%s\n") % (
+            command_name,
+            command_help,
+        )
+        if command_type is None:
+            msg = msg.lstrip()  # un-indent for not subparser
+        desc += msg
+
+    return desc
