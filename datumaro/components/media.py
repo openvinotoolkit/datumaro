@@ -249,6 +249,8 @@ class Image(MediaElement[np.ndarray]):
         return ext
 
     def __eq__(self, other):
+        # Do not compare `_type`
+        # sicne Image is subclass of RoIImage and MosaicImage
         if not isinstance(other, __class__):
             return False
         return (
@@ -271,7 +273,6 @@ class ImageFromFile(FromFileMixin, Image):
         **kwargs,
     ) -> None:
         super().__init__(path, *args, **kwargs)
-        self._data = lazy_image(self.path, crypter=self._crypter)
 
         # TODO: remove
         assert not self._ext, "Can't specify both 'path' and 'ext' for image"
@@ -281,7 +282,7 @@ class ImageFromFile(FromFileMixin, Image):
     def data(self) -> np.ndarray:
         """Image data in BGR HWC [0; 255] (float) format"""
 
-        data = self._data()
+        data = lazy_image(self.path, crypter=self._crypter)()
 
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
@@ -816,7 +817,6 @@ class PointCloud(MediaElement[bytes]):
     def __eq__(self, other: object) -> bool:
         return (
             super().__eq__(other)
-            and (np.array_equal(self.size, other.size))
             and (self.has_data == other.has_data)
             and (self.has_data and self.data == other.data or not self.has_data)
             and self.extra_images == other.extra_images
@@ -956,8 +956,8 @@ class RoIImage(Image):
         super().__init__(size=(h, w), *args, **kwargs)
 
     @classmethod
-    def from_file(cls, *args, **kwargs):
-        raise NotImplementedError
+    def from_file(cls, path: str, roi: BboxIntCoords, *args, **kwargs):
+        return RoIImageFromFile(path, roi, *args, **kwargs)
 
     @classmethod
     def from_data(
@@ -979,6 +979,8 @@ class RoIImage(Image):
         if not isinstance(data, Image):
             raise TypeError(f"type(image)={type(data)} should be Image.")
 
+        if isinstance(data, ImageFromFile):
+            return RoIImageFromFile(path=data.path, roi=roi, ext=data._ext, *args, **kwargs)
         return RoIImageFromBytes(data=data._data, roi=roi, ext=data._ext, *args, **kwargs)
 
     @classmethod
@@ -1005,6 +1007,29 @@ class RoIImage(Image):
     def roi(self) -> BboxIntCoords:
         return self._roi
 
+    def _get_roi_data(self, data: np.ndarray) -> np.ndarray:
+        x, y, w, h = self._roi
+        if isinstance(data, np.ndarray):
+            data = data.astype(np.float32)
+        return data[y : y + h, x : x + w]
+
+
+class RoIImageFromFile(FromFileMixin, RoIImage):
+    def __init__(
+        self,
+        path: str,
+        roi: BboxIntCoords,
+        *args,
+        **kwargs,
+    ) -> None:
+        super().__init__(path, roi, *args, **kwargs)
+
+    @property
+    def data(self) -> np.ndarray:
+        """Image data in BGR HWC [0; 255] (float) format"""
+        data = lazy_image(self.path, crypter=self._crypter)()
+        return self._get_roi_data(data)
+
 
 class RoIImageFromBytes(FromDataMixin, RoIImage):
     def __init__(
@@ -1019,13 +1044,10 @@ class RoIImageFromBytes(FromDataMixin, RoIImage):
     @property
     def data(self) -> np.ndarray:
         """Image data in BGR HWC [0; 255] (float) format"""
-        x, y, w, h = self._roi
         data = super().data
         if isinstance(data, bytes):
             data = decode_image(data)
-        if isinstance(data, np.ndarray):
-            data = data.astype(np.float32)
-        return data[y : y + h, x : x + w]
+        return self._get_roi_data(data)
 
     def save(
         self,
@@ -1059,11 +1081,8 @@ class RoIImageFromNumpy(FromDataMixin, RoIImage):
     @property
     def data(self) -> np.ndarray:
         """Image data in BGR HWC [0; 255] (float) format"""
-        x, y, w, h = self._roi
         data = super().data
-        if isinstance(data, np.ndarray):
-            data = data.astype(np.float32)
-        return data[y : y + h, x : x + w]
+        return self._get_roi_data(data)
 
     def save(
         self,
@@ -1117,7 +1136,7 @@ class MosiacImageFromData(FromDataMixin, MosaicImage):
     def __init__(self, data: List[ImageWithRoI], size: Tuple[int, int]) -> None:
         def _get_mosaic_img() -> np.ndarray:
             h, w = self.size
-            mosaic_img = np.zeros(shape=(h, w, 3), dtype=np.uint8)
+            mosaic_img = np.zeros(shape=(h, w, 3), dtype=np.float32)
             for img, roi in data:
                 assert isinstance(img, Image), "MosaicImage can only take a list of Images."
                 x, y, w, h = roi

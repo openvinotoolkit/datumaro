@@ -249,22 +249,7 @@ def compare_datasets_3d(
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
         if (require_point_cloud and item_a.media) or (item_a.media and item_b.media):
-            # TODO: Currently, this legacy test is very weird just to compare the path of point cloud files.
-            # However, although the Datumaro format annotation file has a relative path in it,
-            # Datumaro Dataset stores an absolute path in the media after import.
-            # For example, {"path": relative/path/to/image.jpg} => {Media.path: absolute/path/to/image.jpg}
-            # The absolute path is also required to import the content of media too.
-            # As a result, it cannot pass this test to the two same datasets in different locations.
-            # So I changed this test just to compare both file names temporariliy.
-            # Ultimately, we must implement a comparison of the contents of the point cloud as same as images.
-            item_a_fname = osp.basename(item_a.media.path)
-            item_b_fname = osp.basename(item_b.media.path)
-            test.assertEqual(item_a_fname, item_b_fname, item_a.id)
-            test.assertEqual(
-                set(osp.basename(img.path) for img in item_a.media.extra_images),
-                set(osp.basename(img.path) for img in item_b.media.extra_images),
-                item_a.id,
-            )
+            test.assertEqual(item_a.media, item_b.media, item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations))
         for ann_a in item_a.annotations:
             # We might find few corresponding items, so check them all
@@ -306,6 +291,10 @@ def check_save_and_load(
             save_dir = tmp_dir
             for file in os.listdir(test_dir):
                 shutil.move(osp.join(test_dir, file), save_dir)
+            if target_dataset:
+                for item in target_dataset:
+                    if item.media and getattr(item.media, "path", None):
+                        item.media._path = item.media.path.replace(test_dir, save_dir)
         else:
             save_dir = test_dir
 
