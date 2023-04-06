@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
 import os.path as osp
 
 from datumaro.components.annotation import (
