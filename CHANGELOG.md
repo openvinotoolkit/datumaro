@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/891>)
 - Fix negated `is_encrypted`
   (<https://github.com/openvinotoolkit/datumaro/pull/907>)
+- Save extra images of PointCloud when exporting to datumaro format
+  (<https://github.com/openvinotoolkit/datumaro/pull/918>)
 
 ## 28/03/2023 - Release 1.1.1
 ### Bug fixes
