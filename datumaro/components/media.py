@@ -129,7 +129,7 @@ class FromDataMixin(Generic[AnyData]):
     def bytes(self) -> Optional[bytes]:
         if self.has_data:
             if callable(self._data):
-               _bytes = self._data()
+                _bytes = self._data()
             _bytes = self._data
             if isinstance(_bytes, bytes):
                 return _bytes
@@ -311,7 +311,31 @@ class ImageFromFile(FromFileMixin, Image):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), cur_path)
 
 
-class ImgaeFromNumpy(FromDataMixin[np.ndarray], Image):
+class ImageFromData(FromDataMixin, Image):
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        ext: Optional[str] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
+        data = self.data
+        if data is None:
+            raise ValueError(f"{self.__class__.__name__} is empty.")
+        new_ext = self._get_ext_to_save(fp, ext)
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+        save_image(fp, data, ext=new_ext, crypter=crypter)
+
+
+class ImgaeFromNumpy(ImageFromData):
+    def __init__(
+        self,
+        data: Union[Callable[[], bytes], bytes],
+        *args,
+        **kwargs,
+    ):
+        super().__init__(data=data, *args, **kwargs)
+
     @property
     def data(self) -> Optional[np.ndarray]:
         """Image data in BGR HWC [0; 255] (float) format"""
@@ -331,29 +355,20 @@ class ImgaeFromNumpy(FromDataMixin[np.ndarray], Image):
         """Indicates that size info is cached and won't require image loading"""
         return self._size is not None or isinstance(self._data, np.ndarray)
 
-    def save(
-        self,
-        fp: Union[str, io.IOBase],
-        ext: Optional[str] = None,
-        crypter: Crypter = NULL_CRYPTER,
-    ):
-        data = self.data
-        if data is None:
-            raise ValueError(f"{self.__class__.__name__} is empty.")
-        new_ext = self._get_ext_to_save(fp, ext)
-        if isinstance(fp, str):
-            os.makedirs(osp.dirname(fp), exist_ok=True)
-        save_image(fp, data, ext=new_ext, crypter=crypter)
 
-
-class ImageFromBytes(FromDataMixin[bytes], Image):
+class ImageFromBytes(ImageFromData):
     _FORMAT_MAGICS = (
         (b"\x89PNG\r\n\x1a\n", ".png"),
         (b"\xff\xd8\xff", ".jpg"),
         (b"BM", ".bmp"),
     )
 
-    def __init__(self, data: Union[Callable[[], bytes], bytes], *args, **kwargs):
+    def __init__(
+        self,
+        data: Union[Callable[[], bytes], bytes],
+        *args,
+        **kwargs,
+    ):
         super().__init__(data=data, *args, **kwargs)
 
         if self._ext is None and isinstance(data, bytes):
@@ -381,20 +396,6 @@ class ImageFromBytes(FromDataMixin[bytes], Image):
                 raise MediaShapeError("An image should have 2 (gray) or 3 (rgb) dims.")
             self._size = tuple(map(int, data.shape[:2]))
         return data
-
-    def save(
-        self,
-        fp: Union[str, io.IOBase],
-        ext: Optional[str] = None,
-        crypter: Crypter = NULL_CRYPTER,
-    ):
-        data = self.data
-        if data is None:
-            raise ValueError(f"{self.__class__.__name__} is empty.")
-        new_ext = self._get_ext_to_save(fp, ext)
-        if isinstance(fp, str):
-            os.makedirs(osp.dirname(fp), exist_ok=True)
-        save_image(fp, data, ext=new_ext, crypter=crypter)
 
 
 class ByteImage(ImageFromBytes):
@@ -769,7 +770,7 @@ class PointCloud(MediaElement[bytes]):
 
     def __init__(
         self,
-        extra_images: Optional[List[Image], Callable[[], List[Image]]] = None,
+        extra_images: Optional[Union[List[Image], Callable[[], List[Image]]]] = None,
         *args,
         **kwargs,
     ):
@@ -786,12 +787,12 @@ class PointCloud(MediaElement[bytes]):
         return PointCloudFromFile(path, *args, **kwargs)
 
     @classmethod
-    def from_bytes(cls, data: Union[bytes, Callable[[], bytes]], *args, **kwargs):
-        return PointCloudFromBytes(data, *args, **kwargs)
-
-    @classmethod
     def from_data(cls, data: Union[bytes, Callable[[], bytes]], *args, **kwargs):
         return cls.from_bytes(data, *args, **kwargs)
+
+    @classmethod
+    def from_bytes(cls, data: Union[bytes, Callable[[], bytes]], *args, **kwargs):
+        return PointCloudFromBytes(data, *args, **kwargs)
 
     @property
     def extra_images(self) -> List[Image]:
@@ -882,6 +883,8 @@ class PointCloudFromBytes(FromDataMixin[bytes], PointCloud):
             )
 
         _bytes = self.data
+        if _bytes is None:
+            raise ValueError(f"{self.__class__.__name__} is empty.")
         if isinstance(fp, str):
             os.makedirs(osp.dirname(fp), exist_ok=True)
             with open(fp, "wb") as f:
@@ -946,7 +949,7 @@ class RoIImage(Image):
     ):
         assert self.__class__ != RoIImage, (
             f"Directly initalizing {self.__class__.__name__} is not supported. "
-            f"Please use fractory function '{self.__class__.__name__}.from_data()' "
+            f"Please use fractory function '{self.__class__.__name__}.from_file()' "
             f"or '{self.__class__.__name__}.from_data()'."
         )
 
@@ -1031,7 +1034,27 @@ class RoIImageFromFile(FromFileMixin, RoIImage):
         return self._get_roi_data(data)
 
 
-class RoIImageFromBytes(FromDataMixin, RoIImage):
+class RoIImageFromData(FromDataMixin, RoIImage):
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        ext: Optional[str] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
+        if not crypter.is_null_crypter:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
+            )
+        data = self.data
+        if data is None:
+            raise ValueError(f"{self.__class__.__name__} is empty.")
+        new_ext = self._get_ext_to_save(fp, ext)
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+        save_image(fp, data, ext=new_ext, crypter=crypter)
+
+
+class RoIImageFromBytes(RoIImageFromData):
     def __init__(
         self,
         data: Union[bytes, Callable[[], bytes]],
@@ -1049,26 +1072,8 @@ class RoIImageFromBytes(FromDataMixin, RoIImage):
             data = decode_image(data)
         return self._get_roi_data(data)
 
-    def save(
-        self,
-        fp: Union[str, io.IOBase],
-        ext: Optional[str] = None,
-        crypter: Crypter = NULL_CRYPTER,
-    ):
-        if not crypter.is_null_crypter:
-            raise NotImplementedError(
-                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
-            )
-        data = self.data
-        if data is None:
-            raise ValueError(f"{self.__class__.__name__} is empty.")
-        new_ext = self._get_ext_to_save(fp, ext)
-        if isinstance(fp, str):
-            os.makedirs(osp.dirname(fp), exist_ok=True)
-        save_image(fp, data, ext=new_ext, crypter=crypter)
 
-
-class RoIImageFromNumpy(FromDataMixin, RoIImage):
+class RoIImageFromNumpy(RoIImageFromData):
     def __init__(
         self,
         data: Union[np.ndarray, Callable[[], np.ndarray]],
@@ -1083,24 +1088,6 @@ class RoIImageFromNumpy(FromDataMixin, RoIImage):
         """Image data in BGR HWC [0; 255] (float) format"""
         data = super().data
         return self._get_roi_data(data)
-
-    def save(
-        self,
-        fp: Union[str, io.IOBase],
-        ext: Optional[str] = None,
-        crypter: Crypter = NULL_CRYPTER,
-    ):
-        if not crypter.is_null_crypter:
-            raise NotImplementedError(
-                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
-            )
-        data = self.data
-        if data is None:
-            raise ValueError(f"{self.__class__.__name__} is empty.")
-        new_ext = self._get_ext_to_save(fp, ext)
-        if isinstance(fp, str):
-            os.makedirs(osp.dirname(fp), exist_ok=True)
-        save_image(fp, data, ext=new_ext, crypter=crypter)
 
 
 ImageWithRoI = Tuple[Image, BboxIntCoords]
