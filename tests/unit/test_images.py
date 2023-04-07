@@ -91,13 +91,38 @@ class ImageTest(TestCase):
             {"path": path, "size": (2, 4)},
         ]
 
+    @staticmethod
+    def _gen_bytes_image_and_args_list() -> Tuple[np.ndarray, bytes, List[Dict[str, Any]]]:
+        image = np.ones([2, 4, 3])
+        image_bytes = encode_image(image, "png")
+
+        return (
+            image,
+            image_bytes,
+            [
+                {"data": image_bytes},
+                {"data": lambda: image_bytes},
+                {"data": lambda: image_bytes, "ext": ".jpg"},
+            ],
+        )
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_cached_size(self):
         data = np.ones((5, 6, 3))
 
-        image = Image.from_data(data=lambda _: data, size=(2, 4))
+        image = Image.from_data(data=lambda: data, size=(2, 4))
 
         self.assertEqual((2, 4), image.size)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_lazy_image_shape(self):
+        data = encode_image(np.ones((5, 6, 3)), "png")
+
+        image_lazy = Image.from_data(data=data, size=(2, 4))
+        image_eager = Image.from_data(data=data)
+
+        self.assertEqual((2, 4), image_lazy.size)
+        self.assertEqual((5, 6), image_eager.size)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ctors(self):
@@ -113,6 +138,16 @@ class ImageTest(TestCase):
                     np.testing.assert_array_equal(img.data, image)
                     self.assertEqual(img.size, tuple(image.shape[:2]))
 
+            image, image_bytes, args_list = self._gen_bytes_image_and_args_list()
+            for args in args_list:
+                with self.subTest(**args):
+                    img = Image.from_data(**args)
+                    self.assertTrue(img.has_data)
+                    np.testing.assert_array_equal(img.data, image)
+                    if img.bytes:
+                        self.assertEqual(img.bytes, image_bytes)
+                    self.assertEqual(img.size, tuple(image.shape[:2]))
+
             with self.subTest():
                 img = Image.from_file(path="somepath", size=(2, 4))
                 self.assertEqual(img.size, (2, 4))
@@ -126,6 +161,21 @@ class ImageTest(TestCase):
         with self.subTest("either path or ext"):
             with self.assertRaisesRegex(Exception, "both 'path' and 'ext'"):
                 Image.from_file(path="somepath", ext="someext")
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ext_detection(self):
+        image_data = np.zeros((3, 4))
+
+        for ext in (".bmp", ".jpg", ".png"):
+            with self.subTest(ext=ext):
+                image = Image.from_data(data=encode_image(image_data, ext))
+                self.assertEqual(image.ext, ext)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ext_detection_failure(self):
+        image_bytes = b"\xff" * 10  # invalid image
+        image = Image.from_data(data=image_bytes)
+        self.assertEqual(image.ext, None)
 
 
 class BytesImageTest(TestCase):
@@ -193,7 +243,7 @@ class BytesImageTest(TestCase):
     def test_ext_detection_failure(self):
         image_bytes = b"\xff" * 10  # invalid image
         image = ByteImage(data=image_bytes)
-        self.assertEqual(image.ext, "")
+        self.assertEqual(image.ext, None)
 
 
 class RoIImageTest(TestCase):
@@ -232,7 +282,11 @@ class RoIImageTest(TestCase):
 
     def test_ctors_from_image(self):
         with TestDir() as test_dir:
-            _, args_list = ImageTest._gen_image_and_args_list(test_dir)
+            args_list = []
+            _, _args_list = ImageTest._gen_image_and_args_list(test_dir)
+            args_list.extend(_args_list)
+            _, _, _args_list = ImageTest._gen_bytes_image_and_args_list()
+            args_list.extend(_args_list)
             self._test_ctors(Image, args_list)
 
 
