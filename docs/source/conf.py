@@ -126,7 +126,7 @@ html_css_files = [
 ]
 
 # -- Extension configuration -------------------------------------------------
-myst_heading_anchors = 7
+myst_heading_anchors = 4
 
 autodoc_docstring_signature = True
 autodoc_member_order = "bysource"
