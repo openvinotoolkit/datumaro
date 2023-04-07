@@ -11,6 +11,7 @@ import os.path as osp
 import shutil
 import warnings
 import weakref
+from copy import deepcopy
 from enum import IntEnum
 from typing import (
     Any,
@@ -62,20 +63,20 @@ class MediaElement(Generic[AnyData]):
     def __init__(self, crypter: Crypter = NULL_CRYPTER) -> None:
         self._crypter = crypter
 
-    def from_self(self, **kwargs):
+    def as_dict(self) -> Dict[str, Any]:
         # NOTE:
         # attributes starting with a single underscore are assumed
         # to be arguments of __init__ method and
         # attributes starting with double underscores are assuemd
         # to be not directly related to __init__ method.
-        #
-        # Contributors should override this method
-        # if one want to take different convention but not recommended
-        attrs = {
+        return {
             key[1:]: value
             for key, value in self.__dict__.items()
-            if key.startswith("_") and not key.startswith("__")
+            if key.startswith("_") and not key.startswith(f"_{self.__class__.__name__}")
         }
+
+    def from_self(self, **kwargs):
+        attrs = deepcopy(self.as_dict())
         attrs.update(kwargs)
         return self.__class__(**attrs)
 
@@ -301,9 +302,8 @@ class ImageFromFile(FromFileMixin, Image):
         super().__init__(path, *args, **kwargs)
         self.__data = lazy_image(self.path, crypter=self._crypter)
 
-        # TODO: remove
-        assert not self._ext, "Can't specify both 'path' and 'ext' for image"
-        self._ext = osp.splitext(osp.basename(path))[1]
+        # extension form file name and real extension can be differ
+        self._ext = self._ext if self._ext else osp.splitext(osp.basename(path))[1]
 
     @property
     def data(self) -> np.ndarray:
@@ -529,6 +529,13 @@ class VideoFrame(ImgaeFromNumpy):
         self._index = index
 
         super().__init__(data=lambda: self._video.get_frame_data(self._index))
+
+    def as_dict(self) -> Dict[str, Any]:
+        attrs = super().as_dict()
+        return {
+            "video": attrs["video"],
+            "index": attrs["index"],
+        }
 
     @property
     def size(self) -> Tuple[int, int]:
@@ -992,6 +999,11 @@ class RoIImage(Image):
         _, _, w, h = self._roi
         super().__init__(size=(h, w), *args, **kwargs)
 
+    def as_dict(self) -> Dict[str, Any]:
+        attrs = super().as_dict()
+        attrs.pop("size", None)
+        return attrs
+
     @classmethod
     def from_file(cls, path: str, roi: BboxIntCoords, *args, **kwargs):
         return RoIImageFromFile(path, roi, *args, **kwargs)
@@ -1166,6 +1178,14 @@ class MosiacImageFromData(FromDataMixin, MosaicImage):
             return mosaic_img
 
         super().__init__(data=_get_mosaic_img, size=size)
+        self._data_in = data
+
+    def as_dict(self) -> Dict[str, Any]:
+        attrs = super().as_dict()
+        return {
+            "data": attrs["data_in"],
+            "size": attrs["size"],
+        }
 
     def save(
         self,
