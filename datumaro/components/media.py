@@ -942,7 +942,6 @@ class PointCloudFromBytes(PointCloudFromData):
         return super().data
 
 
-
 class MultiframeImage(MediaElement):
     _type = MediaType.MULTIFRAME_IMAGE
 
