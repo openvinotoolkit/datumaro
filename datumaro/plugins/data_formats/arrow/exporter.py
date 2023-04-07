@@ -4,6 +4,7 @@
 
 import datetime
 import os
+import struct
 import tempfile
 from copy import deepcopy
 from shutil import move, rmtree
@@ -42,6 +43,7 @@ class _SubsetWriter(__SubsetWriter):
             "items": [],
             "infos": {},
             "categories": {},
+            "media_type": None,
             "built_time": str(datetime.datetime.now(pytz.utc)),
             "source_path": self.export_context.source_path,
             "version": str(DatumaroArrow.VERSION),
@@ -59,6 +61,11 @@ class _SubsetWriter(__SubsetWriter):
             raise ValueError("Writer has been initialized.")
         super().add_categories(categories)
         self._data["categories"] = DictMapper.forward(self.categories)
+
+    def add_media_type(self, media_type):
+        if self._writer is not None:
+            raise ValueError("Writer has been initialized.")
+        self._data["media_type"] = struct.pack("<I", int(media_type))
 
     def init_writer(self):
         self._schema = self._schema.with_metadata(
@@ -117,11 +124,10 @@ class ArrowExporter(Exporter):
             save_media=self._save_media,
             images_dir="",
             pcd_dir="",
-            related_images_dir="",
             crypter=NULL_CRYPTER,
             image_ext=self._image_ext,
             default_image_ext=self._default_image_ext,
-            source_path=self._extractor._source_path
+            source_path=os.path.abspath(self._extractor._source_path)
             if getattr(self._extractor, "_source_path")
             else None,
         )
@@ -144,6 +150,7 @@ class ArrowExporter(Exporter):
         for writer in writers.values():
             writer.add_infos(self._extractor.infos())
             writer.add_categories(self._extractor.categories())
+            writer.add_media_type(self._extractor.media_type()._type)
             writer.init_writer()
 
         for item in tqdm(self._extractor, desc="Building arrow", ncols=81):

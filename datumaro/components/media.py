@@ -23,6 +23,7 @@ from typing import (
     List,
     Optional,
     Tuple,
+    Type,
     TypeVar,
     Union,
 )
@@ -55,6 +56,29 @@ class MediaType(IntEnum):
     MULTIFRAME_IMAGE = 7
     ROI_IMAGE = 8
     MOSAIC_IMAGE = 9
+
+    def get_cls(self) -> Optional[Type[MediaElement]]:
+        if self == self.NONE:
+            return None
+        if self == self.MEDIA_ELEMENT:
+            return MediaElement
+        if self == self.IMAGE:
+            return Image
+        if self == self.BYTE_IMAGE:
+            return ByteImage
+        if self == self.VIDEO_FRAME:
+            return VideoFrame
+        if self == self.VIDEO:
+            return Video
+        if self == self.POINT_CLOUD:
+            return PointCloud
+        if self == self.MULTIFRAME_IMAGE:
+            return MultiframeImage
+        if self == self.ROI_IMAGE:
+            return RoIImage
+        if self == self.MOSAIC_IMAGE:
+            return MosaicImage
+        raise NotImplementedError
 
 
 class MediaElement(Generic[AnyData]):

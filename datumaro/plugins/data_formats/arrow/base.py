@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+import struct
 
 import pyarrow as pa
 
 from datumaro.components.dataset_base import SubsetBase
+from datumaro.components.media import MediaType
 from datumaro.plugins.data_formats.datumaro.base import DatumaroBase
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper
 
@@ -36,6 +38,11 @@ class ArrowBase(SubsetBase):
                 self._schema.metadata.get(b"categories", b"\x00\x00\x00\x00")
             )
             self._categories = DatumaroBase._load_categories({"categories": categories})
+
+            (media_type,) = struct.unpack(
+                "<I", self._schema.metadata.get(b"media_type", b"\x00\x00\x00\x00")
+            )
+            self._media_type = MediaType(media_type).get_cls()
 
             dataset = ArrowDataset(self._path)
             dataset = dataset.flatten()

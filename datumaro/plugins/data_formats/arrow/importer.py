@@ -18,7 +18,6 @@ class ArrowImporter(Importer):
         cls,
         context: FormatDetectionContext,
     ) -> Optional[FormatDetectionConfidence]:
-
         def verify_datumaro_arrow_format(file):
             with pa.ipc.open_stream(file) as reader:
                 schema = reader.schema
