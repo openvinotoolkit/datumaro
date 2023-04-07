@@ -50,6 +50,23 @@ class MediaElement(Generic[AnyData]):
     def __init__(self, crypter: Crypter = NULL_CRYPTER) -> None:
         self._crypter = crypter
 
+    def from_self(self, **kwargs):
+        # NOTE:
+        # attributes starting with a single underscore are assumed
+        # to be arguments of __init__ method and
+        # attributes starting with double underscores are assuemd
+        # to be not directly related to __init__ method.
+        #
+        # Contributors should override this method
+        # if one want to take different convention but not recommended
+        attrs = {
+            key[1:]: value
+            for key, value in self.__dict__.items()
+            if key.startswith("_") and not key.startswith("__")
+        }
+        attrs.update(kwargs)
+        return self.__class__(**attrs)
+
     @property
     def is_encrypted(self) -> bool:
         return not self._crypter.is_null_crypter
@@ -261,8 +278,6 @@ class Image(MediaElement[np.ndarray]):
 
     def set_crypter(self, crypter: Crypter):
         super().set_crypter(crypter)
-        if getattr(self, "_data", None) and isinstance(self._data, lazy_image):
-            self._data._crypter = crypter
 
 
 class ImageFromFile(FromFileMixin, Image):
@@ -273,6 +288,7 @@ class ImageFromFile(FromFileMixin, Image):
         **kwargs,
     ) -> None:
         super().__init__(path, *args, **kwargs)
+        self.__data = lazy_image(self.path, crypter=self._crypter)
 
         # TODO: remove
         assert not self._ext, "Can't specify both 'path' and 'ext' for image"
@@ -282,7 +298,7 @@ class ImageFromFile(FromFileMixin, Image):
     def data(self) -> np.ndarray:
         """Image data in BGR HWC [0; 255] (float) format"""
 
-        data = lazy_image(self.path, crypter=self._crypter)()
+        data = self.__data()
 
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
@@ -309,6 +325,11 @@ class ImageFromFile(FromFileMixin, Image):
                 save_image(fp, self.data, ext=new_ext, crypter=crypter)
         else:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), cur_path)
+
+    def set_crypter(self, crypter: Crypter):
+        super().set_crypter(crypter)
+        if isinstance(self.__data, lazy_image):
+            self.__data._crypter = crypter
 
 
 class ImageFromData(FromDataMixin, Image):
@@ -1026,11 +1047,12 @@ class RoIImageFromFile(FromFileMixin, RoIImage):
         **kwargs,
     ) -> None:
         super().__init__(path, roi, *args, **kwargs)
+        self.__data = lazy_image(self.path, crypter=self._crypter)
 
     @property
     def data(self) -> np.ndarray:
         """Image data in BGR HWC [0; 255] (float) format"""
-        data = lazy_image(self.path, crypter=self._crypter)()
+        data = self.__data()
         return self._get_roi_data(data)
 
 
