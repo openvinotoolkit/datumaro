@@ -57,12 +57,22 @@ class ProjectIntegrationScenarios(TestCase):
         )
 
         with TestDir() as test_dir:
-            run(self, "create", "-o", test_dir)
-            run(self, "import", "-f", "coco", "-p", test_dir, coco_dir)
+            run(self, "project", "create", "-o", test_dir)
+            run(self, "project", "import", "-f", "coco", "-p", test_dir, coco_dir)
 
             result_dir = osp.join(test_dir, "voc_export")
             run(
-                self, "export", "-f", "voc", "-p", test_dir, "-o", result_dir, "--", "--save-images"
+                self,
+                "project",
+                "export",
+                "-f",
+                "voc",
+                "-p",
+                test_dir,
+                "-o",
+                result_dir,
+                "--",
+                "--save-images",
             )
 
             self.assertTrue(osp.isdir(result_dir))
@@ -75,14 +85,14 @@ class ProjectIntegrationScenarios(TestCase):
         )
 
         with TestDir() as test_dir:
-            run(self, "create", "-o", test_dir)
-            run(self, "import", "-f", "coco", "-p", test_dir, coco_dir)
+            run(self, "project", "create", "-o", test_dir)
+            run(self, "project", "import", "-f", "coco", "-p", test_dir, coco_dir)
 
             with self.subTest("on project"):
-                run(self, "project", "info", "-p", test_dir)
+                run(self, "project", "pinfo", "-p", test_dir)
 
             with self.subTest("on project revision"):
-                run(self, "project", "info", "-p", test_dir, "HEAD")
+                run(self, "project", "pinfo", "-p", test_dir, "HEAD")
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_list_dataset_info(self):
@@ -92,26 +102,25 @@ class ProjectIntegrationScenarios(TestCase):
         )
 
         with TestDir() as test_dir:
-            run(self, "create", "-o", test_dir)
-            run(self, "import", "-f", "coco", "-p", test_dir, coco_dir)
-            run(self, "commit", "-m", "first", "-p", test_dir)
+            run(self, "project", "create", "-o", test_dir)
+            run(self, "project", "import", "-f", "coco", "-p", test_dir, coco_dir)
+            run(self, "project", "commit", "-m", "first", "-p", test_dir)
 
             with self.subTest("on current project"):
-                run(self, "info", "-p", test_dir)
+                run(self, "project", "dinfo", "-p", test_dir)
 
             with self.subTest("on current project revision"):
-                run(self, "info", "-p", test_dir, "HEAD")
+                run(self, "project", "dinfo", "-p", test_dir, "HEAD")
 
             with self.subTest("on other project"):
-                run(self, "info", test_dir)
+                run(self, "project", "dinfo", test_dir)
 
             with self.subTest("on other project revision"):
-                run(self, "info", test_dir + "@HEAD")
+                run(self, "project", "dinfo", test_dir + "@HEAD")
 
             with self.subTest("on dataset"):
-                run(self, "info", coco_dir + ":coco")
+                run(self, "project", "dinfo", coco_dir + ":coco")
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_use_vcs(self):
         with TestDir() as test_dir:
             dataset_dir = osp.join(test_dir, "dataset")
@@ -132,12 +141,13 @@ class ProjectIntegrationScenarios(TestCase):
                 categories=["a", "b"],
             ).save(dataset_dir, save_media=True)
 
-            run(self, "create", "-o", project_dir)
-            run(self, "import", "-p", project_dir, "-f", "datumaro", dataset_dir)
-            run(self, "commit", "-p", project_dir, "-m", "Add data")
+            run(self, "project", "create", "-o", project_dir)
+            run(self, "project", "import", "-p", project_dir, "-f", "datumaro", dataset_dir)
+            run(self, "project", "commit", "-p", project_dir, "-m", "Add data")
 
             run(
                 self,
+                "project",
                 "transform",
                 "-p",
                 project_dir,
@@ -148,7 +158,7 @@ class ProjectIntegrationScenarios(TestCase):
                 "-l",
                 "b:cat",
             )
-            run(self, "commit", "-p", project_dir, "-m", "Add transform")
+            run(self, "project", "commit", "-p", project_dir, "-m", "Add transform")
 
             run(
                 self,
@@ -160,10 +170,11 @@ class ProjectIntegrationScenarios(TestCase):
                 "-m",
                 "i+a",
             )
-            run(self, "commit", "-p", project_dir, "-m", "Add filter")
+            run(self, "project", "commit", "-p", project_dir, "-m", "Add filter")
 
             run(
                 self,
+                "project",
                 "export",
                 "-p",
                 project_dir,
@@ -205,9 +216,10 @@ class ProjectIntegrationScenarios(TestCase):
             )
 
             shutil.rmtree(result_dir, ignore_errors=True)
-            run(self, "checkout", "-p", project_dir, "HEAD~1")
+            run(self, "project", "checkout", "-p", project_dir, "HEAD~1")
             run(
                 self,
+                "project",
                 "export",
                 "-p",
                 project_dir,
@@ -272,9 +284,10 @@ class ProjectIntegrationScenarios(TestCase):
         dataset.save(source_url)
 
         project_dir = osp.join(test_dir, "proj")
-        run(self, "create", "-o", project_dir)
+        run(self, "project", "create", "-o", project_dir)
         run(
             self,
+            "project",
             "import",
             "-p",
             project_dir,
@@ -285,9 +298,10 @@ class ProjectIntegrationScenarios(TestCase):
             source_url,
         )
         run(self, "filter", "-p", project_dir, "-e", '/item/annotation[label="b"]')
-        run(self, "transform", "-p", project_dir, "-t", "rename", "--", "-e", "|2|qq|")
+        run(self, "project", "transform", "-p", project_dir, "-t", "rename", "--", "-e", "|2|qq|")
         run(
             self,
+            "project",
             "transform",
             "-p",
             project_dir,

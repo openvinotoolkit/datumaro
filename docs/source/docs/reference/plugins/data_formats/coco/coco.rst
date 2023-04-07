@@ -1,0 +1,7 @@
+COCO package
+============
+
+.. toctree::
+   :glob:
+
+   *

@@ -1,0 +1,7 @@
+MPII package
+============
+
+.. toctree::
+   :glob:
+
+   *

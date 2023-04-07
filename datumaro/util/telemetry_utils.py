@@ -22,23 +22,24 @@ NO_TELEMETRY_KEY = "DATUMARO_NO_OV_TELEMETRY"
 
 
 def _get_action_name(command):
-    if command is contexts.project.info_command:
+    # TODO: We should clean these nonsense if-else branches.
+    if command is commands.require_project.versioning.info.info_command:
         return "project_info_result"
-    elif command is contexts.project.stats_command:
+    elif command is commands.require_project.dataset_operations.stats.stats_command:
         return "project_stats_result"
     elif command is contexts.project.migrate_command:
         return "project_migrate_result"
-    elif command is contexts.project.export_command:
+    elif command is commands.require_project.dataset_operations.export.export_command:
         return "project_export_result"
-    elif command is commands.validate.validate_command:
+    elif command is commands.require_project.dataset_operations.validate.validate_command:
         return "project_validate_result"
     elif command is commands.filter.filter_command:
         return "project_filter_result"
-    elif command is commands.transform.transform_command:
+    elif command is commands.require_project.dataset_operations.transform.transform_command:
         return "project_transform_result"
-    elif command is contexts.source.import_command:
+    elif command is commands.require_project.modification.import_.import_command:
         return "source_add_result"
-    elif command is contexts.source.remove_command:
+    elif command is commands.require_project.modification.remove.remove_command:
         return "source_remove_result"
     elif command is contexts.source.info_command:
         return "source_info_result"
@@ -50,29 +51,29 @@ def _get_action_name(command):
         return "model_run_result"
     elif command is contexts.model.info_command:
         return "model_info_result"
-    elif command is commands.checkout.checkout_command:
+    elif command is commands.require_project.versioning.checkout.checkout_command:
         return "checkout_result"
-    elif command is commands.commit.commit_command:
+    elif command is commands.require_project.versioning.commit.commit_command:
         return "commit_result"
     elif command is commands.convert.convert_command:
         return "convert_result"
-    elif command is commands.create.create_command:
+    elif command is commands.require_project.modification.create.create_command:
         return "create_result"
-    elif command is commands.diff.diff_command:
+    elif command is commands.require_project.dataset_operations.diff.diff_command:
         return "diff_result"
     elif command is commands.explain.explain_command:
         return "explain_result"
     elif command is commands.generate.generate_command:
         return "generate_result"
-    elif command is commands.info.info_command:
+    elif command is commands.require_project.dataset_operations.info.info_command:
         return "info_result"
-    elif command is commands.log.log_command:
+    elif command is commands.require_project.versioning.log.log_command:
         return "log_result"
     elif command is commands.merge.merge_command:
         return "merge_result"
     elif command is commands.patch.patch_command:
         return "patch_result"
-    elif command is commands.status.status_command:
+    elif command is commands.require_project.versioning.status.status_command:
         return "status_result"
 
     return f"{command.__name__}_result"
