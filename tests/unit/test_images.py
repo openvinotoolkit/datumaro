@@ -132,8 +132,25 @@ class ImageTest(TestCase):
                 with self.subTest(**args):
                     if "path" in args:
                         img = Image.from_file(**args)
+
+                        img2 = img.from_self()
+                        self.assertNotEqual(id(img), id(img2))
+                        self.assertEqual(img, img2)
+
+                        img2 = img.from_self(path="other")
+                        self.assertNotEqual(img.path, "other")
+                        self.assertEqual(img2.path, "other")
                     else:
                         img = Image.from_data(**args)
+
+                        img2 = img.from_self()
+                        self.assertNotEqual(id(img), id(img2))
+                        self.assertEqual(img, img2)
+
+                        img2 = img.from_self(data=np.ones([1, 2, 3]))
+                        self.assertFalse(np.array_equal(img.data, np.ones([1, 2, 3])))
+                        self.assertTrue(np.array_equal(img2.data, np.ones([1, 2, 3])))
+
                     self.assertTrue(img.has_data)
                     np.testing.assert_array_equal(img.data, image)
                     self.assertEqual(img.size, tuple(image.shape[:2]))
@@ -152,15 +169,15 @@ class ImageTest(TestCase):
                 img = Image.from_file(path="somepath", size=(2, 4))
                 self.assertEqual(img.size, (2, 4))
 
+                img2 = img.from_self(path="otherpath")
+                self.assertEqual(img.path, "somepath")
+                self.assertEqual(img2.path, "otherpath")
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ctor_errors(self):
         with self.subTest("no data specified"):
             with self.assertRaisesRegex(Exception, "Directly initalizing"):
                 Image(ext="jpg")
-
-        with self.subTest("either path or ext"):
-            with self.assertRaisesRegex(Exception, "both 'path' and 'ext'"):
-                Image.from_file(path="somepath", ext="someext")
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ext_detection(self):
@@ -259,6 +276,13 @@ class RoIImageTest(TestCase):
                 new_h, new_w = h // 2, w // 2
                 roi = (0, 0, new_w, new_h)  # xywh
                 roi_img = RoIImage.from_data(img, roi)
+
+                roi_img2 = roi_img.from_self()
+                self.assertNotEqual(id(roi_img), id(roi_img2))
+                self.assertEqual(roi_img, roi_img2)
+
+                roi_img2 = roi_img.from_self(roi=(0, 0, 1, 1))
+                self.assertFalse(np.array_equal(roi_img.size, roi_img2.size))
 
                 self.assertEqual(roi_img.size, (new_h, new_w))
                 self.assertEqual(roi_img.data.shape[:2], (new_h, new_w))
