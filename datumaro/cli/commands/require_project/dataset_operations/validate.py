@@ -11,9 +11,9 @@ from datumaro.components.validator import TaskType
 from datumaro.util import dump_json_file
 from datumaro.util.scope import scope_add, scoped
 
-from ..util import MultilineFormatter
-from ..util.errors import CliException
-from ..util.project import generate_next_file_name, load_project, parse_full_revpath
+from ....util import MultilineFormatter
+from ....util.errors import CliException
+from ....util.project import generate_next_file_name, load_project, parse_full_revpath
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):

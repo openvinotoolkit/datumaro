@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
 import os.path as osp
 
 from datumaro.components.annotation import (
@@ -236,7 +235,10 @@ class CelebaImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-        super().detect(context)
+        try:
+            super().detect(context)
+        except DatasetImportError as e:
+            context.fail(str(e))
         return FormatDetectionConfidence.MEDIUM
 
     @classmethod
@@ -248,19 +250,17 @@ class CelebaImporter(Importer):
         )
 
         if len(sources) > 1:
-            log.error(
+            raise DatasetImportError(
                 f"{cls.NAME} label file ({cls.PATH_CLS.LABELS_FILE}) must be unique "
                 f"but the found sources have multiple duplicates. sources = {sources}"
             )
-            return []
 
         for source in sources:
             anno_dir = osp.dirname(source["url"])
             root_dir = osp.dirname(anno_dir)
             img_dir = osp.join(root_dir, cls.PATH_CLS.IMAGES_DIR)
             if not osp.exists(img_dir):
-                log.error(f"Cannot find {cls.NAME}'s images directory at {img_dir}")
-                return []
+                raise DatasetImportError(f"Cannot find {cls.NAME}'s images directory at {img_dir}")
             source["url"] = root_dir
 
         return sources

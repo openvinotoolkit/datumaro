@@ -4,28 +4,24 @@
 
 # pylint: disable=redefined-builtin
 
-from . import (
-    add,
-    checkout,
-    commit,
-    convert,
-    create,
-    detect_format,
-    diff,
-    explain,
-    export,
-    filter,
-    generate,
-    import_,
-    info,
-    log,
-    merge,
-    patch,
-    remove,
-    search,
-    stats,
-    status,
-    transform,
-    validate,
-)
-from .no_project import download
+from . import convert, detect_format, download, explain, filter, generate, merge, patch, search
+from .require_project import get_project_commands
+
+__all__ = [
+    "get_non_project_commands",
+    "get_project_commands",
+]
+
+
+def get_non_project_commands():
+    return [
+        ("convert", convert, "Convert dataset between formats"),
+        ("detect-format", detect_format, "Detect the format of a dataset"),
+        ("download", download, "Download a publicly available dataset"),
+        ("explain", explain, "Run Explainable AI algorithm for model"),
+        ("filter", filter, "Filter dataset items"),
+        ("generate", generate, "Generate synthetic dataset"),
+        ("merge", merge, "Merge datasets"),
+        ("patch", patch, "Update dataset from another one"),
+        ("search", search, "Search similar datasetitems of query"),
+    ]
