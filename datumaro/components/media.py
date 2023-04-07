@@ -281,11 +281,7 @@ class Image(MediaElement[np.ndarray]):
         # sicne Image is subclass of RoIImage and MosaicImage
         if not isinstance(other, __class__):
             return False
-        return (
-            (np.array_equal(self.size, other.size))
-            and (self.has_data == other.has_data)
-            and (self.has_data and np.array_equal(self.data, other.data) or not self.has_data)
-        )
+        return (np.array_equal(self.size, other.size)) and (np.array_equal(self.data, other.data))
 
     def set_crypter(self, crypter: Crypter):
         super().set_crypter(crypter)
@@ -865,8 +861,7 @@ class PointCloud(MediaElement[bytes]):
     def __eq__(self, other: object) -> bool:
         return (
             super().__eq__(other)
-            and (self.has_data == other.has_data)
-            and (self.has_data and self.data == other.data or not self.has_data)
+            and (self.data == other.data)
             and self.extra_images == other.extra_images
         )
 
