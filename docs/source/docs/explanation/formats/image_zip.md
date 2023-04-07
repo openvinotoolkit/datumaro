@@ -44,12 +44,12 @@ The directory with zip archives must have the following structure:
 ```
 
 Images in the archives must have a supported extension,
-follow the [user manual](/docs/user-manual/media_formats/) to see the supported
+follow the [media format](/docs/data-formats/media_formats/) to see the supported
 extensions.
 
 ## Export to other formats
 
-Datumaro can convert image zip dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert image zip dataset into any other format [Datumaro supports](/docs/data-formats/supported_formats/).
 For example:
 
 ```bash

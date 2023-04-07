@@ -4,7 +4,7 @@
 
 This command downloads a publicly available dataset and saves it to a local
 directory.
-In terms of syntax, this command is similar to [`convert`](../convert),
+In terms of syntax, this command is similar to [`convert`](/docs/command-reference/convert/),
 but instead of taking a local directory as the source, it takes a dataset ID.
 A list of supported datasets and output formats can be found in the `--help`
 output of this command.

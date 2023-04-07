@@ -1,5 +1,5 @@
 default_language_version:
-  node: system
+  node: 16.15.0
 
 repos:
   # EOF and whitespace checker

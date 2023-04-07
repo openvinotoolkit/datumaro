@@ -103,7 +103,7 @@ These directories contain `.txt` files with a list of images in a subset,
 the subset name is the same as the `.txt` file name. Subset names can be
 arbitrary.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats.md#dataset-meta-info-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file)
 and `labelmap.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `labelmap.txt` will be imported if possible.
@@ -111,7 +111,7 @@ If the `dataset_meta.json` is not represented in the dataset, then
 In `labelmap.txt` you can define custom color map and non-pascal labels,
 for example:
 
-``` txt
+```
 # label_map [label : color_rgb : parts : actions]
 helicopter:::
 elephant:0:124:134:head,ear,foot:
@@ -124,7 +124,7 @@ have arbitrary, but different, colors. If there are gaps in the used
 color indices in the annotations, they must be filled with arbitrary
 dummy labels. Example:
 
-``` txt
+```
 car:0,128,0:: # color index 0
 aeroplane:10,10,128:: # color index 1
 _dummy2:2,2,2:: # filler for color index 2
@@ -150,7 +150,7 @@ can run `datum project info`, which will display the project information.
 ## Export to other formats
 
 Datumaro can convert a Pascal VOC dataset into any other format
-[Datumaro supports](/docs/user-manual/supported_formats).
+[Datumaro supports](/docs/data-formats/supported_formats).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,

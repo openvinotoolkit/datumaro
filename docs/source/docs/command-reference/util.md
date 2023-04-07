@@ -2,12 +2,11 @@
 
 ## Utilities
 
-<a id="split-video"></a>
 ### Split video into frames
 
 Splits a video into separate frames and saves them in a directory.
 After the splitting, the images can be added into a project using
-the [`import` command](../sources/#source-import) and the `image_dir` format.
+the [`import` command](/docs/command-reference/sources.md#import-dataset) and the `image_dir` format.
 
 This command is useful for making a dataset from a video file.
 Unlike direct video reading during model training, which can produce

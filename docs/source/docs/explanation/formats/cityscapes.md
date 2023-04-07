@@ -63,7 +63,7 @@ Annotated files description:
   is the instance ID. If a certain annotation describes multiple instances,
   then the pixels have the regular ID of that class
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats.md#dataset-meta-info-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file)
 and `label_colors.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `label_colors.txt` will be imported if possible.
@@ -81,7 +81,7 @@ run `datum project info`, which will display the project information.
 
 ## Export to other formats
 
-Datumaro can convert a Cityscapes dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert a Cityscapes dataset into any other format [Datumaro supports](/docs/data-formats/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the segmentation task (e.g. PascalVOC, CamVID, etc.)
 

@@ -7,7 +7,6 @@ It must be put into a plugin directory:
 - `<project_dir>/.datumaro/plugins` for project-specific plugins
 - `<datumaro_dir>/plugins` for global plugins
 
-<a id="builtin-plugins"></a>
 ## Built-in plugins
 
 Datumaro provides several builtin plugins. Plugins can have dependencies,

@@ -161,7 +161,6 @@ List of supported formats:
   - [Dataset example](https://github.com/ultralytics/ultralytics/blob/main/ultralytics/datasets/coco.yaml)
   - [Format documentation](/docs/explanation/formats/yolo)
 
-<a id="annotation-types"></a>
 ## Supported annotation types
 
 - Labels

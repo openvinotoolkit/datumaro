@@ -66,7 +66,7 @@ provides an option to use a special index file to allow this.
 ...
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats.md#dataset-meta-info-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file).
 
 A Datumaro project with a KITTI source can be created in the following way:
 
@@ -82,7 +82,7 @@ information.
 ## Export to other formats
 
 Datumaro can convert a KITTI Raw dataset into any other
-format [Datumaro supports](/docs/user-manual/supported_formats/).
+format [Datumaro supports](/docs/data-formats/supported_formats/).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,

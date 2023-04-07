@@ -40,7 +40,7 @@ datum transform [-h] -t TRANSFORM [-o DST_DIR] [--overwrite]
 
 Parameters:
 - `<target>` (string) - Target
-  [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath).
+  [dataset revpath](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts).
   By default, transforms all targets of the current project.
 - `-t, --transform` (string) - Transform method name
 - `--stage` (bool) - Include this action as a project build step.
@@ -81,7 +81,6 @@ datum import <...> -n source-1
 datum transform -t rename source-1 -- -e "|^frame_||"
 ```
 
-<a id="builtin-transforms"></a>
 ### Built-in transforms
 
 Basic dataset item manipulations:
@@ -89,13 +88,13 @@ Basic dataset item manipulations:
 - [`id_from_image_name`](#id_from_image_name) - Renames dataset
   items to their image filenames
 - [`reindex`](#reindex) - Renames dataset items with numbers
-- [`ndr`](#ndr - Removes duplicated images from dataset
+- [`ndr`](#ndr) - Removes duplicated images from dataset
 - [`relevancy_sampler`](#relevancy_sampler) - Leaves only the most
   important images
   (requires model inference results)
 - [`random_sampler`](#random_sampler) - Leaves no more than k items
   from the dataset randomly
-- [`label_random_sampler`](#label_random_sampler) - Leaves at least
+- [`label_random_sampler`](#random_label_sampler) - Leaves at least
   k images with annotations per class
 - [`resize`](#resize) - Resizes images and annotations in the dataset
 - [`remove_images`](#remove_images) - Removes specific images
@@ -131,7 +130,6 @@ Annotation manipulations:
 - [`bbox_value_decrement`](#bbox_value_decrement) - Subtracts
   1 from bbox coordinates
 
-<a id="rename-transform"></a>
 #### `rename`
 
 Renames items in the dataset. Supports regular expressions.
@@ -171,7 +169,6 @@ Add subset prefix to images:
 datum transform -t rename -- -e "|(.*)|{item.subset}_\1|"
 ```
 
-<a id="id_from_image_name-transform"></a>
 #### `id_from_image_name`
 
 Renames items in the dataset using image file name (without extension).
@@ -184,7 +181,6 @@ id_from_image_name [-h]
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 
-<a id="reindex-transform"></a>
 #### `reindex`
 
 Replaces dataset item IDs with sequential indices.
@@ -198,7 +194,6 @@ Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 - `-s`, `--start` (int) - Start value for item ids (default: 1)
 
-<a id="ndr-transform"></a>
 #### `ndr`
 
 Removes near-duplicated images in subset.
@@ -246,7 +241,6 @@ datum transform -t ndr -- \
   --under_sample uniform
 ```
 
-<a id="relevancy_sampler-transform"></a>
 #### `relevancy_sampler`
 
 Sampler that analyzes model inference results on the dataset
@@ -308,7 +302,6 @@ datum transform -t relevancy_sampler -- \
   --sampling_method topk -k 20
 ```
 
-<a id="random_sampler-transform"></a>
 #### `random_sampler`
 
 Sampler that keeps no more than required number of items in the dataset.
@@ -342,7 +335,6 @@ Select subset of 20 images, modify only `train` subset
 datum transform -t random_sampler -- -k 20 -s train
 ```
 
-<a id="label_random_sampler-transform"></a>
 #### `random_label_sampler`
 
 Sampler that keeps at least the required number of annotations of
@@ -391,7 +383,6 @@ datum transform -t label_random_sampler -- \
   -k 10 # for remaining classes
 ```
 
-<a id="resize-transform"></a>
 #### `resize`
 
 Resizes images and annotations in the dataset to the specified size.
@@ -413,7 +404,6 @@ Resize all images to 256x256 size
 datum transform -t resize -- -dw 256 -dh 256
 ```
 
-<a id="remove_images-transform"></a>
 #### `remove_images`
 
 Removes specific dataset items by their ids.
@@ -434,7 +424,6 @@ Remove specific images from the dataset
 datum transform -t remove_images -- --id 'image1:train' --id 'image2:test'
 ```
 
-<a id="remove_annotations-transform"></a>
 #### `remove_annotations`
 
 Allows to remove annotations on specific dataset items.
@@ -457,7 +446,6 @@ Remove annotations from specific items in the dataset
 datum transform -t remove_annotations -- --id 'image1:train' --id 'image2:test'
 ```
 
-<a id="remove_attributes-transform"></a>
 #### `remove_attributes`
 
 Allows to remove item and annotation attributes in a dataset.
@@ -490,7 +478,6 @@ datum transform -t remove_attributes -- \
   --id '2010_001705:train' --attr 'occluded'
 ```
 
-<a id="random_split-transform"></a>
 #### `random_split`
 
 Joins all subsets into one and splits the result into few parts.
@@ -513,7 +500,6 @@ Split a dataset randomly to `train` and `test` subsets, ratio is 2:1
 datum transform -t random_split -- --subset train:.67 --subset test:.33
 ```
 
-<a id="split-transform"></a>
 #### `split`
 
 Splits a dataset for model training, using task information:
@@ -591,7 +577,6 @@ Example: use `person_id` attribute for splitting
 datum transform -t split -- -t detection --attr person_id
 ```
 
-<a id="map_subsets-transform"></a>
 #### `map_subsets`
 
 Renames subsets in the dataset.
@@ -605,7 +590,6 @@ Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 - `-s`, `--subset` (str; repeatable) - Subset mapping of the form: `src:dst`
 
-<a id="remap_labels-transform"></a>
 #### `remap_labels`
 
 Changes labels in the dataset.
@@ -651,7 +635,6 @@ datum transform -t remap_labels -- \
   -l person:car -l bus:bus -l cat:dog --default delete
 ```
 
-<a id="project_labels-transform"></a>
 #### `project_labels`
 
 Changes the order of labels in the dataset from the existing
@@ -682,7 +665,6 @@ New labels: `person` (added), `cat` (kept), `dog` (kept).
 datum transform -t project_labels -- -l person -l cat -l dog
 ```
 
-<a id="shapes_to_boxes-transform"></a>
 #### `shapes_to_boxes`
 
 Converts spatial annotations (masks, polygons, polylines, points)
@@ -705,7 +687,6 @@ datum transform -t polygons_to_masks
 datum transform -t shapes_to_boxes
 ```
 
-<a id="boxes_to_masks-transform"></a>
 #### `boxes_to_masks`
 
 Converts bounding boxes to masks.
@@ -718,7 +699,6 @@ boxes_to_masks [-h]
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 
-<a id="polygons_to_masks-transform"></a>
 #### `polygons_to_masks`
 
 Converts polygons to masks.
@@ -731,7 +711,6 @@ polygons_to_masks [-h]
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 
-<a id="masks_to_polygons-transform"></a>
 #### `masks_to_polygons`
 
 Converts masks to polygons.
@@ -744,7 +723,6 @@ masks_to_polygons [-h]
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 
-<a id="anns_to_labels-transform"></a>
 #### `anns_to_labels`
 
 Collects all labels from annotations (of all types) and transforms
@@ -758,7 +736,6 @@ anns_to_labels [-h]
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 
-<a id="merge_instance_segments-transform"></a>
 #### `merge_instance_segments`
 
 Replaces instance masks and, optionally, polygons with a single mask.
@@ -775,7 +752,6 @@ Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 - `--include-polygons` (flag) - Include polygons
 
-<a id="crop_covered_segments-transform"></a>
 #### `crop_covered_segments`
 
 Sorts polygons and masks ("segments") according to `z_order`,
@@ -791,7 +767,6 @@ crop_covered_segments [-h]
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 
-<a id="bbox_value_decrement-transform"></a>
 #### `bbox_value_decrement`
 
 Subtracts one from the coordinates of bounding boxes

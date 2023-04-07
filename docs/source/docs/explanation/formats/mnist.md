@@ -82,7 +82,7 @@ MNIST in CSV dataset directory should have the following structure:
     └── mnist_train.csv
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats.md#dataset-meta-info-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file)
 and `labels.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `labels.txt` will be imported if possible.
@@ -105,7 +105,7 @@ Ankle boot
 
 ## Export to other formats
 
-Datumaro can convert a MNIST dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert a MNIST dataset into any other format [Datumaro supports](/docs/data-formats/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC,
 etc.)

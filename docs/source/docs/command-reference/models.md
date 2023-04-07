@@ -2,11 +2,10 @@
 
 ## Models
 
-<a id="model-add"></a>
 ### Register model
 
 Datumaro can execute deep learning models in various frameworks. Check
-[the plugins section](/docs/user-manual/extending/#builtin-plugins)
+[the plugins section](/docs/user-manual/extending.md#built-in-plugins)
 for more info.
 
 Supported frameworks:
@@ -49,7 +48,7 @@ datum model add \
 
 Interpretation script for an OpenVINO detection model (`convert.py`):
 You can find OpenVINO model interpreter samples in
-`datumaro/plugins/openvino/samples` ([instruction](/docs/plugins/openvino_plugin)).
+`datumaro/plugins/openvino/samples` ([instruction](/docs/explanation/plugins/openvino_plugin)).
 
 ``` python
 import datumaro as dm
@@ -92,7 +91,6 @@ def get_categories():
     return { dm.AnnotationType.label: label_categories }
 ```
 
-<a id="model-remove"></a>
 ### Remove Models
 
 To remove a model from a project, use the `datum model remove` command.
@@ -117,7 +115,6 @@ datum model add <...> -n model1
 datum remove model1
 ```
 
-<a id="model-run"></a>
 ### Run Model
 
 This command applies model to dataset images and produces a new dataset.

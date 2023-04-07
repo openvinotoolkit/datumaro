@@ -48,7 +48,7 @@ with an `image_id` attribute.
 
 ## Export to other formats
 
-Datumaro can convert a BraTS Numpy dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert a BraTS Numpy dataset into any other format [Datumaro supports](/docs/data-formats/supported_formats/).
 To get the expected result, convert the dataset to a format
 that supports segmentation masks or cuboids.
 

@@ -52,10 +52,19 @@ extensions = [
     "sphinx_panels",
 ]
 
+source_suffix = {
+    ".rst": "restructuredtext",
+    # '.txt': 'restructuredtext',
+    ".md": "markdown",
+}
+
 panels_add_bootstrap_css = False
 panels_delimiters = (r"^\-{3,}$", r"^\^{3,}$", r"^\+{3,}$")
 
-suppress_warnings = ["myst.xref_missing", "myst.iref_ambiguous"]
+suppress_warnings = [
+    # "myst.xref_missing",
+    "myst.iref_ambiguous"
+]
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 autodoc_member_order = "groupwise"
@@ -117,7 +126,7 @@ html_css_files = [
 ]
 
 # -- Extension configuration -------------------------------------------------
-myst_heading_anchors = 3
+myst_heading_anchors = 7
 
 autodoc_docstring_signature = True
 autodoc_member_order = "bysource"

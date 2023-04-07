@@ -55,10 +55,12 @@ cover/
 
 # Sphinx documentation
 docs/_build/
+docs/build/
 
-#Pycharm config files
+#Pycharm & vscode config files
 .idea/
 user_config.py
+.vscode/
 
 # Temporary website files
 site/public/

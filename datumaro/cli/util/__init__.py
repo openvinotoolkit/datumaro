@@ -107,7 +107,7 @@ def show_video_import_warning():
         "system setup changes (library version, OS, etc.). "
         "If you need stable results, consider splitting the video "
         "manually using instructions at: "
-        "https://openvinotoolkit.github.io/datumaro/docs/user-manual/media_formats/"
+        "https://openvinotoolkit.github.io/datumaro/docs/media_formats/"
     )
 
 

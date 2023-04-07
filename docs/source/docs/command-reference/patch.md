@@ -10,13 +10,15 @@ updating in-place, use the `--overwrite` parameter along with the
 `--save-images` export option (in-place updates fail by default
 to prevent data loss).
 
-Unlike the regular project [data source joining](/docs/explanation/architecture.html#merging),
+```{eval-rst}
+Unlike the regular project :ref:`data source joining <dataset_merging>`,
 the datasets are not required to have the same labels. The labels from
 the "patch" dataset are projected onto the labels of the patched dataset,
 so only the annotations with the matching labels are used, i.e.
 all the annotations having unknown labels are ignored. Currently,
 this command doesn't allow to update the label information in the
 patched dataset.
+```
 
 The command supports passing extra exporting options for the output
 dataset. The extra options should be passed after the main arguments
@@ -35,15 +37,15 @@ datum patch [-h] [-o DST_DIR] [--overwrite] [-p PROJECT_DIR]
   [-- EXPORT_ARGS]
 ```
 
-\<revpath\> - either [a dataset path or a revision path](/docs/user-manual/how_to_use_datumaro/#revpath).
+\<revpath\> - either [a dataset path or a revision path](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts).
 
 The current project (`-p/--project`) is also used as a context for
 plugins, so it can be useful for dataset paths having custom formats.
 When not specified, the current project's working tree is used.
 
 Parameters:
-- `<target dataset>` (string) - Target [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath)
-- `<patch dataset>` (string) - Patch [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath)
+- `<target dataset>` (string) - Target [dataset revpath](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts)
+- `<patch dataset>` (string) - Patch [dataset revpath](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts)
 - `-o, --output-dir` (string) - Output directory. By default, saves in-place
 - `--overwrite` - Allows to overwrite existing files in the output directory,
   when it is not empty.
