@@ -306,8 +306,11 @@ class ImageFromFile(FromFileMixin, Image):
         self._ext = self._ext if self._ext else osp.splitext(osp.basename(path))[1]
 
     @property
-    def data(self) -> np.ndarray:
+    def data(self) -> Optional[np.ndarray]:
         """Image data in BGR HWC [0; 255] (float) format"""
+
+        if not self.has_data:
+            return None
 
         data = self.__data()
 
@@ -872,7 +875,7 @@ class PointCloud(MediaElement[bytes]):
 class PointCloudFromFile(FromFileMixin, PointCloud):
     @property
     def data(self) -> Optional[bytes]:
-        if os.path.exists(self.path):
+        if self.has_data:
             with open(self.path, "rb") as f:
                 bytes_data = f.read()
             return bytes_data
@@ -907,11 +910,7 @@ class PointCloudFromFile(FromFileMixin, PointCloud):
             self._save_extra_images(extra_images_fn, crypter)
 
 
-class PointCloudFromBytes(FromDataMixin[bytes], PointCloud):
-    @property
-    def data(self) -> Optional[bytes]:
-        return super().data
-
+class PointCloudFromData(FromDataMixin, PointCloud):
     def save(
         self,
         fp: Union[str, io.IOBase],
@@ -935,6 +934,13 @@ class PointCloudFromBytes(FromDataMixin[bytes], PointCloud):
 
         if extra_images_fn is not None:
             self._save_extra_images(extra_images_fn, crypter)
+
+
+class PointCloudFromBytes(PointCloudFromData):
+    @property
+    def data(self) -> Optional[bytes]:
+        return super().data
+
 
 
 class MultiframeImage(MediaElement):
@@ -1075,8 +1081,10 @@ class RoIImageFromFile(FromFileMixin, RoIImage):
         self.__data = lazy_image(self.path, crypter=self._crypter)
 
     @property
-    def data(self) -> np.ndarray:
+    def data(self) -> Optional[np.ndarray]:
         """Image data in BGR HWC [0; 255] (float) format"""
+        if not self.has_data:
+            return None
         data = self.__data()
         return self._get_roi_data(data)
 
@@ -1112,9 +1120,11 @@ class RoIImageFromBytes(RoIImageFromData):
         super().__init__(data, roi, *args, **kwargs)
 
     @property
-    def data(self) -> np.ndarray:
+    def data(self) -> Optional[np.ndarray]:
         """Image data in BGR HWC [0; 255] (float) format"""
         data = super().data
+        if data is None:
+            return None
         if isinstance(data, bytes):
             data = decode_image(data)
         return self._get_roi_data(data)
@@ -1131,9 +1141,11 @@ class RoIImageFromNumpy(RoIImageFromData):
         super().__init__(data, roi, *args, **kwargs)
 
     @property
-    def data(self) -> np.ndarray:
+    def data(self) -> Optional[np.ndarray]:
         """Image data in BGR HWC [0; 255] (float) format"""
         data = super().data
+        if data is None:
+            return None
         return self._get_roi_data(data)
 
 
@@ -1149,13 +1161,13 @@ class MosaicImage(Image):
 
     @classmethod
     def from_data(cls, data: List[ImageWithRoI], size: Tuple[int, int], *args, **kwargs):
-        return cls.from_image_coord_pairs(data, size, *args, **kwargs)
+        return cls.from_image_roi_pairs(data, size, *args, **kwargs)
 
     @classmethod
-    def from_image_coord_pairs(
+    def from_image_roi_pairs(
         cls, image_coord_pairs: List[ImageWithRoI], size: Tuple[int, int], *args, **kwargs
     ):
-        return MosiacImageFromData(image_coord_pairs, size)
+        return MosaicImageFromImageRoIPairs(image_coord_pairs, size)
 
     @classmethod
     def from_numpy(cls, *args, **kwargs):
@@ -1167,6 +1179,26 @@ class MosaicImage(Image):
 
 
 class MosiacImageFromData(FromDataMixin, MosaicImage):
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        ext: Optional[str] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
+        if not crypter.is_null_crypter:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
+            )
+        data = self.data
+        if data is None:
+            raise ValueError(f"{self.__class__.__name__} is empty.")
+        new_ext = self._get_ext_to_save(fp, ext)
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+        save_image(fp, data, ext=new_ext, crypter=crypter)
+
+
+class MosaicImageFromImageRoIPairs(MosiacImageFromData):
     def __init__(self, data: List[ImageWithRoI], size: Tuple[int, int]) -> None:
         def _get_mosaic_img() -> np.ndarray:
             h, w = self.size
@@ -1186,21 +1218,3 @@ class MosiacImageFromData(FromDataMixin, MosaicImage):
             "data": attrs["data_in"],
             "size": attrs["size"],
         }
-
-    def save(
-        self,
-        fp: Union[str, io.IOBase],
-        ext: Optional[str] = None,
-        crypter: Crypter = NULL_CRYPTER,
-    ):
-        if not crypter.is_null_crypter:
-            raise NotImplementedError(
-                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
-            )
-        data = self.data
-        if data is None:
-            raise ValueError(f"{self.__class__.__name__} is empty.")
-        new_ext = self._get_ext_to_save(fp, ext)
-        if isinstance(fp, str):
-            os.makedirs(osp.dirname(fp), exist_ok=True)
-        save_image(fp, data, ext=new_ext, crypter=crypter)
