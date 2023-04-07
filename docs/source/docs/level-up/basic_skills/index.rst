@@ -26,6 +26,7 @@ Basic Skills
       :text: Level 3: Dataset Import & Export
       :classes: btn-outline-primary btn-block
 
+   :badge:`ProjectCLI,badge-primary`
    :badge:`CLI,badge-info`
    :badge:`Python,badge-warning`
 
