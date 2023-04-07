@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/909>)
 - Refactor CLI commands w/ and w/o project
   (<https://github.com/openvinotoolkit/datumaro/pull/910>)
+- Refactor hl_ops.py
+  (<https://github.com/openvinotoolkit/datumaro/pull/912>)
 - Add tfds:uc_merced and tfds:eurosat download
   (<https://github.com/openvinotoolkit/datumaro/pull/914>)
 

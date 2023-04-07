@@ -42,14 +42,7 @@ from .components.dataset_base import (
 )
 from .components.environment import Environment, PluginRegistry
 from .components.exporter import Exporter, ExportErrorPolicy, FailingExportErrorPolicy
-from .components.hl_ops import (  # pylint: disable=redefined-builtin
-    export,
-    filter,
-    merge,
-    run_model,
-    transform,
-    validate,
-)
+from .components.hl_ops import HLOps
 from .components.importer import FailingImportErrorPolicy, Importer, ImportErrorPolicy
 from .components.launcher import Launcher, ModelTransform
 from .components.media import ByteImage, Image, MediaElement, Video, VideoFrame
