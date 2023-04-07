@@ -111,10 +111,9 @@ class _SubsetWriter:
                         Image.from_file(path=os.path.join(extra_images_dir, extra_image_path))
                     )
 
-                # Temporarily update media with a pcd saved into disk.
+                # Temporarily update media with a new pcd saved into disk.
                 item.media = PointCloud.from_file(path=pcd_fname, extra_images=extra_images)
 
-                item.media = saved_pcd
             yield
             item.media = pcd
         else:
