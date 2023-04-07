@@ -105,10 +105,11 @@ class _SubsetWriter:
                 context.save_point_cloud(item, fname=pcd_fname, subdir=item.subset)
 
                 extra_images = []
-                extra_images_dir = osp.join(context.related_images_dir, item.subset, item.id)
-                for extra_image_path in os.listdir(extra_images_dir):
+                for i, extra_image in enumerate(pcd.extra_images):
                     extra_images.append(
-                        Image.from_file(path=os.path.join(extra_images_dir, extra_image_path))
+                        Image.from_file(
+                            path=context.make_pcd_extra_image_filename(item, i, extra_image)
+                        )
                     )
 
                 # Temporarily update media with a new pcd saved into disk.
@@ -367,14 +368,16 @@ class DatumaroExporter(Exporter):
     PATH_CLS = DatumaroPath
 
     def create_writer(
-        self, subset: str, images_dir: str, pcd_dir: str, related_images_dir: str
+        self,
+        subset: str,
+        images_dir: str,
+        pcd_dir: str,
     ) -> _SubsetWriter:
         export_context = ExportContextComponent(
             save_dir=self._save_dir,
             save_media=self._save_media,
             images_dir=images_dir,
             pcd_dir=pcd_dir,
-            related_images_dir=related_images_dir,
             crypter=NULL_CRYPTER,
             image_ext=self._image_ext,
             default_image_ext=self._default_image_ext,
@@ -398,11 +401,12 @@ class DatumaroExporter(Exporter):
         self._annotations_dir = annotations_dir
 
         self._pcd_dir = osp.join(self._save_dir, self.PATH_CLS.PCD_DIR)
-        self._related_images_dir = osp.join(self._save_dir, self.PATH_CLS.RELATED_IMAGES_DIR)
 
         writers = {
             subset: self.create_writer(
-                subset, self._images_dir, self._pcd_dir, self._related_images_dir
+                subset,
+                self._images_dir,
+                self._pcd_dir,
             )
             for subset in self._extractor.subsets()
         }
@@ -453,8 +457,6 @@ class DatumaroExporter(Exporter):
             if osp.isfile(pcd_path):
                 os.unlink(pcd_path)
 
-            related_images_path = osp.join(
-                save_dir, cls.PATH_CLS.RELATED_IMAGES_DIR, item.subset, item.id
-            )
+            related_images_path = osp.join(save_dir, cls.PATH_CLS.IMAGES_DIR, item.subset, item.id)
             if osp.isdir(related_images_path):
                 shutil.rmtree(related_images_path)

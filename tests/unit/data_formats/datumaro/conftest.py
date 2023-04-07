@@ -333,13 +333,13 @@ def fxt_point_cloud_dataset_pair(test_dir):
                     path=osp.join(test_dir, "point_clouds", "test", "1.pcd"),
                     extra_images=[
                         Image.from_file(
-                            path=osp.join(test_dir, "related_images", "test", "1", "image_0.jpg"),
+                            path=osp.join(test_dir, "images", "test", "1", "extra_image_0.jpg"),
                         ),
                         Image.from_file(
-                            path=osp.join(test_dir, "related_images", "test", "1", "image_1.jpg"),
+                            path=osp.join(test_dir, "images", "test", "1", "extra_image_1.jpg"),
                         ),
                         Image.from_file(
-                            path=osp.join(test_dir, "related_images", "test", "1", "image_2.jpg"),
+                            path=osp.join(test_dir, "images", "test", "1", "extra_image_2.jpg"),
                         ),
                     ],
                 ),

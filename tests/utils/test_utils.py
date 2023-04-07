@@ -285,17 +285,30 @@ def check_save_and_load(
         move_save_dir: If true, move the saved directory again to somewhere.
         This option is useful for testing whether an absolute path exists in the exported dataset.
     """
+
+    def _change_path_in_items(dataset, source_path, target_path):
+        for item in dataset:
+            if item.media and getattr(item.media, "path", None):
+                path = item.media._path
+                item.media = item.media.from_self(path=path.replace(source_path, target_path))
+            if item.media and isinstance(item.media, PointCloud):
+                new_images = []
+                for image in item.media.extra_images:
+                    if getattr(image, "path", None):
+                        path = image._path
+                        new_images.append(
+                            image.from_self(path=path.replace(source_path, target_path))
+                        )
+                    else:
+                        new_images.append(image)
+                item.media._extra_images = new_images
+
     with TemporaryDirectory(prefix=test_dir) as tmp_dir:
         converter(source_dataset, test_dir)
         if move_save_dir:
             save_dir = tmp_dir
             for file in os.listdir(test_dir):
                 shutil.move(osp.join(test_dir, file), save_dir)
-            if target_dataset:
-                for item in target_dataset:
-                    if item.media and getattr(item.media, "path", None):
-                        path = item.media._path
-                        item.media = item.media.from_self(path=path.replace(test_dir, save_dir))
         else:
             save_dir = test_dir
 
@@ -305,6 +318,7 @@ def check_save_and_load(
 
         if target_dataset is None:
             target_dataset = source_dataset
+        _change_path_in_items(target_dataset, test_dir, save_dir)
 
         if not compare and cmp_kwargs.get("dimension") is Dimensions.dim_3d:
             compare = compare_datasets_3d

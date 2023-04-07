@@ -9,7 +9,6 @@ class DatumaroPath:
     IMAGES_DIR = "images"
     ANNOTATIONS_DIR = "annotations"
     PCD_DIR = "point_clouds"
-    RELATED_IMAGES_DIR = "related_images"
     MASKS_DIR = "masks"
 
     ANNOTATION_EXT = ".json"

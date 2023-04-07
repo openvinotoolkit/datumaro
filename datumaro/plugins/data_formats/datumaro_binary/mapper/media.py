@@ -150,7 +150,7 @@ class PointCloudMapper(MediaElementMapper):
 
         extra_images = []
         for _ in range(len_extra_images):
-            img, offset = ImageMapper.backward(_bytes, offset)
+            img, offset = ImageMapper.backward(_bytes, offset, media_path_prefix)
             extra_images.append(img)
 
         return PointCloud.from_file(path=media_dict["path"], extra_images=extra_images), offset
