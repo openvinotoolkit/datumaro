@@ -294,7 +294,7 @@ def check_save_and_load(
             if target_dataset:
                 for item in target_dataset:
                     if item.media and getattr(item.media, "path", None):
-                        path = item.media.path
+                        path = item.media._path
                         item.media = item.media.from_self(path=path.replace(test_dir, save_dir))
         else:
             save_dir = test_dir

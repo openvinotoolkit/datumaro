@@ -121,13 +121,12 @@ class FromFileMixin:
     def __init__(self, path: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert path, "Path can't be empty"
-        path = path.replace("\\", "/")
         self._path = path
 
     @property
     def path(self) -> str:
         """Path to the media file"""
-        return self._path
+        return self._path.replace("\\", "/")
 
     @property
     def bytes(self) -> Optional[bytes]:
