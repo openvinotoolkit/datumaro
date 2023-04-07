@@ -15,14 +15,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/897>)
 - Refactor merge code
   (<https://github.com/openvinotoolkit/datumaro/pull/901>, <https://github.com/openvinotoolkit/datumaro/pull/906>)
+- Refactor download CLI commands
+  (<https://github.com/openvinotoolkit/datumaro/pull/909>)
+- Refactor CLI commands w/ and w/o project
+  (<https://github.com/openvinotoolkit/datumaro/pull/910>)
 - Refactor hl_ops.py
   (<https://github.com/openvinotoolkit/datumaro/pull/912>)
+- Add tfds:uc_merced and tfds:eurosat download
+  (<https://github.com/openvinotoolkit/datumaro/pull/914>)
 
 ### Bug fixes
 - Add UserWarning if an invalid media_type comes to image statistics computation
   (<https://github.com/openvinotoolkit/datumaro/pull/891>)
 - Fix negated `is_encrypted`
   (<https://github.com/openvinotoolkit/datumaro/pull/907>)
+- Fix log issue when importing celeba and align celeba dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/919>)
+- Save extra images of PointCloud when exporting to datumaro format
+  (<https://github.com/openvinotoolkit/datumaro/pull/918>)
 
 ## 28/03/2023 - Release 1.1.1
 ### Bug fixes

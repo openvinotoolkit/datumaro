@@ -910,11 +910,11 @@ class TestMultimerge(TestCase):
 
         source0 = Dataset.from_iterable(
             [
-                DatasetItem(1, media=PointCloud(path=pcd1, extra_images=[image1])),
-                DatasetItem(2, media=PointCloud(path=pcd1, extra_images=[image1])),
-                DatasetItem(3, media=PointCloud(path=pcd2)),
+                DatasetItem(1, media=PointCloud.from_file(path=pcd1, extra_images=[image1])),
+                DatasetItem(2, media=PointCloud.from_file(path=pcd1, extra_images=[image1])),
+                DatasetItem(3, media=PointCloud.from_file(path=pcd2)),
                 DatasetItem(4),
-                DatasetItem(5, media=PointCloud(path=pcd2)),
+                DatasetItem(5, media=PointCloud.from_file(path=pcd2)),
             ],
             categories=[],
             media_type=PointCloud,
@@ -922,11 +922,11 @@ class TestMultimerge(TestCase):
 
         source1 = Dataset.from_iterable(
             [
-                DatasetItem(1, media=PointCloud(path=pcd1, extra_images=[image1])),
-                DatasetItem(2, media=PointCloud(path=pcd1, extra_images=[image2])),
+                DatasetItem(1, media=PointCloud.from_file(path=pcd1, extra_images=[image1])),
+                DatasetItem(2, media=PointCloud.from_file(path=pcd1, extra_images=[image2])),
                 DatasetItem(3),
-                DatasetItem(4, media=PointCloud(path=pcd2)),
-                DatasetItem(5, media=PointCloud(path=pcd2, extra_images=[image2])),
+                DatasetItem(4, media=PointCloud.from_file(path=pcd2)),
+                DatasetItem(5, media=PointCloud.from_file(path=pcd2, extra_images=[image2])),
             ],
             categories=[],
             media_type=PointCloud,
@@ -934,11 +934,13 @@ class TestMultimerge(TestCase):
 
         expected = Dataset.from_iterable(
             [
-                DatasetItem(1, media=PointCloud(path=pcd1, extra_images=[image1])),
-                DatasetItem(2, media=PointCloud(path=pcd1, extra_images=[image1, image2])),
-                DatasetItem(3, media=PointCloud(path=pcd2)),
-                DatasetItem(4, media=PointCloud(path=pcd2)),
-                DatasetItem(5, media=PointCloud(path=pcd2, extra_images=[image2])),
+                DatasetItem(1, media=PointCloud.from_file(path=pcd1, extra_images=[image1])),
+                DatasetItem(
+                    2, media=PointCloud.from_file(path=pcd1, extra_images=[image1, image2])
+                ),
+                DatasetItem(3, media=PointCloud.from_file(path=pcd2)),
+                DatasetItem(4, media=PointCloud.from_file(path=pcd2)),
+                DatasetItem(5, media=PointCloud.from_file(path=pcd2, extra_images=[image2])),
             ],
             categories=[],
             media_type=PointCloud,

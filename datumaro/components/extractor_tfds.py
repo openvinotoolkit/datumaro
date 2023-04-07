@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2022 Intel Corporation
+# Copyright (C) 2021-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -313,6 +313,31 @@ _IMAGENET_ADAPTER = _TfdsAdapter(
     ),
 )
 
+_EUROSAT_ADAPTER = _TfdsAdapter(
+    category_transformers=[_SetLabelCategoriesFromClassLabelFeature("label")],
+    data_transformers=[
+        _SetImageFromImageFeature("image"),
+        _AddLabelFromClassLabelFeature("label"),
+    ],
+    id_generator=_GenerateIdFromFilenameFeature("filename"),
+    metadata=TfdsDatasetMetadata(
+        human_name="EuroSAT", default_output_format="imagenet_txt", media_type=Image
+    ),
+)
+
+
+_UC_MERCED_ADAPTER = _TfdsAdapter(
+    category_transformers=[_SetLabelCategoriesFromClassLabelFeature("label")],
+    data_transformers=[
+        _SetImageFromImageFeature("image"),
+        _AddLabelFromClassLabelFeature("label"),
+    ],
+    id_generator=_GenerateIdFromFilenameFeature("filename"),
+    metadata=TfdsDatasetMetadata(
+        human_name="UCMerced", default_output_format="imagenet_txt", media_type=Image
+    ),
+)
+
 
 def _voc_save_pose_names(
     tfds_builder: tfds.core.DatasetBuilder,
@@ -369,6 +394,8 @@ _TFDS_ADAPTERS = {
     "imagenet_v2": _evolve_adapter_meta(_IMAGENET_ADAPTER, human_name="ImageNetV2"),
     "mnist": _MNIST_ADAPTER,
     "voc/2012": _evolve_adapter_meta(_VOC_ADAPTER, human_name="PASCAL VOC 2012"),
+    "eurosat": _evolve_adapter_meta(_EUROSAT_ADAPTER, human_name="EuroSAT"),
+    "uc_merced": _evolve_adapter_meta(_UC_MERCED_ADAPTER, human_name="UCMerced"),
 }
 
 # Assign the TFDS catalog page as the documentation URL for all datasets.

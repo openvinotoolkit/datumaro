@@ -60,13 +60,14 @@ def test_yolo_to_dm_binary_encryption(
     yolo_dir = get_test_asset_path("yolo_dataset")
 
     # 1. Create project
-    run(helper_tc, "create", "-o", test_dir)
+    run(helper_tc, "project", "create", "-o", test_dir)
 
     # 2. Import yolo format dataset as "src_yolo" name
-    run(helper_tc, "import", "-n", "src_yolo", "-p", test_dir, "-f", "yolo", yolo_dir)
+    run(helper_tc, "project", "import", "-n", "src_yolo", "-p", test_dir, "-f", "yolo", yolo_dir)
 
     # 3. Export it to DatumaroBinary format with encryption
     cmd = [
+        "project",
         "export",
         "-p",
         test_dir,
@@ -86,7 +87,7 @@ def test_yolo_to_dm_binary_encryption(
     run(helper_tc, *cmd)
 
     # Remove src_yolo dataset from the project
-    run(helper_tc, "remove", "-p", test_dir, "src_yolo")
+    run(helper_tc, "project", "remove", "-p", test_dir, "src_yolo")
 
     # Check whether the key exists
     key_path = osp.join(export_dir, "dm_binary", DatumaroBinaryPath.SECRET_KEY_FILE)
@@ -116,6 +117,7 @@ def test_yolo_to_dm_binary_encryption(
     # 5. Succeed to import the encrypted dataset with the true key
     run(
         helper_tc,
+        "project",
         "import",
         "-p",
         test_dir,
@@ -132,6 +134,7 @@ def test_yolo_to_dm_binary_encryption(
     # 6. Re-export it to the yolo format
     run(
         helper_tc,
+        "project",
         "export",
         "-p",
         test_dir,

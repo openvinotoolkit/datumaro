@@ -57,7 +57,7 @@ class HLOps:
             method = env.transforms[method]
 
         if not (inspect.isclass(method) and issubclass(method, Transform)):
-            raise TypeError("Unexpected 'method' argument type: %s" % type(method))
+            raise TypeError(f"Unexpected 'method' argument type: {type(method)}")
 
         produced = method(dataset, **kwargs)
 
@@ -132,8 +132,8 @@ class HLOps:
         **kwargs,
     ) -> IDataset:
         """
-        Applies a model to dataset items' media and produces a dataset with
-        media and annotations.
+        Run the model on the dataset item media entities, such as images,
+        to obtain pseudo labels and add them as dataset annotations.
 
         Args:
             dataset: The dataset to be transformed
@@ -161,7 +161,7 @@ class HLOps:
                 dataset, model, batch_size=batch_size, append_annotation=append_annotation, **kwargs
             )
         else:
-            raise TypeError("Unexpected model argument type: %s" % type(model))
+            raise TypeError(f"Unexpected model argument type: {type(model)}")
 
     @staticmethod
     @scoped
@@ -194,7 +194,7 @@ class HLOps:
             exporter = format
 
         if not (inspect.isclass(exporter) and issubclass(exporter, Exporter)):
-            raise TypeError("Unexpected 'format' argument type: %s" % type(exporter))
+            raise TypeError(f"Unexpected 'format' argument type: {type(exporter)}")
 
         path = osp.abspath(path)
         if not osp.exists(path):
