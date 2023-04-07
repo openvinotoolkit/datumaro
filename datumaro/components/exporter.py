@@ -365,12 +365,12 @@ class ExportContextComponent:
 
         os.makedirs(osp.dirname(path), exist_ok=True)
 
-        def path_generator(i, image):
+        def extra_images_fn(i, image):
             basedir = self._related_images_dir
             basedir = osp.join(basedir, subdir) if subdir is not None else basedir
-            return osp.join(basedir, item.id, f"image_{i}{self.find_image_ext(image)}")
+            return {"fp": osp.join(basedir, item.id, f"image_{i}{self.find_image_ext(image)}")}
 
-        item.media.save(path, path_generator, crypter=NULL_CRYPTER)
+        item.media.save(path, extra_images_fn, crypter=NULL_CRYPTER)
 
     @property
     def images_dir(self) -> str:

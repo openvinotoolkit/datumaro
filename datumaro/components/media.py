@@ -12,7 +12,19 @@ import shutil
 import warnings
 import weakref
 from enum import IntEnum
-from typing import Callable, Generic, Iterable, Iterator, List, Optional, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import cv2
 import numpy as np
@@ -827,14 +839,15 @@ class PointCloud(MediaElement[bytes]):
 
     def _save_extra_images(
         self,
-        fp_fn: Union[Callable[[int, Image], str], Callable[[int, Image], io.IOBase]],
+        fn: Callable[[int, Image], Dict[str, Any]],
         crypter: Optional[Crypter] = None,
     ):
         crypter = crypter if crypter else self._crypter
         for i, img in enumerate(self.extra_images):
             if img.has_data:
-                path = fp_fn(i, img)
-                img.save(path, crypter=crypter)
+                kwargs: Dict[str, Any] = {"crypter": crypter}
+                kwargs.update(fn(i, img))
+                img.save(**kwargs)
 
     def __eq__(self, other: object) -> bool:
         return (
@@ -857,9 +870,7 @@ class PointCloudFromFile(FromFileMixin, PointCloud):
     def save(
         self,
         fp: Union[str, io.IOBase],
-        extra_images_fp_fn: Optional[
-            Union[Callable[[int, Image], str], Callable[[int, Image], io.IOBase]]
-        ] = None,
+        extra_images_fn: Optional[Callable[[int, Image], Dict[str, Any]]] = None,
         crypter: Crypter = NULL_CRYPTER,
     ):
         if not crypter.is_null_crypter:
@@ -881,8 +892,8 @@ class PointCloudFromFile(FromFileMixin, PointCloud):
         else:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), cur_path)
 
-        if extra_images_fp_fn is not None:
-            self._save_extra_images(extra_images_fp_fn, crypter)
+        if extra_images_fn is not None:
+            self._save_extra_images(extra_images_fn, crypter)
 
 
 class PointCloudFromBytes(FromDataMixin[bytes], PointCloud):
@@ -893,9 +904,7 @@ class PointCloudFromBytes(FromDataMixin[bytes], PointCloud):
     def save(
         self,
         fp: Union[str, io.IOBase],
-        extra_images_fp_fn: Optional[
-            Union[Callable[[int, Image], str], Callable[[int, Image], io.IOBase]]
-        ] = None,
+        extra_images_fn: Optional[Callable[[int, Image], Dict[str, Any]]] = None,
         crypter: Crypter = NULL_CRYPTER,
     ):
         if not crypter.is_null_crypter:
@@ -913,8 +922,8 @@ class PointCloudFromBytes(FromDataMixin[bytes], PointCloud):
         else:
             fp.write(_bytes)
 
-        if extra_images_fp_fn is not None:
-            self._save_extra_images(extra_images_fp_fn, crypter)
+        if extra_images_fn is not None:
+            self._save_extra_images(extra_images_fn, crypter)
 
 
 class MultiframeImage(MediaElement):
