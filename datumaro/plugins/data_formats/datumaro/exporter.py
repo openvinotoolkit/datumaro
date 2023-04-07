@@ -105,7 +105,7 @@ class _SubsetWriter:
                 # Temporarily update pcd path and save it.
                 fname = context.make_pcd_filename(item)
                 context.save_point_cloud(item, fname=fname, subdir=item.subset)
-                item.media = PointCloud.from_file(path=fname, extra_images=pcd._extra_images)
+                saved_pcd = PointCloud.from_file(path=fname, extra_images=pcd._extra_images)
 
                 # Temporarily update pcd related images paths and save them.
                 for i, img in enumerate(sorted(pcd.extra_images, key=lambda v: v.path)):
@@ -114,6 +114,7 @@ class _SubsetWriter:
                     img._path = fname
 
                     if img.has_data:
+                        item.media = img
                         context.save_image(
                             item,
                             basedir=context.related_images_dir,
@@ -121,6 +122,7 @@ class _SubsetWriter:
                             fname=fname,
                         )
 
+                item.media = saved_pcd
             yield
             item.media = pcd
             if context.save_media:
