@@ -211,7 +211,7 @@ class TfDetectionApiExporter(Exporter):
         return tf_example
 
     def _save_image(self, item, path=None):  # pylint: disable=arguments-differ
-        src_ext = item.media.ext.lower()
+        src_ext = item.media.ext.lower() if item.media.ext else item.media.ext
         dst_ext = osp.splitext(osp.basename(path))[1].lower()
         fmt = DetectionApiPath.IMAGE_EXT_FORMAT.get(dst_ext, "")
         if not fmt:

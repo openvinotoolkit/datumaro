@@ -120,6 +120,7 @@ class FromFileMixin:
     def __init__(self, path: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert path, "Path can't be empty"
+        path = path.replace("\\", "/")
         self._path = path
 
     @property
@@ -191,9 +192,7 @@ class Image(MediaElement[np.ndarray]):
         )
         super().__init__(*args, **kwargs)
 
-        if ext is None:
-            ext = ""
-        else:
+        if ext is not None:
             if not ext.startswith("."):
                 ext = "." + ext
             ext = ext.lower()
@@ -265,7 +264,7 @@ class Image(MediaElement[np.ndarray]):
         return self._size
 
     @property
-    def ext(self) -> str:
+    def ext(self) -> Optional[str]:
         """Media file extension (with the leading dot)"""
         return self._ext
 
@@ -478,7 +477,12 @@ class ByteImage(ImageFromBytes):
             # from the path, when no data is provided.
             self._data = None
 
+        self._path = path.replace("\\", "/") if path else ""
         self._crypter = crypter
+
+    @property
+    def path(self) -> str:
+        return self._path
 
     @classmethod
     def _guess_ext(cls, data: bytes) -> Optional[str]:
