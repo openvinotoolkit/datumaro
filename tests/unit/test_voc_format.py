@@ -1,6 +1,6 @@
 import os
 import os.path as osp
-import pickle  # nosec - disable B403:import_pickle check
+import pickle  # nosec import_pickle
 from collections import OrderedDict
 from functools import partial
 from unittest import TestCase
