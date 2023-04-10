@@ -1,11 +1,14 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from __future__ import annotations
 
 import math
+import time
 from typing import Iterable, Optional, Tuple, TypeVar
+
+from tqdm import tqdm
 
 T = TypeVar("T")
 
@@ -27,6 +30,13 @@ class ProgressReporter:
         Returns reporting period.
 
         For example, 0.1 would mean every 10%.
+        """
+        raise NotImplementedError
+
+    @property
+    def interval(self) -> float:
+        """
+        Returns reporting time interval in second.
         """
         raise NotImplementedError
 
@@ -68,8 +78,14 @@ class ProgressReporter:
         if total:
             display_step = math.ceil(total * self.period)
 
+        s = time.time()
         for i, elem in enumerate(iterable):
-            if not total or i % display_step == 0:
+            if (
+                not total
+                or (display_step and i % display_step == 0)
+                or time.time() - s > self.interval
+            ):
+                s = time.time()
                 self.report_status(i)
 
             yield elem
@@ -92,6 +108,10 @@ class NullProgressReporter(ProgressReporter):
     def period(self) -> float:
         return 0
 
+    @property
+    def interval(self) -> float:
+        return float("inf")
+
     def start(self, total: int, *, desc: Optional[str] = None):
         pass
 
@@ -105,3 +125,63 @@ class NullProgressReporter(ProgressReporter):
 
     def split(self, count: int) -> Tuple[ProgressReporter]:
         return (self,) * count
+
+
+class SimpleProgressReporter(ProgressReporter):
+    def __init__(self, period: float = 0.1, interval: float = float("inf")):
+        self._period = period
+        self._interval = interval
+
+    @property
+    def period(self) -> float:
+        return self._period
+
+    @property
+    def interval(self) -> float:
+        return self._interval
+
+    def start(self, total: int, *, desc: Optional[str] = None):
+        self._total = total
+        self._desc = desc
+
+    def report_status(self, progress: int):
+        status = str(self._desc) if self._desc else ""
+        status += f"{progress}/{self._total} ({progress/self._total*100:.2f}%)"
+        print(status)
+
+    def split(self, count: int):
+        return (SimpleProgressReporter(self._period, self._interval),) * count
+
+
+class TQDMProgressReporter(ProgressReporter):
+    def __init__(self, period: float = 0.1, interval: float = 0.1, **options):
+        self._period = period
+        self._interval = interval
+        self._options = options
+
+    @property
+    def period(self) -> float:
+        return self._period
+
+    @property
+    def interval(self) -> float:
+        return self._interval
+
+    def start(self, total: int, *, desc: Optional[str] = None):
+        options = self._options.copy()
+        if desc is not None:
+            options["desc"] = desc
+        self._total = total
+        self._pbar = tqdm(total=total, **options)
+        self._cur = 0
+
+    def report_status(self, progress: int):
+        self._pbar.update(progress - self._cur)
+        self._cur = progress
+
+    def finish(self):
+        self._pbar.update(self._total - self._cur)
+        self._pbar.close()
+
+    def split(self, count: int):
+        return (TQDMProgressReporter(self._period, self._interval, **self._options),) * count
