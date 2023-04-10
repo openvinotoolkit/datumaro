@@ -31,7 +31,7 @@ import cv2
 import numpy as np
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
-from datumaro.components.errors import MediaShapeError
+from datumaro.components.errors import DatumaroError, MediaShapeError
 from datumaro.util.definitions import BboxIntCoords
 from datumaro.util.image import (
     _image_loading_errors,
@@ -984,7 +984,7 @@ class RoIImage(Image):
 
     @classmethod
     def from_file(cls, *args, **kwargs):
-        raise NotImplementedError
+        raise DatumaroError(f"Please use a factory function '{cls.__name__}.from_image'.")
 
     @classmethod
     def from_image(cls, data: Image, roi: BboxIntCoords, *args, **kwargs):
@@ -1001,11 +1001,11 @@ class RoIImage(Image):
 
     @classmethod
     def from_numpy(cls, *args, **kwargs):
-        raise NotImplementedError
+        raise DatumaroError(f"Please use a factory function '{cls.__name__}.from_image'.")
 
     @classmethod
     def from_bytes(cls, *args, **kwargs):
-        raise NotImplementedError
+        raise DatumaroError(f"Please use a factory function '{cls.__name__}.from_image'.")
 
     @property
     def roi(self) -> BboxIntCoords:
@@ -1117,7 +1117,7 @@ class MosaicImage(Image):
 
     @classmethod
     def from_file(cls, *args, **kwargs):
-        raise NotImplementedError
+        raise DatumaroError(f"Please use a factory function '{cls.__name__}.from_image_roi_pairs'.")
 
     @classmethod
     def from_image_roi_pairs(cls, data: List[ImageWithRoI], size: Tuple[int, int], *args, **kwargs):
@@ -1125,11 +1125,11 @@ class MosaicImage(Image):
 
     @classmethod
     def from_numpy(cls, *args, **kwargs):
-        raise NotImplementedError
+        raise DatumaroError(f"Please use a factory function '{cls.__name__}.from_image_roi_pairs'.")
 
     @classmethod
     def from_bytes(cls, *args, **kwargs):
-        raise NotImplementedError
+        raise DatumaroError(f"Please use a factory function '{cls.__name__}.from_image_roi_pairs'.")
 
 
 class MosiacImageFromData(FromDataMixin, MosaicImage):
