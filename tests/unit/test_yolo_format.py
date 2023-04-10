@@ -35,7 +35,7 @@ class YoloExportertTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(0, 2, 4, 2, label=2),
                         Bbox(0, 1, 2, 3, label=4),
@@ -44,7 +44,7 @@ class YoloExportertTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 10, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
                     annotations=[
                         Bbox(0, 2, 4, 2, label=2),
                         Bbox(3, 3, 2, 3, label=4),
@@ -54,7 +54,7 @@ class YoloExportertTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="valid",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(0, 1, 5, 2, label=2),
                         Bbox(0, 2, 3, 2, label=5),
@@ -130,7 +130,7 @@ class YoloExportertTest(TestCase):
                 DatasetItem(
                     id="кириллица с пробелом",
                     subset="train",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(0, 2, 4, 2, label=2),
                         Bbox(0, 1, 2, 3, label=4),
@@ -150,12 +150,14 @@ class YoloExportertTest(TestCase):
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", subset="train", media=Image.from_data(data=np.ones((4, 2, 3)))),
                 DatasetItem(
-                    id="subdir1/1", subset="train", media=Image.from_data(data=np.ones((2, 6, 3)))
+                    id="1", subset="train", media=Image.from_numpy(data=np.ones((4, 2, 3)))
                 ),
                 DatasetItem(
-                    id="subdir2/1", subset="train", media=Image.from_data(data=np.ones((5, 4, 3)))
+                    id="subdir1/1", subset="train", media=Image.from_numpy(data=np.ones((2, 6, 3)))
+                ),
+                DatasetItem(
+                    id="subdir2/1", subset="train", media=Image.from_numpy(data=np.ones((5, 4, 3)))
                 ),
             ],
             categories=[],
@@ -176,12 +178,12 @@ class YoloExportertTest(TestCase):
                 DatasetItem(
                     "q/1",
                     subset="train",
-                    media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".JPEG"),
+                    media=Image.from_numpy(data=np.zeros((4, 3, 3)), ext=".JPEG"),
                 ),
                 DatasetItem(
                     "a/b/c/2",
                     subset="valid",
-                    media=Image.from_data(data=np.zeros((3, 4, 3)), ext=".bmp"),
+                    media=Image.from_numpy(data=np.zeros((3, 4, 3)), ext=".bmp"),
                 ),
             ],
             categories=[],
@@ -197,8 +199,8 @@ class YoloExportertTest(TestCase):
     def test_inplace_save_writes_only_updated_data(self):
         expected = Dataset.from_iterable(
             [
-                DatasetItem(1, subset="train", media=Image.from_data(data=np.ones((2, 4, 3)))),
-                DatasetItem(2, subset="train", media=Image.from_data(data=np.ones((3, 2, 3)))),
+                DatasetItem(1, subset="train", media=Image.from_numpy(data=np.ones((2, 4, 3)))),
+                DatasetItem(2, subset="train", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
             ],
             categories=[],
         )
@@ -206,18 +208,18 @@ class YoloExportertTest(TestCase):
         with TestDir() as path:
             dataset = Dataset.from_iterable(
                 [
-                    DatasetItem(1, subset="train", media=Image.from_data(data=np.ones((2, 4, 3)))),
+                    DatasetItem(1, subset="train", media=Image.from_numpy(data=np.ones((2, 4, 3)))),
                     DatasetItem(
                         2, subset="train", media=Image.from_file(path="2.jpg", size=(3, 2))
                     ),
-                    DatasetItem(3, subset="valid", media=Image.from_data(data=np.ones((2, 2, 3)))),
+                    DatasetItem(3, subset="valid", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
                 ],
                 categories=[],
             )
             dataset.export(path, "yolo", save_media=True)
 
             dataset.put(
-                DatasetItem(2, subset="train", media=Image.from_data(data=np.ones((3, 2, 3))))
+                DatasetItem(2, subset="train", media=Image.from_numpy(data=np.ones((3, 2, 3))))
             )
             dataset.remove(3, "valid")
             dataset.save(save_media=True)
@@ -236,7 +238,7 @@ class YoloExportertTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(0, 2, 4, 2, label=2),
                         Bbox(0, 1, 2, 3, label=4),
@@ -245,7 +247,7 @@ class YoloExportertTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 10, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
                     annotations=[
                         Bbox(0, 2, 4, 2, label=2),
                         Bbox(3, 3, 2, 3, label=4),
@@ -255,7 +257,7 @@ class YoloExportertTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="valid",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(0, 1, 5, 2, label=2),
                         Bbox(0, 2, 3, 2, label=5),
@@ -281,7 +283,7 @@ class YoloExportertTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="anything",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(0, 1, 5, 2, label=2),
                         Bbox(0, 2, 3, 2, label=5),
@@ -305,7 +307,7 @@ class YoloExportertTest(TestCase):
                     DatasetItem(
                         id=3,
                         subset=subset,
-                        media=Image.from_data(data=np.ones((8, 8, 3))),
+                        media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     ),
                 ],
                 categories=["a"],
@@ -322,7 +324,7 @@ class YoloExportertTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="valid",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(0, 1, 5, 2, label=1),
                     ],
@@ -366,7 +368,7 @@ class YoloStrictBaseTest(TestCase):
                 DatasetItem(
                     "a",
                     subset="train",
-                    media=Image.from_data(data=np.ones((5, 10, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 10, 3))),
                     annotations=[Bbox(1, 1, 2, 4, label=0)],
                 )
             ],

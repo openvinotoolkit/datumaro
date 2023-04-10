@@ -186,7 +186,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="1",
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 15, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 15, 3))),
                     annotations=[
                         Bbox(
                             0.0,
@@ -263,7 +263,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="1",
                     subset="default",
-                    media=Image.from_data(data=np.ones((16, 16, 3))),
+                    media=Image.from_numpy(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(
                             0.0,
@@ -338,7 +338,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="no_label/2007_000002",
                     subset="default",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 )
             ],
             categories=labels,
@@ -372,7 +372,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                     annotations=[Label(i) for i in range(22) if i % 2 == 1]
                     + [
                         Bbox(
@@ -412,7 +412,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000002",
                     subset="test",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(),
@@ -429,7 +429,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                     annotations=[
                         Bbox(
                             4.0,
@@ -452,7 +452,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000002",
                     subset="test",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(),
@@ -484,13 +484,13 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                     annotations=[Label(i) for i in range(22) if i % 2 == 1],
                 ),
                 DatasetItem(
                     id="2007_000002",
                     subset="test",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(),
@@ -521,7 +521,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                     annotations=[
                         Bbox(
                             4.0,
@@ -558,7 +558,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000002",
                     subset="test",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(),
@@ -589,13 +589,13 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                     annotations=[Mask(image=np.ones([10, 20]), label=2, group=1)],
                 ),
                 DatasetItem(
                     id="2007_000002",
                     subset="test",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(),
@@ -627,7 +627,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                     annotations=[
                         Bbox(
                             4.0,
@@ -649,7 +649,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000002",
                     subset="test",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(),
@@ -681,7 +681,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000001",
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                     annotations=[
                         Bbox(
                             1,
@@ -703,7 +703,7 @@ class VocIntegrationScenarios(TestCase):
                 DatasetItem(
                     id="2007_000002",
                     subset="test",
-                    media=Image.from_data(data=np.ones((10, 20, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
             categories=VOC.make_voc_categories(

@@ -21,7 +21,7 @@ class AvaFormatTest(TestCase):
             [
                 DatasetItem(
                     id="video0/000000",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(x=0, y=0, w=4, h=4, label=0, attributes={"track_id": 0}),
                         Bbox(x=0, y=4, w=2, h=2, label=1, attributes={"track_id": 1}),
@@ -29,7 +29,7 @@ class AvaFormatTest(TestCase):
                 ),
                 DatasetItem(
                     id="video0/000001",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(x=2, y=0, w=4, h=4, label=0, attributes={"track_id": 0}),
                         Bbox(x=2, y=4, w=2, h=2, label=1, attributes={"track_id": 1}),
@@ -37,7 +37,7 @@ class AvaFormatTest(TestCase):
                 ),
                 DatasetItem(
                     id="video1/000000",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(x=0, y=0, w=2, h=2, label=2, attributes={"track_id": 0}),
                         Bbox(x=2, y=2, w=3, h=3, label=3, attributes={"track_id": 1}),
@@ -46,7 +46,7 @@ class AvaFormatTest(TestCase):
                 ),
                 DatasetItem(
                     id="video1/000001",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(x=4, y=4, w=2, h=2, label=2, attributes={"track_id": 0}),
                         Bbox(x=4, y=2, w=3, h=3, label=3, attributes={"track_id": 1}),
@@ -78,7 +78,7 @@ class AvaImporterTest(TestCase):
             [
                 DatasetItem(
                     id="video0/000000",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(x=0, y=0, w=4, h=4, label=0, attributes={"track_id": 0}),
                         Bbox(x=0, y=4, w=2, h=2, label=1, attributes={"track_id": 1}),
@@ -86,7 +86,7 @@ class AvaImporterTest(TestCase):
                 ),
                 DatasetItem(
                     id="video0/000001",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(x=2, y=0, w=4, h=4, label=0, attributes={"track_id": 0}),
                         Bbox(x=2, y=4, w=2, h=2, label=1, attributes={"track_id": 1}),
@@ -94,7 +94,7 @@ class AvaImporterTest(TestCase):
                 ),
                 DatasetItem(
                     id="video1/000000",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(x=0, y=0, w=2, h=2, label=2, attributes={"track_id": 0}),
                         Bbox(x=2, y=2, w=3, h=3, label=3, attributes={"track_id": 1}),
@@ -103,7 +103,7 @@ class AvaImporterTest(TestCase):
                 ),
                 DatasetItem(
                     id="video1/000001",
-                    media=Image.from_data(data=np.ones((8, 8, 3))),
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
                         Bbox(x=4, y=4, w=2, h=2, label=2, attributes={"track_id": 0}),
                         Bbox(x=4, y=2, w=3, h=3, label=3, attributes={"track_id": 1}),

@@ -238,7 +238,7 @@ class Tile(Transform, CliPlugin):
                 self.wrap_item(
                     item,
                     id=item.id + f"_tile_{idx}",
-                    media=RoIImage.from_data(item.media, roi),
+                    media=RoIImage.from_image(item.media, roi),
                     attributes=self._get_tiled_attributes(item, idx, roi),
                     annotations=self._get_tiled_annotations(item, roi),
                 )

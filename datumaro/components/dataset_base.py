@@ -63,7 +63,7 @@ class DatasetItem:
             if isinstance(image, str):
                 image = Image.from_file(path=image)
             elif isinstance(image, np.ndarray) or callable(image):
-                image = Image.from_data(data=image)
+                image = Image.from_numpy(data=image)
             assert isinstance(image, Image)
             media = image
         elif point_cloud is not None:

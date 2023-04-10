@@ -34,7 +34,7 @@ class Ade20k2017ImporterTest(TestCase):
                 DatasetItem(
                     id="street/1",
                     subset="training",
-                    media=Image.from_data(data=np.ones((3, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((3, 4, 3))),
                     annotations=[
                         Mask(image=np.array([[0, 1, 0, 0]] * 3), label=0, group=1, z_order=0, id=1),
                         Mask(image=np.array([[0, 0, 0, 1]] * 3), label=2, group=1, z_order=1, id=1),
@@ -51,7 +51,7 @@ class Ade20k2017ImporterTest(TestCase):
                 DatasetItem(
                     id="2",
                     subset="validation",
-                    media=Image.from_data(data=np.ones((3, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((3, 4, 3))),
                     annotations=[
                         Mask(image=np.array([[0, 1, 0, 1]] * 3), label=0, id=1, z_order=0, group=1),
                         Mask(image=np.array([[0, 0, 1, 0]] * 3), label=1, id=2, z_order=0, group=2),
@@ -77,7 +77,7 @@ class Ade20k2017ImporterTest(TestCase):
                 DatasetItem(
                     id="street/1",
                     subset="training",
-                    media=Image.from_data(data=np.ones((3, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((3, 4, 3))),
                     annotations=[
                         Mask(image=np.array([[0, 1, 0, 0]] * 3), label=0, group=1, z_order=0, id=1),
                         Mask(image=np.array([[0, 0, 0, 1]] * 3), label=2, group=1, z_order=1, id=1),

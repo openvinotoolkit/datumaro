@@ -39,7 +39,7 @@ class ImageZipBase(SubsetBase):
                 item_id, extension = osp.splitext(path.filename)
                 if extension.lower() not in IMAGE_EXTENSIONS:
                     continue
-                image = Image.from_data(data=zf.read(path.filename))
+                image = Image.from_bytes(data=zf.read(path.filename))
                 self._items.append(DatasetItem(id=item_id, media=image, subset=self._subset))
 
 

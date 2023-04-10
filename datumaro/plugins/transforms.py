@@ -968,7 +968,7 @@ class ResizeTransform(ItemTransform):
             resized_image *= 255.0
             return resized_image
 
-        return Image.from_data(_resize_image, ext=image.ext, size=new_size)
+        return Image.from_numpy(_resize_image, ext=image.ext, size=new_size)
 
     @staticmethod
     def _lazy_resize_mask(mask, new_size):

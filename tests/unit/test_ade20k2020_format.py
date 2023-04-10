@@ -34,7 +34,7 @@ class Ade20k2020ImporterTest(TestCase):
                 DatasetItem(
                     id="street/1",
                     subset="training",
-                    media=Image.from_data(data=np.ones((5, 5, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 5, 3))),
                     annotations=[
                         Polygon(
                             [1, 0, 1, 1, 1, 2, 1, 3, 1, 4],
@@ -84,7 +84,7 @@ class Ade20k2020ImporterTest(TestCase):
                 DatasetItem(
                     id="2",
                     subset="validation",
-                    media=Image.from_data(data=np.ones((5, 5, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 5, 3))),
                     annotations=[
                         Mask(
                             image=np.array([[0, 0, 1, 1, 1]] * 5),
@@ -151,7 +151,7 @@ class Ade20k2020ImporterTest(TestCase):
                 DatasetItem(
                     id="street/1",
                     subset="training",
-                    media=Image.from_data(data=np.ones((5, 5, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 5, 3))),
                     annotations=[
                         Polygon(
                             [1, 0, 1, 1, 1, 2, 1, 3, 1, 4],

@@ -158,7 +158,10 @@ class TfDetectionApiBase(SubsetBase):
 
             image = None
             if frame_image:
-                image = Image.from_data(data=frame_image, size=image_size)
+                if isinstance(frame_image, np.ndarray):
+                    image = Image.from_numpy(data=frame_image, size=image_size)
+                else:
+                    image = Image.from_bytes(data=frame_image, size=image_size)
             elif frame_filename:
                 image = Image.from_file(path=osp.join(images_dir, frame_filename), size=image_size)
 

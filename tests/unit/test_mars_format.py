@@ -26,14 +26,14 @@ class MarsImporterTest(TestCase):
             [
                 DatasetItem(
                     id="0001C1T0001F001",
-                    media=Image.from_data(data=np.ones((10, 10, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
                     subset="train",
                     annotations=[Label(label=2)],
                     attributes={"person_id": "0001", "camera_id": 1, "track_id": 1, "frame_id": 1},
                 ),
                 DatasetItem(
                     id="0000C6T0101F001",
-                    media=Image.from_data(data=np.ones((10, 10, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
                     subset="train",
                     annotations=[Label(label=1)],
                     attributes={
@@ -45,7 +45,7 @@ class MarsImporterTest(TestCase):
                 ),
                 DatasetItem(
                     id="00-1C2T0081F201",
-                    media=Image.from_data(data=np.ones((10, 10, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
                     subset="test",
                     annotations=[Label(label=0)],
                     attributes={

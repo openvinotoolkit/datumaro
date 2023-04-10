@@ -40,7 +40,7 @@ class LabelMeExporterTest(TestCase):
                 DatasetItem(
                     id="dir1/1",
                     subset="train",
-                    media=Image.from_data(data=np.ones((16, 16, 3))),
+                    media=Image.from_numpy(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(0, 4, 4, 8, label=2, group=2),
                         Polygon(
@@ -77,7 +77,7 @@ class LabelMeExporterTest(TestCase):
                 DatasetItem(
                     id="dir1/1",
                     subset="train",
-                    media=Image.from_data(data=np.ones((16, 16, 3))),
+                    media=Image.from_numpy(data=np.ones((16, 16, 3))),
                     annotations=[
                         Bbox(
                             0,
@@ -149,9 +149,11 @@ class LabelMeExporterTest(TestCase):
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="a/1", media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".JPEG")),
                 DatasetItem(
-                    id="b/c/d/2", media=Image.from_data(data=np.zeros((3, 4, 3)), ext=".png")
+                    id="a/1", media=Image.from_numpy(data=np.zeros((4, 3, 3)), ext=".JPEG")
+                ),
+                DatasetItem(
+                    id="b/c/d/2", media=Image.from_numpy(data=np.zeros((3, 4, 3)), ext=".png")
                 ),
             ],
             categories=[],
@@ -172,7 +174,7 @@ class LabelMeExporterTest(TestCase):
                 DatasetItem(
                     id="кириллица с пробелом",
                     subset="train",
-                    media=Image.from_data(data=np.ones((16, 16, 3))),
+                    media=Image.from_numpy(data=np.ones((16, 16, 3))),
                     annotations=[Polygon([0, 4, 4, 4, 5, 6], label=3)],
                 ),
             ],
@@ -184,7 +186,7 @@ class LabelMeExporterTest(TestCase):
                 DatasetItem(
                     id="кириллица с пробелом",
                     subset="train",
-                    media=Image.from_data(data=np.ones((16, 16, 3))),
+                    media=Image.from_numpy(data=np.ones((16, 16, 3))),
                     annotations=[
                         Polygon(
                             [0, 4, 4, 4, 5, 6],
@@ -211,12 +213,12 @@ class LabelMeExporterTest(TestCase):
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", media=Image.from_data(data=np.ones((4, 2, 3)))),
-                DatasetItem(id="subdir1/1", media=Image.from_data(data=np.ones((2, 6, 3)))),
-                DatasetItem(id="subdir2/1", media=Image.from_data(data=np.ones((5, 4, 3)))),
+                DatasetItem(id="1", media=Image.from_numpy(data=np.ones((4, 2, 3)))),
+                DatasetItem(id="subdir1/1", media=Image.from_numpy(data=np.ones((2, 6, 3)))),
+                DatasetItem(id="subdir2/1", media=Image.from_numpy(data=np.ones((5, 4, 3)))),
                 DatasetItem(
                     id="sub/dir3/1",
-                    media=Image.from_data(data=np.ones((3, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((3, 4, 3))),
                     annotations=[
                         Mask(
                             np.array(
@@ -234,7 +236,7 @@ class LabelMeExporterTest(TestCase):
                 DatasetItem(
                     id="subdir3/1",
                     subset="a",
-                    media=Image.from_data(data=np.ones((5, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 4, 3))),
                     annotations=[
                         Bbox(
                             1, 2, 3, 4, label=0, attributes={"occluded": False, "username": "user"}
@@ -242,7 +244,7 @@ class LabelMeExporterTest(TestCase):
                     ],
                 ),
                 DatasetItem(
-                    id="subdir3/1", subset="b", media=Image.from_data(data=np.ones((4, 4, 3)))
+                    id="subdir3/1", subset="b", media=Image.from_numpy(data=np.ones((4, 4, 3)))
                 ),
             ],
             categories=["label1", "label2"],
@@ -261,7 +263,7 @@ class LabelMeExporterTest(TestCase):
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="dir/a", media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".jpeg")
+                    id="dir/a", media=Image.from_numpy(data=np.zeros((4, 3, 3)), ext=".jpeg")
                 ),
             ],
             categories=[],
@@ -285,7 +287,7 @@ class LabelMeExporterTest(TestCase):
             [
                 DatasetItem(
                     id="sub/dir3/1",
-                    media=Image.from_data(data=np.ones((3, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((3, 4, 3))),
                     annotations=[
                         Mask(
                             np.array(
@@ -303,7 +305,7 @@ class LabelMeExporterTest(TestCase):
                 DatasetItem(
                     id="subdir3/1",
                     subset="a",
-                    media=Image.from_data(data=np.ones((5, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 4, 3))),
                     annotations=[
                         Bbox(
                             1, 2, 3, 4, label=0, attributes={"occluded": False, "username": "user"}
@@ -361,7 +363,7 @@ class LabelMeImporterTest(TestCase):
             [
                 DatasetItem(
                     id="example_folder/img1",
-                    media=Image.from_data(data=img1),
+                    media=Image.from_numpy(data=img1),
                     annotations=[
                         Polygon(
                             [43, 34, 45, 34, 45, 37, 43, 37],

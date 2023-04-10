@@ -29,19 +29,19 @@ class CommonSuperResolutionImporterTest(TestCase):
             [
                 DatasetItem(
                     id="1",
-                    media=Image.from_data(data=np.ones((3, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((3, 4, 3))),
                     annotations=[
-                        SuperResolutionAnnotation(Image.from_data(data=np.ones((10, 20, 3)))),
+                        SuperResolutionAnnotation(Image.from_numpy(data=np.ones((10, 20, 3)))),
                     ],
-                    attributes={"upsampled": Image.from_data(data=np.ones((10, 20, 3)))},
+                    attributes={"upsampled": Image.from_numpy(data=np.ones((10, 20, 3)))},
                 ),
                 DatasetItem(
                     id="2",
-                    media=Image.from_data(data=np.ones((3, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((3, 4, 3))),
                     annotations=[
-                        SuperResolutionAnnotation(Image.from_data(data=np.ones((10, 20, 3)))),
+                        SuperResolutionAnnotation(Image.from_numpy(data=np.ones((10, 20, 3)))),
                     ],
-                    attributes={"upsampled": Image.from_data(data=np.ones((10, 20, 3)))},
+                    attributes={"upsampled": Image.from_numpy(data=np.ones((10, 20, 3)))},
                 ),
             ]
         )

@@ -35,7 +35,7 @@ def fxt_image_dataset(fxt_image_dataset_expected_mean_std: Tuple[List[int], List
         [
             DatasetItem(
                 id=i,
-                media=Image.from_data(
+                media=Image.from_numpy(
                     data=np.random.normal(expected_mean, expected_std, size=(h, w, 3))
                 ),
             )

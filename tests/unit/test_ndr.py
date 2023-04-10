@@ -41,7 +41,7 @@ class NDRTest(TestCase):
                             idx,
                             subset=subset,
                             annotations=[Label(label_id)],
-                            media=Image.from_data(data=dummy_images[idx % num_duplicate]),
+                            media=Image.from_numpy(data=dummy_images[idx % num_duplicate]),
                         )
                     )
         categories = {AnnotationType.label: label_cat}

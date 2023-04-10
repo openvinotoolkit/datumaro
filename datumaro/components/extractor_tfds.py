@@ -11,6 +11,7 @@ from types import SimpleNamespace as namespace
 from typing import Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Type, Union
 
 import attrs
+import numpy as np
 from attrs import field, frozen
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
@@ -138,7 +139,11 @@ class _SetImageFromImageFeature:
         item: DatasetItem,
         state: namespace,
     ) -> None:
-        item.media = Image.from_data(data=tfds_example[self.feature_name].numpy())
+        data = tfds_example[self.feature_name].numpy()
+        if isinstance(data, np.ndarray):
+            item.media = Image.from_numpy(data=data)
+        else:
+            item.media = Image.from_bytes(data=data)
 
 
 @frozen

@@ -20,7 +20,7 @@ def fxt_dataset_ideal():
         [
             DatasetItem(
                 id=i,
-                media=Image.from_data(data=255 * np.ones((8, 8, 3))),
+                media=Image.from_numpy(data=255 * np.ones((8, 8, 3))),
                 annotations=[Label(i // 2)],
             )
             for i in range(4)
@@ -38,7 +38,7 @@ def fxt_dataset_different():
         [
             DatasetItem(
                 id=i,
-                media=Image.from_data(data=255 * np.ones((8, 8, 3))),
+                media=Image.from_numpy(data=255 * np.ones((8, 8, 3))),
                 annotations=[Label(i // 2)],
             )
             for i in range(4)
@@ -49,7 +49,7 @@ def fxt_dataset_different():
     tgt_dataset = Dataset.from_iterable(
         [
             DatasetItem(
-                id=i, media=Image.from_data(data=np.zeros((8, 8, 3))), annotations=[Label(1)]
+                id=i, media=Image.from_numpy(data=np.zeros((8, 8, 3))), annotations=[Label(1)]
             )
             for i in range(4)
         ],

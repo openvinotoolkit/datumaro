@@ -24,7 +24,7 @@ class PatchTest(TestCase):
                 DatasetItem(
                     id=100,
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 6, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
                     annotations=[
                         Bbox(1, 2, 3, 3, label=0),
                     ],
@@ -32,7 +32,7 @@ class PatchTest(TestCase):
                 # Must be kept
                 DatasetItem(
                     id=1,
-                    media=Image.from_data(data=np.ones((5, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 4, 3))),
                     annotations=[Bbox(1, 2, 3, 4, label=1)],
                 ),
             ],
@@ -45,7 +45,7 @@ class PatchTest(TestCase):
                 DatasetItem(
                     id=100,
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 6, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
                     annotations=[
                         Bbox(1, 2, 3, 4, label=0),  # Label must be remapped
                         Bbox(5, 6, 2, 3, label=1),  # Label must be remapped
@@ -55,7 +55,7 @@ class PatchTest(TestCase):
                 # Must be added
                 DatasetItem(
                     id=2,
-                    media=Image.from_data(data=np.ones((5, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 4, 3))),
                     annotations=[Bbox(1, 2, 3, 2, label=1)],  # Label must be remapped
                 ),
             ],
@@ -67,7 +67,7 @@ class PatchTest(TestCase):
                 DatasetItem(
                     id=100,
                     subset="train",
-                    media=Image.from_data(data=np.ones((10, 6, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
                     annotations=[
                         Bbox(1, 2, 3, 4, label=1, id=1, group=1),
                         Bbox(5, 6, 2, 3, label=0, id=2, group=2),
@@ -75,12 +75,12 @@ class PatchTest(TestCase):
                 ),
                 DatasetItem(
                     id=1,
-                    media=Image.from_data(data=np.ones((5, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 4, 3))),
                     annotations=[Bbox(1, 2, 3, 4, label=1, id=1, group=1)],
                 ),
                 DatasetItem(
                     id=2,
-                    media=Image.from_data(data=np.ones((5, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 4, 3))),
                     annotations=[Bbox(1, 2, 3, 2, label=0, id=2, group=2)],
                 ),
             ],
@@ -119,7 +119,7 @@ class PatchTest(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image.from_data(data=np.zeros((3, 5, 3))),
+                    media=Image.from_numpy(data=np.zeros((3, 5, 3))),
                     annotations=[Bbox(1, 2, 3, 4, label=1)],
                 ),
             ],
@@ -130,7 +130,7 @@ class PatchTest(TestCase):
             [
                 DatasetItem(
                     id=2,
-                    media=Image.from_data(data=np.zeros((3, 4, 3))),
+                    media=Image.from_numpy(data=np.zeros((3, 4, 3))),
                     annotations=[Bbox(1, 2, 3, 2, label=1)],
                 ),
             ],
@@ -152,7 +152,7 @@ class PatchTest(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image.from_data(data=np.zeros((3, 5, 3))),
+                    media=Image.from_numpy(data=np.zeros((3, 5, 3))),
                     annotations=[Bbox(1, 2, 3, 4, label=1)],
                 ),
             ],
@@ -163,7 +163,7 @@ class PatchTest(TestCase):
             [
                 DatasetItem(
                     id=2,
-                    media=Image.from_data(data=np.zeros((3, 4, 3))),
+                    media=Image.from_numpy(data=np.zeros((3, 4, 3))),
                     annotations=[Bbox(1, 2, 3, 2, label=1)],
                 ),
             ],

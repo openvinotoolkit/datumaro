@@ -46,7 +46,7 @@ class TestOperations(TestCase):
             [
                 DatasetItem(
                     id=i,
-                    media=Image.from_data(
+                    media=Image.from_numpy(
                         data=np.random.normal(expected_mean, expected_std, size=(h, w, 3))
                     ),
                 )
@@ -67,7 +67,7 @@ class TestOperations(TestCase):
             [
                 DatasetItem(
                     id=1,
-                    media=Image.from_data(data=np.ones((5, 5, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 5, 3))),
                     annotations=[
                         Caption("hello"),
                         Caption("world"),
@@ -116,7 +116,7 @@ class TestOperations(TestCase):
                 ),
                 DatasetItem(
                     id=2,
-                    media=Image.from_data(data=np.ones((2, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((2, 4, 3))),
                     annotations=[
                         Label(
                             2,
@@ -160,7 +160,7 @@ class TestOperations(TestCase):
                     ],
                 ),
                 DatasetItem(id=3),
-                DatasetItem(id="2.2", media=Image.from_data(data=np.ones((2, 4, 3)))),
+                DatasetItem(id="2.2", media=Image.from_numpy(data=np.ones((2, 4, 3)))),
             ],
             categories=["label_%s" % i for i in range(4)],
         )
@@ -343,8 +343,8 @@ class TestOperations(TestCase):
                 DatasetItem(1, subset="a", media=Image.from_file(path="1.jpg")),
                 DatasetItem(1, subset="b", media=Image.from_file(path="1.jpg")),
                 # same images
-                DatasetItem(2, media=Image.from_data(data=np.ones((5, 5, 3)))),
-                DatasetItem(3, media=Image.from_data(data=np.ones((5, 5, 3)))),
+                DatasetItem(2, media=Image.from_numpy(data=np.ones((5, 5, 3)))),
+                DatasetItem(3, media=Image.from_numpy(data=np.ones((5, 5, 3)))),
                 # no image is always a unique image
                 DatasetItem(4),
             ]

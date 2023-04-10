@@ -18,7 +18,7 @@ def fxt_crypter():
 
 @pytest.fixture()
 def fxt_image_file(test_dir):
-    img = Image.from_data(data=np.random.randint(0, 256, size=(10, 10, 3), dtype=np.uint8))
+    img = Image.from_numpy(data=np.random.randint(0, 256, size=(10, 10, 3), dtype=np.uint8))
     path = osp.join(test_dir, "test_crypter", "test.png")
     img.save(path)
 

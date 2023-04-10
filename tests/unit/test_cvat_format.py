@@ -43,7 +43,7 @@ EXPECTED_IMAGE_DATASETS = [
             DatasetItem(
                 id="img0",
                 subset=subset,
-                media=Image.from_data(data=np.ones((8, 8, 3))),
+                media=Image.from_numpy(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(
                         0,
@@ -70,7 +70,7 @@ EXPECTED_IMAGE_DATASETS = [
             DatasetItem(
                 id="img1",
                 subset=subset,
-                media=Image.from_data(data=np.ones((10, 10, 3))),
+                media=Image.from_numpy(data=np.ones((10, 10, 3))),
                 annotations=[
                     Polygon([1, 2, 3, 4, 6, 5], label=0, z_order=1, attributes={"occluded": False}),
                     Points([1, 2, 3, 4, 5, 6], label=1, z_order=2, attributes={"occluded": False}),
@@ -94,7 +94,7 @@ EXPECTED_IMAGE_DATASETS = [
             DatasetItem(
                 id="img0",
                 subset="train",
-                media=Image.from_data(data=np.ones((8, 8, 3))),
+                media=Image.from_numpy(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(
                         0,
@@ -118,7 +118,7 @@ EXPECTED_IMAGE_DATASETS = [
             DatasetItem(
                 id="img1",
                 subset="train",
-                media=Image.from_data(data=np.ones((10, 10, 3))),
+                media=Image.from_numpy(data=np.ones((10, 10, 3))),
                 annotations=[
                     Polygon([1, 2, 3, 4, 6, 5], z_order=1, attributes={"occluded": False}),
                     Points([1, 2, 3, 4, 5, 6], label=1, z_order=2, attributes={"occluded": False}),
@@ -164,7 +164,7 @@ class CvatImporterTest(TestCase):
                 DatasetItem(
                     id="frame_000010",
                     subset="annotations",
-                    media=Image.from_data(data=255 * np.ones((20, 25, 3))),
+                    media=Image.from_numpy(data=255 * np.ones((20, 25, 3))),
                     annotations=[
                         Bbox(
                             3,
@@ -198,7 +198,7 @@ class CvatImporterTest(TestCase):
                 DatasetItem(
                     id="frame_000013",
                     subset="annotations",
-                    media=Image.from_data(data=255 * np.ones((20, 25, 3))),
+                    media=Image.from_numpy(data=255 * np.ones((20, 25, 3))),
                     annotations=[
                         Bbox(
                             7,
@@ -313,7 +313,7 @@ class CvatExporterTest(TestCase):
                 DatasetItem(
                     id=0,
                     subset="s1",
-                    media=Image.from_data(data=np.zeros((5, 10, 3))),
+                    media=Image.from_numpy(data=np.zeros((5, 10, 3))),
                     annotations=[
                         Polygon(
                             [0, 0, 4, 0, 4, 4],
@@ -341,7 +341,7 @@ class CvatExporterTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="s2",
-                    media=Image.from_data(data=np.zeros((5, 10, 3))),
+                    media=Image.from_numpy(data=np.zeros((5, 10, 3))),
                     annotations=[
                         Polygon(
                             [0, 0, 4, 0, 4, 4],
@@ -369,7 +369,7 @@ class CvatExporterTest(TestCase):
                 DatasetItem(
                     id=0,
                     subset="s1",
-                    media=Image.from_data(data=np.zeros((5, 10, 3))),
+                    media=Image.from_numpy(data=np.zeros((5, 10, 3))),
                     annotations=[
                         Polygon(
                             [0, 0, 4, 0, 4, 4],
@@ -401,7 +401,7 @@ class CvatExporterTest(TestCase):
                 DatasetItem(
                     id=2,
                     subset="s2",
-                    media=Image.from_data(data=np.zeros((5, 10, 3))),
+                    media=Image.from_numpy(data=np.zeros((5, 10, 3))),
                     annotations=[
                         Polygon(
                             [0, 0, 4, 0, 4, 4],
@@ -476,25 +476,25 @@ class CvatExporterTest(TestCase):
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", media=Image.from_data(data=np.ones((4, 2, 3)))),
-                DatasetItem(id="subdir1/1", media=Image.from_data(data=np.ones((2, 6, 3)))),
-                DatasetItem(id="subdir2/1", media=Image.from_data(data=np.ones((5, 4, 3)))),
+                DatasetItem(id="1", media=Image.from_numpy(data=np.ones((4, 2, 3)))),
+                DatasetItem(id="subdir1/1", media=Image.from_numpy(data=np.ones((2, 6, 3)))),
+                DatasetItem(id="subdir2/1", media=Image.from_numpy(data=np.ones((5, 4, 3)))),
             ]
         )
 
         target_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="1", media=Image.from_data(data=np.ones((4, 2, 3))), attributes={"frame": 0}
+                    id="1", media=Image.from_numpy(data=np.ones((4, 2, 3))), attributes={"frame": 0}
                 ),
                 DatasetItem(
                     id="subdir1/1",
-                    media=Image.from_data(data=np.ones((2, 6, 3))),
+                    media=Image.from_numpy(data=np.ones((2, 6, 3))),
                     attributes={"frame": 1},
                 ),
                 DatasetItem(
                     id="subdir2/1",
-                    media=Image.from_data(data=np.ones((5, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 4, 3))),
                     attributes={"frame": 2},
                 ),
             ],
@@ -522,7 +522,7 @@ class CvatExporterTest(TestCase):
                 DatasetItem(
                     id="кириллица с пробелом",
                     subset="s1",
-                    media=Image.from_data(data=np.ones((5, 10, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 10, 3))),
                     annotations=[
                         Label(1),
                     ],
@@ -538,7 +538,7 @@ class CvatExporterTest(TestCase):
                 DatasetItem(
                     id="кириллица с пробелом",
                     subset="s1",
-                    media=Image.from_data(data=np.ones((5, 10, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 10, 3))),
                     annotations=[
                         Label(1),
                     ],
@@ -565,12 +565,12 @@ class CvatExporterTest(TestCase):
             [
                 DatasetItem(
                     "q/1",
-                    media=Image.from_data(data=np.zeros((4, 3, 3)), ext=".jpeg"),
+                    media=Image.from_numpy(data=np.zeros((4, 3, 3)), ext=".jpeg"),
                     attributes={"frame": 1},
                 ),
                 DatasetItem(
                     "a/b/c/2",
-                    media=Image.from_data(data=np.zeros((3, 4, 3)), ext=".bmp"),
+                    media=Image.from_numpy(data=np.zeros((3, 4, 3)), ext=".bmp"),
                     attributes={"frame": 2},
                 ),
             ],
@@ -593,7 +593,7 @@ class CvatExporterTest(TestCase):
             [
                 DatasetItem(
                     id="some/name1",
-                    media=Image.from_data(data=np.ones((4, 2, 3))),
+                    media=Image.from_numpy(data=np.ones((4, 2, 3))),
                     attributes={"frame": 40},
                 ),
             ],
@@ -609,7 +609,7 @@ class CvatExporterTest(TestCase):
             [
                 DatasetItem(
                     id="some/name1",
-                    media=Image.from_data(data=np.ones((4, 2, 3))),
+                    media=Image.from_numpy(data=np.ones((4, 2, 3))),
                     attributes={"frame": 40},
                 ),
             ]
@@ -619,7 +619,7 @@ class CvatExporterTest(TestCase):
             [
                 DatasetItem(
                     id="some/name1",
-                    media=Image.from_data(data=np.ones((4, 2, 3))),
+                    media=Image.from_numpy(data=np.ones((4, 2, 3))),
                     attributes={"frame": 0},
                 ),
             ],
@@ -639,7 +639,7 @@ class CvatExporterTest(TestCase):
         expected = Dataset.from_iterable(
             [
                 DatasetItem(1, subset="a"),
-                DatasetItem(2, subset="a", media=Image.from_data(data=np.ones((3, 2, 3)))),
+                DatasetItem(2, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 DatasetItem(2, subset="b"),
             ],
             categories=[],
@@ -651,12 +651,12 @@ class CvatExporterTest(TestCase):
                 [
                     DatasetItem(1, subset="a"),
                     DatasetItem(2, subset="b"),
-                    DatasetItem(3, subset="c", media=Image.from_data(data=np.ones((3, 2, 3)))),
+                    DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 ]
             )
             dataset.export(path, "cvat", save_media=True)
 
-            dataset.put(DatasetItem(2, subset="a", media=Image.from_data(data=np.ones((3, 2, 3)))))
+            dataset.put(DatasetItem(2, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))))
             dataset.remove(3, "c")
             dataset.save(save_media=True)
 

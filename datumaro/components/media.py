@@ -126,6 +126,7 @@ class FromFileMixin:
     @property
     def path(self) -> str:
         """Path to the media file"""
+        # TODO: do we need this replace?
         return self._path.replace("\\", "/")
 
     @property
@@ -187,8 +188,8 @@ class Image(MediaElement[np.ndarray]):
     ) -> None:
         assert self.__class__ != Image, (
             f"Directly initalizing {self.__class__.__name__} is not supported. "
-            f"Please use fractory functions '{self.__class__.__name__}.from_file()' "
-            f"or '{self.__class__.__name__}.from_data()'."
+            f"Please use one of fractory functions ({self.__class__.__name__}.from_file(), "
+            f"{self.__class__.__name__}.from_numpy(), {self.__class__.__name__}.from_bytes())."
         )
         super().__init__(*args, **kwargs)
 
@@ -208,24 +209,6 @@ class Image(MediaElement[np.ndarray]):
     @classmethod
     def from_file(cls, path: str, *args, **kwargs):
         return ImageFromFile(path, *args, **kwargs)
-
-    @classmethod
-    def from_data(
-        cls,
-        data: Union[np.ndarray, bytes, Callable[[], np.ndarray], Callable[[], bytes]],
-        *args,
-        **kwargs,
-    ):
-        if isinstance(data, np.ndarray):
-            return cls.from_numpy(data, *args, **kwargs)
-        #  raise ValueError(
-        #      f"Can not determine data type ({type(data)}). "
-        #      f"Please initalize it with '{cls.__name__}.from_numpy()' "
-        #      f"or '{cls.__name__}from_bytes()'."
-        #  )
-
-        # TODO: need a better way to determine data type
-        return cls.from_bytes(data, *args, **kwargs)
 
     @classmethod
     def from_numpy(
@@ -448,7 +431,7 @@ class ByteImage(ImageFromBytes):
     ):
         warnings.warn(
             f"Using {self.__class__.__name__} is deprecated. "
-            "Please use 'Image.from_data()' instead.",
+            "Please use 'Image.from_bytes()' instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -475,6 +458,7 @@ class ByteImage(ImageFromBytes):
             # from the path, when no data is provided.
             self._data = None
 
+        # TODO: do we need this replace?
         self._path = path.replace("\\", "/") if path else ""
         self._crypter = crypter
 
@@ -818,8 +802,8 @@ class PointCloud(MediaElement[bytes]):
     ):
         assert self.__class__ != PointCloud, (
             f"Directly initalizing {self.__class__.__name__} is not supported. "
-            f"Please use fractory function '{self.__class__.__name__}.from_file()' "
-            f"or '{self.__class__.__name__}.from_data()'."
+            f"Please use one of fractory function ({self.__class__.__name__}.from_file(), "
+            f"{self.__class__.__name__}.from_bytes())."
         )
         super().__init__(*args, **kwargs)
         self._extra_images = extra_images or []
@@ -827,10 +811,6 @@ class PointCloud(MediaElement[bytes]):
     @classmethod
     def from_file(cls, path: str, *args, **kwargs):
         return PointCloudFromFile(path, *args, **kwargs)
-
-    @classmethod
-    def from_data(cls, data: Union[bytes, Callable[[], bytes]], *args, **kwargs):
-        return cls.from_bytes(data, *args, **kwargs)
 
     @classmethod
     def from_bytes(cls, data: Union[bytes, Callable[[], bytes]], *args, **kwargs):
@@ -957,7 +937,7 @@ class MultiframeImage(MediaElement):
             if isinstance(image, str):
                 image = Image.from_file(path=image)
             elif isinstance(image, np.ndarray) or callable(image):
-                image = Image.from_data(data=image)
+                image = Image.from_numpy(data=image)
 
             self._images[i] = image
 
@@ -989,8 +969,7 @@ class RoIImage(Image):
     ):
         assert self.__class__ != RoIImage, (
             f"Directly initalizing {self.__class__.__name__} is not supported. "
-            f"Please use fractory function '{self.__class__.__name__}.from_file()' "
-            f"or '{self.__class__.__name__}.from_data()'."
+            f"Please use a fractory function '{self.__class__.__name__}.from_image()'. "
         )
 
         assert len(roi) == 4 and all(isinstance(v, int) for v in roi)
@@ -1004,23 +983,8 @@ class RoIImage(Image):
         return attrs
 
     @classmethod
-    def from_file(cls, path: str, roi: BboxIntCoords, *args, **kwargs):
-        return RoIImageFromFile(path, roi, *args, **kwargs)
-
-    @classmethod
-    def from_data(
-        cls,
-        data: Union[bytes, np.ndarray, Image, Callable[[], bytes], Callable[[], np.ndarray]],
-        roi: BboxIntCoords,
-        *args,
-        **kwargs,
-    ):
-        if isinstance(data, Image):
-            return cls.from_image(data, roi, *args, **kwargs)
-        if isinstance(data, np.ndarray):
-            return cls.from_numpy(data, roi, *args, **kwargs)
-        # TODO: need a better way to determine data type
-        return cls.from_bytes(data, roi, *args, **kwargs)
+    def from_file(cls, *args, **kwargs):
+        raise NotImplementedError
 
     @classmethod
     def from_image(cls, data: Image, roi: BboxIntCoords, *args, **kwargs):
@@ -1029,27 +993,19 @@ class RoIImage(Image):
 
         if isinstance(data, ImageFromFile):
             return RoIImageFromFile(path=data.path, roi=roi, ext=data._ext, *args, **kwargs)
-        return RoIImageFromBytes(data=data._data, roi=roi, ext=data._ext, *args, **kwargs)
+        if isinstance(data, ImageFromNumpy):
+            return RoIImageFromNumpy(data=data._data, roi=roi, ext=data._ext, *args, **kwargs)
+        if isinstance(data, ImageFromBytes):
+            return RoIImageFromBytes(data=data._data, roi=roi, ext=data._ext, *args, **kwargs)
+        raise NotImplementedError
 
     @classmethod
-    def from_numpy(
-        cls,
-        data: Union[np.ndarray, Callable[[], np.ndarray]],
-        roi: BboxIntCoords,
-        *args,
-        **kwargs,
-    ):
-        return RoIImageFromNumpy(data, roi, *args, **kwargs)
+    def from_numpy(cls, *args, **kwargs):
+        raise NotImplementedError
 
     @classmethod
-    def from_bytes(
-        cls,
-        data: Union[bytes, Callable[[], bytes]],
-        roi: BboxIntCoords,
-        *args,
-        **kwargs,
-    ):
-        return RoIImageFromBytes(data, roi, *args, **kwargs)
+    def from_bytes(cls, *args, **kwargs):
+        raise NotImplementedError
 
     @property
     def roi(self) -> BboxIntCoords:
@@ -1148,19 +1104,24 @@ ImageWithRoI = Tuple[Image, BboxIntCoords]
 class MosaicImage(Image):
     _type = MediaType.MOSAIC_IMAGE
 
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+        assert self.__class__ != MosaicImage, (
+            f"Directly initalizing {self.__class__.__name__} is not supported. "
+            f"Please use a fractory function '{self.__class__.__name__}.from_image_roi_pairs()'."
+        )
+        super().__init__(*args, **kwargs)
+
     @classmethod
     def from_file(cls, *args, **kwargs):
         raise NotImplementedError
 
     @classmethod
-    def from_data(cls, data: List[ImageWithRoI], size: Tuple[int, int], *args, **kwargs):
-        return cls.from_image_roi_pairs(data, size, *args, **kwargs)
-
-    @classmethod
-    def from_image_roi_pairs(
-        cls, image_coord_pairs: List[ImageWithRoI], size: Tuple[int, int], *args, **kwargs
-    ):
-        return MosaicImageFromImageRoIPairs(image_coord_pairs, size)
+    def from_image_roi_pairs(cls, data: List[ImageWithRoI], size: Tuple[int, int], *args, **kwargs):
+        return MosaicImageFromImageRoIPairs(data, size)
 
     @classmethod
     def from_numpy(cls, *args, **kwargs):

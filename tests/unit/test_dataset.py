@@ -265,7 +265,7 @@ class DatasetTest(TestCase):
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id=1, media=Image.from_data(data=np.ones((3, 3, 3))), annotations=[Label(2)]
+                    id=1, media=Image.from_numpy(data=np.ones((3, 3, 3))), annotations=[Label(2)]
                 ),
             ],
             categories=["a", "b", "c"],
@@ -405,7 +405,7 @@ class DatasetTest(TestCase):
     def test_can_remember_export_options(self):
         dataset = Dataset.from_iterable(
             [
-                DatasetItem(id=1, media=Image.from_data(data=np.ones((1, 2, 3)))),
+                DatasetItem(id=1, media=Image.from_numpy(data=np.ones((1, 2, 3)))),
             ],
             categories=["a"],
         )
@@ -1462,7 +1462,7 @@ class DatasetTest(TestCase):
             nonlocal called
             called = True
 
-        dataset = Dataset.from_iterable([DatasetItem(1, media=Image.from_data(data=test_loader))])
+        dataset = Dataset.from_iterable([DatasetItem(1, media=Image.from_numpy(data=test_loader))])
 
         with TestDir() as test_dir:
             dataset.save(test_dir)
@@ -1481,7 +1481,7 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_model(self):
         dataset = Dataset.from_iterable(
-            [DatasetItem(i, media=Image.from_data(data=np.ones((i, i, 3)))) for i in range(5)],
+            [DatasetItem(i, media=Image.from_numpy(data=np.ones((i, i, 3)))) for i in range(5)],
             categories=["label"],
         )
 
@@ -1491,7 +1491,7 @@ class DatasetTest(TestCase):
             [
                 DatasetItem(
                     i,
-                    media=Image.from_data(data=np.ones((i, i, 3))),
+                    media=Image.from_numpy(data=np.ones((i, i, 3))),
                     annotations=[Label(0, attributes={"idx": i % batch_size, "data": i})],
                 )
                 for i in range(5)
@@ -1623,11 +1623,11 @@ class DatasetTest(TestCase):
         with TestDir() as path:
             dataset = Dataset.from_iterable(
                 [
-                    DatasetItem(1, subset="train", media=Image.from_data(data=np.ones((2, 4, 3)))),
+                    DatasetItem(1, subset="train", media=Image.from_numpy(data=np.ones((2, 4, 3)))),
                     DatasetItem(
                         2, subset="train", media=Image.from_file(path="2.jpg", size=(3, 2))
                     ),
-                    DatasetItem(3, subset="valid", media=Image.from_data(data=np.ones((2, 2, 3)))),
+                    DatasetItem(3, subset="valid", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
                 ],
                 categories=[],
                 env=env,
@@ -1635,7 +1635,7 @@ class DatasetTest(TestCase):
             dataset.export(path, "test", save_media=True)
 
             dataset.put(
-                DatasetItem(2, subset="train", media=Image.from_data(data=np.ones((3, 2, 3))))
+                DatasetItem(2, subset="train", media=Image.from_numpy(data=np.ones((3, 2, 3))))
             )
             dataset.remove(3, "valid")
             dataset.save(save_media=True)
@@ -1937,7 +1937,7 @@ class DatasetTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="subset",
-                    media=Image.from_data(data=np.ones((5, 4, 3))),
+                    media=Image.from_numpy(data=np.ones((5, 4, 3))),
                     annotations=[
                         Label(0, attributes={"a1": 1, "a2": "2"}, id=1, group=2),
                         Caption("hello", id=1, group=5),
@@ -1964,7 +1964,7 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
     def test_can_specify_media_type_in_ctor(self):
         dataset = Dataset.from_iterable(
-            [DatasetItem(id=1, media=Image.from_data(data=np.ones((5, 4, 3))))], media_type=Video
+            [DatasetItem(id=1, media=Image.from_numpy(data=np.ones((5, 4, 3))))], media_type=Video
         )
 
         self.assertTrue(dataset.media_type() is Video)
@@ -1974,7 +1974,7 @@ class DatasetTest(TestCase):
         dataset = Dataset(media_type=Video)
 
         with self.assertRaises(MediaTypeError):
-            dataset.put(DatasetItem(id=1, media=Image.from_data(data=np.ones((5, 4, 3)))))
+            dataset.put(DatasetItem(id=1, media=Image.from_numpy(data=np.ones((5, 4, 3)))))
 
     @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
     def test_cant_change_media_type_with_transform(self):
@@ -2001,7 +2001,7 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
     def test_can_check_media_type_on_caching(self):
         dataset = Dataset.from_iterable(
-            [DatasetItem(id=1, media=Image.from_data(data=np.ones((5, 4, 3))))], media_type=Video
+            [DatasetItem(id=1, media=Image.from_numpy(data=np.ones((5, 4, 3))))], media_type=Video
         )
 
         with self.assertRaises(MediaTypeError):
@@ -2022,9 +2022,9 @@ class DatasetItemTest(TestCase):
         for args in [
             {"id": 0, "media": None},
             {"id": 0, "media": Image.from_file(path="path.jpg")},
-            {"id": 0, "media": Image.from_data(data=np.array([1, 2, 3]))},
-            {"id": 0, "media": Image.from_data(data=lambda f: np.array([1, 2, 3]))},
-            {"id": 0, "media": Image.from_data(data=np.array([1, 2, 3]))},
+            {"id": 0, "media": Image.from_numpy(data=np.array([1, 2, 3]))},
+            {"id": 0, "media": Image.from_numpy(data=lambda f: np.array([1, 2, 3]))},
+            {"id": 0, "media": Image.from_numpy(data=np.array([1, 2, 3]))},
         ]:
             DatasetItem(**args)
 
@@ -2036,7 +2036,7 @@ class DatasetFilterTest(TestCase):
         item = DatasetItem(
             id=1,
             subset="subset",
-            media=Image.from_data(data=np.ones((5, 4, 3))),
+            media=Image.from_numpy(data=np.ones((5, 4, 3))),
             annotations=[
                 Label(0, attributes={"a1": 1, "a2": "2"}, id=1, group=2),
                 Caption("hello", id=1),
