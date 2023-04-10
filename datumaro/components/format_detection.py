@@ -61,7 +61,7 @@ class FormatDetectionConfidence(IntEnum):
 @dataclass(order=True, frozen=True)
 class DetectedFormat:
     confidence: FormatDetectionConfidence = field(compare=True)
-    name: str
+    name: str = field(compare=False)
 
     def __eq__(self, __o: "DetectedFormat") -> bool:
         return self.name == __o.name
