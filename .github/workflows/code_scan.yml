@@ -16,11 +16,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
-      - name: Run checks
-        run: |
-          pip install --user -r tests/requirements-linters.txt
-          echo "Bandit version: "`bandit --version | head -1`
-          bandit -r -c ipas_default.config ./ -f txt -o bandit-report.txt
+      - name: Bandit Scanning
+        run: run: tox -e bandit-scan
       - name: Upload Bandit artifact
         uses: actions/upload-artifact@v3
         with:
