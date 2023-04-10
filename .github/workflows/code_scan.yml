@@ -28,9 +28,10 @@ jobs:
           path: .tox/bandit-report.txt
         # Use always() to always run this step to publish scan results when there are test failures
         if: ${{ always() }}
-      - name: Microsoft Teams Notification
-        uses: skitionek/notify-microsoft-teams@master
-        if: failure()
-        with:
-          webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
-          overwrite: "{title: `Code Scanning failure`, text: Failure in `${workflow_link}`}"
+  call-notify-to-teams:
+    needs: [Bandit]
+    if: |
+      always() &&
+      contains(needs.*.result, 'failure')
+    uses: ./.github/workflows/notify_teams.yml
+    secrets: inherit
