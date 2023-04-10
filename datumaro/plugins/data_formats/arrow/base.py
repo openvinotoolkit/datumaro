@@ -17,13 +17,15 @@ from .mapper.dataset_item import DatasetItemMapper
 
 
 class ArrowBase(SubsetBase):
-    def __init__(self, path):
+    def __init__(self, path, ctx):
         self._path = path
+        self._ctx = ctx
+
         self._schema = None
         self._infos = None
         self._categories = None
 
-        super().__init__(subset=osp.splitext(osp.basename(path))[0])
+        super().__init__(subset=osp.splitext(osp.basename(path))[0], ctx=ctx)
 
         self._load()
 
@@ -47,6 +49,8 @@ class ArrowBase(SubsetBase):
             dataset = ArrowDataset(self._path)
             dataset = dataset.flatten()
 
-            for i in range(len(dataset)):
+            for i in self._ctx.progress_reporter.iter(
+                range(len(dataset)), desc=f"Reading Arrow from '{osp.basename(self._path)}'"
+            ):
                 batches = dataset.get_batches(i, 1)
                 self._items.extend(DatasetItemMapper.backward_from_batches(batches))

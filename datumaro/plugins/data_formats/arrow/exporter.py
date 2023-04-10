@@ -12,7 +12,6 @@ from typing import Callable, Optional, Union
 
 import pyarrow as pa
 import pytz
-from tqdm import tqdm
 
 from datumaro.components.crypter import NULL_CRYPTER
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
@@ -46,6 +45,7 @@ class _SubsetWriter(__SubsetWriter):
             "media_type": None,
             "built_time": str(datetime.datetime.now(pytz.utc)),
             "source_path": self.export_context.source_path,
+            "encoding_scheme": self.export_context._image_ext,
             "version": str(DatumaroArrow.VERSION),
             "signature": DatumaroArrow.SIGNATURE,
         }
@@ -72,11 +72,11 @@ class _SubsetWriter(__SubsetWriter):
             {k: v for k, v in self._data.items() if k != "items"}
         )
 
-        f_name = os.path.join(self._context._save_dir, f"{self._subset}.arrow")
+        f_name = os.path.join(self.export_context.save_dir, f"{self._subset}.arrow")
         self._writer = pa.RecordBatchStreamWriter(f_name, self._schema)
 
     def add_item(self, item: DatasetItem):
-        item = DatasetItemMapper.forward(item, media={"encoder": self._context._image_ext})
+        item = DatasetItemMapper.forward(item, media={"encoder": self.export_context._image_ext})
 
         # truncate source path since the media is embeded in arrow
         if item["media"].get("bytes", None) is not None:
@@ -153,7 +153,9 @@ class ArrowExporter(Exporter):
             writer.add_media_type(self._extractor.media_type()._type)
             writer.init_writer()
 
-        for item in tqdm(self._extractor, desc="Building arrow", ncols=81):
+        for item in self._ctx.progress_reporter.iter(
+            self._extractor, desc=f"Building Arrow ({self._image_ext})"
+        ):
             subset = item.subset or DEFAULT_SUBSET_NAME
             writers[subset].add_item(item)
             writers[subset].write()
