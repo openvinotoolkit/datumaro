@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
 import os
 import os.path as osp
 
@@ -45,7 +44,7 @@ class ImagenetBase(SubsetBase):
             label = osp.basename(osp.dirname(image_path))
             image_name = osp.splitext(osp.basename(image_path))[0]
 
-            item_id = osp.join(label, image_name)
+            item_id = label + ":" + image_name
             item = items.get(item_id)
             if item is None:
                 item = DatasetItem(id=item_id, subset=self._subset, media=Image(path=image_path))
@@ -131,38 +130,31 @@ class ImagenetExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
 
     def apply(self):
-        def _get_dir_name(id_parts, label_name):
-            if 1 < len(id_parts) and id_parts[0] == label_name:
-                return ""
-            else:
-                return label_name
-
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
-
-        if 1 < len(self._extractor.subsets()):
-            log.warning(
-                "ImageNet format only supports exporting a single "
-                "subset, subset information will not be used."
-            )
 
         subset_dir = self._save_dir
         extractor = self._extractor
         labels = {}
+        label_categories = extractor.categories()[AnnotationType.label]
         for item in self._extractor:
-            id_parts = item.id.split("/")
+            id_part = item.id.split(":")[-1]
             labels = set(p.label for p in item.annotations if p.type == AnnotationType.label)
 
             for label in labels:
-                label_name = extractor.categories()[AnnotationType.label][label].name
+                label_name = label_categories[label].name
                 self._save_image(
-                    item, subdir=osp.join(subset_dir, _get_dir_name(id_parts, label_name))
+                    item,
+                    name=id_part,
+                    subdir=osp.join(subset_dir, item.subset, label_name),
                 )
 
             if not labels:
                 self._save_image(
                     item,
                     subdir=osp.join(
-                        subset_dir, _get_dir_name(id_parts, ImagenetPath.IMAGE_DIR_NO_LABEL)
+                        subset_dir,
+                        item.subset,
+                        ImagenetPath.IMAGE_DIR_NO_LABEL,
                     ),
                 )

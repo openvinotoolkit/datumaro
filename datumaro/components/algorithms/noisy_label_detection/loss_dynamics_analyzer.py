@@ -29,9 +29,23 @@ class NoisyLabelCandidate:
 
 
 class LossDynamicsAnalyzer:
+    """A class for analyzing the dynamics of training loss to identify noisy labels.
+
+    This class parses the dataset to extract information about the training loss dynamics.
+    It then calculates the exponential moving average (EMA) of the training loss dynamics.
+    A higher EMA value of training loss dynamics can indicate a noisy labeled sample [1]_.
+    The class provides an interface to extract the top-k candidates for noisy labels
+    based on the statistics. Additionally, it can plot the EMA curves of loss dynamics for the candidates,
+    allowing comparison of the dataset's overall average or averages grouped by labels.
+
+    .. [1] Zhou, Tianyi, Shengjie Wang, and Jeff Bilmes.
+    "Robust curriculum learning: from clean label detection to noisy label self-correction."
+    International Conference on Learning Representations. 2021.
+    """
+
     allowed_task_names = {"OTX-MultiClassCls"}
 
-    def __init__(self, dataset: IDataset, alpha: float = 0.01) -> None:
+    def __init__(self, dataset: IDataset, alpha: float = 0.001) -> None:
         purpose = dataset.infos().get("purpose")
         if purpose != "noisy_label_detection":
             raise DatasetError(
@@ -71,8 +85,13 @@ class LossDynamicsAnalyzer:
         label_categories = self._dataset.categories()[AnnotationType.label]
         return {label_categories[k]: v for k, v in self._mean_loss_dyns_per_label.items()}
 
+    @property
+    def ema_dataframe(self) -> pd.DataFrame:
+        """Pandas DataFrame including full EMA loss dynamics statistics."""
+        return self._df
+
     @staticmethod
-    def _parse_to_dataframe(dataset: IDataset, ema_alpha: float = 0.01) -> pd.DataFrame:
+    def _parse_to_dataframe(dataset: IDataset, ema_alpha: float = 0.001) -> pd.DataFrame:
         """Parse loss dynamics statistics from Datumaro dataset to Pandas DataFrame."""
         ema_loss_dyns_list = []
         for item in dataset:
@@ -89,6 +108,7 @@ class LossDynamicsAnalyzer:
         df = pd.DataFrame(ema_loss_dyns_list).rename_axis(
             ["item_id", "item_subset", "ann_id", "ann_label"]
         )
+        df.sort_index(axis=1, inplace=True)
         df["last_value"] = df.apply(lambda row: row[row.last_valid_index()], axis=1)
         df.insert(0, "last_value", df.pop("last_value"))
         df.sort_values(by="last_value", inplace=True)
@@ -152,10 +172,10 @@ class LossDynamicsAnalyzer:
             ids = [cand.id for cand in cands]
             target = self._df.query(f"item_id == {ids}")
 
-            for (item_id, subset_id, ann_id, label_id), row in target.iterrows():
+            for (item_id, subset_id, ann_id, label), row in target.iterrows():
                 plt.plot(
-                    row.iloc[1:],
-                    label=f"id={item_id}, subset={subset_id}, ann_id={ann_id}, label_id={label_id}",
+                    row.dropna().iloc[1:],
+                    label=f"id={item_id}, subset={subset_id}, ann_id={ann_id}, label_id={label}",
                     **kwargs,
                 )
 
@@ -167,6 +187,8 @@ class LossDynamicsAnalyzer:
                 if label_id is not None
                 else "Compare the candidates with the average of dataset"
             )
-            plt.legend()
+            plt.legend(
+                loc="upper center", bbox_to_anchor=(0.5, -0.05), fancybox=True, shadow=True, ncol=1
+            )
 
         return fig
