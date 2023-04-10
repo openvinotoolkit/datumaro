@@ -234,7 +234,7 @@ class Image(MediaElement[np.ndarray]):
         *args,
         **kwargs,
     ):
-        return ImgaeFromNumpy(data, *args, **kwargs)
+        return ImageFromNumpy(data, *args, **kwargs)
 
     @classmethod
     def from_bytes(
@@ -357,7 +357,7 @@ class ImageFromData(FromDataMixin, Image):
         save_image(fp, data, ext=new_ext, crypter=crypter)
 
 
-class ImgaeFromNumpy(ImageFromData):
+class ImageFromNumpy(ImageFromData):
     def __init__(
         self,
         data: Union[Callable[[], bytes], bytes],
@@ -517,7 +517,7 @@ class ByteImage(ImageFromBytes):
             save_image(path, self.data)
 
 
-class VideoFrame(ImgaeFromNumpy):
+class VideoFrame(ImageFromNumpy):
     _type = MediaType.VIDEO_FRAME
 
     _DEFAULT_EXT = None
