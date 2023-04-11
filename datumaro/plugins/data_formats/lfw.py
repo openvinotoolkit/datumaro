@@ -100,7 +100,7 @@ class LfwBase(SubsetBase):
                     if item_id not in items:
                         image = images.get(item_id)
                         if image:
-                            image = Image(path=image)
+                            image = Image.from_file(path=image)
 
                         items[item_id] = DatasetItem(
                             id=item_id, subset=self._subset, media=image, annotations=annotations
@@ -116,7 +116,7 @@ class LfwBase(SubsetBase):
 
                         image = images.get(image1)
                         if image:
-                            image = Image(path=image)
+                            image = Image.from_file(path=image)
 
                         items[id1] = DatasetItem(
                             id=id1, subset=self._subset, media=image, annotations=annotations
@@ -127,7 +127,7 @@ class LfwBase(SubsetBase):
 
                         image = images.get(image2)
                         if image:
-                            image = Image(path=image)
+                            image = Image.from_file(path=image)
 
                         items[id2] = DatasetItem(
                             id=id2, subset=self._subset, media=image, annotations=annotations
@@ -152,7 +152,7 @@ class LfwBase(SubsetBase):
 
                         image = images.get(image1)
                         if image:
-                            image = Image(path=image)
+                            image = Image.from_file(path=image)
 
                         items[id1] = DatasetItem(
                             id=id1, subset=self._subset, media=image, annotations=annotations
@@ -165,7 +165,7 @@ class LfwBase(SubsetBase):
 
                         image = images.get(image2)
                         if image:
-                            image = Image(path=image)
+                            image = Image.from_file(path=image)
 
                         items[id2] = DatasetItem(
                             id=id2, subset=self._subset, media=image, annotations=annotations

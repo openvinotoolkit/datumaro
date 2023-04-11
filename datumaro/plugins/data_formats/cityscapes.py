@@ -281,14 +281,16 @@ class CityscapesBase(SubsetBase):
 
             image = image_path_by_id.pop(item_id, None)
             if image:
-                image = Image(path=image)
+                image = Image.from_file(path=image)
 
             items[item_id] = DatasetItem(
                 id=item_id, subset=self._subset, media=image, annotations=anns
             )
 
         for item_id, path in image_path_by_id.items():
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset, media=Image(path=path))
+            items[item_id] = DatasetItem(
+                id=item_id, subset=self._subset, media=Image.from_file(path=path)
+            )
 
         self._categories = self._load_categories(
             self._path, use_train_label_map=mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX

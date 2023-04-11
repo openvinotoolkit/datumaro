@@ -89,7 +89,7 @@ class LabelMeBase(DatasetBase):
                 height_elem = imagesize_elem.find("nrows")
                 image_size = (int(height_elem.text), int(width_elem.text))
 
-            image = Image(path=image_path, size=image_size)
+            image = Image.from_file(path=image_path, size=image_size)
 
             annotations = self._parse_annotations(root, osp.join(dataset_root, subset), categories)
 

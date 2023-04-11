@@ -225,7 +225,7 @@ class CamvidBase(SubsetBase):
                 items[item_id] = DatasetItem(
                     id=item_id,
                     subset=self._subset,
-                    media=Image(path=image_path),
+                    media=Image.from_file(path=image_path),
                     annotations=item_annotations,
                 )
 

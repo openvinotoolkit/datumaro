@@ -38,7 +38,7 @@ def fxt_dataset():
         [
             DatasetItem(
                 id="0001",
-                media=Image(data=np.ones((1, 5, 3))),
+                media=Image.from_numpy(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(image=np.array([[1, 1, 0, 1, 1]]), label=3),
                     Mask(image=np.array([[0, 0, 1, 0, 0]]), label=5),
@@ -46,7 +46,7 @@ def fxt_dataset():
             ),
             DatasetItem(
                 id="0002",
-                media=Image(data=np.ones((1, 5, 3))),
+                media=Image.from_numpy(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(image=np.array([[1, 1, 1, 0, 0]]), label=1),
                     Mask(image=np.array([[0, 0, 0, 1, 1]]), label=4),
@@ -74,7 +74,7 @@ def fxt_non_standard_dataset():
         [
             DatasetItem(
                 id="0001",
-                media=Image(data=np.ones((1, 5, 3))),
+                media=Image.from_numpy(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(image=np.array([[1, 1, 0, 1, 1]]), label=3),
                     Mask(image=np.array([[0, 0, 1, 0, 0]]), label=5),
@@ -82,7 +82,7 @@ def fxt_non_standard_dataset():
             ),
             DatasetItem(
                 id="0002",
-                media=Image(data=np.ones((1, 5, 3))),
+                media=Image.from_numpy(data=np.ones((1, 5, 3))),
                 annotations=[
                     Mask(image=np.array([[1, 1, 0, 0, 0]]), label=1),
                     Mask(image=np.array([[0, 0, 1, 0, 0]]), label=5),

@@ -47,7 +47,7 @@ class KittiRawIntegrationScenarios(TestCase):
                         media=PointCloud.from_file(
                             path=osp.join(export_dir, "ds0", "pointcloud", "0000000000.pcd"),
                             extra_images=[
-                                Image(
+                                Image.from_file(
                                     path=osp.join(
                                         export_dir,
                                         "ds0",
@@ -74,7 +74,7 @@ class KittiRawIntegrationScenarios(TestCase):
                         media=PointCloud.from_file(
                             path=osp.join(export_dir, "ds0", "pointcloud", "0000000001.pcd"),
                             extra_images=[
-                                Image(
+                                Image.from_file(
                                     path=osp.join(
                                         export_dir,
                                         "ds0",
@@ -100,7 +100,7 @@ class KittiRawIntegrationScenarios(TestCase):
                         media=PointCloud.from_file(
                             path=osp.join(export_dir, "ds0", "pointcloud", "0000000002.pcd"),
                             extra_images=[
-                                Image(
+                                Image.from_file(
                                     path=osp.join(
                                         export_dir,
                                         "ds0",

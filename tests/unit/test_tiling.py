@@ -73,7 +73,7 @@ class _TestBase:
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[Label(id=idx, **self.default_label_attrs)],
                 )
                 for idx in range(self.n_items)
@@ -86,7 +86,7 @@ class _TestBase:
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[Caption(id=idx, caption=f"caption_{idx}", **self.default_attrs)],
                 )
                 for idx in range(self.n_items)
@@ -99,7 +99,7 @@ class _TestBase:
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[
                         Bbox(
                             x=self.tile_width * col,
@@ -123,7 +123,7 @@ class _TestBase:
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[
                         Polygon(
                             Bbox(
@@ -149,7 +149,7 @@ class _TestBase:
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[
                         Points(
                             Bbox(
@@ -174,7 +174,7 @@ class _TestBase:
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[
                         PolyLine(
                             Bbox(
@@ -205,7 +205,7 @@ class _TestBase:
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[
                         Mask(
                             mask,
@@ -229,7 +229,7 @@ class _TestBase:
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[
                         DepthAnnotation(
                             depth,
@@ -247,7 +247,7 @@ class _TestBase:
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[Cuboid3d(position=(0, 0, 0), **self.default_attrs)],
                 )
                 for idx in range(self.n_items)
@@ -260,7 +260,7 @@ class _TestBase:
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[
                         SuperResolutionAnnotation(
                             image=np.zeros((self.height, self.width, 3)), **self.default_attrs
@@ -305,7 +305,7 @@ class TileTest(_TestBase, TestCase):
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[Label(id=idx, **self.default_label_attrs)],
                 )
                 for idx in range(self.n_items)
@@ -557,7 +557,7 @@ class TileTest(_TestBase, TestCase):
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[
                         Points(
                             self._create_sticking_out_box(row, col).as_polygon(),
@@ -597,7 +597,7 @@ class TileTest(_TestBase, TestCase):
             [
                 DatasetItem(
                     id=idx,
-                    media=Image(data=np.zeros((self.height, self.width, 3))),
+                    media=Image.from_numpy(data=np.zeros((self.height, self.width, 3))),
                     annotations=[
                         self._create_sticking_out_box(row, col)
                         for row in range(self.n_tiles)

@@ -70,7 +70,7 @@ class TestRelevancySampler(TestCase):
                 attr = {"scores": scores}
                 if no_attr:
                     attr = {}
-                img = Image(path=f"test/dataset/{idx}.jpg", size=(90, 90))
+                img = Image.from_file(path=f"test/dataset/{idx}.jpg", size=(90, 90))
                 if no_img:
                     img = None
                 iterable.append(

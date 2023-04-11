@@ -135,7 +135,7 @@ class VggFace2Base(DatasetBase):
                 if item_id not in items:
                     image = images.get(row["NAME_ID"])
                     if image:
-                        image = Image(path=image)
+                        image = Image.from_file(path=image)
                     items[item_id] = DatasetItem(id=item_id, subset=subset, media=image)
 
                 annotations = items[item_id].annotations
@@ -168,7 +168,7 @@ class VggFace2Base(DatasetBase):
                 if item_id not in items:
                     image = images.get(row["NAME_ID"])
                     if image:
-                        image = Image(path=image)
+                        image = Image.from_file(path=image)
                     items[item_id] = DatasetItem(id=item_id, subset=subset, media=image)
 
                 annotations = items[item_id].annotations

@@ -349,7 +349,7 @@ class OpenImagesBase(DatasetBase):
                 "It should be in the '%s' directory" % (item_id, OpenImagesPath.IMAGES_DIR)
             )
         else:
-            image = Image(path=image_path, size=self._image_meta.get(item_id))
+            image = Image.from_file(path=image_path, size=self._image_meta.get(item_id))
 
         item = DatasetItem(id=item_id, media=image, subset=subset)
         self._items.append(item)
