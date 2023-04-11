@@ -67,14 +67,11 @@ class Merger(IMerger, CliPlugin):
         return None
 
     def __call__(self, *datasets: IDataset) -> DatasetItemStorageDatasetView:
-        # TODO: self.merge() should be the first since this order matters for
-        # IntersectMerge.
-        merged = self.merge(datasets)
         infos = self.merge_infos(d.infos() for d in datasets)
         categories = self.merge_categories(d.categories() for d in datasets)
         media_type = self.merge_media_types(datasets)
         return DatasetItemStorageDatasetView(
-            parent=merged, infos=infos, categories=categories, media_type=media_type
+            parent=self.merge(datasets), infos=infos, categories=categories, media_type=media_type
         )
 
     def save_merge_report(self, path: str) -> None:

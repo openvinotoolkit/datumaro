@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import Dict, Sequence
+
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset_base import IDataset
 from datumaro.components.dataset_item_storage import DatasetItemStorage
@@ -26,7 +28,7 @@ class UnionMerge(Merger):
         super().__init__(**options)
         self._matching_table = {}
 
-    def merge(self, *sources: IDataset) -> DatasetItemStorage:
+    def merge(self, sources: Sequence[IDataset]) -> DatasetItemStorage:
         items = DatasetItemStorage()
         for source_idx, source in enumerate(sources):
             for item in source:
@@ -36,7 +38,7 @@ class UnionMerge(Merger):
                 items.put(item)
         return items
 
-    def merge_categories(self, sources):
+    def merge_categories(self, sources: Sequence[IDataset]) -> Dict:
         dst_categories = {}
 
         label_cat = self._merge_label_categories(sources)
@@ -46,7 +48,7 @@ class UnionMerge(Merger):
 
         return dst_categories
 
-    def _merge_label_categories(self, sources):
+    def _merge_label_categories(self, sources: Sequence[IDataset]) -> LabelCategories:
         dst_cat = LabelCategories()
         dst_indices = {}
         dst_labels = []
