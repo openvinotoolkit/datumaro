@@ -153,7 +153,7 @@ class SynthiaBase(SubsetBase):
 
                 image = images.get(item_id)
                 if image:
-                    image = Image(path=image)
+                    image = Image.from_file(path=image)
 
                 items[item_id] = DatasetItem(id=item_id, media=image, annotations=anno)
 
@@ -175,7 +175,7 @@ class SynthiaBase(SubsetBase):
 
                 image = images.get(item_id)
                 if image:
-                    image = Image(path=image)
+                    image = Image.from_file(path=image)
 
                 items[item_id] = DatasetItem(id=item_id, media=image, annotations=anno)
 

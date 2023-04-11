@@ -126,7 +126,7 @@ class MpiiBase(SubsetBase):
             items[item_id] = DatasetItem(
                 id=item_id,
                 subset=self._subset,
-                media=Image(path=osp.join(root_dir, image)),
+                media=Image.from_file(path=osp.join(root_dir, image)),
                 annotations=annotations,
             )
 

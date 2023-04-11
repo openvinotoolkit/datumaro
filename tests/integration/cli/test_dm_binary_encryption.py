@@ -29,7 +29,7 @@ def get_image(export_dir: str) -> Generator[Image, None, None]:
             fpath = osp.join(root, file)
             _, ext = osp.splitext(fpath)
             if ext == ".jpg":
-                yield Image(path=fpath)
+                yield Image.from_file(path=fpath)
 
 
 @pytest.fixture

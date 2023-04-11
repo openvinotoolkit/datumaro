@@ -30,19 +30,19 @@ class SearcherTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image(data=train_img),
+                    media=Image.from_numpy(data=train_img),
                     annotations=[Label(1, id=1), Caption("cat")],
                 ),
                 DatasetItem(
                     id=2,
                     subset="train",
-                    media=Image(data=train_img),
+                    media=Image.from_numpy(data=train_img),
                     annotations=[Label(1, id=1), Caption("cat")],
                 ),
                 DatasetItem(
                     id=3,
                     subset="test",
-                    media=Image(data=test_img),
+                    media=Image.from_numpy(data=test_img),
                     annotations=[Label(2, id=2), Caption("dog")],
                 ),
             ]
@@ -59,19 +59,19 @@ class SearcherTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image(data=train_img),
+                    media=Image.from_numpy(data=train_img),
                     annotations=[Label(1, id=1), Caption("cat")],
                 ),
                 DatasetItem(
                     id=2,
                     subset="train",
-                    media=Image(data=train_img),
+                    media=Image.from_numpy(data=train_img),
                     annotations=[Label(1, id=1), Caption("cat")],
                 ),
                 DatasetItem(
                     id=3,
                     subset="test",
-                    media=Image(data=test_img),
+                    media=Image.from_numpy(data=test_img),
                     annotations=[Label(2, id=2), Caption("dog")],
                 ),
             ]

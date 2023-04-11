@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.exporter import Exporter
-from datumaro.components.media import ByteImage, Image
+from datumaro.components.media import ByteImage, Image, ImageFromBytes
 from datumaro.util.annotation_util import find_group_leader, find_instances, max_bbox
 from datumaro.util.image import encode_image
 from datumaro.util.mask_tools import merge_masks
@@ -211,7 +211,7 @@ class TfDetectionApiExporter(Exporter):
         return tf_example
 
     def _save_image(self, item, path=None):  # pylint: disable=arguments-differ
-        src_ext = item.media.ext.lower()
+        src_ext = item.media.ext.lower() if item.media.ext else item.media.ext
         dst_ext = osp.splitext(osp.basename(path))[1].lower()
         fmt = DetectionApiPath.IMAGE_EXT_FORMAT.get(dst_ext, "")
         if not fmt:
@@ -220,9 +220,13 @@ class TfDetectionApiExporter(Exporter):
                 "image extension, the corresponding field will be empty." % (item.id, dst_ext)
             )
 
-        if src_ext == dst_ext and isinstance(item.media, ByteImage):
-            buffer = item.media.get_bytes()
-        else:
+        buffer = None
+        if src_ext == dst_ext:
+            if isinstance(item.media, ByteImage):
+                buffer = item.media.get_bytes()
+            elif isinstance(item.media, ImageFromBytes):
+                buffer = item.media.bytes
+        if buffer is None:
             buffer = encode_image(item.media.data, dst_ext)
         return buffer, fmt
 

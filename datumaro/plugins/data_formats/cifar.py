@@ -4,7 +4,7 @@
 
 import os
 import os.path as osp
-import pickle  # nosec - disable B403:import_pickle check - fixed
+import pickle  # nosec import_pickle
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional
 
@@ -151,7 +151,7 @@ class CifarBase(SubsetBase):
                     image = np.transpose(image, (1, 2, 0))
 
             if image is not None:
-                image = Image(data=image)
+                image = Image.from_numpy(data=image)
 
             items[item_id] = DatasetItem(
                 id=item_id, subset=self._subset, media=image, annotations=annotations

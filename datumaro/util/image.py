@@ -6,11 +6,11 @@ import importlib
 import os
 import os.path as osp
 import shlex
-import shutil
 import warnings
 import weakref
+from contextlib import contextmanager
 from enum import Enum, auto
-from io import BytesIO
+from io import BytesIO, IOBase
 from typing import Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union
 
 import numpy as np
@@ -93,24 +93,33 @@ def load_image(path: str, dtype: DTypeLike = np.float32, crypter: Crypter = NULL
     return image
 
 
-def copyto_image(src_path: str, dst_path: str, src_crypter: Crypter, dst_crypter: Crypter) -> None:
-    if src_crypter == dst_crypter:
-        if src_path == dst_path:
-            return
-
-        shutil.copyfile(src_path, dst_path)
+def copyto_image(
+    src: Union[str, IOBase], dst: Union[str, IOBase], src_crypter: Crypter, dst_crypter: Crypter
+) -> None:
+    if src_crypter == dst_crypter and src == dst:
         return
 
-    with open(src_path, "rb") as read_fp:
-        _bytes = src_crypter.decrypt(read_fp.read())
+    @contextmanager
+    def _open(fp, mode):
+        was_file = False
+        if not isinstance(fp, IOBase):
+            was_file = True
+            fp = open(fp, mode)
+        yield fp
+        if was_file:
+            fp.close()
 
-    with open(dst_path, "wb") as write_fp:
-        write_fp.write(dst_crypter.encrypt(_bytes))
+    with _open(src, "rb") as src_fp:
+        _bytes = src_crypter.decrypt(src_fp.read())
+
+    with _open(dst, "wb") as dst_fp:
+        dst_fp.write(dst_crypter.encrypt(_bytes))
 
 
 def save_image(
-    path: str,
+    dst: Union[str, IOBase],
     image: np.ndarray,
+    ext: Optional[str] = None,
     create_dir: bool = False,
     dtype: DTypeLike = np.uint8,
     crypter: Crypter = NULL_CRYPTER,
@@ -118,12 +127,17 @@ def save_image(
 ) -> None:
     # NOTE: Check destination path for existence
     # OpenCV silently fails if target directory does not exist
-    dst_dir = osp.dirname(path)
-    if dst_dir:
-        if create_dir:
-            os.makedirs(dst_dir, exist_ok=True)
-        elif not osp.isdir(dst_dir):
-            raise FileNotFoundError("Directory does not exist: '%s'" % dst_dir)
+    if isinstance(dst, IOBase):
+        ext = ext if ext else ".png"
+    else:
+        dst_dir = osp.dirname(dst)
+        if dst_dir:
+            if create_dir:
+                os.makedirs(dst_dir, exist_ok=True)
+            elif not osp.isdir(dst_dir):
+                raise FileNotFoundError("Directory does not exist: '%s'" % dst_dir)
+        # file extension and actual encoding can be differ
+        ext = ext if ext else osp.splitext(dst)[1]
 
     if not kwargs:
         kwargs = {}
@@ -139,13 +153,18 @@ def save_image(
         # in the locale encoding on Windows, so we write the image bytes
         # ourselves.
 
-        ext = osp.splitext(path)[1]
         image_bytes = encode_image(image, ext, dtype=dtype, **kwargs)
 
-        with open(path, "wb") as f:
-            f.write(crypter.encrypt(image_bytes))
+        if isinstance(dst, str):
+            with open(dst, "wb") as f:
+                f.write(crypter.encrypt(image_bytes))
+        else:
+            dst.write(crypter.encrypt(image_bytes))
     elif backend == _IMAGE_BACKENDS.PIL:
         from PIL import Image
+
+        if ext.startswith("."):
+            ext = ext[1:]
 
         if not crypter.is_null_crypter:
             raise DatumaroError("PIL backend should have crypter=NullCrypter.")
@@ -159,7 +178,7 @@ def save_image(
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
             image[:, :, :3] = image[:, :, 2::-1]  # BGR to RGB
         image = Image.fromarray(image)
-        image.save(path, **params)
+        image.save(dst, format=ext, **params)
     else:
         raise NotImplementedError()
 

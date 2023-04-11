@@ -46,7 +46,7 @@ class VottCsvBase(SubsetBase):
                     items[item_id] = DatasetItem(
                         id=item_id,
                         subset=self._subset,
-                        media=Image(path=osp.join(osp.dirname(path), row["image"])),
+                        media=Image.from_file(path=osp.join(osp.dirname(path), row["image"])),
                     )
 
                 annotations = items[item_id].annotations

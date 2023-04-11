@@ -176,7 +176,7 @@ class DatumaroFormatTest:
         expected = Dataset.from_iterable(
             [
                 DatasetItem(1, subset="a"),
-                DatasetItem(2, subset="a", media=Image(data=np.ones((3, 2, 3)))),
+                DatasetItem(2, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 DatasetItem(2, subset="b"),
             ]
         )
@@ -189,12 +189,12 @@ class DatumaroFormatTest:
                 # unmodified subset
                 DatasetItem(2, subset="b"),
                 # removed subset
-                DatasetItem(3, subset="c", media=Image(data=np.ones((2, 2, 3)))),
+                DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
             ]
         )
         dataset.export(test_dir, format=self.format, save_media=True)
 
-        dataset.put(DatasetItem(2, subset="a", media=Image(data=np.ones((3, 2, 3)))))
+        dataset.put(DatasetItem(2, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))))
         dataset.remove(3, "c")
         dataset.save(save_media=True)
 
@@ -212,8 +212,8 @@ class DatumaroFormatTest:
         expected = Dataset.from_iterable(
             [
                 DatasetItem(2, subset="test"),
-                DatasetItem(3, subset="train", media=Image(data=np.ones((2, 2, 3)))),
-                DatasetItem(4, subset="test", media=Image(data=np.ones((2, 3, 3)))),
+                DatasetItem(3, subset="train", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
+                DatasetItem(4, subset="test", media=Image.from_numpy(data=np.ones((2, 3, 3)))),
             ],
             media_type=Image,
         )
@@ -221,8 +221,8 @@ class DatumaroFormatTest:
             [
                 DatasetItem(1, subset="a"),
                 DatasetItem(2, subset="b"),
-                DatasetItem(3, subset="c", media=Image(data=np.ones((2, 2, 3)))),
-                DatasetItem(4, subset="d", media=Image(data=np.ones((2, 3, 3)))),
+                DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
+                DatasetItem(4, subset="d", media=Image.from_numpy(data=np.ones((2, 3, 3)))),
             ],
             media_type=Image,
         )

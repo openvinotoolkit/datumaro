@@ -27,8 +27,8 @@ class ImageZipExporterTest(TestCase):
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", media=Image(data=np.ones((10, 6, 3)))),
-                DatasetItem(id="2", media=Image(data=np.ones((5, 4, 3)))),
+                DatasetItem(id="1", media=Image.from_numpy(data=np.ones((10, 6, 3)))),
+                DatasetItem(id="2", media=Image.from_numpy(data=np.ones((5, 4, 3)))),
             ]
         )
 
@@ -39,7 +39,7 @@ class ImageZipExporterTest(TestCase):
     def test_can_save_and_load_with_custom_archive_name(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="img_1", media=Image(data=np.ones((10, 10, 3)))),
+                DatasetItem(id="img_1", media=Image.from_numpy(data=np.ones((10, 10, 3)))),
             ]
         )
 
@@ -50,9 +50,9 @@ class ImageZipExporterTest(TestCase):
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", media=Image(data=np.ones((10, 10, 3)))),
-                DatasetItem(id="a/2", media=Image(data=np.ones((4, 5, 3)))),
-                DatasetItem(id="a/b/3", media=Image(data=np.ones((20, 10, 3)))),
+                DatasetItem(id="1", media=Image.from_numpy(data=np.ones((10, 10, 3)))),
+                DatasetItem(id="a/2", media=Image.from_numpy(data=np.ones((4, 5, 3)))),
+                DatasetItem(id="a/b/3", media=Image.from_numpy(data=np.ones((20, 10, 3)))),
             ]
         )
 
@@ -63,8 +63,8 @@ class ImageZipExporterTest(TestCase):
     def test_can_save_and_load_custom_compresion_method(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", media=Image(data=np.ones((5, 5, 3)))),
-                DatasetItem(id="2", media=Image(data=np.ones((4, 3, 3)))),
+                DatasetItem(id="1", media=Image.from_numpy(data=np.ones((5, 5, 3)))),
+                DatasetItem(id="2", media=Image.from_numpy(data=np.ones((4, 3, 3)))),
             ]
         )
 
@@ -75,10 +75,8 @@ class ImageZipExporterTest(TestCase):
     def test_can_save_and_load_with_arbitrary_extensions(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(
-                    id="subset/1", media=Image(data=np.ones((10, 10, 3)), path="subset/1.png")
-                ),
-                DatasetItem(id="2", media=Image(data=np.ones((4, 5, 3)), path="2.jpg")),
+                DatasetItem(id="subset/1", media=Image.from_numpy(data=np.ones((10, 10, 3)))),
+                DatasetItem(id="2", media=Image.from_numpy(data=np.ones((4, 5, 3)))),
             ]
         )
 
@@ -100,7 +98,7 @@ class ImageZipImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_267)
     def test_can_import(self):
         source_dataset = Dataset.from_iterable(
-            [DatasetItem(id="1", media=Image(data=np.ones((10, 10, 3))))]
+            [DatasetItem(id="1", media=Image.from_numpy(data=np.ones((10, 10, 3))))]
         )
 
         zip_path = osp.join(DUMMY_DATASET_DIR, "1.zip")
@@ -111,8 +109,8 @@ class ImageZipImporterTest(TestCase):
     def test_can_import_from_directory(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", media=Image(data=np.ones((10, 10, 3)))),
-                DatasetItem(id="2", media=Image(data=np.ones((5, 10, 3)))),
+                DatasetItem(id="1", media=Image.from_numpy(data=np.ones((10, 10, 3)))),
+                DatasetItem(id="2", media=Image.from_numpy(data=np.ones((5, 10, 3)))),
             ]
         )
 

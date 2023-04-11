@@ -22,11 +22,17 @@ class MnistFormatTest(TestCase):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id=0, subset="test", media=Image(data=np.ones((28, 28))), annotations=[Label(0)]
+                    id=0,
+                    subset="test",
+                    media=Image.from_numpy(data=np.ones((28, 28))),
+                    annotations=[Label(0)],
                 ),
-                DatasetItem(id=1, subset="test", media=Image(data=np.ones((28, 28)))),
+                DatasetItem(id=1, subset="test", media=Image.from_numpy(data=np.ones((28, 28)))),
                 DatasetItem(
-                    id=2, subset="test", media=Image(data=np.ones((28, 28))), annotations=[Label(1)]
+                    id=2,
+                    subset="test",
+                    media=Image.from_numpy(data=np.ones((28, 28))),
+                    annotations=[Label(1)],
                 ),
             ],
             categories={
@@ -66,8 +72,12 @@ class MnistFormatTest(TestCase):
     def test_can_save_and_load_with_different_image_size(self):
         source_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id=0, media=Image(data=np.ones((3, 4))), annotations=[Label(0)]),
-                DatasetItem(id=1, media=Image(data=np.ones((2, 2))), annotations=[Label(1)]),
+                DatasetItem(
+                    id=0, media=Image.from_numpy(data=np.ones((3, 4))), annotations=[Label(0)]
+                ),
+                DatasetItem(
+                    id=1, media=Image.from_numpy(data=np.ones((2, 2))), annotations=[Label(1)]
+                ),
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(
@@ -88,7 +98,7 @@ class MnistFormatTest(TestCase):
             [
                 DatasetItem(
                     id="кириллица с пробелом",
-                    media=Image(data=np.ones((28, 28))),
+                    media=Image.from_numpy(data=np.ones((28, 28))),
                     annotations=[Label(0)],
                 ),
             ],
@@ -109,8 +119,10 @@ class MnistFormatTest(TestCase):
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="q/1", media=Image(path="q/1.JPEG", data=np.zeros((28, 28)))),
-                DatasetItem(id="a/b/c/2", media=Image(path="a/b/c/2.bmp", data=np.zeros((28, 28)))),
+                DatasetItem(id="q/1", media=Image.from_numpy(data=np.zeros((28, 28)), ext=".JPEG")),
+                DatasetItem(
+                    id="a/b/c/2", media=Image.from_numpy(data=np.zeros((28, 28)), ext=".bmp")
+                ),
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(
@@ -146,8 +158,12 @@ class MnistFormatTest(TestCase):
     def test_can_save_and_load_with_other_labels(self):
         dataset = Dataset.from_iterable(
             [
-                DatasetItem(id=0, media=Image(data=np.ones((28, 28))), annotations=[Label(0)]),
-                DatasetItem(id=1, media=Image(data=np.ones((28, 28))), annotations=[Label(1)]),
+                DatasetItem(
+                    id=0, media=Image.from_numpy(data=np.ones((28, 28))), annotations=[Label(0)]
+                ),
+                DatasetItem(
+                    id=1, media=Image.from_numpy(data=np.ones((28, 28))), annotations=[Label(1)]
+                ),
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(
@@ -167,11 +183,17 @@ class MnistFormatTest(TestCase):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id=0, subset="test", media=Image(data=np.ones((28, 28))), annotations=[Label(0)]
+                    id=0,
+                    subset="test",
+                    media=Image.from_numpy(data=np.ones((28, 28))),
+                    annotations=[Label(0)],
                 ),
-                DatasetItem(id=1, subset="test", media=Image(data=np.ones((28, 28)))),
+                DatasetItem(id=1, subset="test", media=Image.from_numpy(data=np.ones((28, 28)))),
                 DatasetItem(
-                    id=2, subset="test", media=Image(data=np.ones((28, 28))), annotations=[Label(1)]
+                    id=2,
+                    subset="test",
+                    media=Image.from_numpy(data=np.ones((28, 28))),
+                    annotations=[Label(1)],
                 ),
             ],
             categories={
@@ -198,24 +220,33 @@ class MnistImporterTest(TestCase):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id=0, subset="test", media=Image(data=np.ones((28, 28))), annotations=[Label(0)]
+                    id=0,
+                    subset="test",
+                    media=Image.from_numpy(data=np.ones((28, 28))),
+                    annotations=[Label(0)],
                 ),
                 DatasetItem(
-                    id=1, subset="test", media=Image(data=np.ones((28, 28))), annotations=[Label(2)]
+                    id=1,
+                    subset="test",
+                    media=Image.from_numpy(data=np.ones((28, 28))),
+                    annotations=[Label(2)],
                 ),
                 DatasetItem(
-                    id=2, subset="test", media=Image(data=np.ones((28, 28))), annotations=[Label(1)]
+                    id=2,
+                    subset="test",
+                    media=Image.from_numpy(data=np.ones((28, 28))),
+                    annotations=[Label(1)],
                 ),
                 DatasetItem(
                     id=0,
                     subset="train",
-                    media=Image(data=np.ones((28, 28))),
+                    media=Image.from_numpy(data=np.ones((28, 28))),
                     annotations=[Label(5)],
                 ),
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=Image(data=np.ones((28, 28))),
+                    media=Image.from_numpy(data=np.ones((28, 28))),
                     annotations=[Label(7)],
                 ),
             ],

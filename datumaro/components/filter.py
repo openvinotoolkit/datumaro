@@ -5,7 +5,7 @@
 import logging as log
 
 # Disable B410: import_lxml - the library is used for writing
-from lxml import etree as ET  # nosec, lxml has proper XPath implementation
+from lxml import etree as ET  # nosec
 
 from datumaro.components.annotation import (
     Annotation,
@@ -53,7 +53,8 @@ class DatasetItemEncoder:
         ET.SubElement(image_elem, "height").text = str(h)
 
         ET.SubElement(image_elem, "has_data").text = "%d" % int(image.has_data)
-        ET.SubElement(image_elem, "path").text = image.path
+        if hasattr(image, "path"):
+            ET.SubElement(image_elem, "path").text = image.path
 
         return image_elem
 

@@ -254,7 +254,7 @@ class MergeTile(Transform, CliPlugin):
         merged_item = self.wrap_item(
             items[0],
             id=item_id,
-            media=MosaicImage(
+            media=MosaicImage.from_image_roi_pairs(
                 [
                     (
                         item.media,

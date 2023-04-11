@@ -93,7 +93,7 @@ class MnistCsvBase(SubsetBase):
                     image = np.array([int(pix) for pix in data[1:]], dtype="uint8").reshape(28, 28)
 
             if image is not None:
-                image = Image(data=image)
+                image = Image.from_numpy(data=image)
 
             if 0 < len(meta) and len(meta[i]) in [1, 3]:
                 i = meta[i][0]

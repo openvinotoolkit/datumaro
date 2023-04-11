@@ -118,7 +118,7 @@ class AvaBase(SubsetBase):
                     item = DatasetItem(
                         id=item_id,
                         subset=self._subset,
-                        media=Image(path=image_path),
+                        media=Image.from_file(path=image_path),
                     )
                     items[item_id] = item
 

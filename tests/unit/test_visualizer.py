@@ -106,7 +106,7 @@ class LabelVisualizerTest(TestCase, VisualizerTestBase):
             DatasetItem(
                 "image_%03d" % img_idx,
                 subset=cls.subset,
-                media=Image(data=np.ones((4, 6, 3))),
+                media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     Label(
                         label=label_idx,
@@ -138,7 +138,7 @@ class PointsVisualizerTest(TestCase, VisualizerTestBase):
             DatasetItem(
                 "image_%03d" % img_idx,
                 subset=cls.subset,
-                media=Image(data=np.ones((4, 6, 3))),
+                media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     Points(
                         np.random.random_integers(0, 6, size=10 * 2),
@@ -172,7 +172,7 @@ class MaskVisualizerTest(TestCase, VisualizerTestBase):
             DatasetItem(
                 "image_%03d" % img_idx,
                 subset=cls.subset,
-                media=Image(data=np.ones((4, 6, 3))),
+                media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     Mask(
                         image=np.random.randint(0, 2, size=(4, 6)),
@@ -206,7 +206,7 @@ class PolygonVisualizerTest(TestCase, VisualizerTestBase):
             DatasetItem(
                 "image_%03d" % img_idx,
                 subset=cls.subset,
-                media=Image(data=np.ones((4, 6, 3))),
+                media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     Polygon(
                         np.random.random_integers(0, 6, size=10 * 2),
@@ -240,7 +240,7 @@ class PolyLineVisualizerTest(TestCase, VisualizerTestBase):
             DatasetItem(
                 "image_%03d" % img_idx,
                 subset=cls.subset,
-                media=Image(data=np.ones((4, 6, 3))),
+                media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     PolyLine(
                         np.random.random_integers(0, 6, size=10 * 2),
@@ -274,7 +274,7 @@ class BboxVisualizerTest(TestCase, VisualizerTestBase):
             DatasetItem(
                 "image_%03d" % img_idx,
                 subset=cls.subset,
-                media=Image(data=np.ones((4, 6, 3))),
+                media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     Bbox(
                         0,
@@ -311,7 +311,7 @@ class CaptionVisualizerTest(TestCase, VisualizerTestBase):
             DatasetItem(
                 "image_%03d" % img_idx,
                 subset=cls.subset,
-                media=Image(data=np.ones((4, 6, 3))),
+                media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     Caption(
                         caption="".join([str(label_idx)] * 10),
@@ -342,10 +342,10 @@ class SuperResolutionVisualizerTest(TestCase, VisualizerTestBase):
             DatasetItem(
                 "image_%03d" % img_idx,
                 subset=cls.subset,
-                media=Image(data=np.ones((4, 6, 3))),
+                media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     SuperResolutionAnnotation(
-                        Image(data=np.ones((8, 12, 3))),
+                        Image.from_numpy(data=np.ones((8, 12, 3))),
                         id=img_idx,
                         attributes={},
                     )
@@ -372,10 +372,10 @@ class DepthVisualizerTest(TestCase, VisualizerTestBase):
             DatasetItem(
                 "image_%03d" % img_idx,
                 subset=cls.subset,
-                media=Image(data=np.ones((4, 6, 3))),
+                media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     DepthAnnotation(
-                        Image(data=np.ones((4, 6, 3))),
+                        Image.from_numpy(data=np.ones((4, 6, 3))),
                         id=img_idx,
                         attributes={},
                     )
@@ -402,7 +402,7 @@ class EllipseVisualizerTest(TestCase, VisualizerTestBase):
             DatasetItem(
                 "image_%03d" % img_idx,
                 subset=cls.subset,
-                media=Image(data=np.ones((4, 6, 3))),
+                media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     Ellipse(
                         0,

@@ -161,7 +161,9 @@ class SuperviselyPointCloudBase(SubsetBase):
             )
             related_images = None
             if osp.isdir(related_images_dir):
-                related_images = [Image(path=image) for image in find_images(related_images_dir)]
+                related_images = [
+                    Image.from_file(path=image) for image in find_images(related_images_dir)
+                ]
 
             parsed[frame_id] = DatasetItem(
                 id=name,

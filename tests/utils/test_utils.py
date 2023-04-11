@@ -249,22 +249,7 @@ def compare_datasets_3d(
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
         if (require_point_cloud and item_a.media) or (item_a.media and item_b.media):
-            # TODO: Currently, this legacy test is very weird just to compare the path of point cloud files.
-            # However, although the Datumaro format annotation file has a relative path in it,
-            # Datumaro Dataset stores an absolute path in the media after import.
-            # For example, {"path": relative/path/to/image.jpg} => {Media.path: absolute/path/to/image.jpg}
-            # The absolute path is also required to import the content of media too.
-            # As a result, it cannot pass this test to the two same datasets in different locations.
-            # So I changed this test just to compare both file names temporariliy.
-            # Ultimately, we must implement a comparison of the contents of the point cloud as same as images.
-            item_a_fname = osp.basename(item_a.media.path)
-            item_b_fname = osp.basename(item_b.media.path)
-            test.assertEqual(item_a_fname, item_b_fname, item_a.id)
-            test.assertEqual(
-                set(osp.basename(img.path) for img in item_a.media.extra_images),
-                set(osp.basename(img.path) for img in item_b.media.extra_images),
-                item_a.id,
-            )
+            test.assertEqual(item_a.media, item_b.media, item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations))
         for ann_a in item_a.annotations:
             # We might find few corresponding items, so check them all
@@ -300,6 +285,24 @@ def check_save_and_load(
         move_save_dir: If true, move the saved directory again to somewhere.
         This option is useful for testing whether an absolute path exists in the exported dataset.
     """
+
+    def _change_path_in_items(dataset, source_path, target_path):
+        for item in dataset:
+            if item.media and hasattr(item.media, "path"):
+                path = item.media._path
+                item.media = item.media.from_self(path=path.replace(source_path, target_path))
+            if item.media and isinstance(item.media, PointCloud):
+                new_images = []
+                for image in item.media.extra_images:
+                    if hasattr(image, "path"):
+                        path = image._path
+                        new_images.append(
+                            image.from_self(path=path.replace(source_path, target_path))
+                        )
+                    else:
+                        new_images.append(image)
+                item.media._extra_images = new_images
+
     with TemporaryDirectory(prefix=test_dir) as tmp_dir:
         converter(source_dataset, test_dir)
         if move_save_dir:
@@ -315,6 +318,7 @@ def check_save_and_load(
 
         if target_dataset is None:
             target_dataset = source_dataset
+        _change_path_in_items(target_dataset, test_dir, save_dir)
 
         if not compare and cmp_kwargs.get("dimension") is Dimensions.dim_3d:
             compare = compare_datasets_3d

@@ -88,7 +88,7 @@ class MotsPngExtractor(SubsetBase):
             item_id = osp.splitext(osp.relpath(p, self._anno_dir))[0]
             image = images.get(item_id)
             if image:
-                image = Image(path=image)
+                image = Image.from_file(path=image)
             items.append(
                 DatasetItem(
                     id=item_id,

@@ -158,7 +158,7 @@ class Ade20k2020Base(DatasetBase):
                 DatasetItem(
                     item_id,
                     subset=subset,
-                    media=Image(path=image_path),
+                    media=Image.from_file(path=image_path),
                     annotations=item_annotations,
                 )
             )

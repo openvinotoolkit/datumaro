@@ -36,7 +36,7 @@ def fxt_train_dataset():
             DatasetItem(
                 id=1,
                 subset="train",
-                media=Image(data=np.ones((10, 15, 3))),
+                media=Image.from_numpy(data=np.ones((10, 15, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(3, 3, 2, 3, label=4),
