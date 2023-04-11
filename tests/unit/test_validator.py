@@ -405,10 +405,14 @@ class TestBaseValidator(_TestValidatorBase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_check_undefined_label(self):
-        label_name = "unittest"
-        label_stats = {"items_with_undefined_label": [(1, "unittest")]}
+        label_name = "cat0"
+        item_id = 1
+        item_subset = "unittest"
+        label_stats = {label_name: {"items_with_undefined_label": [(item_id, item_subset)]}}
+        stats = {"label_distribution": {"undefined_labels": label_stats}}
 
-        actual_reports = self.validator._check_undefined_label(label_name, label_stats)
+        # actual_reports = self.validator._check_undefined_label(label_name, label_stats)
+        actual_reports = self.validator._check_undefined_label(stats)
 
         self.assertTrue(len(actual_reports) == 1)
         self.assertIsInstance(actual_reports[0], UndefinedLabel)
@@ -455,14 +459,12 @@ class TestBaseValidator(_TestValidatorBase):
         self.assertIsInstance(actual_reports[0], OnlyOneLabel)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_check_only_one_attribute_value(self):
+    def test_check_only_one_attribute(self):
         label_name = "unit"
         attr_name = "test"
         attr_dets = {"distribution": {"mock": 1}}
 
-        actual_reports = self.validator._check_only_one_attribute_value(
-            label_name, attr_name, attr_dets
-        )
+        actual_reports = self.validator._check_only_one_attribute(label_name, attr_name, attr_dets)
 
         self.assertTrue(len(actual_reports) == 1)
         self.assertIsInstance(actual_reports[0], OnlyOneAttributeValue)
@@ -897,7 +899,7 @@ class TestValidateAnnotations(_TestValidatorBase):
             self.assertEqual(actual_stats["items_with_negative_length"], {})
             self.assertEqual(actual_stats["items_with_invalid_value"], {})
 
-            bbox_dist_by_label = actual_stats["bbox_distribution_in_label"]
+            bbox_dist_by_label = actual_stats["point_distribution_in_label"]
             label_prop_stats = bbox_dist_by_label["label_1"]["width"]
             self.assertEqual(label_prop_stats["items_far_from_mean"], {})
             self.assertEqual(label_prop_stats["mean"], 3.5)
@@ -906,7 +908,7 @@ class TestValidateAnnotations(_TestValidatorBase):
             self.assertEqual(label_prop_stats["max"], 4.0)
             self.assertEqual(label_prop_stats["median"], 3.5)
 
-            bbox_dist_by_attr = actual_stats["bbox_distribution_in_attribute"]
+            bbox_dist_by_attr = actual_stats["point_distribution_in_attribute"]
             attr_prop_stats = bbox_dist_by_attr["label_0"]["a"]["1"]["width"]
             self.assertEqual(attr_prop_stats["items_far_from_mean"], {})
             self.assertEqual(attr_prop_stats["mean"], 2.0)
@@ -915,7 +917,7 @@ class TestValidateAnnotations(_TestValidatorBase):
             self.assertEqual(attr_prop_stats["max"], 3.0)
             self.assertEqual(attr_prop_stats["median"], 2.0)
 
-            bbox_dist_item = actual_stats["bbox_distribution_in_dataset_item"]
+            bbox_dist_item = actual_stats["point_distribution_in_dataset_item"]
             self.assertEqual(sum(bbox_dist_item.values()), 8)
 
         with self.subTest("Test of validation reports", i=1):
@@ -948,7 +950,7 @@ class TestValidateAnnotations(_TestValidatorBase):
             self.assertEqual(len(actual_stats["items_missing_annotation"]), 1)
             self.assertEqual(actual_stats["items_with_invalid_value"], {})
 
-            mask_dist_by_label = actual_stats["mask_distribution_in_label"]
+            mask_dist_by_label = actual_stats["point_distribution_in_label"]
             label_prop_stats = mask_dist_by_label["label_1"]["area"]
             self.assertEqual(label_prop_stats["items_far_from_mean"], {})
             areas = [12, 4, 8]
@@ -958,7 +960,7 @@ class TestValidateAnnotations(_TestValidatorBase):
             self.assertEqual(label_prop_stats["max"], np.max(areas))
             self.assertEqual(label_prop_stats["median"], np.median(areas))
 
-            mask_dist_by_attr = actual_stats["mask_distribution_in_attribute"]
+            mask_dist_by_attr = actual_stats["point_distribution_in_attribute"]
             attr_prop_stats = mask_dist_by_attr["label_0"]["a"]["1"]["area"]
             areas = [12, 4]
             self.assertEqual(attr_prop_stats["items_far_from_mean"], {})
@@ -968,7 +970,7 @@ class TestValidateAnnotations(_TestValidatorBase):
             self.assertEqual(attr_prop_stats["max"], np.max(areas))
             self.assertEqual(attr_prop_stats["median"], np.median(areas))
 
-            mask_dist_item = actual_stats["mask_distribution_in_dataset_item"]
+            mask_dist_item = actual_stats["point_distribution_in_dataset_item"]
             self.assertEqual(sum(mask_dist_item.values()), 9)
 
         with self.subTest("Test of validation reports", i=1):
