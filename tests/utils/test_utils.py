@@ -288,13 +288,13 @@ def check_save_and_load(
 
     def _change_path_in_items(dataset, source_path, target_path):
         for item in dataset:
-            if item.media and getattr(item.media, "path", None):
+            if item.media and hasattr(item.media, "path"):
                 path = item.media._path
                 item.media = item.media.from_self(path=path.replace(source_path, target_path))
             if item.media and isinstance(item.media, PointCloud):
                 new_images = []
                 for image in item.media.extra_images:
-                    if getattr(image, "path", None):
+                    if hasattr(image, "path"):
                         path = image._path
                         new_images.append(
                             image.from_self(path=path.replace(source_path, target_path))
