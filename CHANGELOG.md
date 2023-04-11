@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/912>)
 - Add tfds:uc_merced and tfds:eurosat download
   (<https://github.com/openvinotoolkit/datumaro/pull/914>)
-- Refactor Media
+- Refactor Media to be initialized from explicit sources
   (<https://github.com/openvinotoolkit/datumaro/pull/911> <https://github.com/openvinotoolkit/datumaro/pull/921>)
 
 ### Bug fixes
