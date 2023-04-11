@@ -83,12 +83,12 @@ class VisualizerTestBase:
 
         with self.assertRaises(Exception):
             small_grid_size = (cnt - 1, cnt - 1)
-            visualizer.vis_gallery(ids, self.subset, small_grid_size)
+            visualizer.vis_gallery(ids, self.subset, grid_size=small_grid_size)
 
         # Infer grid size for 5 items
         def _check(infer_grid_size, expected_grid_size):
             expected_nrows, expected_ncols = expected_grid_size
-            fig = visualizer.vis_gallery(ids, self.subset, infer_grid_size)
+            fig = visualizer.vis_gallery(ids, self.subset, grid_size=infer_grid_size)
             self.assertIsInstance(fig, Figure)
             grid_spec = fig.axes[0].get_gridspec()
             self.assertEqual(grid_spec.nrows, expected_nrows)
