@@ -7,7 +7,7 @@ import os
 import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
-from datumaro.components.dataset_base import DatasetItem, IDataset, SubsetBase
+from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
@@ -132,10 +132,7 @@ class ImagenetWithSubsetDirsImporter(ImagenetImporter):
 
 class ImagenetExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
-
-    def __init__(self, extractor: IDataset, save_dir: str, **kwargs):
-        super().__init__(extractor, save_dir, **kwargs)
-        self._use_subset_dirs = False
+    USE_SUBSET_DIRS = False
 
     def apply(self):
         def _get_name(item: DatasetItem) -> str:
@@ -151,7 +148,7 @@ class ImagenetExporter(Exporter):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
-        if 1 < len(self._extractor.subsets()) and not self._use_subset_dirs:
+        if 1 < len(self._extractor.subsets()) and not self.USE_SUBSET_DIRS:
             log.warning(
                 f"There are more than one subset in the dataset ({len(self._extractor.subsets())}). "
                 "However, ImageNet format exports all dataset items into the same directory. "
@@ -171,7 +168,7 @@ class ImagenetExporter(Exporter):
                 self._save_image(
                     item,
                     subdir=osp.join(root_dir, item.subset, label_name)
-                    if self._use_subset_dirs
+                    if self.USE_SUBSET_DIRS
                     else osp.join(root_dir, label_name),
                     name=file_name,
                 )
@@ -180,13 +177,11 @@ class ImagenetExporter(Exporter):
                 self._save_image(
                     item,
                     subdir=osp.join(root_dir, item.subset, ImagenetPath.IMAGE_DIR_NO_LABEL)
-                    if self._use_subset_dirs
+                    if self.USE_SUBSET_DIRS
                     else osp.join(root_dir, ImagenetPath.IMAGE_DIR_NO_LABEL),
                     name=file_name,
                 )
 
 
 class ImagenetWithSubsetDirsExporter(ImagenetExporter):
-    def __init__(self, extractor: IDataset, save_dir: str, **kwargs):
-        super().__init__(extractor, save_dir, **kwargs)
-        self._use_subset_dirs = True
+    USE_SUBSET_DIRS = True
