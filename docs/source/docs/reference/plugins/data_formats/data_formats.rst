@@ -13,7 +13,7 @@ Data formats
    icdar/icdar
    kitti/kitti
    kitti_raw/kitti_raw
-   kitti_vistas/kitti_vistas
+   mapillary_vistas/mapillary_vistas
    mpii/mpii
    mvtec/mvtec
    sly_pointcloud/sly_pointcloud

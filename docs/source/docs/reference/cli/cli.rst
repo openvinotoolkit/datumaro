@@ -3,7 +3,7 @@ CLI
 
 .. toctree::
 
-   contexts/contexts
    commands/commands
+   contexts/contexts
    util/util
    supported_plugins

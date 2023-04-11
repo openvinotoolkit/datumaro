@@ -21,7 +21,7 @@ This command has multiple forms:
 
 2 - Compares two specified datasets.
 
-\<revpath\> - [a dataset path or a revision path](/docs/user-manual/how_to_use_datumaro/#revpath).
+\<revpath\> - [a dataset path or a revision path](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts).
 
 Usage:
 ``` bash
@@ -33,7 +33,7 @@ datum diff [-h] [-o DST_DIR] [-m METHOD] [--overwrite] [-p PROJECT_DIR]
 ```
 
 Parameters:
-- `<target>` (string) - Target [dataset revpaths](/docs/user-manual/how_to_use_datumaro/#revpath)
+- `<target>` (string) - Target [dataset revpaths](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts)
 - `-m, --method` (string) - Comparison method.
 - `-o, --output-dir` (string) - Output directory. By default, a new directory
   is created in the current directory.

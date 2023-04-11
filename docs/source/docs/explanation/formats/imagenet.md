@@ -31,7 +31,7 @@ datum import -f imagenet_txt <path_to_dataset>
 
 > Note: if you use `datum import` then <path_to_dataset> should not be a
 > subdirectory of directory with Datumaro project, see more information about
-> it in the [docs](/docs/user-manual/command-reference/sources/#source-add).
+> it in the [docs](/docs/command-reference/sources.md#add-dataset).
 
 Load ImageNet dataset through the Python API:
 
@@ -88,7 +88,7 @@ use the `--` after the main command argument.
 ## Export ImageNet dataset
 
 Datumaro can convert ImageNet into any other format
-[Datumaro supports](/docs/user-manual/supported_formats).
+[Datumaro supports](/docs/data-formats/supported_formats).
 To get the expected result, convert the dataset to a format
 that supports `Label` annotation objects.
 
@@ -114,7 +114,7 @@ imagenet_dataset.export('<output_dir>', format='vgg_face2', save_media=True)
 ```
 
 > Note: some formats have extra export options. For particular format see the
-> [docs](/docs/formats/) to get information about it.
+> [docs](/docs/data-formats/supported_formats/) to get information about it.
 
 ## Export dataset to the ImageNet format
 

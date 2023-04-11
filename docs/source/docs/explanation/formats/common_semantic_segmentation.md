@@ -38,14 +38,14 @@ CSS dataset directory should have the following structure:
         └── ...
 ```
 
-To describe classes and colors, you should use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To describe classes and colors, you should use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file).
 
 To make sure that the selected dataset has been added to the project, you can
 run `datum project info`, which will display the project information.
 
 ## Export to other formats
 
-Datumaro can convert a CSS dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert a CSS dataset into any other format [Datumaro supports](/docs/data-formats/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the segmentation task (e.g. PASCAL VOC, CamVid, Cityscapes, etc.)
 

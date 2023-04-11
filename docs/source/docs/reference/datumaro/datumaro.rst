@@ -15,7 +15,7 @@ Once you can use the components:
     * :class:`dm.Annotation <datumaro.components.annotation.Annotation>`
     * :class:`dm.AnnotationType <datumaro.components.annotation.AnnotationType>`
     * :class:`dm.Bbox <datumaro.components.annotation.Bbox>`
-    * :class:`dm.BinaryMaskImage <datumaro.components.annotation.BinaryMaskImage>`
+    * :attr:`dm.BinaryMaskImage <datumaro.components.annotation.BinaryMaskImage>`
     * :class:`dm.Caption <datumaro.components.annotation.Caption>`
     * :class:`dm.Categories <datumaro.components.annotation.Categories>`
     * :class:`dm.Colormap <datumaro.components.annotation.Colormap>`
@@ -32,7 +32,37 @@ Once you can use the components:
     * :class:`dm.Polygon <datumaro.components.annotation.Polygon>`
     * :class:`dm.PolyLine <datumaro.components.annotation.PolyLine>`
     * :class:`dm.RgbColor <datumaro.components.annotation.RgbColor>`
-    * :class:`dm.RleMask <datumaro.components.annotation.RleMask>>`
+    * :class:`dm.RleMask <datumaro.components.annotation.RleMask>`
+
+* :mod:`dm.cli_plugin <datumaro.components.cli_plugin>`
+    * :class:`dm.CliPlugin <datumaro.components.cli_plugin.CliPlugin>`
+
+.. config_model
+.. config_model
+.. crypter
+.. dataset_base
+.. dataset
+.. environment
+.. errors
+.. exporter
+.. extractor_tfds
+.. filter
+.. format_detection
+.. generator
+.. hl_ops
+.. Importer
+.. launcher
+.. media_manager
+.. media
+.. merger
+.. operations
+.. progress_reporting
+.. project
+.. searcher
+.. shift_analyzer
+.. transformer
+.. validator
+.. visualizer
 
 * :mod:`dm.errors <datumaro.components.errors>`
 
@@ -40,11 +70,6 @@ Once you can use the components:
 
 * :mod:`dm.project <datumaro.components.project>`
 
-* :mod:`dm.cli_plugin <datumaro.components.cli_plugin>`
-    * :class:`dm.CliPlugin <datumaro.components.cli_plugin.CliPlugin>`
-
-* :mod:`dm.converter <datumaro.components.converter>`
-    * :class:`dm.Converter <datumaro.components.converter.Converter>`
 
 * :mod:`dm.dataset <datumaro.components.dataset>`
     * :class:`dm.Dataset <datumaro.components.dataset.Dataset>`

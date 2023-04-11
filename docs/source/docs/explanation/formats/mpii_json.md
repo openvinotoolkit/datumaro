@@ -50,7 +50,7 @@ dataset/
 ## Export to other formats
 
 Datumaro can convert an MPII Human Pose Dataset (JSON) into
-any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+any other format [Datumaro supports](/docs/data-formats/supported_formats/).
 To get the expected result, convert the dataset to a format
 that supports bounding boxes or points.
 

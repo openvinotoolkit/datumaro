@@ -189,7 +189,7 @@ place them in the `annotations` subdirectory.
 The `annotations` directory is optional and you can store all annotation files
 in the root of input path.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file).
 
 ### Creating an image metadata file
 
@@ -229,7 +229,7 @@ find images -name '*.jpg' -exec \
 
 ## Export to other formats
 
-Datumaro can convert OID into any other format [Datumaro supports](/docs/user-manual/supported_formats).
+Datumaro can convert OID into any other format [Datumaro supports](/docs/data-formats/supported_formats).
 To get the expected result, convert the dataset to a format
 that supports image-level labels.
 There are several ways to convert OID to other dataset formats:
@@ -282,7 +282,7 @@ Extra options for exporting to the Open Images format:
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Open Images format in particular. Follow the
-[user manual](/docs/user-manual/)
+[user manual](/docs/user-manual/index/)
 to get more information about these operations.
 
 Here are a few examples of using Datumaro operations to solve

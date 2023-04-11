@@ -31,7 +31,7 @@ datum create
 datum import -f lfw <path_to_lfw_dataset>
 ```
 See more information about adding datasets to the project in the
-[docs](/docs/user-manual/command-reference/sources/#source-add).
+[docs](/docs/command-reference/sources.md#add-dataset).
 
 Also you can import LFW dataset from Python API:
 ```python
@@ -70,7 +70,7 @@ Full description of annotation `*.txt` files available
 ## Export LFW dataset
 
 With Datumaro you can convert LFW dataset into any other
-format [Datumaro supports](/docs/user-manual/supported_formats/).
+format [Datumaro supports](/docs/data-formats/supported_formats/).
 Pay attention that this format should also support `Label` and/or `Points`
 annotation types.
 
@@ -88,7 +88,7 @@ datum export -f vgg_face2 -o ./output_dir2
 ```
 
 > Note: some formats have extra export options. For particular format see the
-> [docs](/docs/formats/) to get information about it.
+> [docs](/docs/data-formats/supported_formats/) to get information about it.
 
 ## Export dataset to the LFW format
 

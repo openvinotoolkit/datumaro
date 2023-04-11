@@ -1,0 +1,7 @@
+details package
+===
+
+.. toctree::
+   :glob:
+
+   *

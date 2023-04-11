@@ -68,7 +68,7 @@ names:
 #### Subset files
 
 - Files `train.txt`, `val.txt`, and `test.txt` (optional) should have the following structure:
-```txt
+```
 ./images/<subset-name>/<image-file-name-1.jpg>
 ./images/<subset-name>/<image-file-name-2.jpg>
 ...
@@ -78,7 +78,7 @@ names:
 
 - Files in directories `labels/<subset-name>` should contain information about labeled bounding boxes
 for images:
-```txt
+```
 # image1.txt:
 # <label_index> <x_center> <y_center> <width> <height>
 0 0.250000 0.400000 0.300000 0.400000
@@ -88,11 +88,11 @@ Here `x_center`, `y_center`, `width`, and `height` are relative to the image's
 width and height. The `x_center` and `y_center` are center of rectangle
 (are not top-left corner).
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file).
 
 ## Export to YOLO-Ultralytics format
 
-Datumaro can convert [any other image dataset format](/docs/user-manual/supported_formats/) which has bounding box annotations into YOLO-Ultralytics format.
+Datumaro can convert [any other image dataset format](/docs/data-formats/supported_formats/) which has bounding box annotations into YOLO-Ultralytics format.
 After the successful conversion, you can train your own detecter with the exported dataset and  [Ultralytics YOLOv8 trainer](https://github.com/ultralytics/ultralytics).
 
 > Note, if you want to see the end-to-end Jupyter-notebook example from the dataset conversion to the training, please see this [link](https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/08_e2e_example_yolo_ultralytics_trainer.ipynb).

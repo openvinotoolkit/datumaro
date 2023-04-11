@@ -26,7 +26,7 @@ datum validate [-h] -t TASK [-s SUBSET_NAME] [-p PROJECT_DIR]
 
 Parameters:
 - `<target>` (string) - Target
-  [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath).
+  [dataset revpath](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts).
   By default, validates the current project.
 - `-t, --task-type` (string) - Task type for validation
 - `-s, --subset` (string) - Dataset subset to be validated

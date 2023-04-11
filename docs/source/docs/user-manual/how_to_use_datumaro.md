@@ -21,113 +21,116 @@ dataset = dm.Dataset.import_from(path, format)
 
 ## Glossary
 
-- Basic concepts:
-  - Dataset - A collection of dataset items, which consist of media and
-    associated annotations.
-  - Dataset item - A basic single element of the dataset. Also known as
-    "sample", "entry". In different datasets it can be an image, a video
-    frame, a whole video, a 3d point cloud etc. Typically, has corresponding
-    annotations.
-  - (Datumaro) Project - A combination of multiple datasets, plugins,
-    models and metadata.
+### Basic concepts
+- Dataset - A collection of dataset items, which consist of media and
+  associated annotations.
+- Dataset item - A basic single element of the dataset. Also known as
+  "sample", "entry". In different datasets it can be an image, a video
+  frame, a whole video, a 3d point cloud etc. Typically, has corresponding
+  annotations.
+- (Datumaro) Project - A combination of multiple datasets, plugins,
+  models and metadata.
 
-- Project versioning concepts:
-  - Data source - A link to a dataset or a copy of a dataset inside a project.
-    Basically, a URL + dataset format name.
-  - Project revision - A commit or a reference from Git (branch, tag,
-    HEAD~3 etc.). A revision is referenced by data hash. The `HEAD`
-    revision is the currently selected revision of the project.
-  - Revision tree - A project build tree and plugins at
-    a specified revision.
-  - Working tree - The revision tree in the working directory of a project.
-  - data source revision - a state of a data source at a specific stage.
-    A revision is referenced by the data hash.
-  - Object - The data of a revision tree or a data source revision.
-    An object is referenced by the data hash.
+### Project versioning concepts
+- Data source - A link to a dataset or a copy of a dataset inside a project.
+  Basically, a URL + dataset format name.
+- Project revision - A commit or a reference from Git (branch, tag,
+  HEAD~3 etc.). A revision is referenced by data hash. The `HEAD`
+  revision is the currently selected revision of the project.
+- Revision tree - A project build tree and plugins at
+  a specified revision.
+- Working tree - The revision tree in the working directory of a project.
+- data source revision - a state of a data source at a specific stage.
+  A revision is referenced by the data hash.
+- Object - The data of a revision tree or a data source revision.
+  An object is referenced by the data hash.
 
-- Dataset path concepts: <a id="revpath"></a>
-  - Dataset revpath - A path to a dataset in a special format. They are
-    supposed to specify paths to files, directories or data source revisions
-    in a uniform way in the CLI.
+### Dataset path concepts
+- Dataset revpath - A path to a dataset in a special format. They are
+  supposed to specify paths to files, directories or data source revisions
+  in a uniform way in the CLI.
 
-    - dataset path - a path to a dataset in the following format:
-      `<dataset path>:<format>`
-      - `format` is optional. If not specified, will try to detect automatically
+  - dataset path - a path to a dataset in the following format:
+    `<dataset path>:<format>`
+    - `format` is optional. If not specified, will try to detect automatically
 
-    - **rev**ision path - a path to a data source revision in a project.
-      The syntax is:
-      `<project path>@<revision>:<target name>`, any part can be omitted.
-      - Default project is the current project (`-p`/`--project` CLI arg.)
-        Local revpaths imply that the current project is used and this part
-        should be omitted.
-      - Default revision is the working tree of the project
-      - Default build target is `project`
+  - **rev**ision path - a path to a data source revision in a project.
+    The syntax is:
+    `<project path>@<revision>:<target name>`, any part can be omitted.
+    - Default project is the current project (`-p`/`--project` CLI arg.)
+      Local revpaths imply that the current project is used and this part
+      should be omitted.
+    - Default revision is the working tree of the project
+    - Default build target is `project`
 
-      If a path refers to `project` (i.e. target name is not set, or
-      this target is exactly specified), the target dataset is the result of
-      [joining](/docs/explanation/architecture.html#merging) all the project data
-      sources. Otherwise, if the path refers to a data source revision, the
-      corresponding stage from the revision build tree will be used.
+    ```{eval-rst}
+    If a path refers to :code:`project` (i.e. target name is not set, or
+    this target is exactly specified), the target dataset is the result of
+    :ref:`joining <dataset_merging>` all the project data
+    sources. Otherwise, if the path refers to a data source revision, the
+    corresponding stage from the revision build tree will be used.
+    ```
 
-- Dataset building concepts:
-  - Stage - A revision of a dataset - the original dataset or its modification
-    after transformation, filtration or something else. A build tree node.
-    A stage is referred by a name.
-  - Build tree - A directed graph (tree) with root nodes at data sources
-    and a single top node called `project`, which represents
-    a [joined](/docs/explanation/architecture.html#merging) dataset.
-    Each data source has a starting `root` node, which corresponds to the
-    original dataset. The internal graph nodes are stages.
-  - Build target - A data source or a stage name. Data source names correspond
-    to the last stages of data sources.
-  - Pipeline - A subgraph of a stage, which includes all the ancestors.
+### Dataset building concepts
+```{eval-rst}
+- Stage - A revision of a dataset - the original dataset or its modification
+  after transformation, filtration or something else. A build tree node.
+  A stage is referred by a name.
+- Build tree - A directed graph (tree) with root nodes at data sources
+  and a single top node called :code:`project`, which represents
+  a :ref:`joined <dataset_merging>` dataset.
+  Each data source has a starting :code:`root` node, which corresponds to the
+  original dataset. The internal graph nodes are stages.
+- Build target - A data source or a stage name. Data source names correspond
+  to the last stages of data sources.
+- Pipeline - A subgraph of a stage, which includes all the ancestors.
+```
 
-- Other:
-  - Transform - A transformation operation over dataset elements. Examples
-    are image renaming, image flipping, image and subset renaming,
-    label remapping etc. Corresponds to the [`transform` command](/docs/user-manual/command-reference/transform).
+### Other
+- Transform - A transformation operation over dataset elements. Examples
+  are image renaming, image flipping, image and subset renaming,
+  label remapping etc. Corresponds to the [`transform` command](/docs/command-reference/transform).
 
 ## Command-line workflow
 
 In Datumaro, most command-line commands operate on projects, but there are
 also few commands operating on datasets directly. There are 2 basic ways
 to use Datumaro from the command-line:
-- Use the [`convert`](/docs/user-manual/command-reference/convert)
-, [`diff`](/docs/user-manual/command-reference/diff)
-, [`merge`](/docs/user-manual/command-reference/merge)
+- Use the [`convert`](/docs/command-reference/convert)
+, [`diff`](/docs/command-reference/diff)
+, [`merge`](/docs/command-reference/merge)
  commands directly on existing datasets
 
 - Create a Datumaro project and operate on it:
-  - Create an empty project with [`create`](/docs/user-manual/command-reference/create)
-  - Import existing datasets with [`import`](/docs/user-manual/command-reference/sources#source-import)
-  - Modify the project with [`transform`](/docs/user-manual/command-reference/transform) and [`filter`](/docs/user-manual/command-reference/filter)
+  - Create an empty project with [`create`](/docs/command-reference/create)
+  - Import existing datasets with [`import`](/docs/command-reference/sources.md#import-dataset)
+  - Modify the project with [`transform`](/docs/command-reference/transform) and [`filter`](/docs/command-reference/filter)
   - Create new revisions of the project with
-    [`commit`](/docs/user-manual/command-reference/commit), navigate over
-    them using [`checkout`](/docs/user-manual/command-reference/checkout),
-    compare with [`diff`](/docs/user-manual/command-reference/diff), compute
-    statistics with [`stats`](/docs/user-manual/command-reference/stats)
-  - Export the resulting dataset with [`export`](/docs/user-manual/command-reference/export)
-  - Check project config with [`project info`](/docs/user-manual/command-reference/projects/#print-project-info)
+    [`commit`](/docs/command-reference/commit), navigate over
+    them using [`checkout`](/docs/command-reference/checkout),
+    compare with [`diff`](/docs/command-reference/diff), compute
+    statistics with [`stats`](/docs/command-reference/stats)
+  - Export the resulting dataset with [`export`](/docs/command-reference/export)
+  - Check project config with [`project info`](/docs/command-reference/projects.md#print-project-info)
 
 Basically, a project is a combination of datasets, models and environment.
 
-A project can contain an arbitrary number of datasets ([data sources](#data-sources)).
+A project can contain an arbitrary number of datasets ([data sources](#datasets-and-data-sources)).
 A project acts as a manager for them and allows to manipulate them
 separately or as a whole, in which case it combines dataset items
 from all the sources into one composite dataset. You can manage separate
-datasets in a project by commands in the [`datum source`](/docs/user-manual/command-reference/sources)
+datasets in a project by commands in the [`datum source`](/docs/command-reference/sources)
 command line context.
 
 Note that **modifying operations** (`transform`, `filter`, `patch`)
 **are applied in-place** to the datasets by default.
 
 If you want to interact with models, you need to add them to the project
-first using the [`model add`](/docs/user-manual/command-reference/models/#register-model) command.
+first using the [`model add`](/docs/command-reference/models.md#register-model) command.
 
 A typical way to obtain Datumaro projects is to export tasks in
 [CVAT](https://github.com/opencv/cvat) UI.
 
-<a id="data-model"></a>
 ## Project data model
 
 ![project model](../../../images/project_model.svg)
@@ -214,7 +217,6 @@ project/
     └── <source data>
 ```
 
-<a id="data-sources"></a>
 ## Datasets and Data Sources
 
 A project can contain an arbitrary number of Data Sources. Each Data Source
@@ -222,7 +224,7 @@ describes a dataset in a specific format. A project acts as a manager for
 the data sources and allows to manipulate them separately or as a whole, in
 which case it combines dataset items from all the sources into one composite
 dataset. You can manage separate sources in a project by commands in
-the [`datum source`](/docs/user-manual/command-reference/sources) command
+the [`datum source`](/docs/command-reference/sources) command
 line context.
 
 Datasets come in a wide variety of formats. Each dataset
@@ -241,7 +243,7 @@ Incomplete datasets can be used to prepare images and annotations
 independently of each other, or to analyze or modify just the lightweight
 annotations without the need to download the whole dataset.
 
-Check [supported formats](/docs/user-manual/supported_formats) for more info
+Check [supported formats](/docs/data-formats/supported_formats) for more info
 about format specifications, supported import and export options and other
 details. The list of formats can be extended by custom plugins,
 check [extending tips](/docs/user-manual/extending) for information on this
@@ -391,7 +393,6 @@ or data sources contain the same images, there will only be a single copy
 of the related media files. This helps to keep storage use reasonable and
 avoid unnecessary data copies.
 
-<a id="cli-examples"></a>
 ## Examples
 
 Example: create a project, add dataset, modify, restore an old version

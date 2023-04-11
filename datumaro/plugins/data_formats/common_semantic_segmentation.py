@@ -127,17 +127,16 @@ class CommonSemanticSegmentationImporter(Importer):
     """CommonSemanticSegmentation is introduced in the accuracy checker tool of OpenVINO™
     to cover a general format of datasets for semantic segmentation task.
     This should have the following structure:
-
-    └─ Dataset/
-        ├── dataset_meta.json # a list of labels
-        ├── images/
-        │   ├── <img1>.png
-        │   ├── <img2>.png
-        │   └── ...
-        └── masks/
-            ├── <img1>.png
-            ├── <img2>.png
-            └── ...
+        - Dataset/
+            - dataset_meta.json # a list of labels
+            - images/
+                - <img1>.png
+                - <img2>.png
+                - ...
+            - masks/
+                - <img1>.png
+                - <img2>.png
+                - ...
     """
 
     @classmethod
@@ -166,6 +165,7 @@ class CommonSemanticSegmentationImporter(Importer):
 class CommonSemanticSegmentationWithSubsetDirsImporter(CommonSemanticSegmentationImporter):
     """It supports the following subset sub-directory structure for CommonSemanticSegmentation.
 
+    ```
     Dataset/
     └─ <split: train,val, ...>
         ├── dataset_meta.json # a list of labels
@@ -179,4 +179,5 @@ class CommonSemanticSegmentationWithSubsetDirsImporter(CommonSemanticSegmentatio
             └── ...
 
     Then, the imported dataset will have train, val, ... CommonSemanticSegmentation subsets.
+    ```
     """

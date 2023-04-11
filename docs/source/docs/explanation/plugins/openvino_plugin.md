@@ -67,7 +67,7 @@ cd /opt/intel/openvino/deployment_tools/open_model_zoo/tools/downloader
 Prerequisites:
 - OpenVINO™ (To install OpenVINO™, please see the
   [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
-- Datumaro (To install Datumaro, please see the [User Manual](/docs/user-manual/))
+- Datumaro (To install Datumaro, please see the [user manual](/docs/user-manual/index/))
 - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
 - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
 

@@ -62,7 +62,7 @@ YOLO dataset directory should have the following structure:
 
 - `obj.data` should have the following content, it is not necessary to have both
   subsets, but necessary to have one of them:
-``` txt
+```
 classes = 5 # optional
 names = <path/to/obj.names>
 train = <path/to/train.txt>
@@ -74,7 +74,7 @@ backup = backup/ # optional
 
 - `obj.names` contains a list of classes.
 The line number for the class is the same as its index:
-``` txt
+```
 label1  # label1 has index 0
 label2  # label2 has index 1
 label3  # label2 has index 2
@@ -84,7 +84,7 @@ label3  # label2 has index 2
 #### Subset files
 
 - Files `train.txt` and `valid.txt` should have the following structure:
-``` txt
+```
 <path/to/image1.jpg>
 <path/to/image2.jpg>
 ...
@@ -95,7 +95,7 @@ label3  # label2 has index 2
 - Files in directories `obj_train_data/` and `obj_valid_data/`
 should contain information about labeled bounding boxes
 for images:
-``` txt
+```
 # image1.txt:
 # <label_index> <x_center> <y_center> <width> <height>
 0 0.250000 0.400000 0.300000 0.400000
@@ -105,7 +105,7 @@ Here `x_center`, `y_center`, `width`, and `height` are relative to the image's
 width and height. The `x_center` and `y_center` are center of rectangle
 (are not top-left corner).
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file).
 
 ## Import YOLO dataset with more loose format
 
@@ -159,7 +159,7 @@ For examples, please see the following directory structures.
 
 #### Class names file
 
-Same as [Import YOLO dataset - Class names file section](#class-names-file). If it is not existed in the dataset, you can make this file easily. Please see the example [here](../../reference/jupyter_notebook_examples/tiling.md).
+Same as [Import YOLO dataset - Class names file section](#class-names-file). If it is not existed in the dataset, you can make this file easily. Please see the example [here](/docs/reference/jupyter_notebook_examples/tiling).
 
 #### Bounding box annotation text file
 
@@ -168,7 +168,7 @@ Same as [Import YOLO dataset - Bounding box annotation text file section](#bound
 ## Export to other formats
 
 Datumaro can convert YOLO dataset into any other format
-[Datumaro supports](/docs/user-manual/supported_formats/).
+[Datumaro supports](/docs/data-formats/supported_formats/).
 For successful conversion the output format should support
 object detection task (e.g. Pascal VOC, COCO, TF Detection API etc.)
 

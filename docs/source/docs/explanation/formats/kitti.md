@@ -10,7 +10,7 @@ Supported tasks / formats:
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_object.zip).
 - [Segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) - `kitti_segmentation`
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
-- Raw 3D / Velodyne Points - described [here](/docs/formats/kitti_raw)
+- Raw 3D / Velodyne Points - described [here](./kitti_raw.md)
 
 Supported annotation types:
 - `Bbox` (object detection)
@@ -95,7 +95,7 @@ KITTI segmentation dataset directory should have the following structure:
             └── ...
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file)
 and `label_colors.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `label_colors.txt` will be imported if possible.
@@ -113,7 +113,7 @@ run `datum project info`, which will display the project information.
 
 ## Export to other formats
 
-Datumaro can convert a KITTI dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert a KITTI dataset into any other format [Datumaro supports](/docs/data-formats/supported_formats/).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
@@ -192,7 +192,7 @@ datum export -f kitti -- --tasks detection
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the KITTI format in particular. Follow the
-[user manual](/docs/user-manual/)
+[user manual](/docs/user-manual/index/)
 to get more information about these operations.
 
 There are several examples of using Datumaro operations to solve

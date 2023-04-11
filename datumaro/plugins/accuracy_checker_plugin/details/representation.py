@@ -6,7 +6,7 @@ from datumaro.util.tf_util import import_tf
 
 import_tf()  # prevent TF loading and potential interpreter crash
 
-import accuracy_checker.representation as ac
+import openvino.tools.accuracy_checker.representation as ac
 
 import datumaro.components.dataset_base as dm
 from datumaro.util.annotation_util import softmax

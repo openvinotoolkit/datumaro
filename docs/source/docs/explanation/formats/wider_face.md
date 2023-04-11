@@ -72,7 +72,7 @@ Also example of WIDER Face dataset available in our
 ## Export WIDER Face dataset
 
 With Datumaro you can convert WIDER Face dataset into any other
-format [Datumaro supports](/docs/user-manual/supported_formats/).
+format [Datumaro supports](/docs/data-formats/supported_formats/).
 Pay attention that this format should also support `Label` and/or `Bbox`
 annotation types.
 
@@ -101,7 +101,7 @@ dataset.export('output_dir', 'open_images', save_media=True)
 ```
 
 > Note: some formats have extra export options. For particular format see the
-> [docs](/docs/formats/) to get information about it.
+> [docs](/docs/data-formats/supported_formats) to get information about it.
 
 ## Export to WIDER Face dataset
 

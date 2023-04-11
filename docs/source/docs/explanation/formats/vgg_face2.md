@@ -25,7 +25,7 @@ datum import -f vgg_face2 <path_to_dataset>
 
 > Note: if you use `datum import` then <path_to_dataset> should not be a
 > subdirectory of directory with Datumaro project, see more information about
-> it in the [docs](/docs/user-manual/command-reference/sources/#source-add).
+> it in the [docs](/docs/command-reference/sources.md#add-dataset).
 
 And you can also load Vgg Face 2 through the Python API:
 
@@ -71,7 +71,7 @@ vgg_face2_dataset/
 ## Export Vgg Face2 dataset
 
 Datumaro can convert a Vgg Face2 dataset into any other format
-[Datumaro supports](/docs/user-manual/supported_formats/).
+[Datumaro supports](/docs/data-formats/supported_formats/).
 There is few examples how to do it:
 
 ```
@@ -100,7 +100,7 @@ vgg_face2_dataset.export('<output_dir>', format='open_images', save_media=True)
 ```
 
 > Note: some formats have extra export options. For particular format see the
-> [docs](/docs/formats/) to get information about it.
+> [docs](/docs/data-formats/supported_formats) to get information about it.
 
 ## Export dataset to the Vgg Face2 format
 

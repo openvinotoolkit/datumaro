@@ -43,11 +43,11 @@ dataset/
 └── ...
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file).
 
 ## Export to other formats
 
-Datumaro can convert a VoTT CSV dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert a VoTT CSV dataset into any other format [Datumaro supports](/docs/data-formats/supported_formats/).
 To get the expected result, convert the dataset to a format
 that supports bounding boxes.
 

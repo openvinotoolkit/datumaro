@@ -65,11 +65,11 @@ landmarks and subsets respectively (optional).
 The original CelebA dataset stores images in a .7z archive. The archive
 needs to be unpacked before importing.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file).
 
 ## Export to other formats
 
-Datumaro can convert an align CelebA dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert an align CelebA dataset into any other format [Datumaro supports](/docs/data-formats/supported_formats/).
 To get the expected result, convert the dataset to a format
 that supports labels or landmarks.
 

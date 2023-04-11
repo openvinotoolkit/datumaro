@@ -171,6 +171,8 @@ reduce the amount of disk writes. Changes can be flushed with
        for item in subset:
            print(item.id, item.annotations)
 
+.. _dataset_merging:
+
 Dataset merging
 ~~~~~~~~~~~~~~~
 

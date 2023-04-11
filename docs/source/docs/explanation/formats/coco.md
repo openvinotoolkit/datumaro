@@ -127,7 +127,7 @@ task-specific formats instead of plain `coco`: `coco_captions`,
 `coco_person_keypoints`, `coco_stuff`. In this case all items of the
 dataset will be added to the `default` subset.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file).
 
 You can import a dataset for one or several tasks
 instead of the whole dataset. This option also allows to import annotation
@@ -148,7 +148,7 @@ Notes:
 
 ## Export to other formats
 
-Datumaro can convert COCO dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert COCO dataset into any other format [Datumaro supports](/docs/data-formats/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the specified task (e.g. for panoptic segmentation - VOC, CamVID)
 
@@ -233,7 +233,7 @@ datum export -f coco -- --tasks instances,stuff
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the COCO format in particular. Follow the
-[user manual](/docs/user-manual/)
+[user manual](/docs/user-manual/index/)
 to get more information about these operations.
 
 There are several examples of using Datumaro operations to solve

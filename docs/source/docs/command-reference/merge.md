@@ -17,7 +17,7 @@ or more datasets and checks annotations for errors.
 
 > **Note** In simple cases, when dataset images do not intersect and new
 > labels are not added, the recommended way of merging is using
-> [the `patch` command](/docs/user-manual/command-reference/patch/).
+> [the `patch` command](/docs/command-reference/patch/).
 > It will offer better performance and provide the same results.
 
 Datasets are merged by items, and item annotations are merged by finding the
@@ -55,7 +55,7 @@ This command has multiple forms:
 2) datum merge <revpath> <revpath> ...
 ```
 
-\<revpath\> - either [a dataset path or a revision path](/docs/user-manual/how_to_use_datumaro/#revpath).
+\<revpath\> - either [a dataset path or a revision path](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts).
 
 1 - Merges the current project's main target ("project")
   in the working tree with the specified dataset.
@@ -79,7 +79,7 @@ datum merge [-h] [-iou IOU_THRESH] [-oconf OUTPUT_CONF_THRESH]
 ```
 
 Parameters:
-- `<target>` (string) - Target [dataset revpaths](/docs/user-manual/how_to_use_datumaro/#revpath)
+- `<target>` (string) - Target [dataset revpaths](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts)
   (repeatable)
 - `-iou`, `--iou-thresh` (number) - IoU matching threshold for spatial
   annotations (both maximum inter-cluster and pairwise). Default is 0.25.

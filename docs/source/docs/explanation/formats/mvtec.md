@@ -77,7 +77,7 @@ can run `datum project info`, which will display the project information.
 ## Export to other formats
 
 Datumaro can convert a MVTec AD dataset into any other format
-[Datumaro supports](/docs/user-manual/supported_formats).
+[Datumaro supports](/docs/data-formats/supported_formats).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,

@@ -1,4 +1,5 @@
 -r requirements.txt
 -r tests/requirements.txt
 
+openvino-dev==2022.3.0
 pre-commit

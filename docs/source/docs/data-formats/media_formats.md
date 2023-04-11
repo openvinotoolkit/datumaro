@@ -45,7 +45,7 @@ Once there is a `Dataset` instance, its items can be split into subsets,
 renamed, filtered, joined with annotations, exported in various formats etc.
 
 To import frames from a video, you can split the video into frames with
-the [`split_video` command](/docs/user-manual/command-reference/util#split-video)
+the [`split_video` command](/docs/command-reference/util.md#split-video-into-frames)
 and then use the `image_dir` format described above. In more complex cases,
 consider using [FFmpeg](https://ffmpeg.org/) and other tools for
 video processing.

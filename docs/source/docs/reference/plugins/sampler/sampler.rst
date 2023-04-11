@@ -1,4 +1,4 @@
-Sampler package
+sampler package
 ===============
 
 .. toctree::
