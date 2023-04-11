@@ -181,6 +181,6 @@ class ImagenetExporter(Exporter):
                     item,
                     subdir=osp.join(root_dir, item.subset, ImagenetPath.IMAGE_DIR_NO_LABEL)
                     if self._use_subset_dirs
-                    else osp.join(root_dir, label_name),
+                    else osp.join(root_dir, ImagenetPath.IMAGE_DIR_NO_LABEL),
                     name=file_name,
                 )
