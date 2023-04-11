@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+### New features
+- Add LossDynamicsAnalyzer for noisy label detection
+  (<https://github.com/openvinotoolkit/datumaro/pull/928>)
+
 ### Enhancements
 - Add multiprocessing to DatumaroBinaryBase
   (<https://github.com/openvinotoolkit/datumaro/pull/897>)
