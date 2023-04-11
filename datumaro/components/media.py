@@ -280,12 +280,12 @@ class ImageFromFile(FromFileMixin, Image):
         super().__init__(path, *args, **kwargs)
         self.__data = lazy_image(self.path, crypter=self._crypter)
 
-        # extension form file name and real extension can be differ
+        # extension from file name and real extension can be differ
         self._ext = self._ext if self._ext else osp.splitext(osp.basename(path))[1]
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGR HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (float) format"""
 
         if not self.has_data:
             return None
@@ -294,7 +294,7 @@ class ImageFromFile(FromFileMixin, Image):
 
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
-                raise MediaShapeError("An image should have 2 (gray) or 3 (bgr) dims.")
+                raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
             self._size = tuple(map(int, data.shape[:2]))
         return data
 
@@ -351,7 +351,7 @@ class ImageFromNumpy(ImageFromData):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGR HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (float) format"""
 
         data = super().data
 
@@ -359,7 +359,7 @@ class ImageFromNumpy(ImageFromData):
             data = data.astype(np.float32)
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
-                raise MediaShapeError("An image should have 2 (gray) or 3 (rgb) dims.")
+                raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
             self._size = tuple(map(int, data.shape[:2]))
         return data
 
@@ -396,7 +396,7 @@ class ImageFromBytes(ImageFromData):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGR HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (float) format"""
 
         data = super().data
 
@@ -406,7 +406,7 @@ class ImageFromBytes(ImageFromData):
             data = data.astype(np.float32)
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
-                raise MediaShapeError("An image should have 2 (gray) or 3 (rgb) dims.")
+                raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
             self._size = tuple(map(int, data.shape[:2]))
         return data
 
@@ -1031,7 +1031,7 @@ class RoIImageFromFile(FromFileMixin, RoIImage):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGR HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (float) format"""
         if not self.has_data:
             return None
         data = self.__data()
@@ -1070,7 +1070,7 @@ class RoIImageFromBytes(RoIImageFromData):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGR HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (float) format"""
         data = super().data
         if data is None:
             return None
@@ -1091,7 +1091,7 @@ class RoIImageFromNumpy(RoIImageFromData):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGR HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (float) format"""
         data = super().data
         if data is None:
             return None
