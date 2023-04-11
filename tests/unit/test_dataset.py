@@ -2225,7 +2225,7 @@ class DatasetInfosTest:
         dataset_2 = fxt_sample_dataset_factory(infos=infos_2)
 
         merger = IntersectMerge()
-        dataset = merger.merge(datasets=[dataset_1, dataset_2])
+        dataset = merger.merge(sources=[dataset_1, dataset_2])
 
         fxt_test_case.assertEqual(dataset.infos(), infos)
 

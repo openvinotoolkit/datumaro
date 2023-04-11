@@ -7,7 +7,7 @@ from typing import Optional
 import numpy as np
 from attr import attrib, attrs
 
-from datumaro.components.merge.base import Merger
+from datumaro.components.abstracts import IMerger
 from datumaro.util.annotation_util import (
     OKS,
     approximate_line,
@@ -97,7 +97,7 @@ def match_segments(
 
 @attrs(kw_only=True)
 class AnnotationMatcher:
-    _context: Optional[Merger] = attrib(default=None)
+    _context: Optional[IMerger] = attrib(default=None)
 
     def match_annotations(self, sources):
         raise NotImplementedError()

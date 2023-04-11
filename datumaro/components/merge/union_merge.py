@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
-from datumaro.components.dataset import DatasetItemStorage
 from datumaro.components.dataset_base import IDataset
+from datumaro.components.dataset_item_storage import DatasetItemStorage
 from datumaro.components.merge import Merger
 
 __all__ = ["UnionMerge"]
