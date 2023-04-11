@@ -330,13 +330,13 @@ class VocIntegrationScenarios(TestCase):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="/".join([label, "2007_000001"]), subset="default", annotations=[Label(i)]
+                    id=":".join([label, "2007_000001"]), subset="default", annotations=[Label(i)]
                 )
                 for i, label in enumerate(labels)
             ]
             + [
                 DatasetItem(
-                    id="no_label/2007_000002",
+                    id="no_label:2007_000002",
                     subset="default",
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 )
