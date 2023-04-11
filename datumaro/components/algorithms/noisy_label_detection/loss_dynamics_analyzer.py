@@ -8,12 +8,13 @@ from typing import Dict, List, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.figure import Figure
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset_base import IDataset
 from datumaro.errors import DatasetError
 
-__all__ = ["LossDynamicsAnalyzer"]
+__all__ = ["LossDynamicsAnalyzer", "NoisyLabelCandidate"]
 
 
 @dataclass(order=True, frozen=True)
@@ -143,7 +144,7 @@ class LossDynamicsAnalyzer:
         mean_plot_color: str = "k",
         figsize: Tuple[int, int] = (4, 3),
         **kwargs,
-    ) -> plt.Figure:
+    ) -> Figure:
         if mode == "mean":
             cands_by_label_id = {None: candidates}
         elif mode == "label_mean":
