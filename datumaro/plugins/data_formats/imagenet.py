@@ -149,7 +149,7 @@ class ImagenetExporter(Exporter):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
-        if 1 < len(self._extractor.subsets()) and self._use_subset_dirs:
+        if 1 < len(self._extractor.subsets()) and not self._use_subset_dirs:
             log.warning(
                 f"There are more than one subset in the dataset ({len(self._extractor.subsets())}). "
                 "However, ImageNet format exports all dataset items into the same directory. "
