@@ -14,7 +14,7 @@ from datumaro.components.errors import DatasetError
 from datumaro.components.exporter import Exporter
 from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.launcher import Launcher, ModelTransform
-from datumaro.components.merge.exact_merge import ExactMerge
+from datumaro.components.merge import get_merger
 from datumaro.components.transformer import Transform
 from datumaro.components.validator import TaskType, Validator
 from datumaro.util import parse_str_enum_value
@@ -98,7 +98,7 @@ class HLOps:
             return HLOps.transform(dataset, XPathDatasetFilter, xpath=expr)
 
     @staticmethod
-    def merge(*datasets: IDataset) -> IDataset:
+    def merge(*datasets: IDataset, merge_policy: str = "union", **kwargs) -> IDataset:
         """
         Merges several datasets using the "simple" (exact matching) algorithm:
 
@@ -113,8 +113,7 @@ class HLOps:
 
         Returns: a wrapper around the input datasets
         """
-
-        merger = ExactMerge()
+        merger = get_merger(merge_policy, **kwargs)
         infos = merger.merge_infos(d.infos() for d in datasets)
         categories = merger.merge_categories(d.categories() for d in datasets)
         media_type = merger.merge_media_types(datasets)

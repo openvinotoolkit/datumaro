@@ -3,8 +3,14 @@
 # SPDX-License-Identifier: MIT
 
 import logging as log
+from abc import abstractmethod
 
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.dataset_base import IDataset
+from datumaro.components.dataset_item_storage import (
+    DatasetItemStorage,
+    DatasetItemStorageDatasetView,
+)
 from datumaro.components.errors import ConflictingCategoriesError, MediaTypeError
 
 
@@ -53,3 +59,15 @@ class Merger(CliPlugin):
             return media_type
 
         return None
+
+    @abstractmethod
+    def merge(self, *sources: IDataset) -> DatasetItemStorage:
+        raise NotImplementedError()
+
+    def __call__(self, *datasets: IDataset) -> DatasetItemStorage:
+        infos = self.merge_infos(d.infos() for d in datasets)
+        categories = self.merge_categories(d.categories() for d in datasets)
+        media_type = self.merge_media_types(datasets)
+        return DatasetItemStorageDatasetView(
+            self.merge(*datasets), infos=infos, categories=categories, media_type=media_type
+        )
