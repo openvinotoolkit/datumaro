@@ -728,17 +728,9 @@ class Dataset(IDataset):
             source = sources[0]
             dataset = Dataset(source=source, env=env)
         else:
-            from datumaro.components.merge import get_merger
+            from datumaro.components.hl_ops import HLOps
 
-            merger = get_merger(merge_policy)
-
-            categories = merger.merge_categories(s.categories() for s in sources)
-            infos = merger.merge_infos(s.infos() for s in sources)
-            media_type = merger.merge_media_types(sources)
-            source = merger.merge(*sources)
-            dataset = Dataset(
-                source=source, infos=infos, categories=categories, media_type=media_type, env=env
-            )
+            return HLOps.merge(*sources, merge_policy=merge_policy)
 
         return dataset
 

@@ -14,7 +14,7 @@ from datumaro.components.errors import DatasetError
 from datumaro.components.exporter import Exporter
 from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.launcher import Launcher, ModelTransform
-from datumaro.components.merge import get_merger
+from datumaro.components.merge import DEFAULT_MERGE_POLICY, get_merger
 from datumaro.components.transformer import Transform
 from datumaro.components.validator import TaskType, Validator
 from datumaro.util import parse_str_enum_value
@@ -98,7 +98,12 @@ class HLOps:
             return HLOps.transform(dataset, XPathDatasetFilter, xpath=expr)
 
     @staticmethod
-    def merge(*datasets: Dataset, merge_policy: str = "union", **kwargs) -> Dataset:
+    def merge(
+        *datasets: Dataset,
+        merge_policy: str = DEFAULT_MERGE_POLICY,
+        report_path: Optional[str] = None,
+        **kwargs,
+    ) -> Dataset:
         """
         Merges several datasets using the "simple" (exact matching) algorithm:
 
@@ -116,7 +121,17 @@ class HLOps:
 
         merger = get_merger(merge_policy, **kwargs)
         merged = merger(*datasets)
-        env = Environment.merge(dataset.env for dataset in datasets)
+        env = Environment.merge(
+            dataset.env
+            for dataset in datasets
+            if hasattr(
+                dataset, "env"
+            )  # TODO: Sometimes, there is dataset which is not exactly "Dataset",
+            # e.g., VocClassificationBase. this should be fixed and every object from
+            # Dataset.import_from should have "Dataset" type.
+        )
+        if report_path:
+            merger.save_merge_report(report_path)
         return Dataset(source=merged, env=env)
 
     @staticmethod

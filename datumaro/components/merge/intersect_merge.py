@@ -30,10 +30,7 @@ from datumaro.components.annotations.merger import (
     PolygonMerger,
 )
 from datumaro.components.dataset_base import DatasetItem, IDataset
-from datumaro.components.dataset_item_storage import (
-    DatasetItemStorage,
-    DatasetItemStorageDatasetView,
-)
+from datumaro.components.dataset_item_storage import DatasetItemStorage
 from datumaro.components.errors import (
     AnnotationsTooCloseError,
     ConflictingCategoriesError,
@@ -97,7 +94,7 @@ class IntersectMerge(Merger):
     _infos = attrib(init=False)  # merged infos
     _categories = attrib(init=False)  # merged categories
 
-    def merge(self, sources: Sequence[IDataset]) -> DatasetItemStorageDatasetView:
+    def merge(self, sources: Sequence[IDataset]) -> DatasetItemStorage:
         self._infos = self.merge_infos([d.infos() for d in sources])
         self._categories = self.merge_categories([d.categories() for d in sources])
         merged = DatasetItemStorage()
@@ -116,17 +113,17 @@ class IntersectMerge(Merger):
                 self.add_item_error(NoMatchingItemError, sources=missing_sources)
             merged.put(self.merge_items(items))
 
-        return DatasetItemStorageDatasetView(
-            parent=merged,
-            infos=self._infos,
-            categories=self._categories,
-            media_type=self.merge_media_types(sources),
-        )
+        return merged
 
     def get_ann_source(self, ann_id):
         return self._item_map[self._ann_map[ann_id][1]][1]
 
     def merge_categories(self, sources):
+        # TODO: This is  a temporary workaround to minimize code changes.
+        # We have to revisit it to make this class stateless.
+        if hasattr(self, "_categories"):
+            return self._categories
+
         dst_categories = {}
 
         label_cat = self._merge_label_categories(sources)
