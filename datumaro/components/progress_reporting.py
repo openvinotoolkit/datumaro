@@ -8,7 +8,7 @@ import math
 import time
 from typing import Iterable, Optional, Tuple, TypeVar
 
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 T = TypeVar("T")
 
