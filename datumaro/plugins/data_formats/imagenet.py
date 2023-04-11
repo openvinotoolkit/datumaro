@@ -131,11 +131,9 @@ class ImagenetWithSubsetDirsImporter(ImagenetImporter):
 class ImagenetExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
 
-    def __init__(
-        self, extractor: IDataset, save_dir: str, *, use_subset_dirs: bool = False, **kwargs
-    ):
+    def __init__(self, extractor: IDataset, save_dir: str, **kwargs):
         super().__init__(extractor, save_dir, **kwargs)
-        self._use_subset_dirs = use_subset_dirs
+        self._use_subset_dirs = False
 
     def apply(self):
         def _get_name(item: DatasetItem) -> str:
@@ -153,10 +151,10 @@ class ImagenetExporter(Exporter):
 
         if 1 < len(self._extractor.subsets()) and self._use_subset_dirs:
             log.warning(
-                "You gave use_subset_dirs=False, but there are more than one subset in the dataset "
-                f"({len(self._extractor.subsets())}). With use_subset_dirs=False, ImageNet format "
-                "export all dataset items into the same directory. Therefore, subset information "
-                "will be lost. To prevent it, please turn on use_subset_dirs=True."
+                f"There are more than one subset in the dataset ({len(self._extractor.subsets())}). "
+                "However, ImageNet format exports all dataset items into the same directory. "
+                "Therefore, subset information will be lost. To prevent it, please use ImagenetWithSubsetDirsExporter. "
+                'For example, dataset.export("<path/to/output>", format="imagenet_with_subset_dirs").'
             )
 
         root_dir = self._save_dir
@@ -184,3 +182,9 @@ class ImagenetExporter(Exporter):
                     else osp.join(root_dir, ImagenetPath.IMAGE_DIR_NO_LABEL),
                     name=file_name,
                 )
+
+
+class ImagenetWithSubsetDirsExporter(ImagenetExporter):
+    def __init__(self, extractor: IDataset, save_dir: str, **kwargs):
+        super().__init__(extractor, save_dir, **kwargs)
+        self._use_subset_dirs = True

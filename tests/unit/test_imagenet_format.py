@@ -13,6 +13,7 @@ from datumaro.components.media import Image
 from datumaro.plugins.data_formats.imagenet import (
     ImagenetExporter,
     ImagenetImporter,
+    ImagenetWithSubsetDirsExporter,
     ImagenetWithSubsetDirsImporter,
 )
 
@@ -110,6 +111,7 @@ def fxt_arbitrary_extension():
 
 class ImagenetFormatTest:
     helper = TestCaseHelper()
+    exporter = ImagenetExporter
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize(
@@ -126,11 +128,41 @@ class ImagenetFormatTest:
         source, expected = fxt_test_case
 
         with TestDir() as test_dir:
-            ImagenetExporter.convert(source, test_dir, save_media=True)
-
-            parsed_dataset = Dataset.import_from(test_dir, "imagenet")
-
+            self.exporter.convert(source, test_dir, save_media=True)
+            parsed_dataset = Dataset.import_from(test_dir, self.exporter.NAME)
             compare_datasets(self.helper, expected, parsed_dataset, require_media=True)
+
+
+class ImagenetWithSubsetDirsFormatTest(ImagenetFormatTest):
+    helper = TestCaseHelper()
+    exporter = ImagenetWithSubsetDirsExporter
+
+    @pytest.fixture
+    def fxt_test_case_with_subsets(self, request):
+        fxt_name = request.param
+        source, expected = request.getfixturevalue(fxt_name)
+
+        _to_subsets = lambda dataset: Dataset.from_extractors(
+            *[
+                deepcopy(dataset).transform("map_subsets", mapping={"default": subset})
+                for subset in ["train", "val", "test"]
+            ]
+        )
+        return _to_subsets(source), _to_subsets(expected)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize(
+        "fxt_test_case_with_subsets",
+        [
+            "fxt_standard",
+            "fxt_multiple_labels",
+            "fxt_cyrillic_and_spaces_in_filename",
+            "fxt_arbitrary_extension",
+        ],
+        indirect=True,
+    )
+    def test_can_save_and_load(self, fxt_test_case_with_subsets):
+        super().test_can_save_and_load(fxt_test_case_with_subsets)
 
 
 class ImagenetImporterTest(TestCase):
