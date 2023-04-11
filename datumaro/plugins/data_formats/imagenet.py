@@ -2,11 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging as log
 import os
 import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
-from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.dataset_base import DatasetItem, IDataset, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
@@ -18,6 +19,7 @@ from datumaro.util.image import find_images
 
 class ImagenetPath:
     IMAGE_DIR_NO_LABEL = "no_label"
+    SEP_TOKEN = ":"
 
 
 class ImagenetBase(SubsetBase):
@@ -44,7 +46,7 @@ class ImagenetBase(SubsetBase):
             label = osp.basename(osp.dirname(image_path))
             image_name = osp.splitext(osp.basename(image_path))[0]
 
-            item_id = label + ":" + image_name
+            item_id = label + ImagenetPath.SEP_TOKEN + image_name
             item = items.get(item_id)
             if item is None:
                 item = DatasetItem(id=item_id, subset=self._subset, media=Image(path=image_path))
@@ -129,32 +131,56 @@ class ImagenetWithSubsetDirsImporter(ImagenetImporter):
 class ImagenetExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
 
+    def __init__(
+        self, extractor: IDataset, save_dir: str, *, use_subset_dirs: bool = False, **kwargs
+    ):
+        super().__init__(extractor, save_dir, **kwargs)
+        self._use_subset_dirs = use_subset_dirs
+
     def apply(self):
+        def _get_name(item: DatasetItem) -> str:
+            id_parts = item.id.split(ImagenetPath.SEP_TOKEN)
+
+            if len(id_parts) == 1:
+                # e.g. item.id = my_img_1
+                return item.id
+            else:
+                # e.g. item.id = label_1:my_img_1
+                return "_".join(id_parts[1:])  # ":" is not allowed in windows
+
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
-        subset_dir = self._save_dir
+        if 1 < len(self._extractor.subsets()) and self._use_subset_dirs:
+            log.warning(
+                "You gave use_subset_dirs=False, but there are more than one subset in the dataset "
+                f"({len(self._extractor.subsets())}). With use_subset_dirs=False, ImageNet format "
+                "export all dataset items into the same directory. Therefore, subset information "
+                "will be lost. To prevent it, please turn on use_subset_dirs=True."
+            )
+
+        root_dir = self._save_dir
         extractor = self._extractor
         labels = {}
-        label_categories = extractor.categories()[AnnotationType.label]
         for item in self._extractor:
-            id_part = item.id.split(":")[-1]
+            file_name = _get_name(item)
             labels = set(p.label for p in item.annotations if p.type == AnnotationType.label)
 
             for label in labels:
-                label_name = label_categories[label].name
+                label_name = extractor.categories()[AnnotationType.label][label].name
                 self._save_image(
                     item,
-                    name=id_part,
-                    subdir=osp.join(subset_dir, item.subset, label_name),
+                    subdir=osp.join(root_dir, item.subset, label_name)
+                    if self._use_subset_dirs
+                    else osp.join(root_dir, label_name),
+                    name=file_name,
                 )
 
             if not labels:
                 self._save_image(
                     item,
-                    subdir=osp.join(
-                        subset_dir,
-                        item.subset,
-                        ImagenetPath.IMAGE_DIR_NO_LABEL,
-                    ),
+                    subdir=osp.join(root_dir, item.subset, ImagenetPath.IMAGE_DIR_NO_LABEL)
+                    if self._use_subset_dirs
+                    else osp.join(root_dir, label_name),
+                    name=file_name,
                 )
