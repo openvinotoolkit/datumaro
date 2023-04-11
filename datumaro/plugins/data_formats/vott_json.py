@@ -85,7 +85,9 @@ class VottJsonBase(SubsetBase):
                 id=item_id,
                 subset=self._subset,
                 attributes={"id": id},
-                media=Image(path=osp.join(osp.dirname(path), asset.get("asset", {}).get("path"))),
+                media=Image.from_file(
+                    path=osp.join(osp.dirname(path), asset.get("asset", {}).get("path"))
+                ),
                 annotations=annotations,
             )
 

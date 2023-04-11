@@ -28,7 +28,7 @@ class LabelingTest(TestCase):
                 DatasetItem(
                     id=0,
                     subset="train",
-                    media=Image(data=np.ones((10, 6, 3))),
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
                     annotations=[
                         Label(
                             0,

@@ -53,7 +53,8 @@ class DatasetItemEncoder:
         ET.SubElement(image_elem, "height").text = str(h)
 
         ET.SubElement(image_elem, "has_data").text = "%d" % int(image.has_data)
-        ET.SubElement(image_elem, "path").text = image.path
+        if hasattr(image, "path"):
+            ET.SubElement(image_elem, "path").text = image.path
 
         return image_elem
 

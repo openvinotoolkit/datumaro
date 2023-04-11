@@ -17,8 +17,8 @@ class ImageDirFormatTest(TestCase):
     def test_can_load(self):
         dataset = Dataset.from_iterable(
             [
-                DatasetItem(id=1, media=Image(data=np.ones((10, 6, 3)))),
-                DatasetItem(id=2, media=Image(data=np.ones((5, 4, 3)))),
+                DatasetItem(id=1, media=Image.from_numpy(data=np.ones((10, 6, 3)))),
+                DatasetItem(id=2, media=Image.from_numpy(data=np.ones((5, 4, 3)))),
             ]
         )
 
@@ -36,9 +36,9 @@ class ImageDirFormatTest(TestCase):
     def test_relative_paths(self):
         dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", media=Image(data=np.ones((4, 2, 3)))),
-                DatasetItem(id="subdir1/1", media=Image(data=np.ones((2, 6, 3)))),
-                DatasetItem(id="subdir2/1", media=Image(data=np.ones((5, 4, 3)))),
+                DatasetItem(id="1", media=Image.from_numpy(data=np.ones((4, 2, 3)))),
+                DatasetItem(id="subdir1/1", media=Image.from_numpy(data=np.ones((2, 6, 3)))),
+                DatasetItem(id="subdir2/1", media=Image.from_numpy(data=np.ones((5, 4, 3)))),
             ]
         )
 
@@ -51,7 +51,9 @@ class ImageDirFormatTest(TestCase):
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="кириллица с пробелом", media=Image(data=np.ones((4, 2, 3)))),
+                DatasetItem(
+                    id="кириллица с пробелом", media=Image.from_numpy(data=np.ones((4, 2, 3)))
+                ),
             ]
         )
 
@@ -64,9 +66,11 @@ class ImageDirFormatTest(TestCase):
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="q/1", media=Image(path="q/1.JPEG", data=np.zeros((4, 3, 3)))),
                 DatasetItem(
-                    id="a/b/c/2", media=Image(path="a/b/c/2.bmp", data=np.zeros((3, 4, 3)))
+                    id="q/1", media=Image.from_numpy(data=np.zeros((4, 3, 3)), ext=".JPEG")
+                ),
+                DatasetItem(
+                    id="a/b/c/2", media=Image.from_numpy(data=np.zeros((3, 4, 3)), ext=".bmp")
                 ),
             ]
         )

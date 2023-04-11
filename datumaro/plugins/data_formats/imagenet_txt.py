@@ -126,7 +126,7 @@ class ImagenetTxtBase(SubsetBase):
                 items[item_id] = DatasetItem(
                     id=item_id,
                     subset=self._subset,
-                    media=Image(path=osp.join(self.image_dir, image)),
+                    media=Image.from_file(path=osp.join(self.image_dir, image)),
                     annotations=anno,
                 )
 

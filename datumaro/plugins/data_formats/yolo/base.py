@@ -173,7 +173,7 @@ class YoloStrictBase(SubsetBase):
         if isinstance(item, str):
             try:
                 image_size = self._image_info.get(item_id)
-                image = Image(path=osp.join(self._path, item), size=image_size)
+                image = Image.from_file(path=osp.join(self._path, item), size=image_size)
 
                 anno_path = osp.splitext(image.path)[0] + ".txt"
                 annotations = self._parse_annotations(
@@ -326,7 +326,7 @@ class YoloLooseBase(SubsetBase):
         for url in urls:
             try:
                 fname = _get_fname(url)
-                img = Image(path=img_files[fname])
+                img = Image.from_file(path=img_files[fname])
                 anns = YoloStrictBase._parse_annotations(
                     url,
                     img,

@@ -11,11 +11,12 @@ from types import SimpleNamespace as namespace
 from typing import Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Type, Union
 
 import attrs
+import numpy as np
 from attrs import field, frozen
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
-from datumaro.components.media import ByteImage, Image, MediaElement
+from datumaro.components.media import Image, MediaElement
 from datumaro.util.tf_util import import_tf
 
 try:
@@ -140,10 +141,14 @@ class _SetImageFromImageFeature:
     ) -> None:
         if self.filename_feature_name:
             filename = tfds_example[self.filename_feature_name].numpy().decode("UTF-8")
+            if osp.exists(filename):
+                item.media = Image.from_file(path=filename)
+                return
+        data = tfds_example[self.feature_name].numpy()
+        if isinstance(data, np.ndarray):
+            item.media = Image.from_numpy(data=data)
         else:
-            filename = None
-
-        item.media = ByteImage(data=tfds_example[self.feature_name].numpy(), path=filename)
+            item.media = Image.from_bytes(data=data)
 
 
 @frozen

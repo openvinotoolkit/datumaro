@@ -49,7 +49,9 @@ class ImagenetBase(SubsetBase):
             item_id = label + ImagenetPath.SEP_TOKEN + image_name
             item = items.get(item_id)
             if item is None:
-                item = DatasetItem(id=item_id, subset=self._subset, media=Image(path=image_path))
+                item = DatasetItem(
+                    id=item_id, subset=self._subset, media=Image.from_file(path=image_path)
+                )
                 items[item_id] = item
             annotations = item.annotations
 

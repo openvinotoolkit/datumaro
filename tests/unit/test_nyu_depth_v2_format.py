@@ -29,13 +29,13 @@ class NyuDepthV2ImporterTest(TestCase):
             [
                 DatasetItem(
                     id="1",
-                    media=Image(data=np.ones((6, 4, 3))),
-                    annotations=[DepthAnnotation(Image(data=np.ones((6, 4))))],
+                    media=Image.from_numpy(data=np.ones((6, 4, 3))),
+                    annotations=[DepthAnnotation(Image.from_numpy(data=np.ones((6, 4))))],
                 ),
                 DatasetItem(
                     id="2",
-                    media=Image(data=np.ones((4, 3, 3))),
-                    annotations=[DepthAnnotation(Image(data=np.ones((4, 3))))],
+                    media=Image.from_numpy(data=np.ones((4, 3, 3))),
+                    annotations=[DepthAnnotation(Image.from_numpy(data=np.ones((4, 3))))],
                 ),
             ]
         )

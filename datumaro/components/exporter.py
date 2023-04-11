@@ -288,7 +288,6 @@ class ExportContextComponent:
         save_media: bool,
         images_dir: str,
         pcd_dir: str,
-        related_images_dir: str,
         crypter: Crypter = NULL_CRYPTER,
         image_ext: Optional[str] = None,
         default_image_ext: Optional[str] = None,
@@ -297,7 +296,6 @@ class ExportContextComponent:
         self._save_media = save_media
         self._images_dir = images_dir
         self._pcd_dir = pcd_dir
-        self._related_images_dir = related_images_dir
         self._crypter = crypter
         self._image_ext = image_ext
         self._default_image_ext = default_image_ext
@@ -322,6 +320,11 @@ class ExportContextComponent:
 
     def make_pcd_filename(self, item, *, name=None, subdir=None):
         return self._make_item_filename(item, name=name, subdir=subdir) + ".pcd"
+
+    def make_pcd_extra_image_filename(self, item, idx, image, *, name=None, subdir=None):
+        return self._make_item_filename(
+            item, name=name if name else f"{item.id}/extra_image_{idx}", subdir=subdir
+        ) + self.find_image_ext(image)
 
     def save_image(
         self,
@@ -364,7 +367,13 @@ class ExportContextComponent:
         path = osp.abspath(path)
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        item.media.save(path, crypter=NULL_CRYPTER)
+
+        def helper(i, image):
+            basedir = self._images_dir
+            basedir = osp.join(basedir, subdir) if subdir is not None else basedir
+            return {"fp": osp.join(basedir, self.make_pcd_extra_image_filename(item, i, image))}
+
+        item.media.save(path, helper, crypter=NULL_CRYPTER)
 
     @property
     def images_dir(self) -> str:
@@ -373,10 +382,6 @@ class ExportContextComponent:
     @property
     def pcd_dir(self) -> str:
         return self._pcd_dir
-
-    @property
-    def related_images_dir(self) -> str:
-        return self._related_images_dir
 
     @property
     def save_dir(self) -> str:
@@ -389,3 +394,7 @@ class ExportContextComponent:
     @property
     def crypter(self) -> Crypter:
         return self._crypter
+
+    @property
+    def source_path(self) -> str:
+        return self._source_path if self._source_path else ""

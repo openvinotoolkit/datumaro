@@ -74,7 +74,7 @@ class _IcdarBase(SubsetBase):
                 image_path = osp.join(osp.dirname(self._path), IcdarPath.IMAGES_DIR, image)
                 if item_id not in items:
                     items[item_id] = DatasetItem(
-                        item_id, subset=self._subset, media=Image(path=image_path)
+                        item_id, subset=self._subset, media=Image.from_file(path=image_path)
                     )
 
                 annotations = items[item_id].annotations
@@ -105,7 +105,7 @@ class _IcdarBase(SubsetBase):
                 image = None
                 image_path = images.get(item_id)
                 if image_path:
-                    image = Image(path=image_path)
+                    image = Image.from_file(path=image_path)
 
                 items[item_id] = DatasetItem(item_id, subset=self._subset, media=image)
             annotations = items[item_id].annotations
@@ -176,7 +176,7 @@ class _IcdarBase(SubsetBase):
                 image = None
                 image_path = images.get(item_id)
                 if image_path:
-                    image = Image(path=image_path)
+                    image = Image.from_file(path=image_path)
 
                 items[item_id] = DatasetItem(item_id, subset=self._subset, media=image)
             annotations = items[item_id].annotations

@@ -261,7 +261,7 @@ datum export -p project -f voc -- --label-map voc --save-media
 import datumaro as dm
 
 dataset = dm.Dataset.from_iterable([
-    dm.DatasetItem(id='image1', image=dm.Image(path='image1.jpg', size=(10, 20)),
+    dm.DatasetItem(id='image1', image=dm.Image.from_file(path='image1.jpg', size=(10, 20)),
         annotations=[
             dm.Label(3),
             dm.Bbox(1.0, 1.0, 10.0, 8.0, label=0, attributes={'difficult': True, 'running': True}),

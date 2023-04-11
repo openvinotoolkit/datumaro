@@ -66,7 +66,7 @@ class FilterTest(TestCase):
                 [
                     DatasetItem(
                         id=1,
-                        media=Image(data=np.ones((10, 10, 3))),
+                        media=Image.from_numpy(data=np.ones((10, 10, 3))),
                         annotations=[Bbox(1, 2, 3, 4, label=1)],
                     ),
                 ],

@@ -11,7 +11,7 @@ from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import Importer
-from datumaro.components.media import ByteImage
+from datumaro.components.media import Image
 from datumaro.util import parse_str_enum_value
 from datumaro.util.image import IMAGE_EXTENSIONS, encode_image
 
@@ -30,7 +30,7 @@ class ImageZipPath:
 
 class ImageZipBase(SubsetBase):
     def __init__(self, url, subset=None):
-        super().__init__(subset=subset, media_type=ByteImage)
+        super().__init__(subset=subset, media_type=Image)
 
         assert url.endswith(".zip"), url
 
@@ -39,7 +39,7 @@ class ImageZipBase(SubsetBase):
                 item_id, extension = osp.splitext(path.filename)
                 if extension.lower() not in IMAGE_EXTENSIONS:
                     continue
-                image = ByteImage(data=zf.read(path.filename))
+                image = Image.from_bytes(data=zf.read(path.filename))
                 self._items.append(DatasetItem(id=item_id, media=image, subset=self._subset))
 
 
@@ -115,9 +115,8 @@ class ImageZipExporter(Exporter):
 
     def _archive_image(self, zipfile, item):
         image_name = self._make_image_filename(item)
-        if osp.isfile(item.media.path):
+        path = getattr(item.media, "path", None)
+        if path is not None and osp.isfile(path):
             zipfile.write(item.media.path, arcname=image_name)
-        elif isinstance(item.media, ByteImage):
-            zipfile.writestr(image_name, item.media.get_bytes())
         elif item.media.has_data:
             zipfile.writestr(image_name, encode_image(item.media.data, osp.splitext(image_name)[1]))

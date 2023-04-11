@@ -150,7 +150,7 @@ class MpiiJsonBase(SubsetBase):
             items[item_id] = DatasetItem(
                 id=item_id,
                 subset=self._subset,
-                media=Image(path=osp.join(root_dir, ann.get("img_paths", ""))),
+                media=Image.from_file(path=osp.join(root_dir, ann.get("img_paths", ""))),
                 annotations=annotations,
             )
 

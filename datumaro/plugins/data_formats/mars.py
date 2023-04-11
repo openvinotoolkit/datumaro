@@ -90,7 +90,7 @@ class MarsBase(DatasetBase):
                 items.append(
                     DatasetItem(
                         id=item_id,
-                        media=Image(path=image_path),
+                        media=Image.from_file(path=image_path),
                         subset=subset,
                         annotations=[Label(label=label_id)],
                         attributes={

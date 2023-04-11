@@ -32,7 +32,7 @@ class SearchTest(TestCase):
         train_img[2, :] = 0
         test_img = np.full((5, 5, 3), 0, dtype=np.uint8)
         test_img[2, :] = 255
-        train_Image = Image(data=train_img)
+        train_Image = Image.from_numpy(data=train_img)
 
         dataset_url = osp.join(test_dir, "dataset")
         dataset = Dataset.from_iterable(
@@ -52,7 +52,7 @@ class SearchTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="test",
-                    media=Image(data=test_img),
+                    media=Image.from_numpy(data=test_img),
                     annotations=[Label(2, id=2), Caption("dog")],
                 ),
             ]
