@@ -60,7 +60,7 @@ class Merger(IMerger, CliPlugin):
         return None
 
     def __call__(self, *datasets: IDataset) -> DatasetItemStorageDatasetView:
-        infos = self.merge_infos(d.infos() for d in datasets)
+        infos = self.merge_infos([d.infos() for d in datasets])
         categories = self.merge_categories(d.categories() for d in datasets)
         media_type = self.merge_media_types(datasets)
         return DatasetItemStorageDatasetView(

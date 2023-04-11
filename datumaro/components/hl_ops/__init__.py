@@ -98,7 +98,7 @@ class HLOps:
             return HLOps.transform(dataset, XPathDatasetFilter, xpath=expr)
 
     @staticmethod
-    def merge(*datasets: IDataset, merge_policy: str = "union", **kwargs) -> IDataset:
+    def merge(*datasets: Dataset, merge_policy: str = "union", **kwargs) -> Dataset:
         """
         Merges several datasets using the "simple" (exact matching) algorithm:
 
@@ -113,13 +113,11 @@ class HLOps:
 
         Returns: a wrapper around the input datasets
         """
+
         merger = get_merger(merge_policy, **kwargs)
-        infos = merger.merge_infos(d.infos() for d in datasets)
-        categories = merger.merge_categories(d.categories() for d in datasets)
-        media_type = merger.merge_media_types(datasets)
-        return DatasetItemStorageDatasetView(
-            merger.merge(*datasets), infos=infos, categories=categories, media_type=media_type
-        )
+        merged = merger(*datasets)
+        env = Environment.merge(dataset.env for dataset in datasets)
+        return Dataset(source=merged, env=env)
 
     @staticmethod
     def run_model(
