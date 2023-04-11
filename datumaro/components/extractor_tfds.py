@@ -139,6 +139,11 @@ class _SetImageFromImageFeature:
         item: DatasetItem,
         state: namespace,
     ) -> None:
+        if self.filename_feature_name:
+            filename = tfds_example[self.filename_feature_name].numpy().decode("UTF-8")
+            if osp.exists(filename):
+                item.media = Image.from_file(path=filename)
+                return
         data = tfds_example[self.feature_name].numpy()
         if isinstance(data, np.ndarray):
             item.media = Image.from_numpy(data=data)
