@@ -4,7 +4,7 @@
 
 # pylint: disable=redefined-builtin
 
-from . import convert, detect_format, download, explain, filter, generate, merge, patch, search
+from . import convert, detect_format, download, explain, explore, filter, generate, merge, patch
 from .require_project import get_project_commands
 
 __all__ = [
@@ -23,5 +23,5 @@ def get_non_project_commands():
         ("generate", generate, "Generate synthetic dataset"),
         ("merge", merge, "Merge datasets"),
         ("patch", patch, "Update dataset from another one"),
-        ("search", search, "Search similar datasetitems of query"),
+        ("explore", explore, "Explore similar datasetitems of query"),
     ]
