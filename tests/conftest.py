@@ -31,3 +31,9 @@ def test_dir():
 @pytest.fixture(scope="class")
 def helper_tc():
     return TestCaseHelper()
+
+
+@pytest.fixture
+def fxt_test_case(request):
+    fxt_name = request.param
+    yield request.getfixturevalue(fxt_name)

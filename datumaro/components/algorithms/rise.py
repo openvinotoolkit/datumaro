@@ -11,12 +11,14 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType
 from datumaro.util.annotation_util import nms
 
+__all__ = ["RISE"]
 
-def flatmatvec(mat):
+
+def _flatmatvec(mat):
     return np.reshape(mat, (len(mat), -1))
 
 
-def expand(array, axis=None):
+def _expand(array, axis=None):
     if axis is None:
         axis = len(array.shape)
     return np.expand_dims(array, axis=axis)
@@ -64,10 +66,10 @@ class RISE:
 
     def normalize_hmaps(self, heatmaps, counts):
         eps = np.finfo(heatmaps.dtype).eps
-        mhmaps = flatmatvec(heatmaps)
-        mhmaps /= expand(counts * self.prob + eps)
-        mhmaps -= expand(np.min(mhmaps, axis=1))
-        mhmaps /= expand(np.max(mhmaps, axis=1) + eps)
+        mhmaps = _flatmatvec(heatmaps)
+        mhmaps /= _expand(counts * self.prob + eps)
+        mhmaps -= _expand(np.min(mhmaps, axis=1))
+        mhmaps /= _expand(np.max(mhmaps, axis=1) + eps)
         return np.reshape(mhmaps, heatmaps.shape)
 
     def apply(self, image, progressive=False):
@@ -92,7 +94,7 @@ class RISE:
             samples = min(self.max_samples, samples)
         batch_size = self.batch_size
 
-        result = next(iter(model.launch(expand(image, 0))))
+        result = next(iter(model.launch(_expand(image, 0))))
         result_labels, result_bboxes = self.split_outputs(result)
         if 0 < self.det_conf_thresh:
             result_bboxes = [
@@ -161,7 +163,7 @@ class RISE:
                 batch_masks[i] = mask
 
             batch_inputs = full_batch_inputs[:current_batch_size]
-            np.multiply(expand(batch_masks), expand(image, 0), out=batch_inputs)
+            np.multiply(_expand(batch_masks), _expand(image, 0), out=batch_inputs)
 
             results = model.launch(batch_inputs)
             for mask, result in zip(batch_masks, results):

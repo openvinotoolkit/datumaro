@@ -19,6 +19,7 @@ from datumaro.util.image import find_images
 
 class ImagenetPath:
     IMAGE_DIR_NO_LABEL = "no_label"
+    SEP_TOKEN = ":"
 
 
 class ImagenetBase(SubsetBase):
@@ -45,7 +46,7 @@ class ImagenetBase(SubsetBase):
             label = osp.basename(osp.dirname(image_path))
             image_name = osp.splitext(osp.basename(image_path))[0]
 
-            item_id = osp.join(label, image_name)
+            item_id = label + ImagenetPath.SEP_TOKEN + image_name
             item = items.get(item_id)
             if item is None:
                 item = DatasetItem(
@@ -131,40 +132,56 @@ class ImagenetWithSubsetDirsImporter(ImagenetImporter):
 
 class ImagenetExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
+    USE_SUBSET_DIRS = False
 
     def apply(self):
-        def _get_dir_name(id_parts, label_name):
-            if 1 < len(id_parts) and id_parts[0] == label_name:
-                return ""
+        def _get_name(item: DatasetItem) -> str:
+            id_parts = item.id.split(ImagenetPath.SEP_TOKEN)
+
+            if len(id_parts) == 1:
+                # e.g. item.id = my_img_1
+                return item.id
             else:
-                return label_name
+                # e.g. item.id = label_1:my_img_1
+                return "_".join(id_parts[1:])  # ":" is not allowed in windows
 
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
-        if 1 < len(self._extractor.subsets()):
+        if 1 < len(self._extractor.subsets()) and not self.USE_SUBSET_DIRS:
             log.warning(
-                "ImageNet format only supports exporting a single "
-                "subset, subset information will not be used."
+                f"There are more than one subset in the dataset ({len(self._extractor.subsets())}). "
+                "However, ImageNet format exports all dataset items into the same directory. "
+                "Therefore, subset information will be lost. To prevent it, please use ImagenetWithSubsetDirsExporter. "
+                'For example, dataset.export("<path/to/output>", format="imagenet_with_subset_dirs").'
             )
 
-        subset_dir = self._save_dir
+        root_dir = self._save_dir
         extractor = self._extractor
         labels = {}
         for item in self._extractor:
-            id_parts = item.id.split("/")
+            file_name = _get_name(item)
             labels = set(p.label for p in item.annotations if p.type == AnnotationType.label)
 
             for label in labels:
                 label_name = extractor.categories()[AnnotationType.label][label].name
                 self._save_image(
-                    item, subdir=osp.join(subset_dir, _get_dir_name(id_parts, label_name))
+                    item,
+                    subdir=osp.join(root_dir, item.subset, label_name)
+                    if self.USE_SUBSET_DIRS
+                    else osp.join(root_dir, label_name),
+                    name=file_name,
                 )
 
             if not labels:
                 self._save_image(
                     item,
-                    subdir=osp.join(
-                        subset_dir, _get_dir_name(id_parts, ImagenetPath.IMAGE_DIR_NO_LABEL)
-                    ),
+                    subdir=osp.join(root_dir, item.subset, ImagenetPath.IMAGE_DIR_NO_LABEL)
+                    if self.USE_SUBSET_DIRS
+                    else osp.join(root_dir, ImagenetPath.IMAGE_DIR_NO_LABEL),
+                    name=file_name,
                 )
+
+
+class ImagenetWithSubsetDirsExporter(ImagenetExporter):
+    USE_SUBSET_DIRS = True

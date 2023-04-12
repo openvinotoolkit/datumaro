@@ -7,7 +7,7 @@ from datumaro.components.algorithms.rise import RISE
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.launcher import Launcher
 
-from ..requirements import Requirements, mark_requirement
+from ...requirements import Requirements, mark_requirement
 
 
 class RiseTest(TestCase):

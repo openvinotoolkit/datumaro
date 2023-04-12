@@ -1,7 +1,9 @@
 import pickle  # nosec import_pickle
+from copy import deepcopy
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset import Dataset
@@ -11,127 +13,166 @@ from datumaro.components.media import Image
 from datumaro.plugins.data_formats.imagenet import (
     ImagenetExporter,
     ImagenetImporter,
+    ImagenetWithSubsetDirsExporter,
     ImagenetWithSubsetDirsImporter,
 )
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir, compare_datasets, compare_datasets_strict
+from tests.utils.test_utils import (
+    TestCaseHelper,
+    TestDir,
+    compare_datasets,
+    compare_datasets_strict,
+)
 
 
-class ImagenetFormatTest(TestCase):
+@pytest.fixture
+def fxt_standard():
+    source = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="label_0:1",
+                media=Image.from_numpy(data=np.ones((8, 8, 3))),
+                annotations=[Label(0)],
+            ),
+            DatasetItem(
+                id="label_1:2",
+                media=Image.from_numpy(data=np.ones((10, 10, 3))),
+                annotations=[Label(1)],
+            ),
+        ],
+        categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                "label_" + str(label) for label in range(2)
+            ),
+        },
+    )
+    expected = deepcopy(source)
+    return source, expected
+
+
+@pytest.fixture
+def fxt_multiple_labels():
+    source = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="1",
+                media=Image.from_numpy(data=np.ones((8, 8, 3))),
+                annotations=[Label(0), Label(1)],
+            ),
+            DatasetItem(id="2", media=Image.from_numpy(data=np.ones((8, 8, 3)))),
+        ],
+        categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                "label_" + str(label) for label in range(2)
+            ),
+        },
+    )
+
+    expected = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="label_0:1",
+                media=Image.from_numpy(data=np.ones((8, 8, 3))),
+                annotations=[Label(0)],
+            ),
+            DatasetItem(
+                id="label_1:1",
+                media=Image.from_numpy(data=np.ones((8, 8, 3))),
+                annotations=[Label(1)],
+            ),
+            DatasetItem(id="no_label:2", media=Image.from_numpy(data=np.ones((8, 8, 3)))),
+        ],
+        categories=["label_0", "label_1"],
+    )
+    return source, expected
+
+
+@pytest.fixture()
+def fxt_cyrillic_and_spaces_in_filename():
+    source = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="label_0:кириллица с пробелом",
+                media=Image.from_numpy(data=np.ones((8, 8, 3))),
+                annotations=[Label(0)],
+            ),
+        ],
+        categories=["label_0"],
+    )
+    expected = deepcopy(source)
+    return source, expected
+
+
+@pytest.fixture()
+def fxt_arbitrary_extension():
+    source = Dataset.from_iterable(
+        [
+            DatasetItem(id="no_label:a", media=Image.from_numpy(data=np.zeros((4, 3, 3)))),
+            DatasetItem(id="no_label:b", media=Image.from_numpy(data=np.zeros((3, 4, 3)))),
+        ],
+        categories=[],
+    )
+    expected = deepcopy(source)
+    return source, expected
+
+
+class ImagenetFormatTest:
+    helper = TestCaseHelper()
+    exporter = ImagenetExporter
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load(self):
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="label_0/1",
-                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
-                    annotations=[Label(0)],
-                ),
-                DatasetItem(
-                    id="label_1/2",
-                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
-                    annotations=[Label(1)],
-                ),
-            ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    "label_" + str(label) for label in range(2)
-                ),
-            },
-        )
+    @pytest.mark.parametrize(
+        "fxt_test_case",
+        [
+            "fxt_standard",
+            "fxt_multiple_labels",
+            "fxt_cyrillic_and_spaces_in_filename",
+            "fxt_arbitrary_extension",
+        ],
+        indirect=True,
+    )
+    def test_can_save_and_load(self, fxt_test_case):
+        source, expected = fxt_test_case
 
         with TestDir() as test_dir:
-            ImagenetExporter.convert(source_dataset, test_dir, save_media=True)
+            self.exporter.convert(source, test_dir, save_media=True)
+            parsed_dataset = Dataset.import_from(test_dir, self.exporter.NAME)
+            compare_datasets(self.helper, expected, parsed_dataset, require_media=True)
 
-            parsed_dataset = Dataset.import_from(test_dir, "imagenet")
 
-            compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
+class ImagenetWithSubsetDirsFormatTest(ImagenetFormatTest):
+    helper = TestCaseHelper()
+    exporter = ImagenetWithSubsetDirsExporter
+
+    @pytest.fixture
+    def fxt_test_case_with_subsets(self, request):
+        fxt_name = request.param
+        source, expected = request.getfixturevalue(fxt_name)
+
+        _to_subsets = lambda dataset: Dataset.from_extractors(
+            *[
+                deepcopy(dataset).transform("map_subsets", mapping={"default": subset})
+                for subset in ["train", "val", "test"]
+            ]
+        )
+        return _to_subsets(source), _to_subsets(expected)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_with_multiple_labels(self):
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="1",
-                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
-                    annotations=[Label(0), Label(1)],
-                ),
-                DatasetItem(id="2", media=Image.from_numpy(data=np.ones((8, 8, 3)))),
-            ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    "label_" + str(label) for label in range(2)
-                ),
-            },
-        )
-
-        excepted_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="label_0/1",
-                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
-                    annotations=[Label(0)],
-                ),
-                DatasetItem(
-                    id="label_1/1",
-                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
-                    annotations=[Label(1)],
-                ),
-                DatasetItem(id="no_label/2", media=Image.from_numpy(data=np.ones((8, 8, 3)))),
-            ],
-            categories=["label_0", "label_1"],
-        )
-
-        with TestDir() as test_dir:
-            ImagenetExporter.convert(source_dataset, test_dir, save_media=True)
-
-            parsed_dataset = Dataset.import_from(test_dir, "imagenet")
-
-            compare_datasets(self, excepted_dataset, parsed_dataset, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="label_0/кириллица с пробелом",
-                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
-                    annotations=[Label(0)],
-                ),
-            ],
-            categories=["label_0"],
-        )
-
-        with TestDir() as test_dir:
-            ImagenetExporter.convert(source_dataset, test_dir, save_media=True)
-
-            parsed_dataset = Dataset.import_from(test_dir, "imagenet")
-
-            compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_image_with_arbitrary_extension(self):
-        dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="no_label/a", media=Image.from_numpy(data=np.zeros((4, 3, 3)), ext=".JPEG")
-                ),
-                DatasetItem(
-                    id="no_label/b", media=Image.from_numpy(data=np.zeros((3, 4, 3)), ext=".bmp")
-                ),
-            ],
-            categories=[],
-        )
-
-        with TestDir() as test_dir:
-            ImagenetExporter.convert(dataset, test_dir, save_media=True)
-
-            parsed_dataset = Dataset.import_from(test_dir, "imagenet")
-
-            compare_datasets(self, dataset, parsed_dataset, require_media=True)
+    @pytest.mark.parametrize(
+        "fxt_test_case_with_subsets",
+        [
+            "fxt_standard",
+            "fxt_multiple_labels",
+            "fxt_cyrillic_and_spaces_in_filename",
+            "fxt_arbitrary_extension",
+        ],
+        indirect=True,
+    )
+    def test_can_save_and_load(self, fxt_test_case_with_subsets):
+        super().test_can_save_and_load(fxt_test_case_with_subsets)
 
 
 class ImagenetImporterTest(TestCase):
@@ -143,17 +184,17 @@ class ImagenetImporterTest(TestCase):
         return Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="label_0/label_0_1",
+                    id="label_0:label_0_1",
                     media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[Label(0)],
                 ),
                 DatasetItem(
-                    id="label_0/label_0_2",
+                    id="label_0:label_0_2",
                     media=Image.from_numpy(data=np.ones((10, 10, 3))),
                     annotations=[Label(0)],
                 ),
                 DatasetItem(
-                    id="label_1/label_1_1",
+                    id="label_1:label_1_1",
                     media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[Label(1)],
                 ),
