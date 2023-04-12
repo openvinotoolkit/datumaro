@@ -691,6 +691,13 @@ class Polygon(_Shape):
 
         self_polygon = sg.Polygon(self.get_points())
         other_polygon = sg.Polygon(other.get_points())
+        self_points = self.get_points()
+        other_points = other.get_points()
+        self_polygon = sg.Polygon(self_points)
+        other_polygon = sg.Polygon(other_points)
+        # if polygon is not valid, compare points
+        if not (self_polygon.is_valid and other_polygon.is_valid):
+            return self_points == other_points
         inter_area = self_polygon.intersection(other_polygon).area
         return abs(self_polygon.area - inter_area) < CHECK_POLYGON_EQ_EPSILONE
 
