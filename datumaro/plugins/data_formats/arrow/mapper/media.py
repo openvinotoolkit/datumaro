@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 
-import base64
 import os
 import struct
 from functools import partial
@@ -17,7 +16,7 @@ from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper, Mapper
 from datumaro.util.image import decode_image, encode_image, load_image
 
-from .utils import pa_batches_decoder
+from .utils import b64decode, b64encode, pa_batches_decoder
 
 
 class ImageFileMapper:
@@ -28,7 +27,7 @@ class ImageFileMapper:
         cls,
         path: Optional[str] = None,
         data: Optional[np.ndarray] = None,
-        scheme: str = "JPEG/75",
+        scheme: str = "PNG",
     ) -> Optional[bytes]:
         assert (path is not None) or (data is not None), "Either one of path or data must be given."
 
@@ -155,7 +154,7 @@ class ImageMapper(MediaElementMapper):
 
     @classmethod
     def forward(
-        cls, obj: Image, encoder: Union[str, Callable[[Image], bytes]] = "JPEG/75"
+        cls, obj: Image, encoder: Union[str, Callable[[Image], bytes]] = "PNG"
     ) -> Dict[str, Any]:
         out = super().forward(obj)
 
@@ -224,57 +223,14 @@ class ImageMapper(MediaElementMapper):
         return images
 
 
-def _b64encode(obj, prefix=None):
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            obj[k] = _b64encode(v, prefix)
-    elif isinstance(obj, (list, tuple)):
-        _obj = []
-        for v in obj:
-            _obj.append(_b64encode(v, prefix))
-        if isinstance(obj, list):
-            _obj = list(_obj)
-        obj = _obj
-    elif isinstance(obj, bytes):
-        obj = base64.b64encode(obj).decode()
-        if prefix:
-            obj = prefix + obj
-    return obj
-
-
-def _b64decode(obj, prefix=None):
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            obj[k] = _b64decode(v, prefix)
-    elif isinstance(obj, (list, tuple)):
-        _obj = []
-        for v in obj:
-            _obj.append(_b64decode(v, prefix))
-        if isinstance(obj, list):
-            _obj = list(_obj)
-        obj = _obj
-    elif isinstance(obj, str):
-        if prefix and obj.startswith(prefix):
-            obj = obj.replace(prefix, "", 1)
-            obj = base64.b64decode(obj)
-        else:
-            try:
-                _obj = base64.b64decode(obj)
-                if base64.b64encode(_obj).decode() == obj:
-                    obj = _obj
-            except Exception:
-                pass
-    return obj
-
-
 # TODO: share binary for extra images
 class PointCloudMapper(MediaElementMapper):
     MEDIA_TYPE = MediaType.POINT_CLOUD
-    B64_PREFIX = "//ENCODED//"
+    B64_PREFIX = "//B64_ENCODED//"
 
     @classmethod
     def forward(
-        cls, obj: PointCloud, encoder: Union[str, Callable[[PointCloud], bytes]] = "JPEG/75"
+        cls, obj: PointCloud, encoder: Union[str, Callable[[PointCloud], bytes]] = "PNG"
     ) -> Dict[str, Any]:
         out = super().forward(obj)
 
@@ -290,7 +246,7 @@ class PointCloudMapper(MediaElementMapper):
         for img in obj.extra_images:
             bytes_arr.extend(
                 DictMapper.forward(
-                    _b64encode(ImageMapper.forward(img, encoder=encoder), cls.B64_PREFIX)
+                    b64encode(ImageMapper.forward(img, encoder=encoder), cls.B64_PREFIX)
                 )
             )
         out["attributes"] = bytes(bytes_arr)
@@ -313,7 +269,7 @@ class PointCloudMapper(MediaElementMapper):
         extra_images = []
         for _ in range(len_extra_images):
             img, offset = DictMapper.backward(media_dict["attributes"], offset)
-            extra_images.append(ImageMapper.backward(_b64decode(img, cls.B64_PREFIX)))
+            extra_images.append(ImageMapper.backward(b64decode(img, cls.B64_PREFIX)))
 
         if _bytes:
             return PointCloud.from_bytes(data=_bytes, extra_images=extra_images)
@@ -342,7 +298,7 @@ class PointCloudMapper(MediaElementMapper):
             outs = []
             for _ in range(len_extra_images):
                 img, offset = DictMapper.backward(attributes, offset)
-                outs.append(ImageMapper.backward(_b64decode(img, cls.B64_PREFIX)))
+                outs.append(ImageMapper.backward(b64decode(img, cls.B64_PREFIX)))
             return outs
 
         point_clouds = []

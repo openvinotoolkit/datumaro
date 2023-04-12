@@ -11,7 +11,6 @@ from typing import Dict, List, Optional, Tuple, TypeVar, Union, overload
 import numpy as np
 import pyarrow as pa
 
-
 PathLike = TypeVar("PathLike", str, os.PathLike, None)
 
 
