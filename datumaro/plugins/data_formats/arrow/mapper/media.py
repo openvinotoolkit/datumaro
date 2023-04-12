@@ -19,55 +19,6 @@ from datumaro.util.image import decode_image, encode_image, load_image
 from .utils import b64decode, b64encode, pa_batches_decoder
 
 
-class ImageFileMapper:
-    AVAILABLE_SCHEMES = ("PNG", "TIFF", "JPEG/75", "JPEG/95", "AS-IS", "NONE")
-
-    @classmethod
-    def forward(
-        cls,
-        path: Optional[str] = None,
-        data: Optional[np.ndarray] = None,
-        scheme: str = "PNG",
-    ) -> Optional[bytes]:
-        assert (path is not None) or (data is not None), "Either one of path or data must be given."
-
-        if scheme == "NONE":
-            return None
-        elif scheme == "AS-IS":
-            assert path is not None
-            encoded = open(path, "rb").read()
-            return encoded
-
-        options = {}
-        if scheme.startswith("JPEG"):
-            quality = int(scheme.split("/")[-1])
-            options["ext"] = "JPEG"
-            options["jpeg_quality"] = quality
-        elif scheme == "PNG":
-            options["ext"] = "PNG"
-        elif scheme == "TIFF":
-            options["ext"] = "TIFF"
-        else:
-            raise NotImplementedError
-
-        if data is None:
-            assert path is not None
-            data = load_image(path, np.uint8)
-        encoded = encode_image(data, **options)
-        return encoded
-
-    @classmethod
-    def backward(
-        cls, path: Optional[str] = None, data: Optional[bytes] = None
-    ) -> Optional[np.ndarray]:
-        if path is None and data is None:
-            return None
-        if data is not None:
-            return decode_image(data, np.uint8)
-        if path is not None:
-            return load_image(path, np.uint8)
-
-
 class MediaMapper(Mapper):
     @classmethod
     def forward(cls, obj: Optional[MediaElement], **options) -> Dict[str, Any]:
@@ -151,6 +102,43 @@ class MediaElementMapper(Mapper):
 
 class ImageMapper(MediaElementMapper):
     MEDIA_TYPE = MediaType.IMAGE
+    AVAILABLE_SCHEMES = ("PNG", "TIFF", "JPEG/75", "JPEG/95", "AS-IS", "NONE")
+
+    @classmethod
+    def encode(cls, obj: Image, scheme: str = "PNG") -> Optional[bytes]:
+        if scheme is None or scheme == "NONE":
+            return None
+        if scheme == "AS-IS":
+            _bytes = obj.bytes
+            return _bytes
+
+        options = {}
+        if scheme.startswith("JPEG"):
+            quality = int(scheme.split("/")[-1])
+            options["ext"] = "JPEG"
+            options["jpeg_quality"] = quality
+        elif scheme == "PNG":
+            options["ext"] = "PNG"
+        elif scheme == "TIFF":
+            options["ext"] = "TIFF"
+        else:
+            raise NotImplementedError
+
+        data = obj.data
+        if data is not None:
+            return encode_image(obj.data, **options)
+        return None
+
+    @classmethod
+    def decode(
+        cls, path: Optional[str] = None, data: Optional[bytes] = None
+    ) -> Optional[np.ndarray]:
+        if path is None and data is None:
+            return None
+        if data is not None:
+            return decode_image(data, np.uint8)
+        if path is not None:
+            return load_image(path, np.uint8)
 
     @classmethod
     def forward(
@@ -162,9 +150,7 @@ class ImageMapper(MediaElementMapper):
         if isinstance(encoder, Callable):
             _bytes = encoder(obj)
         else:
-            data = obj.data
-            if data is not None:
-                _bytes = ImageFileMapper.forward(path=out["path"], data=obj.data, scheme=encoder)
+            _bytes = cls.encode(obj, scheme=encoder)
         out["bytes"] = _bytes
 
         out["attributes"] = DictMapper.forward(dict(size=obj.size))
@@ -183,12 +169,8 @@ class ImageMapper(MediaElementMapper):
             _bytes = media_dict["bytes"]
 
         if _bytes:
-            return Image.from_bytes(
-                data=partial(ImageFileMapper.backward, data=media_dict["bytes"]),
-                size=attributes["size"],
-            )
-        else:
-            return Image.from_file(path=path, size=attributes["size"])
+            return Image.from_bytes(data=_bytes, size=attributes["size"])
+        return Image.from_file(path=path, size=attributes["size"])
 
     @classmethod
     def backward_from_batches(
@@ -209,7 +191,7 @@ class ImageMapper(MediaElementMapper):
                 "path": path if os.path.exists(path) else None,
                 "data": pa_batches_decoder(batches, f"{parent}.bytes" if parent else "bytes")[idx],
             }
-            return ImageFileMapper.backward(**options)
+            return cls.decode(**options)
 
         for idx, (path, attributes) in enumerate(zip(paths, attributes_)):
             if os.path.exists(path):

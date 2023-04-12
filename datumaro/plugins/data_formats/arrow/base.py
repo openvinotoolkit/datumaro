@@ -52,7 +52,7 @@ class ArrowBase(SubsetBase):
                 dataset = dataset.flatten()
 
                 for i in self._ctx.progress_reporter.iter(
-                    range(len(dataset)), desc=f"Reading Arrow from '{osp.basename(path)}'"
+                    range(len(dataset)), desc=f"Reading arrow from '{osp.basename(path)}'"
                 ):
                     batches = dataset.get_batches(i, 1)
                     self._items.extend(DatasetItemMapper.backward_from_batches(batches))

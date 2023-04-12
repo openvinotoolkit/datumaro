@@ -24,7 +24,7 @@ from datumaro.util.file_utils import to_bytes
 
 from .format import DatumaroArrow
 from .mapper.dataset_item import DatasetItemMapper
-from .mapper.media import ImageFileMapper
+from .mapper.media import ImageMapper
 
 
 class _SubsetWriter(__SubsetWriter):
@@ -158,7 +158,7 @@ class _SubsetWriter(__SubsetWriter):
         _iter = iter(self.items)
         if pool is not None:
             _iter = self._ctx.progress_reporter.iter(
-                self.items, desc=f"Building Arrow for {self._subset}"
+                self.items, desc=f"Building arrow for {self._subset}"
             )
 
         batch = [[] for _ in self._schema.names]
@@ -185,8 +185,8 @@ class _SubsetWriter(__SubsetWriter):
 
 
 class ArrowExporter(Exporter):
-    AVAILABLE_IMAGE_EXTS = ImageFileMapper.AVAILABLE_SCHEMES
-    DEFAULT_IMAGE_EXT = ImageFileMapper.AVAILABLE_SCHEMES[0]
+    AVAILABLE_IMAGE_EXTS = ImageMapper.AVAILABLE_SCHEMES
+    DEFAULT_IMAGE_EXT = ImageMapper.AVAILABLE_SCHEMES[0]
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -293,7 +293,7 @@ class ArrowExporter(Exporter):
             _iter = iter(subset)
             if pool is None:
                 _iter = self._ctx.progress_reporter.iter(
-                    subset, desc=f"Building Arrow for {subset_name}"
+                    subset, desc=f"Building arrow for {subset_name}"
                 )
 
             for item in _iter:

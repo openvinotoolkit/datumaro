@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Union
 import re
+from typing import Union
 
 
 def to_bytes(size: Union[str, int]) -> int:
