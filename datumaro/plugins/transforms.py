@@ -365,6 +365,8 @@ class Sort(Transform, CliPlugin):
     def __init__(self, extractor, key=None):
         super().__init__(extractor)
         if key:
+            if isinstance(key, str):
+                key = eval(key)
             if not callable(key):
                 raise Exception("key must be a function with one argument.")
         else:
