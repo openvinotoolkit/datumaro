@@ -181,6 +181,7 @@ def compare_datasets(
             if isinstance(item_a.media, Image):
                 test.assertEqual(item_a.media, item_b.media, item_a.id)
             elif isinstance(item_a.media, PointCloud):
+                test.assertEqual(item_a.media.data, item_b.media.data, item_a.id)
                 test.assertEqual(item_a.media.extra_images, item_b.media.extra_images, item_a.id)
             elif isinstance(item_a.media, MultiframeImage):
                 test.assertEqual(item_a.media.data, item_b.media.data, item_a.id)
@@ -277,6 +278,7 @@ def check_save_and_load(
     importer_args=None,
     compare=None,
     move_save_dir: bool = False,
+    post_processing=None,
     **cmp_kwargs,
 ):
     """
@@ -284,6 +286,7 @@ def check_save_and_load(
     ----------
         move_save_dir: If true, move the saved directory again to somewhere.
         This option is useful for testing whether an absolute path exists in the exported dataset.
+        post_processing: Post processing function for parsed_dataset
     """
 
     def _change_path_in_items(dataset, source_path, target_path):
@@ -315,6 +318,8 @@ def check_save_and_load(
         if importer_args is None:
             importer_args = {}
         parsed_dataset = Dataset.import_from(save_dir, importer, **importer_args)
+        if post_processing:
+            parsed_dataset = post_processing(parsed_dataset)
 
         if target_dataset is None:
             target_dataset = source_dataset
