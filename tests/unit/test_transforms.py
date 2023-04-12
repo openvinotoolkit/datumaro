@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging as log
+import random
 from unittest import TestCase
 
 import numpy as np
@@ -26,7 +27,7 @@ from datumaro.components.media import Image
 
 from ..requirements import Requirements, mark_bug, mark_requirement
 
-from tests.utils.test_utils import compare_datasets
+from tests.utils.test_utils import compare_datasets, compare_datasets_strict
 
 
 class TransformsTest(TestCase):
@@ -50,6 +51,21 @@ class TransformsTest(TestCase):
 
         actual = transforms.Reindex(source, start=5)
         compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_sort(self):
+        items = []
+        for i in range(10):
+            items.append(DatasetItem(id=i))
+
+        expected = Dataset.from_iterable(items)
+
+        items = items.copy()
+        random.shuffle(items)
+        source = Dataset.from_iterable(items)
+
+        actual = transforms.Sort(source, lambda item: int(item.id))
+        compare_datasets_strict(self, expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mask_to_polygons(self):
