@@ -57,7 +57,8 @@ class MediaType(IntEnum):
     ROI_IMAGE = 8
     MOSAIC_IMAGE = 9
 
-    def get_cls(self) -> Optional[Type[MediaElement]]:
+    @property
+    def media(self) -> Optional[Type[MediaElement]]:
         if self == self.NONE:
             return None
         if self == self.MEDIA_ELEMENT:

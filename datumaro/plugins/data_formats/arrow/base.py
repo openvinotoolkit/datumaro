@@ -46,7 +46,7 @@ class ArrowBase(SubsetBase):
                 (media_type,) = struct.unpack(
                     "<I", schema.metadata.get(b"media_type", b"\x00\x00\x00\x00")
                 )
-                media_types.add(MediaType(media_type).get_cls())
+                media_types.add(MediaType(media_type).media)
 
                 dataset = ArrowDataset(path)
                 dataset = dataset.flatten()
