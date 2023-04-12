@@ -102,7 +102,7 @@ class MediaElementMapper(Mapper):
 
 class ImageMapper(MediaElementMapper):
     MEDIA_TYPE = MediaType.IMAGE
-    AVAILABLE_SCHEMES = ("PNG", "TIFF", "JPEG/75", "JPEG/95", "AS-IS", "NONE")
+    AVAILABLE_SCHEMES = ("AS-IS", "PNG", "TIFF", "JPEG/95", "JPEG/75", "NONE")
 
     @classmethod
     def encode(cls, obj: Image, scheme: str = "PNG") -> Optional[bytes]:
@@ -110,7 +110,10 @@ class ImageMapper(MediaElementMapper):
             return None
         if scheme == "AS-IS":
             _bytes = obj.bytes
-            return _bytes
+            if _bytes is not None:
+                return _bytes
+            # try to encode in PNG
+            scheme = "PNG"
 
         options = {}
         if scheme.startswith("JPEG"):
