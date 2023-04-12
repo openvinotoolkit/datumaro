@@ -10,8 +10,9 @@ from datumaro.errors import DatasetImportError
 
 class DatumaroArrow:
     SIGNATURE = "signature:datumaro_arrow"
-
     VERSION = "1.0"
+
+    MP_TIMEOUT = 300.0  # 5 minutes
 
     SCHEMA = pa.schema(
         [

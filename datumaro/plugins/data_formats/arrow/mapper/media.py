@@ -21,7 +21,7 @@ from .utils import pa_batches_decoder
 
 
 class ImageFileMapper:
-    AVAILABLE_SCHEMES = ("JPEG/75", "JPEG/95", "PNG", "TIFF", "AS-IS", "NONE")
+    AVAILABLE_SCHEMES = ("PNG", "TIFF", "JPEG/75", "JPEG/95", "AS-IS", "NONE")
 
     @classmethod
     def forward(

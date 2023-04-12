@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
+import re
 from typing import Dict, List, Optional
 
 import pyarrow as pa
@@ -37,8 +39,28 @@ class ArrowImporter(Importer):
 
     @classmethod
     def find_sources(cls, path) -> List[Dict]:
-        return cls._find_sources_recursive(
+        sources = cls._find_sources_recursive(
             path,
             ".arrow",
             cls.NAME,
         )
+
+        # handle sharded arrow files
+        _sources = []
+        for source in sources:
+            match = re.match(r"(.*?)(-[0-9]+-of-[0-9]+)?\.arrow", source["url"])
+            found = False
+            prefix = match.group(1)
+            for _source in _sources:
+                if _source["url"].startswith(prefix):
+                    _source["options"]["additional_paths"].append(source["url"])
+                    found = True
+                    break
+            if not found:
+                source["options"] = {
+                    "additional_paths": [],
+                    "subset": os.path.basename(prefix),
+                }
+                source["options"]["subset"] = os.path.basename(prefix)
+                _sources.append(source)
+        return _sources
