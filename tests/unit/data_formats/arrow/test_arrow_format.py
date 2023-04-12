@@ -19,7 +19,7 @@ from datumaro.plugins.transforms import Sort
 
 from ....requirements import Requirements, mark_requirement
 
-from tests.utils.test_utils import check_save_and_load, compare_datasets_strict
+from tests.utils.test_utils import check_save_and_load, compare_datasets, compare_datasets_strict
 
 
 class ArrowFormatTest:
@@ -53,11 +53,19 @@ class ArrowFormatTest:
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize(
-        ["fxt_dataset", "compare", "require_media", "fxt_export_kwargs", "post_processing"],
+        [
+            "fxt_dataset",
+            "compare",
+            "save_media",
+            "require_media",
+            "fxt_export_kwargs",
+            "post_processing",
+        ],
         [
             pytest.param(
                 "fxt_test_datumaro_format_dataset",
                 compare_datasets_strict,
+                True,
                 True,
                 {},
                 None,
@@ -67,6 +75,7 @@ class ArrowFormatTest:
                 "fxt_test_datumaro_format_dataset",
                 None,
                 False,
+                False,
                 {},
                 None,
                 id="test_can_save_and_load_with_no_save_media",
@@ -74,6 +83,7 @@ class ArrowFormatTest:
             pytest.param(
                 "fxt_relative_paths",
                 compare_datasets_strict,
+                True,
                 True,
                 {},
                 None,
@@ -83,6 +93,7 @@ class ArrowFormatTest:
                 "fxt_can_save_dataset_with_cjk_categories",
                 compare_datasets_strict,
                 True,
+                True,
                 {},
                 None,
                 id="test_can_save_dataset_with_cjk_categories",
@@ -90,6 +101,7 @@ class ArrowFormatTest:
             pytest.param(
                 "fxt_can_save_dataset_with_cyrillic_and_spaces_in_filename",
                 compare_datasets_strict,
+                True,
                 True,
                 {},
                 None,
@@ -99,6 +111,7 @@ class ArrowFormatTest:
                 "fxt_can_save_and_load_image_with_arbitrary_extension",
                 compare_datasets_strict,
                 True,
+                True,
                 {},
                 None,
                 id="test_can_save_and_load_image_with_arbitrary_extension",
@@ -106,6 +119,7 @@ class ArrowFormatTest:
             pytest.param(
                 "fxt_can_save_and_load_infos",
                 compare_datasets_strict,
+                True,
                 True,
                 {},
                 None,
@@ -115,6 +129,7 @@ class ArrowFormatTest:
                 "fxt_image",
                 compare_datasets_strict,
                 True,
+                True,
                 {},
                 None,
                 id="test_can_save_and_load_image",
@@ -122,6 +137,43 @@ class ArrowFormatTest:
             pytest.param(
                 "fxt_image",
                 compare_datasets_strict,
+                True,
+                True,
+                {"image_ext": "PNG"},
+                None,
+                id="test_can_save_and_load_image_with_png_scheme",
+            ),
+            pytest.param(
+                "fxt_image",
+                compare_datasets_strict,
+                True,
+                True,
+                {"image_ext": "TIFF"},
+                None,
+                id="test_can_save_and_load_image_with_tiff_scheme",
+            ),
+            pytest.param(
+                "fxt_image",
+                compare_datasets,
+                True,
+                False,
+                {"image_ext": "JPEG/75"},
+                None,
+                id="test_can_save_and_load_image_with_jpeg_75_scheme",
+            ),
+            pytest.param(
+                "fxt_image",
+                compare_datasets,
+                True,
+                False,
+                {"image_ext": "JPEG/95"},
+                None,
+                id="test_can_save_and_load_image_with_jpeg_95_scheme",
+            ),
+            pytest.param(
+                "fxt_image",
+                compare_datasets_strict,
+                True,
                 True,
                 {"max_chunk_size": 20, "num_shards": 5},
                 lambda dataset: Sort(dataset, lambda item: int(item.id)),
@@ -131,6 +183,7 @@ class ArrowFormatTest:
                 "fxt_image",
                 compare_datasets_strict,
                 True,
+                True,
                 {"max_chunk_size": 20, "max_shard_size": "1M"},
                 lambda dataset: Sort(dataset, lambda item: int(item.id)),
                 id="test_can_save_and_load_image_with_max_size",
@@ -138,6 +191,7 @@ class ArrowFormatTest:
             pytest.param(
                 "fxt_point_cloud",
                 compare_datasets_strict,
+                True,
                 True,
                 {},
                 None,
@@ -147,6 +201,7 @@ class ArrowFormatTest:
                 "fxt_point_cloud",
                 compare_datasets_strict,
                 True,
+                True,
                 {"max_chunk_size": 20, "num_shards": 5},
                 lambda dataset: Sort(dataset, lambda item: int(item.id)),
                 id="test_can_save_and_load_point_cloud_with_num_shards",
@@ -154,6 +209,7 @@ class ArrowFormatTest:
             pytest.param(
                 "fxt_point_cloud",
                 compare_datasets_strict,
+                True,
                 True,
                 {"max_chunk_size": 20, "max_shard_size": "1M"},
                 lambda dataset: Sort(dataset, lambda item: int(item.id)),
@@ -165,6 +221,7 @@ class ArrowFormatTest:
         self,
         fxt_dataset,
         compare,
+        save_media,
         require_media,
         test_dir,
         fxt_import_kwargs,
@@ -177,7 +234,7 @@ class ArrowFormatTest:
         self._test_save_and_load(
             helper_tc,
             fxt_dataset,
-            partial(self.exporter.convert, save_media=require_media, **fxt_export_kwargs),
+            partial(self.exporter.convert, save_media=save_media, **fxt_export_kwargs),
             test_dir,
             compare=compare,
             require_media=require_media,
