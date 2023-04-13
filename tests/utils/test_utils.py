@@ -279,6 +279,7 @@ def check_save_and_load(
     compare=None,
     move_save_dir: bool = False,
     post_processing=None,
+    post_hook=None,
     **cmp_kwargs,
 ):
     """
@@ -287,6 +288,7 @@ def check_save_and_load(
         move_save_dir: If true, move the saved directory again to somewhere.
         This option is useful for testing whether an absolute path exists in the exported dataset.
         post_processing: Post processing function for parsed_dataset
+        post_hook: Post hook at the end of this function
     """
 
     def _change_path_in_items(dataset, source_path, target_path):
@@ -331,6 +333,9 @@ def check_save_and_load(
         elif not compare:
             compare = compare_datasets
         compare(test, expected=target_dataset, actual=parsed_dataset, **cmp_kwargs)
+
+        if post_hook:
+            post_hook(save_dir, source_dataset, parsed_dataset, target_dataset)
 
 
 def compare_dirs(test, expected: str, actual: str):
