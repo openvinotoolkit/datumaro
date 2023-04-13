@@ -213,7 +213,10 @@ class _SubsetWriter(__SubsetWriter):
             if platform.system() != "Windows":
                 template = PathNormalizer.unnormalize(fname)
                 placeholders = {"width": width, "total": total, f"idx{idx}": idx}
-                os.rename(fname, template.format(**placeholders))
+                new_fname = template.format(**placeholders)
+                if os.path.exists(new_fname):
+                    os.remove(new_fname)
+                os.rename(fname, new_fname)
 
 
 class ArrowExporter(Exporter):
