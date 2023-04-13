@@ -61,6 +61,5 @@ class ArrowImporter(Importer):
                     "additional_paths": [],
                     "subset": os.path.basename(prefix),
                 }
-                source["options"]["subset"] = os.path.basename(prefix)
                 _sources.append(source)
         return _sources

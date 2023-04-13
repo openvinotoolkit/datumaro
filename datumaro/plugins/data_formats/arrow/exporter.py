@@ -4,9 +4,11 @@
 
 import datetime
 import os
+import re
 import struct
 import tempfile
 from copy import deepcopy
+from functools import partial
 from multiprocessing.pool import ApplyResult, Pool
 from shutil import move, rmtree
 from typing import Any, Callable, Dict, Optional, Union
@@ -25,6 +27,23 @@ from datumaro.util.file_utils import to_bytes
 from .format import DatumaroArrow
 from .mapper.dataset_item import DatasetItemMapper
 from .mapper.media import ImageMapper
+
+
+class PathNormalizer:
+    NORMALIZER = {r":[^/\\]": r"꞉"}
+    UNNORMALIZER = {r"꞉": r":"}
+
+    @classmethod
+    def normalize(cls, path: str):
+        for s, t in cls.NORMALIZER.items():
+            path = re.sub(s, t, path)
+        return path
+
+    @classmethod
+    def unnormalize(cls, path: str):
+        for s, t in cls.UNNORMALIZER.items():
+            path = re.sub(s, t, path)
+        return path
 
 
 class _SubsetWriter(__SubsetWriter):
@@ -87,6 +106,7 @@ class _SubsetWriter(__SubsetWriter):
             self.export_context.save_dir,
             self._subset + "-{idx" + str(idx) + ":0{width}d}-of-{total:0{width}d}.arrow",
         )
+        f_name = PathNormalizer.normalize(f_name)
         return pa.RecordBatchStreamWriter(f_name, self._schema), f_name
 
     def add_item(self, item: DatasetItem, pool: Optional[Pool] = None):
@@ -101,7 +121,7 @@ class _SubsetWriter(__SubsetWriter):
                 )
             )
         else:
-            self.items.append(self.add_item_impl(item, self.export_context))
+            self.items.append(partial(self.add_item_impl, item, self.export_context))
 
     @staticmethod
     def add_item_impl(
@@ -155,16 +175,14 @@ class _SubsetWriter(__SubsetWriter):
         if len(self.items) < max_chunk_size:
             return
 
-        _iter = iter(self.items)
-        if pool is not None:
-            _iter = self._ctx.progress_reporter.iter(
-                self.items, desc=f"Building arrow for {self._subset}"
-            )
-
         batch = [[] for _ in self._schema.names]
-        for item in _iter:
+        for item in self._ctx.progress_reporter.iter(
+            self.items, desc=f"Building arrow for {self._subset}"
+        ):
             if isinstance(item, ApplyResult):
                 item = item.get(timeout=DatumaroArrow.MP_TIMEOUT)
+            if isinstance(item, partial):
+                item = item()
             for j, name in enumerate(self._schema.names):
                 batch[j].append(item[name])
 
@@ -179,9 +197,11 @@ class _SubsetWriter(__SubsetWriter):
     def done(self):
         total = len(self._fnames)
         width = len(str(total))
-        for idx, fname in enumerate(self._fnames):
+        for idx, (fname, writer) in enumerate(zip(self._fnames, self._writers)):
+            writer.close()
             placeholders = {"width": width, "total": total, f"idx{idx}": idx}
-            os.rename(fname, fname.format(**placeholders))
+            template = PathNormalizer.unnormalize(fname)
+            os.rename(fname, template.format(**placeholders))
 
 
 class ArrowExporter(Exporter):
@@ -203,9 +223,16 @@ class ArrowExporter(Exporter):
         parser.add_argument(
             "--image-ext",
             default=None,
-            help=f"Image encoding scheme (default: {cls.DEFAULT_IMAGE_EXT})",
+            help=f"Image encoding scheme. (default: {cls.DEFAULT_IMAGE_EXT})",
             choices=cls.AVAILABLE_IMAGE_EXTS,
         )
+
+        #  parser.add_argument(
+        #      "--split-by-subsets",
+        #      action="store_true",
+        #      default=False,
+        #      help="Split arrow dataset by subset. (default: %(default)s)",
+        #  )
 
         parser.add_argument(
             "--max-chunk-size",
@@ -230,7 +257,7 @@ class ArrowExporter(Exporter):
             help="The maximum size of each shard. "
             "(e.g. 7KB = 7 * 2^10, 3MB = 3 * 2^20, and 2GB = 2 * 2^30). "
             "'--num-shards' and '--max-shard-size' are  mutually exclusive. "
-            "(default: %(default)s).",
+            "(default: %(default)s)",
         )
 
         parser.add_argument(
@@ -238,7 +265,7 @@ class ArrowExporter(Exporter):
             type=int,
             default=0,
             help="The number of multi-processing workers for export. "
-            "If num_workers = 0, do not use multiprocessing (default: %(default)s).",
+            "If num_workers = 0, do not use multiprocessing. (default: %(default)s)",
         )
 
         return parser
@@ -277,11 +304,14 @@ class ArrowExporter(Exporter):
     def _apply(self, pool: Optional[Pool] = None):
         os.makedirs(self._save_dir, exist_ok=True)
 
-        writers = {
-            subset_name: self.create_writer(subset_name, self._ctx)
-            for subset_name, subset in self._extractor.subsets().items()
-            if len(subset)
-        }
+        if self._split_by_subsets:
+            writers = {
+                subset_name: self.create_writer(subset_name, self._ctx)
+                for subset_name, subset in self._extractor.subsets().items()
+                if len(subset)
+            }
+        else:
+            writers = {DEFAULT_SUBSET_NAME: self.create_writer(DEFAULT_SUBSET_NAME, self._ctx)}
 
         for writer in writers.values():
             writer.add_infos(self._extractor.infos())
@@ -290,17 +320,11 @@ class ArrowExporter(Exporter):
             writer.init_schema()
 
         for subset_name, subset in self._extractor.subsets().items():
-            _iter = iter(subset)
-            if pool is None:
-                _iter = self._ctx.progress_reporter.iter(
-                    subset, desc=f"Building arrow for {subset_name}"
-                )
-
-            for item in _iter:
-                subset = item.subset or DEFAULT_SUBSET_NAME
-                writers[subset].add_item(item, pool=pool)
-                if pool is None:
-                    writers[subset].write(pool=pool)
+            writer = (
+                writers[subset_name] if self._split_by_subsets else writers[DEFAULT_SUBSET_NAME]
+            )
+            for item in subset:
+                writer.add_item(item, pool=pool)
 
         for writer in writers.values():
             writer.write(0, pool=pool)
@@ -341,6 +365,9 @@ class ArrowExporter(Exporter):
             save_dataset_meta=save_dataset_meta,
             ctx=ctx,
         )
+
+        # TODO
+        self._split_by_subsets = True
 
         if num_workers < 0:
             raise DatumaroError(
