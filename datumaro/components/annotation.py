@@ -689,8 +689,6 @@ class Polygon(_Shape):
         ):
             return False
 
-        self_polygon = sg.Polygon(self.get_points())
-        other_polygon = sg.Polygon(other.get_points())
         self_points = self.get_points()
         other_points = other.get_points()
         self_polygon = sg.Polygon(self_points)
