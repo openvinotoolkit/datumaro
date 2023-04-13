@@ -27,9 +27,9 @@ __all__ = ["ExactMerge"]
 class ExactMerge(Merger):
     """
     Merges several datasets using the "simple" algorithm:
+        - All datasets should have the same categories
         - items are matched by (id, subset) pairs
         - matching items share the media info available:
-
             - nothing + nothing = nothing
             - nothing + something = something
             - something A + something B = conflict
