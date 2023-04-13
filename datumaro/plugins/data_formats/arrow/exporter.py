@@ -4,6 +4,7 @@
 
 import datetime
 import os
+import platform
 import re
 import struct
 import tempfile
@@ -102,11 +103,21 @@ class _SubsetWriter(__SubsetWriter):
         )
 
     def _init_writer(self, idx: int):
-        f_name = os.path.join(
-            self.export_context.save_dir,
-            self._subset + "-{idx" + str(idx) + ":0{width}d}-of-{total:0{width}d}.arrow",
-        )
-        f_name = PathNormalizer.normalize(f_name)
+        # TODO:
+        # `arrow_writer.close()` does not take any effect. It seems a bug in pyarrow
+        # In linux-like system it is fine to rename a file opend but
+        # it is not in windows.
+        # As a workaround, we do not use a template in windows
+        if platform.system() != "Windows":
+            f_name = os.path.join(
+                self.export_context.save_dir,
+                self._subset + "-{idx" + str(idx) + ":0{width}d}-of-{total:0{width}d}.arrow",
+            )
+            f_name = PathNormalizer.normalize(f_name)
+        else:
+            f_name = os.path.join(
+                self.export_context.save_dir, self._subset + f"-{idx:03d}-of-{0:03d}.arrow"
+            )
         return pa.RecordBatchStreamWriter(f_name, self._schema), f_name
 
     def add_item(self, item: DatasetItem, pool: Optional[Pool] = None):
@@ -199,9 +210,10 @@ class _SubsetWriter(__SubsetWriter):
         width = len(str(total))
         for idx, (fname, writer) in enumerate(zip(self._fnames, self._writers)):
             writer.close()
-            placeholders = {"width": width, "total": total, f"idx{idx}": idx}
-            template = PathNormalizer.unnormalize(fname)
-            os.rename(fname, template.format(**placeholders))
+            if platform.system() != "Windows":
+                template = PathNormalizer.unnormalize(fname)
+                placeholders = {"width": width, "total": total, f"idx{idx}": idx}
+                os.rename(fname, template.format(**placeholders))
 
 
 class ArrowExporter(Exporter):
@@ -366,7 +378,7 @@ class ArrowExporter(Exporter):
             ctx=ctx,
         )
 
-        # TODO
+        # TODO: Support a whole single file of arrow
         self._split_by_subsets = True
 
         if num_workers < 0:
