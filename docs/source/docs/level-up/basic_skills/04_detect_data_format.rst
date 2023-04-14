@@ -1,6 +1,6 @@
-=============
+===================================================
 Level 4: Detect Data Format from an Unknown Dataset
-=============
+===================================================
 
 Datumaro provides a function to detect the format of a dataset before importing data. This can be
 useful in cases where information about the original format of the data has been lost or is unclear.
@@ -8,7 +8,7 @@ With this function, users can easily identify the format and proceed with approp
 handling processes.
 
 Detect data format
-============
+==================
 
 .. tabbed:: CLI
 
