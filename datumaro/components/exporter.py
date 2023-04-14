@@ -291,6 +291,7 @@ class ExportContextComponent:
         crypter: Crypter = NULL_CRYPTER,
         image_ext: Optional[str] = None,
         default_image_ext: Optional[str] = None,
+        source_path: Optional[str] = None,
     ):
         self._save_dir = save_dir
         self._save_media = save_media
@@ -299,6 +300,7 @@ class ExportContextComponent:
         self._crypter = crypter
         self._image_ext = image_ext
         self._default_image_ext = default_image_ext
+        self._source_path = source_path
 
     def find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None
