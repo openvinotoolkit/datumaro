@@ -36,7 +36,7 @@ Intermediate Skills
       :text: Level 08: Dataset Validate
       :classes: btn-outline-primary btn-block stretched-link
 
-   :badge:`CLI,badge-info`
+   :badge:`ProjectCLI,badge-primary`
    :badge:`Python,badge-warning`
 
    ---
