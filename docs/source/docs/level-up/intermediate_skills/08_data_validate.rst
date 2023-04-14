@@ -12,56 +12,59 @@ data validation functionality for this purpose.
 More detailed descriptions about validation errors and warnings are given by :ref:`here <Validate>`.
 The Python example for the usage of validator is described in `here <https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/11_validate.ipynb>`_.
 
-.. tabbed:: Python
 
-  .. code-block:: python
+.. tab-set::
 
-      from datumaro.components.environment import Environment
-      from datumaro.components.dataset import Dataset
+  .. tab-item:: Python
 
-      data_path = '/path/to/data'
+    .. code-block:: python
 
-      env = Environment()
+        from datumaro.components.environment import Environment
+        from datumaro.components.dataset import Dataset
 
-      detected_formats = env.detect_dataset(data_path)
+        data_path = '/path/to/data'
 
-      dataset = Dataset.import_from(path, detected_formats[0])
+        env = Environment()
 
-      from datumaro.plugins.validators import DetectionValidator
+        detected_formats = env.detect_dataset(data_path)
 
-      validator = DetectionValidator() # Or ClassificationValidator or SegementationValidator
+        dataset = Dataset.import_from(path, detected_formats[0])
 
-      reports = validator.validate(dataset)
+        from datumaro.plugins.validators import DetectionValidator
 
-.. tabbed:: ProjectCLI
+        validator = DetectionValidator() # Or ClassificationValidator or SegementationValidator
 
-  With the project-based CLI, we first require to create a project by
+        reports = validator.validate(dataset)
 
-  .. code-block:: bash
+  .. tab-item:: ProjectCLI
 
-    datum project create -o <path/to/project>
+    With the project-based CLI, we first require to create a project by
 
-  We now import MS-COCO validation data into the project through
+    .. code-block:: bash
 
-  .. code-block:: bash
+      datum project create -o <path/to/project>
 
-    datum project import --format coco_instances -p <path/to/project> <path/to/cityscapes>
+    We now import MS-COCO validation data into the project through
 
-  (Optional) When we import a data, the change is automatically commited in the project.
-  This can be shown through `log` as
+    .. code-block:: bash
 
-  .. code-block:: bash
+      datum project import --format coco_instances -p <path/to/project> <path/to/cityscapes>
 
-    datum project log -p <path/to/project>
+    (Optional) When we import a data, the change is automatically commited in the project.
+    This can be shown through `log` as
 
-  (Optional) We can check the imported dataset information such as subsets, number of data, or
-  categories through `info`.
+    .. code-block:: bash
 
-  .. code-block:: bash
+      datum project log -p <path/to/project>
 
-    datum project dinfo -p <path/to/project>
+    (Optional) We can check the imported dataset information such as subsets, number of data, or
+    categories through `info`.
 
-  Finally, we validate the data within the project as
+    .. code-block:: bash
+
+      datum project dinfo -p <path/to/project>
+
+    Finally, we validate the data within the project as
 
   .. code-block:: bash
 
