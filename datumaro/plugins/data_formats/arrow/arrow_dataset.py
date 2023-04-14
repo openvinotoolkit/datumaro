@@ -180,16 +180,14 @@ class ArrowDataset:
         if isinstance(key, range):
             if key.step == 1 and key.stop >= key.start:
                 return self.slice(key.start, key.stop - key.start)
-
-        if isinstance(key, int):
-            if key < 0:
-                key += len(self)
-            return self.slice(key, 1)[0]
-        elif isinstance(key, range):
             return [
                 self.slice(key_, 1)[0] if key_ >= 0 else self.slice(key_ + len(self), 1)[0]
                 for key_ in key
             ]
+        if isinstance(key, int):
+            if key < 0:
+                key += len(self)
+            return self.slice(key, 1)[0]
 
         raise KeyError()
 
