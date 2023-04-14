@@ -34,6 +34,7 @@ class ArrowTestDir(TestDir):
     # though some files are removable.
     def __exit__(self, exc_type=None, exc_value=None, traceback=None):
         if platform.system() == "Windows":
+
             def rm_arrows(_dir):
                 for file in os.listdir(_dir):
                     if not file.endswith(".arrow"):
