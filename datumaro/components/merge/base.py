@@ -26,6 +26,7 @@ class Merger(IMerger, CliPlugin):
     def __init__(self, **options):
         super().__init__(**options)
         self.__dict__["_sources"] = None
+        self.errors = []
 
     def merge_infos(self, sources: Sequence[IDataset]) -> Dict:
         """Merge several :class:`IDataset` into one :class:`IDataset`"""

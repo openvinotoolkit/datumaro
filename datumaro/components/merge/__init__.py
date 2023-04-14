@@ -7,7 +7,7 @@ from .exact_merge import ExactMerge
 from .intersect_merge import IntersectMerge
 from .union_merge import UnionMerge
 
-DEFAULT_MERGE_POLICY = "union"
+DEFAULT_MERGE_POLICY = "exact"
 
 
 def get_merger(merge_policy: str = DEFAULT_MERGE_POLICY, *args, **kwargs) -> Merger:
