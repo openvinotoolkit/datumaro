@@ -171,6 +171,8 @@ class ArrowDataset:
     ) -> Union[Dict, List[Dict], "ArrowDataset"]:
         # TODO: add unit test
         if isinstance(key, str):
+            if key not in self.column_names:
+                raise KeyError(key)
             dataset = ArrowDataset(self._files, self._keep_in_memory)
             dataset._update_table(
                 self.table.drop([name for name in self.column_names if name != key])
@@ -191,7 +193,7 @@ class ArrowDataset:
                 key += len(self)
             return self.slice(key, 1)[0]
 
-        raise KeyError()
+        raise KeyError(key)
 
     def __repr__(self):
         return (
