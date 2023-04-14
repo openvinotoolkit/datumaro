@@ -6,14 +6,13 @@ import argparse
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict
 
 from datumaro.components.dataset import DEFAULT_FORMAT
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatasetMergeError, DatasetQualityError, ProjectNotFoundError
+from datumaro.components.errors import ProjectNotFoundError
+from datumaro.components.hl_ops import HLOps
 from datumaro.components.merge.intersect_merge import IntersectMerge
 from datumaro.components.project import ProjectBuildTargets
-from datumaro.util import dump_json_file
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter, join_cli_args
@@ -222,48 +221,22 @@ def merge_command(args):
     except Exception as e:
         raise CliException(str(e))
 
-    merger = IntersectMerge(
+    report_path = osp.join(dst_dir, "merge_report.json")
+    merged_dataset = HLOps.merge(
+        *source_datasets,
+        merge_policy="intersect",
+        report_path=report_path,
         conf=IntersectMerge.Conf(
             pairwise_dist=args.iou_thresh,
             groups=args.groups or [],
             output_conf_thresh=args.output_conf_thresh,
             quorum=args.quorum,
-        )
+        ),
     )
-    merged_dataset = merger.merge(source_datasets)
 
     merged_dataset.export(save_dir=dst_dir, format=exporter, **export_args)
-
-    report_path = osp.join(dst_dir, "merge_report.json")
-    save_merge_report(merger, report_path)
 
     log.info("Merge results have been saved to '%s'" % dst_dir)
     log.info("Report has been saved to '%s'" % report_path)
 
     return 0
-
-
-def save_merge_report(merger, path):
-    item_errors = OrderedDict()
-    source_errors = OrderedDict()
-    all_errors = []
-
-    for e in merger.errors:
-        if isinstance(e, DatasetQualityError):
-            item_errors[str(e.item_id)] = item_errors.get(str(e.item_id), 0) + 1
-        elif isinstance(e, DatasetMergeError):
-            for s in e.sources:
-                source_errors[str(s)] = source_errors.get(s, 0) + 1
-            item_errors[str(e.item_id)] = item_errors.get(str(e.item_id), 0) + 1
-
-        all_errors.append(str(e))
-
-    errors = OrderedDict(
-        [
-            ("Item errors", item_errors),
-            ("Source errors", source_errors),
-            ("All errors", all_errors),
-        ]
-    )
-
-    dump_json_file(path, errors, indent=True)
