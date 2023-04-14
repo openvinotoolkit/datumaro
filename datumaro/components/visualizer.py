@@ -5,7 +5,7 @@ import math
 import random
 import warnings
 from collections import defaultdict
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, List, Optional, Tuple, Union, overload
 
 import cv2
 import matplotlib.patches as patches
@@ -204,17 +204,66 @@ class Visualizer:
 
         return random.choices(self._items, k=n_samples)
 
+    @overload
     def vis_gallery(
         self,
-        ids: Optional[List[str]] = None,
-        subsets: Optional[Union[str, List[str]]] = None,
-        items: Optional[List[DatasetItem]] = None,
+        ids: List[str],
+        subsets: Union[str, List[str]] = None,
+        grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
+    ):
+        """Visualize several :class:`DatasetItem` as a gallery
+
+        Parameters
+        ----------
+        ids
+            A list of :class:`DatasetItem`'s ID to visualize
+        subsets
+            A list of :class:`DatasetItem`'s subset name to visualize.
+            If a string is given, it is automatically expanded into
+            a list up to the length of `ids`.
+        grid_size
+            Grid size of the gallery plot. If `None`, we automatically infer its size.
+
+        Return
+        ------
+            :class:`Figure` include visualization plots.
+        """
+        ...
+
+    @overload
+    def vis_gallery(
+        self,
+        items: List[DatasetItem],
+        grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
+    ):
+        """Visualize several :class:`DatasetItem` as a gallery
+
+        Parameters
+        ----------
+        items
+            A list of :class:`DatasetItem` to visualize
+
+        Return
+        ------
+            :class:`Figure` include visualization plots.
+        """
+        ...
+
+    def vis_gallery(
+        self,
+        *inputs,
         grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
     ) -> Figure:
-        self._check_inputs(ids, subsets, items)
+        """Visualize several :class:`DatasetItem` as a gallery"""
+        if len(inputs) == 1:
+            ids, subsets = None, None
+            (items,) = inputs
 
-        if isinstance(subsets, str):
-            subsets = [subsets] * len(ids)  # expand it to have len(ids)
+        elif len(inputs) == 2:
+            ids, subsets = inputs
+            items = None
+            if isinstance(subsets, str):
+                subsets = [subsets] * len(ids)  # expand it to have len(ids)
 
         def _parse_inputs(
             ids: Optional[List[str]],
@@ -239,29 +288,68 @@ class Visualizer:
         ), "If subset is a list, it should have the same length as ids."
 
         for item_id, subset, ax in zip(ids, subsets, axs.flatten()):
-            self.vis_one_sample(item_id=item_id, subset=subset, ax=ax)
+            self.vis_one_sample(item_id, subset, ax=ax)
 
         return fig
 
-    @staticmethod
-    def _check_inputs(
-        item_id: Optional[str] = None,
-        subset: Optional[str] = None,
-        item: Optional[DatasetItem] = None,
-    ) -> None:
-        if (item_id is None and subset is None) and item is None:
-            raise ValueError("(item_id and subset) or item should be not None.")
-        if item_id is not None and subset is not None and item is not None:
-            raise ValueError("Both (item_id and subset) and item cannot be provided.")
+    @overload
+    def vis_one_sample(
+        self,
+        item_id: str = None,
+        subset: str = None,
+        ax: Optional[Axes] = None,
+    ) -> Figure:
+        """Visualize one :class:`DatasetItem`
+
+        Parameters
+        ----------
+        item_id
+            ID of :class:`DatasetItem` to visualize
+        subset
+            Subset name of :class:`DatasetItem` to visualize
+        ax
+            If not `None`, draw on `ax` instead of creating a new one
+
+        Return
+        ------
+            :class:`Figure` include visualization plot of the :class:`DatasetItem`.
+        """
+        ...
+
+    @overload
+    def vis_one_sample(
+        self,
+        item: DatasetItem = None,
+        ax: Optional[Axes] = None,
+    ) -> Figure:
+        """Visualize one :class:`DatasetItem`
+
+        Parameters
+        ----------
+        item
+            :class:`DatasetItem` to visualize
+        ax
+            If not `None`, draw on `ax` instead of creating a new one
+
+        Return
+        ------
+            :class:`Figure` include visualization plot of the :class:`DatasetItem`.
+        """
+        ...
 
     def vis_one_sample(
         self,
-        item_id: Optional[str] = None,
-        subset: Optional[str] = None,
-        item: Optional[DatasetItem] = None,
+        *inputs,
         ax: Optional[Axes] = None,
     ) -> Figure:
-        self._check_inputs(item_id, subset, item)
+        """Visualize one dataset item"""
+        if len(inputs) == 1:
+            item_id, subset = None, None
+            (item,) = inputs
+
+        elif len(inputs) == 2:
+            item_id, subset = inputs
+            item = None
 
         if ax is None:
             fig = plt.figure(figsize=self.figsize)

@@ -48,8 +48,24 @@ class VisualizerTestBase:
             f"datumaro.components.visualizer.Visualizer.{func_name}",
             wraps=getattr(visualizer, func_name),
         ) as mocked:
+            # Call by (id, subset) pair
             for item in self.items:
                 fig = visualizer.vis_one_sample(item.id, self.subset)
+
+                # Check count
+                assert mocked.call_count == len(item.annotations)
+
+                # Check z-order
+                if check_z_order:
+                    called_z_order = [call[0][0].z_order for call in mocked.call_args_list]
+                    assert sorted(called_z_order) == called_z_order
+
+                self.assertIsInstance(fig, Figure)
+                mocked.reset_mock()
+
+            # Call by item
+            for item in self.items:
+                fig = visualizer.vis_one_sample(item)
 
                 # Check count
                 assert mocked.call_count == len(item.annotations)
@@ -88,7 +104,16 @@ class VisualizerTestBase:
         # Infer grid size for 5 items
         def _check(infer_grid_size, expected_grid_size):
             expected_nrows, expected_ncols = expected_grid_size
+
+            # Call by ids and subsets
             fig = visualizer.vis_gallery(ids, self.subset, grid_size=infer_grid_size)
+            self.assertIsInstance(fig, Figure)
+            grid_spec = fig.axes[0].get_gridspec()
+            self.assertEqual(grid_spec.nrows, expected_nrows)
+            self.assertEqual(grid_spec.ncols, expected_ncols)
+
+            # Call by items
+            fig = visualizer.vis_gallery(self.items, grid_size=infer_grid_size)
             self.assertIsInstance(fig, Figure)
             grid_spec = fig.axes[0].get_gridspec()
             self.assertEqual(grid_spec.nrows, expected_nrows)
