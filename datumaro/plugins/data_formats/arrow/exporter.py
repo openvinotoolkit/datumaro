@@ -242,13 +242,6 @@ class ArrowExporter(Exporter):
             choices=cls.AVAILABLE_IMAGE_EXTS,
         )
 
-        #  parser.add_argument(
-        #      "--split-by-subsets",
-        #      action="store_true",
-        #      default=False,
-        #      help="Split arrow dataset by subset. (default: %(default)s)",
-        #  )
-
         parser.add_argument(
             "--max-chunk-size",
             type=int,
