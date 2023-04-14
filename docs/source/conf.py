@@ -49,7 +49,7 @@ extensions = [
     # of objects in external projects
     "myst_parser",
     "nbsphinx",
-    "sphinx_panels",
+    "sphinx_design",
 ]
 
 source_suffix = {
