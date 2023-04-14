@@ -1,6 +1,6 @@
-=============
+===============================
 Level 3: Data Import and Export
-=============
+===============================
 
 Datumaro is a tool that supports public data formats across a wide range of tasks such as
 classification, detection, segmentation, pose estimation, or visual tracking.
@@ -8,7 +8,7 @@ To facilitate this, Datumaro provides assistance with data import and export via
 This makes it easier for users to work with various data formats using Datumaro.
 
 Prepare dataset
-============
+===============
 
 For the segmentation task, we here introduce the Cityscapes, which collects road scenes from 50
 different cities and contains 5K fine-grained pixel-level annotations and 20K coarse annotations.
@@ -16,7 +16,7 @@ More detailed description is given by :ref:`here <Cityscapes>`.
 The Cityscapes dataset is available for free `download <https://www.cityscapes-dataset.com/downloads/>`_.
 
 Convert data format
-============
+===================
 
 Users sometimes needs to compare, merge, or manage various kinds of public datasets in a unified
 system. To achieve this, Datumaro not only has `import` and `export` funcionalities, but also

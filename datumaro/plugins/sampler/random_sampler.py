@@ -15,7 +15,7 @@ from datumaro.util import cast
 
 
 class RandomSampler(Transform, CliPlugin):
-    """
+    r"""
     Sampler that keeps no more than required number of items in the dataset.|n
     |n
     Notes:|n
