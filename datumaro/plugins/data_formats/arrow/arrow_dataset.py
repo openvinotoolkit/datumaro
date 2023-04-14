@@ -14,6 +14,7 @@ import pyarrow as pa
 PathLike = TypeVar("PathLike", str, os.PathLike, None)
 
 
+# TODO: consider replacing with `bisect` library
 def _binary_search(arr, x, low=None, high=None, fn=None):
     low = 0 if low is None else low
     high = len(arr) - 1 if high is None else high
@@ -168,6 +169,7 @@ class ArrowDataset:
     def __getitem__(
         self, key: Union[int, range, slice, str]
     ) -> Union[Dict, List[Dict], "ArrowDataset"]:
+        # TODO: add unit test
         if isinstance(key, str):
             dataset = ArrowDataset(self._files, self._keep_in_memory)
             dataset._update_table(
