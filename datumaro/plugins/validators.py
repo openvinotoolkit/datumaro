@@ -252,8 +252,6 @@ class _TaskValidator(Validator, CliPlugin):
                     attr_dets = defined_attr_stats[attr]
                     attr_dets["items_missing_attribute"].append(item_key)
 
-                # print(valid_attrs)
-
                 for attr, value in ann.attributes.items():
                     if attr not in valid_attrs:
                         undefined_attr_stats = undefined_attr_dist.setdefault(label_name, {})
