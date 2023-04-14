@@ -249,10 +249,6 @@ class ArrowFormatTest:
         detected_formats = Environment().detect_dataset(test_dir)
         assert [self.importer.NAME] == detected_formats
 
-        for file in os.listdir(test_dir):
-            detected_formats = Environment().detect_dataset(os.path.join(test_dir, file))
-            assert [self.importer.NAME] == detected_formats
-
     # Below is testing special cases...
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data_with_direct_changes(self, test_dir, helper_tc):

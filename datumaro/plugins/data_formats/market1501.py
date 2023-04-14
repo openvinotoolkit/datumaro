@@ -9,7 +9,7 @@ import re
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
-from datumaro.components.format_detection import FormatDetectionConfidence, raise_if_path_is_not_dir
+from datumaro.components.format_detection import FormatDetectionConfidence
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
@@ -110,7 +110,6 @@ class Market1501Importer(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        raise_if_path_is_not_dir(path)
         for dirname in os.listdir(path):
             if dirname.startswith(
                 (Market1501Path.BBOX_DIR, Market1501Path.QUERY_DIR, Market1501Path.LIST_PREFIX)

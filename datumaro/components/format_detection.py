@@ -142,11 +142,6 @@ class FormatDetectionUnsupported(_FormatRejected):
         return RejectionReason.detection_unsupported
 
 
-def raise_if_path_is_not_dir(path):
-    if not osp.isdir(path):
-        raise FormatRequirementsUnmet((f"root path {path} must refer to a directory.",))
-
-
 class FormatDetectionContext:
     """
     An instance of this class is given to a dataset format detector.
@@ -227,9 +222,6 @@ class FormatDetectionContext:
         self._start_requirement("fail")
 
         raise FormatRequirementsUnmet((requirement_desc,))
-
-    def raise_if_root_is_not_dir(self):
-        raise_if_path_is_not_dir(self.root_path)
 
     def require_file(
         self,
@@ -464,6 +456,9 @@ def apply_format_detector(
     by the detector.
     """
     context = FormatDetectionContext(dataset_root_path)
+
+    if not osp.isdir(dataset_root_path):
+        context.fail(f"root path {dataset_root_path} must refer to a directory")
 
     return detector(context) or FormatDetectionConfidence.MEDIUM
 
