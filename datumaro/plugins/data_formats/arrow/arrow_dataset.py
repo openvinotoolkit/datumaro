@@ -169,7 +169,6 @@ class ArrowDataset:
     def __getitem__(
         self, key: Union[int, range, slice, str]
     ) -> Union[Dict, List[Dict], "ArrowDataset"]:
-        # TODO: add unit test
         if isinstance(key, str):
             if key not in self.column_names:
                 raise KeyError(key)
