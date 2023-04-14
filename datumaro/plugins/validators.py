@@ -252,6 +252,8 @@ class _TaskValidator(Validator, CliPlugin):
                     attr_dets = defined_attr_stats[attr]
                     attr_dets["items_missing_attribute"].append(item_key)
 
+                # print(valid_attrs)
+
                 for attr, value in ann.attributes.items():
                     if attr not in valid_attrs:
                         undefined_attr_stats = undefined_attr_dist.setdefault(label_name, {})
@@ -641,7 +643,6 @@ class DetectionValidator(_TaskValidator):
         stats["point_distribution_in_attribute"] = {}
         stats["point_distribution_in_dataset_item"] = {}
 
-        self.stats = stats
         self.items = filtered_items
 
         def _generate_ann_bbox_info(_x, _y, _w, _h, area, ratio, _short, _long):
@@ -672,7 +673,7 @@ class DetectionValidator(_TaskValidator):
 
             ann_bbox_info = _generate_ann_bbox_info(_x, _y, _w, _h, area, ratio, _short, _long)
 
-            items_w_invalid_val = self.stats["items_with_invalid_value"]
+            items_w_invalid_val = stats["items_with_invalid_value"]
             for prop, val in ann_bbox_info.items():
                 if val == float("inf") or np.isnan(val):
                     bbox_has_error = True
@@ -680,7 +681,7 @@ class DetectionValidator(_TaskValidator):
                     invalid_props = anns_w_invalid_val.setdefault(ann.id, [])
                     invalid_props.append(prop)
 
-            items_w_neg_len = self.stats["items_with_negative_length"]
+            items_w_neg_len = stats["items_with_negative_length"]
             for prop in ["width", "height"]:
                 val = ann_bbox_info[prop]
                 if val < 1:
@@ -698,12 +699,11 @@ class DetectionValidator(_TaskValidator):
 
         # Collect property distribution
         label_categories = dataset.categories().get(AnnotationType.label, LabelCategories())
-        base_valid_attrs = label_categories.attributes
-        self._compute_prop_dist(label_categories, base_valid_attrs, _update_bbox_stats_by_label)
+        self._compute_prop_dist(label_categories, stats, _update_bbox_stats_by_label)
 
         # Compute property statistics from distribution
-        dist_by_label = self.stats["point_distribution_in_label"]
-        dist_by_attr = self.stats["point_distribution_in_attribute"]
+        dist_by_label = stats["point_distribution_in_label"]
+        dist_by_attr = stats["point_distribution_in_attribute"]
         self._compute_prop_stats_from_dist(dist_by_label, dist_by_attr)
 
         def _is_valid_bbox(item_key, ann):
@@ -711,13 +711,12 @@ class DetectionValidator(_TaskValidator):
             if not has_defined_label:
                 return False
 
-            bbox_has_neg_len = ann.id in self.stats["items_with_negative_length"].get(item_key, {})
-            bbox_has_invalid_val = ann.id in self.stats["items_with_invalid_value"].get(
-                item_key, {}
-            )
+            bbox_has_neg_len = ann.id in stats["items_with_negative_length"].get(item_key, {})
+            bbox_has_invalid_val = ann.id in stats["items_with_invalid_value"].get(item_key, {})
             return not (bbox_has_neg_len or bbox_has_invalid_val)
 
         def _update_bbox_props_far_from_mean(item_key, ann):
+            base_valid_attrs = label_categories.attributes
             valid_attrs = base_valid_attrs.union(label_categories[ann.label].attributes)
             label_name = label_categories[ann.label].name
             bbox_label_stats = dist_by_label[label_name]
@@ -798,10 +797,12 @@ class DetectionValidator(_TaskValidator):
             prop_dist = prop_stats["distribution"]
             prop_stats["distribution"] = np.append(prop_dist, val)
 
-    def _compute_prop_dist(self, label_categories, base_valid_attrs, update_stats_by_label):
-        dist_by_label = self.stats["point_distribution_in_label"]
-        dist_by_attr = self.stats["point_distribution_in_attribute"]
-        point_dist_in_item = self.stats["point_distribution_in_dataset_item"]
+    def _compute_prop_dist(self, label_categories, stats, update_stats_by_label):
+        dist_by_label = stats["point_distribution_in_label"]
+        dist_by_attr = stats["point_distribution_in_attribute"]
+        point_dist_in_item = stats["point_distribution_in_dataset_item"]
+
+        base_valid_attrs = label_categories.attributes
 
         for item_key, annotations in self.items:
             ann_count = len(annotations)
@@ -1050,7 +1051,6 @@ class SegmentationValidator(DetectionValidator):
         stats["point_distribution_in_attribute"] = {}
         stats["point_distribution_in_dataset_item"] = {}
 
-        self.stats = stats
         self.items = filtered_items
 
         def _generate_ann_mask_info(area, _w, _h):
@@ -1075,7 +1075,7 @@ class SegmentationValidator(DetectionValidator):
 
             ann_mask_info = _generate_ann_mask_info(area, _w, _h)
 
-            items_w_invalid_val = self.stats["items_with_invalid_value"]
+            items_w_invalid_val = stats["items_with_invalid_value"]
             for prop, val in ann_mask_info.items():
                 if val == float("inf") or np.isnan(val):
                     mask_has_error = True
@@ -1090,12 +1090,11 @@ class SegmentationValidator(DetectionValidator):
 
         # Collect property distribution
         label_categories = dataset.categories().get(AnnotationType.label, LabelCategories())
-        base_valid_attrs = label_categories.attributes
-        self._compute_prop_dist(label_categories, base_valid_attrs, _update_mask_stats_by_label)
+        self._compute_prop_dist(label_categories, stats, _update_mask_stats_by_label)
 
         # Compute property statistics from distribution
-        dist_by_label = self.stats["point_distribution_in_label"]
-        dist_by_attr = self.stats["point_distribution_in_attribute"]
+        dist_by_label = stats["point_distribution_in_label"]
+        dist_by_attr = stats["point_distribution_in_attribute"]
         self._compute_prop_stats_from_dist(dist_by_label, dist_by_attr)
 
         def _is_valid_mask(item_key, ann):
@@ -1103,12 +1102,11 @@ class SegmentationValidator(DetectionValidator):
             if not has_defined_label:
                 return False
 
-            mask_has_invalid_val = ann.id in self.stats["items_with_invalid_value"].get(
-                item_key, {}
-            )
+            mask_has_invalid_val = ann.id in stats["items_with_invalid_value"].get(item_key, {})
             return not mask_has_invalid_val
 
         def _update_mask_props_far_from_mean(item_key, ann):
+            base_valid_attrs = label_categories.attributes
             valid_attrs = base_valid_attrs.union(label_categories[ann.label].attributes)
             label_name = label_categories[ann.label].name
             mask_label_stats = dist_by_label[label_name]
