@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import platform
 
 import numpy as np
 import pytest
@@ -21,6 +22,33 @@ from ..datumaro.conftest import (
     fxt_relative_paths,
     fxt_test_datumaro_format_dataset,
 )
+
+from tests.utils.test_utils import TestDir
+
+
+class ArrowTestDir(TestDir):
+    # TODO: This is a hacky solution. Need to take a look into it.
+    # python on windows in github action can not remove arrow files
+    # with an access denied error but files can be removable from CMD.
+    # It might be related to not closed arrow writer object
+    # though some files are removable.
+    def __exit__(self, exc_type=None, exc_value=None, traceback=None):
+        if platform.system() == "Windows":
+            def rm_arrows(_dir):
+                for file in os.listdir(_dir):
+                    if not file.endswith(".arrow"):
+                        continue
+                    os.system(f"rm -rf {os.path.join(_dir, file)}")
+
+            if self.is_dir and os.path.exists(self.path):
+                rm_arrows(self.path)
+        super().__exit__(exc_type, exc_value, traceback)
+
+
+@pytest.fixture(scope="function")
+def test_dir():
+    with ArrowTestDir() as test_dir:
+        yield test_dir
 
 
 @pytest.fixture

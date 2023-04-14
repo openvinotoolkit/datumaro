@@ -4,7 +4,6 @@
 
 
 import os
-import platform
 from functools import partial
 
 import numpy as np
@@ -39,19 +38,6 @@ class ArrowFormatTest:
         compare=compare_datasets_strict,
         **kwargs,
     ):
-        def post_hook(save_dir, *args, **kwargs):
-            # TODO: This is a hacky solution. Need to take a look into it.
-            # python on windows in github action can not remove arrow files
-            # with an access denied error but files can be removable from CMD.
-            # It might be related to not closed arrow writer object
-            # though some files are removable.
-            if platform.system() != "Windows":
-                return
-            for file in os.listdir(save_dir):
-                if not file.endswith(".arrow"):
-                    continue
-                os.system(f"rm -rf {os.path.join(save_dir, file)}")
-
         return check_save_and_load(
             helper_tc,
             source_dataset,
@@ -61,8 +47,7 @@ class ArrowFormatTest:
             target_dataset=target_dataset,
             importer_args=importer_args,
             compare=compare,
-            move_save_dir=True,
-            post_hook=post_hook,
+            move_save_dir=False,
             **kwargs,
         )
 
