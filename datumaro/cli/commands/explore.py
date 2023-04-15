@@ -10,6 +10,7 @@ import numpy as np
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.explorer import Explorer
+from datumaro.components.project import ProjectBuildTargets
 from datumaro.components.visualizer import Visualizer
 from datumaro.util.image import save_image
 from datumaro.util.scope import scope_add
@@ -45,10 +46,9 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "_positionals", nargs=argparse.REMAINDER, help=argparse.SUPPRESS
     )  # workaround for -- eaten by positionals
-    parser.add_argument("target", nargs="?", default="project", help="Target dataset")
+    parser.add_argument("target", nargs="+", help="Target dataset")
     parser.add_argument(
         "-q",
-        "--query",
         dest="query",
         required=True,
         help="Image path or id of query to explore similar data",
@@ -82,6 +82,8 @@ def get_sensitive_args():
 
 
 def explore_command(args):
+    args.targets = ProjectBuildTargets.MAIN_TARGET
+
     project = None
     try:
         project = scope_add(load_project(args.project_dir))
@@ -91,7 +93,8 @@ def explore_command(args):
                 f"Wrong argument: project_dir, {args.project_dir}, should be a path to project dir"
             )
             raise
-    dataset, _ = parse_full_revpath(args.target, project)
+
+    dataset, _ = parse_full_revpath(args.target[0], project)
 
     explorer = Explorer(dataset)
 
