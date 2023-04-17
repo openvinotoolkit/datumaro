@@ -8,7 +8,19 @@ import logging as log
 import os.path as osp
 from functools import partial
 from inspect import isclass
-from typing import Callable, Dict, Generic, Iterable, Iterator, List, Optional, Set, Type, TypeVar
+from typing import (
+    Callable,
+    Dict,
+    Generic,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Type,
+    TypeVar,
+)
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
 from datumaro.components.format_detection import (
@@ -214,12 +226,12 @@ class Environment:
             module_names, importer=partial(import_foreign_module, path=plugins_dir)
         )
 
-        self._register_plugins(plugins)
+        self.register_plugins(plugins)
 
     def _register_builtin_plugins(self):
-        self._register_plugins(self._load_builtin_plugins())
+        self.register_plugins(self._load_builtin_plugins())
 
-    def _register_plugins(self, plugins):
+    def register_plugins(self, plugins):
         self.extractors.batch_register(plugins)
         self.importers.batch_register(plugins)
         self.launchers.batch_register(plugins)
@@ -286,6 +298,27 @@ class Environment:
 
     def __reduce__(self):
         return (self.__class__, ())
+
+    @classmethod
+    def merge(cls, envs: Sequence["Environment"]) -> "Environment":
+        if all([env == DEFAULT_ENVIRONMENT for env in envs]):
+            return DEFAULT_ENVIRONMENT
+
+        merged = Environment()
+
+        def _register(registry: PluginRegistry):
+            merged.register_plugins(plugin for plugin in registry)
+
+        for env in envs:
+            _register(env.extractors)
+            _register(env.importers)
+            _register(env.launchers)
+            _register(env.exporters)
+            _register(env.generators)
+            _register(env.transforms)
+            _register(env.validators)
+
+        return merged
 
 
 DEFAULT_ENVIRONMENT = Environment()

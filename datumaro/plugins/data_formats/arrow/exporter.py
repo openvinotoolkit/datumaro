@@ -344,8 +344,16 @@ class ArrowExporter(Exporter):
         with tempfile.TemporaryDirectory() as temp_dir:
             cls.convert(dataset, save_dir=temp_dir, **kwargs)
             if os.path.exists(save_dir):
-                rmtree(save_dir)
-            move(temp_dir, save_dir)
+                for file in os.listdir(save_dir):
+                    file = os.path.join(save_dir, file)
+                    if os.path.isdir(file):
+                        rmtree(file)
+                    else:
+                        os.remove(file)
+            for file in os.listdir(temp_dir):
+                file_from = os.path.join(temp_dir, file)
+                file_to = os.path.join(save_dir, file)
+                move(file_from, file_to)
 
     def __init__(
         self,

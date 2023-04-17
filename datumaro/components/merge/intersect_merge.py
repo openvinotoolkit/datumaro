@@ -4,6 +4,7 @@
 
 import logging as log
 from collections import OrderedDict
+from typing import Dict, Sequence
 
 import attr
 from attr import attrib, attrs
@@ -28,7 +29,11 @@ from datumaro.components.annotations.merger import (
     PointsMerger,
     PolygonMerger,
 )
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetItem, IDataset
+from datumaro.components.dataset_item_storage import (
+    DatasetItemStorage,
+    DatasetItemStorageDatasetView,
+)
 from datumaro.components.errors import (
     AnnotationsTooCloseError,
     ConflictingCategoriesError,
@@ -47,11 +52,68 @@ __all__ = ["IntersectMerge"]
 
 @attrs
 class IntersectMerge(Merger):
+    """
+    Merge several datasets with "intersect" policy:
+
+    - If there are two or more dataset items whose (id, subset) pairs match each other,
+    we can consider this as having an intersection in our dataset. This method merges
+    the annotations of the corresponding :class:`DatasetItem` into one :class:`DatasetItem`
+    to handle this intersection. The rule to handle merging annotations is provided by
+    :class:`AnnotationMerger` according to their annotation types. For example,
+    DatasetItem(id="item_1", subset="train", annotations=[Bbox(0, 0, 1, 1)]) from Dataset-A and
+    DatasetItem(id="item_1", subset="train", annotations=[Bbox(.5, .5, 1, 1)]) from Dataset-B can be
+    merged into DatasetItem(id="item_1", subset="train", annotations=[Bbox(0, 0, 1, 1)]).
+
+    - Label categories are merged according to the union of their label names
+    (Same as `UnionMerge`). For example, if Dataset-A has {"car", "cat", "dog"}
+    and Dataset-B has {"car", "bus", "truck"} labels, the merged dataset will have
+    {"bust", "car", "cat", "dog", "truck"} labels.
+
+    - This merge has configuration parameters (`conf`) to control the annotation merge behaviors.
+
+    For example,
+
+    ```python
+    merge = IntersectMerge(
+        conf=IntersectMerge.Conf(
+            pairwise_dist=0.25,
+            groups=[],
+            output_conf_thresh=0.0,
+            quorum=0,
+        )
+    )
+    ```
+
+    For more details for the parameters, please refer to :class:`IntersectMerge.Conf`.
+    """
+
     def __init__(self, **options):
         super().__init__(**options)
 
     @attrs(repr_ns="IntersectMerge", kw_only=True)
     class Conf:
+        """
+        Parameters
+        ----------
+        pairwise_dist
+            IoU match threshold for segments
+        sigma
+            Parameter for Object Keypoint Similarity metric
+            (https://cocodataset.org/#keypoints-eval)
+        output_conf_thresh
+            Confidence threshold for output annotations
+        quorum
+            Minimum count for a label and attribute voting results to be counted
+        ignored_attributes
+            Attributes to be ignored in the merged :class:`DatasetItem`
+        groups
+            A comma-separated list of labels in annotation groups to check.
+            '?' postfix can be added to a label to make it optional in the group (repeatable)
+        close_distance
+            Distance threshold between annotations to decide their closeness. If they are decided
+            to be close, it will be enrolled to the error tracker.
+        """
+
         pairwise_dist = attrib(converter=float, default=0.5)
         sigma = attrib(converter=list, factory=list)
 
@@ -92,26 +154,21 @@ class IntersectMerge(Merger):
     _infos = attrib(init=False)  # merged infos
     _categories = attrib(init=False)  # merged categories
 
-    def merge(self, datasets):
-        self._infos = self.merge_infos([d.infos() for d in datasets])
-        self._categories = self.merge_categories([d.categories() for d in datasets])
-        merged = Dataset(
-            infos=self._infos,
-            categories=self._categories,
-            media_type=self.merge_media_types(datasets),
-        )
-
+    def merge(self, sources: Sequence[IDataset]) -> DatasetItemStorage:
+        self._infos = self.merge_infos([d.infos() for d in sources])
+        self._categories = self.merge_categories([d.categories() for d in sources])
+        merged = DatasetItemStorage()
         self._check_groups_definition()
 
-        item_matches, item_map = self.match_items(datasets)
+        item_matches, item_map = self.match_items(sources)
         self._item_map = item_map
-        self._dataset_map = {id(d): (d, i) for i, d in enumerate(datasets)}
+        self._dataset_map = {id(d): (d, i) for i, d in enumerate(sources)}
 
         for item_id, items in item_matches.items():
             self._item_id = item_id
 
-            if len(items) < len(datasets):
-                missing_sources = set(id(s) for s in datasets) - set(items)
+            if len(items) < len(sources):
+                missing_sources = set(id(s) for s in sources) - set(items)
                 missing_sources = [self._dataset_map[s][1] for s in missing_sources]
                 self.add_item_error(NoMatchingItemError, sources=missing_sources)
             merged.put(self.merge_items(items))
@@ -121,7 +178,23 @@ class IntersectMerge(Merger):
     def get_ann_source(self, ann_id):
         return self._item_map[self._ann_map[ann_id][1]][1]
 
-    def merge_categories(self, sources):
+    def __call__(self, *datasets: IDataset) -> DatasetItemStorageDatasetView:
+        # TODO: self.merge() should be the first since this order matters for
+        # IntersectMerge.
+        merged = self.merge(datasets)
+        infos = self.merge_infos(d.infos() for d in datasets)
+        categories = self.merge_categories(d.categories() for d in datasets)
+        media_type = self.merge_media_types(datasets)
+        return DatasetItemStorageDatasetView(
+            parent=merged, infos=infos, categories=categories, media_type=media_type
+        )
+
+    def merge_categories(self, sources: Sequence[IDataset]) -> Dict:
+        # TODO: This is a temporary workaround to minimize code changes.
+        # We have to revisit it to make this class stateless.
+        if hasattr(self, "_categories"):
+            return self._categories
+
         dst_categories = {}
 
         label_cat = self._merge_label_categories(sources)
@@ -139,7 +212,7 @@ class IntersectMerge(Merger):
 
         return dst_categories
 
-    def merge_items(self, items):
+    def merge_items(self, items: Dict[int, DatasetItem]) -> DatasetItem:
         self._item = next(iter(items.values()))
 
         self._ann_map = {}

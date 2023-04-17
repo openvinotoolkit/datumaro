@@ -14,7 +14,7 @@ from datumaro.components.errors import DatasetError
 from datumaro.components.exporter import Exporter
 from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.launcher import Launcher, ModelTransform
-from datumaro.components.merge.exact_merge import ExactMerge
+from datumaro.components.merge import DEFAULT_MERGE_POLICY, get_merger
 from datumaro.components.transformer import Transform
 from datumaro.components.validator import TaskType, Validator
 from datumaro.util import parse_str_enum_value
@@ -98,29 +98,32 @@ class HLOps:
             return HLOps.transform(dataset, XPathDatasetFilter, xpath=expr)
 
     @staticmethod
-    def merge(*datasets: IDataset) -> IDataset:
+    def merge(
+        *datasets: Dataset,
+        merge_policy: str = DEFAULT_MERGE_POLICY,
+        report_path: Optional[str] = None,
+        **kwargs,
+    ) -> Dataset:
         """
-        Merges several datasets using the "simple" (exact matching) algorithm:
-
-            - items are matched by (id, subset) pairs
-            - matching items share the fields available
-
-                - nothing + nothing = nothing,
-                - nothing + something = something
-                - something A + something B = conflict
-            - annotations are matched by value and shared
-            - in case of conflicts, throws an error
-
-        Returns: a wrapper around the input datasets
+        Merge `datasets` according to `merge_policy`. You have to choose an appropriate `merge_policy`
+        for your purpose. The available merge policies are "union", "intersect", and "exact".
+        For more details about the merge policies, please refer to :func:`get_merger`.
         """
 
-        merger = ExactMerge()
-        infos = merger.merge_infos(d.infos() for d in datasets)
-        categories = merger.merge_categories(d.categories() for d in datasets)
-        media_type = merger.merge_media_types(datasets)
-        return DatasetItemStorageDatasetView(
-            merger.merge(*datasets), infos=infos, categories=categories, media_type=media_type
+        merger = get_merger(merge_policy, **kwargs)
+        merged = merger(*datasets)
+        env = Environment.merge(
+            dataset.env
+            for dataset in datasets
+            if hasattr(
+                dataset, "env"
+            )  # TODO: Sometimes, there is dataset which is not exactly "Dataset",
+            # e.g., VocClassificationBase. this should be fixed and every object from
+            # Dataset.import_from should have "Dataset" type.
         )
+        if report_path:
+            merger.save_merge_report(report_path)
+        return Dataset(source=merged, env=env)
 
     @staticmethod
     def run_model(

@@ -2,13 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Any, Dict, Iterable, List, Tuple, Union
-
-from attr import attrs
+from typing import Any, Dict, Iterable, List, Sequence, Tuple, Union
 
 from datumaro.components.annotation import Annotation
-from datumaro.components.dataset import DatasetItemStorage
 from datumaro.components.dataset_base import DatasetItem, IDataset
+from datumaro.components.dataset_item_storage import DatasetItemStorage
 from datumaro.components.errors import (
     DatasetMergeError,
     MismatchingAttributesError,
@@ -23,13 +21,12 @@ from datumaro.components.merge import Merger
 __all__ = ["ExactMerge"]
 
 
-@attrs
 class ExactMerge(Merger):
     """
     Merges several datasets using the "simple" algorithm:
+        - All datasets should have the same categories
         - items are matched by (id, subset) pairs
         - matching items share the media info available:
-
             - nothing + nothing = nothing
             - nothing + something = something
             - something A + something B = conflict
@@ -40,7 +37,7 @@ class ExactMerge(Merger):
     def __init__(self, **options):
         super().__init__(**options)
 
-    def merge(self, *sources: IDataset) -> DatasetItemStorage:
+    def merge(self, sources: Sequence[IDataset]) -> DatasetItemStorage:
         items = DatasetItemStorage()
         for source_idx, source in enumerate(sources):
             for item in source:

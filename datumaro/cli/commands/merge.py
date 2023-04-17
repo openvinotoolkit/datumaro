@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2022 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -6,14 +6,13 @@ import argparse
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict
 
 from datumaro.components.dataset import DEFAULT_FORMAT
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatasetMergeError, DatasetQualityError, ProjectNotFoundError
+from datumaro.components.errors import ProjectNotFoundError
+from datumaro.components.hl_ops import HLOps
 from datumaro.components.merge.intersect_merge import IntersectMerge
 from datumaro.components.project import ProjectBuildTargets
-from datumaro.util import dump_json_file
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter, join_cli_args
@@ -23,18 +22,35 @@ from ..util.project import generate_next_file_name, load_project, parse_full_rev
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(
-        help="Merge few projects",
+        help="Merge few datasets or projects",
         description="""
         Merges multiple datasets into one and produces a new dataset.
-        The command can be useful if you have few annotations and wish
-        to merge them, taking into consideration potential overlaps and
-        conflicts. This command can try to find common ground by voting or
-        return a list of conflicts.|n
+        The command can be useful if you want to merge several datasets
+        which have homogeneous or heterogeneous label categories.
+        We provide three merge policies: 1) "exact" for homogenous datasets;
+        2) "union", or 3) "intersect" for heterogenous datasets. The default merge
+        policy is "union".
+        |n
         |n
         In simple cases, when dataset images do not intersect and new
-        labels are not added, the recommended way of merging is using the
-        "patch" command. It will offer better performance and provide the same
-        results.|n
+        labels are not added, we can use the "exact" merge policy for this situation.
+        |n
+        |n
+        On the other hand, when two datasets have different label categories or
+        have the same (id, subset) pairs in their dataset items. you have to use
+        the "union" or "intersect" merge.
+        |n
+        The "union" merge is more simple way to merge them.
+        It tries to obtain a union set from their label categories and attempts to merge
+        their dataset items. However, if there exist the same (id, subset) pairs, it appends
+        a suffix to each item's id to prevent the same (id, subset) pair in the merged dataset.
+        |n
+        The "intersect" policy is a more complicated way to merge heterogeneous datasets. If you want to merge
+        the annotations in the same (id, subset) pairs which coming from the different datasets
+        each other you wish to merge. You have to taking into consideration potential overlaps
+        and conflicts between the annotations. "intersect" merge policy can try to find common
+        ground by voting or return a list of conflicts.
+        |n
         |n
         This command has multiple forms:|n
         1) %(prog)s <revpath>|n
@@ -64,11 +80,14 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         options, which are passed after the '--' separator (see examples),
         pass '-- -h' for more info. If not stated otherwise, by default
         only annotations are exported; to include images pass
-        '--save-images' parameter.|n
+        '--save-media' parameter.|n
         |n
         Examples:|n
         - Merge annotations from 3 (or more) annotators:|n
         |s|s%(prog)s project1/ project2/ project3/|n
+        |n
+        - Merge datasets with varying merge policies:|n
+        |s|s%(prog)s project1/ project2/ -m <union|intersect|exact>|n
         |n
         - Check groups of the merged dataset for consistency:|n
         |s|s|slook for groups consising of 'person', 'hand' 'head', 'foot'|n
@@ -84,7 +103,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |s|s%(prog)s HEAD~2:source-2 path/to/dataset2:yolo
         |n
         - Merge datasets and save in different format:|n
-        |s|s%(prog)s -f voc dataset1/:yolo path2/:coco -- --save-images
+        |s|s%(prog)s -f voc dataset1/:yolo path2/:coco -- --save-media
         """,
         formatter_class=MultilineFormatter,
     )
@@ -97,34 +116,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     )  # workaround for -- eaten by positionals
     parser.add_argument("targets", nargs="+", help="Target dataset revpaths (repeatable)")
     parser.add_argument(
-        "-iou",
-        "--iou-thresh",
-        default=0.25,
-        type=float,
-        help="IoU match threshold for segments (default: %(default)s)",
-    )
-    parser.add_argument(
-        "-oconf",
-        "--output-conf-thresh",
-        default=0.0,
-        type=float,
-        help="Confidence threshold for output " "annotations (default: %(default)s)",
-    )
-    parser.add_argument(
-        "--quorum",
-        default=0,
-        type=int,
-        help="Minimum count for a label and attribute voting "
-        "results to be counted (default: %(default)s)",
-    )
-    parser.add_argument(
-        "-g",
-        "--groups",
-        action="append",
-        type=_group,
-        help="A comma-separated list of labels in "
-        "annotation groups to check. '?' postfix can be added to a label to "
-        "make it optional in the group (repeatable)",
+        "-m",
+        "--merge-policy",
+        default="union",
+        type=str,
+        help="Policy for how to merge datasets (default: %(default)s)",
     )
     parser.add_argument(
         "-o",
@@ -152,6 +148,42 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "Must be specified after the main command arguments and after "
         "the '--' separator",
     )
+
+    intersect_args = parser.add_argument_group(
+        title="intersect policy arguments",
+        description="These parameters are optional for the intersect policy only.",
+    )
+    intersect_args.add_argument(
+        "-iou",
+        "--iou-thresh",
+        default=0.25,
+        type=float,
+        help="IoU match threshold for segments (default: %(default)s)",
+    )
+    intersect_args.add_argument(
+        "-oconf",
+        "--output-conf-thresh",
+        default=0.0,
+        type=float,
+        help="Confidence threshold for output " "annotations (default: %(default)s)",
+    )
+    intersect_args.add_argument(
+        "--quorum",
+        default=0,
+        type=int,
+        help="Minimum count for a label and attribute voting "
+        "results to be counted (default: %(default)s)",
+    )
+    intersect_args.add_argument(
+        "-g",
+        "--groups",
+        action="append",
+        type=_group,
+        help="A comma-separated list of labels in "
+        "annotation groups to check. '?' postfix can be added to a label to "
+        "make it optional in the group (repeatable)",
+    )
+
     parser.set_defaults(command=merge_command)
 
     return parser
@@ -222,48 +254,26 @@ def merge_command(args):
     except Exception as e:
         raise CliException(str(e))
 
-    merger = IntersectMerge(
-        conf=IntersectMerge.Conf(
-            pairwise_dist=args.iou_thresh,
-            groups=args.groups or [],
-            output_conf_thresh=args.output_conf_thresh,
-            quorum=args.quorum,
-        )
+    report_path = osp.join(dst_dir, "merge_report.json")
+    options = (
+        {
+            "conf": IntersectMerge.Conf(
+                pairwise_dist=args.iou_thresh,
+                groups=args.groups or [],
+                output_conf_thresh=args.output_conf_thresh,
+                quorum=args.quorum,
+            )
+        }
+        if args.merge_policy == "intersect"
+        else {}
     )
-    merged_dataset = merger.merge(source_datasets)
+    merged_dataset = HLOps.merge(
+        *source_datasets, merge_policy=args.merge_policy, report_path=report_path, **options
+    )
 
     merged_dataset.export(save_dir=dst_dir, format=exporter, **export_args)
-
-    report_path = osp.join(dst_dir, "merge_report.json")
-    save_merge_report(merger, report_path)
 
     log.info("Merge results have been saved to '%s'" % dst_dir)
     log.info("Report has been saved to '%s'" % report_path)
 
     return 0
-
-
-def save_merge_report(merger, path):
-    item_errors = OrderedDict()
-    source_errors = OrderedDict()
-    all_errors = []
-
-    for e in merger.errors:
-        if isinstance(e, DatasetQualityError):
-            item_errors[str(e.item_id)] = item_errors.get(str(e.item_id), 0) + 1
-        elif isinstance(e, DatasetMergeError):
-            for s in e.sources:
-                source_errors[str(s)] = source_errors.get(s, 0) + 1
-            item_errors[str(e.item_id)] = item_errors.get(str(e.item_id), 0) + 1
-
-        all_errors.append(str(e))
-
-    errors = OrderedDict(
-        [
-            ("Item errors", item_errors),
-            ("Source errors", source_errors),
-            ("All errors", all_errors),
-        ]
-    )
-
-    dump_json_file(path, errors, indent=True)

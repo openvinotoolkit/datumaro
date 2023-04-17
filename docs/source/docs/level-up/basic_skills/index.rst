@@ -1,41 +1,62 @@
+============
 Basic Skills
-###########
+============
 
-.. panels::
+.. toctree::
+   :maxdepth: 1
+   :hidden:
 
-   .. link-button:: 01_project_manipulation
-      :type: ref
-      :text: Level 1: Project Manipulation
-      :classes: btn-outline-primary btn-block
+   01_project_manipulation
+   02_dataset_download
+   03_dataset_import_export
+   04_detect_data_format
 
-   :badge:`ProjectCLI,badge-primary`
+.. grid:: 1 2 2 2
+   :gutter: 2
 
-   ---
+   .. grid-item-card::
 
-   .. link-button:: 02_dataset_download
-      :type: ref
-      :text: Level 2: Dataset Download
-      :classes: btn-outline-primary btn-block
+      .. button-ref:: 01_project_manipulation
+         :color: primary
+         :outline:
+         :expand:
 
-   :badge:`CLI,badge-info`
+         Level 1: Project Manipulation
 
-   ---
+      :bdg-success:`ProjectCLI`
 
-   .. link-button:: 03_dataset_import_export
-      :type: ref
-      :text: Level 3: Dataset Import & Export
-      :classes: btn-outline-primary btn-block
+   .. grid-item-card::
 
-   :badge:`ProjectCLI,badge-primary`
-   :badge:`CLI,badge-info`
-   :badge:`Python,badge-warning`
+      .. button-ref:: 02_dataset_download
+         :color: primary
+         :outline:
+         :expand:
 
-   ---
+         Level 2: Dataset Download
 
-   .. link-button:: 04_detect_data_format
-      :type: ref
-      :text: Level 4: Detect Data Format
-      :classes: btn-outline-primary btn-block
+      :bdg-info:`CLI`
 
-   :badge:`CLI,badge-info`
-   :badge:`Python,badge-warning`
+   .. grid-item-card::
+
+      .. button-ref:: 03_dataset_import_export
+         :color: primary
+         :outline:
+         :expand:
+
+         Level 3: Dataset Import & Export
+
+      :bdg-info:`CLI`
+      :bdg-warning:`Python`
+      :bdg-success:`ProjectCLI`
+
+   .. grid-item-card::
+
+      .. button-ref:: 04_detect_data_format
+         :color: primary
+         :outline:
+         :expand:
+
+         Level 4: Detect Data Format
+
+      :bdg-info:`CLI`
+      :bdg-warning:`Python`

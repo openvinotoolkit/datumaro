@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
-## 14/04/2023 - Release 1.2.0rc1
+## 17/04/2023 - Release 1.2.0rc2
 ### New features
 - Add LossDynamicsAnalyzer for noisy label detection
   (<https://github.com/openvinotoolkit/datumaro/pull/928>)
