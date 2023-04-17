@@ -52,8 +52,12 @@ class _SuperviselyPointCloudDumper:
     def _write_related_images(self, item):
         img_dir = self._related_images_dir
 
-        for img in item.media.extra_images:
-            name = osp.splitext(osp.basename(img.path))[0]
+        for idx, img in enumerate(item.media.extra_images):
+            name = (
+                osp.splitext(osp.basename(img.path))[0]
+                if hasattr(img, "path")
+                else f"extra_image_{idx}"
+            )
             img_path = osp.join(img_dir, item.id + "_pcd", name + self._find_image_ext(img))
             if img.has_data:
                 img.save(img_path)
