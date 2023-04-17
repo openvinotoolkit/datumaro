@@ -1,7 +1,9 @@
 import os.path as osp
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -20,11 +22,14 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.media import Image, MultiframeImage, PointCloud
+from datumaro.components.merge.exact_merge import ExactMerge
 from datumaro.components.merge.intersect_merge import IntersectMerge
 from datumaro.components.merge.union_merge import UnionMerge
 from datumaro.components.operations import compute_ann_statistics, find_unique_images, mean_std
 from datumaro.errors import (
+    ConflictingCategoriesError,
     FailedAttrVotingError,
+    MismatchingMediaPathError,
     NoMatchingAnnError,
     NoMatchingItemError,
     WrongGroupError,
@@ -1063,3 +1068,268 @@ class TestMultimerge(TestCase):
         merged = Dataset(source=source)
 
         compare_datasets(self, expected, merged, ignored_attrs={"score"})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_raises_error_exact_merge_different_categories(self):
+        source0 = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    0,
+                    annotations=[
+                        Label(0),
+                    ],
+                ),
+                DatasetItem(
+                    1,
+                    annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(["a", "b"]),
+            },
+        )
+
+        source1 = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    2,
+                    annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=0)],
+                ),
+                DatasetItem(
+                    3,
+                    annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(["c", "b"]),
+            },
+        )
+
+        merger = ExactMerge()
+        with pytest.raises(ConflictingCategoriesError):
+            _ = merger(source0, source1)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_merge_exact_image(self):
+        source0 = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    0,
+                    media=Image.from_numpy(data=np.ones([5, 5, 3])),
+                    annotations=[
+                        Label(0),
+                    ],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(["a"]),
+            },
+        )
+
+        source1 = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    0,
+                    media=Image.from_numpy(data=np.zeros([5, 5, 3])),
+                    annotations=[Mask(image=np.ones((2, 2), dtype=np.uint8), label=0)],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(["a"]),
+            },
+        )
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    0,
+                    media=Image.from_numpy(data=np.ones([5, 5, 3])),
+                    annotations=[
+                        Label(0),
+                        Mask(image=np.ones((2, 2), dtype=np.uint8), label=0),
+                    ],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(["a"]),
+            },
+        )
+
+        merger = ExactMerge()
+        source = merger(source0, source1)
+        merged = Dataset(source=source)
+
+        compare_datasets(self, expected, merged, ignored_attrs={"score"})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_raises_error_exact_image_merge(self):
+        with TemporaryDirectory() as tmp_dir:
+            Image.from_numpy(data=np.ones([5, 5, 3])).save(osp.join(tmp_dir, "ones.png"))
+            Image.from_numpy(data=np.zeros([5, 5, 3])).save(osp.join(tmp_dir, "zeros.png"))
+
+            source0 = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        0,
+                        media=Image.from_file(path=osp.join(tmp_dir, "ones.png")),
+                        annotations=[
+                            Label(0),
+                        ],
+                    ),
+                ],
+                categories={
+                    AnnotationType.label: LabelCategories.from_iterable(["a"]),
+                },
+            )
+
+            source1 = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        0,
+                        media=Image.from_file(path=osp.join(tmp_dir, "zeros.png")),
+                        annotations=[Mask(image=np.ones((2, 2), dtype=np.uint8), label=0)],
+                    ),
+                ],
+                categories={
+                    AnnotationType.label: LabelCategories.from_iterable(["a"]),
+                },
+            )
+
+            merger = ExactMerge()
+            with pytest.raises(MismatchingMediaPathError):
+                _ = merger(source0, source1)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_merge_exact_pcd(self):
+        with TemporaryDirectory() as tmp_dir:
+            Image.from_numpy(data=np.ones([5, 5, 3])).save(osp.join(tmp_dir, "ones.png"))
+            Image.from_numpy(data=np.zeros([5, 5, 3])).save(osp.join(tmp_dir, "zeros.png"))
+
+            source0 = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        0,
+                        media=Image.from_file(path=osp.join(tmp_dir, "ones.png")),
+                        annotations=[
+                            Label(0),
+                        ],
+                    ),
+                ],
+                categories={
+                    AnnotationType.label: LabelCategories.from_iterable(["a"]),
+                },
+            )
+
+            source1 = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        0,
+                        media=Image.from_file(path=osp.join(tmp_dir, "zeros.png")),
+                        annotations=[Mask(image=np.ones((2, 2), dtype=np.uint8), label=0)],
+                    ),
+                ],
+                categories={
+                    AnnotationType.label: LabelCategories.from_iterable(["a"]),
+                },
+            )
+
+            merger = ExactMerge()
+            with pytest.raises(MismatchingMediaPathError):
+                _ = merger(source0, source1)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_raises_error_exact_pcd_merge(self):
+        with TemporaryDirectory() as tmp_dir:
+            with open(osp.join(tmp_dir, "ones.pcd"), "wb") as f:
+                f.write(b"1111")
+            with open(osp.join(tmp_dir, "zeros.pcd"), "wb") as f:
+                f.write(b"0000")
+
+            source0 = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        0,
+                        media=PointCloud.from_file(path=osp.join(tmp_dir, "ones.pcd")),
+                        annotations=[
+                            Label(0),
+                        ],
+                    ),
+                ],
+                categories={
+                    AnnotationType.label: LabelCategories.from_iterable(["a"]),
+                },
+                media_type=PointCloud,
+            )
+
+            source1 = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        0,
+                        media=PointCloud.from_file(path=osp.join(tmp_dir, "zeros.pcd")),
+                        annotations=[Mask(image=np.ones((2, 2), dtype=np.uint8), label=0)],
+                    ),
+                ],
+                categories={
+                    AnnotationType.label: LabelCategories.from_iterable(["a"]),
+                },
+                media_type=PointCloud,
+            )
+
+            merger = ExactMerge()
+            with pytest.raises(MismatchingMediaPathError):
+                _ = merger(source0, source1)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_merge_exact_image_with_different_path(self):
+        with TemporaryDirectory() as tmp_dir:
+            Image.from_numpy(data=np.ones([5, 5, 3])).save(osp.join(tmp_dir, "ones.png"))
+
+            source0 = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        0,
+                        media=Image.from_file(path=osp.join(tmp_dir, "ones.png")),
+                        annotations=[
+                            Label(0),
+                        ],
+                    ),
+                ],
+                categories={
+                    AnnotationType.label: LabelCategories.from_iterable(["a"]),
+                },
+            )
+
+            source1 = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        0,
+                        media=Image.from_file(path="dummy/path.png"),
+                        annotations=[Mask(image=np.ones((2, 2), dtype=np.uint8), label=0)],
+                    ),
+                ],
+                categories={
+                    AnnotationType.label: LabelCategories.from_iterable(["a"]),
+                },
+            )
+
+            expected = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        0,
+                        media=Image.from_numpy(data=np.ones([5, 5, 3])),
+                        annotations=[
+                            Label(0),
+                            Mask(image=np.ones((2, 2), dtype=np.uint8), label=0),
+                        ],
+                    ),
+                ],
+                categories={
+                    AnnotationType.label: LabelCategories.from_iterable(["a"]),
+                },
+            )
+
+            merger = ExactMerge()
+            source = merger(source0, source1)
+            merged = Dataset(source=source)
+
+            compare_datasets(self, expected, merged, ignored_attrs={"score"})
