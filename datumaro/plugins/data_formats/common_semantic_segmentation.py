@@ -165,19 +165,19 @@ class CommonSemanticSegmentationImporter(Importer):
 class CommonSemanticSegmentationWithSubsetDirsImporter(CommonSemanticSegmentationImporter):
     """It supports the following subset sub-directory structure for CommonSemanticSegmentation.
 
-    ```
-    Dataset/
-    └─ <split: train,val, ...>
-        ├── dataset_meta.json # a list of labels
-        ├── images/
-        │   ├── <img1>.png
-        │   ├── <img2>.png
-        │   └── ...
-        └── masks/
-            ├── <img1>.png
-            ├── <img2>.png
-            └── ...
+    .. code-block::
+
+        Dataset/
+        └─ <split: train,val, ...>
+            ├── dataset_meta.json # a list of labels
+            ├── images/
+            │   ├── <img1>.png
+            │   ├── <img2>.png
+            │   └── ...
+            └── masks/
+                ├── <img1>.png
+                ├── <img2>.png
+                └── ...
 
     Then, the imported dataset will have train, val, ... CommonSemanticSegmentation subsets.
-    ```
     """

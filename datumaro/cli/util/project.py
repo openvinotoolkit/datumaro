@@ -153,7 +153,7 @@ def split_local_revpath(revpath: str) -> Tuple[Revision, str]:
 
     A local revpath is a path to a revision withing the current project.
     The syntax is:
-      - [ <revision> : ] [ <target> ]
+        - [ <revision> : ] [ <target> ]
     At least one part must be present.
 
     Returns: (revision, build target)
