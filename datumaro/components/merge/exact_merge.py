@@ -200,7 +200,7 @@ class ExactMerge(Merger):
             elif item_b.media.has_size:
                 media = item_b.media
             else:
-                assert False, "Unknown image field combination"
+                raise MismatchingMediaError((item_a.id, item_a.subset), item_a.media, item_b.media)
 
             if not media.has_data or not media.has_size:
                 if item_a.media._size:
@@ -244,7 +244,7 @@ class ExactMerge(Merger):
                         if image not in media.extra_images:
                             media.extra_images.append(image)
             else:
-                assert False, "Unknown cloudpoint field combination"
+                raise MismatchingMediaError((item_a.id, item_a.subset), item_a.media, item_b.media)
 
         elif isinstance(item_a.media, PointCloud):
             media = item_a.media
