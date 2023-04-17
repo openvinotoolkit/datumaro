@@ -63,7 +63,8 @@ panels_delimiters = (r"^\-{3,}$", r"^\^{3,}$", r"^\+{3,}$")
 
 suppress_warnings = [
     # "myst.xref_missing",
-    "myst.iref_ambiguous"
+    "myst.iref_ambiguous",
+    "autosectionlabel.*",
 ]
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary

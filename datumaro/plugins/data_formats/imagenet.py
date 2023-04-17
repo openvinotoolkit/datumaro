@@ -66,12 +66,15 @@ class ImagenetImporter(Importer):
     """TorchVision's ImageFolder style importer.
     For example, it imports the following directory structure.
 
-    root
-    ├── label_0
-    │   ├── label_0_1.jpg
-    │   └── label_0_2.jpg
-    └── label_1
-        └── label_1_1.jpg
+    .. code-block:: text
+
+        root
+        ├── label_0
+        │   ├── label_0_1.jpg
+        │   └── label_0_2.jpg
+        └── label_1
+            └── label_1_1.jpg
+
     """
 
     @classmethod
@@ -106,25 +109,27 @@ class ImagenetWithSubsetDirsImporter(ImagenetImporter):
     """TorchVision ImageFolder style importer.
     For example, it imports the following directory structure.
 
-    root
-    ├── train
-    │   ├── label_0
-    │   │   ├── label_0_1.jpg
-    │   │   └── label_0_2.jpg
-    │   └── label_1
-    │       └── label_1_1.jpg
-    ├── val
-    │   ├── label_0
-    │   │   ├── label_0_1.jpg
-    │   │   └── label_0_2.jpg
-    │   └── label_1
-    │       └── label_1_1.jpg
-    └── test
-        ├── label_0
-        │   ├── label_0_1.jpg
-        │   └── label_0_2.jpg
-        └── label_1
-            └── label_1_1.jpg
+    .. code-block::
+
+        root
+        ├── train
+        │   ├── label_0
+        │   │   ├── label_0_1.jpg
+        │   │   └── label_0_2.jpg
+        │   └── label_1
+        │       └── label_1_1.jpg
+        ├── val
+        │   ├── label_0
+        │   │   ├── label_0_1.jpg
+        │   │   └── label_0_2.jpg
+        │   └── label_1
+        │       └── label_1_1.jpg
+        └── test
+            ├── label_0
+            │   ├── label_0_1.jpg
+            │   └── label_0_2.jpg
+            └── label_1
+                └── label_1_1.jpg
 
     Then, it will have three subsets: train, val, and test and they have label_0 and label_1 labels.
     """
