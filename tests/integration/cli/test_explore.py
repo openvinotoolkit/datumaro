@@ -107,6 +107,11 @@ class ExploreTest(TestCase):
             proj_dir,
         )
 
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_dataset_txt_query(self):
@@ -129,6 +134,11 @@ class ExploreTest(TestCase):
             proj_dir,
         )
 
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_dataset_img_query_wo_proj(self):
@@ -148,6 +158,11 @@ class ExploreTest(TestCase):
             dataset_url,
         )
 
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_dataset_txt_query_wo_proj(self):
