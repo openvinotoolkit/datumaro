@@ -411,7 +411,6 @@ class TestBaseValidator(_TestValidatorBase):
         label_stats = {label_name: {"items_with_undefined_label": [(item_id, item_subset)]}}
         stats = {"label_distribution": {"undefined_labels": label_stats}}
 
-        # actual_reports = self.validator._check_undefined_label(label_name, label_stats)
         actual_reports = self.validator._check_undefined_label(stats)
 
         self.assertTrue(len(actual_reports) == 1)
