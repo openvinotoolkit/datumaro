@@ -43,6 +43,12 @@ def fxt_image_dataset(fxt_image_dataset_expected_mean_std: Tuple[List[int], List
         ]
     )
     dataset.put(dataset.get("1"), id="5", subset="train")
+    dataset.put(
+        DatasetItem(
+            id="invalid",
+            media=Image.from_file(path="invalid.path"),
+        )
+    )
     return dataset
 
 
@@ -73,7 +79,7 @@ class ImageStatisticsTest:
 
         assert actual["dataset"] == {
             "images count": 5,
-            "unique images count": 4,
+            "unique images count": 5,
             "repeated images count": 1,
             "repeated images": [[("1", "default"), ("5", "train")]],
         }
