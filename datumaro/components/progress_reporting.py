@@ -148,7 +148,7 @@ class SimpleProgressReporter(ProgressReporter):
         status = str(self._desc) if self._desc else ""
         status += (
             f" {progress:0{len(str(self._total))}d}/{self._total}"
-            f" ({progress/self._total*100: 6.2f}%)"
+            f" ({progress/self._total*100:6.2f}%)"
         )
         print(status)
 
