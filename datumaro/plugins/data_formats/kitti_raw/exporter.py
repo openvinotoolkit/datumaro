@@ -441,7 +441,9 @@ class KittiRawExporter(Exporter):
         if self._save_media and item.media:
             self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
 
-            images = sorted(item.media.extra_images, key=lambda img: img.path)
+            images = sorted(
+                item.media.extra_images, key=lambda img: img.path if hasattr(img, "path") else ""
+            )
             for i, image in enumerate(images):
                 if image.has_data:
                     image.save(
