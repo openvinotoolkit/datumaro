@@ -151,7 +151,7 @@ class _SubsetWriter:
                 if related_images:
                     item_desc["related_images"] = related_images
             elif isinstance(item.media, MediaElement):
-                item_desc["image"] = {"path": getattr(item.media, "path", None)}
+                item_desc["media"] = {"path": getattr(item.media, "path", None)}
 
         self.items.append(item_desc)
 
