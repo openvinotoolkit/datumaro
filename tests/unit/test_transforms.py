@@ -410,12 +410,14 @@ class TransformsTest(TestCase):
             [
                 DatasetItem(id=1, media=Image.from_file(path="path.jpg")),
                 DatasetItem(id=2),
+                DatasetItem(id=3, media=Image.from_numpy(data=np.ones([5, 5, 3]))),
             ]
         )
         target_dataset = Dataset.from_iterable(
             [
                 DatasetItem(id="path", media=Image.from_file(path="path.jpg")),
                 DatasetItem(id=2),
+                DatasetItem(id=3, media=Image.from_numpy(data=np.ones([5, 5, 3]))),
             ]
         )
 
