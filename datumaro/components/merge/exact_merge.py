@@ -133,15 +133,12 @@ class ExactMerge(Merger):
                     raise MismatchingMediaPathError(
                         (item_a.id, item_a.subset), item_a_path, item_b_path
                     )
-
-                if item_a_path:
-                    media = item_a.media
-                elif item_b_path:
-                    media = item_b.media
-                else:
+                elif item_a_path is None and item_b_path is None:
                     raise MismatchingMediaError(
                         (item_a.id, item_a.subset), item_a.media, item_b.media
                     )
+
+                media = item_a.media if item_a_path else item_b.media
 
             elif isinstance(item_a.media, MediaElement):
                 media = item_a.media
