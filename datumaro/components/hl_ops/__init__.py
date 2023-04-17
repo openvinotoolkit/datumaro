@@ -105,18 +105,9 @@ class HLOps:
         **kwargs,
     ) -> Dataset:
         """
-        Merges several datasets using the "simple" (exact matching) algorithm:
-
-            - items are matched by (id, subset) pairs
-            - matching items share the fields available
-
-                - nothing + nothing = nothing,
-                - nothing + something = something
-                - something A + something B = conflict
-            - annotations are matched by value and shared
-            - in case of conflicts, throws an error
-
-        Returns: a wrapper around the input datasets
+        Merge `datasets` according to `merge_policy`. You have to choose an appropriate `merge_policy`
+        for your purpose. The available merge policies are "union", "intersect", and "exact".
+        For more details about the merge policies, please refer to :func:`get_merger`.
         """
 
         merger = get_merger(merge_policy, **kwargs)

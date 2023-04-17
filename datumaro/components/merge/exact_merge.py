@@ -4,8 +4,6 @@
 
 from typing import Any, Dict, Iterable, List, Sequence, Tuple, Union
 
-from attr import attrs
-
 from datumaro.components.annotation import Annotation
 from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.dataset_item_storage import DatasetItemStorage
@@ -23,13 +21,12 @@ from datumaro.components.merge import Merger
 __all__ = ["ExactMerge"]
 
 
-@attrs
 class ExactMerge(Merger):
     """
     Merges several datasets using the "simple" algorithm:
+        - All datasets should have the same categories
         - items are matched by (id, subset) pairs
         - matching items share the media info available:
-
             - nothing + nothing = nothing
             - nothing + something = something
             - something A + something B = conflict

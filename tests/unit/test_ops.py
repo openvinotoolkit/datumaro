@@ -1001,13 +1001,13 @@ class TestMultimerge(TestCase):
         source0 = Dataset.from_iterable(
             [
                 DatasetItem(
-                    0,
+                    "0",
                     annotations=[
                         Label(0),
                     ],
                 ),
                 DatasetItem(
-                    1,
+                    "1",
                     annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
                 ),
             ],
@@ -1019,11 +1019,11 @@ class TestMultimerge(TestCase):
         source1 = Dataset.from_iterable(
             [
                 DatasetItem(
-                    2,
+                    "1",
                     annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=0)],
                 ),
                 DatasetItem(
-                    3,
+                    "2",
                     annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
                 ),
             ],
@@ -1035,21 +1035,21 @@ class TestMultimerge(TestCase):
         expected = Dataset.from_iterable(
             [
                 DatasetItem(
-                    0,
+                    "0",
                     annotations=[
                         Label(0),
                     ],
                 ),
                 DatasetItem(
-                    1,
+                    "1-0",
                     annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
                 ),
                 DatasetItem(
-                    2,
+                    "1-1",
                     annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=2)],
                 ),
                 DatasetItem(
-                    3,
+                    "2",
                     annotations=[Mask(image=np.ones((8, 8), dtype=np.uint8), label=1)],
                 ),
             ],

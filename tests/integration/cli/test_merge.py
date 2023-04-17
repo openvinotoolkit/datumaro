@@ -1,7 +1,12 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import os.path as osp
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 import datumaro.plugins.data_formats.voc.format as VOC
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, MaskCategories
@@ -15,7 +20,123 @@ from tests.utils.test_utils import TestDir, compare_datasets
 from tests.utils.test_utils import run_datum as run
 
 
-class MergeTest(TestCase):
+class MergeTest:
+    @pytest.fixture()
+    def fxt_homogenous(self, test_dir):
+        export_dirs = []
+        n_datasets = 3
+        for n in range(n_datasets):
+            dataset = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        id=f"dset_{n}_{idx}",
+                        subset="train",
+                        media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                        annotations=[
+                            Bbox(1, 2, 3, 3, label=0),
+                        ],
+                    )
+                    for idx in range(10)
+                ],
+                categories=["a", "b"],
+            )
+            dir_path = osp.join(test_dir, f"dataset_{n}")
+            dataset.export(dir_path, format="datumaro", save_media=True)
+            export_dirs += [dir_path]
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=f"dset_{n}_{idx}",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                    annotations=[
+                        Bbox(1, 2, 3, 3, label=0),
+                    ],
+                )
+                for idx in range(10)
+                for n in range(n_datasets)
+            ],
+            categories=["a", "b"],
+        )
+
+        return export_dirs, expected
+
+    @pytest.fixture()
+    def fxt_heterogenous(self, test_dir):
+        export_dirs = []
+        n_datasets = 3
+        for n in range(n_datasets):
+            dataset = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        id=f"dset_{idx}",
+                        subset="train",
+                        media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                        annotations=[
+                            Bbox(1, 2, 3, 3, label=0),
+                            Bbox(1, 2, 3, 3, label=1),
+                        ],
+                    )
+                    for idx in range(10)
+                ],
+                categories=["a", f"{n}"],
+            )
+            dir_path = osp.join(test_dir, f"dataset_{n}")
+            dataset.export(dir_path, format="datumaro", save_media=True)
+            export_dirs += [dir_path]
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=f"dset_{idx}-{n}",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                    annotations=[
+                        Bbox(1, 2, 3, 3, label=0),
+                        Bbox(1, 2, 3, 3, label=1 + n),
+                    ],
+                )
+                for idx in range(10)
+                for n in range(n_datasets)
+            ],
+            categories=["a"] + [f"{n}" for n in range(n_datasets)],
+        )
+
+        return export_dirs, expected
+
+    @pytest.fixture
+    def test_case(self, request):
+        return request.getfixturevalue(request.param)
+
+    @pytest.mark.parametrize(
+        "test_case,merge_policy",
+        [
+            ("fxt_homogenous", "exact"),
+            ("fxt_heterogenous", "union"),
+        ],
+        indirect=["test_case"],
+    )
+    def test_merge(self, test_case, merge_policy, test_dir, helper_tc):
+        export_dirs, expected = test_case
+        result_dir = osp.join(test_dir, "result")
+        cmds = [
+            "merge",
+            "-m",
+            merge_policy,
+            "-o",
+            result_dir,
+        ]
+        for export_dir in export_dirs:
+            cmds += [export_dir]
+        cmds += ["--", "--save-media"]
+
+        run(helper_tc, *cmds)
+        actual = Dataset.import_from(result_dir)
+        compare_datasets(helper_tc, expected, actual, require_media=True)
+
+
+class IntersectMergeTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_self_merge(self):
         dataset1 = Dataset.from_iterable(
@@ -115,7 +236,17 @@ class MergeTest(TestCase):
                 project.import_source("source", dataset2_url, "voc")
 
             result_dir = osp.join(test_dir, "result")
-            run(self, "merge", "-o", result_dir, "-p", proj_dir, dataset1_url + ":coco")
+            run(
+                self,
+                "merge",
+                "-m",
+                "intersect",
+                "-o",
+                result_dir,
+                "-p",
+                proj_dir,
+                dataset1_url + ":coco",
+            )
 
             compare_datasets(self, expected, Dataset.load(result_dir), require_media=True)
 
@@ -214,7 +345,16 @@ class MergeTest(TestCase):
             dataset2.export(dataset2_url, "voc", save_media=True)
 
             result_dir = osp.join(test_dir, "result")
-            run(self, "merge", "-o", result_dir, dataset2_url + ":voc", dataset1_url + ":coco")
+            run(
+                self,
+                "merge",
+                "-m",
+                "intersect",
+                "-o",
+                result_dir,
+                dataset2_url + ":voc",
+                dataset1_url + ":coco",
+            )
 
             compare_datasets(self, expected, Dataset.load(result_dir), require_media=True)
 
@@ -276,6 +416,8 @@ class MergeTest(TestCase):
             run(
                 self,
                 "merge",
+                "-m",
+                "intersect",
                 "-o",
                 result_dir,
                 "-f",

@@ -52,11 +52,68 @@ __all__ = ["IntersectMerge"]
 
 @attrs
 class IntersectMerge(Merger):
+    """
+    Merge several datasets with "intersect" policy:
+
+    - If there are two or more dataset items whose (id, subset) pairs match each other,
+    we can consider this as having an intersection in our dataset. This method merges
+    the annotations of the corresponding :class:`DatasetItem` into one :class:`DatasetItem`
+    to handle this intersection. The rule to handle merging annotations is provided by
+    :class:`AnnotationMerger` according to their annotation types. For example,
+    DatasetItem(id="item_1", subset="train", annotations=[Bbox(0, 0, 1, 1)]) from Dataset-A and
+    DatasetItem(id="item_1", subset="train", annotations=[Bbox(.5, .5, 1, 1)]) from Dataset-B can be
+    merged into DatasetItem(id="item_1", subset="train", annotations=[Bbox(0, 0, 1, 1)]).
+
+    - Label categories are merged according to the union of their label names
+    (Same as `UnionMerge`). For example, if Dataset-A has {"car", "cat", "dog"}
+    and Dataset-B has {"car", "bus", "truck"} labels, the merged dataset will have
+    {"bust", "car", "cat", "dog", "truck"} labels.
+
+    - This merge has configuration parameters (`conf`) to control the annotation merge behaviors.
+
+    For example,
+
+    ```python
+    merge = IntersectMerge(
+        conf=IntersectMerge.Conf(
+            pairwise_dist=0.25,
+            groups=[],
+            output_conf_thresh=0.0,
+            quorum=0,
+        )
+    )
+    ```
+
+    For more details for the parameters, please refer to :class:`IntersectMerge.Conf`.
+    """
+
     def __init__(self, **options):
         super().__init__(**options)
 
     @attrs(repr_ns="IntersectMerge", kw_only=True)
     class Conf:
+        """
+        Parameters
+        ----------
+        pairwise_dist
+            IoU match threshold for segments
+        sigma
+            Parameter for Object Keypoint Similarity metric
+            (https://cocodataset.org/#keypoints-eval)
+        output_conf_thresh
+            Confidence threshold for output annotations
+        quorum
+            Minimum count for a label and attribute voting results to be counted
+        ignored_attributes
+            Attributes to be ignored in the merged :class:`DatasetItem`
+        groups
+            A comma-separated list of labels in annotation groups to check.
+            '?' postfix can be added to a label to make it optional in the group (repeatable)
+        close_distance
+            Distance threshold between annotations to decide their closeness. If they are decided
+            to be close, it will be enrolled to the error tracker.
+        """
+
         pairwise_dist = attrib(converter=float, default=0.5)
         sigma = attrib(converter=list, factory=list)
 
