@@ -50,6 +50,7 @@ extensions = [
     "myst_parser",
     "nbsphinx",
     "sphinx_design",
+    "sphinx_toolbox.collapse",
 ]
 
 source_suffix = {

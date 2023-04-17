@@ -19,3 +19,4 @@ jupyter
 jupytext
 pandoc
 sphinx-design
+sphinx-toolbox
