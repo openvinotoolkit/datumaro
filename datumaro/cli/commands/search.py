@@ -110,10 +110,9 @@ def search_command(args):
     for result in results:
         subset_list.append(result.subset)
         id_list.append(result.id)
-        result_path_list.append(result.media.path)
-        log.info(
-            "id: {} | subset: {} | path : {}".format(result.id, result.subset, result.media.path)
-        )
+        path = getattr(result.media, "path", None)
+        result_path_list.append(path)
+        log.info("id: {} | subset: {} | path : {}".format(result.id, result.subset, path))
 
     visualizer = Visualizer(dataset, figsize=(20, 20), alpha=0)
     fig = visualizer.vis_gallery(id_list, subset_list)
