@@ -1,20 +1,34 @@
 Advanced Skills
 ###############
 
-.. panels::
+.. toctree::
+   :maxdepth: 1
+   :hidden:
 
-   .. link-button:: 11_project_versioning
-      :type: ref
-      :text: Level 11: Project Versioning
-      :classes: btn-outline-primary btn-block stretched-link
+   11_project_versioning
+   12_pseudo_label_generation
 
-   :badge:`ProjectCLI,badge-primary`
+.. grid:: 1 2 2 2
+   :gutter: 2
 
-   ---
+   .. grid-item-card::
 
-   .. link-button:: 12_pseudo_label_generation
-      :type: ref
-      :text: Level 12: Psuedo Label Generation
-      :classes: btn-outline-primary btn-block
+      .. button-ref:: 11_project_versioning
+         :color: primary
+         :outline:
+         :expand:
 
-   :badge:`ProjectCLI,badge-primary`
+         Level 11: Project Versioning
+
+      :bdg-success:`ProjectCLI`
+
+   .. grid-item-card::
+
+      .. button-ref:: 12_pseudo_label_generation
+         :color: primary
+         :outline:
+         :expand:
+
+         Level 12: Psuedo Label Generation
+
+      :bdg-success:`ProjectCLI`

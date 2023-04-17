@@ -10,18 +10,20 @@ handling processes.
 Detect data format
 ==================
 
-.. tabbed:: CLI
+.. tab-set::
 
-  .. code-block:: bash
+  .. tab-item:: CLI
 
-    datum detect-format <path/to/data>
+    .. code-block:: bash
 
-  The printed format can be utilized as `format` argument when importing a dataset as following the
-  :ref:`previous level <Level 3: Data Import and Export>`.
+      datum detect-format <path/to/data>
 
-.. tabbed:: Python
+    The printed format can be utilized as `format` argument when importing a dataset as following the
+    :ref:`previous level <Level 3: Data Import and Export>`.
 
-  .. code-block:: python
+  .. tab-item:: Python
+
+    .. code-block:: python
 
       from datumaro.components.environment import Environment
 
@@ -31,10 +33,9 @@ Detect data format
 
       detected_formats = env.detect_dataset(data_path)
 
+    (Optional) With the detected format, we can import the dataset as below.
 
-  (Optional) With the detected format, we can import the dataset as below.
-
-  .. code-block:: python
+    .. code-block:: python
 
       from datumaro.components.dataset import Dataset
 

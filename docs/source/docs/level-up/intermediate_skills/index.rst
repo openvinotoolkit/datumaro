@@ -1,60 +1,87 @@
+===================
 Intermediate Skills
-###################
+===================
 
-.. panels::
+.. toctree::
+   :maxdepth: 1
+   :hidden:
 
-   .. link-button:: 05_data_aggregation
-      :type: ref
-      :text: Level 05: Data Aggregation
-      :classes: btn-outline-primary btn-block stretched-link
+   05_data_aggregation
+   06_data_comparison
+   07_data_merge
+   08_data_validate
+   09_data_exploration
+   10_data_generation
 
-   :badge:`Python,badge-warning`
+.. grid:: 1 2 2 2
+   :gutter: 2
 
-   ---
+   .. grid-item-card::
 
-   .. link-button:: 06_data_comparison
-      :type: ref
-      :text: Level 06: Dataset Comparison
-      :classes: btn-outline-primary btn-block stretched-link
+      .. button-ref:: 05_data_aggregation
+         :color: primary
+         :outline:
+         :expand:
 
-   :badge:`Python,badge-warning`
+         Level 05: Data Aggregation
 
-   ---
+      :bdg-warning:`Python`
 
-   .. link-button:: 07_data_merge
-      :type: ref
-      :text: Level 07: Dataset Merge
-      :classes: btn-outline-primary btn-block stretched-link
+   .. grid-item-card::
 
-   :badge:`CLI,badge-info`
-   :badge:`Python,badge-warning`
+      .. button-ref:: 06_data_comparison
+         :color: primary
+         :outline:
+         :expand:
 
-   ---
+         Level 06: Dataset Comparison
 
-   .. link-button:: 08_data_validate
-      :type: ref
-      :text: Level 08: Dataset Validate
-      :classes: btn-outline-primary btn-block stretched-link
+      :bdg-warning:`Python`
 
-   :badge:`ProjectCLI,badge-primary`
-   :badge:`Python,badge-warning`
+   .. grid-item-card::
 
-   ---
+      .. button-ref:: 07_data_merge
+         :color: primary
+         :outline:
+         :expand:
 
-   .. link-button:: 09_data_exploration
-      :type: ref
-      :text: Level 09: Data Exploration
-      :classes: btn-outline-primary btn-block stretched-link
+         Level 07: Dataset Merge
 
-   :badge:`CLI,badge-info`
-   :badge:`Python,badge-warning`
+      :bdg-warning:`Python`
+      :bdg-info:`CLI`
 
-   ---
+   .. grid-item-card::
 
-   .. link-button:: 10_data_generation
-      :type: ref
-      :text: Level 10: Data Generation
-      :classes: btn-outline-primary btn-block stretched-link
+      .. button-ref:: 08_data_validate
+         :color: primary
+         :outline:
+         :expand:
 
-   :badge:`CLI,badge-info`
-   :badge:`Python,badge-warning`
+         Level 08: Dataset Validate
+
+      :bdg-warning:`Python`
+      :bdg-success:`ProjectCLI`
+
+   .. grid-item-card::
+
+      .. button-ref:: 09_data_exploration
+         :color: primary
+         :outline:
+         :expand:
+
+         Level 09: Data Exploration
+
+      :bdg-warning:`Python`
+      :bdg-info:`CLI`
+
+   .. grid-item-card::
+
+      .. button-ref:: 10_data_generation
+         :color: primary
+         :outline:
+         :expand:
+
+         Level 10: Data Generation
+
+      :bdg-warning:`Python`
+      :bdg-info:`CLI`

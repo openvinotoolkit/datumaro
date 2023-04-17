@@ -51,14 +51,14 @@ The Python example for the usage of validator is described in `here <https://git
       datum project import --format coco_instances -p <path/to/project> <path/to/cityscapes>
 
     (Optional) When we import a data, the change is automatically commited in the project.
-    This can be shown through `log` as
+    This can be shown through ``log`` as
 
     .. code-block:: bash
 
       datum project log -p <path/to/project>
 
     (Optional) We can check the imported dataset information such as subsets, number of data, or
-    categories through `info`.
+    categories through ``info``.
 
     .. code-block:: bash
 
@@ -66,8 +66,8 @@ The Python example for the usage of validator is described in `here <https://git
 
     Finally, we validate the data within the project as
 
-  .. code-block:: bash
+    .. code-block:: bash
 
-    datum validate --task-type <classification/detection/segmentation> --subset <subset_name> -p <path/to/project>
+      datum validate --task-type <classification/detection/segmentation> --subset <subset_name> -p <path/to/project>
 
-  We now have the validation report named by validation-report-<subset_name>.json.
+    We now have the validation report named by ``validation-report-<subset_name>.json``.

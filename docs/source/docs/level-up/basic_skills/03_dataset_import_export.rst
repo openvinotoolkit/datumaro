@@ -24,67 +24,69 @@ provides `convert`, which shortens the import and export into a single command l
 We now convert the Cityscapes data into the MS-COCO format, which is described in :ref:`here <COCO>`.
 
 
-.. tabbed:: CLI
+.. tab-set::
 
-  Without creation of a project, we can achieve this with a single line command `convert` in Datumaro
+  .. tab-item:: CLI
 
-  .. code-block:: bash
+    Without creation of a project, we can achieve this with a single line command `convert` in Datumaro
 
-    datum convert -if cityscapes -i <path/to/cityscapes> -f coco_panoptic -o <path/to/output>
+    .. code-block:: bash
 
-.. tabbed:: Python
+        datum convert -if cityscapes -i <path/to/cityscapes> -f coco_panoptic -o <path/to/output>
 
-  With Pthon API, we can import the data through `Dataset` as below.
+  .. tab-item:: Python
 
-  .. code-block:: python
+    With Pthon API, we can import the data through `Dataset` as below.
 
-      from datumaro.components.dataset import Dataset
+    .. code-block:: python
 
-      data_path = '/path/to/cityscapes'
-      data_format = 'cityscapes'
+        from datumaro.components.dataset import Dataset
 
-      dataset = Dataset.import_from(data_path, data_format)
+        data_path = '/path/to/cityscapes'
+        data_format = 'cityscapes'
 
-  We then export the import dataset as
+        dataset = Dataset.import_from(data_path, data_format)
 
-  .. code-block:: python
+    We then export the import dataset as
 
-      output_path = '/path/to/output'
+    .. code-block:: python
 
-      dataset.export(output_path, format='coco_panoptic')
+        output_path = '/path/to/output'
 
-.. tabbed:: ProjectCLI
+        dataset.export(output_path, format='coco_panoptic')
 
-  With the project-based CLI, we first require to create a project by
+  .. tab-item:: ProjectCLI
 
-  .. code-block:: bash
+    With the project-based CLI, we first require to create a project by
 
-    datum project create -o <path/to/project>
+    .. code-block:: bash
 
-  We now import Cityscapes data into the project through
+        datum project create -o <path/to/project>
 
-  .. code-block:: bash
+    We now import Cityscapes data into the project through
 
-    datum project import --format cityscapes -p <path/to/project> <path/to/cityscapes>
+    .. code-block:: bash
 
-  (Optional) When we import a data, the change is automatically commited in the project.
-  This can be shown through `log` as
+        datum project import --format cityscapes -p <path/to/project> <path/to/cityscapes>
 
-  .. code-block:: bash
+    (Optional) When we import a data, the change is automatically commited in the project.
+    This can be shown through `log` as
 
-    datum project log -p <path/to/project>
+    .. code-block:: bash
 
-  (Optional) We can check the imported dataset information such as subsets, number of data, or
-  categories through `info`.
+        datum project log -p <path/to/project>
 
-  .. code-block:: bash
+    (Optional) We can check the imported dataset information such as subsets, number of data, or
+    categories through `info`.
 
-    datum project info -p <path/to/project>
+    .. code-block:: bash
 
-  Finally, we export the data within the project with MS-COCO format as
+        datum project info -p <path/to/project>
 
-  .. code-block:: bash
+    Finally, we export the data within the project with MS-COCO format as
 
-    datum project export --format coco -p <path/to/project> -o <path/to/save> -- --save-media
+    .. code-block:: bash
+
+        datum project export --format coco -p <path/to/project> -o <path/to/save> -- --save-media
 
 For a data with an unknown format, we can detect the format in the :ref:`next level <Level 4: Detect Data Format from an Unknown Dataset>`!

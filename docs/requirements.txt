@@ -18,4 +18,4 @@ tensorflow
 jupyter
 jupytext
 pandoc
-sphinx_panels
+sphinx-design
