@@ -31,12 +31,12 @@ Intermediate Skills
 
    ---
 
-   .. link-button:: 08_data_refinement
+   .. link-button:: 08_data_validate
       :type: ref
-      :text: Level 08: Dataset Refinement
+      :text: Level 08: Dataset Validate
       :classes: btn-outline-primary btn-block stretched-link
 
-   :badge:`CLI,badge-info`
+   :badge:`ProjectCLI,badge-primary`
    :badge:`Python,badge-warning`
 
    ---

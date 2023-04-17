@@ -43,7 +43,7 @@ jobs:
       uses: actions-ecosystem/action-regex-match@v2
       with:
         text: ${{ github.ref }}
-        regex: '^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$'
+        regex: '^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$'
     - name: Publish package distributions to PyPI
       if: ${{ steps.check-tag.outputs.match != '' }}
       uses: pypa/gh-action-pypi-publish@v1.7.1
