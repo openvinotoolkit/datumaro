@@ -195,7 +195,7 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwa
         if not ext.startswith("."):
             ext = "." + ext
 
-        if ext.upper() == ".JPG":
+        if ext.upper() in (".JPG", ".JPEG"):
             params = [int(cv2.IMWRITE_JPEG_QUALITY), kwargs.get("jpeg_quality", 75)]
 
         image = image.astype(dtype)

@@ -351,6 +351,34 @@ class Reindex(Transform, CliPlugin):
             yield self.wrap_item(item, id=i + self._start)
 
 
+class Sort(Transform, CliPlugin):
+    """
+    Sorts dataset items.
+    """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument("-k", "--key", type=str, default=None, help="key functions to sort.")
+        return parser
+
+    def __init__(self, extractor, key=None):
+        super().__init__(extractor)
+        if key:
+            if isinstance(key, str):
+                key = eval(key)
+            if not callable(key):
+                raise Exception("key must be a function with one argument.")
+        else:
+            key = lambda item: item.id
+        self._key = key
+
+    def __iter__(self):
+        items = sorted(list(iter(self._extractor)), key=lambda item: self._key(item))
+        for item in items:
+            yield item
+
+
 class MapSubsets(ItemTransform, CliPlugin):
     """
     Renames subsets in the dataset.

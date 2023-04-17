@@ -32,7 +32,7 @@ We now convert the Cityscapes data into the MS-COCO format, which is described i
 
     .. code-block:: bash
 
-      datum convert -if cityscapes -i <path/to/cityscapes> -f coco_panoptic -o <path/to/output>
+        datum convert -if cityscapes -i <path/to/cityscapes> -f coco_panoptic -o <path/to/output>
 
   .. tab-item:: Python
 
@@ -61,32 +61,32 @@ We now convert the Cityscapes data into the MS-COCO format, which is described i
 
     .. code-block:: bash
 
-      datum create -o <path/to/project>
+        datum project create -o <path/to/project>
 
     We now import Cityscapes data into the project through
 
     .. code-block:: bash
 
-      datum import --format cityscapes -p <path/to/project> <path/to/cityscapes>
+        datum project import --format cityscapes -p <path/to/project> <path/to/cityscapes>
 
     (Optional) When we import a data, the change is automatically commited in the project.
     This can be shown through `log` as
 
     .. code-block:: bash
 
-      datum log -p <path/to/project>
+        datum project log -p <path/to/project>
 
     (Optional) We can check the imported dataset information such as subsets, number of data, or
     categories through `info`.
 
     .. code-block:: bash
 
-      datum info -p <path/to/project>
+        datum project info -p <path/to/project>
 
     Finally, we export the data within the project with MS-COCO format as
 
     .. code-block:: bash
 
-      datum export --format coco -p <path/to/project> -o <path/to/save> -- --save-media
+        datum project export --format coco -p <path/to/project> -o <path/to/save> -- --save-media
 
 For a data with an unknown format, we can detect the format in the :ref:`next level <Level 4: Detect Data Format from an Unknown Dataset>`!

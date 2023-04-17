@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 import math
+import random
 import warnings
 from collections import defaultdict
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, List, Optional, Tuple, Union, overload
 
 import cv2
 import matplotlib.patches as patches
@@ -122,6 +123,8 @@ class Visualizer:
         assert 0.0 <= alpha <= 1.0, "alpha should be in [0, 1]."
         self.alpha = alpha
 
+        self._items = [item for item in self.dataset]
+
     @property
     def draw_only_image(self):
         """
@@ -192,31 +195,162 @@ class Visualizer:
 
         return sorted(annotations, key=_sort_key)
 
+    def get_random_items(self, n_samples: int) -> List[DatasetItem]:
+        """Get random samples from the dataset"""
+        if n_samples >= len(self.dataset):
+            raise ValueError(
+                f"n_samples={n_samples} should be less than the dataset size ({len(self.dataset)})."
+            )
+
+        return random.choices(self._items, k=n_samples)
+
+    @overload
     def vis_gallery(
         self,
-        ids: List[Union[str, DatasetItem]],
-        subset: Optional[Union[str, List[str]]] = None,
+        ids: List[str],
+        subsets: Union[str, List[str]] = None,
+        grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
+    ):
+        """Visualize several :class:`DatasetItem` as a gallery
+
+        Parameters
+        ----------
+        ids
+            A list of :class:`DatasetItem`'s ID to visualize
+        subsets
+            A list of :class:`DatasetItem`'s subset name to visualize.
+            If a string is given, it is automatically expanded into
+            a list up to the length of `ids`.
+        grid_size
+            Grid size of the gallery plot. If `None`, we automatically infer its size.
+
+        Return
+        ------
+            :class:`Figure` include visualization plots.
+        """
+        ...
+
+    @overload
+    def vis_gallery(
+        self,
+        items: List[DatasetItem],
+        grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
+    ):
+        """Visualize several :class:`DatasetItem` as a gallery
+
+        Parameters
+        ----------
+        items
+            A list of :class:`DatasetItem` to visualize
+
+        Return
+        ------
+            :class:`Figure` include visualization plots.
+        """
+        ...
+
+    def vis_gallery(
+        self,
+        *inputs,
         grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
     ) -> Figure:
+        """Visualize several :class:`DatasetItem` as a gallery"""
+        if len(inputs) == 1:
+            ids, subsets = None, None
+            (items,) = inputs
+
+        elif len(inputs) == 2:
+            ids, subsets = inputs
+            items = None
+            if isinstance(subsets, str):
+                subsets = [subsets] * len(ids)  # expand it to have len(ids)
+
+        def _parse_inputs(
+            ids: Optional[List[str]],
+            subsets: Optional[List[str]],
+            items: Optional[List[DatasetItem]],
+        ) -> Tuple[List[str], List[str]]:
+            if ids is not None and subsets is not None:
+                return ids, subsets
+            elif items is not None:
+                return [item.id for item in items], [item.subset for item in items]
+            raise ValueError(
+                f"ids={ids}, subsets={subsets}, and items={items} is an invalid input."
+            )
+
+        ids, subsets = _parse_inputs(ids, subsets, items)
+
         nrows, ncols = _infer_grid_size(len(ids), grid_size)
         fig, axs = plt.subplots(nrows, ncols, figsize=self.figsize)
 
-        if isinstance(subset, list):
-            assert len(ids) == len(
-                subset
-            ), "If subset is a list, it should have the same length as ids."
+        assert len(ids) == len(
+            subsets
+        ), "If subset is a list, it should have the same length as ids."
 
-        for i, (dataset_id, ax) in enumerate(zip(ids, axs.flatten())):
-            if isinstance(subset, List):
-                self.vis_one_sample(dataset_id, subset[i], ax)
-            else:
-                self.vis_one_sample(dataset_id, subset, ax)
+        for item_id, subset, ax in zip(ids, subsets, axs.flatten()):
+            self.vis_one_sample(item_id, subset, ax=ax)
 
         return fig
 
+    @overload
     def vis_one_sample(
-        self, id: Union[str, DatasetItem], subset: Optional[str] = None, ax: Optional[Axes] = None
+        self,
+        item_id: str = None,
+        subset: str = None,
+        ax: Optional[Axes] = None,
     ) -> Figure:
+        """Visualize one :class:`DatasetItem`
+
+        Parameters
+        ----------
+        item_id
+            ID of :class:`DatasetItem` to visualize
+        subset
+            Subset name of :class:`DatasetItem` to visualize
+        ax
+            If not `None`, draw on `ax` instead of creating a new one
+
+        Return
+        ------
+            :class:`Figure` include visualization plot of the :class:`DatasetItem`.
+        """
+        ...
+
+    @overload
+    def vis_one_sample(
+        self,
+        item: DatasetItem = None,
+        ax: Optional[Axes] = None,
+    ) -> Figure:
+        """Visualize one :class:`DatasetItem`
+
+        Parameters
+        ----------
+        item
+            :class:`DatasetItem` to visualize
+        ax
+            If not `None`, draw on `ax` instead of creating a new one
+
+        Return
+        ------
+            :class:`Figure` include visualization plot of the :class:`DatasetItem`.
+        """
+        ...
+
+    def vis_one_sample(
+        self,
+        *inputs,
+        ax: Optional[Axes] = None,
+    ) -> Figure:
+        """Visualize one dataset item"""
+        if len(inputs) == 1:
+            item_id, subset = None, None
+            (item,) = inputs
+
+        elif len(inputs) == 2:
+            item_id, subset = inputs
+            item = None
+
         if ax is None:
             fig = plt.figure(figsize=self.figsize)
             ax = plt.gca()
@@ -224,8 +358,23 @@ class Visualizer:
             fig = ax.get_figure()
             plt.sca(ax)
 
-        item: DatasetItem = self.dataset.get(id, subset)
-        assert item is not None, f"Cannot find id={id}, subset={subset}"
+        def _parse_inputs(
+            item_id: Optional[str], subset: Optional[str], item: Optional[DatasetItem]
+        ) -> Tuple[str, str]:
+            if item_id is not None and subset is not None:
+                return item_id, subset
+            elif item is not None:
+                item_id = item.id
+                subset = item.subset
+                return item_id, subset
+            raise ValueError(
+                f"item_id={item_id}, subset={subset}, and item={item} is an invalid input."
+            )
+
+        item_id, subset = _parse_inputs(item_id, subset, item)
+        item: DatasetItem = self.dataset.get(item_id, subset)
+
+        assert item is not None, f"Cannot find id={item_id}, subset={subset}"
         assert (
             item is not Image
         ), f"Media type should be Image, Current media type={type(item.media)}"
@@ -235,7 +384,7 @@ class Visualizer:
         ax.imshow(img)
 
         width = ax.transAxes.transform_point((1, 0))[0] - ax.transAxes.transform_point((0, 0))[0]
-        text = ax.set_title(f"ID: {id}, Subset: {subset}", loc="center", wrap=True)
+        text = ax.set_title(f"ID: {item_id}, Subset: {subset}", loc="center", wrap=True)
         text.__get_wrapped_text = text._get_wrapped_text
 
         def _get_wrapped_text():

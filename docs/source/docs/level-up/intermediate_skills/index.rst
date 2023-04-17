@@ -9,7 +9,7 @@ Intermediate Skills
    05_data_aggregation
    06_data_comparison
    07_data_merge
-   08_data_refinement
+   08_data_validate
    09_data_exploration
    10_data_generation
 
@@ -52,15 +52,15 @@ Intermediate Skills
 
    .. grid-item-card::
 
-      .. button-ref:: 08_data_refinement
+      .. button-ref:: 08_data_validate
          :color: primary
          :outline:
          :expand:
 
-         Level 08: Dataset Refinement
+         Level 08: Dataset Validate
 
       :bdg-warning:`Python`
-      :bdg-info:`CLI`
+      :bdg-success:`ProjectCLI`
 
    .. grid-item-card::
 

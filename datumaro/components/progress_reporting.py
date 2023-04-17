@@ -146,8 +146,14 @@ class SimpleProgressReporter(ProgressReporter):
 
     def report_status(self, progress: int):
         status = str(self._desc) if self._desc else ""
-        status += f"{progress}/{self._total} ({progress/self._total*100:.2f}%)"
+        status += (
+            f" {progress:0{len(str(self._total))}d}/{self._total}"
+            f" ({progress/self._total*100:6.2f}%)"
+        )
         print(status)
+
+    def finish(self):
+        self.report_status(self._total)
 
     def split(self, count: int):
         return (SimpleProgressReporter(self._period, self._interval),) * count
