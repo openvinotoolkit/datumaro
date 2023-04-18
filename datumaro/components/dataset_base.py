@@ -117,7 +117,7 @@ class DatasetItem:
         )
         if not isinstance(self.media, PointCloud):
             return None
-        return self.media_as(PointCloud).path
+        return getattr(self.media_as(PointCloud), "path", None)
 
     # Deprecated. Provided for backward compatibility.
     @property

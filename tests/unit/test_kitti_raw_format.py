@@ -3,6 +3,8 @@ import os.path as osp
 from functools import partial
 from unittest import TestCase
 
+import numpy as np
+
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
@@ -178,6 +180,24 @@ class KittiRawExporterTest(TestCase):
                     media=PointCloud.from_file(path=self.pcd3),
                     attributes={"frame": 2},
                 ),
+                DatasetItem(
+                    id="0000000003",
+                    annotations=[
+                        Cuboid3d(
+                            position=[0.4, -1, 3.24],
+                            scale=[2, 1, 2],
+                            label=0,
+                            attributes={"track_id": 3},
+                        ),
+                    ],
+                    media=PointCloud.from_bytes(
+                        data=b"3" * 5,
+                        extra_images=[
+                            Image.from_numpy(data=np.ones([5, 5, 3]), ext=".png"),
+                        ],
+                    ),
+                    attributes={"frame": 3},
+                ),
             ],
             categories=["cat", "dog"],
             media_type=PointCloud,
@@ -245,6 +265,26 @@ class KittiRawExporterTest(TestCase):
                             path=osp.join(test_dir, "velodyne_points", "data", "0000000002.pcd")
                         ),
                         attributes={"frame": 2},
+                    ),
+                    DatasetItem(
+                        id="0000000003",
+                        annotations=[
+                            Cuboid3d(
+                                position=[0.4, -1, 3.24],
+                                scale=[2, 1, 2],
+                                label=0,
+                                attributes={"occluded": False, "track_id": 3},
+                            ),
+                        ],
+                        media=PointCloud.from_file(
+                            path=osp.join(test_dir, "velodyne_points", "data", "0000000003.pcd"),
+                            extra_images=[
+                                Image.from_file(
+                                    path=osp.join(test_dir, "image_00", "data", "0000000003.png"),
+                                )
+                            ],
+                        ),
+                        attributes={"frame": 3},
                     ),
                 ],
                 categories={AnnotationType.label: target_label_cat},

@@ -452,7 +452,7 @@ class _ItemMatcher:
     @staticmethod
     def _default_item_hash(item: DatasetItem):
         if not item.media or not item.media.has_data:
-            if item.media and item.media.path:
+            if item.media and hasattr(item.media, "path"):
                 return hash(item.media.path)
 
             log.warning(

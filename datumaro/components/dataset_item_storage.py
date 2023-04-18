@@ -77,7 +77,7 @@ class DatasetItemStorage:
 
     def get_datasetitem_by_path(self, path):
         for s in self._traversal_order.values():
-            if s.media.path == path:
+            if getattr(s.media, "path", None) == path:
                 return s
 
     def get_annotations(self):

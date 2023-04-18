@@ -126,19 +126,19 @@ class ExactMerge(Merger):
             not item_b.media or isinstance(item_b.media, MediaElement)
         ):
             if isinstance(item_a.media, MediaElement) and isinstance(item_b.media, MediaElement):
-                if (
-                    item_a.media.path
-                    and item_b.media.path
-                    and item_a.media.path != item_b.media.path
-                ):
+                item_a_path = getattr(item_a.media, "path", None)
+                item_b_path = getattr(item_b.media, "path", None)
+
+                if item_a_path and item_b_path and item_a_path != item_b_path:
                     raise MismatchingMediaPathError(
-                        (item_a.id, item_a.subset), item_a.media.path, item_b.media.path
+                        (item_a.id, item_a.subset), item_a_path, item_b_path
+                    )
+                elif item_a_path is None and item_b_path is None:
+                    raise MismatchingMediaError(
+                        (item_a.id, item_a.subset), item_a.media, item_b.media
                     )
 
-                if item_a.media.path:
-                    media = item_a.media
-                else:
-                    media = item_b.media
+                media = item_a.media if item_a_path else item_b.media
 
             elif isinstance(item_a.media, MediaElement):
                 media = item_a.media
@@ -152,10 +152,13 @@ class ExactMerge(Merger):
         media = None
 
         if isinstance(item_a.media, Image) and isinstance(item_b.media, Image):
+            item_a_path = getattr(item_a.media, "path", None)
+            item_b_path = getattr(item_b.media, "path", None)
+
             if (
-                item_a.media.path
-                and item_b.media.path
-                and item_a.media.path != item_b.media.path
+                item_a_path
+                and item_b_path
+                and item_a_path != item_b_path
                 and item_a.media.has_data is item_b.media.has_data
             ):
                 # We use has_data as a replacement for path existence check
@@ -169,7 +172,7 @@ class ExactMerge(Merger):
                 # but it's not the case we'd like to allow here to be
                 # a "simple" merging strategy used for extractor joining
                 raise MismatchingMediaPathError(
-                    (item_a.id, item_a.subset), item_a.media.path, item_b.media.path
+                    (item_a.id, item_a.subset), item_a_path, item_b_path
                 )
 
             if (
@@ -188,16 +191,16 @@ class ExactMerge(Merger):
                 media = item_a.media
             elif item_b.media.has_data:
                 media = item_b.media
-            elif item_a.media.path:
+            elif item_a_path:
                 media = item_a.media
-            elif item_b.media.path:
+            elif item_b_path:
                 media = item_b.media
             elif item_a.media.has_size:
                 media = item_a.media
             elif item_b.media.has_size:
                 media = item_b.media
             else:
-                assert False, "Unknown image field combination"
+                raise MismatchingMediaError((item_a.id, item_a.subset), item_a.media, item_b.media)
 
             if not media.has_data or not media.has_size:
                 if item_a.media._size:
@@ -215,25 +218,33 @@ class ExactMerge(Merger):
         media = None
 
         if isinstance(item_a.media, PointCloud) and isinstance(item_b.media, PointCloud):
-            if item_a.media.path and item_b.media.path and item_a.media.path != item_b.media.path:
+            item_a_path = getattr(item_a.media, "path", None)
+            item_b_path = getattr(item_b.media, "path", None)
+
+            if item_a_path and item_b_path and item_a_path != item_b_path:
                 raise MismatchingMediaPathError(
-                    (item_a.id, item_a.subset), item_a.media.path, item_b.media.path
+                    (item_a.id, item_a.subset), item_a_path, item_b_path
                 )
 
-            if item_a.media.path or item_a.media.extra_images:
+            # Avoid direct comparison here for better performance
+            # If there are 2 "data-only" pointclouds, they won't be compared and
+            # we just use the first one
+            if item_a.media.has_data or item_a.media.extra_images:
                 media = item_a.media
 
                 if item_b.media.extra_images:
                     for image in item_b.media.extra_images:
                         if image not in media.extra_images:
                             media.extra_images.append(image)
-            else:
+            elif item_b.media.has_data or item_b.media.extra_images:
                 media = item_b.media
 
                 if item_a.media.extra_images:
                     for image in item_a.media.extra_images:
                         if image not in media.extra_images:
                             media.extra_images.append(image)
+            else:
+                raise MismatchingMediaError((item_a.id, item_a.subset), item_a.media, item_b.media)
 
         elif isinstance(item_a.media, PointCloud):
             media = item_a.media

@@ -18,7 +18,7 @@ from datumaro.components.errors import (
     InvalidAnnotationError,
     UndeclaredLabelError,
 )
-from datumaro.components.media import Image
+from datumaro.components.media import Image, ImageFromFile
 from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME,
     IMAGE_EXTENSIONS,
@@ -210,7 +210,7 @@ class YoloStrictBase(SubsetBase):
     def _parse_annotations(
         cls,
         anno_path: str,
-        image: Image,
+        image: ImageFromFile,
         *,
         label_categories: LabelCategories,
     ) -> List[Annotation]:

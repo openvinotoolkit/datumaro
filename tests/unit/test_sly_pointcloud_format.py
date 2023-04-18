@@ -3,6 +3,8 @@ import os.path as osp
 from functools import partial
 from unittest import TestCase
 
+import numpy as np
+
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
@@ -154,6 +156,24 @@ class PointCloudConverterTest(TestCase):
                     media=PointCloud.from_file(path=self.pcd2, extra_images=[self.image2]),
                     attributes={"frame": 1},
                 ),
+                DatasetItem(
+                    id="frame_3",
+                    annotations=[
+                        Cuboid3d(
+                            id=209,
+                            label=1,
+                            position=[23.04, 8.75, -1.78],
+                            attributes={"occluded": False, "track_id": 3},
+                        )
+                    ],
+                    media=PointCloud.from_bytes(
+                        data=b"2" * 5,
+                        extra_images=[
+                            Image.from_numpy(data=np.ones([5, 5, 3])),
+                        ],
+                    ),
+                    attributes={"frame": 2},
+                ),
             ],
             categories={AnnotationType.label: src_label_cat},
             media_type=PointCloud,
@@ -208,6 +228,32 @@ class PointCloudConverterTest(TestCase):
                             ],
                         ),
                         attributes={"frame": 1, "description": ""},
+                    ),
+                    DatasetItem(
+                        id="frame_3",
+                        annotations=[
+                            Cuboid3d(
+                                id=209,
+                                label=1,
+                                position=[23.04, 8.75, -1.78],
+                                attributes={"occluded": False, "track_id": 3},
+                            ),
+                        ],
+                        media=PointCloud.from_file(
+                            path=osp.join(test_dir, "ds0", "pointcloud", "frame_3.pcd"),
+                            extra_images=[
+                                Image.from_file(
+                                    path=osp.join(
+                                        test_dir,
+                                        "ds0",
+                                        "related_images",
+                                        "frame_3_pcd",
+                                        "extra_image_0.jpg",
+                                    )
+                                )
+                            ],
+                        ),
+                        attributes={"frame": 2, "description": ""},
                     ),
                 ],
                 categories={AnnotationType.label: target_label_cat},

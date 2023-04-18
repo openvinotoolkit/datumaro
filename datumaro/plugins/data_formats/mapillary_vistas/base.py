@@ -235,7 +235,7 @@ class _MapillaryVistasBase(SubsetBase):
 
             image_size = self._get_image_size(item_info)
             if image_size and item.has_image:
-                item.media = Image.from_file(path=item.image.path, size=image_size)
+                item.media = item.image.from_self(size=image_size)
 
             polygons = item_info["objects"]
             annotations = []
