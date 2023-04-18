@@ -38,52 +38,52 @@ The byte order is little-endian.
 
 **Image**
 
-![image attributes](../../../../images/arrow/image_attributes.png)
+![image attributes](./images/arrow/image_attributes.png)
 
 **PointCloud**
 
-![pointcloud attributes](../../../../images/arrow/pointcloud_attributes.png)
+![pointcloud attributes](./images/arrow/pointcloud_attributes.png)
 
 ### annotations (`binary`)
 The annotations of the entity. The byte order is little-endian.
 The annotations are more than one like following.
 
-![annotations](../../../../images/arrow/annotations.png)
+![annotations](./images/arrow/annotations.png)
 
 **Supported annotation types:**
 
 - `Label`
 
-  ![label](../../../../images/arrow/label.png)
+  ![label](./images/arrow/label.png)
 - `Mask`
 
-  ![mask](../../../../images/arrow/mask.png)
+  ![mask](./images/arrow/mask.png)
 - `PolyLine`
 
-  ![polyline](../../../../images/arrow/shape.png)
+  ![polyline](./images/arrow/shape.png)
 - `Polygon`
 
-  ![polygon](../../../../images/arrow/shape.png)
+  ![polygon](./images/arrow/shape.png)
 - `Bbox`
 
-  ![bbox](../../../../images/arrow/shape.png)
+  ![bbox](./images/arrow/shape.png)
 - `Points`
 
-  ![point](../../../../images/arrow/point.png)
+  ![point](./images/arrow/point.png)
 - `Caption`
 
-  ![caption](../../../../images/arrow/caption.png)
+  ![caption](./images/arrow/caption.png)
 - `Cuboid3d`
 
-  ![cuboid3d](../../../../images/arrow/cuboid3d.png)
+  ![cuboid3d](./images/arrow/cuboid3d.png)
 - `Ellipse`
 
-  ![ellipse](../../../../images/arrow/shape.png)
+  ![ellipse](./images/arrow/shape.png)
 
 ### attributes (`binary`)
 The attributes of the entity. The byte order is little-endian.
 
-![attributes](../../../../images/arrow/attributes.png)
+![attributes](./images/arrow/attributes.png)
 
 ## Import Arrow dataset
 
