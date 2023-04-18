@@ -2,7 +2,7 @@
 
 ## Format specification
 
-[Apache Arrow](https://arrow.apache.org/docs/format/Columnar.html) is a in-memroy columnar table format specification with multiple langauge support.
+[Apache Arrow](https://arrow.apache.org/docs/format/Columnar.html) is a in-memory columnar table format specification with multiple language support.
 This format supports to export into a single arrow file or multiple shardings.
 
 ### Table schema
