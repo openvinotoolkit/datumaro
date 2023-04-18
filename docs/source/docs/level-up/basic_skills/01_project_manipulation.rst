@@ -38,7 +38,7 @@ Import a dataset to the project
     ``-n NAME`` is the name of dataset you can assign. if you don't give it, Datumaro generates it automatically
     (``source-0``, ``source-1``, ...). ``-f FORMAT`` is the format of the dataset to be imported to the project.
     The default behavior adds the dataset to the project in the current working directory,
-    but You can specify a specific directory path of the project with ``-p PROJECT_DIR``.
+    but you can specify a specific directory path of the project with ``-p PROJECT_DIR``.
     ``url`` should be given for the path of the dataset to import.
 
     For example, the following command is an example of importing the :ref:`Cityscapes` dataset to the project with naming it as ``my-dataset``.
