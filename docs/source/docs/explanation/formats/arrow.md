@@ -80,7 +80,6 @@ The annotations are more than one like following.
 
   ![ellipse](../../../../images/arrow/shape.png)
 
-
 ### attributes (`binary`)
 The attributes of the entity. The byte order is little-endian.
 
@@ -115,7 +114,6 @@ it cannot detect and import your dataset as the Arrow format properly.
 
 To make sure that the selected dataset has been added to the project, you can
 run `datum project info`, which will display the project information.
-
 
 ## Export to other formats
 
@@ -185,7 +183,7 @@ Extra options for exporting to Arrow format:
 - `--num-shards NUM_SHARDS` allow to specify the number of shards to generate.
   `--num-shards` and `--max-shard-size` are  mutually exclusive.
   (default: `1`)
-- `--max-shard-size MAX_SHARD_SIZE` allow to specify maximum size of each shard. (e.g. 7KB = 7 * 2^10, 3MB = 3 * 2^20, and 2GB = 2 * 2^30)
+- `--max-shard-size MAX_SHARD_SIZE` allow to specify maximum size of each shard. (e.g. 7KB = 7 \* 2^10, 3MB = 3 \* 2^20, and 2GB = 2 \* 2^30)
   `--num-shards` and `--max-shard-size` are  mutually exclusive.
   (default: `None`)
 - `--num-workers NUM_WORKERS` allow to multi-processing for the export. If num_workers = 0, do not use multiprocessing (default: `0`).
