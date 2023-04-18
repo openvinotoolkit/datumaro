@@ -52,31 +52,31 @@ The annotations are more than one like following.
 
 **Supported annotation types:**
 
-- `Label`
+- 1: `Label`
 
   ![label](./images/arrow/label.png)
-- `Mask`
+- 2: `Mask`
 
   ![mask](./images/arrow/mask.png)
-- `PolyLine`
-
-  ![polyline](./images/arrow/shape.png)
-- `Polygon`
-
-  ![polygon](./images/arrow/shape.png)
-- `Bbox`
-
-  ![bbox](./images/arrow/shape.png)
-- `Points`
+- 3: `Points`
 
   ![point](./images/arrow/point.png)
-- `Caption`
+- 4: `Polygon`
+
+  ![polygon](./images/arrow/shape.png)
+- 5: `PolyLine`
+
+  ![polyline](./images/arrow/shape.png)
+- 6: `Bbox`
+
+  ![bbox](./images/arrow/shape.png)
+- 7: `Caption`
 
   ![caption](./images/arrow/caption.png)
-- `Cuboid3d`
+- 8: `Cuboid3d`
 
   ![cuboid3d](./images/arrow/cuboid3d.png)
-- `Ellipse`
+- 11: `Ellipse`
 
   ![ellipse](./images/arrow/shape.png)
 
