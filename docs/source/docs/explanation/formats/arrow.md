@@ -113,7 +113,7 @@ If your dataset is not following the above directory structure,
 it cannot detect and import your dataset as the Arrow format properly.
 
 To make sure that the selected dataset has been added to the project, you can
-run `datum project info`, which will display the project information.
+run `datum project pinfo`, which will display the project information.
 
 ## Export to other formats
 
