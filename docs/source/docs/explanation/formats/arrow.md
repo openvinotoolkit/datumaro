@@ -154,7 +154,7 @@ There are several ways to convert a dataset to Arrow format:
 - Export a dataset from an existing project to Arrow format:
 ```console
 # export dataset into Arrow format from existing project
-datum export -p <path/to/project> -f arrow -o <output/dir> \
+datum project export -p <path/to/project> -f arrow -o <output/dir> \
     -- --save-media
 ```
 
