@@ -127,9 +127,9 @@ using CLI:
 - Export a dataset from Datumaro format to VOC format:
 
 ```console
-datum create
-datum import -f arrow <path/to/dataset>
-datum export -f voc -o <output/dir>
+datum project create
+datum project import -f arrow <path/to/dataset>
+datum project export -f voc -o <output/dir>
 ```
 
 or
