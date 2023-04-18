@@ -45,8 +45,10 @@ The byte order is little-endian.
 ![pointcloud attributes](../../../../images/arrow/pointcloud_attributes.png)
 
 ### annotations (`binary`)
-The annotations of the entity.
-The byte order is little-endian.
+The annotations of the entity. The byte order is little-endian.
+The annotations are more than one like following.
+
+![annotations](../../../../images/arrow/annotations.png)
 
 **Supported annotation types:**
 
