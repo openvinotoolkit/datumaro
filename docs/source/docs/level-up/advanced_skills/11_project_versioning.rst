@@ -18,7 +18,7 @@ In this step, we create a project and import `UCMerced <http://weegee.vision.ucm
 
   .. tab-item:: ProjectCLI
 
-    At first, we created a project and import the dataset.
+    At first, we create a project and import the dataset.
 
     .. code-block:: bash
 
