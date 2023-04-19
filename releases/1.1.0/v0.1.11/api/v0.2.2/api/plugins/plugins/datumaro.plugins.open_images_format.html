@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>open_images_format module &mdash; Datumaro API documentation 0.2.2 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/banner.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="splitter module" href="datumaro.plugins.splitter.html" />
+    <link rel="prev" title="ndr module" href="datumaro.plugins.ndr.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #30638E" >
+  <a href="../../../index.html" class="icon"> Datumaro API documentation
+</a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../cli/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/components.html">Components</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../plugins.html">Plugins</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../accuracy_checker_plugin/accuracy_checker_plugin.html">accuracy checker plugin package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../coco_format/coco_format.html">COCO format package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cvat_format/cvat_format.html">CVAT format package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../datumaro_format/datumaro_format.html">datumaro format package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../icdar_format/icdar_format.html">ICDAR format package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../kitti_format/kitti_format.html">KITTI format package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../kitti_raw_format/kitti_raw_format.html">KITTI raw format package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../openvino_plugin/openvino_plugin.html">OpenVino plugin package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sampler/sampler.html">sampler package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sly_pointcloud_format/sly_pointcloud_format.html">sly Pointcloud format package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tf_detection_api_format/tf_detection_api_format.html">tf detection api format package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../voc_format/voc_format.html">VOC format package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../yolo_format/yolo_format.html">YOLO format package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.ade20k2017_format.html">ade20k2017_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.ade20k2020_format.html">ade20k2020_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.camvid_format.html">camvid_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.cifar_format.html">cifar_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.cityscapes_format.html">cityscapes_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.image_dir_format.html">image_dir_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.image_zip_format.html">image_zip_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.imagenet_format.html">imagenet_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.imagenet_txt_format.html">imagenet_txt_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.labelme_format.html">labelme_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.lfw_format.html">lfw_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.market1501_format.html">market1501_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.mnist_csv_format.html">mnist_csv_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.mnist_format.html">mnist_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.mot_format.html">mot_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.mots_format.html">mots_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.ndr.html">ndr module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">open_images_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.splitter.html">splitter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.transforms.html">transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.validators.html">validators module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.vgg_face2_format.html">vgg_face2_format module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.plugins.widerface_format.html">widerface_format module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../util/util/util.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/">Back to main documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #30638E" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Datumaro API documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../plugins.html">Plugins</a> &raquo;</li>
+      <li>open_images_format module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/api/plugins/plugins/datumaro.plugins.open_images_format.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-datumaro.plugins.open_images_format">
+<span id="open-images-format-module"></span><h1>open_images_format module<a class="headerlink" href="#module-datumaro.plugins.open_images_format" title="Permalink to this headline"></a></h1>
+<dl class="py exception">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedSubsetNameError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.open_images_format.</span></span><span class="sig-name descname"><span class="pre">UnsupportedSubsetNameError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#UnsupportedSubsetNameError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedSubsetNameError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../components/components/datumaro.components.errors.html#datumaro.components.errors.DatasetError" title="datumaro.components.errors.DatasetError"><code class="xref py py-class docutils literal notranslate"><span class="pre">datumaro.components.errors.DatasetError</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedSubsetNameError.item_id">
+<span class="sig-name descname"><span class="pre">item_id</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedSubsetNameError.item_id" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedSubsetNameError.subset">
+<span class="sig-name descname"><span class="pre">subset</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedSubsetNameError.subset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedSubsetNameError.__eq__">
+<span class="sig-name descname"><span class="pre">__eq__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedSubsetNameError.__eq__" title="Permalink to this definition"></a></dt>
+<dd><p>Method generated by attrs for class UnsupportedSubsetNameError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedSubsetNameError.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedSubsetNameError.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Method generated by attrs for class UnsupportedSubsetNameError.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedBoxIdError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.open_images_format.</span></span><span class="sig-name descname"><span class="pre">UnsupportedBoxIdError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#UnsupportedBoxIdError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedBoxIdError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../components/components/datumaro.components.errors.html#datumaro.components.errors.DatasetError" title="datumaro.components.errors.DatasetError"><code class="xref py py-class docutils literal notranslate"><span class="pre">datumaro.components.errors.DatasetError</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedBoxIdError.item_id">
+<span class="sig-name descname"><span class="pre">item_id</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedBoxIdError.item_id" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedBoxIdError.box_id">
+<span class="sig-name descname"><span class="pre">box_id</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedBoxIdError.box_id" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedBoxIdError.__eq__">
+<span class="sig-name descname"><span class="pre">__eq__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedBoxIdError.__eq__" title="Permalink to this definition"></a></dt>
+<dd><p>Method generated by attrs for class UnsupportedBoxIdError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedBoxIdError.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedBoxIdError.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Method generated by attrs for class UnsupportedBoxIdError.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedMaskPathError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.open_images_format.</span></span><span class="sig-name descname"><span class="pre">UnsupportedMaskPathError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#UnsupportedMaskPathError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedMaskPathError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../components/components/datumaro.components.errors.html#datumaro.components.errors.DatasetError" title="datumaro.components.errors.DatasetError"><code class="xref py py-class docutils literal notranslate"><span class="pre">datumaro.components.errors.DatasetError</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedMaskPathError.item_id">
+<span class="sig-name descname"><span class="pre">item_id</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedMaskPathError.item_id" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedMaskPathError.mask_path">
+<span class="sig-name descname"><span class="pre">mask_path</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedMaskPathError.mask_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedMaskPathError.__eq__">
+<span class="sig-name descname"><span class="pre">__eq__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedMaskPathError.__eq__" title="Permalink to this definition"></a></dt>
+<dd><p>Method generated by attrs for class UnsupportedMaskPathError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.UnsupportedMaskPathError.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#datumaro.plugins.open_images_format.UnsupportedMaskPathError.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Method generated by attrs for class UnsupportedMaskPathError.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.open_images_format.</span></span><span class="sig-name descname"><span class="pre">OpenImagesPath</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesPath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.ANNOTATIONS_DIR">
+<span class="sig-name descname"><span class="pre">ANNOTATIONS_DIR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'annotations'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.ANNOTATIONS_DIR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.IMAGES_DIR">
+<span class="sig-name descname"><span class="pre">IMAGES_DIR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'images'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.IMAGES_DIR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.MASKS_DIR">
+<span class="sig-name descname"><span class="pre">MASKS_DIR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'masks'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.MASKS_DIR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME">
+<span class="sig-name descname"><span class="pre">FULL_IMAGE_DESCRIPTION_FILE_NAME</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'image_ids_and_rotation.csv'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS">
+<span class="sig-name descname"><span class="pre">SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">('*-images-with-rotation.csv',</span> <span class="pre">'*-images-with-labels-with-rotation.csv')</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME">
+<span class="sig-name descname"><span class="pre">V5_CLASS_DESCRIPTION_FILE_NAME</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'class-descriptions.csv'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.V5_CLASS_DESCRIPTION_BBOX_FILE_NAME">
+<span class="sig-name descname"><span class="pre">V5_CLASS_DESCRIPTION_BBOX_FILE_NAME</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'class-descriptions-boxable.csv'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.V5_CLASS_DESCRIPTION_BBOX_FILE_NAME" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.HIERARCHY_FILE_NAME">
+<span class="sig-name descname"><span class="pre">HIERARCHY_FILE_NAME</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'bbox_labels_600_hierarchy.json'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.HIERARCHY_FILE_NAME" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX">
+<span class="sig-name descname"><span class="pre">LABEL_DESCRIPTION_FILE_SUFFIX</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'-annotations-human-imagelabels.csv'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX">
+<span class="sig-name descname"><span class="pre">BBOX_DESCRIPTION_FILE_SUFFIX</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'-annotations-bbox.csv'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX">
+<span class="sig-name descname"><span class="pre">MASK_DESCRIPTION_FILE_SUFFIX</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'-annotations-object-segmentation.csv'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.IMAGE_DESCRIPTION_FIELDS">
+<span class="sig-name descname"><span class="pre">IMAGE_DESCRIPTION_FIELDS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">('ImageID',</span> <span class="pre">'Subset',</span> <span class="pre">'OriginalURL',</span> <span class="pre">'OriginalLandingURL',</span> <span class="pre">'License',</span> <span class="pre">'AuthorProfileURL',</span> <span class="pre">'Author',</span> <span class="pre">'Title',</span> <span class="pre">'OriginalSize',</span> <span class="pre">'OriginalMD5',</span> <span class="pre">'Thumbnail300KURL',</span> <span class="pre">'Rotation')</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.IMAGE_DESCRIPTION_FIELDS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.LABEL_DESCRIPTION_FIELDS">
+<span class="sig-name descname"><span class="pre">LABEL_DESCRIPTION_FIELDS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">('ImageID',</span> <span class="pre">'Source',</span> <span class="pre">'LabelName',</span> <span class="pre">'Confidence')</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.LABEL_DESCRIPTION_FIELDS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.BBOX_DESCRIPTION_FIELDS">
+<span class="sig-name descname"><span class="pre">BBOX_DESCRIPTION_FIELDS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">('ImageID',</span> <span class="pre">'Source',</span> <span class="pre">'LabelName',</span> <span class="pre">'Confidence',</span> <span class="pre">'XMin',</span> <span class="pre">'XMax',</span> <span class="pre">'YMin',</span> <span class="pre">'YMax',</span> <span class="pre">'IsOccluded',</span> <span class="pre">'IsTruncated',</span> <span class="pre">'IsGroupOf',</span> <span class="pre">'IsDepiction',</span> <span class="pre">'IsInside')</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.BBOX_DESCRIPTION_FIELDS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES">
+<span class="sig-name descname"><span class="pre">BBOX_BOOLEAN_ATTRIBUTES</span></span><em class="property"> <span class="pre">=</span> <span class="pre">(namespace(datumaro_name='occluded',</span> <span class="pre">oid_name='IsOccluded'),</span> <span class="pre">namespace(datumaro_name='truncated',</span> <span class="pre">oid_name='IsTruncated'),</span> <span class="pre">namespace(datumaro_name='is_group_of',</span> <span class="pre">oid_name='IsGroupOf'),</span> <span class="pre">namespace(datumaro_name='is_depiction',</span> <span class="pre">oid_name='IsDepiction'),</span> <span class="pre">namespace(datumaro_name='is_inside',</span> <span class="pre">oid_name='IsInside'))</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesPath.MASK_DESCRIPTION_FIELDS">
+<span class="sig-name descname"><span class="pre">MASK_DESCRIPTION_FIELDS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">('MaskPath',</span> <span class="pre">'ImageID',</span> <span class="pre">'LabelName',</span> <span class="pre">'BoxID',</span> <span class="pre">'BoxXMin',</span> <span class="pre">'BoxXMax',</span> <span class="pre">'BoxYMin',</span> <span class="pre">'BoxYMax',</span> <span class="pre">'PredictedIoU',</span> <span class="pre">'Clicks')</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesPath.MASK_DESCRIPTION_FIELDS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesExtractor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.open_images_format.</span></span><span class="sig-name descname"><span class="pre">OpenImagesExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesExtractor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../components/components/datumaro.components.extractor.html#datumaro.components.extractor.Extractor" title="datumaro.components.extractor.Extractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">datumaro.components.extractor.Extractor</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesExtractor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesExtractor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesExtractor.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesExtractor.__iter__">
+<span class="sig-name descname"><span class="pre">__iter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesExtractor.__iter__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesExtractor.__iter__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesExtractor.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesExtractor.categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesExtractor.categories" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesImporter">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.open_images_format.</span></span><span class="sig-name descname"><span class="pre">OpenImagesImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesImporter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../components/components/datumaro.components.extractor.html#datumaro.components.extractor.Importer" title="datumaro.components.extractor.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">datumaro.components.extractor.Importer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesImporter.POSSIBLE_ANNOTATION_PATTERNS">
+<span class="sig-name descname"><span class="pre">POSSIBLE_ANNOTATION_PATTERNS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">('image_ids_and_rotation.csv',</span> <span class="pre">'*-images-with-rotation.csv',</span> <span class="pre">'*-images-with-labels-with-rotation.csv',</span> <span class="pre">'*-annotations-human-imagelabels.csv',</span> <span class="pre">'*-annotations-bbox.csv',</span> <span class="pre">'*-annotations-object-segmentation.csv')</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesImporter.POSSIBLE_ANNOTATION_PATTERNS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesImporter.detect">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">datumaro.components.format_detection.FormatDetectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesImporter.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesImporter.detect" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesImporter.find_sources">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesImporter.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesImporter.find_sources" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesConverter">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.open_images_format.</span></span><span class="sig-name descname"><span class="pre">OpenImagesConverter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_image_ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dataset_meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesConverter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesConverter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../components/components/datumaro.components.converter.html#datumaro.components.converter.Converter" title="datumaro.components.converter.Converter"><code class="xref py py-class docutils literal notranslate"><span class="pre">datumaro.components.converter.Converter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesConverter.DEFAULT_IMAGE_EXT">
+<span class="sig-name descname"><span class="pre">DEFAULT_IMAGE_EXT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'.jpg'</span></em><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesConverter.DEFAULT_IMAGE_EXT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesConverter.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesConverter.apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesConverter.apply" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.open_images_format.OpenImagesConverter.patch">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">patch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/open_images_format.html#OpenImagesConverter.patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.open_images_format.OpenImagesConverter.patch" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="datumaro.plugins.ndr.html" class="btn btn-neutral float-left" title="ndr module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="datumaro.plugins.splitter.html" class="btn btn-neutral float-right" title="splitter module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>
+      &#169; Copyright 2021, Intel.<div>
+      <small><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+      |
+      <small><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+    </div>
+    <br/>
+    <small>
+      Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.
+    </small>
+  </p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v0.2.2
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="datumaro.plugins.open_images_format.html">v0.2.2</a></dd>
+            <dd><a href="../../../../v0.2.3/api/plugins/plugins/datumaro.plugins.open_images_format.html">v0.2.3</a></dd>
+            <dd><a href="../../../../v0.3/api/plugins/plugins/datumaro.plugins.open_images_format.html">v0.3</a></dd>
+            <dd><a href="../../../../v0.3.1/api/plugins/plugins/datumaro.plugins.open_images_format.html">v0.3.1</a></dd>
+            <dd><a href="../../../../v0.4.0.1/api/plugins/plugins/datumaro.plugins.open_images_format.html">v0.4.0.1</a></dd>
+            <dd><a href="../../../../v0.5.0/index.html">v0.5.0</a></dd>
+            <dd><a href="../../../../v0.5.0-rc1/index.html">v0.5.0-rc1</a></dd>
+            <dd><a href="../../../../v0.5.0-rc2/index.html">v0.5.0-rc2</a></dd>
+            <dd><a href="../../../../v1.0.0/index.html">v1.0.0</a></dd>
+            <dd><a href="../../../../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../../../../v1.1.0rc1/index.html">v1.1.0rc1</a></dd>
+            <dd><a href="../../../../v1.1.1/index.html">v1.1.1</a></dd>
+        </dl>
+    </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

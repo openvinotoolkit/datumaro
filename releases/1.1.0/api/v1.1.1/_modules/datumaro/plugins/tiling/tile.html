@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>datumaro.plugins.tiling.tile &mdash; Datumaro API documentation 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/banner.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/clipboard.min.js"></script>
+        <script src="../../../../_static/copybutton.js"></script>
+        <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #30638E" >
+  <a href="../../../../index.html" class="icon"> Datumaro API documentation
+</a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/developer_manual.html">Developer Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/datumaro/datumaro.html">datumaro module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/cli/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/components/components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/plugins/plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/util/util/util.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/">Back to main documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #30638E" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Datumaro API documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>datumaro.plugins.tiling.tile</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for datumaro.plugins.tiling.tile</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2023 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">shapely.geometry</span> <span class="k">as</span> <span class="nn">sg</span>
+<span class="kn">import</span> <span class="nn">shapely.ops</span> <span class="k">as</span> <span class="nn">so</span>
+
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Annotation</span><span class="p">,</span>
+    <span class="n">AnnotationType</span><span class="p">,</span>
+    <span class="n">Bbox</span><span class="p">,</span>
+    <span class="n">DepthAnnotation</span><span class="p">,</span>
+    <span class="n">Mask</span><span class="p">,</span>
+    <span class="n">Points</span><span class="p">,</span>
+    <span class="n">Polygon</span><span class="p">,</span>
+    <span class="n">PolyLine</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.cli_plugin</span> <span class="kn">import</span> <span class="n">CliPlugin</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span><span class="p">,</span> <span class="n">MediaTypeError</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">BboxIntCoords</span><span class="p">,</span> <span class="n">Image</span><span class="p">,</span> <span class="n">RoIImage</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.transformer</span> <span class="kn">import</span> <span class="n">Transform</span>
+<span class="kn">from</span> <span class="nn">datumaro.plugins.tiling.util</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">clip_x1y1x2y2</span><span class="p">,</span>
+    <span class="n">cxcywh_to_x1y1x2y2</span><span class="p">,</span>
+    <span class="n">x1y1x2y2_to_cxcywh</span><span class="p">,</span>
+    <span class="n">x1y1x2y2_to_xywh</span><span class="p">,</span>
+    <span class="n">xywh_to_x1y1x2y2</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_apply_offset</span><span class="p">(</span><span class="n">geom</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span><span class="p">,</span> <span class="n">roi_box</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sg</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span><span class="p">:</span>
+    <span class="n">offset_x</span><span class="p">,</span> <span class="n">offset_y</span> <span class="o">=</span> <span class="n">roi_box</span><span class="o">.</span><span class="n">bounds</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">so</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">offset_x</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="n">offset_y</span><span class="p">),</span> <span class="n">geom</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_tile_mask</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="n">Mask</span><span class="p">,</span> <span class="n">roi_int</span><span class="p">:</span> <span class="n">BboxIntCoords</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mask</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">roi_int</span>
+    <span class="n">tiled_mask</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span>
+        <span class="n">image</span><span class="o">=</span><span class="n">tiled_mask</span><span class="p">,</span>
+        <span class="n">attributes</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_tile_points</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="n">Points</span><span class="p">,</span> <span class="n">roi_box</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Points</span><span class="p">]:</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">MultiPoint</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">get_points</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">roi_box</span><span class="o">.</span><span class="n">covers</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">points</span> <span class="o">=</span> <span class="n">_apply_offset</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">roi_box</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span>
+        <span class="n">points</span><span class="o">=</span><span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points</span><span class="o">.</span><span class="n">geoms</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">)],</span>
+        <span class="n">attributes</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="p">),</span>
+        <span class="n">visibility</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">visibility</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_tile_polygon</span><span class="p">(</span>
+    <span class="n">ann</span><span class="p">:</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">roi_box</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span><span class="p">,</span> <span class="n">threshold_drop_ann</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Polygon</span><span class="p">]:</span>
+    <span class="n">polygon</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">get_points</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">roi_box</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">polygon</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">inter</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span> <span class="o">=</span> <span class="n">polygon</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">roi_box</span><span class="p">)</span>
+    <span class="n">prop_area</span> <span class="o">=</span> <span class="n">inter</span><span class="o">.</span><span class="n">area</span> <span class="o">/</span> <span class="n">polygon</span><span class="o">.</span><span class="n">area</span>
+
+    <span class="k">if</span> <span class="n">prop_area</span> <span class="o">&lt;</span> <span class="n">threshold_drop_ann</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">inter</span> <span class="o">=</span> <span class="n">_apply_offset</span><span class="p">(</span><span class="n">inter</span><span class="p">,</span> <span class="n">roi_box</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span>
+        <span class="n">points</span><span class="o">=</span><span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">xy</span> <span class="ow">in</span> <span class="n">inter</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">xy</span><span class="p">],</span> <span class="n">attributes</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_tile_polyline</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="n">PolyLine</span><span class="p">,</span> <span class="n">roi_box</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PolyLine</span><span class="p">]:</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">LineString</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">get_points</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">roi_box</span><span class="o">.</span><span class="n">covers</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">_apply_offset</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">roi_box</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span>
+        <span class="n">points</span><span class="o">=</span><span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">lines</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
+        <span class="n">attributes</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_tile_bbox</span><span class="p">(</span>
+    <span class="n">ann</span><span class="p">:</span> <span class="n">Bbox</span><span class="p">,</span> <span class="n">roi_box</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span><span class="p">,</span> <span class="n">threshold_drop_ann</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Bbox</span><span class="p">]:</span>
+    <span class="n">bbox</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="o">*</span><span class="n">xywh_to_x1y1x2y2</span><span class="p">(</span><span class="o">*</span><span class="n">ann</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">roi_box</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">bbox</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">inter</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">roi_box</span><span class="p">)</span>
+    <span class="n">prop_area</span> <span class="o">=</span> <span class="n">inter</span><span class="o">.</span><span class="n">area</span> <span class="o">/</span> <span class="n">bbox</span><span class="o">.</span><span class="n">area</span>
+
+    <span class="k">if</span> <span class="n">prop_area</span> <span class="o">&lt;</span> <span class="n">threshold_drop_ann</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">inter</span> <span class="o">=</span> <span class="n">_apply_offset</span><span class="p">(</span><span class="n">inter</span><span class="p">,</span> <span class="n">roi_box</span><span class="p">)</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">x1y1x2y2_to_xywh</span><span class="p">(</span><span class="o">*</span><span class="n">inter</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_tile_depth_annotation</span><span class="p">(</span>
+    <span class="n">ann</span><span class="p">:</span> <span class="n">DepthAnnotation</span><span class="p">,</span> <span class="n">roi_int</span><span class="p">:</span> <span class="n">BboxIntCoords</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DepthAnnotation</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">roi_int</span>
+    <span class="n">tiled_img</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">tiled_img</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_tile_by_copy</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotation</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">attributes</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_tile_not_support</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;type(ann)=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not support tiling.&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Tile"><a class="viewcode-back" href="../../../../api/plugins/plugins/datumaro.plugins.tiling.html#datumaro.plugins.tiling.Tile">[docs]</a><span class="k">class</span> <span class="nc">Tile</span><span class="p">(</span><span class="n">Transform</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply tile tranformation to items in the dataset.</span>
+<span class="sd">    This transformation is useful for detecting small objects [1]_.</span>
+<span class="sd">    The high-resolution input images are divided into overlapping small tile images</span>
+<span class="sd">    so that the relative area of small objects increases with respect to the images.</span>
+<span class="sd">    Annotations of the input image (such as bounding boxes) are also repositioned</span>
+<span class="sd">    to fit each tile image.</span>
+
+<span class="sd">    **You should set `save_media=True` to save the tiled image also.**</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The following example is the CLI command for a 3x2 tiling with a width and height overlap of 10%::</span>
+
+<span class="sd">        $ datum transform -t tile --grid-size 3 2 --overlap 0.1 0.1 --threshold-drop-ann 0.1</span>
+
+<span class="sd">    :obj:`--threshold-drop-ann` means an area threshold to remove bboxes and polygons</span>
+<span class="sd">    when they are in the boundary of the tiled image and cropped by tiling. In this example,</span>
+<span class="sd">    annotations remaining their area within 10% after tiling are discarded.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] F. Ozge Unel, Burak O. Ozkalayci, and Cevahir Cigla.</span>
+<span class="sd">       &quot;The power of tiling for small object detection.&quot;</span>
+<span class="sd">       Proceedings of the IEEE/CVF Conference on Computer Vision</span>
+<span class="sd">       and Pattern Recognition Workshops. 2019.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_tile_ann_func_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">_tile_by_copy</span><span class="p">,</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">:</span> <span class="n">_tile_mask</span><span class="p">,</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">:</span> <span class="n">_tile_points</span><span class="p">,</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polygon</span><span class="p">:</span> <span class="n">_tile_polygon</span><span class="p">,</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polyline</span><span class="p">:</span> <span class="n">_tile_polyline</span><span class="p">,</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span><span class="p">:</span> <span class="n">_tile_bbox</span><span class="p">,</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">caption</span><span class="p">:</span> <span class="n">_tile_by_copy</span><span class="p">,</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">cuboid_3d</span><span class="p">:</span> <span class="n">_tile_not_support</span><span class="p">,</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">super_resolution_annotation</span><span class="p">:</span> <span class="n">_tile_not_support</span><span class="p">,</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">depth_annotation</span><span class="p">:</span> <span class="n">_tile_depth_annotation</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="Tile.build_cmdline_parser"><a class="viewcode-back" href="../../../../api/plugins/plugins/datumaro.plugins.tiling.html#datumaro.plugins.tiling.Tile.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--grid-size&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;N_ROWS&quot;</span><span class="p">,</span> <span class="s2">&quot;N_COLS&quot;</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Grid size, e.g. &#39;--grid-size 2 3&#39; will produce 2x3 tiled images.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--overlap&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;PERC_HEIGHT&quot;</span><span class="p">,</span> <span class="s2">&quot;PERC_WIDTH&quot;</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Percentage of overlaps between tiled images, e.g.&quot;</span>
+            <span class="s2">&quot; &#39;--overlap 0.1 0.2&#39; will create overlaps of 10</span><span class="si">% x</span><span class="s2"> height of tiled image&quot;</span>
+            <span class="s2">&quot; and 20</span><span class="si">% x</span><span class="s2"> width of tiled image.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--threshold-drop-ann&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Threshold for dropping Polygon and Bbox annotations when tiling.&quot;</span>
+            <span class="s2">&quot; Polygon and Bbox should be cropped if they exist on the edge of the tiled image.&quot;</span>
+            <span class="s2">&quot; If an area of the cropped annotation / an area of the original annoation  &lt; `threshold_drop_ann`,&quot;</span>
+            <span class="s2">&quot; drop the corresponding annotation.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="Tile.__init__"><a class="viewcode-back" href="../../../../api/plugins/plugins/datumaro.plugins.tiling.html#datumaro.plugins.tiling.Tile.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">extractor</span><span class="p">,</span>
+        <span class="n">grid_size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+        <span class="n">overlap</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">threshold_drop_ann</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">extractor</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_size</span> <span class="o">=</span> <span class="n">grid_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_overlap</span> <span class="o">=</span> <span class="n">overlap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_threshold_drop_ann</span> <span class="o">=</span> <span class="n">threshold_drop_ann</span></div>
+
+<div class="viewcode-block" id="Tile.__iter__"><a class="viewcode-back" href="../../../../api/plugins/plugins/datumaro.plugins.tiling.html#datumaro.plugins.tiling.Tile.__iter__">[docs]</a>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="p">:</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">item</span></div>
+
+<div class="viewcode-block" id="Tile.transform_item"><a class="viewcode-back" href="../../../../api/plugins/plugins/datumaro.plugins.tiling.html#datumaro.plugins.tiling.Tile.transform_item">[docs]</a>    <span class="k">def</span> <span class="nf">transform_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">MediaTypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;item.media should be Image, but type(item.media)=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">items</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">rois</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_rois</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">roi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rois</span><span class="p">):</span>
+            <span class="n">items</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wrap_item</span><span class="p">(</span>
+                    <span class="n">item</span><span class="p">,</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;_tile_</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">media</span><span class="o">=</span><span class="n">RoIImage</span><span class="o">.</span><span class="n">create_from_image</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">roi</span><span class="p">),</span>
+                    <span class="n">attributes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_tiled_attributes</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">roi</span><span class="p">),</span>
+                    <span class="n">annotations</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_tiled_annotations</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">roi</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">items</span></div>
+
+    <span class="k">def</span> <span class="nf">_extract_rois</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="n">Image</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BboxIntCoords</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="n">image</span><span class="o">.</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;image.size is None.&quot;</span>
+
+        <span class="n">max_h</span><span class="p">,</span> <span class="n">max_w</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">n_row</span><span class="p">,</span> <span class="n">n_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_size</span>
+        <span class="n">new_h</span><span class="p">,</span> <span class="n">new_w</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_h</span> <span class="o">/</span> <span class="n">n_row</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_w</span> <span class="o">/</span> <span class="n">n_col</span><span class="p">)</span>
+        <span class="n">h_ovl</span><span class="p">,</span> <span class="n">w_ovl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_overlap</span>
+
+        <span class="n">rois</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BboxIntCoords</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_row</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_col</span><span class="p">):</span>
+                <span class="n">y1</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">new_h</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span> <span class="n">new_w</span> <span class="o">*</span> <span class="n">c</span>
+                <span class="n">y2</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">y1</span> <span class="o">+</span> <span class="n">new_h</span><span class="p">,</span> <span class="n">x1</span> <span class="o">+</span> <span class="n">new_w</span>
+
+                <span class="n">c_x</span><span class="p">,</span> <span class="n">c_y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">x1y1x2y2_to_cxcywh</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span>
+                <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">w_ovl</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">h_ovl</span><span class="p">))</span>
+                <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">cxcywh_to_x1y1x2y2</span><span class="p">(</span><span class="n">c_x</span><span class="p">,</span> <span class="n">c_y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+                <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">clip_x1y1x2y2</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">max_w</span><span class="p">,</span> <span class="n">max_h</span><span class="p">)</span>
+                <span class="n">rois</span> <span class="o">+=</span> <span class="p">[</span><span class="n">x1y1x2y2_to_xywh</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">rois</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_tiled_attributes</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">roi</span><span class="p">:</span> <span class="n">BboxIntCoords</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;tile_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;tile_idx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;roi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi</span>
+        <span class="k">return</span> <span class="n">attributes</span>
+
+    <span class="k">def</span> <span class="nf">_get_tiled_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">roi</span><span class="p">:</span> <span class="n">BboxIntCoords</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]:</span>
+        <span class="n">roi_box</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="o">*</span><span class="n">xywh_to_x1y1x2y2</span><span class="p">(</span><span class="o">*</span><span class="n">roi</span><span class="p">))</span>
+
+        <span class="n">tiled_anns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
+            <span class="n">tiled_ann</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tile_ann_func_map</span><span class="p">[</span><span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">](</span>
+                <span class="n">ann</span><span class="p">,</span> <span class="n">roi_int</span><span class="o">=</span><span class="n">roi</span><span class="p">,</span> <span class="n">roi_box</span><span class="o">=</span><span class="n">roi_box</span><span class="p">,</span> <span class="n">threshold_drop_ann</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_threshold_drop_ann</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">tiled_ann</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tiled_anns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tiled_ann</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tiled_anns</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>
+      &#169; Copyright 2021, Intel.<div>
+      <small><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+      |
+      <small><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+    </div>
+    <br/>
+    <small>
+      Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.
+    </small>
+  </p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v1.1.1
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../../../../v0.2.2/index.html">v0.2.2</a></dd>
+            <dd><a href="../../../../../v0.2.3/index.html">v0.2.3</a></dd>
+            <dd><a href="../../../../../v0.3/index.html">v0.3</a></dd>
+            <dd><a href="../../../../../v0.3.1/index.html">v0.3.1</a></dd>
+            <dd><a href="../../../../../v0.4.0.1/index.html">v0.4.0.1</a></dd>
+            <dd><a href="../../../../../v0.5.0/index.html">v0.5.0</a></dd>
+            <dd><a href="../../../../../v0.5.0-rc1/index.html">v0.5.0-rc1</a></dd>
+            <dd><a href="../../../../../v0.5.0-rc2/index.html">v0.5.0-rc2</a></dd>
+            <dd><a href="../../../../../v1.0.0/index.html">v1.0.0</a></dd>
+            <dd><a href="../../../../../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../../../../../v1.1.0rc1/index.html">v1.1.0rc1</a></dd>
+            <dd><a href="tile.html">v1.1.1</a></dd>
+        </dl>
+    </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

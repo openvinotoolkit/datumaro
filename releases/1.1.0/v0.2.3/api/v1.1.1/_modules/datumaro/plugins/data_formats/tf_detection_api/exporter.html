@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>datumaro.plugins.data_formats.tf_detection_api.exporter &mdash; Datumaro API documentation 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/banner.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/clipboard.min.js"></script>
+        <script src="../../../../../_static/copybutton.js"></script>
+        <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #30638E" >
+  <a href="../../../../../index.html" class="icon"> Datumaro API documentation
+</a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/developer_manual.html">Developer Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/datumaro/datumaro.html">datumaro module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/cli/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/components/components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/plugins/plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/util/util/util.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/">Back to main documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #30638E" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Datumaro API documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+      <li>datumaro.plugins.data_formats.tf_detection_api.exporter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for datumaro.plugins.data_formats.tf_detection_api.exporter</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2019-2020 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.exporter</span> <span class="kn">import</span> <span class="n">Exporter</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">ByteImage</span><span class="p">,</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">find_group_leader</span><span class="p">,</span> <span class="n">find_instances</span><span class="p">,</span> <span class="n">max_bbox</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">encode_image</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">merge_masks</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.tf_util</span> <span class="kn">import</span> <span class="n">import_tf</span> <span class="k">as</span> <span class="n">_import_tf</span>
+
+<span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">DetectionApiPath</span>
+
+<span class="n">tf</span> <span class="o">=</span> <span class="n">_import_tf</span><span class="p">()</span>
+
+
+<span class="c1"># filter out non-ASCII characters, otherwise training will crash</span>
+<span class="n">_printable</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">printable</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_make_printable</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">_printable</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="int64_feature"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.int64_feature">[docs]</a><span class="k">def</span> <span class="nf">int64_feature</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">int64_list</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Int64List</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="n">value</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="int64_list_feature"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.int64_list_feature">[docs]</a><span class="k">def</span> <span class="nf">int64_list_feature</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">int64_list</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Int64List</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="bytes_feature"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.bytes_feature">[docs]</a><span class="k">def</span> <span class="nf">bytes_feature</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">bytes_list</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">BytesList</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="n">value</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="bytes_list_feature"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.bytes_list_feature">[docs]</a><span class="k">def</span> <span class="nf">bytes_list_feature</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">bytes_list</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">BytesList</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="float_list_feature"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.float_list_feature">[docs]</a><span class="k">def</span> <span class="nf">float_list_feature</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">float_list</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">FloatList</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TfDetectionApiExporter"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter">[docs]</a><span class="k">class</span> <span class="nc">TfDetectionApiExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+    <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">DetectionApiPath</span><span class="o">.</span><span class="n">DEFAULT_IMAGE_EXT</span>
+
+<div class="viewcode-block" id="TfDetectionApiExporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--save-masks&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include instance masks (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="TfDetectionApiExporter.__init__"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extractor</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="n">save_masks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">extractor</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_masks</span> <span class="o">=</span> <span class="n">save_masks</span></div>
+
+<div class="viewcode-block" id="TfDetectionApiExporter.apply"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">label_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">())</span>
+        <span class="n">get_label</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">label_id</span><span class="p">:</span> <span class="n">label_categories</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">label_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">label_ids</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">label_categories</span><span class="o">.</span><span class="n">items</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">map_label_id</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">label_id</span><span class="p">:</span> <span class="n">label_ids</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">get_label</span><span class="p">(</span><span class="n">label_id</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_label</span> <span class="o">=</span> <span class="n">get_label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_label_id</span> <span class="o">=</span> <span class="n">map_label_id</span>
+
+        <span class="k">for</span> <span class="n">subset_name</span><span class="p">,</span> <span class="n">subset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">subsets</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">labelmap_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="n">DetectionApiPath</span><span class="o">.</span><span class="n">LABELMAP_FILE</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">labelmap_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">label_ids</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                        <span class="s2">&quot;item {</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">id: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">name: &#39;</span><span class="si">%s</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+            <span class="n">anno_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.tfrecord&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">subset_name</span><span class="p">))</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">TFRecordWriter</span><span class="p">(</span><span class="n">anno_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">:</span>
+                    <span class="n">tf_example</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_tf_example</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tf_example</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">())</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_find_instances</span><span class="p">(</span><span class="n">annotations</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">find_instances</span><span class="p">(</span>
+            <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">annotations</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_find_instance_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">img_width</span><span class="p">,</span> <span class="n">img_height</span><span class="p">):</span>
+        <span class="n">boxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">group</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span><span class="p">]</span>
+        <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">group</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span>
+
+        <span class="n">anns</span> <span class="o">=</span> <span class="n">boxes</span> <span class="o">+</span> <span class="n">masks</span>
+        <span class="n">leader</span> <span class="o">=</span> <span class="n">find_group_leader</span><span class="p">(</span><span class="n">anns</span><span class="p">)</span>
+        <span class="n">bbox</span> <span class="o">=</span> <span class="n">max_bbox</span><span class="p">(</span><span class="n">anns</span><span class="p">)</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_masks</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">merge_masks</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">image</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">leader</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">bbox</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_export_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+        <span class="n">xmins</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># List of normalized left x coordinates of bounding boxes (1 per box)</span>
+        <span class="n">xmaxs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># List of normalized right x coordinates of bounding boxes (1 per box)</span>
+        <span class="n">ymins</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># List of normalized top y coordinates of bounding boxes (1 per box)</span>
+        <span class="n">ymaxs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># List of normalized bottom y coordinates of bounding boxes (1 per box)</span>
+        <span class="n">classes_text</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># List of class names of bounding boxes (1 per box)</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># List of class ids of bounding boxes (1 per box)</span>
+        <span class="n">masks</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># List of PNG-encoded instance masks (1 per box)</span>
+
+        <span class="k">for</span> <span class="n">leader</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">instances</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">_make_printable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_label</span><span class="p">(</span><span class="n">leader</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+            <span class="n">classes_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="n">classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_label_id</span><span class="p">(</span><span class="n">leader</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+
+            <span class="n">xmins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">width</span><span class="p">)</span>
+            <span class="n">xmaxs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="n">width</span><span class="p">)</span>
+            <span class="n">ymins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">height</span><span class="p">)</span>
+            <span class="n">ymaxs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">/</span> <span class="n">height</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_masks</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">mask</span> <span class="o">=</span> <span class="n">encode_image</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mask</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+                <span class="n">masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">classes</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;image/object/bbox/xmin&quot;</span><span class="p">:</span> <span class="n">float_list_feature</span><span class="p">(</span><span class="n">xmins</span><span class="p">),</span>
+                <span class="s2">&quot;image/object/bbox/xmax&quot;</span><span class="p">:</span> <span class="n">float_list_feature</span><span class="p">(</span><span class="n">xmaxs</span><span class="p">),</span>
+                <span class="s2">&quot;image/object/bbox/ymin&quot;</span><span class="p">:</span> <span class="n">float_list_feature</span><span class="p">(</span><span class="n">ymins</span><span class="p">),</span>
+                <span class="s2">&quot;image/object/bbox/ymax&quot;</span><span class="p">:</span> <span class="n">float_list_feature</span><span class="p">(</span><span class="n">ymaxs</span><span class="p">),</span>
+                <span class="s2">&quot;image/object/class/text&quot;</span><span class="p">:</span> <span class="n">bytes_list_feature</span><span class="p">(</span><span class="n">classes_text</span><span class="p">),</span>
+                <span class="s2">&quot;image/object/class/label&quot;</span><span class="p">:</span> <span class="n">int64_list_feature</span><span class="p">(</span><span class="n">classes</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">masks</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;image/object/mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bytes_list_feature</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_make_tf_example</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;image/source_id&quot;</span><span class="p">:</span> <span class="n">bytes_feature</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source_id&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_image_filename</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="n">features</span><span class="p">[</span><span class="s2">&quot;image/filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bytes_feature</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s2">&quot;Failed to export dataset item &#39;</span><span class="si">%s</span><span class="s2">&#39;: &quot;</span> <span class="s2">&quot;item has no image info&quot;</span> <span class="o">%</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span>
+            <span class="p">)</span>
+        <span class="n">height</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;image/height&quot;</span><span class="p">:</span> <span class="n">int64_feature</span><span class="p">(</span><span class="n">height</span><span class="p">),</span>
+                <span class="s2">&quot;image/width&quot;</span><span class="p">:</span> <span class="n">int64_feature</span><span class="p">(</span><span class="n">width</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;image/encoded&quot;</span><span class="p">:</span> <span class="n">bytes_feature</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;image/format&quot;</span><span class="p">:</span> <span class="n">bytes_feature</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;image/key/sha256&quot;</span><span class="p">:</span> <span class="n">bytes_feature</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_media</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">has_data</span><span class="p">:</span>
+                <span class="n">buffer</span><span class="p">,</span> <span class="n">fmt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_image</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+                <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;image/encoded&quot;</span><span class="p">:</span> <span class="n">bytes_feature</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span>
+                        <span class="s2">&quot;image/format&quot;</span><span class="p">:</span> <span class="n">bytes_feature</span><span class="p">(</span><span class="n">fmt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)),</span>
+                        <span class="s2">&quot;image/key/sha256&quot;</span><span class="p">:</span> <span class="n">bytes_feature</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Item &#39;</span><span class="si">%s</span><span class="s2">&#39; has no image&quot;</span> <span class="o">%</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="n">instances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_instances</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">)</span>
+        <span class="n">instances</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_find_instance_parts</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">instances</span><span class="p">]</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_instances</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+
+        <span class="n">tf_example</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Example</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Features</span><span class="p">(</span><span class="n">feature</span><span class="o">=</span><span class="n">features</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">tf_example</span>
+
+    <span class="k">def</span> <span class="nf">_save_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+        <span class="n">src_ext</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">dst_ext</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">DetectionApiPath</span><span class="o">.</span><span class="n">IMAGE_EXT_FORMAT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dst_ext</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fmt</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Item &#39;</span><span class="si">%s</span><span class="s2">&#39;: can&#39;t find format string for the &#39;</span><span class="si">%s</span><span class="s2">&#39; &quot;</span>
+                <span class="s2">&quot;image extension, the corresponding field will be empty.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">dst_ext</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">src_ext</span> <span class="o">==</span> <span class="n">dst_ext</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">ByteImage</span><span class="p">):</span>
+            <span class="n">buffer</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">get_bytes</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">buffer</span> <span class="o">=</span> <span class="n">encode_image</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dst_ext</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">fmt</span>
+
+<div class="viewcode-block" id="TfDetectionApiExporter.patch"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter.patch">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">patch</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">patch</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">patch</span><span class="o">.</span><span class="n">updated_subsets</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">subset</span><span class="p">),</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>
+      &#169; Copyright 2021, Intel.<div>
+      <small><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+      |
+      <small><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+    </div>
+    <br/>
+    <small>
+      Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.
+    </small>
+  </p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v1.1.1
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../../../../../v0.2.2/index.html">v0.2.2</a></dd>
+            <dd><a href="../../../../../../v0.2.3/index.html">v0.2.3</a></dd>
+            <dd><a href="../../../../../../v0.3/index.html">v0.3</a></dd>
+            <dd><a href="../../../../../../v0.3.1/index.html">v0.3.1</a></dd>
+            <dd><a href="../../../../../../v0.4.0.1/index.html">v0.4.0.1</a></dd>
+            <dd><a href="../../../../../../v0.5.0/index.html">v0.5.0</a></dd>
+            <dd><a href="../../../../../../v0.5.0-rc1/index.html">v0.5.0-rc1</a></dd>
+            <dd><a href="../../../../../../v0.5.0-rc2/index.html">v0.5.0-rc2</a></dd>
+            <dd><a href="../../../../../../v1.0.0/index.html">v1.0.0</a></dd>
+            <dd><a href="../../../../../../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../../../../../../v1.1.0rc1/index.html">v1.1.0rc1</a></dd>
+            <dd><a href="exporter.html">v1.1.1</a></dd>
+        </dl>
+    </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

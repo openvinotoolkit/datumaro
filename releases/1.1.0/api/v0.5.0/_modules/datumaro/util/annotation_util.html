@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>datumaro.util.annotation_util &mdash; Datumaro API documentation 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/banner.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #30638E" >
+  <a href="../../../index.html" class="icon"> Datumaro API documentation
+</a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/developer_manual.html">Developer Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/datumaro/datumaro.html">datumaro module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/cli/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/components/components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/plugins/plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/util/util/util.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/">Back to main documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #30638E" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Datumaro API documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../util.html">datumaro.util</a> &raquo;</li>
+      <li>datumaro.util.annotation_util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for datumaro.util.annotation_util</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2020-2021 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">groupby</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">NewType</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">,</span> <span class="n">Mask</span><span class="p">,</span> <span class="n">RleMask</span><span class="p">,</span> <span class="n">_Shape</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">mask_to_rle</span>
+
+
+<div class="viewcode-block" id="find_instances"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.find_instances">[docs]</a><span class="k">def</span> <span class="nf">find_instances</span><span class="p">(</span><span class="n">instance_anns</span><span class="p">):</span>
+    <span class="n">instance_anns</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">instance_anns</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">group</span><span class="p">)</span>
+    <span class="n">ann_groups</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">g_id</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groupby</span><span class="p">(</span><span class="n">instance_anns</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">group</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">g_id</span><span class="p">:</span>
+            <span class="n">ann_groups</span><span class="o">.</span><span class="n">extend</span><span class="p">(([</span><span class="n">a</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">group</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ann_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">ann_groups</span></div>
+
+
+<div class="viewcode-block" id="find_group_leader"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.find_group_leader">[docs]</a><span class="k">def</span> <span class="nf">find_group_leader</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get_area</span><span class="p">())</span></div>
+
+
+<span class="n">BboxCoords</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+<span class="n">Shape</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s2">&quot;Shape&quot;</span><span class="p">,</span> <span class="n">_Shape</span><span class="p">)</span>
+<span class="n">SpatialAnnotation</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Shape</span><span class="p">,</span> <span class="n">Mask</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="_get_bbox"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util._get_bbox">[docs]</a><span class="k">def</span> <span class="nf">_get_bbox</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">SpatialAnnotation</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BboxCoords</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="p">(</span><span class="n">_Shape</span><span class="p">,</span> <span class="n">Mask</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s2">&quot;__len__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ann</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The value of type &#39;</span><span class="si">%s</span><span class="s2">&#39; can&#39;t be treated as a &quot;</span> <span class="s2">&quot;bounding box&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">ann</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="max_bbox"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.max_bbox">[docs]</a><span class="k">def</span> <span class="nf">max_bbox</span><span class="p">(</span><span class="n">annotations</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">BboxCoords</span><span class="p">,</span> <span class="n">SpatialAnnotation</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">BboxCoords</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the maximum bbox for the set of spatial annotations and boxes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      bbox (tuple): (x, y, w, h)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">boxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_bbox</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span> <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annotations</span><span class="p">]</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">y0</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="mean_bbox"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.mean_bbox">[docs]</a><span class="k">def</span> <span class="nf">mean_bbox</span><span class="p">(</span><span class="n">annotations</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">BboxCoords</span><span class="p">,</span> <span class="n">SpatialAnnotation</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">BboxCoords</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the mean bbox for the set of spatial annotations and boxes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      bbox (tuple): (x, y, w, h)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">le</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotations</span><span class="p">)</span>
+    <span class="n">boxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_bbox</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span> <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annotations</span><span class="p">]</span>
+    <span class="n">mlb</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">)</span> <span class="o">/</span> <span class="n">le</span>
+    <span class="n">mtb</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">)</span> <span class="o">/</span> <span class="n">le</span>
+    <span class="n">mrb</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">)</span> <span class="o">/</span> <span class="n">le</span>
+    <span class="n">mbb</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">)</span> <span class="o">/</span> <span class="n">le</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">mlb</span><span class="p">,</span> <span class="n">mtb</span><span class="p">,</span> <span class="n">mrb</span> <span class="o">-</span> <span class="n">mlb</span><span class="p">,</span> <span class="n">mbb</span> <span class="o">-</span> <span class="n">mtb</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="softmax"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.softmax">[docs]</a><span class="k">def</span> <span class="nf">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="nms"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.nms">[docs]</a><span class="k">def</span> <span class="nf">nms</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">iou_thresh</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Non-maxima suppression algorithm.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">])</span>
+    <span class="n">ious</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">segment_iou</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">])</span>
+
+    <span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">pred_idx</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segments</span><span class="p">[</span><span class="n">pred_idx</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">box_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">[:</span><span class="n">i</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">iou_thresh</span> <span class="o">&lt;</span> <span class="n">ious</span><span class="p">[</span><span class="n">pred_idx</span><span class="p">,</span> <span class="n">box_idx</span><span class="p">]:</span>
+                <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">to_remove</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">predictions</span></div>
+
+
+<div class="viewcode-block" id="bbox_iou"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.bbox_iou">[docs]</a><span class="k">def</span> <span class="nf">bbox_iou</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    IoU computations for simple cases with bounding boxes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bbox_a</span> <span class="o">=</span> <span class="n">_get_bbox</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">bbox_b</span> <span class="o">=</span> <span class="n">_get_bbox</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+    <span class="n">aX</span><span class="p">,</span> <span class="n">aY</span><span class="p">,</span> <span class="n">aW</span><span class="p">,</span> <span class="n">aH</span> <span class="o">=</span> <span class="n">bbox_a</span>
+    <span class="n">bX</span><span class="p">,</span> <span class="n">bY</span><span class="p">,</span> <span class="n">bW</span><span class="p">,</span> <span class="n">bH</span> <span class="o">=</span> <span class="n">bbox_b</span>
+    <span class="n">in_right</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">aX</span> <span class="o">+</span> <span class="n">aW</span><span class="p">,</span> <span class="n">bX</span> <span class="o">+</span> <span class="n">bW</span><span class="p">)</span>
+    <span class="n">in_left</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">aX</span><span class="p">,</span> <span class="n">bX</span><span class="p">)</span>
+    <span class="n">in_top</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">aY</span><span class="p">,</span> <span class="n">bY</span><span class="p">)</span>
+    <span class="n">in_bottom</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">aY</span> <span class="o">+</span> <span class="n">aH</span><span class="p">,</span> <span class="n">bY</span> <span class="o">+</span> <span class="n">bH</span><span class="p">)</span>
+
+    <span class="n">in_w</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">in_right</span> <span class="o">-</span> <span class="n">in_left</span><span class="p">)</span>
+    <span class="n">in_h</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">in_bottom</span> <span class="o">-</span> <span class="n">in_top</span><span class="p">)</span>
+    <span class="n">intersection</span> <span class="o">=</span> <span class="n">in_w</span> <span class="o">*</span> <span class="n">in_h</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">intersection</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">a_area</span> <span class="o">=</span> <span class="n">aW</span> <span class="o">*</span> <span class="n">aH</span>
+    <span class="n">b_area</span> <span class="o">=</span> <span class="n">bW</span> <span class="o">*</span> <span class="n">bH</span>
+    <span class="n">union</span> <span class="o">=</span> <span class="n">a_area</span> <span class="o">+</span> <span class="n">b_area</span> <span class="o">-</span> <span class="n">intersection</span>
+    <span class="k">return</span> <span class="n">intersection</span> <span class="o">/</span> <span class="n">union</span></div>
+
+
+<div class="viewcode-block" id="segment_iou"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.segment_iou">[docs]</a><span class="k">def</span> <span class="nf">segment_iou</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generic IoU computation with masks, polygons, and boxes.</span>
+<span class="sd">    Returns -1 if no intersection, [0; 1] otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pycocotools</span> <span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">mask_utils</span>
+
+    <span class="n">a_bbox</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">())</span>
+    <span class="n">b_bbox</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">())</span>
+
+    <span class="n">is_bbox</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span> <span class="ow">in</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">is_bbox</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">a_bbox</span><span class="p">]</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="n">b_bbox</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">a_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">a_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">b_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">a_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">a_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">b_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">b_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="k">def</span> <span class="nf">_to_rle</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polygon</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">([</span><span class="n">ann</span><span class="o">.</span><span class="n">points</span><span class="p">],</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">RleMask</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">ann</span><span class="o">.</span><span class="n">rle</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">([</span><span class="n">mask_to_rle</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">image</span><span class="p">)],</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Unexpected arguments: </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+
+        <span class="n">a</span> <span class="o">=</span> <span class="n">_to_rle</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">_to_rle</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">mask_utils</span><span class="o">.</span><span class="n">iou</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="p">[</span><span class="ow">not</span> <span class="n">is_bbox</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="PDJ"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.PDJ">[docs]</a><span class="k">def</span> <span class="nf">PDJ</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Percentage of Detected Joints metric.</span>
+<span class="sd">    Counts the number of matching points.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">eps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ratio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">points</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">p2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">points</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">eps</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">mean_bbox</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
+
+        <span class="n">diag</span> <span class="o">=</span> <span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="n">ratio</span> <span class="o">*</span> <span class="n">diag</span>
+
+    <span class="n">dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dists</span> <span class="o">&lt;</span> <span class="n">eps</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OKS"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.OKS">[docs]</a><span class="k">def</span> <span class="nf">OKS</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object Keypoint Similarity metric.</span>
+<span class="sd">    https://cocodataset.org/#keypoints-eval</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">points</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">p2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">points</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sigma</span><span class="p">:</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">scale</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">mean_bbox</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="n">dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">dists</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="approximate_line"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.approximate_line">[docs]</a><span class="k">def</span> <span class="nf">approximate_line</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Approximates a 2d line to the required number of segments. The new points</span>
+<span class="sd">    are distributed uniformly across the input line.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      points (Sequence): an array of line point coordinates.</span>
+<span class="sd">        The size is [points * 2], the layout is [x0, y0, x1, y1, ...].</span>
+<span class="sd">      segments (int): the required numebr of segments in the resulting line.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        new_points (numpy.ndarray): an array of new line point coordinates.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        The size is [(segments + 1) * 2], the layout is [x0, y0, x1, y1, ...].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">segments</span>
+
+    <span class="n">points</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">points</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">points</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">dists</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lengths</span><span class="p">:</span>
+        <span class="n">dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dists</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">)</span>
+
+    <span class="n">step</span> <span class="o">=</span> <span class="n">dists</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">segments</span>
+
+    <span class="n">new_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">segments</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">new_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">old_segment</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">new_segment</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">segments</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">new_segment</span> <span class="o">*</span> <span class="n">step</span>
+        <span class="k">while</span> <span class="n">dists</span><span class="p">[</span><span class="n">old_segment</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pos</span> <span class="ow">and</span> <span class="n">old_segment</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">dists</span><span class="p">):</span>
+            <span class="n">old_segment</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">segment_start</span> <span class="o">=</span> <span class="n">dists</span><span class="p">[</span><span class="n">old_segment</span><span class="p">]</span>
+        <span class="n">segment_len</span> <span class="o">=</span> <span class="n">lengths</span><span class="p">[</span><span class="n">old_segment</span><span class="p">]</span>
+        <span class="n">prev_p</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">old_segment</span><span class="p">]</span>
+        <span class="n">next_p</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">old_segment</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span> <span class="o">-</span> <span class="n">segment_start</span><span class="p">)</span> <span class="o">/</span> <span class="n">segment_len</span>
+
+        <span class="n">new_points</span><span class="p">[</span><span class="n">new_segment</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_p</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r</span><span class="p">)</span> <span class="o">+</span> <span class="n">next_p</span> <span class="o">*</span> <span class="n">r</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">new_points</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span></div>
+
+
+<div class="viewcode-block" id="make_label_id_mapping"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.annotation_util.html#datumaro.util.annotation_util.make_label_id_mapping">[docs]</a><span class="k">def</span> <span class="nf">make_label_id_mapping</span><span class="p">(</span>
+    <span class="n">src_labels</span><span class="p">:</span> <span class="n">LabelCategories</span><span class="p">,</span> <span class="n">dst_labels</span><span class="p">:</span> <span class="n">LabelCategories</span><span class="p">,</span> <span class="n">fallback</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Maps label ids from source to destination. Fallback id is used for missing</span>
+<span class="sd">    labels.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    |   map_id (callable): src id -&gt; dst id</span>
+<span class="sd">    |   id_mapping (dict): src id -&gt; dst i</span>
+<span class="sd">    |   src_labels (dict): src id -&gt; src label</span>
+<span class="sd">    |   dst_labels (dict): dst id -&gt; dst label</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">source_labels</span> <span class="o">=</span> <span class="p">{</span><span class="nb">id</span><span class="p">:</span> <span class="n">label</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">src_labels</span> <span class="ow">or</span> <span class="p">())}</span>
+    <span class="n">target_labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">id</span> <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dst_labels</span> <span class="ow">or</span> <span class="p">())}</span>
+    <span class="n">id_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">src_id</span><span class="p">:</span> <span class="n">target_labels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">src_label</span><span class="p">,</span> <span class="n">fallback</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">src_id</span><span class="p">,</span> <span class="n">src_label</span> <span class="ow">in</span> <span class="n">source_labels</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">map_id</span><span class="p">(</span><span class="n">src_id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">id_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">src_id</span><span class="p">,</span> <span class="n">fallback</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">map_id</span><span class="p">,</span> <span class="n">id_mapping</span><span class="p">,</span> <span class="n">source_labels</span><span class="p">,</span> <span class="n">target_labels</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>
+      &#169; Copyright 2021, Intel.<div>
+      <small><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+      |
+      <small><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+    </div>
+    <br/>
+    <small>
+      Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.
+    </small>
+  </p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v0.5.0
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../../../v0.2.2/index.html">v0.2.2</a></dd>
+            <dd><a href="../../../../v0.2.3/index.html">v0.2.3</a></dd>
+            <dd><a href="../../../../v0.3/index.html">v0.3</a></dd>
+            <dd><a href="../../../../v0.3.1/index.html">v0.3.1</a></dd>
+            <dd><a href="../../../../v0.4.0.1/index.html">v0.4.0.1</a></dd>
+            <dd><a href="annotation_util.html">v0.5.0</a></dd>
+            <dd><a href="../../../../v0.5.0-rc1/index.html">v0.5.0-rc1</a></dd>
+            <dd><a href="../../../../v0.5.0-rc2/index.html">v0.5.0-rc2</a></dd>
+            <dd><a href="../../../../v1.0.0/index.html">v1.0.0</a></dd>
+            <dd><a href="../../../../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../../../../v1.1.0rc1/index.html">v1.1.0rc1</a></dd>
+            <dd><a href="../../../../v1.1.1/index.html">v1.1.1</a></dd>
+        </dl>
+    </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

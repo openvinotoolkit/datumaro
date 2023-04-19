@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.83.1" /><META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+
+
+<link rel="shortcut icon" href="../../favicons/favicon.ico" >
+<link rel="apple-touch-icon" href="../../favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="icon" type="image/png" href="../../favicons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="../../favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="../../favicons/android-36x36.png" sizes="36x36">
+<link rel="icon" type="image/png" href="../../favicons/android-48x48.png" sizes="48x48">
+<link rel="icon" type="image/png" href="../../favicons/android-72x72.png" sizes="72x72">
+<link rel="icon" type="image/png" href="../../favicons/android-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="../../favicons/android-144x144.png" sizes="144x144">
+<link rel="icon" type="image/png" href="../../favicons/android-192x192.png" sizes="192x192">
+
+<title>Datumaro Design | Dataset Management Framework</title>
+<meta name="description" content=""><meta property="og:title" content="Datumaro Design" />
+<meta property="og:description" content="Concept Datumaro is:
+ a tool to build composite datasets and iterate over them a tool to create and maintain datasets  Version control of annotations and images Publication (with removal of sensitive information) Editing Joining and splitting Exporting, format changing Image preprocessing   a dataset storage a tool to debug datasets  A network can be used to generate informative data subsets (e.g. with false-positives) to be analyzed further    Requirements  User interfaces  a library a console tool with visualization means   Targets: single datasets, composite datasets, single images / videos Built-in support for well-known annotation formats and datasets: CVAT, COCO, PASCAL VOC, Cityscapes, ImageNet Extensibility with user-provided components Lightweightness - it should be easy to start working with Datumaro  Minimal dependency on environment and configuration It should be easier to use Datumaro than writing own code for computation of statistics or dataset manipulations    Functionality and ideas  Blur sensitive areas on dataset images Dataset annotation filters, relabelling etc." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/docs/design/" /><meta property="article:section" content="docs" />
+
+<meta property="og:site_name" content="Dataset Management Framework" />
+
+<meta itemprop="name" content="Datumaro Design">
+<meta itemprop="description" content="Concept Datumaro is:
+ a tool to build composite datasets and iterate over them a tool to create and maintain datasets  Version control of annotations and images Publication (with removal of sensitive information) Editing Joining and splitting Exporting, format changing Image preprocessing   a dataset storage a tool to debug datasets  A network can be used to generate informative data subsets (e.g. with false-positives) to be analyzed further    Requirements  User interfaces  a library a console tool with visualization means   Targets: single datasets, composite datasets, single images / videos Built-in support for well-known annotation formats and datasets: CVAT, COCO, PASCAL VOC, Cityscapes, ImageNet Extensibility with user-provided components Lightweightness - it should be easy to start working with Datumaro  Minimal dependency on environment and configuration It should be easier to use Datumaro than writing own code for computation of statistics or dataset manipulations    Functionality and ideas  Blur sensitive areas on dataset images Dataset annotation filters, relabelling etc.">
+
+<meta itemprop="wordCount" content="646">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Datumaro Design"/>
+<meta name="twitter:description" content="Concept Datumaro is:
+ a tool to build composite datasets and iterate over them a tool to create and maintain datasets  Version control of annotations and images Publication (with removal of sensitive information) Editing Joining and splitting Exporting, format changing Image preprocessing   a dataset storage a tool to debug datasets  A network can be used to generate informative data subsets (e.g. with false-positives) to be analyzed further    Requirements  User interfaces  a library a console tool with visualization means   Targets: single datasets, composite datasets, single images / videos Built-in support for well-known annotation formats and datasets: CVAT, COCO, PASCAL VOC, Cityscapes, ImageNet Extensibility with user-provided components Lightweightness - it should be easy to start working with Datumaro  Minimal dependency on environment and configuration It should be easier to use Datumaro than writing own code for computation of statistics or dataset manipulations    Functionality and ideas  Blur sensitive areas on dataset images Dataset annotation filters, relabelling etc."/>
+
+
+
+
+<link rel="preload" href="../../scss/main.min.7739044bd284ace8b77f1ace79422fd408a2224eb69c6b8d48ef94dde2a179d5.css" as="style">
+<link href="../../scss/main.min.7739044bd284ace8b77f1ace79422fd408a2224eb69c6b8d48ef94dde2a179d5.css" rel="stylesheet" integrity="">
+
+
+<script
+  src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+  crossorigin="anonymous"></script>
+
+<script
+  src="https://unpkg.com/lunr@2.3.8/lunr.min.js"
+  integrity="sha384-vRQ9bDyE0Wnu+lMfm57BlYLO0/XauFuKpVsZPs7KEDwYKktWi5+Kz3MP8++DFlRY"
+  crossorigin="anonymous"></script>
+
+
+
+
+
+
+<link rel="stylesheet" href="../../css/prism.css"/>
+
+
+
+
+  </head>
+  <body class="td-page">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark flex-column flex-md-row td-navbar">
+  <a class="navbar-brand" href="../../docs">
+    <span class="navbar-logo"></span><span class="font-weight-bold">Dataset Management Framework</span>
+  </a>
+  <div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+    <ul class="navbar-nav mt-2 mt-lg-0">
+      
+      
+        <li class="nav-item mr-4 mb-2 mb-lg-0">
+          
+          
+          
+          
+          
+          
+          <a class="nav-link" href="https://github.com/openvinotoolkit/datumaro"  ><i class='fab fa-github'></i><span>GitHub</span></a>
+        </li>
+      
+        <li class="nav-item mr-4 mb-2 mb-lg-0" id="api">
+          <a class="nav-link" href="../../api">API documentation</a>
+        </li>
+      
+        <li class="nav-item dropdown mr-4 d-lg-block">
+          
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  v0.1.11
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+  
+    
+      <a class="dropdown-item" href="../../../docs/design/">develop</a>
+  
+    
+      <a class="dropdown-item" href="../../../v0.1.11/docs/design/">v0.1.11</a>
+  
+    
+      <a class="dropdown-item" href="../../../v0.2/docs/design/">v0.2</a>
+  
+    
+      <a class="dropdown-item" href="../../../v0.2.1/docs/design/">v0.2.1</a>
+  
+    
+      <a class="dropdown-item" href="../../../v0.2.2/docs/design/">v0.2.2</a>
+  
+    
+      <a class="dropdown-item" href="../../../v0.2.3/docs/design/">v0.2.3</a>
+  
+    
+      <a class="dropdown-item" href="../../../v0.3/docs/design/">v0.3</a>
+  
+    
+      <a class="dropdown-item" href="../../../v0.3.1/docs/design/">v0.3.1</a>
+  
+    
+      <a class="dropdown-item" href="../../../v0.4.0.1/docs/design/">v0.4.0.1</a>
+  
+    
+      <a class="dropdown-item" href="../../../v0.5.0/docs/design/">v0.5.0</a>
+  
+    
+      <a class="dropdown-item" href="../../../v1.0.0/docs/design/">v1.0.0</a>
+  
+    
+      <a class="dropdown-item" href="../../../v1.1.0/docs/design/">v1.1.0</a>
+  
+    
+      <a class="dropdown-item" href="../../../v1.1.1/docs/design/">v1.1.1</a>
+  
+</div>
+
+        </li>
+      
+      
+    </ul>
+  </div>
+  <div class="navbar-nav d-none d-lg-block">
+
+
+
+<input
+  type="search"
+  class="form-control td-search-input"
+  placeholder="&#xf002; Search this site…"
+  aria-label="Search this site…"
+  autocomplete="off"
+  
+  data-offline-search-index-json-src="../../offline-search-index.34baac9cd79acf0e17f6bc8829702639.json"
+  data-offline-search-base-href="../../"
+  data-offline-search-max-results="10"
+>
+
+</div>
+</nav>
+
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <aside class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            
+<div id="td-sidebar-menu" class="td-sidebar__inner">
+  <div id="content-mobile">
+  <form class="td-sidebar__search d-flex align-items-center">
+    
+
+
+
+<input
+  type="search"
+  class="form-control td-search-input"
+  placeholder="&#xf002; Search this site…"
+  aria-label="Search this site…"
+  autocomplete="off"
+  
+  data-offline-search-index-json-src="../../offline-search-index.34baac9cd79acf0e17f6bc8829702639.json"
+  data-offline-search-base-href="../../"
+  data-offline-search-max-results="10"
+>
+
+
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ml-3 fas fa-bars" type="button" data-toggle="collapse" data-target="#td-section-nav" aria-controls="td-docs-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  </div>
+  <div id="content-desktop"></div>
+  <nav class="collapse td-sidebar-nav" id="td-section-nav">
+    <ul class="td-sidebar-nav__section pr-md-3 ul-0">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docs-li">
+  <a href="../../docs/" title="Dataset Management Framework Documentation" class="align-left pl-0 td-sidebar-link td-sidebar-link__section tree-root" id="m-docs"><span class="">Documentation</span></a>
+  <ul class="ul-1">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsgetting_started-li">
+  <a href="../../docs/getting_started/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsgetting_started"><span class="">Getting started</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docsdesign-li">
+  <a href="../../docs/design/" title="Datumaro Design" class="align-left pl-0 active td-sidebar-link td-sidebar-link__page" id="m-docsdesign"><span class="td-sidebar-nav-active-item">Design</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsuser-manual-li">
+  <a href="../../docs/user-manual/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docsuser-manual"><span class="">User Manual</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualinstallation-li">
+  <a href="../../docs/user-manual/installation/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualinstallation"><span class="">Installation</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualinterfaces-li">
+  <a href="../../docs/user-manual/interfaces/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualinterfaces"><span class="">Interfaces</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualsupported-formats-li">
+  <a href="../../docs/user-manual/supported-formats/" title="Supported dataset formats and annotations" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualsupported-formats"><span class="">Supported Formats</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualdata-formats-li">
+  <a href="../../docs/user-manual/data-formats/" title="Supported data formats" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualdata-formats"><span class="">Data formats</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-line-workflow-li">
+  <a href="../../docs/user-manual/command-line-workflow/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-line-workflow"><span class="">Command line workflow</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docsuser-manualcommand-reference-li">
+  <a href="../../docs/user-manual/command-reference/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docsuser-manualcommand-reference"><span class="">Command reference</span></a>
+  <ul class="ul-3 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referenceconvert-datasets-li">
+  <a href="../../docs/user-manual/command-reference/convert-datasets/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referenceconvert-datasets"><span class="">Convert datasets</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referencecreate-project-li">
+  <a href="../../docs/user-manual/command-reference/create-project/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referencecreate-project"><span class="">Create project</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referenceadd-and-remove-data-li">
+  <a href="../../docs/user-manual/command-reference/add-and-remove-data/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referenceadd-and-remove-data"><span class="">Add and remove data</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referencefilter-project-li">
+  <a href="../../docs/user-manual/command-reference/filter-project/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referencefilter-project"><span class="">Filter project</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referenceupdate-project-li">
+  <a href="../../docs/user-manual/command-reference/update-project/" title="Update project (merge)" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referenceupdate-project"><span class="">Update project</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referenceimport-project-li">
+  <a href="../../docs/user-manual/command-reference/import-project/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referenceimport-project"><span class="">Import project</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referenceexport-project-li">
+  <a href="../../docs/user-manual/command-reference/export-project/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referenceexport-project"><span class="">Export project</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referencemerge-projects-li">
+  <a href="../../docs/user-manual/command-reference/merge-projects/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referencemerge-projects"><span class="">Merge projects</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referencecompare-projects-li">
+  <a href="../../docs/user-manual/command-reference/compare-projects/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referencecompare-projects"><span class="">Compare projects</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referenceget-project-info-li">
+  <a href="../../docs/user-manual/command-reference/get-project-info/" title="Obtaining project info" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referenceget-project-info"><span class="">Get project info</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referenceget-project-statistics-li">
+  <a href="../../docs/user-manual/command-reference/get-project-statistics/" title="Obtaining project statistics" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referenceget-project-statistics"><span class="">Get project statistics</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referencevalidate-project-annotations-li">
+  <a href="../../docs/user-manual/command-reference/validate-project-annotations/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referencevalidate-project-annotations"><span class="">Validate project annotations</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referenceregister-model-li">
+  <a href="../../docs/user-manual/command-reference/register-model/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referenceregister-model"><span class="">Register model</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referencerun-model-li">
+  <a href="../../docs/user-manual/command-reference/run-model/" title="Run inference" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referencerun-model"><span class="">Run model</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referenceexplain-inference-li">
+  <a href="../../docs/user-manual/command-reference/explain-inference/" title="Run inference explanation" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referenceexplain-inference"><span class="">Explain inference</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualcommand-referencetransform-project-li">
+  <a href="../../docs/user-manual/command-reference/transform-project/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualcommand-referencetransform-project"><span class="">Transform Project</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manualextending-li">
+  <a href="../../docs/user-manual/extending/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manualextending"><span class="">Extending</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsuser-manuallinks-li">
+  <a href="../../docs/user-manual/links/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsuser-manuallinks"><span class="">Links</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsdeveloper_manual-li">
+  <a href="../../docs/developer_manual/" title="Dataset Management Framework (Datumaro) API and developer manual" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsdeveloper_manual"><span class="">Developer Manual</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsformats-li">
+  <a href="../../docs/formats/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docsformats"><span class="">Formats</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatsade20k2017-li">
+  <a href="../../docs/formats/ade20k2017/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatsade20k2017"><span class="">ADE20k (v2017)</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatsade20k2020-li">
+  <a href="../../docs/formats/ade20k2020/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatsade20k2020"><span class="">ADE20k (v2020)</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatscifar-li">
+  <a href="../../docs/formats/cifar/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatscifar"><span class="">CIFAR</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatscityscapes-li">
+  <a href="../../docs/formats/cityscapes/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatscityscapes"><span class="">Cityscapes</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatscoco-li">
+  <a href="../../docs/formats/coco/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatscoco"><span class="">COCO</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatsimage_zip-li">
+  <a href="../../docs/formats/image_zip/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatsimage_zip"><span class="">Image zip</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatskitti_raw-li">
+  <a href="../../docs/formats/kitti_raw/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatskitti_raw"><span class="">Velodyne Points / KITTI Raw 3D</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatskitti-li">
+  <a href="../../docs/formats/kitti/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatskitti"><span class="">KITTI</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatsmnist-li">
+  <a href="../../docs/formats/mnist/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatsmnist"><span class="">MNIST</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatsopen_images-li">
+  <a href="../../docs/formats/open_images/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatsopen_images"><span class="">Open Images</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatspascal_voc-li">
+  <a href="../../docs/formats/pascal_voc/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatspascal_voc"><span class="">Pascal VOC</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatssly_pointcloud-li">
+  <a href="../../docs/formats/sly_pointcloud/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatssly_pointcloud"><span class="">Supervisely Point Cloud</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsformatsyolo-li">
+  <a href="../../docs/formats/yolo/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsformatsyolo"><span class="">YOLO</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsplugins-li">
+  <a href="../../docs/plugins/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docsplugins"><span class="">Plugins</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docspluginsopenvino_plugin-li">
+  <a href="../../docs/plugins/openvino_plugin/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docspluginsopenvino_plugin"><span class="">OpenVINO™ Inference Interpreter</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docscontributing-li">
+  <a href="../../docs/contributing/" title="Contribution Guide" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docscontributing"><span class="">Contributing</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsrelease_notes-li">
+  <a href="../../docs/release_notes/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docsrelease_notes"><span class="">Release notes</span></a>
+</li>
+  </ul>
+</li>
+    </ul>
+  </nav>
+</div>
+
+          </aside>
+          <aside class="d-none d-xl-block col-xl-2 td-sidebar-toc d-print-none">
+            
+  
+  
+  
+  
+  
+  
+  <div class="td-page-meta ml-2 pb-1 pt-2 mb-0">
+  
+    
+    
+      
+    
+    
+    
+    
+    
+    
+    
+
+    <a href="https://github.com/openvinotoolkit/datumaro/edit/develop/site/content/en/docs/design.md" target="_blank"><i class="fa fa-edit fa-fw"></i> Edit this page</a>
+    <a href="https://github.com/openvinotoolkit/datumaro/new/develop/site/content/en/docs/design.md?filename=change-me.md&amp;value=---%0Atitle%3A&#43;%22Long&#43;Page&#43;Title%22%0AlinkTitle%3A&#43;%22Short&#43;Nav&#43;Title%22%0Aweight%3A&#43;100%0Adescription%3A&#43;%3E-%0A&#43;&#43;&#43;&#43;&#43;Page&#43;description&#43;for&#43;heading&#43;and&#43;indexes.%0A---%0A%0A%23%23&#43;Heading%0A%0AEdit&#43;this&#43;template&#43;to&#43;create&#43;your&#43;new&#43;page.%0A%0A%2A&#43;Give&#43;it&#43;a&#43;good&#43;name%2C&#43;ending&#43;in&#43;%60.md%60&#43;-&#43;e.g.&#43;%60getting-started.md%60%0A%2A&#43;Edit&#43;the&#43;%22front&#43;matter%22&#43;section&#43;at&#43;the&#43;top&#43;of&#43;the&#43;page&#43;%28weight&#43;controls&#43;how&#43;its&#43;ordered&#43;amongst&#43;other&#43;pages&#43;in&#43;the&#43;same&#43;directory%3B&#43;lowest&#43;number&#43;first%29.%0A%2A&#43;Add&#43;a&#43;good&#43;commit&#43;message&#43;at&#43;the&#43;bottom&#43;of&#43;the&#43;page&#43;%28%3C80&#43;characters%3B&#43;use&#43;the&#43;extended&#43;description&#43;field&#43;for&#43;more&#43;detail%29.%0A%2A&#43;Create&#43;a&#43;new&#43;branch&#43;so&#43;you&#43;can&#43;preview&#43;your&#43;new&#43;file&#43;and&#43;request&#43;a&#43;review&#43;via&#43;Pull&#43;Request.%0A" target="_blank"><i class="fa fa-edit fa-fw"></i> Create child page</a>
+    <a href="https://github.com/openvinotoolkit/datumaro/issues/new?title=Datumaro%20Design" target="_blank"><i class="fab fa-github fa-fw"></i> Create documentation issue</a>
+    
+      
+      <a href="https://github.com/openvinotoolkit/datumaro/issues/new" target="_blank"><i class="fas fa-tasks fa-fw"></i> Create project issue</a>
+    
+
+  
+  
+    <a id="print" href="../../docs/_print/"><i class="fa fa-print fa-fw"></i> Print entire section</a>
+  
+  </div>
+
+
+            
+
+
+<div class="td-toc"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#concept">Concept</a>
+      <ul>
+        <li><a href="#requirements">Requirements</a></li>
+        <li><a href="#functionality-and-ideas">Functionality and ideas</a></li>
+        <li><a href="#research-topics">Research topics</a></li>
+      </ul>
+    </li>
+    <li><a href="#rc-1-vision">RC 1 vision</a>
+      <ul>
+        <li><a href="#cvat-integration">CVAT integration</a></li>
+        <li><a href="#interfaces">Interfaces</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#optional-features">Optional features</a></li>
+        <li><a href="#properties">Properties</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+
+
+
+            
+
+	
+		
+
+
+
+  
+  
+
+	
+		
+
+
+
+  
+  
+
+	
+
+          </aside>
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+  
+
+            <nav aria-label="breadcrumb" class="d-none d-md-block d-print-none">
+	<ol class="breadcrumb spb-1">
+		
+
+
+
+
+
+
+
+<li class="breadcrumb-item" >
+	<a href="../../docs/">Documentation</a>
+</li>
+
+
+
+
+<li class="breadcrumb-item active" aria-current="page">
+	<a href="../../docs/design/">Design</a>
+</li>
+
+	</ol>
+</nav	>
+
+            
+<div class="td-content">
+	<h1>Datumaro Design</h1>
+	
+	<header class="article-meta">
+		
+		
+			
+				
+
+
+			
+				
+
+
+			
+		
+		
+	</header>    
+	<!--lint disable list-item-indent-->
+<h2 id="concept">Concept</h2>
+<p>Datumaro is:</p>
+<ul>
+<li>a tool to build composite datasets and iterate over them</li>
+<li>a tool to create and maintain datasets
+<ul>
+<li>Version control of annotations and images</li>
+<li>Publication (with removal of sensitive information)</li>
+<li>Editing</li>
+<li>Joining and splitting</li>
+<li>Exporting, format changing</li>
+<li>Image preprocessing</li>
+</ul>
+</li>
+<li>a dataset storage</li>
+<li>a tool to debug datasets
+<ul>
+<li>A network can be used to generate
+informative data subsets (e.g. with false-positives)
+to be analyzed further</li>
+</ul>
+</li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li>User interfaces
+<ul>
+<li>a library</li>
+<li>a console tool with visualization means</li>
+</ul>
+</li>
+<li>Targets: single datasets, composite datasets, single images / videos</li>
+<li>Built-in support for well-known annotation formats and datasets:
+CVAT, COCO, PASCAL VOC, Cityscapes, ImageNet</li>
+<li>Extensibility with user-provided components</li>
+<li>Lightweightness - it should be easy to start working with Datumaro
+<ul>
+<li>Minimal dependency on environment and configuration</li>
+<li>It should be easier to use Datumaro than writing own code
+for computation of statistics or dataset manipulations</li>
+</ul>
+</li>
+</ul>
+<h3 id="functionality-and-ideas">Functionality and ideas</h3>
+<ul>
+<li>Blur sensitive areas on dataset images</li>
+<li>Dataset annotation filters, relabelling etc.</li>
+<li>Dataset augmentation</li>
+<li>Calculation of statistics:
+<ul>
+<li>Mean &amp; std, custom stats</li>
+</ul>
+</li>
+<li>&ldquo;Edit&rdquo; command to modify annotations</li>
+<li>Versioning (for images, annotations, subsets, sources etc., comparison)</li>
+<li>Documentation generation</li>
+<li>Provision of iterators for user code</li>
+<li>Dataset downloading</li>
+<li>Dataset generation</li>
+<li>Dataset building (export in a specific format, indexation, statistics,
+documentation)</li>
+<li>Dataset exporting to other formats</li>
+<li>Dataset debugging (run inference, generate dataset slices, compute statistics)</li>
+<li>&ldquo;Explainable AI&rdquo; - highlight network attention areas (<a href="https://arxiv.org/abs/1901.04592">paper</a>)
+<ul>
+<li>Black-box approach
+<ul>
+<li>Classification, Detection, Segmentation, Captioning</li>
+<li>White-box approach</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="research-topics">Research topics</h3>
+<ul>
+<li>exploration of network prediction uncertainty (aka Bayessian approach)
+Use case: explanation of network &ldquo;quality&rdquo;, &ldquo;stability&rdquo;, &ldquo;certainty&rdquo;</li>
+<li>adversarial attacks on networks</li>
+<li>dataset minification / reduction
+Use case: removal of redundant information to reach the same network quality
+with lesser training time</li>
+<li>dataset expansion and filtration of additions
+Use case: add only important data</li>
+<li>guidance for key frame selection for tracking (<a href="https://arxiv.org/abs/1903.11779">paper</a>)
+Use case: more effective annotation, better predictions</li>
+</ul>
+<h2 id="rc-1-vision">RC 1 vision</h2>
+<h3 id="cvat-integration">CVAT integration</h3>
+<p>Datumaro needs to be integrated with <a href="https://github.com/openvinotoolkit/cvat">CVAT</a>,
+extending CVAT UI capabilities regarding task and project operations.
+It should be capable of downloading and processing data from CVAT.</p>
+<!--lint disable fenced-code-flag-->
+<pre><code class="language-lang-none" data-lang="lang-none">        User
+          |
+          v
+ +------------------+
+ |       CVAT       |
+ +--------v---------+       +------------------+       +--------------+
+ | Datumaro module  | ----&gt; | Datumaro project | &lt;---&gt; | Datumaro CLI | &lt;--- User
+ +------------------+       +------------------+       +--------------+
+</code></pre><!--lint enable fenced-code-flag-->
+<h3 id="interfaces">Interfaces</h3>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Python API for user code
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Installation as a package</li>
+<li><input checked="" disabled="" type="checkbox"> Installation with <code>pip</code> by name</li>
+</ul>
+</li>
+<li><input checked="" disabled="" type="checkbox"> A command-line tool for dataset manipulations</li>
+</ul>
+<h3 id="features">Features</h3>
+<ul>
+<li>
+<p>Dataset format support (reading, writing)</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Own format</li>
+<li><input checked="" disabled="" type="checkbox"> CVAT</li>
+<li><input checked="" disabled="" type="checkbox"> COCO</li>
+<li><input checked="" disabled="" type="checkbox"> PASCAL VOC</li>
+<li><input checked="" disabled="" type="checkbox"> YOLO</li>
+<li><input checked="" disabled="" type="checkbox"> TF Detection API</li>
+<li><input checked="" disabled="" type="checkbox"> Cityscapes</li>
+<li><input checked="" disabled="" type="checkbox"> ImageNet</li>
+</ul>
+</li>
+<li>
+<p>Dataset visualization (<code>show</code>)</p>
+<ul>
+<li><input disabled="" type="checkbox"> Ability to visualize a dataset
+<ul>
+<li><input disabled="" type="checkbox"> with TensorBoard</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Calculation of statistics for datasets</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Pixel mean, std</li>
+<li><input checked="" disabled="" type="checkbox"> Object counts (detection scenario)</li>
+<li><input checked="" disabled="" type="checkbox"> Image-Class distribution (classification scenario)</li>
+<li><input checked="" disabled="" type="checkbox"> Pixel-Class distribution (segmentation scenario)</li>
+<li><input checked="" disabled="" type="checkbox"> Image similarity clusters</li>
+<li><input disabled="" type="checkbox"> Custom statistics</li>
+</ul>
+</li>
+<li>
+<p>Dataset building</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Composite dataset building</li>
+<li><input checked="" disabled="" type="checkbox"> Class remapping</li>
+<li><input checked="" disabled="" type="checkbox"> Subset splitting</li>
+<li><input checked="" disabled="" type="checkbox"> Dataset filtering (<code>extract</code>)</li>
+<li><input checked="" disabled="" type="checkbox"> Dataset merging (<code>merge</code>)</li>
+<li><input disabled="" type="checkbox"> Dataset item editing (<code>edit</code>)</li>
+</ul>
+</li>
+<li>
+<p>Dataset comparison (<code>diff</code>)</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Annotation-annotation comparison</li>
+<li><input checked="" disabled="" type="checkbox"> Annotation-inference comparison</li>
+<li><input checked="" disabled="" type="checkbox"> Annotation quality estimation (for CVAT)
+<ul>
+<li>Provide a simple method to check
+annotation quality with a model and generate summary</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Dataset and model debugging</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Inference explanation (<code>explain</code>)</li>
+<li><input checked="" disabled="" type="checkbox"> Black-box approach (<a href="https://arxiv.org/abs/1806.07421">RISE paper</a>)</li>
+<li><input checked="" disabled="" type="checkbox"> Ability to run a model on a dataset and read the results</li>
+</ul>
+</li>
+<li>
+<p>CVAT-integration features</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Task export
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Datumaro project export</li>
+<li><input checked="" disabled="" type="checkbox"> Dataset export</li>
+<li><input checked="" disabled="" type="checkbox"> Original raw data (images, a video file) can be downloaded (exported)
+together with annotations or just have links
+on CVAT server (in future, support S3, etc)
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Be able to use local files instead of remote links
+<ul>
+<li><input disabled="" type="checkbox"> Specify cache directory</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><input checked="" disabled="" type="checkbox"> Use case &ldquo;annotate for model training&rdquo;
+<ul>
+<li>create a task</li>
+<li>annotate</li>
+<li>export the task</li>
+<li>convert to a training format</li>
+<li>train a DL model</li>
+</ul>
+</li>
+<li><input checked="" disabled="" type="checkbox"> Use case &ldquo;annotate - reannotate problematic images - merge&rdquo;</li>
+<li><input checked="" disabled="" type="checkbox"> Use case &ldquo;annotate and estimate quality&rdquo;
+<ul>
+<li>create a task</li>
+<li>annotate</li>
+<li>estimate quality of annotations</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="optional-features">Optional features</h3>
+<ul>
+<li>
+<p>Dataset publishing</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Versioning (for annotations, subsets, sources, etc.)</li>
+<li><input disabled="" type="checkbox"> Blur sensitive areas on images</li>
+<li><input disabled="" type="checkbox"> Tracking of legal information</li>
+<li><input disabled="" type="checkbox"> Documentation generation</li>
+</ul>
+</li>
+<li>
+<p>Dataset building</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Dataset minification / Extraction of the most representative subset
+<ul>
+<li>Use case: generate low-precision calibration dataset</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Dataset and model debugging</p>
+<ul>
+<li><input disabled="" type="checkbox"> Training visualization</li>
+<li><input checked="" disabled="" type="checkbox"> Inference explanation (<code>explain</code>)
+<ul>
+<li><input disabled="" type="checkbox"> White-box approach</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="properties">Properties</h3>
+<ul>
+<li>Lightweightness</li>
+<li>Modularity</li>
+<li>Extensibility</li>
+</ul>
+
+	
+	
+	<div class="text-muted mt-5 pt-3 border-top">
+
+</div>
+
+</div>
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="bg-dark py-5 row d-print-none">
+  <div class="container-fluid mx-sm-5">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="" aria-label="">
+    <a class="text-white" rel="noopener noreferrer" href="">
+      <i class=""></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" rel="noopener noreferrer" href="https://github.com/openvinotoolkit/datumaro">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="mr-1"><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+        |
+        <small class="mx-1"><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+        <br/>
+        <div class="footer-disclaimer text-white ">
+          <small>Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.</small>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@8.9.2/dist/mermaid.min.js" integrity="sha384-uQikAXnCAqsMb3ygtdqBYvcwvHUkzGIpjdGyy9owhURXHUxLC5LgTcSxJQH/RzjK" crossorigin="anonymous"></script>
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="../../js/main.min.ee00f42d1b949caa55ccf416202998d65afac8f58091e2719c89d4fc3518550e.js" integrity="sha256-7gD0LRuUnKpVzPQWICmY1lr6yPWAkeJxnInU/DUYVQ4=" crossorigin="anonymous"></script>
+
+
+
+<script src='../../js/prism.js'></script>
+
+
+
+  </body>
+</html>

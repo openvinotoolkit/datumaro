@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hl_ops module &mdash; Datumaro API documentation 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/banner.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="launcher module" href="datumaro.components.launcher.html" />
+    <link rel="prev" title="format detection module" href="datumaro.components.format_detection.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #30638E" >
+  <a href="../../../index.html" class="icon"> Datumaro API documentation
+</a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual.html">Developer Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datumaro/datumaro.html">datumaro module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli/cli.html">CLI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../components.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/algorithms.html">algorithms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.annotation.html">annotation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.cli_plugin.html">cli_plugin module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.config.html">config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.config_model.html">config_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.converter.html">converter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.dataset.html">dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.dataset_filter.html">dataset_filter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.environment.html">environment module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.errors.html">errors module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.extractor.html">extractor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.extractor_tfds.html">extractor_tfds module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.format_detection.html">format detection module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">hl_ops module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.launcher.html">launcher module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.media.html">media module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.media_manager.html">media_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.operations.html">operations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.progress_reporting.html">progress reporting module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.project.html">project module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datumaro.components.validator.html">validator module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../plugins/plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../util/util/util.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/">Back to main documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #30638E" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Datumaro API documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../components.html">Components</a> &raquo;</li>
+      <li>hl_ops module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/api/components/components/datumaro.components.hl_ops.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-datumaro.components.hl_ops">
+<span id="hl-ops-module"></span><h1>hl_ops module<a class="headerlink" href="#module-datumaro.components.hl_ops" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.components.hl_ops.transform">
+<span class="sig-prename descclassname"><span class="pre">datumaro.components.hl_ops.</span></span><span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">datumaro.components.dataset_base.IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">datumaro.components.transformer.Transform</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.Environment" title="datumaro.components.environment.Environment"><span class="pre">datumaro.components.environment.Environment</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">datumaro.components.dataset_base.IDataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/hl_ops.html#transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.hl_ops.transform" title="Permalink to this definition"></a></dt>
+<dd><p>Applies some function to dataset items.</p>
+<p>Results are computed lazily, if the transform supports this.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – The dataset to be transformed</p></li>
+<li><p><strong>method</strong> – The transformation to be applied to the dataset.
+If a string is passed, it is treated as a plugin name,
+which is searched for in the environment
+set by the ‘env’ argument</p></li>
+<li><p><strong>env</strong> – A plugin collection. If not set, the built-in plugins are used</p></li>
+<li><p><strong>**kwargs</strong> – Parameters for the transformation</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: a wrapper around the input dataset</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.components.hl_ops.filter">
+<span class="sig-prename descclassname"><span class="pre">datumaro.components.hl_ops.</span></span><span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">datumaro.components.dataset_base.IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_annotations</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_empty</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">datumaro.components.dataset_base.IDataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/hl_ops.html#filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.hl_ops.filter" title="Permalink to this definition"></a></dt>
+<dd><p>Filters out some dataset items or annotations, using a custom filter
+expression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – The dataset to be filtered</p></li>
+<li><p><strong>expr</strong> – XPath-formatted filter expression
+(e.g. <cite>/item[subset = ‘train’]</cite>, <cite>/item/annotation[label = ‘cat’]</cite>)</p></li>
+<li><p><strong>filter_annotations</strong> – Indicates if the filter should be
+applied to items or annotations</p></li>
+<li><p><strong>remove_empty</strong> – When filtering annotations, allows to
+exclude empty items from the resulting dataset</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns: a wrapper around the input dataset, which is computed lazily</dt><dd><p>during iteration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.components.hl_ops.merge">
+<span class="sig-prename descclassname"><span class="pre">datumaro.components.hl_ops.</span></span><span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">datumaro.components.dataset_base.IDataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">datumaro.components.dataset_base.IDataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/hl_ops.html#merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.hl_ops.merge" title="Permalink to this definition"></a></dt>
+<dd><p>Merges several datasets using the “simple” (exact matching) algorithm:</p>
+<blockquote>
+<div><ul>
+<li><p>items are matched by (id, subset) pairs</p></li>
+<li><p>matching items share the fields available</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>nothing + nothing = nothing,</p></li>
+<li><p>nothing + something = something</p></li>
+<li><p>something A + something B = conflict</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>annotations are matched by value and shared</p></li>
+<li><p>in case of conflicts, throws an error</p></li>
+</ul>
+</div></blockquote>
+<p>Returns: a wrapper around the input datasets</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.components.hl_ops.run_model">
+<span class="sig-prename descclassname"><span class="pre">datumaro.components.hl_ops.</span></span><span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">datumaro.components.dataset_base.IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.launcher.html#datumaro.components.launcher.Launcher" title="datumaro.components.launcher.Launcher"><span class="pre">datumaro.components.launcher.Launcher</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.launcher.html#datumaro.components.launcher.ModelTransform" title="datumaro.components.launcher.ModelTransform"><span class="pre">datumaro.components.launcher.ModelTransform</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">datumaro.components.dataset_base.IDataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/hl_ops.html#run_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.hl_ops.run_model" title="Permalink to this definition"></a></dt>
+<dd><p>Applies a model to dataset items’ media and produces a dataset with
+media and annotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – The dataset to be transformed</p></li>
+<li><p><strong>model</strong> – The model to be applied to the dataset</p></li>
+<li><p><strong>batch_size</strong> – The number of dataset items processed
+simultaneously by the model</p></li>
+<li><p><strong>append_annotation</strong> – Whether append new annotation to existed annotations</p></li>
+<li><p><strong>**kwargs</strong> – Parameters for the model</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns: a wrapper around the input dataset, which is computed lazily</dt><dd><p>during iteration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.components.hl_ops.export">
+<span class="sig-prename descclassname"><span class="pre">datumaro.components.hl_ops.</span></span><span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">datumaro.components.dataset_base.IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">datumaro.components.exporter.Exporter</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.Environment" title="datumaro.components.environment.Environment"><span class="pre">datumaro.components.environment.Environment</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/hl_ops.html#export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.hl_ops.export" title="Permalink to this definition"></a></dt>
+<dd><p>Saves the input dataset in some format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – The dataset to be saved</p></li>
+<li><p><strong>path</strong> – The output directory</p></li>
+<li><p><strong>format</strong> – The desired output format for the dataset.
+If a string is passed, it is treated as a plugin name,
+which is searched for in the environment set by the ‘env’ argument</p></li>
+<li><p><strong>env</strong> – A plugin collection. If not set, the built-in plugins are used</p></li>
+<li><p><strong>**kwargs</strong> – Parameters for the export format</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.components.hl_ops.validate">
+<span class="sig-prename descclassname"><span class="pre">datumaro.components.hl_ops.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">datumaro.components.dataset_base.IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="datumaro.components.validator.html#datumaro.components.validator.TaskType" title="datumaro.components.validator.TaskType"><span class="pre">datumaro.components.validator.TaskType</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.Environment" title="datumaro.components.environment.Environment"><span class="pre">datumaro.components.environment.Environment</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/hl_ops.html#validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.hl_ops.validate" title="Permalink to this definition"></a></dt>
+<dd><p>Checks dataset annotations for correctness relatively to a task type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – The dataset to check</p></li>
+<li><p><strong>task</strong> – Target task type - classification, detection etc.</p></li>
+<li><p><strong>env</strong> – A plugin collection. If not set, the built-in plugins are used</p></li>
+<li><p><strong>**kwargs</strong> – Parameters for the validator</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: a dictionary with validation results</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="datumaro.components.format_detection.html" class="btn btn-neutral float-left" title="format detection module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="datumaro.components.launcher.html" class="btn btn-neutral float-right" title="launcher module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>
+      &#169; Copyright 2021, Intel.<div>
+      <small><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+      |
+      <small><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+    </div>
+    <br/>
+    <small>
+      Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.
+    </small>
+  </p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v1.1.1
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../../../v0.2.2/index.html">v0.2.2</a></dd>
+            <dd><a href="../../../../v0.2.3/index.html">v0.2.3</a></dd>
+            <dd><a href="../../../../v0.3/api/components/components/datumaro.components.hl_ops.html">v0.3</a></dd>
+            <dd><a href="../../../../v0.3.1/api/components/components/datumaro.components.hl_ops.html">v0.3.1</a></dd>
+            <dd><a href="../../../../v0.4.0.1/api/components/components/datumaro.components.hl_ops.html">v0.4.0.1</a></dd>
+            <dd><a href="../../../../v0.5.0/api/components/components/datumaro.components.hl_ops.html">v0.5.0</a></dd>
+            <dd><a href="../../../../v0.5.0-rc1/api/components/components/datumaro.components.hl_ops.html">v0.5.0-rc1</a></dd>
+            <dd><a href="../../../../v0.5.0-rc2/api/components/components/datumaro.components.hl_ops.html">v0.5.0-rc2</a></dd>
+            <dd><a href="../../../../v1.0.0/api/components/components/datumaro.components.hl_ops.html">v1.0.0</a></dd>
+            <dd><a href="../../../../v1.1.0/api/components/components/datumaro.components.hl_ops.html">v1.1.0</a></dd>
+            <dd><a href="../../../../v1.1.0rc1/api/components/components/datumaro.components.hl_ops.html">v1.1.0rc1</a></dd>
+            <dd><a href="datumaro.components.hl_ops.html">v1.1.1</a></dd>
+        </dl>
+    </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

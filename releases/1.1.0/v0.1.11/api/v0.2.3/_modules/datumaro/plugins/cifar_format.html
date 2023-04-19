@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>datumaro.plugins.cifar_format &mdash; Datumaro API documentation 0.2.3 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/banner.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #30638E" >
+  <a href="../../../index.html" class="icon"> Datumaro API documentation
+</a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/cli/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/components/components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/plugins/plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/util/util/util.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/">Back to main documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #30638E" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Datumaro API documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>datumaro.plugins.cifar_format</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for datumaro.plugins.cifar_format</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2020-2021 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">pickle</span>  <span class="c1"># nosec - disable B403:import_pickle check - fixed</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.core.multiarray</span>
+
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.converter</span> <span class="kn">import</span> <span class="n">Converter</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">ItemStatus</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.extractor</span> <span class="kn">import</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">Importer</span><span class="p">,</span> <span class="n">SourceExtractor</span>
+<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
+
+
+<div class="viewcode-block" id="RestrictedUnpickler"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.RestrictedUnpickler">[docs]</a><span class="k">class</span> <span class="nc">RestrictedUnpickler</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">Unpickler</span><span class="p">):</span>
+<div class="viewcode-block" id="RestrictedUnpickler.find_class"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.RestrictedUnpickler.find_class">[docs]</a>    <span class="k">def</span> <span class="nf">find_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">module</span> <span class="o">==</span> <span class="s2">&quot;numpy.core.multiarray&quot;</span> <span class="ow">and</span> \
+                <span class="n">name</span> <span class="ow">in</span> <span class="n">PickleLoader</span><span class="o">.</span><span class="n">safe_numpy</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">multiarray</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">module</span> <span class="o">==</span> <span class="s1">&#39;numpy&#39;</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">PickleLoader</span><span class="o">.</span><span class="n">safe_numpy</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">pickle</span><span class="o">.</span><span class="n">UnpicklingError</span><span class="p">(</span><span class="s2">&quot;Global &#39;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&#39; is forbidden&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span></div></div>
+
+<div class="viewcode-block" id="PickleLoader"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.PickleLoader">[docs]</a><span class="k">class</span> <span class="nc">PickleLoader</span><span class="p">():</span>
+    <span class="n">safe_numpy</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;dtype&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ndarray&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_reconstruct&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="PickleLoader.restricted_load"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.PickleLoader.restricted_load">[docs]</a>    <span class="k">def</span> <span class="nf">restricted_load</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">RestrictedUnpickler</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;latin1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span></div></div>
+
+<div class="viewcode-block" id="CifarPath"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.CifarPath">[docs]</a><span class="k">class</span> <span class="nc">CifarPath</span><span class="p">:</span>
+    <span class="n">META_10_FILE</span> <span class="o">=</span> <span class="s1">&#39;batches.meta&#39;</span>
+    <span class="n">META_100_FILE</span> <span class="o">=</span> <span class="s1">&#39;meta&#39;</span>
+    <span class="n">TRAIN_FILE_PREFIX</span> <span class="o">=</span> <span class="s1">&#39;data_batch_&#39;</span>
+    <span class="n">USELESS_FILE</span> <span class="o">=</span> <span class="s1">&#39;file.txt~&#39;</span>
+    <span class="n">IMAGE_SIZE</span> <span class="o">=</span> <span class="mi">32</span></div>
+
+<span class="n">Cifar10Label</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;airplane&#39;</span><span class="p">,</span> <span class="s1">&#39;automobile&#39;</span><span class="p">,</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span> <span class="s1">&#39;cat&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;deer&#39;</span><span class="p">,</span> <span class="s1">&#39;dog&#39;</span><span class="p">,</span> <span class="s1">&#39;frog&#39;</span><span class="p">,</span> <span class="s1">&#39;horse&#39;</span><span class="p">,</span> <span class="s1">&#39;ship&#39;</span><span class="p">,</span> <span class="s1">&#39;truck&#39;</span><span class="p">]</span>
+
+<span class="c1"># Support for Python version CIFAR-10/100</span>
+
+<div class="viewcode-block" id="CifarExtractor"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.CifarExtractor">[docs]</a><span class="k">class</span> <span class="nc">CifarExtractor</span><span class="p">(</span><span class="n">SourceExtractor</span><span class="p">):</span>
+<div class="viewcode-block" id="CifarExtractor.__init__"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.CifarExtractor.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t read annotation file &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="p">:</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">has_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">LabelCategories</span><span class="o">.</span>
+                <span class="n">from_iterable</span><span class="p">(</span><span class="n">parse_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="p">}</span>
+
+        <span class="n">label_cat</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
+
+        <span class="n">meta_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">META_10_FILE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">meta_file</span><span class="p">):</span>
+            <span class="n">meta_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">META_100_FILE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">meta_file</span><span class="p">):</span>
+            <span class="c1"># CIFAR-10:</span>
+            <span class="c1"># num_cases_per_batch: 1000</span>
+            <span class="c1"># label_names: [&#39;airplane&#39;, &#39;automobile&#39;, &#39;bird&#39;, &#39;cat&#39;, &#39;deer&#39;,</span>
+            <span class="c1">#               &#39;dog&#39;, &#39;frog&#39;, &#39;horse&#39;, &#39;ship&#39;, &#39;truck&#39;]</span>
+            <span class="c1"># num_vis: 3072</span>
+            <span class="c1"># CIFAR-100:</span>
+            <span class="c1"># fine_label_names: [&#39;apple&#39;, &#39;aquarium_fish&#39;, &#39;baby&#39;, ...]</span>
+            <span class="c1"># coarse_label_names: [&#39;aquatic_mammals&#39;, &#39;fish&#39;, &#39;flowers&#39;, ...]</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">meta_file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">labels_file</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">PickleLoader</span><span class="o">.</span><span class="n">restricted_load</span><span class="p">(</span><span class="n">labels_file</span><span class="p">)</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label_names&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                    <span class="n">label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fine_label_names&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_coarse_labels</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;coarse_label_names&#39;</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                        <span class="n">label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">Cifar10Label</span><span class="p">:</span>
+                <span class="n">label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">label_cat</span> <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">label_cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+
+        <span class="c1"># &#39;batch_label&#39;: &#39;training batch 1 of 5&#39;</span>
+        <span class="c1"># &#39;data&#39;: ndarray</span>
+        <span class="c1"># &#39;filenames&#39;: list</span>
+        <span class="c1"># CIFAR-10: &#39;labels&#39;: list</span>
+        <span class="c1"># CIFAR-100: &#39;fine_labels&#39;: list</span>
+        <span class="c1">#            &#39;coarse_labels&#39;: list</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">anno_file</span><span class="p">:</span>
+            <span class="n">annotation_dict</span> <span class="o">=</span> <span class="n">PickleLoader</span><span class="o">.</span><span class="n">restricted_load</span><span class="p">(</span><span class="n">anno_file</span><span class="p">)</span>
+
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">annotation_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">coarse_labels</span> <span class="o">=</span> <span class="n">annotation_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;coarse_labels&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">annotation_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fine_labels&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="n">annotation_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;filenames&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">images_data</span> <span class="o">=</span> <span class="n">annotation_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">annotation_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;image_sizes&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The sizes of the arrays &#39;filenames&#39;, &quot;</span> \
+                <span class="s2">&quot;&#39;labels&#39; don&#39;t match.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">images_data</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">images_data</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The sizes of the arrays &#39;data&#39;, &quot;</span> \
+                <span class="s2">&quot;&#39;filenames&#39;, &#39;labels&#39; don&#39;t match.&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">labels</span><span class="p">)):</span>
+            <span class="n">item_id</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="p">))</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">coarse_labels</span><span class="p">)</span> <span class="ow">and</span> <span class="n">coarse_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> \
+                        <span class="n">label_cat</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">label_cat</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_coarse_labels</span><span class="p">[</span><span class="n">coarse_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+
+            <span class="n">image</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">images_data</span><span class="p">):</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">images_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> \
+                        <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> \
+                        <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">IMAGE_SIZE</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">IMAGE_SIZE</span><span class="p">)</span>
+                    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+            <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">items</span></div>
+
+
+<div class="viewcode-block" id="CifarImporter"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.CifarImporter">[docs]</a><span class="k">class</span> <span class="nc">CifarImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="CifarImporter.find_sources"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.CifarImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;cifar&#39;</span><span class="p">,</span>
+            <span class="n">file_filter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> \
+                <span class="c1"># subset files have no extension in the format</span>
+                <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">p</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> \
+                <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span>
+                    <span class="n">CifarPath</span><span class="o">.</span><span class="n">META_10_FILE</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">META_100_FILE</span><span class="p">,</span>
+                    <span class="n">CifarPath</span><span class="o">.</span><span class="n">USELESS_FILE</span>
+                <span class="p">}</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CifarConverter"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.CifarConverter">[docs]</a><span class="k">class</span> <span class="nc">CifarConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">):</span>
+    <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="s1">&#39;.png&#39;</span>
+
+<div class="viewcode-block" id="CifarConverter.apply"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.CifarConverter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_dataset_meta</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_meta_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">)</span>
+
+        <span class="n">label_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">categories</span><span class="p">()[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+        <span class="n">label_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coarse_label_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">label_categories</span><span class="p">:</span>
+            <span class="n">label_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">label</span><span class="o">.</span><span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">parent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">coarse_label_names</span><span class="p">):</span>
+                <span class="n">coarse_label_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">coarse_label_names</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">coarse_label_names</span><span class="p">:</span>
+            <span class="n">labels_dict</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;fine_label_names&#39;</span><span class="p">:</span> <span class="n">label_names</span><span class="p">,</span>
+                            <span class="s1">&#39;coarse_label_names&#39;</span><span class="p">:</span> <span class="n">coarse_label_names</span> <span class="p">}</span>
+            <span class="n">coarse_label_names</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coarse_label_names</span><span class="p">))</span>
+            <span class="n">meta_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">META_100_FILE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">labels_dict</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;label_names&#39;</span><span class="p">:</span> <span class="n">label_names</span> <span class="p">}</span>
+            <span class="n">meta_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">META_10_FILE</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">meta_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">labels_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">subset_name</span><span class="p">,</span> <span class="n">subset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">subsets</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">filenames</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">coarse_labels</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">image_sizes</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">:</span>
+                <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_image_filename</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+
+                <span class="n">anns</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span>
+                    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">anns</span><span class="p">:</span>
+                    <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">anns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">coarse_label_names</span><span class="p">:</span>
+                        <span class="n">superclass</span> <span class="o">=</span> <span class="n">label_categories</span><span class="p">[</span><span class="n">anns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span>
+                        <span class="n">coarse_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coarse_label_names</span><span class="p">[</span><span class="n">superclass</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                    <span class="n">coarse_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_images</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">has_image</span><span class="p">:</span>
+                    <span class="n">image</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">image</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">image</span><span class="o">.</span><span class="n">has_data</span><span class="p">:</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">data</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> \
+                            <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">IMAGE_SIZE</span> <span class="ow">or</span> \
+                                <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">IMAGE_SIZE</span><span class="p">:</span>
+                            <span class="n">image_sizes</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> \
+                                <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="n">annotation_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="n">annotation_dict</span><span class="p">[</span><span class="s1">&#39;filenames&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filenames</span>
+            <span class="k">if</span> <span class="n">labels</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">coarse_labels</span><span class="p">)):</span>
+                <span class="n">annotation_dict</span><span class="p">[</span><span class="s1">&#39;fine_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
+                <span class="n">annotation_dict</span><span class="p">[</span><span class="s1">&#39;coarse_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coarse_labels</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">annotation_dict</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
+            <span class="n">annotation_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">image_sizes</span><span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">CifarPath</span><span class="o">.</span><span class="n">IMAGE_SIZE</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">IMAGE_SIZE</span><span class="p">)</span>
+                <span class="c1"># &#39;image_sizes&#39; isn&#39;t included in the standard format,</span>
+                <span class="c1"># needed for different image sizes</span>
+                <span class="n">annotation_dict</span><span class="p">[</span><span class="s1">&#39;image_sizes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">image_sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))]</span>
+
+            <span class="n">batch_label</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">subset_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">CifarPath</span><span class="o">.</span><span class="n">TRAIN_FILE_PREFIX</span><span class="p">):</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="n">subset_name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">CifarPath</span><span class="o">.</span><span class="n">TRAIN_FILE_PREFIX</span><span class="p">):]</span>
+                <span class="k">if</span> <span class="n">cast</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">batch_label</span> <span class="o">=</span> <span class="s1">&#39;training batch </span><span class="si">%s</span><span class="s1"> of 5&#39;</span> <span class="o">%</span> <span class="n">num</span>
+            <span class="k">elif</span> <span class="n">subset_name</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+                <span class="n">batch_label</span> <span class="o">=</span> <span class="s1">&#39;testing batch 1 of 1&#39;</span>
+
+            <span class="k">if</span> <span class="n">batch_label</span><span class="p">:</span>
+                <span class="n">annotation_dict</span><span class="p">[</span><span class="s1">&#39;batch_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_label</span>
+
+            <span class="n">annotation_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="n">subset_name</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_patch</span> <span class="ow">and</span> <span class="n">subset_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_patch</span><span class="o">.</span><span class="n">updated_subsets</span> <span class="ow">and</span> \
+                    <span class="ow">not</span> <span class="n">annotation_dict</span><span class="p">[</span><span class="s1">&#39;filenames&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">annotation_file</span><span class="p">):</span>
+                    <span class="c1"># Remove subsets that became empty</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">annotation_file</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">annotation_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">labels_file</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">annotation_dict</span><span class="p">,</span> <span class="n">labels_file</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CifarConverter.patch"><a class="viewcode-back" href="../../../api/plugins/plugins/datumaro.plugins.cifar_format.html#datumaro.plugins.cifar_format.CifarConverter.patch">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">patch</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">patch</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">patch</span><span class="o">.</span><span class="n">updated_subsets</span><span class="p">:</span>
+            <span class="n">conv</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">subset</span><span class="p">),</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">conv</span><span class="o">.</span><span class="n">_patch</span> <span class="o">=</span> <span class="n">patch</span>
+            <span class="n">conv</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">subset</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">patch</span><span class="o">.</span><span class="n">updated_subsets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="n">ItemStatus</span><span class="o">.</span><span class="n">removed</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">subset_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">subset_file</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">subset_file</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>
+      &#169; Copyright 2021, Intel.<div>
+      <small><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+      |
+      <small><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+    </div>
+    <br/>
+    <small>
+      Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.
+    </small>
+  </p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v0.2.3
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../../../v0.2.2/index.html">v0.2.2</a></dd>
+            <dd><a href="cifar_format.html">v0.2.3</a></dd>
+            <dd><a href="../../../../v0.3/index.html">v0.3</a></dd>
+            <dd><a href="../../../../v0.3.1/index.html">v0.3.1</a></dd>
+            <dd><a href="../../../../v0.4.0.1/index.html">v0.4.0.1</a></dd>
+            <dd><a href="../../../../v0.5.0/index.html">v0.5.0</a></dd>
+            <dd><a href="../../../../v0.5.0-rc1/index.html">v0.5.0-rc1</a></dd>
+            <dd><a href="../../../../v0.5.0-rc2/index.html">v0.5.0-rc2</a></dd>
+            <dd><a href="../../../../v1.0.0/index.html">v1.0.0</a></dd>
+            <dd><a href="../../../../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../../../../v1.1.0rc1/index.html">v1.1.0rc1</a></dd>
+            <dd><a href="../../../../v1.1.1/index.html">v1.1.1</a></dd>
+        </dl>
+    </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

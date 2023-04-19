@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>datumaro.plugins.data_formats.kitti.format &mdash; Datumaro API documentation 0.4.0.1 documentation</title>
+      <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/banner.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/clipboard.min.js"></script>
+        <script src="../../../../../_static/copybutton.js"></script>
+        <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #30638E" >
+  <a href="../../../../../index.html" class="icon"> Datumaro API documentation
+</a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/developer_manual.html">Developer Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/datumaro/datumaro.html">datumaro module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/cli/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/components/components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/plugins/plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/util/util/util.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/">Back to main documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #30638E" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Datumaro API documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+      <li>datumaro.plugins.data_formats.kitti.format</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for datumaro.plugins.data_formats.kitti.format</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2021 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">,</span> <span class="n">MaskCategories</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">generate_colormap</span>
+
+
+<div class="viewcode-block" id="KittiTask"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/kitti/datumaro.plugins.data_formats.kitti.format.html#datumaro.plugins.data_formats.kitti.format.KittiTask">[docs]</a><span class="k">class</span> <span class="nc">KittiTask</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">segmentation</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">detection</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+
+<span class="n">KittiLabelMap</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;unlabeled&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;egovehicle&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;rectificationborder&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;outofroi&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;static&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;dynamic&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="mi">74</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;ground&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">81</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">81</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;road&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;sidewalk&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">244</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">232</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;parking&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">170</span><span class="p">,</span> <span class="mi">160</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;railtrack&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">230</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">140</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;building&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">70</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;wall&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">102</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">156</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;fence&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">190</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">153</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;guardrail&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">180</span><span class="p">,</span> <span class="mi">165</span><span class="p">,</span> <span class="mi">180</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;bridge&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;tunnel&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">90</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;pole&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">153</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">153</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;polegroup&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">153</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">153</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;trafficlight&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">170</span><span class="p">,</span> <span class="mi">30</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;trafficsign&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">220</span><span class="p">,</span> <span class="mi">220</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;vegetation&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">107</span><span class="p">,</span> <span class="mi">142</span><span class="p">,</span> <span class="mi">35</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;terrain&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">152</span><span class="p">,</span> <span class="mi">251</span><span class="p">,</span> <span class="mi">152</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;sky&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">180</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;person&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">220</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;rider&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;car&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">142</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;truck&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">70</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;bus&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;caravan&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;trailer&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">110</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;motorcycle&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">230</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;bicycle&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">119</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">32</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;licenseplate&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">142</span><span class="p">)),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="KittiPath"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/kitti/datumaro.plugins.data_formats.kitti.format.html#datumaro.plugins.data_formats.kitti.format.KittiPath">[docs]</a><span class="k">class</span> <span class="nc">KittiPath</span><span class="p">:</span>
+    <span class="n">IMAGES_DIR</span> <span class="o">=</span> <span class="s2">&quot;image_2&quot;</span>
+    <span class="n">INSTANCES_DIR</span> <span class="o">=</span> <span class="s2">&quot;instance&quot;</span>
+    <span class="n">LABELS_DIR</span> <span class="o">=</span> <span class="s2">&quot;label_2&quot;</span>
+    <span class="n">SEMANTIC_RGB_DIR</span> <span class="o">=</span> <span class="s2">&quot;semantic_rgb&quot;</span>
+    <span class="n">SEMANTIC_DIR</span> <span class="o">=</span> <span class="s2">&quot;semantic&quot;</span>
+    <span class="n">IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.png&quot;</span>
+    <span class="n">MASK_EXT</span> <span class="o">=</span> <span class="s2">&quot;.png&quot;</span>
+
+    <span class="n">LABELMAP_FILE</span> <span class="o">=</span> <span class="s2">&quot;label_colors.txt&quot;</span>
+
+    <span class="n">DEFAULT_TRUNCATED</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># 0% truncated</span>
+    <span class="n">DEFAULT_OCCLUDED</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># fully visible</span>
+    <span class="n">DEFAULT_SCORE</span> <span class="o">=</span> <span class="mf">1.0</span></div>
+
+
+<div class="viewcode-block" id="make_kitti_categories"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/kitti/datumaro.plugins.data_formats.kitti.format.html#datumaro.plugins.data_formats.kitti.format.make_kitti_categories">[docs]</a><span class="k">def</span> <span class="nf">make_kitti_categories</span><span class="p">(</span><span class="n">label_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">label_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">label_map</span> <span class="o">=</span> <span class="n">KittiLabelMap</span>
+
+    <span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">label_categories</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">label_map</span><span class="p">:</span>
+        <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">label_categories</span>
+
+    <span class="n">has_colors</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_colors</span><span class="p">:</span>  <span class="c1"># generate new colors</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="n">generate_colormap</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">label_map</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># only copy defined colors</span>
+        <span class="n">label_id</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">label</span><span class="p">:</span> <span class="n">label_categories</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="p">{</span><span class="n">label_id</span><span class="p">(</span><span class="n">name</span><span class="p">):</span> <span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">desc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">desc</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">mask_categories</span> <span class="o">=</span> <span class="n">MaskCategories</span><span class="p">(</span><span class="n">colormap</span><span class="p">)</span>
+    <span class="n">mask_categories</span><span class="o">.</span><span class="n">inverse_colormap</span>  <span class="c1"># pylint: disable=pointless-statement</span>
+    <span class="n">categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask_categories</span>
+    <span class="k">return</span> <span class="n">categories</span></div>
+
+
+<div class="viewcode-block" id="parse_label_map"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/kitti/datumaro.plugins.data_formats.kitti.format.html#datumaro.plugins.data_formats.kitti.format.parse_label_map">[docs]</a><span class="k">def</span> <span class="nf">parse_label_map</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">label_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="c1"># skip empty and commented lines</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span> <span class="ow">and</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># color, name</span>
+            <span class="n">label_desc</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="mi">2</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_desc</span><span class="p">):</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">label_desc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">label_map</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Label &#39;</span><span class="si">%s</span><span class="s2">&#39; is already defined&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+
+            <span class="n">label_map</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+    <span class="k">return</span> <span class="n">label_map</span></div>
+
+
+<div class="viewcode-block" id="write_label_map"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/kitti/datumaro.plugins.data_formats.kitti.format.html#datumaro.plugins.data_formats.kitti.format.write_label_map">[docs]</a><span class="k">def</span> <span class="nf">write_label_map</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">label_map</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">label_name</span><span class="p">,</span> <span class="n">label_desc</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">label_desc</span><span class="p">:</span>
+                <span class="n">color_rgb</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">label_desc</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">color_rgb</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">color_rgb</span><span class="p">,</span> <span class="n">label_name</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>
+      &#169; Copyright 2021, Intel.<div>
+      <small><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+      |
+      <small><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+    </div>
+    <br/>
+    <small>
+      Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.
+    </small>
+  </p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v0.5.0-rc1
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../../../../../v0.2.2/index.html">v0.2.2</a></dd>
+            <dd><a href="../../../../../../v0.2.3/index.html">v0.2.3</a></dd>
+            <dd><a href="../../../../../../v0.3/index.html">v0.3</a></dd>
+            <dd><a href="../../../../../../v0.3.1/index.html">v0.3.1</a></dd>
+            <dd><a href="../../../../../../v0.4.0.1/index.html">v0.4.0.1</a></dd>
+            <dd><a href="../../../../../../v0.5.0/index.html">v0.5.0</a></dd>
+            <dd><a href="format.html">v0.5.0-rc1</a></dd>
+            <dd><a href="../../../../../../v0.5.0-rc2/index.html">v0.5.0-rc2</a></dd>
+            <dd><a href="../../../../../../v1.0.0/index.html">v1.0.0</a></dd>
+            <dd><a href="../../../../../../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../../../../../../v1.1.0rc1/index.html">v1.1.0rc1</a></dd>
+            <dd><a href="../../../../../../v1.1.1/index.html">v1.1.1</a></dd>
+        </dl>
+    </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

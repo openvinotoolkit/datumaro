@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Datumaro package &mdash; Datumaro API documentation 0.5.0rc2 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/banner.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/clipboard.min.js"></script>
+        <script src="../../../../_static/copybutton.js"></script>
+        <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="base module" href="datumaro.plugins.data_formats.datumaro.base.html" />
+    <link rel="prev" title="format module" href="../cvat/datumaro.plugins.data_formats.cvat.format.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #30638E" >
+  <a href="../../../../index.html" class="icon"> Datumaro API documentation
+</a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_manual.html">Developer Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../datumaro/datumaro.html">datumaro module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/components.html">Components</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../plugins.html">Plugins</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../accuracy_checker_plugin/accuracy_checker_plugin.html">accuracy checker plugin package</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../data_formats.html">Data formats</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../coco/coco.html">COCO package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cvat/cvat.html">CVAT package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Datumaro package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.data_formats.datumaro.base.html">base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.data_formats.datumaro.exporter.html">exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.data_formats.datumaro.format.html">format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../icdar/icdar.html">ICDAR package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../kitti/kitti.html">KITTI package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../kitti_raw/kitti_raw.html">KITTI raw package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sly_pointcloud/sly_pointcloud.html">sly Pointcloud package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tf_detection_api/tf_detection_api.html">tf detection api package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../voc/voc.html">VOC package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../yolo/yolo.html">YOLO package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.ade20k2017.html">ade20k2017 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.ade20k2020.html">ade20k2020 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.camvid.html">camvid module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.cifar.html">cifar module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.cityscapes.html">cityscapes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.image_dir.html">image_dir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.image_zip.html">image_zip module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.imagenet.html">imagenet module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.imagenet_txt.html">imagenet_txt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.labelme.html">labelme module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.lfw.html">lfw module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.market1501.html">market1501 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.mnist.html">mnist module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.mnist_csv.html">mnist_csv module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.mot.html">mot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.mots.html">mots module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.open_images.html">open_images module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.vgg_face2.html">vgg_face2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datumaro.plugins.data_formats.widerface.html">widerface module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../openvino_plugin/openvino_plugin.html">OpenVINO plugin package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sampler/sampler.html">sampler package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../plugins/datumaro.plugins.ndr.html">ndr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../plugins/datumaro.plugins.splitter.html">splitter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../plugins/datumaro.plugins.tiling.html">tiling module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../plugins/datumaro.plugins.transforms.html">transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../plugins/datumaro.plugins.validators.html">validators module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../util/util/util.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/">Back to main documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #30638E" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Datumaro API documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../plugins.html">Plugins</a> &raquo;</li>
+          <li><a href="../data_formats.html">Data formats</a> &raquo;</li>
+      <li>Datumaro package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/api/plugins/data_formats/datumaro/datumaro.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="datumaro-package">
+<h1>Datumaro package<a class="headerlink" href="#datumaro-package" title="Permalink to this headline"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datumaro.plugins.data_formats.datumaro.base.html">base module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datumaro.plugins.data_formats.datumaro.exporter.html">exporter module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datumaro.plugins.data_formats.datumaro.format.html">format module</a></li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../cvat/datumaro.plugins.data_formats.cvat.format.html" class="btn btn-neutral float-left" title="format module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="datumaro.plugins.data_formats.datumaro.base.html" class="btn btn-neutral float-right" title="base module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>
+      &#169; Copyright 2021, Intel.<div>
+      <small><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+      |
+      <small><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+    </div>
+    <br/>
+    <small>
+      Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.
+    </small>
+  </p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v0.5.0-rc2
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../../../../v0.2.2/index.html">v0.2.2</a></dd>
+            <dd><a href="../../../../../v0.2.3/index.html">v0.2.3</a></dd>
+            <dd><a href="../../../../../v0.3/index.html">v0.3</a></dd>
+            <dd><a href="../../../../../v0.3.1/index.html">v0.3.1</a></dd>
+            <dd><a href="../../../../../v0.4.0.1/index.html">v0.4.0.1</a></dd>
+            <dd><a href="../../../../../v0.5.0/api/plugins/data_formats/datumaro/datumaro.html">v0.5.0</a></dd>
+            <dd><a href="../../../../../v0.5.0-rc1/api/plugins/data_formats/datumaro/datumaro.html">v0.5.0-rc1</a></dd>
+            <dd><a href="datumaro.html">v0.5.0-rc2</a></dd>
+            <dd><a href="../../../../../v1.0.0/api/plugins/data_formats/datumaro/datumaro.html">v1.0.0</a></dd>
+            <dd><a href="../../../../../v1.1.0/api/plugins/data_formats/datumaro/datumaro.html">v1.1.0</a></dd>
+            <dd><a href="../../../../../v1.1.0rc1/api/plugins/data_formats/datumaro/datumaro.html">v1.1.0rc1</a></dd>
+            <dd><a href="../../../../../v1.1.1/api/plugins/data_formats/datumaro/datumaro.html">v1.1.1</a></dd>
+        </dl>
+    </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

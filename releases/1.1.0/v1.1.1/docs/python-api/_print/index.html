@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.83.1" /><link rel="canonical" type="text/html" href="../../../docs/python-api/">
+<META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+
+
+<link rel="shortcut icon" href="../../../favicons/favicon.ico" >
+<link rel="apple-touch-icon" href="../../../favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="icon" type="image/png" href="../../../favicons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="../../../favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="../../../favicons/android-36x36.png" sizes="36x36">
+<link rel="icon" type="image/png" href="../../../favicons/android-48x48.png" sizes="48x48">
+<link rel="icon" type="image/png" href="../../../favicons/android-72x72.png" sizes="72x72">
+<link rel="icon" type="image/png" href="../../../favicons/android-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="../../../favicons/android-144x144.png" sizes="144x144">
+<link rel="icon" type="image/png" href="../../../favicons/android-192x192.png" sizes="192x192">
+
+<title>Python API | Dataset Management Framework</title>
+<meta name="description" content=""><meta property="og:title" content="Python API" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="/docs/python-api/" /><meta property="og:site_name" content="Dataset Management Framework" />
+
+<meta itemprop="name" content="Python API">
+<meta itemprop="description" content=""><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Python API"/>
+<meta name="twitter:description" content=""/>
+
+
+
+
+<link rel="preload" href="../../../scss/main.min.7739044bd284ace8b77f1ace79422fd408a2224eb69c6b8d48ef94dde2a179d5.css" as="style">
+<link href="../../../scss/main.min.7739044bd284ace8b77f1ace79422fd408a2224eb69c6b8d48ef94dde2a179d5.css" rel="stylesheet" integrity="">
+
+
+<script
+  src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+  crossorigin="anonymous"></script>
+
+<script
+  src="https://unpkg.com/lunr@2.3.8/lunr.min.js"
+  integrity="sha384-vRQ9bDyE0Wnu+lMfm57BlYLO0/XauFuKpVsZPs7KEDwYKktWi5+Kz3MP8++DFlRY"
+  crossorigin="anonymous"></script>
+
+
+
+
+
+
+<link rel="stylesheet" href="../../../css/prism.css"/>
+
+
+
+
+  </head>
+  <body class="td-section">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark flex-column flex-md-row td-navbar">
+  <a class="navbar-brand" href="../../../docs">
+    <span class="navbar-logo"></span><span class="font-weight-bold">Dataset Management Framework</span>
+  </a>
+  <div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+    <ul class="navbar-nav mt-2 mt-lg-0">
+      
+      
+        <li class="nav-item mr-4 mb-2 mb-lg-0">
+          
+          
+          
+          
+          
+          
+          <a class="nav-link" href="https://github.com/openvinotoolkit/datumaro"  ><i class='fab fa-github'></i><span>GitHub</span></a>
+        </li>
+      
+        <li class="nav-item mr-4 mb-2 mb-lg-0" id="api">
+          <a class="nav-link" href="../../../api">API documentation</a>
+        </li>
+      
+        <li class="nav-item dropdown mr-4 d-lg-block">
+          
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  v1.1.1
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+  
+    
+      <a class="dropdown-item" href="../../../../docs/python-api/">develop</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v0.1.11/docs/python-api/">v0.1.11</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v0.2/docs/python-api/">v0.2</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v0.2.1/docs/python-api/">v0.2.1</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v0.2.2/docs/python-api/">v0.2.2</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v0.2.3/docs/python-api/">v0.2.3</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v0.3/docs/python-api/">v0.3</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v0.3.1/docs/python-api/">v0.3.1</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v0.4.0.1/docs/python-api/">v0.4.0.1</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v0.5.0/docs/python-api/">v0.5.0</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v1.0.0/docs/python-api/">v1.0.0</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v1.1.0/docs/python-api/">v1.1.0</a>
+  
+    
+      <a class="dropdown-item" href="../../../../v1.1.1/docs/python-api/">v1.1.1</a>
+  
+</div>
+
+        </li>
+      
+      
+    </ul>
+  </div>
+  <div class="navbar-nav d-none d-lg-block">
+
+
+
+<input
+  type="search"
+  class="form-control td-search-input"
+  placeholder="&#xf002; Search this site…"
+  aria-label="Search this site…"
+  autocomplete="off"
+  
+  data-offline-search-index-json-src="../../../offline-search-index.c2180cb2be93210a79a607bc1e10fc8d.json"
+  data-offline-search-base-href="../../../"
+  data-offline-search-max-results="10"
+>
+
+</div>
+</nav>
+
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <div class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+          </div>
+          <div class="d-none d-xl-block col-xl-2 td-toc d-print-none">
+          </div>
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+This the multi-page printable view of this section.
+<a href="#" onclick="print();return false;">Click here to print</a>.
+</p><p>
+<a href="../../../docs/python-api/">Return to the regular view of this page</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">Python API</h1>
+
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-4589e108cd5668cad04e0aa56d93820a">Python API examples</a></li>
+
+
+    
+    <ul>
+        
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1.1: <a href="#pg-470931050952784a99b033df0c69cc9e">Dataset handler</a></li>
+
+
+    
+  
+    
+    
+	
+<li>1.2: <a href="#pg-7b4c1de1f9948a604e7fc1d63b098186">Encrypt dataset</a></li>
+
+
+    
+  
+    
+    
+	
+<li>1.3: <a href="#pg-d22c8257996d6304d291c66c3c33124a">Filter</a></li>
+
+
+    
+  
+    
+    
+	
+<li>1.4: <a href="#pg-7ef556051ce6caeaa3f31ee1cc6ecff8">Generate</a></li>
+
+
+    
+  
+    
+    
+	
+<li>1.5: <a href="#pg-b0c9559c5ed42fcdd5bda4ed10c616ca">Tiling</a></li>
+
+
+    
+  
+    
+    
+	
+<li>1.6: <a href="#pg-0193213cb21ffce50d3050ebfa4a7ae3">Transform</a></li>
+
+
+    
+  
+    
+    
+	
+<li>1.7: <a href="#pg-9aac665420e943bc1aa24a8aca49f9eb">E2E example for Yolo-Ultralytics trainer</a></li>
+
+
+    
+  
+    
+    
+	
+<li>1.8: <a href="#pg-8e2d30ae95cfb5d1314854228dff860c">Validate</a></li>
+
+
+    
+  
+    
+    
+	
+<li>1.9: <a href="#pg-aed9ec50c99aa4d45f1e0650e9aab7b7">Visualizer</a></li>
+
+
+    
+  
+
+    </ul>
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      <h2 id="what-is-python-api">What is Python API</h2>
+<p>Datuamro provides Python API, which allows you to use the Datumaro features directly in your code.</p>
+<p>There are some python API examples with Jupyter Notebook.</p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="./python-api-examples">Python API examples</a>
+<ul>
+<li><a href="./python-api-examples/dataset-handler">Dataset Handler</a></li>
+<li><a href="./python-api-examples/visualizer">Visualizer</a></li>
+<li><a href="./python-api-examples/filter">Filter</a></li>
+<li><a href="./python-api-examples/transform">Transform</a></li>
+<li><a href="./python-api-examples/generate">Generate</a></li>
+<li><a href="./python-api-examples/validate">Validate</a></li>
+<li><a href="./python-api-examples/tiling">Tiling</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-4589e108cd5668cad04e0aa56d93820a">1 - Python API examples</h1>
+    
+	<p>You can learn how to interact with the Datumaro python APIs via Jupyter Notebook examples as follows.</p>
+
+</div>
+
+
+
+    
+      
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-470931050952784a99b033df0c69cc9e">1.1 - Dataset handler</h1>
+    
+	<p>Datumaro provides the dataset import and export functionalities.</p>
+<p>When importing multiple datasets, Datumaro helps to manipulate and merge them into a single
+dataset. Since the manipulations such as reidentification, label redefinition, or filtration are
+mostly the topic of transformation, we here describe how to merge two heterogeneous datasets
+through <code>IntersectMerge</code>.</p>
+<p>Jupyter Notebook Examples:
+
+<iframe
+    id="notebook_iframe"
+    src="../nb_htmls/01_merge_multiple_datasets_for_classification.html"
+    style="height:100%;width:100%;border:none;overflow:hidden;"
+    scrolling="no"
+    onload="resizeIframe(this)"></iframe>
+
+<script>
+    function resizeIframe(obj) {
+        obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+    }
+</script>
+
+
+<iframe
+    id="notebook_iframe"
+    src="../nb_htmls/02_merge_heterogeneous_datasets_for_detection.html"
+    style="height:100%;width:100%;border:none;overflow:hidden;"
+    scrolling="no"
+    onload="resizeIframe(this)"></iframe>
+
+<script>
+    function resizeIframe(obj) {
+        obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+    }
+</script>
+</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-7b4c1de1f9948a604e7fc1d63b098186">1.2 - Encrypt dataset</h1>
+    
+	<p>Jupyter Notebook Examples: <a href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/09_encrypt_dataset.ipynb">Jupyter Notebook source file</a></p>
+
+<iframe
+    id="notebook_iframe"
+    src="../nb_htmls/09_encrypt_dataset.html"
+    style="height:100%;width:100%;border:none;overflow:hidden;"
+    scrolling="no"
+    onload="resizeIframe(this)"></iframe>
+
+<script>
+    function resizeIframe(obj) {
+        obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+    }
+</script>
+
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-d22c8257996d6304d291c66c3c33124a">1.3 - Filter</h1>
+    
+	<p>This API allows you to filter a dataset to satisfy some conditions.
+Here, XML <a href="https://devhints.io/xpath">XPath</a> is used as a query format.</p>
+<p>For instance, with a given XML file below, we can filter a dataset by the subset name through
+<code>/item[subset=&quot;minival2014&quot;]</code>, by the media id through <code>/item[id=&quot;290768&quot;]</code>, by the image sizes
+through <code>/item[image/width=image/height]</code>, and annotation information such as id (<code>id</code>), type
+(<code>type</code>), label (<code>label_id</code>), bounding box (<code>x, y, w, h</code>), etc.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#204a87;font-weight:bold">&lt;item&gt;</span>
+  <span style="color:#204a87;font-weight:bold">&lt;id&gt;</span>290768<span style="color:#204a87;font-weight:bold">&lt;/id&gt;</span>
+  <span style="color:#204a87;font-weight:bold">&lt;subset&gt;</span>minival2014<span style="color:#204a87;font-weight:bold">&lt;/subset&gt;</span>
+  <span style="color:#204a87;font-weight:bold">&lt;image&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;width&gt;</span>612<span style="color:#204a87;font-weight:bold">&lt;/width&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;height&gt;</span>612<span style="color:#204a87;font-weight:bold">&lt;/height&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;depth&gt;</span>3<span style="color:#204a87;font-weight:bold">&lt;/depth&gt;</span>
+  <span style="color:#204a87;font-weight:bold">&lt;/image&gt;</span>
+  <span style="color:#204a87;font-weight:bold">&lt;annotation&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;id&gt;</span>80154<span style="color:#204a87;font-weight:bold">&lt;/id&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;type&gt;</span>bbox<span style="color:#204a87;font-weight:bold">&lt;/type&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;label_id&gt;</span>39<span style="color:#204a87;font-weight:bold">&lt;/label_id&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;x&gt;</span>264.59<span style="color:#204a87;font-weight:bold">&lt;/x&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;y&gt;</span>150.25<span style="color:#204a87;font-weight:bold">&lt;/y&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;w&gt;</span>11.19<span style="color:#204a87;font-weight:bold">&lt;/w&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;h&gt;</span>42.31<span style="color:#204a87;font-weight:bold">&lt;/h&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;area&gt;</span>473.87<span style="color:#204a87;font-weight:bold">&lt;/area&gt;</span>
+  <span style="color:#204a87;font-weight:bold">&lt;/annotation&gt;</span>
+  <span style="color:#204a87;font-weight:bold">&lt;annotation&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;id&gt;</span>669839<span style="color:#204a87;font-weight:bold">&lt;/id&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;type&gt;</span>bbox<span style="color:#204a87;font-weight:bold">&lt;/type&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;label_id&gt;</span>41<span style="color:#204a87;font-weight:bold">&lt;/label_id&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;x&gt;</span>163.58<span style="color:#204a87;font-weight:bold">&lt;/x&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;y&gt;</span>191.75<span style="color:#204a87;font-weight:bold">&lt;/y&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;w&gt;</span>76.98<span style="color:#204a87;font-weight:bold">&lt;/w&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;h&gt;</span>73.63<span style="color:#204a87;font-weight:bold">&lt;/h&gt;</span>
+    <span style="color:#204a87;font-weight:bold">&lt;area&gt;</span>5668.77<span style="color:#204a87;font-weight:bold">&lt;/area&gt;</span>
+  <span style="color:#204a87;font-weight:bold">&lt;/annotation&gt;</span>
+  ...
+<span style="color:#204a87;font-weight:bold">&lt;/item&gt;</span>
+</code></pre></div><p>For the annotation-based filtration, we need to set the argument <code>filter_annotations</code> to <code>True</code>.
+We provide the argument <code>remove_empty</code> to remove all media with an empty annotation. We note that
+datasets are updated in-place by default.</p>
+<p>Jupyter Notebook Example:
+
+<iframe
+    id="notebook_iframe"
+    src="../nb_htmls/04_filter.html"
+    style="height:100%;width:100%;border:none;overflow:hidden;"
+    scrolling="no"
+    onload="resizeIframe(this)"></iframe>
+
+<script>
+    function resizeIframe(obj) {
+        obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+    }
+</script>
+</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-7ef556051ce6caeaa3f31ee1cc6ecff8">1.4 - Generate</h1>
+    
+	<p>Need to update the description.</p>
+<p>Jupyter Notebook Examples:
+Need to update the description.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-b0c9559c5ed42fcdd5bda4ed10c616ca">1.5 - Tiling</h1>
+    
+	<h2 id="description">Description</h2>
+<p>This API allows you to transform a dataset into a tiled one. This transform is known to be useful for detecting small objects in high-resolution input images <a href="#ref1">[1]</a>. In general, we resize the input image to be small enough for the network to afford in terms of memory and computational cost. This practice makes small objects much smaller that the neural network cannot distinguish them. The tiling transform increases the size of a small object&rsquo;s area relative to the network&rsquo;s receptive area to make it distinguishable. Therefore, this transform allows you to easily construct a dataset to train a model to detect small objects in high-resolution images.</p>
+<h2 id="references">References</h2>
+<ol>
+    <li id="ref1">
+        F., Ozge Unel, Burak O. Ozkalayci, and Cevahir Cigla. "The power of tiling for small object detection." Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops. 2019.
+    </li>
+</ol>
+<h2 id="jupyter-notebook-example">Jupyter Notebook Example</h2>
+
+<iframe
+    id="notebook_iframe"
+    src="../nb_htmls/06_tiling.html"
+    style="height:100%;width:100%;border:none;overflow:hidden;"
+    scrolling="no"
+    onload="resizeIframe(this)"></iframe>
+
+<script>
+    function resizeIframe(obj) {
+        obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+    }
+</script>
+
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-0193213cb21ffce50d3050ebfa4a7ae3">1.6 - Transform</h1>
+    
+	<p>Need to update the description.</p>
+<p>Jupyter Notebook Examples:
+Need to update the description.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-9aac665420e943bc1aa24a8aca49f9eb">1.7 - E2E example for Yolo-Ultralytics trainer</h1>
+    
+	<p>Jupyter Notebook Examples: <a href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/08_e2e_example_yolo_ultralytics_trainer.ipynb">Jupyter Notebook source file</a></p>
+
+<iframe
+    id="notebook_iframe"
+    src="../nb_htmls/08_e2e_example_yolo_ultralytics_trainer.html"
+    style="height:100%;width:100%;border:none;overflow:hidden;"
+    scrolling="no"
+    onload="resizeIframe(this)"></iframe>
+
+<script>
+    function resizeIframe(obj) {
+        obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+    }
+</script>
+
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-8e2d30ae95cfb5d1314854228dff860c">1.8 - Validate</h1>
+    
+	<p>Need to update the description.</p>
+<p>Jupyter Notebook Examples:
+Need to update the description.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-aed9ec50c99aa4d45f1e0650e9aab7b7">1.9 - Visualizer</h1>
+    
+	<p>This API allows you to visualize a dataset with media ids.</p>
+<p>Although Datumaro supports various kinds of vision tasks, e.g., classification, object detection,
+semantic segmentation, key point estimation, visual captioning, etc., we provide a task-agnostic
+visualization tool. That is, regardless of annotation types, <code>vis_gallery</code> describes the multiple
+annotation-overlapped images from a list of multiple media ids. We can control the transparency of
+annotations over images by adjusting <code>alpha</code>.</p>
+<p>Jupyter Notebook Example:
+
+<iframe
+    id="notebook_iframe"
+    src="../nb_htmls/03_visualize.html"
+    style="height:100%;width:100%;border:none;overflow:hidden;"
+    scrolling="no"
+    onload="resizeIframe(this)"></iframe>
+
+<script>
+    function resizeIframe(obj) {
+        obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+    }
+</script>
+</p>
+
+</div>
+
+
+
+    
+	
+  
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="bg-dark py-5 row d-print-none">
+  <div class="container-fluid mx-sm-5">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="" aria-label="">
+    <a class="text-white" rel="noopener noreferrer" href="">
+      <i class=""></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" rel="noopener noreferrer" href="https://github.com/openvinotoolkit/datumaro">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="mr-1"><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+        |
+        <small class="mx-1"><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+        <br/>
+        <div class="footer-disclaimer text-white ">
+          <small>Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.</small>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@8.9.2/dist/mermaid.min.js" integrity="sha384-uQikAXnCAqsMb3ygtdqBYvcwvHUkzGIpjdGyy9owhURXHUxLC5LgTcSxJQH/RzjK" crossorigin="anonymous"></script>
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="../../../js/main.min.ee00f42d1b949caa55ccf416202998d65afac8f58091e2719c89d4fc3518550e.js" integrity="sha256-7gD0LRuUnKpVzPQWICmY1lr6yPWAkeJxnInU/DUYVQ4=" crossorigin="anonymous"></script>
+
+
+
+<script src='../../../js/prism.js'></script>
+
+
+
+  </body>
+</html>

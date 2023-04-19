@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>datumaro.plugins.data_formats.voc.format &mdash; Datumaro API documentation 0.4.0.1 documentation</title>
+      <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/banner.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/clipboard.min.js"></script>
+        <script src="../../../../../_static/copybutton.js"></script>
+        <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #30638E" >
+  <a href="../../../../../index.html" class="icon"> Datumaro API documentation
+</a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/developer_manual.html">Developer Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/datumaro/datumaro.html">datumaro module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/cli/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/components/components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/plugins/plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/util/util/util.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/">Back to main documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #30638E" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Datumaro API documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+      <li>datumaro.plugins.data_formats.voc.format</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for datumaro.plugins.data_formats.voc.format</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2019-2022 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AnnotationType</span><span class="p">,</span>
+    <span class="n">Colormap</span><span class="p">,</span>
+    <span class="n">LabelCategories</span><span class="p">,</span>
+    <span class="n">MaskCategories</span><span class="p">,</span>
+    <span class="n">RgbColor</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">CategoriesInfo</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">InvalidAnnotationError</span>
+<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">dump_json_file</span><span class="p">,</span> <span class="n">find</span><span class="p">,</span> <span class="n">parse_json_file</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">get_meta_file</span>
+
+
+<div class="viewcode-block" id="VocTask"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocTask">[docs]</a><span class="k">class</span> <span class="nc">VocTask</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">classification</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">detection</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">segmentation</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">action_classification</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">person_layout</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VocLabel"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocLabel">[docs]</a><span class="k">class</span> <span class="nc">VocLabel</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">background</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">aeroplane</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">bicycle</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">bird</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">boat</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">bottle</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">bus</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">car</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">cat</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">chair</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">cow</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">diningtable</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">dog</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">horse</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">motorbike</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="n">pottedplant</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">sheep</span> <span class="o">=</span> <span class="mi">17</span>
+    <span class="n">sofa</span> <span class="o">=</span> <span class="mi">18</span>
+    <span class="n">train</span> <span class="o">=</span> <span class="mi">19</span>
+    <span class="n">tvmonitor</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">ignored</span> <span class="o">=</span> <span class="mi">255</span></div>
+
+
+<div class="viewcode-block" id="VocPose"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocPose">[docs]</a><span class="k">class</span> <span class="nc">VocPose</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">Unspecified</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">Left</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">Right</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">Frontal</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">Rear</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VocBodyPart"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocBodyPart">[docs]</a><span class="k">class</span> <span class="nc">VocBodyPart</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">head</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">hand</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">foot</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VocAction"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocAction">[docs]</a><span class="k">class</span> <span class="nc">VocAction</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">other</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">jumping</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">phoning</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">playinginstrument</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">reading</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">ridingbike</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">ridinghorse</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">running</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">takingphoto</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">usingcomputer</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">walking</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="generate_colormap"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.generate_colormap">[docs]</a><span class="k">def</span> <span class="nf">generate_colormap</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Colormap</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_bit</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">number</span> <span class="o">&gt;&gt;</span> <span class="n">index</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span>
+
+    <span class="n">colormap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">colormap</span><span class="p">[:,</span> <span class="n">c</span><span class="p">]</span> <span class="o">|=</span> <span class="n">get_bit</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">j</span>
+        <span class="n">indices</span> <span class="o">&gt;&gt;=</span> <span class="mi">3</span>
+
+    <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="nb">id</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">color</span><span class="p">))</span> <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">colormap</span><span class="p">))</span></div>
+
+
+<span class="n">VocColormap</span><span class="p">:</span> <span class="n">Colormap</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="n">color</span> <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">generate_colormap</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">id</span> <span class="ow">in</span> <span class="p">{</span><span class="n">l</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">VocLabel</span><span class="p">}</span>
+<span class="p">}</span>
+<span class="n">VocInstColormap</span> <span class="o">=</span> <span class="n">generate_colormap</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="VocPath"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocPath">[docs]</a><span class="k">class</span> <span class="nc">VocPath</span><span class="p">:</span>
+    <span class="n">IMAGES_DIR</span> <span class="o">=</span> <span class="s2">&quot;JPEGImages&quot;</span>
+    <span class="n">ANNOTATIONS_DIR</span> <span class="o">=</span> <span class="s2">&quot;Annotations&quot;</span>
+    <span class="n">SEGMENTATION_DIR</span> <span class="o">=</span> <span class="s2">&quot;SegmentationClass&quot;</span>
+    <span class="n">INSTANCES_DIR</span> <span class="o">=</span> <span class="s2">&quot;SegmentationObject&quot;</span>
+    <span class="n">SUBSETS_DIR</span> <span class="o">=</span> <span class="s2">&quot;ImageSets&quot;</span>
+    <span class="n">IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.jpg&quot;</span>
+    <span class="n">SEGM_EXT</span> <span class="o">=</span> <span class="s2">&quot;.png&quot;</span>
+    <span class="n">LABELMAP_FILE</span> <span class="o">=</span> <span class="s2">&quot;labelmap.txt&quot;</span>
+
+    <span class="n">TASK_DIR</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">classification</span><span class="p">:</span> <span class="s2">&quot;Main&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">detection</span><span class="p">:</span> <span class="s2">&quot;Main&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">segmentation</span><span class="p">:</span> <span class="s2">&quot;Segmentation&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">action_classification</span><span class="p">:</span> <span class="s2">&quot;Action&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">person_layout</span><span class="p">:</span> <span class="s2">&quot;Layout&quot;</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+<span class="n">LabelMapConfig</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">RgbColor</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span>
+<span class="sd">&quot;&quot;&quot;A type representing a label map config&quot;&quot;&quot;</span>
+<span class="c1"># Not totally type-correct, tuple elements are supposed to support modification.</span>
+<span class="c1"># Therefore, the tuple is typically a list</span>
+<span class="c1"># TODO: refactor, make type annotations conform with actual usage</span>
+
+
+<div class="viewcode-block" id="make_voc_label_map"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.make_voc_label_map">[docs]</a><span class="k">def</span> <span class="nf">make_voc_label_map</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">LabelMapConfig</span><span class="p">:</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">VocLabel</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">l</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">label_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">VocColormap</span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">value</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[]])</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">)</span>
+    <span class="n">label_map</span><span class="p">[</span><span class="n">VocLabel</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">VocBodyPart</span><span class="p">]</span>
+    <span class="n">label_map</span><span class="p">[</span><span class="n">VocLabel</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">VocAction</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">label_map</span></div>
+
+
+<div class="viewcode-block" id="parse_label_map"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.parse_label_map">[docs]</a><span class="k">def</span> <span class="nf">parse_label_map</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabelMapConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses a label map file in the format:</span>
+<span class="sd">    &#39;name : color (r, g, b) : parts (hand, feet, ...) : actions (siting, standing, ...)&#39;</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        path: File path</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary: label -&gt; (color, parts, actions)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="c1"># skip empty and commented lines</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># name : color : parts : actions</span>
+            <span class="n">label_desc</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_desc</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidAnnotationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Label description has wrong number of fields &#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">label_desc</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                    <span class="s2">&quot;Expected 4 &#39;:&#39;-separated fields.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">label_map</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidAnnotationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Label &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; is already defined in the label map&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_desc</span><span class="p">)</span> <span class="ow">and</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">color</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">InvalidAnnotationError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Label &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; has wrong color &#39;</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">&#39;. Expected an &#39;r,g,b&#39; triplet.&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">color</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="mi">2</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_desc</span><span class="p">)</span> <span class="ow">and</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">if</span> <span class="mi">3</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_desc</span><span class="p">)</span> <span class="ow">and</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+                <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">label_map</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">color</span><span class="p">,</span> <span class="n">parts</span><span class="p">,</span> <span class="n">actions</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">label_map</span></div>
+
+
+<div class="viewcode-block" id="parse_meta_file"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.parse_meta_file">[docs]</a><span class="k">def</span> <span class="nf">parse_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabelMapConfig</span><span class="p">:</span>
+    <span class="c1"># Uses custom format with extra fields</span>
+    <span class="n">meta_file</span> <span class="o">=</span> <span class="n">path</span>
+    <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">meta_file</span> <span class="o">=</span> <span class="n">get_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="n">dataset_meta</span> <span class="o">=</span> <span class="n">parse_json_file</span><span class="p">(</span><span class="n">meta_file</span><span class="p">)</span>
+
+    <span class="n">label_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">dataset_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parts&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="n">dataset_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;actions&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataset_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="p">[])):</span>
+        <span class="n">label_map</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">parts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="p">[]),</span> <span class="n">actions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="p">[])]</span>
+
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">dataset_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;segmentation_colors&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataset_meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label_map&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">label_map</span><span class="p">:</span>
+            <span class="n">label_map</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]]</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span> <span class="ow">and</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">label_map</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">label_map</span></div>
+
+
+<div class="viewcode-block" id="write_label_map"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.write_label_map">[docs]</a><span class="k">def</span> <span class="nf">write_label_map</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_map</span><span class="p">:</span> <span class="n">LabelMapConfig</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# label:color_rgb:parts:actions</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">label_name</span><span class="p">,</span> <span class="n">label_desc</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">color_rgb</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">color_rgb</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="n">parts</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">label_name</span><span class="p">,</span> <span class="n">color_rgb</span><span class="p">,</span> <span class="n">parts</span><span class="p">,</span> <span class="n">actions</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="write_meta_file"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.write_meta_file">[docs]</a><span class="k">def</span> <span class="nf">write_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_map</span><span class="p">:</span> <span class="n">LabelMapConfig</span><span class="p">):</span>
+    <span class="c1"># Uses custom format with extra fields</span>
+    <span class="n">dataset_meta</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">labels_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">segmentation_colors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">label_name</span><span class="p">,</span> <span class="n">label_desc</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">label_map</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">labels_dict</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">label_name</span>
+            <span class="n">segmentation_colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">label_desc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_desc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_desc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">])]</span>
+            <span class="p">)</span>
+
+        <span class="n">parts</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">actions</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">label_desc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">dataset_meta</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">segmentation_colors</span><span class="p">):</span>
+        <span class="n">dataset_meta</span><span class="p">[</span><span class="s2">&quot;label_map&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels_dict</span>
+        <span class="n">dataset_meta</span><span class="p">[</span><span class="s2">&quot;segmentation_colors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segmentation_colors</span>
+
+        <span class="n">bg_label</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">label_map</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bg_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dataset_meta</span><span class="p">[</span><span class="s2">&quot;background_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">bg_label</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">parts</span><span class="p">):</span>
+        <span class="n">dataset_meta</span><span class="p">[</span><span class="s2">&quot;parts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parts</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">actions</span><span class="p">):</span>
+        <span class="n">dataset_meta</span><span class="p">[</span><span class="s2">&quot;actions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">actions</span>
+
+    <span class="n">dump_json_file</span><span class="p">(</span><span class="n">get_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">dataset_meta</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="make_voc_categories"><a class="viewcode-back" href="../../../../../api/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.make_voc_categories">[docs]</a><span class="k">def</span> <span class="nf">make_voc_categories</span><span class="p">(</span><span class="n">label_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LabelMapConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoriesInfo</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">label_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">label_map</span> <span class="o">=</span> <span class="n">make_voc_label_map</span><span class="p">()</span>
+
+    <span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">label_categories</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
+    <span class="n">label_categories</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="s2">&quot;difficult&quot;</span><span class="p">,</span> <span class="s2">&quot;truncated&quot;</span><span class="p">,</span> <span class="s2">&quot;occluded&quot;</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="n">desc</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">values</span><span class="p">()))):</span>
+        <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+    <span class="n">categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">label_categories</span>
+
+    <span class="n">has_colors</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_colors</span><span class="p">:</span>  <span class="c1"># generate new colors</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="n">generate_colormap</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">label_map</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># only copy defined colors</span>
+        <span class="n">label_id</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">label</span><span class="p">:</span> <span class="n">label_categories</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">label_id</span><span class="p">(</span><span class="n">name</span><span class="p">):</span> <span class="n">desc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">desc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">}</span>
+    <span class="n">mask_categories</span> <span class="o">=</span> <span class="n">MaskCategories</span><span class="p">(</span><span class="n">colormap</span><span class="p">)</span>
+    <span class="n">mask_categories</span><span class="o">.</span><span class="n">inverse_colormap</span>  <span class="c1"># pylint: disable=pointless-statement</span>
+    <span class="n">categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask_categories</span>
+
+    <span class="k">return</span> <span class="n">categories</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>
+      &#169; Copyright 2021, Intel.<div>
+      <small><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+      |
+      <small><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+    </div>
+    <br/>
+    <small>
+      Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.
+    </small>
+  </p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v0.5.0-rc1
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../../../../../v0.2.2/index.html">v0.2.2</a></dd>
+            <dd><a href="../../../../../../v0.2.3/index.html">v0.2.3</a></dd>
+            <dd><a href="../../../../../../v0.3/index.html">v0.3</a></dd>
+            <dd><a href="../../../../../../v0.3.1/index.html">v0.3.1</a></dd>
+            <dd><a href="../../../../../../v0.4.0.1/index.html">v0.4.0.1</a></dd>
+            <dd><a href="../../../../../../v0.5.0/index.html">v0.5.0</a></dd>
+            <dd><a href="format.html">v0.5.0-rc1</a></dd>
+            <dd><a href="../../../../../../v0.5.0-rc2/index.html">v0.5.0-rc2</a></dd>
+            <dd><a href="../../../../../../v1.0.0/index.html">v1.0.0</a></dd>
+            <dd><a href="../../../../../../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../../../../../../v1.1.0rc1/index.html">v1.1.0rc1</a></dd>
+            <dd><a href="../../../../../../v1.1.1/index.html">v1.1.1</a></dd>
+        </dl>
+    </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

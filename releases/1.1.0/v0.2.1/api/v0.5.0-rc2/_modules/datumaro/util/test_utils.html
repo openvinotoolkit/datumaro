@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>datumaro.util.test_utils &mdash; Datumaro API documentation 0.5.0rc2 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/banner.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #30638E" >
+  <a href="../../../index.html" class="icon"> Datumaro API documentation
+</a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/developer_manual.html">Developer Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/datumaro/datumaro.html">datumaro module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/cli/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/components/components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/plugins/plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/util/util/util.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/">Back to main documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #30638E" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Datumaro API documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../util.html">datumaro.util</a> &raquo;</li>
+      <li>datumaro.util.test_utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for datumaro.util.test_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2019-2022 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">unittest.mock</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">IDataset</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MultiframeImage</span><span class="p">,</span> <span class="n">PointCloud</span>
+<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">filter_dict</span><span class="p">,</span> <span class="n">find</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="n">rmfile</span><span class="p">,</span> <span class="n">rmtree</span>
+
+
+<div class="viewcode-block" id="Dimensions"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.Dimensions">[docs]</a><span class="k">class</span> <span class="nc">Dimensions</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">dim_2d</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">dim_3d</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="current_function_name"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.current_function_name">[docs]</a><span class="k">def</span> <span class="nf">current_function_name</span><span class="p">(</span><span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getouterframes</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())[</span><span class="n">depth</span><span class="p">]</span><span class="o">.</span><span class="n">function</span></div>
+
+
+<div class="viewcode-block" id="FileRemover"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.FileRemover">[docs]</a><span class="k">class</span> <span class="nc">FileRemover</span><span class="p">:</span>
+<div class="viewcode-block" id="FileRemover.__init__"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.FileRemover.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">is_dir</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_dir</span> <span class="o">=</span> <span class="n">is_dir</span></div>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exc_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">traceback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dir</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">unittest</span><span class="o">.</span><span class="n">SkipTest</span><span class="p">:</span>
+                <span class="c1"># Suppress skip test errors from git.util.rmtree</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">exc_type</span><span class="p">:</span>
+                    <span class="k">raise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rmfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestDir"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.TestDir">[docs]</a><span class="k">class</span> <span class="nc">TestDir</span><span class="p">(</span><span class="n">FileRemover</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a temporary directory for a test. Uses the name of</span>
+<span class="sd">    the test function to name the directory.</span>
+
+<span class="sd">    Usage:</span>
+
+<span class="sd">    .. code-block::</span>
+
+<span class="sd">        with TestDir() as test_dir:</span>
+<span class="sd">            ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestDir.__init__"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.TestDir.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;temp_</span><span class="si">{</span><span class="n">current_function_name</span><span class="p">(</span><span class="n">frame_id</span><span class="p">)</span><span class="si">}</span><span class="s2">-&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix</span> <span class="o">=</span> <span class="n">prefix</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">is_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a test directory.</span>
+
+<span class="sd">        Returns: path to the directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_prefix</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">path</span></div>
+
+
+<div class="viewcode-block" id="compare_categories"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.compare_categories">[docs]</a><span class="k">def</span> <span class="nf">compare_categories</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">):</span>
+    <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">:</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">expected</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">,</span>
+            <span class="n">actual</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">:</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">expected</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">colormap</span><span class="p">,</span>
+            <span class="n">actual</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">colormap</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">:</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="n">expected</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">,</span>
+            <span class="n">actual</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<span class="n">IGNORE_ALL</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_compare_annotations</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">,</span> <span class="n">ignored_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ignored_attrs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span>
+
+    <span class="n">a_attr</span> <span class="o">=</span> <span class="n">expected</span><span class="o">.</span><span class="n">attributes</span>
+    <span class="n">b_attr</span> <span class="o">=</span> <span class="n">actual</span><span class="o">.</span><span class="n">attributes</span>
+
+    <span class="k">if</span> <span class="n">ignored_attrs</span> <span class="o">!=</span> <span class="n">IGNORE_ALL</span><span class="p">:</span>
+        <span class="n">expected</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">filter_dict</span><span class="p">(</span><span class="n">a_attr</span><span class="p">,</span> <span class="n">exclude_keys</span><span class="o">=</span><span class="n">ignored_attrs</span><span class="p">)</span>
+        <span class="n">actual</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">filter_dict</span><span class="p">(</span><span class="n">b_attr</span><span class="p">,</span> <span class="n">exclude_keys</span><span class="o">=</span><span class="n">ignored_attrs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">expected</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">actual</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span>
+
+    <span class="n">expected</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">a_attr</span>
+    <span class="n">actual</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">b_attr</span>
+
+    <span class="k">return</span> <span class="n">r</span>
+
+
+<div class="viewcode-block" id="compare_datasets"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.compare_datasets">[docs]</a><span class="k">def</span> <span class="nf">compare_datasets</span><span class="p">(</span>
+    <span class="n">test</span><span class="p">,</span>
+    <span class="n">expected</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
+    <span class="n">actual</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
+    <span class="n">ignored_attrs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">require_media</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">require_images</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">compare_categories</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">expected</span><span class="o">.</span><span class="n">categories</span><span class="p">(),</span> <span class="n">actual</span><span class="o">.</span><span class="n">categories</span><span class="p">())</span>
+
+    <span class="n">test</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">issubclass</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">expected</span><span class="o">.</span><span class="n">media_type</span><span class="p">()))</span>
+
+    <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">subsets</span><span class="p">()),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">subsets</span><span class="p">()))</span>
+    <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">item_a</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">:</span>
+        <span class="n">item_b</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">subset</span> <span class="o">==</span> <span class="n">item_a</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">item_b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ignored_attrs</span> <span class="ow">and</span> <span class="n">ignored_attrs</span> <span class="o">!=</span> <span class="n">IGNORE_ALL</span><span class="p">:</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="n">item_a</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span>
+                <span class="n">filter_dict</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="n">exclude_keys</span><span class="o">=</span><span class="n">ignored_attrs</span><span class="p">),</span>
+                <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">ignored_attrs</span><span class="p">:</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="n">item_b</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">require_images</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;require_images&#39; is deprecated and will be &quot;</span>
+                <span class="s2">&quot;removed in future. Use &#39;require_media&#39; instead.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">require_media</span> <span class="o">=</span> <span class="n">require_media</span> <span class="ow">or</span> <span class="n">require_images</span>
+
+        <span class="k">if</span> <span class="n">require_media</span> <span class="ow">and</span> <span class="n">item_a</span><span class="o">.</span><span class="n">media</span> <span class="ow">and</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
+                <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">PointCloud</span><span class="p">):</span>
+                <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">extra_images</span><span class="p">,</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">extra_images</span><span class="p">,</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">MultiframeImage</span><span class="p">):</span>
+                <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">annotations</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">annotations</span><span class="p">),</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ann_a</span> <span class="ow">in</span> <span class="n">item_a</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
+            <span class="c1"># We might find few corresponding items, so check them all</span>
+            <span class="n">ann_b_matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">item_b</span><span class="o">.</span><span class="n">annotations</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">ann_a</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ann_b_matches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ann id: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ann_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+            <span class="n">ann_b</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span>
+                <span class="n">ann_b_matches</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_compare_annotations</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ann_a</span><span class="p">,</span> <span class="n">ignored_attrs</span><span class="o">=</span><span class="n">ignored_attrs</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ann_b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">test</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s2">&quot;ann </span><span class="si">%s</span><span class="s2">, candidates </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ann_a</span><span class="p">,</span> <span class="n">ann_b_matches</span><span class="p">))</span>
+            <span class="n">item_b</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ann_b</span><span class="p">)</span>  <span class="c1"># avoid repeats</span></div>
+
+
+<div class="viewcode-block" id="compare_datasets_strict"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.compare_datasets_strict">[docs]</a><span class="k">def</span> <span class="nf">compare_datasets_strict</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">actual</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+    <span class="c1"># Compares datasets for strong equality</span>
+
+    <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">actual</span><span class="o">.</span><span class="n">media_type</span><span class="p">())</span>
+    <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">categories</span><span class="p">(),</span> <span class="n">actual</span><span class="o">.</span><span class="n">categories</span><span class="p">())</span>
+
+    <span class="n">test</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">subsets</span><span class="p">()),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">subsets</span><span class="p">()))</span>
+    <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">subset_name</span> <span class="ow">in</span> <span class="n">expected</span><span class="o">.</span><span class="n">subsets</span><span class="p">():</span>
+        <span class="n">e_subset</span> <span class="o">=</span> <span class="n">expected</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">subset_name</span><span class="p">)</span>
+        <span class="n">a_subset</span> <span class="o">=</span> <span class="n">actual</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">subset_name</span><span class="p">)</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">e_subset</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">a_subset</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">e_subset</span><span class="p">,</span> <span class="n">a_subset</span><span class="p">)):</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">vs.</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="compare_datasets_3d"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.compare_datasets_3d">[docs]</a><span class="k">def</span> <span class="nf">compare_datasets_3d</span><span class="p">(</span>
+    <span class="n">test</span><span class="p">,</span>
+    <span class="n">expected</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
+    <span class="n">actual</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
+    <span class="n">ignored_attrs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">require_point_cloud</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">compare_categories</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">expected</span><span class="o">.</span><span class="n">categories</span><span class="p">(),</span> <span class="n">actual</span><span class="o">.</span><span class="n">categories</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">actual</span><span class="o">.</span><span class="n">subsets</span><span class="p">():</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">subsets</span><span class="p">()),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">subsets</span><span class="p">()))</span>
+
+    <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">item_a</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">:</span>
+        <span class="n">item_b</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">item_b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ignored_attrs</span> <span class="ow">and</span> <span class="n">ignored_attrs</span> <span class="o">!=</span> <span class="n">IGNORE_ALL</span><span class="p">:</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="n">item_a</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span>
+                <span class="n">filter_dict</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="n">exclude_keys</span><span class="o">=</span><span class="n">ignored_attrs</span><span class="p">),</span>
+                <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">ignored_attrs</span><span class="p">:</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="n">item_b</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">require_point_cloud</span> <span class="ow">and</span> <span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span> <span class="ow">and</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">):</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="nb">set</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">path</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">extra_images</span><span class="p">),</span>
+                <span class="nb">set</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">path</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">extra_images</span><span class="p">),</span>
+                <span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">annotations</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">annotations</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ann_a</span> <span class="ow">in</span> <span class="n">item_a</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
+            <span class="c1"># We might find few corresponding items, so check them all</span>
+            <span class="n">ann_b_matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">item_b</span><span class="o">.</span><span class="n">annotations</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">ann_a</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ann_b_matches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ann id: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ann_a</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+            <span class="n">ann_b</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span>
+                <span class="n">ann_b_matches</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_compare_annotations</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ann_a</span><span class="p">,</span> <span class="n">ignored_attrs</span><span class="o">=</span><span class="n">ignored_attrs</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ann_b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">test</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s2">&quot;ann </span><span class="si">%s</span><span class="s2">, candidates </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ann_a</span><span class="p">,</span> <span class="n">ann_b_matches</span><span class="p">))</span>
+            <span class="n">item_b</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ann_b</span><span class="p">)</span>  <span class="c1"># avoid repeats</span></div>
+
+
+<div class="viewcode-block" id="check_save_and_load"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.check_save_and_load">[docs]</a><span class="k">def</span> <span class="nf">check_save_and_load</span><span class="p">(</span>
+    <span class="n">test</span><span class="p">,</span>
+    <span class="n">source_dataset</span><span class="p">,</span>
+    <span class="n">converter</span><span class="p">,</span>
+    <span class="n">test_dir</span><span class="p">,</span>
+    <span class="n">importer</span><span class="p">,</span>
+    <span class="n">target_dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">importer_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">compare</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">cmp_kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">converter</span><span class="p">(</span><span class="n">source_dataset</span><span class="p">,</span> <span class="n">test_dir</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">importer_args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">importer_args</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">parsed_dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="n">test_dir</span><span class="p">,</span> <span class="n">importer</span><span class="p">,</span> <span class="o">**</span><span class="n">importer_args</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">target_dataset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">target_dataset</span> <span class="o">=</span> <span class="n">source_dataset</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">compare</span> <span class="ow">and</span> <span class="n">cmp_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dimension&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Dimensions</span><span class="o">.</span><span class="n">dim_3d</span><span class="p">:</span>
+        <span class="n">compare</span> <span class="o">=</span> <span class="n">compare_datasets_3d</span>
+        <span class="k">del</span> <span class="n">cmp_kwargs</span><span class="p">[</span><span class="s2">&quot;dimension&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">compare</span><span class="p">:</span>
+        <span class="n">compare</span> <span class="o">=</span> <span class="n">compare_datasets</span>
+    <span class="n">compare</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="n">target_dataset</span><span class="p">,</span> <span class="n">actual</span><span class="o">=</span><span class="n">parsed_dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">cmp_kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="compare_dirs"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.compare_dirs">[docs]</a><span class="k">def</span> <span class="nf">compare_dirs</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">actual</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compares file and directory structures in the given directories.</span>
+<span class="sd">    Empty directories are skipped.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">skip_empty_dirs</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">for</span> <span class="n">a_path</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="s2">&quot;**&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">rel_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">a_path</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="n">b_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">rel_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">a_path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">skip_empty_dirs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">a_path</span><span class="p">)):</span>
+                <span class="n">test</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">b_path</span><span class="p">),</span> <span class="n">rel_path</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">test</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">b_path</span><span class="p">),</span> <span class="n">rel_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">a_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">a_file</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">b_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">b_file</span><span class="p">:</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">a_file</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">b_file</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">rel_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_datum"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.run_datum">[docs]</a><span class="k">def</span> <span class="nf">run_datum</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">expected_code</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">datumaro.cli.__main__</span> <span class="kn">import</span> <span class="n">main</span>
+
+    <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected_code</span><span class="p">,</span> <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="mock_tfds_data"><a class="viewcode-back" href="../../../api/util/util/datumaro.util.test_utils.html#datumaro.util.test_utils.mock_tfds_data">[docs]</a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span> <span class="nf">mock_tfds_data</span><span class="p">(</span><span class="n">example</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subsets</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,)):</span>
+    <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+    <span class="kn">import</span> <span class="nn">tensorflow_datasets</span> <span class="k">as</span> <span class="nn">tfds</span>
+
+    <span class="n">NUM_EXAMPLES</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">example</span><span class="p">:</span>
+
+        <span class="k">def</span> <span class="nf">as_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensors</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">as_dataset</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">with</span> <span class="n">tfds</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">mock_data</span><span class="p">(</span><span class="n">num_examples</span><span class="o">=</span><span class="n">NUM_EXAMPLES</span><span class="p">,</span> <span class="n">as_dataset_fn</span><span class="o">=</span><span class="n">as_dataset</span><span class="p">):</span>
+        <span class="c1"># The mock version of DatasetBuilder.__init__ installed by mock_data</span>
+        <span class="c1"># doesn&#39;t initialize split info, which TfdsExtractor needs to function.</span>
+        <span class="c1"># So we mock it again to fix that. See also TFDS feature request at</span>
+        <span class="c1"># &lt;https://github.com/tensorflow/datasets/issues/3631&gt;.</span>
+        <span class="n">original_init</span> <span class="o">=</span> <span class="n">tfds</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DatasetBuilder</span><span class="o">.</span><span class="fm">__init__</span>
+
+        <span class="k">def</span> <span class="nf">new_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">original_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">set_splits</span><span class="p">(</span>
+                <span class="n">tfds</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">SplitDict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">tfds</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">SplitInfo</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="n">subset_name</span><span class="p">,</span> <span class="n">shard_lengths</span><span class="o">=</span><span class="p">[</span><span class="n">NUM_EXAMPLES</span><span class="p">],</span> <span class="n">num_bytes</span><span class="o">=</span><span class="mi">1234</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">subset_name</span> <span class="ow">in</span> <span class="n">subsets</span>
+                    <span class="p">],</span>
+                    <span class="n">dataset_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s2">&quot;tensorflow_datasets.core.DatasetBuilder.__init__&quot;</span><span class="p">,</span> <span class="n">new_init</span><span class="p">):</span>
+            <span class="k">yield</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>
+      &#169; Copyright 2021, Intel.<div>
+      <small><a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a></small>
+      |
+      <small><a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a></small>
+    </div>
+    <br/>
+    <small>
+      Intel technologies may require enabled hardware, software or service activation. // No product or component can be absolutely secure. // Your costs and results may vary. // Performance varies by use, configuration and other factors. // See our complete legal <u><a href="https://edc.intel.com/content/www/us/en/products/performance/benchmarks/overview/?r=219444055">Notices and Disclaimers</a></u>. // Intel is committed to respecting human rights and avoiding complicity in human rights abuses. See Intel’s <a href="https://www.intel.com/content/www/us/en/policy/policy-human-rights.html"><u>Global Human Rights Principles</u></a>. Intel’s products and software are intended only to be used in applications that do not cause or contribute to a violation of an internationally recognized human right.
+    </small>
+  </p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v0.5.0-rc2
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../../../v0.2.2/index.html">v0.2.2</a></dd>
+            <dd><a href="../../../../v0.2.3/index.html">v0.2.3</a></dd>
+            <dd><a href="../../../../v0.3/index.html">v0.3</a></dd>
+            <dd><a href="../../../../v0.3.1/index.html">v0.3.1</a></dd>
+            <dd><a href="../../../../v0.4.0.1/index.html">v0.4.0.1</a></dd>
+            <dd><a href="../../../../v0.5.0/index.html">v0.5.0</a></dd>
+            <dd><a href="../../../../v0.5.0-rc1/index.html">v0.5.0-rc1</a></dd>
+            <dd><a href="test_utils.html">v0.5.0-rc2</a></dd>
+            <dd><a href="../../../../v1.0.0/index.html">v1.0.0</a></dd>
+            <dd><a href="../../../../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../../../../v1.1.0rc1/index.html">v1.1.0rc1</a></dd>
+            <dd><a href="../../../../v1.1.1/index.html">v1.1.1</a></dd>
+        </dl>
+    </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+/*
+Copyright (C) 2021 Intel Corporation
+
+SPDX-License-Identifier: MIT
+*/
+
+.wy-nav-content {
+  max-width: 1280px;
+}
+
+.wy-nav-side {
+  background-color: #f9fafb;
+  border-right: 1px solid #dee2e6;
+}
+
+.wy-menu-vertical a {
+  color: #495057;
+}
+
+.wy-menu-vertical a:hover {
+  background-color: #f9fafb;
+  color: #4282e2;
+}
+
+.wy-dropdown-menu > dd > a:hover {
+  color: #30638e;
+}
