@@ -1,0 +1,7 @@
+Tiling package
+==============
+
+.. toctree::
+   :glob:
+
+   *

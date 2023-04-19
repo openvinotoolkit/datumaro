@@ -1,0 +1,643 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Noisy label detection from training loss dynamics statistics &#8212; Datumaro 1.2.0rc3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/jupyter_notebook_examples/notebooks/10_noisy_label_detection';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <section id="Noisy-label-detection-from-training-loss-dynamics-statistics">
+<h1>Noisy label detection from training loss dynamics statistics<a class="headerlink" href="#Noisy-label-detection-from-training-loss-dynamics-statistics" title="Permalink to this heading">#</a></h1>
+<p>This tutorial covers how to find noisy labeled samples in the training dataset while training the model on your dataset. This feature utilizes both <a class="reference external" href="https://github.com/openvinotoolkit/datumaro">Datumaro</a> and <a class="reference external" href="https://github.com/openvinotoolkit/training_extensions">OpenVINO™ Training Extensions</a> simultaneously.</p>
+<section id="Prerequisite">
+<h2>Prerequisite<a class="headerlink" href="#Prerequisite" title="Permalink to this heading">#</a></h2>
+<section id="Prepare-Imagenette2-dataset">
+<h3>Prepare Imagenette2 dataset<a class="headerlink" href="#Prepare-Imagenette2-dataset" title="Permalink to this heading">#</a></h3>
+<p>Imagenette is a subset of 10 easily classified classes from Imagenet (tench, English springer, cassette player, chain saw, church, French horn, garbage truck, gas pump, golf ball, parachute). For more detail, please see <a class="reference external" href="https://github.com/fastai/imagenette#imagenette-1">fastai/imagenette Github repository</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>curl<span class="w"> </span>https://s3.amazonaws.com/fast-ai-imageclas/imagenette2-320.tgz<span class="w"> </span>-o<span class="w"> </span>imagenette2.tgz
+<span class="o">!</span>tar<span class="w"> </span>-zxf<span class="w"> </span>imagenette2.tgz
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  325M  100  325M    0     0  3766k      0  0:01:28  0:01:28 --:--:-- 3455k 4036k      0  0:01:22  0:00:54  0:00:28 1945k
+</pre></div></div>
+</div>
+</section>
+<section id="Install-OpenVINO™-Training-Extensions">
+<h3>Install OpenVINO™ Training Extensions<a class="headerlink" href="#Install-OpenVINO™-Training-Extensions" title="Permalink to this heading">#</a></h3>
+<p>For more details, please see this <a class="reference external" href="https://openvinotoolkit.github.io/training_extensions/latest/guide/get_started/quick_start_guide/installation.html">OpenVINO™ Training Extensions installation guide</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>otx
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Synthesize-noisy-label-using-Datumaro-Python-API">
+<h2>Synthesize noisy label using Datumaro Python API<a class="headerlink" href="#Synthesize-noisy-label-using-Datumaro-Python-API" title="Permalink to this heading">#</a></h2>
+<p>In this section, we use the Datumaro Python API to synthesize noisy label samples. First import the <code class="docutils literal notranslate"><span class="pre">imagenette2</span></code> dataset. It then uses Datumaro’s transform function to remap the label names to be more human-friendly and reindex the IDs from zero.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datumaro</span> <span class="k">as</span> <span class="nn">dm</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s2">&quot;imagenette2-320&quot;</span><span class="p">,</span> <span class="s2">&quot;imagenet_with_subset_dirs&quot;</span><span class="p">)</span>
+
+<span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;n01440764&quot;</span><span class="p">:</span> <span class="s2">&quot;tench&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n02102040&quot;</span><span class="p">:</span> <span class="s2">&quot;English_springer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n02979186&quot;</span><span class="p">:</span> <span class="s2">&quot;cassette_player&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n03000684&quot;</span><span class="p">:</span> <span class="s2">&quot;chain_saw&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n03028079&quot;</span><span class="p">:</span> <span class="s2">&quot;church&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n03394916&quot;</span><span class="p">:</span> <span class="s2">&quot;French_horn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n03417042&quot;</span><span class="p">:</span> <span class="s2">&quot;garbage_truck&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n03425413&quot;</span><span class="p">:</span> <span class="s2">&quot;gas_pump&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n03445777&quot;</span><span class="p">:</span> <span class="s2">&quot;golf_ball&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n03888257&quot;</span><span class="p">:</span> <span class="s2">&quot;parachute&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;remap_labels&quot;</span><span class="p">,</span> <span class="n">mapping</span><span class="o">=</span><span class="n">mapping</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;reindex&quot;</span><span class="p">)</span>
+<span class="n">dataset</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Dataset
+        size=13394
+        source_path=imagenette2-320
+        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
+        annotated_items_count=13394
+        annotations_count=13394
+subsets
+        train: # of items=9469, # of annotated items=9469, # of annotations=9469, annotation types=[&#39;label&#39;]
+        val: # of items=3925, # of annotated items=3925, # of annotations=3925, annotation types=[&#39;label&#39;]
+infos
+        categories
+        label: [&#39;tench&#39;, &#39;English_springer&#39;, &#39;cassette_player&#39;, &#39;chain_saw&#39;, &#39;church&#39;, &#39;French_horn&#39;, &#39;garbage_truck&#39;, &#39;gas_pump&#39;, &#39;golf_ball&#39;, &#39;parachute&#39;]
+</pre></div></div>
+</div>
+<p>We synthesize 0.2% of the training samples to have randomly noisy labels. After the synthesization, 12 training samples have noisy labels that are different from their original labels.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">3003</span><span class="p">)</span>
+
+<span class="n">noise_rate</span> <span class="o">=</span> <span class="mf">0.002</span>
+<span class="n">true_noisy_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">label_categories</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">categories</span><span class="p">()[</span><span class="n">dm</span><span class="o">.</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">noise_rate</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
+        <span class="n">true_noisy_ids</span> <span class="o">+=</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
+            <span class="n">new_label_id</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">label_categories</span><span class="p">)))</span>
+            <span class="k">while</span> <span class="n">new_label_id</span> <span class="o">==</span> <span class="n">ann</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+                <span class="n">new_label_id</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">label_categories</span><span class="p">)))</span>
+
+            <span class="n">ann</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">new_label_id</span>
+
+<span class="n">viz</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Visualizer</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">vis_gallery</span><span class="p">(</span><span class="n">true_noisy_ids</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/docs_reference_jupyter_notebook_examples_notebooks_10_noisy_label_detection_8_0.png" src="../../../../_images/docs_reference_jupyter_notebook_examples_notebooks_10_noisy_label_detection_8_0.png" />
+</div>
+</div>
+<p>We export this synthesized noisy label dataset to train the model with OpenVINO™ Training Extensions</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">&quot;noisy-imagenette2-320&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;imagenet_with_subset_dirs&quot;</span><span class="p">,</span> <span class="n">save_media</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:There are more than one subset in the dataset (2). However, ImageNet format exports all dataset items into the same directory. Therefore, subset information will be lost. To prevent it, please use ImagenetWithSubsetDirsExporter. For example, dataset.export(&#34;&lt;path/to/output&gt;&#34;, format=&#34;imagenet_with_subset_dirs&#34;).
+</pre></div></div>
+</div>
+</section>
+<section id="Train-a-model-and-export-training-loss-dynamics-statistics-using-OpenVINO™-Training-Extensions">
+<h2>Train a model and export training loss dynamics statistics using OpenVINO™ Training Extensions<a class="headerlink" href="#Train-a-model-and-export-training-loss-dynamics-statistics-using-OpenVINO™-Training-Extensions" title="Permalink to this heading">#</a></h2>
+<p>In this step, we train a classification model using OpenVINO™ Training Extensions. To see the detail guides for OpenVINO™ Training Extensions usage, please see <a class="reference external" href="https://openvinotoolkit.github.io/training_extensions/latest/guide/tutorials/base/how_to_train/classification.html">How-To-Train</a>. In this example, we use the CLI command to train the model. Adding the argument ‘params –algo_backend.enable_noisy_label_detection True’ at the end allows you to export training loss dynamics statistics
+at the end of training.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!otx train Custom_Image_Classification_EfficinetNet-B0 \
+    --train-data-roots noisy-imagenette2-320/train \
+    --val-data-roots noisy-imagenette2-320/val \
+    -o outputs \
+    params --algo_backend.enable_noisy_label_detection True
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Import-statistics-and-analyze-them-to-find-the-noisy-label-samples">
+<h2>Import statistics and analyze them to find the noisy label samples<a class="headerlink" href="#Import-statistics-and-analyze-them-to-find-the-noisy-label-samples" title="Permalink to this heading">#</a></h2>
+<p>In this step, we import the statistics obtained during the model training to find the noisy label samples. Because we set the output directory as <code class="docutils literal notranslate"><span class="pre">outputs</span></code> in the previous step, we you can find the dataset including statistics which is exported to <a class="reference external" href="https://openvinotoolkit.github.io/datumaro/docs/formats/datumaro/">Datumaro format</a> at <code class="docutils literal notranslate"><span class="pre">outputs/logs/noisy_label_detection</span></code>. To make training loss dynamics analysis easier, we provide an interface called <code class="docutils literal notranslate"><span class="pre">dm.LossDynamicsAnalyzer</span></code>. You can get
+the top-k candidates for noisy label samples using it. Additionally, we can also plot the exponential moving average (EMA) training loss curves of top-k candidates and compare them with the average of samples in the dataset. The EMA training loss is a very strong criterion for noisy label samples. For more detail, please see [1].</p>
+<p>[1]: Zhou, Tianyi, Shengjie Wang, and Jeff Bilmes. “Robust curriculum learning: from clean label detection to noisy label self-correction.” International Conference on Learning Representations. 2021.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the exported statistics</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s2">&quot;outputs/logs/noisy_label_detection&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;datumaro&quot;</span><span class="p">)</span>
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">LossDynamicsAnalyzer</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+
+<span class="c1"># Get top-k candidates</span>
+<span class="n">cands</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">get_top_k_cands</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+
+<span class="c1"># Plot the top-k candidates EMA loss dynamics with the dataset average</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">plot_ema_loss_dynamics</span><span class="p">(</span><span class="n">cands</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/docs_reference_jupyter_notebook_examples_notebooks_10_noisy_label_detection_14_0.png" src="../../../../_images/docs_reference_jupyter_notebook_examples_notebooks_10_noisy_label_detection_14_0.png" />
+</div>
+</div>
+<p>To take a closer look at the noisy label candidates, we use <code class="docutils literal notranslate"><span class="pre">dm.Visualizer</span></code> to plot the images and labels in a gallery format. We can see there are many samples that we previously synthesized to have noisy labels.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">viz</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Visualizer</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">vis_gallery</span><span class="p">([</span><span class="n">cand</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">cand</span> <span class="ow">in</span> <span class="n">cands</span><span class="p">],</span> <span class="s2">&quot;train&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/docs_reference_jupyter_notebook_examples_notebooks_10_noisy_label_detection_16_0.png" src="../../../../_images/docs_reference_jupyter_notebook_examples_notebooks_10_noisy_label_detection_16_0.png" />
+</div>
+</div>
+<p>In the last step, we calculate the quantitative scores for our noisy label detection algorithm. The accuracy and recall values for noisy label detection are obtained as follows.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">detect_noisy_ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">cand</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">cand</span> <span class="ow">in</span> <span class="n">cands</span><span class="p">}</span>
+<span class="n">intersection</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">true_noisy_ids</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">detect_noisy_ids</span><span class="p">)</span>
+
+<span class="n">accuracy</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">intersection</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">cands</span><span class="p">)</span>
+<span class="n">recall</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">intersection</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">true_noisy_ids</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Accuracy = </span><span class="si">{</span><span class="n">accuracy</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% and Recall = </span><span class="si">{</span><span class="n">recall</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Accuracy = 83.3% and Recall = 83.3%
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Prerequisite">
+   Prerequisite
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Prepare-Imagenette2-dataset">
+     Prepare Imagenette2 dataset
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Install-OpenVINO™-Training-Extensions">
+     Install OpenVINO™ Training Extensions
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Synthesize-noisy-label-using-Datumaro-Python-API">
+   Synthesize noisy label using Datumaro Python API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Train-a-model-and-export-training-loss-dynamics-statistics-using-OpenVINO™-Training-Extensions">
+   Train a model and export training loss dynamics statistics using OpenVINO™ Training Extensions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Import-statistics-and-analyze-them-to-find-the-noisy-label-samples">
+   Import statistics and analyze them to find the noisy label samples
+  </a>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../../../../_sources/docs/reference/jupyter_notebook_examples/notebooks/10_noisy_label_detection.ipynb.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>
