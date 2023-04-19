@@ -5,12 +5,6 @@ digraph command_line {
 
     datum [shape = box;];
 
-    madd [label = "add";];
-    mremove [label = "remove";];
-    minfo [label = "info";];
-
-    pinfo [label = "info";];
-
     subgraph cluster_context_free {
         label = "Context-free";
 
@@ -34,15 +28,23 @@ digraph command_line {
         label = "Context";
         "model";
         "project";
+        "source";
         "util";
     }
 
     subgraph cluster_model {
         label = "Model";
-        "madd";
-        "mremove";
+        "madd" [label = "add";];
+        "mremove" [label = "remove";];
         "run";
-        "minfo";
+        "minfo" [label = "info";];
+    }
+
+    subgraph cluster_source {
+        label = "Source";
+        "sadd" [label = "add";];
+        "simport" [label = "import";];
+        "sremove" [label = "remove";];
     }
 
     subgraph cluster_project {
@@ -58,7 +60,7 @@ digraph command_line {
             "checkout";
             "commit";
             "log";
-            "pinfo";
+            "pinfo" [label = "info";];
             "status";
         }
     }
@@ -69,9 +71,10 @@ digraph command_line {
     }
 
     "datum" -> {"convert" "detect" "diff" "dinfo" "download" "explain" "filter" "generate" "merge" "patch" "search" "stats" "transform" "validate"};
-    "datum" -> {"model" "project" "util"};
+    "datum" -> {"model" "project" "source" "util"};
     "model" -> {"madd" "mremove" "run" "minfo"};
     "project" -> {"add" "create" "export" "import" "remove"};
     "project" -> {"checkout" "commit" "log" "pinfo" "status"};
+    "source" -> {"sadd" "simport" "sremove"};
     "util" -> {"split_video"};
 }
