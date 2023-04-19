@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
-## 17/04/2023 - Release 1.2.0rc2
+## 19/04/2023 - Release 1.2.0rc3
 ### New features
 - Add LossDynamicsAnalyzer for noisy label detection
   (<https://github.com/openvinotoolkit/datumaro/pull/928>)
@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tfds:uc_merced and tfds:eurosat download
   (<https://github.com/openvinotoolkit/datumaro/pull/914>)
 - Refactor Media to be initialized from explicit sources
-  (<https://github.com/openvinotoolkit/datumaro/pull/911> <https://github.com/openvinotoolkit/datumaro/pull/921>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/911> <https://github.com/openvinotoolkit/datumaro/pull/921>, <https://github.com/openvinotoolkit/datumaro/pull/944>)
 - Add sort transform
   (<https://github.com/openvinotoolkit/datumaro/pull/931>)
 - Add Apache Arrow format support

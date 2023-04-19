@@ -165,7 +165,7 @@ class RelevancySampler(Transform, CliPlugin):
             width, height = item.media.size
             data_df["Width"].append(width)
             data_df["Height"].append(height)
-            data_df["ImagePath"].append(item.media.path)
+            data_df["ImagePath"].append(getattr(item.media, "path", None))
 
             if not item.annotations:
                 raise Exception(f"Item {item.id} does not have annotations")

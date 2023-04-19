@@ -1,8 +1,10 @@
-name: Build Docs for releases
+name: Build Docs for the latest
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch: # run on request (no need for PR)
+  push:
+    branches:
+      - develop
 
 jobs:
   Build-Docs:
@@ -12,8 +14,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -58,11 +58,11 @@ jobs:
           echo '<html><head><meta http-equiv="refresh" content="0; url=stable/" /></head></html>' > index.html
           mkdir -p ${{ env.RELEASE_VERSION }}
           cp -r /tmp/docs_build/* ./${{ env.RELEASE_VERSION }}
-          ln -sfn ${{ env.RELEASE_VERSION }} stable
+          ln -sfn ${{ env.RELEASE_VERSION }} latest
           rm -rf /tmp/docs_build
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add ./index.html ./stable ${{ env.RELEASE_VERSION }}
+          git add ./index.html ./latest ${{ env.RELEASE_VERSION }}
           git commit -m "Update documentation" -a || true
       - name: Push changes
         uses: ad-m/github-push-action@master

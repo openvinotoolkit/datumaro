@@ -514,11 +514,11 @@ class IdFromImageName(ItemTransform, CliPlugin):
     """
 
     def transform_item(self, item):
-        if isinstance(item.media, Image) and item.media.path:
+        if isinstance(item.media, Image) and hasattr(item.media, "path"):
             name = osp.splitext(osp.basename(item.media.path))[0]
             return self.wrap_item(item, id=name)
         else:
-            log.debug("Can't change item id for item '%s': " "item has no image info" % item.id)
+            log.debug("Can't change item id for item '%s': " "item has no path info" % item.id)
             return item
 
 
