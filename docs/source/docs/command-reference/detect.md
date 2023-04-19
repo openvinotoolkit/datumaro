@@ -48,7 +48,7 @@ Other reason codes may be defined in the future.
 Usage:
 
 ``` bash
-datum detect-format [-h] [-p PROJECT_DIR] [--show-rejections]
+datum detect [-h] [-p PROJECT_DIR] [--show-rejections]
                     [--json-report JSON_REPORT]
                     url
 ```
@@ -70,5 +70,5 @@ Example: detect the format of a dataset in a given directory,
 showing rejection information:
 
 ``` bash
-datum detect-format --show-rejections path/to/dataset
+datum detect --show-rejections path/to/dataset
 ```

@@ -39,7 +39,7 @@ class DetectFormatTest(TestCase):
         output_file = io.StringIO()
 
         with contextlib.redirect_stdout(output_file):
-            run(self, "detect-format", ADE20K2017_DIR)
+            run(self, "detect", ADE20K2017_DIR)
 
         output = self._extract_detect_format_name(output_file)
 
@@ -56,7 +56,7 @@ class DetectFormatTest(TestCase):
             shutil.copy(osp.join(LFW_DIR, "test", "annotations", "pairs.txt"), annotation_dir)
 
             with contextlib.redirect_stdout(output_file):
-                run(self, "detect-format", test_dir, "--depth", "3")
+                run(self, "detect", test_dir, "--depth", "3")
 
             output = self._extract_detect_format_name(output_file)
 
@@ -72,7 +72,7 @@ class DetectFormatTest(TestCase):
             shutil.copy(osp.join(ADE20K2020_DIR, "training/street/1.json"), annotation_dir)
 
             with contextlib.redirect_stdout(output_file):
-                run(self, "detect-format", test_dir)
+                run(self, "detect", test_dir)
 
             output = self._extract_detect_format_name(output_file)
 
@@ -93,7 +93,7 @@ class DetectFormatTest(TestCase):
             output_file = io.StringIO()
 
             with contextlib.redirect_stdout(output_file):
-                run(self, "detect-format", test_dir)
+                run(self, "detect", test_dir)
 
             output = self._extract_detect_format_name(output_file)
 
@@ -108,7 +108,7 @@ class DetectFormatTest(TestCase):
         output_file = io.StringIO()
 
         with contextlib.redirect_stdout(output_file):
-            run(self, "detect-format", "--show-rejections", ADE20K2017_DIR)
+            run(self, "detect", "--show-rejections", ADE20K2017_DIR)
 
         output = output_file.getvalue()
 
@@ -126,7 +126,7 @@ class DetectFormatTest(TestCase):
 
             run(
                 self,
-                "detect-format",
+                "detect",
                 "--show-rejections",
                 "--json-report",
                 report_path,

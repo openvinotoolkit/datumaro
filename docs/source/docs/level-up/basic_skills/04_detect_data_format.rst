@@ -16,7 +16,7 @@ Detect data format
 
     .. code-block:: bash
 
-      datum detect-format <path/to/data>
+      datum detect <path/to/data>
 
     The printed format can be utilized as `format` argument when importing a dataset as following the
     :ref:`previous level <Level 3: Data Import and Export>`.
