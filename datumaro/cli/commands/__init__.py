@@ -24,5 +24,4 @@ def get_non_project_commands():
         ("merge", merge, "Merge datasets"),
         ("patch", patch, "Update dataset from another one"),
         ("search", search, "Search similar datasetitems of query"),
-        ("search", search, "Search similar datasetitems of query"),
     ]
