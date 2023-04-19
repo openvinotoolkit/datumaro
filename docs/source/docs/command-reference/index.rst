@@ -41,7 +41,7 @@ Parameters:
    convert
    create
    describe-downloads
-   detect-format
+   detect
    diff
    download
    explain

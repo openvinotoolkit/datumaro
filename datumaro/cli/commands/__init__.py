@@ -16,7 +16,7 @@ __all__ = [
 def get_non_project_commands():
     return [
         ("convert", convert, "Convert dataset between formats"),
-        ("detect-format", detect_format, "Detect the format of a dataset"),
+        ("detect", detect_format, "Detect the format of a dataset"),
         ("download", download, "Download a publicly available dataset"),
         ("explain", explain, "Run Explainable AI algorithm for model"),
         ("filter", filter, "Filter dataset items"),
