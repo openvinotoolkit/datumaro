@@ -1,5 +1,5 @@
 =====================================================
-Level 7: Dataset Explorartion from a Query Image/Text
+Level 9: Dataset Explorartion from a Query Image/Text
 =====================================================
 
 TBD
