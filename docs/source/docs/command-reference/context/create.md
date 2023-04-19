@@ -13,7 +13,7 @@ already directory contains a Datumaro project, an error is raised, unless
 Usage:
 
 ``` bash
-datum create [-h] [-o DST_DIR] [--overwrite]
+datum project create [-h] [-o DST_DIR] [--overwrite]
 ```
 
 Parameters:
@@ -28,14 +28,14 @@ Examples:
 Example: create an empty project in the `my_dataset` directory
 
 ``` bash
-datum create -o my_dataset/
+datum project create -o my_dataset/
 ```
 
 Example: create a new empty project in the current directory, remove the
 existing one
 
 ``` bash
-datum create
+datum project create
 ...
-datum create --overwrite
+datum project create --overwrite
 ```

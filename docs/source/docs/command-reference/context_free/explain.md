@@ -32,10 +32,10 @@ datum explain [-h] -m MODEL [-o SAVE_DIR] [-p PROJECT_DIR]
 
 Parameters:
 - `<target>` (string) - Target
-  [dataset revpath](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts).By default,
+  [dataset revpath](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).By default,
   uses the whole current project. An image path can be specified instead.
   \<image path\> - a path to the file.
-  \<revpath\> - [a dataset path or a revision path](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts).
+  \<revpath\> - [a dataset path or a revision path](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).
 - `<method>` (string) - The algorithm to use. Currently, only `rise`
   is supported.
 - `-m, --model` (string) - The model to use for inference

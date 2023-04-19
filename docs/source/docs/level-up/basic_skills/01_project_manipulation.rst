@@ -78,10 +78,10 @@ Print dataset information
 
     .. code-block:: bash
 
-      datum project dinfo [-h] [--all] [-p PROJECT_DIR] [revpath]
+      datum dinfo [-h] [--all] [-p PROJECT_DIR] [revpath]
 
     ``revpath`` is either a dataset path or a revision path. For more information on the revision, please see
-    :ref:`Level 11: Project Versioning`. ``--all`` directive shows all the dataset information of your project.
+    :ref:`Level 11: Project Versioning`. ``--all`` directive shows all information omitted due to text length limits.
 
     For example, the following command is an example of printing information about the :ref:`Cityscapes` dataset from the previous step.
 
@@ -150,7 +150,7 @@ Print project information
 
     .. code-block:: bash
 
-      datum project pinfo [-h] [-p PROJECT_DIR] [revision]
+      datum project info [-h] [-p PROJECT_DIR] [revision]
 
     ``revision`` means the version of you project (:ref:`Level 11: Project Versioning`).
     If it is not given, the latest revision of the project is shown.

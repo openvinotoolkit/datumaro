@@ -62,7 +62,7 @@ The Python example for the usage of validator is described in `here <https://git
 
     .. code-block:: bash
 
-      datum project dinfo -p <path/to/project>
+      datum dinfo -p <path/to/project>
 
     Finally, we validate the data within the project as
 

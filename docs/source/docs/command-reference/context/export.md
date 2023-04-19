@@ -25,7 +25,7 @@ Common export options:
   allows to convert all the images from one format into another.
 
 This command allows to use the `-f/--filter` parameter to select dataset
-elements needed for exporting. Read the [`filter`](/docs/command-reference/filter/)
+elements needed for exporting. Read the [`filter`](../context_free/filter)
 command description for more info about this functionality.
 
 The command can only be applied to a project build target, a stage
@@ -35,7 +35,7 @@ be affected.
 Usage:
 
 ``` bash
-datum export [-h] [-e FILTER] [--filter-mode FILTER_MODE] [-o DST_DIR]
+datum project export [-h] [-e FILTER] [--filter-mode FILTER_MODE] [-o DST_DIR]
   [--overwrite] [-p PROJECT_DIR] -f FORMAT [target] [-- EXTRA_FORMAT_ARGS]
 ```
 
@@ -59,7 +59,7 @@ Example: save a project as a VOC-like dataset, include images, convert
 images to `PNG` from other formats.
 
 ``` bash
-datum export \
+datum project export \
   -p test_project \
   -o test_project-export \
   -f voc \

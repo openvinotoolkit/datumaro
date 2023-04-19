@@ -89,29 +89,29 @@ dataset = dm.Dataset.import_from(path, format)
 ### Other
 - Transform - A transformation operation over dataset elements. Examples
   are image renaming, image flipping, image and subset renaming,
-  label remapping etc. Corresponds to the [`transform` command](/docs/command-reference/transform).
+  label remapping etc. Corresponds to the [`transform` command](../command-reference/context_free/transform).
 
 ## Command-line workflow
 
 In Datumaro, most command-line commands operate on projects, but there are
 also few commands operating on datasets directly. There are 2 basic ways
 to use Datumaro from the command-line:
-- Use the [`convert`](/docs/command-reference/convert)
-, [`diff`](/docs/command-reference/diff)
-, [`merge`](/docs/command-reference/merge)
+- Use the [`convert`](../command-reference/context_free/convert)
+, [`diff`](../command-reference/context_free/diff)
+, [`merge`](../command-reference/context_free/merge)
  commands directly on existing datasets
 
 - Create a Datumaro project and operate on it:
-  - Create an empty project with [`create`](/docs/command-reference/create)
-  - Import existing datasets with [`import`](/docs/command-reference/sources.md#import-dataset)
-  - Modify the project with [`transform`](/docs/command-reference/transform) and [`filter`](/docs/command-reference/filter)
+  - Create an empty project with [`create`](../command-reference/context/create)
+  - Import existing datasets with [`import`](../command-reference/context/sources.md#import-dataset)
+  - Modify the project with [`transform`](../command-reference/context_free/transform) and [`filter`](../command-reference/context_free/filter)
   - Create new revisions of the project with
-    [`commit`](/docs/command-reference/commit), navigate over
-    them using [`checkout`](/docs/command-reference/checkout),
-    compare with [`diff`](/docs/command-reference/diff), compute
-    statistics with [`stats`](/docs/command-reference/stats)
-  - Export the resulting dataset with [`export`](/docs/command-reference/export)
-  - Check project config with [`project info`](/docs/command-reference/projects.md#print-project-info)
+    [`commit`](../command-reference/context/commit), navigate over
+    them using [`checkout`](../command-reference/context/checkout),
+    compare with [`diff`](../command-reference/context_free/diff), compute
+    statistics with [`stats`](../command-reference/context_free/stats)
+  - Export the resulting dataset with [`export`](../command-reference/context/export)
+  - Check project config with [`project info`](../command-reference/context/projects.md#print-project-info)
 
 Basically, a project is a combination of datasets, models and environment.
 
@@ -159,16 +159,16 @@ be done with the data source to prepare the resulting dataset.
 Roughly, such build tree can be created by the following commands (arguments
 are omitted for simplicity):
 ``` bash
-datum create
+datum project create
 
 # describe the first source
-datum import <...> -n source1
+datum project import <...> -n source1
 datum filter <...> source1
 datum transform <...> source1
 datum transform <...> source1
 
 # describe the second source
-datum import <...> -n source2
+datum project import <...> -n source2
 datum model add <...>
 datum transform <...> source2
 datum transform <...> source2
@@ -177,7 +177,7 @@ datum transform <...> source2
 Now, the resulting dataset can be built with:
 
 ``` bash
-datum export <...>
+datum project export <...>
 ```
 
 ## Project layout
@@ -224,7 +224,7 @@ describes a dataset in a specific format. A project acts as a manager for
 the data sources and allows to manipulate them separately or as a whole, in
 which case it combines dataset items from all the sources into one composite
 dataset. You can manage separate sources in a project by commands in
-the [`datum source`](/docs/command-reference/sources) command
+the [`datum source`](../command-reference/context/sources) command
 line context.
 
 Datasets come in a wide variety of formats. Each dataset
@@ -243,10 +243,10 @@ Incomplete datasets can be used to prepare images and annotations
 independently of each other, or to analyze or modify just the lightweight
 annotations without the need to download the whole dataset.
 
-Check [supported formats](/docs/data-formats/supported_formats) for more info
+Check [supported formats](../data-formats/supported_formats) for more info
 about format specifications, supported import and export options and other
 details. The list of formats can be extended by custom plugins,
-check [extending tips](/docs/user-manual/extending) for information on this
+check [extending tips](../user-manual/extending) for information on this
 topic.
 
 ## Use cases
@@ -260,8 +260,8 @@ export in some other format. To do it with Datumaro, we need to create a
 project and register the dataset as a data source:
 
 ``` bash
-datum create
-datum import <...> -n source1
+datum project create
+datum project import <...> -n source1
 ```
 
 The dataset will be copied to the working directory inside the project. It
@@ -282,7 +282,7 @@ Now, we want to make a new version of the dataset and make a snapshot in the
 project cache. So we `commit` the working tree:
 
 ``` bash
-datum commit <...>
+datum project commit <...>
 ```
 
 ![cache interaction diagram 1](../../../images/behavior_diag1.svg)
@@ -302,17 +302,17 @@ can `export` it to the required format. We can export the resulting dataset,
 or any previous stage.
 
 ``` bash
-datum export <...> source1
-datum export <...> source1.stage3
+datum project export <...> source1
+datum project export <...> source1.stage3
 ```
 
 Let's extend the example. Imagine we have a project with 2 data sources.
 Roughly, it corresponds to the following set of commands:
 
 ```bash
-datum create
-datum import <...> -n source1
-datum import <...> -n source2
+datum project create
+datum project import <...> -n source1
+datum project import <...> -n source2
 datum transform <...> source1 # used 3 times
 datum transform <...> source2 # used 5 times
 ```
@@ -398,14 +398,14 @@ avoid unnecessary data copies.
 Example: create a project, add dataset, modify, restore an old version
 
 ``` bash
-datum create
-datum import <path/to/dataset> -f coco -n source1
-datum commit -m "Added a dataset"
+datum project create
+datum project import <path/to/dataset> -f coco -n source1
+datum project commit -m "Added a dataset"
 datum transform -t shapes_to_boxes
 datum filter -e '/item/annotation[label="cat" or label="dog"]' -m i+a
-datum commit -m "Transformed"
-datum checkout HEAD~1 -- source1 # restore a previous revision
-datum status # prints "modified source1"
-datum checkout source1 # restore the last revision
-datum export -f voc -- --save-images
+datum project commit -m "Transformed"
+datum project checkout HEAD~1 -- source1 # restore a previous revision
+datum project status # prints "modified source1"
+datum project checkout source1 # restore the last revision
+datum project export -f voc -- --save-images
 ```

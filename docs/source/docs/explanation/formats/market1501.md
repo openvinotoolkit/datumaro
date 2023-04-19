@@ -40,7 +40,7 @@ datum create
 datum import -f market1501 <path_to_market1501>
 ```
 See more information about adding datasets to the project in the
-[docs](/docs/command-reference/sources.md#add-dataset).
+[docs](../../command-reference/context/sources.md#add-dataset).
 
 Or you can import Market-1501 using Python API:
 

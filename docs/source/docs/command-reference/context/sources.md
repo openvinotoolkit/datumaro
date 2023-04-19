@@ -36,7 +36,7 @@ is _not_ done automatically.
 Usage:
 
 ``` bash
-datum import [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check]
+datum project import [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check]
   [-p PROJECT_DIR] url [-- EXTRA_FORMAT_ARGS]
 ```
 
@@ -59,13 +59,13 @@ export as TFrecord for TF Detection API for model training
 
 ``` bash
 # 'default' is the name of the subset below
-datum create
-datum import -f coco_instances -r annotations/instances_default.json path/to/coco
-datum import -f cvat <path/to/cvat/default.xml>
-datum import -f voc_detection -r custom_subset_dir/default.txt <path/to/voc>
-datum import -f datumaro <path/to/datumaro/default.json>
-datum import -f image_dir <path/to/images/dir>
-datum export -f tf_detection_api -- --save-images
+datum project create
+datum project import -f coco_instances -r annotations/instances_default.json path/to/coco
+datum project import -f cvat <path/to/cvat/default.xml>
+datum project import -f voc_detection -r custom_subset_dir/default.txt <path/to/voc>
+datum project import -f datumaro <path/to/datumaro/default.json>
+datum project import -f image_dir <path/to/images/dir>
+datum project export -f tf_detection_api -- --save-images
 ```
 
 ## Add Dataset
@@ -94,7 +94,7 @@ is _not_ done automatically.
 Usage:
 
 ``` bash
-datum add [-h] -f FORMAT [-r PATH] [--no-check]
+datum project add [-h] -f FORMAT [-r PATH] [--no-check]
   [-p PROJECT_DIR] path [-- EXTRA_FORMAT_ARGS]
 ```
 
@@ -114,10 +114,10 @@ Example: create a project from images and annotations in different formats,
 export in YOLO for model training
 
 ``` bash
-datum create
-datum add -f coco -r annotations/instances_train.json dataset1/
-datum add -f cvat dataset2/train.xml
-datum export -f yolo -- --save-images
+datum project create
+datum project add -f coco -r annotations/instances_train.json dataset1/
+datum project add -f cvat dataset2/train.xml
+datum project export -f yolo -- --save-images
 ```
 
 Example: add an existing dataset into a project, avoid data copying
@@ -139,9 +139,9 @@ proj/
 ```
 
 ``` bash
-datum create -o proj/
+datum project create -o proj/
 mv ~/my_coco/ proj/my_coco/ # move the dataset into the project directory
-datum add -p proj/ -f coco proj/my_coco/
+datum project add -p proj/ -f coco proj/my_coco/
 ```
 
 ## Remove Datasets
@@ -166,7 +166,7 @@ Parameters:
 Example:
 
 ``` bash
-datum create
-datum import -f voc -n src1 <path/to/dataset/>
-datum remove src1
+datum project create
+datum project import -f voc -n src1 <path/to/dataset/>
+datum project remove src1
 ```

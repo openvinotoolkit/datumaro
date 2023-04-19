@@ -418,8 +418,7 @@ Single commands are handy shorter alternatives for the most used commands
 and also special commands, which are hard to be put into any specific context.
 `Docker <https://www.docker.com/>`_ is an example of similar approach.
 
-.. raw:: html
-   :file: ../../../images/command_diag1.svg
+.. graphviz:: command_line.dot
 
 :ref:`List of plugins available through the CLI <supported_formats>`
 

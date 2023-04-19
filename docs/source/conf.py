@@ -51,6 +51,7 @@ extensions = [
     "nbsphinx",
     "sphinx_design",
     "sphinx_toolbox.collapse",
+    "sphinx.ext.graphviz",
 ]
 
 source_suffix = {
@@ -92,6 +93,9 @@ templates_path = [
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+
+# Graphviz format
+graphviz_output_format = "svg"
 
 # -- Options for HTML output -------------------------------------------------
 

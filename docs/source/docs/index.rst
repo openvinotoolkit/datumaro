@@ -32,7 +32,9 @@ Docs
   :hidden:
   :caption: Command Line Reference
 
-  command-reference/index
+  command-reference/overview
+  command-reference/context_free/index
+  command-reference/context/index
 
 .. toctree::
   :maxdepth: 1

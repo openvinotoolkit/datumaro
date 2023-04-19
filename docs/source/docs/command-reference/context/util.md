@@ -6,7 +6,7 @@
 
 Splits a video into separate frames and saves them in a directory.
 After the splitting, the images can be added into a project using
-the [`import` command](/docs/command-reference/sources.md#import-dataset) and the `image_dir` format.
+the [`import` command](./sources.md#import-dataset) and the `image_dir` format.
 
 This command is useful for making a dataset from a video file.
 Unlike direct video reading during model training, which can produce
@@ -20,9 +20,9 @@ starting (`-b/--start-frame`) and finishing (`-e/--end-frame`) frame etc.
 
 Note that this command is equivalent to the following commands:
 ```bash
-datum create -o proj
-datum import -p proj -f video_frames video.mp4 -- <params>
-datum export -p proj -f image_dir -- <params>
+datum project create -o proj
+datum project import -p proj -f video_frames video.mp4 -- <params>
+datum project export -p proj -f image_dir -- <params>
 ```
 
 Usage:
@@ -59,8 +59,8 @@ datum util split_video -i video.mp4 --image-ext=.png --name-pattern='frame_%%06d
 Example: split a video, add frames and annotations into dataset, export as YOLO:
 ```bash
 datum util split_video -i video.avi -o video-frames
-datum create -o proj
-datum import -p proj -f image_dir video-frames
-datum import -p proj -f coco_instances annotations.json
-datum export -p proj -f yolo -- --save-images
+datum project create -o proj
+datum project import -p proj -f image_dir video-frames
+datum project import -p proj -f coco_instances annotations.json
+datum project export -p proj -f yolo -- --save-images
 ```

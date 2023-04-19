@@ -1,4 +1,4 @@
-# Detect Format
+# Detect
 
 ## Detect dataset format
 
@@ -49,8 +49,7 @@ Usage:
 
 ``` bash
 datum detect [-h] [-p PROJECT_DIR] [--show-rejections]
-                    [--json-report JSON_REPORT]
-                    url
+             [--json-report JSON_REPORT] url
 ```
 
 Parameters:

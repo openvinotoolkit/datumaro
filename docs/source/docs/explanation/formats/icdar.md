@@ -96,11 +96,11 @@ For `icdar_text_segmentation`
 ├── ...
 ```
 See more information about adding datasets to the project in the
-[docs](/docs/command-reference/sources.md#add-dataset).
+[docs](../../command-reference/sources.md#add-dataset).
 
 ## Export to other formats
 Datumaro can convert ICDAR dataset into any other format
-[Datumaro supports](/docs/data-formats/supported_formats/). Examples:
+[Datumaro supports](../../data-formats/supported_formats). Examples:
 ``` bash
 # converting ICDAR text segmentation dataset into the VOC with `convert` command
 datum convert -if icdar_text_segmentation -i source_dataset \

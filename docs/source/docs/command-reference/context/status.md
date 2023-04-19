@@ -22,7 +22,7 @@ The list of possible `status` values:
 Usage:
 
 ``` bash
-datum status [-h] [-p PROJECT_DIR]
+datum project status [-h] [-p PROJECT_DIR]
 ```
 
 Parameters:
