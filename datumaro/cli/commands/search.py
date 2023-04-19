@@ -12,7 +12,7 @@ from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.searcher import Searcher
 from datumaro.components.visualizer import Visualizer
 from datumaro.util.image import save_image
-from datumaro.util.scope import scope_add
+from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
 from ..util.project import load_project, parse_full_revpath
@@ -45,7 +45,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "_positionals", nargs=argparse.REMAINDER, help=argparse.SUPPRESS
     )  # workaround for -- eaten by positionals
-    parser.add_argument("target", nargs="?", default="project", help="Target dataset")
+    parser.add_argument("target", nargs="+", default="project", help="Target dataset")
     parser.add_argument(
         "-q",
         "--query",
@@ -75,23 +75,20 @@ def get_sensitive_args():
             "target",
             "query",
             "topk",
-            "project_dir",
             "save",
         ]
     }
 
-
+@scoped
 def search_command(args):
     project = None
     try:
         project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if args.project_dir:
-            log.info(
-                f"Wrong argument: project_dir, {args.project_dir}, should be a path to project dir"
-            )
             raise
-    dataset, _ = parse_full_revpath(args.target, project)
+
+    dataset, _ = parse_full_revpath(args.target[0], project)
 
     searcher = Searcher(dataset)
 

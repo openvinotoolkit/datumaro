@@ -8,7 +8,7 @@ from tokenizers import Tokenizer
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
-
+from datumaro.components.annotation import HashKey
 
 class SearcherLauncher(OpenvinoLauncher):
     def __init__(
@@ -86,3 +86,9 @@ class SearcherLauncher(OpenvinoLauncher):
         if not isinstance(item.media, Image):
             raise MediaTypeError(f"Media type should be Image, Current type={type(item.media)}")
         return True
+
+    def inferenced_check(self, item):
+        for annotation in item.annotations:
+            if isinstance(annotation, HashKey) and not annotation.hash_key:
+                return True
+        return False
