@@ -11,31 +11,6 @@ The Python example for the usage of explorer is described in [here](../../jupyte
 
 .. tab-set::
 
-    .. tab-item:: ProjectCLI
-
-        With the project-based CLI, we first require to create a project by
-
-        .. code-block:: bash
-
-            datum project create -o <path/to/project>
-
-        We now import data in to project through
-
-        .. code-block:: bash
-
-            datum project import <path/to/dataset/>
-
-        We can explore similar items for the query
-
-        .. code-block:: bash
-
-            datum explore -q QUERY -topk TOPK_NUM
-
-        ``QUERY`` could be image file path, text description, list of both of them
-        ``TOPK_NUM`` is an integer that you want to find the number of similar results for query
-
-        Exploration result would be printed by log and visualized result would be saved by ``explorer.png``
-
     .. tab-item:: Python
 
         With Python API, we can explore similar items as below
@@ -57,3 +32,29 @@ The Python example for the usage of explorer is described in [here](../../jupyte
             query = '/path/to/image/file'
             topk = 20
             topk_result = explorer.explore_topk(query, topk)
+
+    .. tab-item:: ProjectCLI
+
+        With the project-based CLI, we first require to create a project by
+
+        .. code-block:: bash
+
+            datum project create -o <path/to/project>
+
+        We now import data in to project through
+
+        .. code-block:: bash
+
+            datum project import <path/to/dataset/>
+
+        We can explore similar items for the query
+
+        .. code-block:: bash
+
+            datum explore -q QUERY -topk TOPK_NUM
+
+        ``QUERY`` could be image file path, text description, list of both of them
+
+        ``TOPK_NUM`` is an integer that you want to find the number of similar results for query
+
+        Exploration result would be printed by log and visualized result would be saved by ``explorer.png``
