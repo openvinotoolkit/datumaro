@@ -69,7 +69,10 @@ Docs
   :hidden:
   :caption: Misc
 
-  user-manual/index
+  user-manual/how_to_use_datumaro
+  user-manual/model_preparation
+  user-manual/extending
+  user-manual/how_to_control_tm_data_collection
 
 .. toctree::
   :maxdepth: 1

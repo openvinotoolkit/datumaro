@@ -282,7 +282,7 @@ Extra options for exporting to the Open Images format:
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Open Images format in particular. Follow the
-[user manual](/docs/user-manual/index/)
+[user manual](../../user-manual/how_to_use_datumaro/)
 to get more information about these operations.
 
 Here are a few examples of using Datumaro operations to solve
