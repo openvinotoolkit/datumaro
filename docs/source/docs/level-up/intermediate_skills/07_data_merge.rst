@@ -13,7 +13,7 @@ to use for training.
 In this tutorial, we provide the simple example for merging two datasets and the detailed description
 for merge operation is given by :ref:`here <Merge>`.
 The more advanced Python example with the label mapping between datasets is given
-`here <https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/01_merge_multiple_datasets_for_classification.ipynb>`_.
+`here <../../jupyter_notebook_examples/dataset_handler>`_.
 
 Prepare datasets
 ================
