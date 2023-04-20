@@ -6,7 +6,7 @@ Level 9: Dataset Explorartion from a Query Image/Text
 Datumaro support exploration feature to find out similar data for query among dataset. With query, the exploration result includes top-k similar data among dataset.
 Through this feature, you could figure out dataset property. You could check the visualization result of exploration using `Visualizer`.
 
-More detailed descriptions about explorer are given by :ref:`Explore`
+More detailed descriptions about explorer are given by :doc:`Explore <../../command-reference/context_free/explorer>`
 The Python example for the usage of explorer is described in :doc:`here <../../jupyter_notebook_examples/notebooks/07_data_explorer>`.
 
 

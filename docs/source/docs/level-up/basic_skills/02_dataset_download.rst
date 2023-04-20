@@ -30,7 +30,7 @@ Which datasets are available?
       datum download describe [--report-format {text,json}] [--report-file REPORT_FILE]
 
 How can we download datasets?
-=========================
+=============================
 
 .. tab-set::
 

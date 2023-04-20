@@ -6,8 +6,9 @@
     pip install -r docs/requirements.txt
     ```
 
-2. You should install `graphviz` to draw graphs in our documents.
+2. You should install `graphviz` and `pandoc` to draw graphs in our documents.
 
     ```console
     sudo apt install graphviz
+    sudo apt install pandoc
     ```
