@@ -30,12 +30,12 @@ The MVTec AD dataset is available for free download
 A Datumaro project with a MVTec AD source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format mvtec_segmentation <path/to/dataset>
+datum project create
+datum project import --format mvtec_segmentation <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 The MVTec AD dataset directory should have the following structure:
 
@@ -87,9 +87,9 @@ saved in `ImageNet` format, but not as `COCO keypoints`.
 There are several ways to convert a MVTec AD dataset to other dataset formats:
 
 ``` bash
-datum create
-datum import -f mvtec <path/to/mvtec>
-datum export -f coco -o <output/dir>
+datum project create
+datum project import -f mvtec <path/to/mvtec>
+datum project export -f coco -o <output/dir>
 ```
 or
 ``` bash
@@ -111,7 +111,7 @@ There are several ways to convert an existing dataset to Pascal VOC format:
 
 ``` bash
 # export dataset into MVTec AD format (classification) from existing project
-datum export -p <path/to/project> -f mvtec -o <output/dir> -- --tasks classification
+datum project export -p <path/to/project> -f mvtec -o <output/dir> -- --tasks classification
 ```
 ``` bash
 # converting to MVTec AD format from other format
@@ -128,7 +128,7 @@ Extra options for exporting to MVTec AD format:
   by default Datumaro uses all tasks.
 
 ```bash
-datum export -f mvtec -- --tasks detection,classification
+datum project export -f mvtec -- --tasks detection,classification
 ```
 
 ## Examples

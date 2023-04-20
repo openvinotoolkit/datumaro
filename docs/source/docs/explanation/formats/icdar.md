@@ -37,10 +37,10 @@ Supported attributes:
 There is few ways to import ICDAR dataset with Datumaro:
 - Through the Datumaro project
 ``` bash
-datum create
-datum import -f icdar_text_localization <text_localization_dataset>
-datum import -f icdar_text_segmentation <text_segmentation_dataset>
-datum import -f icdar_word_recognition <word_recognition_dataset>
+datum project create
+datum project import -f icdar_text_localization <text_localization_dataset>
+datum project import -f icdar_text_segmentation <text_segmentation_dataset>
+datum project import -f icdar_word_recognition <word_recognition_dataset>
 ```
 - With Python API
 ```python
@@ -108,9 +108,9 @@ datum convert -if icdar_text_segmentation -i source_dataset \
 ```
 ``` bash
 # converting ICDAR text localization into the LabelMe through Datumaro project
-datum create
-datum import -f icdar_text_localization source_dataset
-datum export -f label_me -o ./export_dir -- --save-media
+datum project create
+datum project import -f icdar_text_localization source_dataset
+datum project export -f label_me -o ./export_dir -- --save-media
 ```
 > Note: some formats have extra export options. For particular format see the
 > [docs](/docs/data-formats/supported_formats/) to get information about it.

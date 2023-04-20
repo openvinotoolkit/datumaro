@@ -53,9 +53,9 @@ The MNIST in CSV dataset is available for free download:
 A Datumaro project with a MNIST source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format mnist <path/to/dataset>
-datum import --format mnist_csv <path/to/dataset>
+datum project create
+datum project import --format mnist <path/to/dataset>
+datum project import --format mnist_csv <path/to/dataset>
 ```
 
 MNIST dataset directory should have the following structure:
@@ -113,9 +113,9 @@ etc.)
 There are several ways to convert a MNIST dataset to other dataset formats:
 
 ``` bash
-datum create
-datum import -f mnist <path/to/mnist>
-datum export -f imagenet -o <output/dir>
+datum project create
+datum project import -f mnist <path/to/mnist>
+datum project export -f imagenet -o <output/dir>
 ```
 or
 ``` bash
@@ -140,7 +140,7 @@ There are several ways to convert a dataset to MNIST format:
 
 ``` bash
 # export dataset into MNIST format from existing project
-datum export -p <path/to/project> -f mnist -o <output/dir> \
+datum project export -p <path/to/project> -f mnist -o <output/dir> \
     -- --save-media
 ```
 ``` bash

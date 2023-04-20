@@ -29,12 +29,12 @@ The CIFAR dataset is available for free download:
 A Datumaro project with a CIFAR source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format cifar <path/to/dataset>
+datum project create
+datum project import --format cifar <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 CIFAR-10 dataset directory should have the following structure:
 
@@ -109,9 +109,9 @@ There are several ways to convert a CIFAR dataset to other dataset
 formats using CLI:
 
 ``` bash
-datum create
-datum import -f cifar <path/to/cifar>
-datum export -f imagenet -o <output/dir>
+datum project create
+datum project import -f cifar <path/to/cifar>
+datum project export -f imagenet -o <output/dir>
 ```
 or
 ``` bash
@@ -134,7 +134,7 @@ There are several ways to convert a dataset to CIFAR format:
 
 ``` bash
 # export dataset into CIFAR format from existing project
-datum export -p <path/to/project> -f cifar -o <output/dir> \
+datum project export -p <path/to/project> -f cifar -o <output/dir> \
     -- --save-media
 ```
 ``` bash

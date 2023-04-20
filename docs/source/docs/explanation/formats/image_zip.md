@@ -13,16 +13,16 @@ There are several ways to import unannotated datasets to your Datumaro project:
 - From an existing archive:
 
 ```bash
-datum create
-datum import -f image_zip ./images.zip
+datum project create
+datum project import -f image_zip ./images.zip
 ```
 
 - From a directory with zip archives. Datumaro will import images from
   all zip files in the directory:
 
 ```bash
-datum create
-datum import -f image_zip ./foo
+datum project create
+datum project import -f image_zip ./foo
 ```
 
 The directory with zip archives must have the following structure:
@@ -53,9 +53,9 @@ Datumaro can convert image zip dataset into any other format [Datumaro supports]
 For example:
 
 ```bash
-datum create -o project
-datum import -p project -f image_zip ./images.zip
-datum export -p project -f coco -o ./new_dir -- --save-media
+datum project create -o project
+datum project import -p project -f image_zip ./images.zip
+datum project export -p project -f coco -o ./new_dir -- --save-media
 ```
 
 Or, using Python API:
@@ -71,9 +71,9 @@ dataset.export('save_dir', 'coco', save_media=True)
 
 Example: exporting images from a VOC dataset to zip archives:
 ```bash
-datum create -o project
-datum import -p project -f voc ./VOC2012
-datum export -p project -f image_zip -- --name voc_images.zip
+datum project create -o project
+datum project import -p project -f voc ./VOC2012
+datum project export -p project -f image_zip -- --name voc_images.zip
 ```
 
 Extra options for exporting to image_zip format:

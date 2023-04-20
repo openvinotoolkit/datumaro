@@ -135,12 +135,12 @@ all corresponding images must be downloaded as well, and vice versa.
 A Datumaro project with an OID source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format open_images <path/to/dataset>
+datum project create
+datum project import --format open_images <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 Open Images dataset directory should have the following structure:
 
@@ -235,9 +235,9 @@ that supports image-level labels.
 There are several ways to convert OID to other dataset formats:
 
 ``` bash
-datum create
-datum import -f open_images <path/to/open_images>
-datum export -f cvat -o <output/dir>
+datum project create
+datum project import -f open_images <path/to/open_images>
+datum project export -f cvat -o <output/dir>
 ```
 or
 ``` bash
@@ -259,7 +259,7 @@ There are several ways to convert an existing dataset to the Open Images format:
 
 ``` bash
 # export dataset into Open Images format from existing project
-datum export -p <path/to/project> -f open_images -o <output/dir> \
+datum project export -p <path/to/project> -f open_images -o <output/dir> \
   -- --save_media
 ```
 ``` bash
@@ -291,10 +291,10 @@ particular problems with the Open Images dataset:
 ### Example 1. Load the Open Images dataset and convert to the CVAT format
 
 ```bash
-datum create -o project
-datum import -p project -f open_images ./open-images-dataset/
+datum project create -o project
+datum project import -p project -f open_images ./open-images-dataset/
 datum stats -p project
-datum export -p project -f cvat -- --save-media
+datum project export -p project -f cvat -- --save-media
 ```
 
 ### Example 2. Create a custom OID-like dataset

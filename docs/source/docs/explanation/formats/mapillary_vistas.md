@@ -21,8 +21,8 @@ Supported atttibutes:
 Use these instructions to import Mapillary Vistas dataset into Datumaro project:
 
 ```bash
-datum create
-datum add -f mapillary_vistas ./dataset
+datum project create
+datum project add -f mapillary_vistas ./dataset
 ```
 
 > Note: the directory with dataset should be subdirectory of the
@@ -34,11 +34,11 @@ datum add -f mapillary_vistas ./dataset
 Use one of subformats (`mapillary_vistas_instances`, `mapillary_vistas_panoptic`),
 if your dataset contains both panoptic and instance masks:
 ```bash
-datum add -f mapillary_vistas_instances ./dataset
+datum project add -f mapillary_vistas_instances ./dataset
 ```
 or
 ``` bash
-datum add -f mapillary_vistas_panoptic ./dataset
+datum project add -f mapillary_vistas_panoptic ./dataset
 ```
 
 Extra options for adding a source in the Mapillary Vistas format:
@@ -54,7 +54,7 @@ Extra options for adding a source in the Mapillary Vistas format:
 
 Example of using extra options:
 ```bash
-datum add -f mapillary_vistas ./dataset -- --use-original-config
+datum project add -f mapillary_vistas ./dataset -- --use-original-config
 ```
 Mapillary Vistas dataset has two versions: v1.2, v2.0.
 They differ in the number of classes, the name of the classes, supported types

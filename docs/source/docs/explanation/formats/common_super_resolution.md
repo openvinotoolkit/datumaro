@@ -15,8 +15,8 @@ Supported attributes:
 A Datumaro project with a CSR source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format common_super_resolution <path/to/dataset>
+datum project create
+datum project import --format common_super_resolution <path/to/dataset>
 ```
 
 CSR dataset directory should have the following structure:

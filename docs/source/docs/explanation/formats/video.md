@@ -17,8 +17,8 @@ A Datumaro project with a video frames can be created
 in the following way:
 
 ```
-datum create
-datum import -f video_frames <path_to_video>
+datum project create
+datum project import -f video_frames <path_to_video>
 ```
 
 Load video through the Python API:
@@ -45,21 +45,21 @@ use the `--` after the main command argument.
 Usage:
 
 ``` console
-datum import -f video_frames [-h] [-n NAME] [-r RPATH] [-p PROJECT_DIR]
+datum project import -f video_frames [-h] [-n NAME] [-r RPATH] [-p PROJECT_DIR]
   [--no-check] [-s STEP] [-b START_FRAME] [-e END_FRAME] url ...
 ```
 
 Example: import a video into frames, use each 30th frame:
 ```console
-datum import -f video_frames video.mp4 -o video-frames --step 30
+datum project import -f video_frames video.mp4 -o video-frames --step 30
 ```
 
 Example: import a video into frames, save as 'frame_xxxxxx.png' files:
 ```console
-datum import -f video_frames video.mp4 -o video-frames --image-ext=.png --name-pattern='frame_%%06d'
+datum project import -f video_frames video.mp4 -o video-frames --image-ext=.png --name-pattern='frame_%%06d'
 ```
 
 Example: import a video into keyframes:
 ```console
-datum import -f video_keyframes video.mp4 -o video-frames
+datum project import -f video_keyframes video.mp4 -o video-frames
 ```

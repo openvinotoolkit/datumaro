@@ -71,7 +71,7 @@ Examples:
 - Run inference explanation on a single image with online visualization
 
 ``` bash
-datum create <...>
+datum project create <...>
 datum model add mymodel <...>
 datum explain -t image.png -m mymodel \
     rise --max-samples 1000 --display
