@@ -19,11 +19,11 @@ A Datumaro project with a Vgg Face 2 dataset can be created
 in the following way:
 
 ```
-datum create
-datum import -f vgg_face2 <path_to_dataset>
+datum project create
+datum project import -f vgg_face2 <path_to_dataset>
 ```
 
-> Note: if you use `datum import` then <path_to_dataset> should not be a
+> Note: if you use `datum project import` then <path_to_dataset> should not be a
 > subdirectory of directory with Datumaro project, see more information about
 > it in the [docs](../../command-reference/context/sources.md#add-dataset).
 
@@ -80,9 +80,9 @@ datum convert -if vgg_face2 -i <path_to_vgg_face2> \
     -f voc -o <output_dir> -- --save-images
 
 # Using Datumaro project
-datum create
-datum import -f vgg_face2 <path_to_vgg_face2>
-datum export -f yolo -o <output_dir>
+datum project create
+datum project import -f vgg_face2 <path_to_vgg_face2>
+datum project export -f yolo -o <output_dir>
 ```
 
 > Note: to get the expected result from the conversion, the output format
@@ -115,9 +115,9 @@ datum convert -if wider_face -i <path_to_wider> \
     -f vgg_face2 -o <output_dir>
 
 # Using Datumaro project
-datum create
-datum import -f wider_face <path_to_wider>
-datum export -f vgg_face2 -o <output_dir> -- --save-media --image-ext '.png'
+datum project create
+datum project import -f wider_face <path_to_wider>
+datum project export -f vgg_face2 -o <output_dir> -- --save-media --image-ext '.png'
 ```
 
 > Note: `vgg_face2` format supports only one `Bbox` per image

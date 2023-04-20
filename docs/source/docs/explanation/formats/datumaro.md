@@ -33,12 +33,12 @@ Supported annotation attributes:
 A Datumaro project with a Datumaro source can be created in the following way:
 
 ```console
-datum create
-datum import --format datumaro <path/to/dataset>
+datum project create
+datum project import --format datumaro <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 A Datumaro dataset directory should have the following structure:
 
@@ -82,9 +82,9 @@ using CLI:
 - Export a dataset from Datumaro format to VOC format:
 
 ```console
-datum create
-datum import -f datumaro <path/to/dataset>
-datum export -f voc -o <output/dir>
+datum project create
+datum project import -f datumaro <path/to/dataset>
+datum project export -f voc -o <output/dir>
 ```
 
 or
@@ -109,7 +109,7 @@ There are several ways to convert a dataset to Datumaro format:
 - Export a dataset from an existing project to Datumaro format:
 ```console
 # export dataset into Datumaro format from existing project
-datum export -p <path/to/project> -f datumaro -o <output/dir> \
+datum project export -p <path/to/project> -f datumaro -o <output/dir> \
     -- --save-media
 ```
 

@@ -80,12 +80,12 @@ Supported annotation attributes:
 A Datumaro project with a DatumaroBinary source can be created in the following way:
 
 ```console
-datum create
-datum import --format datumaro_binary <path/to/dataset>
+datum project create
+datum project import --format datumaro_binary <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 A DatumaroBinary dataset directory should have the following structure:
 
@@ -122,8 +122,8 @@ run `datum project info`, which will display the project information.
 If you want to import the dataset with encryption, please give `--encryption-key <secret-key>` to the optional arguments:
 
 ```console
-datum create
-datum import --format datumaro_binary <path/to/dataset> -- --encryption-key <secret-key>
+datum project create
+datum project import --format datumaro_binary <path/to/dataset> -- --encryption-key <secret-key>
 ```
 
 `<secret-key>` is a 50-bytes long base64 encoded string prefixed with `datum-`. It is auto-generated in `<output/dir>/secret_key.txt` when the dataset is exported to DatumaroBinary format with `--encryption` option. You must have a correct `<secret-key>` to import the dataset encrypted by Datumaro.
@@ -134,8 +134,8 @@ Using CLI
 
 ```console
 # Import DatumaroBinary format dataset with 4 multi-processing workers
-datum create
-datum import --format datumaro_binary <path/to/dataset> -- --num-workers 4
+datum project create
+datum project import --format datumaro_binary <path/to/dataset> -- --num-workers 4
 ```
 
 or using Python API
@@ -164,9 +164,9 @@ using CLI:
 - Export a dataset from DatumaroBinary to VOC format:
 
 ```console
-datum create
-datum import -f datumaro_binary <path/to/dataset>
-datum export -f voc -o <output/dir>
+datum project create
+datum project import -f datumaro_binary <path/to/dataset>
+datum project export -f voc -o <output/dir>
 ```
 
 or
@@ -192,7 +192,7 @@ There are several ways to convert a dataset to DatumaroBinary format:
 
 ```console
 # export dataset into DatumaroBinary format from existing project
-datum export -p <path/to/project> -f datumaro_binary -o <output/dir> \
+datum project export -p <path/to/project> -f datumaro_binary -o <output/dir> \
     -- --save-media
 ```
 
@@ -210,7 +210,7 @@ If you want to encrypt your dataset, please add ``--encryption` directive to you
 
 ```console
 # export dataset into DatumaroBinary format from existing project
-datum export -p <path/to/project> -f datumaro_binary -o <output/dir> \
+datum project export -p <path/to/project> -f datumaro_binary -o <output/dir> \
     -- --save-media --encryption
 ```
 
@@ -221,7 +221,7 @@ If you want to encrypt the annotation files only, not the media files, please ad
 
 ```console
 # export dataset into DatumaroBinary format from existing project
-datum export -p <path/to/project> -f datumaro_binary -o <output/dir> \
+datum project export -p <path/to/project> -f datumaro_binary -o <output/dir> \
     -- --save-media --encryption --no-media-encryption
 ```
 
@@ -231,7 +231,7 @@ Using CLI
 
 ```console
 # Export dataset into DatumaroBinary with 4 multi-processing workers
-datum export -p <path/to/project> -f datumaro_binary -o <output/dir> \
+datum project export -p <path/to/project> -f datumaro_binary -o <output/dir> \
     -- --save-media --num-workers 4
 ```
 

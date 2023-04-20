@@ -15,8 +15,8 @@ The NYU Depth Dataset V2 is available for free [download](http://datasets.lids.m
 A Datumaro project with a NYU Depth Dataset V2 source can be created in the following way:
 
 ```bash
-datum create
-datum import --format nyu_depth_v2 <path/to/dataset>
+datum project create
+datum project import --format nyu_depth_v2 <path/to/dataset>
 ```
 
 It is also possible to import the dataset using Python API:

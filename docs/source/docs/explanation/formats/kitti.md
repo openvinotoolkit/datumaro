@@ -32,12 +32,12 @@ The KITTI segmentation dataset is available [here](http://www.cvlibs.net/downloa
 A Datumaro project with a KITTI source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format kitti <path/to/dataset>
+datum project create
+datum project import --format kitti <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 KITTI detection dataset directory should have the following structure:
 
@@ -105,7 +105,7 @@ of KITTI dataset instead of the whole dataset,
 for example:
 
 ``` bash
-datum import --format kitti_detection <path/to/dataset>
+datum project import --format kitti_detection <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
@@ -123,9 +123,9 @@ saved in `Cityscapes` format, but not as `COCO keypoints`.
 There are several ways to convert a KITTI dataset to other dataset formats:
 
 ``` bash
-datum create
-datum import -f kitti <path/to/kitti>
-datum export -f cityscapes -o <output/dir>
+datum project create
+datum project import -f kitti <path/to/kitti>
+datum project export -f cityscapes -o <output/dir>
 ```
 or
 ``` bash
@@ -147,7 +147,7 @@ There are several ways to convert a dataset to KITTI format:
 
 ``` bash
 # export dataset into KITTI format from existing project
-datum export -p <path/to/project> -f kitti -o <output/dir> \
+datum project export -p <path/to/project> -f kitti -o <output/dir> \
     -- --save-media
 ```
 ``` bash
@@ -172,18 +172,18 @@ Extra options for exporting to KITTI format:
 # 0 0 255 sky
 # 255 0 0 person
 #...
-datum export -f kitti -- --label-map mycolormap.txt
+datum project export -f kitti -- --label-map mycolormap.txt
 
 ```
 or you can use original kitti colomap:
 ``` bash
-datum export -f kitti -- --label-map kitti
+datum project export -f kitti -- --label-map kitti
 ```
 - `--tasks TASKS` allow to specify tasks for export dataset,
 by default Datumaro uses all tasks. Example:
 
 ```bash
-datum export -f kitti -- --tasks detection
+datum project export -f kitti -- --tasks detection
 ```
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
 (by default `True`).
@@ -201,10 +201,10 @@ particular problems with KITTI dataset:
 ### Example 1. How to load an original KITTI dataset and convert to Cityscapes
 
 ```bash
-datum create -o project
-datum import -p project -f kitti ./KITTI/
+datum project create -o project
+datum project import -p project -f kitti ./KITTI/
 datum stats -p project
-datum export -p project -f cityscapes -- --save-media
+datum project export -p project -f cityscapes -- --save-media
 ```
 
 ### Example 2. How to create a custom KITTI-like dataset

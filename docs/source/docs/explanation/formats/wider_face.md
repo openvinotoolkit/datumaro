@@ -35,8 +35,8 @@ Supported attributes for bboxes:
 
 Importing of WIDER Face dataset into the Datumaro project:
 ```
-datum create
-datum import -f wider_face <path_to_wider_face>
+datum project create
+datum project import -f wider_face <path_to_wider_face>
 ```
 
 Directory with WIDER Face dataset should has the following structure:
@@ -83,9 +83,9 @@ datum convert -if wider_face -i <path_to_wider_face> \
     -f voc -o <output_dir> -- --save-media
 
 # Through the Datumaro project
-datum create
-datum import -f wider_face <path_to_wider_face>
-datum export -f voc -o <output_dir> -- -save-media
+datum project create
+datum project import -f wider_face <path_to_wider_face>
+datum project export -f voc -o <output_dir> -- -save-media
 ```
 
 Export WIDER Face dataset using Python API:
@@ -112,9 +112,9 @@ Here example of exporting VOC dataset (object detection task)
 into the WIDER Face format:
 
 ```
-datum create
-datum import -f voc_detection <path_to_voc>
-datum export -f wider_face -o <output_dir> -- --save-media --image-ext='.png'
+datum project create
+datum project import -f voc_detection <path_to_voc>
+datum project export -f wider_face -o <output_dir> -- --save-media --image-ext='.png'
 ```
 
 Available extra export options for WIDER Face dataset format:

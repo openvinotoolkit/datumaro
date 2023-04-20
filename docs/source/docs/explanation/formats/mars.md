@@ -24,8 +24,8 @@ Required attributes:
 Use these instructions to import MARS dataset into Datumaro project:
 
 ```bash
-datum create
-datum add -f mars ./dataset
+datum project create
+datum project add -f mars ./dataset
 ```
 
 > Note: the directory with dataset should be subdirectory of the

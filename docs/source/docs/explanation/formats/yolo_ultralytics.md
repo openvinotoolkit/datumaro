@@ -20,8 +20,8 @@ The format only supports three subset names: `train`, `val`, and `test` (optiona
 A Datumaro project with a YOLO source can be created in the following way:
 
 ```bash
-datum create
-datum import --format yolo <path/to/dataset>
+datum project create
+datum project import --format yolo <path/to/dataset>
 ```
 
 ### Directory structure
@@ -100,9 +100,9 @@ After the successful conversion, you can train your own detecter with the export
 There are several ways to convert other dataset formats to the YOLO-Ultralytics format:
 
 ```bash
-datum create
-datum add -f <any-other-dataset-format> <path/to/dataset/>
-datum export -f yolo_ultralytics -o <output/dir> -- --save-media
+datum project create
+datum project add -f <any-other-dataset-format> <path/to/dataset/>
+datum project export -f yolo_ultralytics -o <output/dir> -- --save-media
 ```
 or
 ```bash

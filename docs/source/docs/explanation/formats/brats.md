@@ -16,8 +16,8 @@ Supported annotation types:
 A Datumaro project with a BraTS source can be created in the following way:
 
 ```bash
-datum create
-datum import --format brats <path/to/dataset>
+datum project create
+datum project import --format brats <path/to/dataset>
 ```
 
 It is also possible to import the dataset using Python API:
@@ -62,9 +62,9 @@ There are several ways to convert a BraTS dataset to other dataset
 formats using CLI:
 
 ```bash
-datum create
-datum import -f brats <path/to/dataset>
-datum export -f voc -o <output/dir> -- --save-media
+datum project create
+datum project import -f brats <path/to/dataset>
+datum project export -f voc -o <output/dir> -- --save-media
 ```
 or
 ``` bash

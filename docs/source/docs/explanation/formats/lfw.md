@@ -27,8 +27,8 @@ Supported attributes:
 
 Importing LFW dataset into the Datumaro project:
 ```
-datum create
-datum import -f lfw <path_to_lfw_dataset>
+datum project create
+datum project import -f lfw <path_to_lfw_dataset>
 ```
 See more information about adding datasets to the project in the
 [docs](../../command-reference/context/sources.md#add-dataset).
@@ -82,9 +82,9 @@ datum convert -if lfw -i ./lfw_dataset \
     -f imagenet -o ./output_dir -- --save-media
 
 # Converting to VggFace2 through the Datumaro project:
-datum create
-datum add -f lfw ./lfw_dataset
-datum export -f vgg_face2 -o ./output_dir2
+datum project create
+datum project add -f lfw ./lfw_dataset
+datum project export -f vgg_face2 -o ./output_dir2
 ```
 
 > Note: some formats have extra export options. For particular format see the
@@ -102,9 +102,9 @@ datum convert -if vgg_face2 -i ./voc_dataset \
 
 
 # Export dataaset to the LFW format through the Datumaro project:
-datum create
-datum import -f voc_classification ../vgg_dataset
-datum export -f lfw -o ./output_dir -- --save-media --image-ext png
+datum project create
+datum project import -f voc_classification ../vgg_dataset
+datum project export -f lfw -o ./output_dir -- --save-media --image-ext png
 ```
 
 Available extra export options for LFW dataset format:

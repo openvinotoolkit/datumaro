@@ -60,13 +60,13 @@ Point Cloud dataset directory should have the following structure:
 There are two ways to import a Supervisely Point Cloud dataset:
 
 ```bash
-datum create
-datum import --format sly_pointcloud --input-path <path/to/dataset>
+datum project create
+datum project import --format sly_pointcloud --input-path <path/to/dataset>
 ```
 or
 ``` bash
-datum create
-datum import -f sly_pointcloud <path/to/dataset>
+datum project create
+datum project import -f sly_pointcloud <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project,
@@ -87,9 +87,9 @@ There are several ways to convert a Supervisely Point Cloud dataset
 to other dataset formats:
 
 ``` bash
-datum create
-datum import -f sly_pointcloud <path/to/sly_pcd/>
-datum export -f kitti_raw -o <output/dir>
+datum project create
+datum project import -f sly_pointcloud <path/to/sly_pcd/>
+datum project export -f kitti_raw -o <output/dir>
 ```
 or
 ``` bash
@@ -111,7 +111,7 @@ There are several ways to convert a dataset to Supervisely Point Cloud format:
 
 ``` bash
 # export dataset into Supervisely Point Cloud format from existing project
-datum export -p <path/to/project> -f sly_pointcloud -o <output/dir> \
+datum project export -p <path/to/project> -f sly_pointcloud -o <output/dir> \
     -- --save-media
 ```
 ``` bash
@@ -135,8 +135,8 @@ Extra options for exporting in Supervisely Point Cloud format:
 ### Example 1. Import dataset, compute statistics
 
 ```bash
-datum create -o project
-datum import -p project -f sly_pointcloud ../sly_dataset/
+datum project create -o project
+datum project import -p project -f sly_pointcloud ../sly_dataset/
 datum stats -p project
 ```
 

@@ -25,8 +25,8 @@ The format supports arbitrary subset names, except `classes`, `names` and `backu
 A Datumaro project with a YOLO source can be created in the following way:
 
 ```bash
-datum create
-datum import --format yolo <path/to/dataset>
+datum project create
+datum project import --format yolo <path/to/dataset>
 ```
 
 ### Directory structure
@@ -175,9 +175,9 @@ object detection task (e.g. Pascal VOC, COCO, TF Detection API etc.)
 There are several ways to convert a YOLO dataset to other dataset formats:
 
 ```bash
-datum create
-datum add -f yolo <path/to/yolo/>
-datum export -f voc -o <output/dir>
+datum project create
+datum project add -f yolo <path/to/yolo/>
+datum project export -f voc -o <output/dir>
 ```
 or
 ``` bash
@@ -202,9 +202,9 @@ if the dataset supports object detection task.
 Example:
 
 ```bash
-datum create
-datum import -f coco_instances <path/to/dataset>
-datum export -f yolo -o <path/to/dataset> -- --save-media
+datum project create
+datum project import -f coco_instances <path/to/dataset>
+datum project export -f yolo -o <path/to/dataset> -- --save-media
 ```
 
 Extra options for exporting to YOLO format:
@@ -220,22 +220,22 @@ Extra options for exporting to YOLO format:
 ### Example 1. Prepare PASCAL VOC dataset for exporting to YOLO format dataset
 
 ```bash
-datum create -o project
-datum import -p project -f voc ./VOC2012
+datum project create -o project
+datum project import -p project -f voc ./VOC2012
 datum filter -p project -e '/item[subset="train" or subset="val"]'
 datum transform -p project -t map_subsets -- -s train:train -s val:valid
-datum export -p project -f yolo -- --save-media
+datum project export -p project -f yolo -- --save-media
 ```
 
 ### Example 2. Remove a class from YOLO dataset
 Delete all items, which contain `cat` objects and remove
 `cat` from list of classes:
 ```bash
-datum create -o project
-datum import -p project -f yolo ./yolo_dataset
+datum project create -o project
+datum project import -p project -f yolo ./yolo_dataset
 datum filter -p project -m i+a -e '/item/annotation[label!="cat"]'
 datum transform -p project -t remap_labels -- -l cat:
-datum export -p project -f yolo -o ./yolo_without_cats
+datum project export -p project -f yolo -o ./yolo_without_cats
 ```
 
 ### Example 3. Create a custom dataset in YOLO format
@@ -280,7 +280,7 @@ for item in dataset:
 
 And If you want complete information about each item you can run:
 ```bash
-datum create -o project
-datum import -p project -f yolo ./yolo_dataset
+datum project create -o project
+datum project import -p project -f yolo ./yolo_dataset
 datum filter -p project --dry-run -e '/item'
 ```

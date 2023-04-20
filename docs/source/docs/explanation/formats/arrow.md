@@ -90,12 +90,12 @@ The attributes of the entity. The byte order is little-endian.
 A Datumaro project with a Arrow source can be created in the following way:
 
 ```console
-datum create
-datum import --format arrow <path/to/dataset>
+datum project create
+datum project import --format arrow <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 An Arrow dataset directory should have the following structure:
 

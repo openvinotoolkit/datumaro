@@ -20,8 +20,8 @@ A Datumaro project with an MPII Human Pose Dataset (JSON) source can be
 created in the following way:
 
 ```bash
-datum create
-datum import --format mpii_json <path/to/dataset>
+datum project create
+datum project import --format mpii_json <path/to/dataset>
 ```
 
 It is also possible to import the dataset using Python API:
@@ -58,9 +58,9 @@ There are several ways to convert an MPII Human Pose Dataset (JSON)
 to other dataset formats using CLI:
 
 ```bash
-datum create
-datum import -f mpii_json <path/to/dataset>
-datum export -f voc -o ./save_dir -- --save-media
+datum project create
+datum project import -f mpii_json <path/to/dataset>
+datum project export -f voc -o ./save_dir -- --save-media
 ```
 or
 ``` bash
