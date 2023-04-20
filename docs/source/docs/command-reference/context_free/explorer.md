@@ -11,38 +11,43 @@ To explore similar data in dataset, you need to set query first. Query could be 
 The command can be applied to a dataset. And if you want to use multiple dataset as database, you could use merged dataset. The current project (`-p/--project`) is also used a context for plugins, so it can be useful for dataset paths having custom formats. When not specified, the current project's working tree is used. To save visualized result (`-s/--save`) is turned on as default. This visualized result is based on [Visualizer](../../jupyter_notebook_examples/visualizer).
 
 Usage:
-``` bash
-datum explore [-q <path/to/image.jpg> or <text_query>] [-topk TOPK]
+```console
+datum explore [-q <path/to/image> or <text_query>]
+              [-topk TOPK] [-p PROJECT_DIR] [-s SAVE] target [target ...]
 ```
 
 Parameters:
+- `<target>` (string) - Target [dataset revpath](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).
+  By default, prints info about the joined `project` dataset.
 - `-q, --query` (string) - Image path or text to use as query.
 - `-topk` (int) - Number how much you want to find similar data.
 - `-p, --project` (string) - Directory of the project to operate on (default: current directory).
 - `-s, --save` (bool) - Save visualized result of similar dataset.
 
 Examples:
-- Use image query
-```bash
-datum project create <...>
-datum project import -f datumaro <path/to/dataset/>
-datum explore -q path/to/image.jpg -topk 10
-```
-- Use text query
-```bash
-datum project create <...>
-datum project import -f datumaro <path/to/dataset/>
-datum explore -q elephant -topk 10
-```
-- Use list of images query
-```bash
-datum project create <...>
-datum project import -f datumaro <path/to/dataset/>
-datum explore -q path/to/image1.jpg path/to/image2.jpg path/to/image3.jpg -topk 50
-```
-- Use list of texts query
-```bash
-datum project create <...>
-datum project import -f datumaro <path/to/dataset/>
-datum explore -q motorcycle bus train -topk 50
-```
+- Explore top10 similar images of image query
+  ```console
+  datum search -q <path/to/image> -topk 10 <path/to/dataset/>
+  ```
+
+- Explore top10 similar images of image query within project
+  ```console
+  datum project create <...>
+  datum project import -f <format> <path/to/dataset/>
+  datum explore -q <path/to/image> -topk 10
+  ```
+
+- Explore top10 similar images of text query, elephant
+  ```console
+  datum search -q elephant -topk 10 <path/to/dataset/>
+  ```
+
+- Explore top50 similar images of image query list
+  ```console
+  datum search -q <path/to/image1> <path/to/image2> <path/to/image3> -topk 50 <path/to/dataset/>
+  ```
+
+- Explore top50 similar images of text query list
+  ```console
+  datum search -q motorcycle bus train -topk 50 <path/to/dataset/>
+  ```
