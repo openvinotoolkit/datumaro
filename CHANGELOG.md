@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
-## 19/04/2023 - Release 1.2.0rc3
+## 20/04/2023 - Release 1.2.0
 ### New features
+- Add Skill Up section to documentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/920>, <https://github.com/openvinotoolkit/datumaro/pull/933>, <https://github.com/openvinotoolkit/datumaro/pull/935>, <https://github.com/openvinotoolkit/datumaro/pull/945>, <https://github.com/openvinotoolkit/datumaro/pull/949>, <https://github.com/openvinotoolkit/datumaro/pull/953>, <https://github.com/openvinotoolkit/datumaro/pull/959>, <https://github.com/openvinotoolkit/datumaro/pull/960>, <https://github.com/openvinotoolkit/datumaro/pull/967>)
 - Add LossDynamicsAnalyzer for noisy label detection
   (<https://github.com/openvinotoolkit/datumaro/pull/928>)
+- Add Apache Arrow format support
+  (<https://github.com/openvinotoolkit/datumaro/pull/931>, <https://github.com/openvinotoolkit/datumaro/pull/948>)
+- Add sort transform
+  (<https://github.com/openvinotoolkit/datumaro/pull/931>)
 
 ### Enhancements
 - Add multiprocessing to DatumaroBinaryBase
@@ -20,27 +26,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor download CLI commands
   (<https://github.com/openvinotoolkit/datumaro/pull/909>)
 - Refactor CLI commands w/ and w/o project
-  (<https://github.com/openvinotoolkit/datumaro/pull/910>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/910>, <https://github.com/openvinotoolkit/datumaro/pull/952>)
+- Refactor Media to be initialized from explicit sources
+  (<https://github.com/openvinotoolkit/datumaro/pull/911> <https://github.com/openvinotoolkit/datumaro/pull/921>, <https://github.com/openvinotoolkit/datumaro/pull/944>)
 - Refactor hl_ops.py
   (<https://github.com/openvinotoolkit/datumaro/pull/912>)
 - Add tfds:uc_merced and tfds:eurosat download
   (<https://github.com/openvinotoolkit/datumaro/pull/914>)
-- Refactor Media to be initialized from explicit sources
-  (<https://github.com/openvinotoolkit/datumaro/pull/911> <https://github.com/openvinotoolkit/datumaro/pull/921>, <https://github.com/openvinotoolkit/datumaro/pull/944>)
-- Add sort transform
-  (<https://github.com/openvinotoolkit/datumaro/pull/931>)
-- Add Apache Arrow format support
-  (<https://github.com/openvinotoolkit/datumaro/pull/931>, <https://github.com/openvinotoolkit/datumaro/pull/948>)
+- Migrate documentation framework to Sphinx
+  (<https://github.com/openvinotoolkit/datumaro/pull/917>, <https://github.com/openvinotoolkit/datumaro/pull/922>, <https://github.com/openvinotoolkit/datumaro/pull/947>, <https://github.com/openvinotoolkit/datumaro/pull/954>, <https://github.com/openvinotoolkit/datumaro/pull/958>, <https://github.com/openvinotoolkit/datumaro/pull/961>, <https://github.com/openvinotoolkit/datumaro/pull/962>, <https://github.com/openvinotoolkit/datumaro/pull/963>, <https://github.com/openvinotoolkit/datumaro/pull/964>, <https://github.com/openvinotoolkit/datumaro/pull/965>, <https://github.com/openvinotoolkit/datumaro/pull/969>)
+- Update merge tutorial for real life usecase
+  (<https://github.com/openvinotoolkit/datumaro/pull/930>)
+- Abbreviate "detect-format" to "detect" for prettifying
+  (<https://github.com/openvinotoolkit/datumaro/pull/951>)
 
 ### Bug fixes
 - Add UserWarning if an invalid media_type comes to image statistics computation
   (<https://github.com/openvinotoolkit/datumaro/pull/891>)
 - Fix negated `is_encrypted`
   (<https://github.com/openvinotoolkit/datumaro/pull/907>)
-- Fix log issue when importing celeba and align celeba dataset
-  (<https://github.com/openvinotoolkit/datumaro/pull/919>)
 - Save extra images of PointCloud when exporting to datumaro format
   (<https://github.com/openvinotoolkit/datumaro/pull/918>)
+- Fix log issue when importing celeba and align celeba dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/919>)
 
 ## 28/03/2023 - Release 1.1.1
 ### Bug fixes
