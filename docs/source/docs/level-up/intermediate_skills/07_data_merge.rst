@@ -13,7 +13,7 @@ to use for training.
 In this tutorial, we provide the simple example for merging two datasets and the detailed description
 for merge operation is given by :ref:`here <Merge>`.
 The more advanced Python example with the label mapping between datasets is given
-`here <../../jupyter_notebook_examples/dataset_handler>`_.
+:doc:`here <../../jupyter_notebook_examples/notebooks/01_merge_multiple_datasets_for_classification>`.
 
 Prepare datasets
 ================
@@ -75,7 +75,7 @@ Merge datasets
       datum merge --merge_policy union --format imagenet --output-dir <path/to/output> <path/to/project1> <path/to/project2> -- --save-media
 
     Similar to merge without projects, we have the merge report named by ``merge_report.json`` inside the output directory.
-    Finally, we import the merged data into a project
+    Finally, we import the merged data (``<path/to/output>``) into a project
 
     .. code-block:: bash
 
