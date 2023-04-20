@@ -48,7 +48,7 @@ The Python example for the usage of validator is described in `here <https://git
 
     .. code-block:: bash
 
-      datum project import --format coco_instances -p <path/to/project> <path/to/cityscapes>
+      datum project import --format coco_instances -p <path/to/project> <path/to/data>
 
     (Optional) When we import a data, the change is automatically commited in the project.
     This can be shown through ``log`` as
