@@ -31,10 +31,10 @@ is read-only (e.g. if it is a project, stage or a cache entry),
 the output directory must be provided.
 
 Usage:
-```
+```console
 datum patch [-h] [-o DST_DIR] [--overwrite] [-p PROJECT_DIR]
-  target patch
-  [-- EXPORT_ARGS]
+            target patch
+            [-- EXPORT_ARGS]
 ```
 
 \<revpath\> - either [a dataset path or a revision path](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).
@@ -56,27 +56,27 @@ Parameters:
   (use `-- -h` for help). Must be specified after the main command arguments.
 
 Examples:
-- Update a VOC-like dataset with COCO-like annotations:
-``` bash
-datum patch --overwrite dataset1/:voc dataset2/:coco -- --save-images
-```
+- Update a VOC-like dataset with COCO-like annotations
+  ```console
+  datum patch --overwrite <path/to/dataset1/>:voc <path/to/dataset2/>:coco -- --save-images
+  ```
 
-- Generate a patched dataset, based on a project:
-``` bash
-datum patch -o patched_proj1/ proj1/ proj2/
-```
+- Generate a patched dataset, based on a project
+  ```console
+  datum patch -o <path/to/patched/project1/> <path/to/project1/> <path/to/project2/>
+  ```
 
-- Update the "source1" source in the current project with a dataset:
-``` bash
-datum patch -p proj/ --overwrite source1 path/to/dataset2:coco
-```
+- Update the "source1" source in the current project with a dataset
+  ```console
+  datum patch --overwrite source1 <path/to/dataset/>:coco
+  ```
 
-- Generate a patched source from a previous revision and a dataset:
-``` bash
-datum patch -o new_src2/ HEAD~2:source-2 path/to/dataset2:yolo
-```
+- Generate a patched source from a previous revision and a dataset
+  ```console
+  datum patch -o new_src2/ HEAD~2:source-2 <path/to/dataset>:yolo
+  ```
 
-- Update a dataset in a custom format, described in a project plugin:
-``` bash
-datum patch -p proj/ --overwrite dataset/:my_format dataset2/:coco
-```
+- Update a dataset in a custom format, described in a project plugin
+  ```console
+  datum patch -p <path/to/project/> --overwrite <path/to/dataset1/>:my_format <path/to/dataset2/>:coco
+  ```
