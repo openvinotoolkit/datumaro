@@ -8,6 +8,8 @@ Through this feature, you could figure out dataset property. You could check the
 
 More detailed descriptions about explorer are given by :ref:`Explore`
 The Python example for the usage of explorer is described in :doc:`here <../../jupyter_notebook_examples/notebooks/07_data_explorer>`.
+
+
 .. tab-set::
 
     .. tab-item:: Python
