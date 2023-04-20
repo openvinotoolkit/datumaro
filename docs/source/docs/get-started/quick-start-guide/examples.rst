@@ -20,7 +20,7 @@ Examples
 
     # export Datumaro dataset in CVAT UI, extract somewhere, go to the project dir
     datum filter -e '/item/annotation[occluded="False"]' --mode items+anno
-    datum export --format tf_detection_api -- --save-images
+    datum project export --format tf_detection_api -- --save-images
 
 - Annotate MS COCO dataset, extract image subset, re-annotate it in
   `CVAT <https://github.com/opencv/cvat>`_, update old dataset:
@@ -29,13 +29,9 @@ Examples
 
     # Download COCO dataset http://cocodataset.org/#download
     # Put images to coco/images/ and annotations to coco/annotations/
-    datum create
-    datum import --format coco <path/to/coco>
-    datum export --filter '/image[images_I_dont_like]' --format cvat
-    # import dataset and images to CVAT, re-annotate
-    # export Datumaro project, extract to 'reannotation-upd'
-    datum project update reannotation-upd
-    datum export --format coco
+    datum project create
+    datum project import --format coco <path/to/coco>
+    datum project export --filter '/image[images_I_dont_like]' --format cvat
 
 - Annotate instance polygons in
   `CVAT <https://github.com/opencv/cvat>`_, export as masks in COCO:
@@ -50,8 +46,8 @@ Examples
 
 .. code-block::
 
-    datum create
-    datum import --format coco <path/to/coco>
+    datum project create
+    datum project import --format coco <path/to/coco>
     # create model results interpretation script
     datum model add -n mymodel openvino \
       --weights model.bin --description model.xml \
@@ -63,8 +59,8 @@ Examples
 
 .. code-block::
 
-    datum create
-    datum import --format voc <path/to/voc/dataset>
+    datum project create
+    datum project import --format voc <path/to/voc/dataset>
 
     # Create a color map file with desired colors:
     #
@@ -74,7 +70,7 @@ Examples
     #
     # Save as mycolormap.txt
 
-    datum export --format voc_segmentation -- --label-map mycolormap.txt
+    datum project export --format voc_segmentation -- --label-map mycolormap.txt
     # add "--apply-colormap=0" to save grayscale (indexed) masks
     # check "--help" option for more info
     # use "datum --loglevel debug" for extra conversion info
