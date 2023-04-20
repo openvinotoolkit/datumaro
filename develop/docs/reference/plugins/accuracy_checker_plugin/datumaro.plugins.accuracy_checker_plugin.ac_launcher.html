@@ -1,0 +1,945 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>AC Launcher module &#8212; Datumaro 1.2.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/plugins/accuracy_checker_plugin/datumaro.plugins.accuracy_checker_plugin.ac_launcher';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="details/details.html" />
+    <link rel="prev" title="Accuracy checker plugin package" href="accuracy_checker_plugin.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../../../index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../../../index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">
+    Section Navigation
+  </p>
+  <div class="bd-toc-item navbar-nav">
+    <p aria-level="2" class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../get-started/introduction.html">Introduction</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../get-started/quick-start-guide/index.html">Quick Start Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../get-started/quick-start-guide/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../get-started/quick-start-guide/usage.html">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../get-started/quick-start-guide/examples.html">Examples</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Level Up</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../level-up/basic_skills/index.html">Basic Skills</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/basic_skills/01_project_manipulation.html">Level 1: Project Manipulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/basic_skills/02_dataset_download.html">Level 2: Dataset download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/basic_skills/03_dataset_import_export.html">Level 3: Data Import and Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/basic_skills/04_detect_data_format.html">Level 4: Detect Data Format from an Unknown Dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../level-up/intermediate_skills/index.html">Intermediate Skills</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/intermediate_skills/05_data_aggregation.html">Level 5: Data Subset Aggregation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/intermediate_skills/06_data_comparison.html">Level 6: Data Comparison with Two Heterogeneous Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/intermediate_skills/07_data_merge.html">Level 7: Merge Two Heterogeneous Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/intermediate_skills/08_data_validate.html">Level 8: Dataset Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/intermediate_skills/09_data_exploration.html">Level 9: Dataset Explorartion from a Query Image/Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/intermediate_skills/10_data_generation.html">Level 10: Data Generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../level-up/advanced_skills/index.html">Advanced Skills</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/advanced_skills/11_project_versioning.html">Level 11: Project Versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../level-up/advanced_skills/12_pseudo_label_generation.html">Level 12: Pseudo Label Generation</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Formats</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../data-formats/supported_formats.html">Supported Data Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data-formats/media_formats.html">Supported Media Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data-formats/datumaro_format.html">Datumaro Format</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Hands-on Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../jupyter_notebook_examples/dataset_handler.html">Dataset Handler</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/01_merge_multiple_datasets_for_classification.html">Merge Multiple Datasets for Classification Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/02_merge_heterogeneous_datasets_for_detection.html">Merge Heterogeneous Datasets for Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/09_encrypt_dataset.html">Encrypt Your Dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/08_e2e_example_yolo_ultralytics_trainer.html">Train Your OpenVINO™ Model Using YoloV8 Trainer For Any Dataset Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/10_noisy_label_detection.html">Noisy label detection from training loss dynamics statistics</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../jupyter_notebook_examples/explore.html">Explore</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/07_data_explorer.html">Data Explorer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/11_validate.html">Validate datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../jupyter_notebook_examples/filter.html">Filter</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/04_filter.html">Filter datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../jupyter_notebook_examples/transform.html">Transform</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/05_transform.html">Transform datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/06_tiling.html">Tiling</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../jupyter_notebook_examples/visualizer.html">Visualizer</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../jupyter_notebook_examples/notebooks/03_visualize.html">Visualization</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Command Line Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../command-reference/overview.html">Overview</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../command-reference/context_free/index.html">Context-free Commands</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/convert.html">Convert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/detect.html">Detect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/diff.html">Diff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/dinfo.html">Info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/download.html">Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/explain.html">Explain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/explorer.html">Explore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/filter.html">Filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/generate.html">Generate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/merge.html">Merge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/patch.html">Patch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/stats.html">Stats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/transform.html">Transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context_free/validate.html">Validate</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../command-reference/context/index.html">Context Commands</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context/checkout.html">Checkout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context/commit.html">Commit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context/create.html">Create</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context/export.html">Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context/log.html">Log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context/models.html">Model (context)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context/projects.html">Project (context)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context/sources.html">Source (context)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context/status.html">Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../command-reference/context/util.html">Util</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../datumaro/datumaro.html">Datumaro module</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../cli/cli.html">CLI</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-13"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../cli/commands/commands.html">Commands</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-14"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.add.html">Add module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.checkout.html">Checkout module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.commit.html">Commit module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.convert.html">Convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.create.html">Create module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.describe_downloads.html">Describe Downloads module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.detect_format.html">Detect Format module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.diff.html">Diff module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.download.html">Download module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.explain.html">Explain module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.explore.html">Explore module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.export.html">Export module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.filter.html">Filter module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.generate.html">Generate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.import_.html">Import_ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.info.html">Info module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.log.html">Log module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.merge.html">Merge module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.patch.html">Patch module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.remove.html">Remove module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.stats.html">Stats module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.status.html">Status module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.transform.html">Transform module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/commands/datumaro.cli.commands.validate.html">Validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../cli/contexts/contexts.html">Contexts</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/contexts/datumaro.cli.contexts.model.html">Model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/contexts/datumaro.cli.contexts.source.html">Source module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/contexts/datumaro.cli.contexts.util.html">Util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/contexts/project/datumaro.cli.contexts.project.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/contexts/project/datumaro.cli.contexts.project.diff.html">Diff module</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../cli/contexts/project/project.html">Project</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/contexts/project/datumaro.cli.contexts.project.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/contexts/project/datumaro.cli.contexts.project.diff.html">Diff module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../cli/util/util.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-17"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/util/datumaro.cli.util.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/util/datumaro.cli.util.errors.html">Errors module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/util/datumaro.cli.util.project.html">Project module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli/supported_plugins.html">Supported Plugins</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../components/components.html">Components</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../components/algorithms/algorithms.html">Algorithms module</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../components/algorithms/datumaro.components.algorithms.rise.html">Rise module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.annotation.html">Annotation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.cli_plugin.html">Cli Plugin module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.config.html">Config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.config_model.html">Config Model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.crypter.html">Crypter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.dataset.html">Dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.dataset_base.html">Dataset Base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.environment.html">Environment module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.errors.html">Errors module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.explorer.html">Explorer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.exporter.html">Exporter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.extractor_tfds.html">Extractor TFDS module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.filter.html">Filter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.format_detection.html">Format Detection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.generator.html">Generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.hl_ops.html">HL Ops module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.importer.html">Importer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.launcher.html">Launcher module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.media.html">Media module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.media_manager.html">Media Manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.merger.html">Merger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.operations.html">Operations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.progress_reporting.html">Progress Reporting module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.project.html">Project module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.shift_analyzer.html">Shift Analyzer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.transformer.html">Transformer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.validator.html">Validator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components/datumaro.components.visualizer.html">Visualizer module</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../plugins.html">Plugins</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-20"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="accuracy_checker_plugin.html">Accuracy checker plugin package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-21"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">AC Launcher module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="details/datumaro.plugins.accuracy_checker_plugin.details.ac.html"><code class="docutils literal notranslate"><span class="pre">GenericAcLauncher</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="details/datumaro.plugins.accuracy_checker_plugin.details.representation.html"><code class="docutils literal notranslate"><span class="pre">import_predictions()</span></code></a></li>
+
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../data_formats/data_formats.html">Data formats</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-22"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/ava/ava.html">AVA package</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-23"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/ava/datumaro.plugins.data_formats.ava.ava.html">AVA module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/ava/datumaro.plugins.data_formats.ava.ava_label_pb2.html">AVA Label pb2 module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/celeba/celeba.html">Celeba package</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-24"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/celeba/datumaro.plugins.data_formats.celeba.align_celeba.html">Align Celeba module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/celeba/datumaro.plugins.data_formats.celeba.celeba.html">Celeba module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/coco/coco.html">COCO package</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-25"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/coco/datumaro.plugins.data_formats.coco.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/coco/datumaro.plugins.data_formats.coco.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/coco/datumaro.plugins.data_formats.coco.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/coco/datumaro.plugins.data_formats.coco.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/cvat/cvat.html">CVAT package</a><input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-26"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/cvat/datumaro.plugins.data_formats.cvat.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/cvat/datumaro.plugins.data_formats.cvat.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/cvat/datumaro.plugins.data_formats.cvat.format.html">Format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/datumaro/datumaro.html">Datumaro package</a><input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-27"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/datumaro/datumaro.plugins.data_formats.datumaro.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/datumaro/datumaro.plugins.data_formats.datumaro.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/datumaro/datumaro.plugins.data_formats.datumaro.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/datumaro/datumaro.plugins.data_formats.datumaro.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/datumaro_binary/datumaro_binary.html">Datumaro Binary package</a><input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-28"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/datumaro_binary/mapper/mapper.html">Mapper package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/datumaro_binary/datumaro.plugins.data_formats.datumaro_binary.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/datumaro_binary/datumaro.plugins.data_formats.datumaro_binary.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/datumaro_binary/datumaro.plugins.data_formats.datumaro_binary.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/datumaro_binary/datumaro.plugins.data_formats.datumaro_binary.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/datumaro_binary/datumaro.plugins.data_formats.datumaro_binary.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/icdar/icdar.html">ICDAR package</a><input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-29"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/icdar/datumaro.plugins.data_formats.icdar.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/icdar/datumaro.plugins.data_formats.icdar.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/icdar/datumaro.plugins.data_formats.icdar.format.html">Format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/kitti/kitti.html">KITTI package</a><input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-30"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/kitti/datumaro.plugins.data_formats.kitti.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/kitti/datumaro.plugins.data_formats.kitti.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/kitti/datumaro.plugins.data_formats.kitti.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/kitti/datumaro.plugins.data_formats.kitti.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/kitti_raw/kitti_raw.html">KITTI raw package</a><input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-31"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.format.html">Format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/mapillary_vistas/mapillary_vistas.html">Mapillary Vistas package</a><input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-32"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/mpii/mpii.html">MPII package</a><input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-33"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mpii/datumaro.plugins.data_formats.mpii.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mpii/datumaro.plugins.data_formats.mpii.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_json.html">MPII Json module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_mat.html">MPII Mat module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/mvtec/mvtec.html">MVTEC package</a><input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-34"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mvtec/datumaro.plugins.data_formats.mvtec.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mvtec/datumaro.plugins.data_formats.mvtec.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mvtec/datumaro.plugins.data_formats.mvtec.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mvtec/datumaro.plugins.data_formats.mvtec.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/mvtec/datumaro.plugins.data_formats.mvtec.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/sly_pointcloud/sly_pointcloud.html">Sly Pointcloud package</a><input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-35"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/sly_pointcloud/datumaro.plugins.data_formats.sly_pointcloud.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/sly_pointcloud/datumaro.plugins.data_formats.sly_pointcloud.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/sly_pointcloud/datumaro.plugins.data_formats.sly_pointcloud.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/sly_pointcloud/datumaro.plugins.data_formats.sly_pointcloud.format.html">Format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/tf_detection_api/tf_detection_api.html">TF Detection API package</a><input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-36"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.format.html">Format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/voc/voc.html">VOC package</a><input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-37"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/voc/datumaro.plugins.data_formats.voc.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/voc/datumaro.plugins.data_formats.voc.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/voc/datumaro.plugins.data_formats.voc.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/voc/datumaro.plugins.data_formats.voc.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/voc/datumaro.plugins.data_formats.voc.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../data_formats/yolo/yolo.html">YOLO package</a><input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-38"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/yolo/datumaro.plugins.data_formats.yolo.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/yolo/datumaro.plugins.data_formats.yolo.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/yolo/datumaro.plugins.data_formats.yolo.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/yolo/datumaro.plugins.data_formats.yolo.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_formats/yolo/datumaro.plugins.data_formats.yolo.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.ade20k2017.html">Ade20k2017 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.ade20k2020.html">Ade20k2020 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.brats.html">Brats module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.brats_numpy.html">Brats Numpy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.camvid.html">Camvid module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.cifar.html">Cifar module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.cityscapes.html">Cityscapes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.common_semantic_segmentation.html">Common Semantic Segmentation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.common_super_resolution.html">Common Super Resolution module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.image_dir.html">Image Dir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.image_zip.html">Image Zip module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.imagenet.html">Imagenet module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.imagenet_txt.html">Imagenet TXT module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.kinetics.html">Kinetics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.labelme.html">Labelme module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.lfw.html">Lfw module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.market1501.html">Market1501 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.mars.html">Mars module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.mnist.html">Mnist module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.mnist_csv.html">Mnist CSV module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.mot.html">Mot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.mots.html">Mots module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.nyu_depth_v2.html">Nyu Depth V2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.open_images.html">Open Images module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.synthia.html">Synthia module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.vgg_face2.html">Vgg Face2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.video.html">Video module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.vott_csv.html">Vott CSV module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.vott_json.html">Vott Json module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_formats/datumaro.plugins.data_formats.widerface.html">Widerface module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../openvino_plugin/openvino_plugin.html">OpenVINO Plugin package</a><input class="toctree-checkbox" id="toctree-checkbox-39" name="toctree-checkbox-39" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-39"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../openvino_plugin/datumaro.plugins.openvino_plugin.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../openvino_plugin/datumaro.plugins.openvino_plugin.launcher.html">Launcher module</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../openvino_plugin/samples/samples.html">Samples package</a><input class="toctree-checkbox" id="toctree-checkbox-40" name="toctree-checkbox-40" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-40"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html">Mobilenet v2 pytorch interp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.ssd_face_detection_interp.html">SSD face detection interp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.ssd_mobilenet_coco_detection_interp.html">SSD mobilenet coco detection interp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.ssd_person_detection_interp.html">SSD person detection interp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.html">SSD person vehicle bike detection interp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.html">SSD vehicle detection interp module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../sampler/sampler.html">sampler package</a><input class="toctree-checkbox" id="toctree-checkbox-41" name="toctree-checkbox-41" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-41"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../sampler/datumaro.plugins.sampler.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sampler/datumaro.plugins.sampler.random_sampler.html">Random Sampler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sampler/datumaro.plugins.sampler.relevancy_sampler.html">Relevancy Sampler module</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../sampler/algorithm/algorithm.html">Algorithm package</a><input class="toctree-checkbox" id="toctree-checkbox-42" name="toctree-checkbox-42" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-42"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../sampler/algorithm/datumaro.plugins.sampler.algorithm.html">Algorithm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sampler/algorithm/datumaro.plugins.sampler.algorithm.entropy.html">Entropy module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../synthetic_data/synthetic_data.html">synthetic_data package</a><input class="toctree-checkbox" id="toctree-checkbox-43" name="toctree-checkbox-43" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-43"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../synthetic_data/datumaro.plugins.synthetic_data.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../synthetic_data/datumaro.plugins.synthetic_data.image_generator.html">Image Generator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../synthetic_data/datumaro.plugins.synthetic_data.utils.html">Utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../tiling/tiling.html">Tiling package</a><input class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-44"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tiling/datumaro.plugins.tiling.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tiling/datumaro.plugins.tiling.merge_tile.html">Merge Tile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tiling/datumaro.plugins.tiling.tile.html">Tile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tiling/datumaro.plugins.tiling.util.html">Util module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/datumaro.plugins.html">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/datumaro.plugins.explorer.html">Explorer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/datumaro.plugins.ndr.html">Ndr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/datumaro.plugins.shift_analyzer.html">Shift Analyzer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/datumaro.plugins.splitter.html">Splitter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/datumaro.plugins.transforms.html">Transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/datumaro.plugins.validators.html">Validators module</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../util/util/util.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-45" name="toctree-checkbox-45" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-45"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.html">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.annotation_util.html">Annotation Util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.attrs_util.html">Attrs Util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.definitions.html">Definitions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.image.html">Image module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.image_cache.html">Image Cache module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.log_utils.html">Log Utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.mask_tools.html">Mask Tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.meta_file_util.html">Meta File Util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.os_util.html">OS Util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.pickle_util.html">Pickle Util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.samples.html">Samples module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.scope.html">Scope module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.telemetry_stub.html">Telemetry Stub module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.telemetry_utils.html">Telemetry Utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../util/util/datumaro.util.tf_util.html">TF Util module</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../explanation/formats/index.html">Formats</a><input class="toctree-checkbox" id="toctree-checkbox-46" name="toctree-checkbox-46" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-46"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/ade20k2017.html">ADE20k (v2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/ade20k2020.html">ADE20k (v2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/align_celeba.html">Align CelebA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/arrow.html">Arrow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/ava_action.html">AVA Action</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/brats.html">BraTS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/brats_numpy.html">BraTS Numpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/celeba.html">CelebA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/cifar.html">CIFAR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/cityscapes.html">Cityscapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/coco.html">COCO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/common_semantic_segmentation.html">Common Semantic Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/common_super_resolution.html">Common Super Resolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/datumaro_binary.html">DatumaroBinary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/datumaro.html">Datumaro</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/icdar.html">ICDAR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/image_zip.html">Image zip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/imagenet.html">ImageNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/kinetics.html">Kinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/kitti.html">KITTI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/kitti_raw.html">Velodyne Points / KITTI Raw 3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/lfw.html">LFW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/mapillary_vistas.html">Mapillary Vistas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/market1501.html">Market-1501</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/mars.html">MARS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/mnist.html">MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/mpii_json.html">MPII Human Pose Dataset (JSON)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/mpii.html">MPII Human Pose Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/mvtec.html">MVTec AD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/nyu_depth_v2.html">NYU Depth Dataset V2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/open_images.html">Open Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/pascal_voc.html">Pascal VOC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/sly_pointcloud.html">Supervisely Point Cloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/synthia.html">SYNTHIA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/vgg_face2.html">Vgg Face2 CSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/video.html">Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/vott_csv.html">VoTT CSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/vott_json.html">VoTT JSON</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/wider_face.html">WIDER Face</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/yolo.html">YOLO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/formats/yolo_ultralytics.html">YOLO-Ultralytics</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../explanation/plugins/index.html">Plugins</a><input class="toctree-checkbox" id="toctree-checkbox-47" name="toctree-checkbox-47" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-47"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanation/plugins/openvino_plugin.html">OpenVINO™ Inference Interpreter</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../user-manual/how_to_use_datumaro.html">How to use Datumaro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-manual/model_preparation.html">Model Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-manual/extending.html">Extending</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-manual/how_to_control_tm_data_collection.html">How to control telemetry data collection</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Release Notes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../release_notes.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-48" name="toctree-checkbox-48" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-48"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+</ul>
+</li>
+</ul>
+
+  </div>
+</nav>
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <section id="module-datumaro.plugins.accuracy_checker_plugin.ac_launcher">
+<span id="ac-launcher-module"></span><h1>AC Launcher module<a class="headerlink" href="#module-datumaro.plugins.accuracy_checker_plugin.ac_launcher" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.accuracy_checker_plugin.ac_launcher.</span></span><span class="sig-name descname"><span class="pre">AcLauncher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/datumaro/plugins/accuracy_checker_plugin/ac_launcher.html#AcLauncher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../components/components/datumaro.components.launcher.html#datumaro.components.launcher.Launcher" title="datumaro.components.launcher.Launcher"><code class="xref py py-class docutils literal notranslate"><span class="pre">Launcher</span></code></a>, <a class="reference internal" href="../../components/components/datumaro.components.cli_plugin.html#datumaro.components.cli_plugin.CliPlugin" title="datumaro.components.cli_plugin.CliPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">CliPlugin</span></code></a></p>
+<p>Generic model launcher with Accuracy Checker backend.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.build_cmdline_parser">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_cmdline_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/datumaro/plugins/accuracy_checker_plugin/ac_launcher.html#AcLauncher.build_cmdline_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.build_cmdline_parser" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.launch">
+<span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/datumaro/plugins/accuracy_checker_plugin/ac_launcher.html#AcLauncher.launch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.launch" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/datumaro/plugins/accuracy_checker_plugin/ac_launcher.html#AcLauncher.categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.categories" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="accuracy_checker_plugin.html" title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">Accuracy checker plugin package</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="details/details.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">&lt;no title&gt;</p>
+  </div>
+  <i class="fa-solid fa-angle-right"></i>
+  </a>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     AcLauncher
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.build_cmdline_parser">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AcLauncher.build_cmdline_parser()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.launch">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AcLauncher.launch()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AcLauncher.categories()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../../../../_sources/docs/reference/plugins/accuracy_checker_plugin/datumaro.plugins.accuracy_checker_plugin.ac_launcher.rst.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>

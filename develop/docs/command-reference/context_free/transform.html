@@ -1,0 +1,1956 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Transform &#8212; Datumaro 1.2.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/command-reference/context_free/transform';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Validate" href="validate.html" />
+    <link rel="prev" title="Stats" href="stats.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../../index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../../index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">
+    Section Navigation
+  </p>
+  <div class="bd-toc-item navbar-nav">
+    <p aria-level="2" class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../get-started/introduction.html">Introduction</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../get-started/quick-start-guide/index.html">Quick Start Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../get-started/quick-start-guide/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../get-started/quick-start-guide/usage.html">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../get-started/quick-start-guide/examples.html">Examples</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Level Up</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../level-up/basic_skills/index.html">Basic Skills</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/basic_skills/01_project_manipulation.html">Level 1: Project Manipulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/basic_skills/02_dataset_download.html">Level 2: Dataset download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/basic_skills/03_dataset_import_export.html">Level 3: Data Import and Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/basic_skills/04_detect_data_format.html">Level 4: Detect Data Format from an Unknown Dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../level-up/intermediate_skills/index.html">Intermediate Skills</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/intermediate_skills/05_data_aggregation.html">Level 5: Data Subset Aggregation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/intermediate_skills/06_data_comparison.html">Level 6: Data Comparison with Two Heterogeneous Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/intermediate_skills/07_data_merge.html">Level 7: Merge Two Heterogeneous Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/intermediate_skills/08_data_validate.html">Level 8: Dataset Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/intermediate_skills/09_data_exploration.html">Level 9: Dataset Explorartion from a Query Image/Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/intermediate_skills/10_data_generation.html">Level 10: Data Generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../level-up/advanced_skills/index.html">Advanced Skills</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/advanced_skills/11_project_versioning.html">Level 11: Project Versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../level-up/advanced_skills/12_pseudo_label_generation.html">Level 12: Pseudo Label Generation</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Data Formats</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../data-formats/supported_formats.html">Supported Data Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data-formats/media_formats.html">Supported Media Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data-formats/datumaro_format.html">Datumaro Format</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Hands-on Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/dataset_handler.html">Dataset Handler</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/01_merge_multiple_datasets_for_classification.html">Merge Multiple Datasets for Classification Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/02_merge_heterogeneous_datasets_for_detection.html">Merge Heterogeneous Datasets for Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/09_encrypt_dataset.html">Encrypt Your Dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/08_e2e_example_yolo_ultralytics_trainer.html">Train Your OpenVINO™ Model Using YoloV8 Trainer For Any Dataset Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/10_noisy_label_detection.html">Noisy label detection from training loss dynamics statistics</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/explore.html">Explore</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/07_data_explorer.html">Data Explorer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/11_validate.html">Validate datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/filter.html">Filter</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/04_filter.html">Filter datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/transform.html">Transform</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tiling</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/visualizer.html">Visualizer</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/03_visualize.html">Visualization</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Command Line Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Context-free Commands</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="convert.html">Convert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detect.html">Detect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diff.html">Diff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dinfo.html">Info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="download.html">Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explain.html">Explain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explorer.html">Explore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filter.html">Filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html">Generate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge.html">Merge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patch.html">Patch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stats.html">Stats</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validate.html">Validate</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../context/index.html">Context Commands</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../context/checkout.html">Checkout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../context/commit.html">Commit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../context/create.html">Create</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../context/export.html">Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../context/log.html">Log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../context/models.html">Model (context)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../context/projects.html">Project (context)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../context/sources.html">Source (context)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../context/status.html">Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../context/util.html">Util</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../reference/datumaro/datumaro.html">Datumaro module</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/cli/cli.html">CLI</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-13"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/cli/commands/commands.html">Commands</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-14"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.add.html">Add module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.checkout.html">Checkout module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.commit.html">Commit module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.convert.html">Convert module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.create.html">Create module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.describe_downloads.html">Describe Downloads module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.detect_format.html">Detect Format module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.diff.html">Diff module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.download.html">Download module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.explain.html">Explain module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.explore.html">Explore module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.export.html">Export module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.filter.html">Filter module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.generate.html">Generate module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.import_.html">Import_ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.info.html">Info module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.log.html">Log module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.merge.html">Merge module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.patch.html">Patch module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.remove.html">Remove module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.stats.html">Stats module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.status.html">Status module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.transform.html">Transform module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/commands/datumaro.cli.commands.validate.html">Validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/cli/contexts/contexts.html">Contexts</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/contexts/datumaro.cli.contexts.model.html">Model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/contexts/datumaro.cli.contexts.source.html">Source module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/contexts/datumaro.cli.contexts.util.html">Util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/contexts/project/datumaro.cli.contexts.project.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/contexts/project/datumaro.cli.contexts.project.diff.html">Diff module</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/cli/contexts/project/project.html">Project</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/cli/contexts/project/datumaro.cli.contexts.project.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/cli/contexts/project/datumaro.cli.contexts.project.diff.html">Diff module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/cli/util/util.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-17"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/util/datumaro.cli.util.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/util/datumaro.cli.util.errors.html">Errors module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/cli/util/datumaro.cli.util.project.html">Project module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/cli/supported_plugins.html">Supported Plugins</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/components/components.html">Components</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/components/algorithms/algorithms.html">Algorithms module</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/components/algorithms/datumaro.components.algorithms.rise.html">Rise module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.annotation.html">Annotation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.cli_plugin.html">Cli Plugin module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.config.html">Config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.config_model.html">Config Model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.crypter.html">Crypter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.dataset.html">Dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.dataset_base.html">Dataset Base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.environment.html">Environment module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.errors.html">Errors module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.explorer.html">Explorer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.exporter.html">Exporter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.extractor_tfds.html">Extractor TFDS module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.filter.html">Filter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.format_detection.html">Format Detection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.generator.html">Generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.hl_ops.html">HL Ops module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.importer.html">Importer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.launcher.html">Launcher module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.media.html">Media module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.media_manager.html">Media Manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.merger.html">Merger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.operations.html">Operations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.progress_reporting.html">Progress Reporting module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.project.html">Project module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.shift_analyzer.html">Shift Analyzer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.transformer.html">Transformer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.validator.html">Validator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/components/components/datumaro.components.visualizer.html">Visualizer module</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/plugins/plugins.html">Plugins</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-20"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/plugins/accuracy_checker_plugin/accuracy_checker_plugin.html">Accuracy checker plugin package</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-21"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/accuracy_checker_plugin/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html">AC Launcher module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/accuracy_checker_plugin/details/datumaro.plugins.accuracy_checker_plugin.details.ac.html"><code class="docutils literal notranslate"><span class="pre">GenericAcLauncher</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/accuracy_checker_plugin/details/datumaro.plugins.accuracy_checker_plugin.details.representation.html"><code class="docutils literal notranslate"><span class="pre">import_predictions()</span></code></a></li>
+
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/data_formats.html">Data formats</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-22"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/ava/ava.html">AVA package</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-23"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/ava/datumaro.plugins.data_formats.ava.ava.html">AVA module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/ava/datumaro.plugins.data_formats.ava.ava_label_pb2.html">AVA Label pb2 module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/celeba/celeba.html">Celeba package</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-24"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/celeba/datumaro.plugins.data_formats.celeba.align_celeba.html">Align Celeba module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/celeba/datumaro.plugins.data_formats.celeba.celeba.html">Celeba module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/coco/coco.html">COCO package</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-25"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/coco/datumaro.plugins.data_formats.coco.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/coco/datumaro.plugins.data_formats.coco.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/coco/datumaro.plugins.data_formats.coco.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/coco/datumaro.plugins.data_formats.coco.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/cvat/cvat.html">CVAT package</a><input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-26"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/cvat/datumaro.plugins.data_formats.cvat.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/cvat/datumaro.plugins.data_formats.cvat.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/cvat/datumaro.plugins.data_formats.cvat.format.html">Format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro/datumaro.html">Datumaro package</a><input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-27"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro/datumaro.plugins.data_formats.datumaro.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro/datumaro.plugins.data_formats.datumaro.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro/datumaro.plugins.data_formats.datumaro.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro/datumaro.plugins.data_formats.datumaro.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro_binary/datumaro_binary.html">Datumaro Binary package</a><input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-28"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro_binary/mapper/mapper.html">Mapper package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro_binary/datumaro.plugins.data_formats.datumaro_binary.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro_binary/datumaro.plugins.data_formats.datumaro_binary.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro_binary/datumaro.plugins.data_formats.datumaro_binary.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro_binary/datumaro.plugins.data_formats.datumaro_binary.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro_binary/datumaro.plugins.data_formats.datumaro_binary.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/icdar/icdar.html">ICDAR package</a><input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-29"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/icdar/datumaro.plugins.data_formats.icdar.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/icdar/datumaro.plugins.data_formats.icdar.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/icdar/datumaro.plugins.data_formats.icdar.format.html">Format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/kitti/kitti.html">KITTI package</a><input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-30"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/kitti/datumaro.plugins.data_formats.kitti.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/kitti/datumaro.plugins.data_formats.kitti.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/kitti/datumaro.plugins.data_formats.kitti.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/kitti/datumaro.plugins.data_formats.kitti.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/kitti_raw/kitti_raw.html">KITTI raw package</a><input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-31"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.format.html">Format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/mapillary_vistas/mapillary_vistas.html">Mapillary Vistas package</a><input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-32"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/mpii/mpii.html">MPII package</a><input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-33"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_json.html">MPII Json module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_mat.html">MPII Mat module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/mvtec/mvtec.html">MVTEC package</a><input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-34"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mvtec/datumaro.plugins.data_formats.mvtec.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mvtec/datumaro.plugins.data_formats.mvtec.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mvtec/datumaro.plugins.data_formats.mvtec.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mvtec/datumaro.plugins.data_formats.mvtec.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/mvtec/datumaro.plugins.data_formats.mvtec.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/sly_pointcloud/sly_pointcloud.html">Sly Pointcloud package</a><input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-35"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/sly_pointcloud/datumaro.plugins.data_formats.sly_pointcloud.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/sly_pointcloud/datumaro.plugins.data_formats.sly_pointcloud.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/sly_pointcloud/datumaro.plugins.data_formats.sly_pointcloud.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/sly_pointcloud/datumaro.plugins.data_formats.sly_pointcloud.format.html">Format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/tf_detection_api/tf_detection_api.html">TF Detection API package</a><input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-36"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/tf_detection_api/datumaro.plugins.data_formats.tf_detection_api.format.html">Format module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/voc/voc.html">VOC package</a><input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-37"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/voc/datumaro.plugins.data_formats.voc.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/data_formats/yolo/yolo.html">YOLO package</a><input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-38"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.html">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.base.html">Base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.exporter.html">Exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.format.html">Format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.importer.html">Importer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.ade20k2017.html">Ade20k2017 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.ade20k2020.html">Ade20k2020 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.brats.html">Brats module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.brats_numpy.html">Brats Numpy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.camvid.html">Camvid module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.cifar.html">Cifar module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.cityscapes.html">Cityscapes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.common_semantic_segmentation.html">Common Semantic Segmentation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.common_super_resolution.html">Common Super Resolution module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.image_dir.html">Image Dir module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.image_zip.html">Image Zip module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.imagenet.html">Imagenet module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.imagenet_txt.html">Imagenet TXT module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.kinetics.html">Kinetics module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.labelme.html">Labelme module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.lfw.html">Lfw module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.market1501.html">Market1501 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.mars.html">Mars module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.mnist.html">Mnist module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.mnist_csv.html">Mnist CSV module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.mot.html">Mot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.mots.html">Mots module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.nyu_depth_v2.html">Nyu Depth V2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.open_images.html">Open Images module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.synthia.html">Synthia module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.vgg_face2.html">Vgg Face2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.video.html">Video module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.vott_csv.html">Vott CSV module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.vott_json.html">Vott Json module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/data_formats/datumaro.plugins.data_formats.widerface.html">Widerface module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/plugins/openvino_plugin/openvino_plugin.html">OpenVINO Plugin package</a><input class="toctree-checkbox" id="toctree-checkbox-39" name="toctree-checkbox-39" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-39"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/openvino_plugin/datumaro.plugins.openvino_plugin.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/openvino_plugin/datumaro.plugins.openvino_plugin.launcher.html">Launcher module</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/openvino_plugin/samples/samples.html">Samples package</a><input class="toctree-checkbox" id="toctree-checkbox-40" name="toctree-checkbox-40" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-40"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html">Mobilenet v2 pytorch interp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.ssd_face_detection_interp.html">SSD face detection interp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.ssd_mobilenet_coco_detection_interp.html">SSD mobilenet coco detection interp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.ssd_person_detection_interp.html">SSD person detection interp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.html">SSD person vehicle bike detection interp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/openvino_plugin/samples/datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.html">SSD vehicle detection interp module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/plugins/sampler/sampler.html">sampler package</a><input class="toctree-checkbox" id="toctree-checkbox-41" name="toctree-checkbox-41" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-41"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/sampler/datumaro.plugins.sampler.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/sampler/datumaro.plugins.sampler.random_sampler.html">Random Sampler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/sampler/datumaro.plugins.sampler.relevancy_sampler.html">Relevancy Sampler module</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../reference/plugins/sampler/algorithm/algorithm.html">Algorithm package</a><input class="toctree-checkbox" id="toctree-checkbox-42" name="toctree-checkbox-42" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-42"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/sampler/algorithm/datumaro.plugins.sampler.algorithm.html">Algorithm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/plugins/sampler/algorithm/datumaro.plugins.sampler.algorithm.entropy.html">Entropy module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/plugins/synthetic_data/synthetic_data.html">synthetic_data package</a><input class="toctree-checkbox" id="toctree-checkbox-43" name="toctree-checkbox-43" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-43"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/synthetic_data/datumaro.plugins.synthetic_data.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/synthetic_data/datumaro.plugins.synthetic_data.image_generator.html">Image Generator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/synthetic_data/datumaro.plugins.synthetic_data.utils.html">Utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/plugins/tiling/tiling.html">Tiling package</a><input class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-44"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/tiling/datumaro.plugins.tiling.html">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/tiling/datumaro.plugins.tiling.merge_tile.html">Merge Tile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/tiling/datumaro.plugins.tiling.tile.html">Tile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/plugins/tiling/datumaro.plugins.tiling.util.html">Util module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/plugins/plugins/datumaro.plugins.html">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/plugins/plugins/datumaro.plugins.explorer.html">Explorer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/plugins/plugins/datumaro.plugins.ndr.html">Ndr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/plugins/plugins/datumaro.plugins.shift_analyzer.html">Shift Analyzer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/plugins/plugins/datumaro.plugins.splitter.html">Splitter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/plugins/plugins/datumaro.plugins.transforms.html">Transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/plugins/plugins/datumaro.plugins.validators.html">Validators module</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/util/util/util.html">Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-45" name="toctree-checkbox-45" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-45"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.html">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.annotation_util.html">Annotation Util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.attrs_util.html">Attrs Util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.definitions.html">Definitions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.image.html">Image module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.image_cache.html">Image Cache module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.log_utils.html">Log Utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.mask_tools.html">Mask Tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.meta_file_util.html">Meta File Util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.os_util.html">OS Util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.pickle_util.html">Pickle Util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.samples.html">Samples module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.scope.html">Scope module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.telemetry_stub.html">Telemetry Stub module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.telemetry_utils.html">Telemetry Utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/util/util/datumaro.util.tf_util.html">TF Util module</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../explanation/architecture.html">Architecture</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/formats/index.html">Formats</a><input class="toctree-checkbox" id="toctree-checkbox-46" name="toctree-checkbox-46" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-46"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/ade20k2017.html">ADE20k (v2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/ade20k2020.html">ADE20k (v2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/align_celeba.html">Align CelebA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/arrow.html">Arrow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/ava_action.html">AVA Action</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/brats.html">BraTS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/brats_numpy.html">BraTS Numpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/celeba.html">CelebA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/cifar.html">CIFAR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/cityscapes.html">Cityscapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/coco.html">COCO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/common_semantic_segmentation.html">Common Semantic Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/common_super_resolution.html">Common Super Resolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/datumaro_binary.html">DatumaroBinary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/datumaro.html">Datumaro</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/icdar.html">ICDAR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/image_zip.html">Image zip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/imagenet.html">ImageNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/kinetics.html">Kinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/kitti.html">KITTI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/kitti_raw.html">Velodyne Points / KITTI Raw 3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/lfw.html">LFW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/mapillary_vistas.html">Mapillary Vistas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/market1501.html">Market-1501</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/mars.html">MARS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/mnist.html">MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/mpii_json.html">MPII Human Pose Dataset (JSON)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/mpii.html">MPII Human Pose Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/mvtec.html">MVTec AD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/nyu_depth_v2.html">NYU Depth Dataset V2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/open_images.html">Open Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/pascal_voc.html">Pascal VOC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/sly_pointcloud.html">Supervisely Point Cloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/synthia.html">SYNTHIA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/vgg_face2.html">Vgg Face2 CSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/video.html">Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/vott_csv.html">VoTT CSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/vott_json.html">VoTT JSON</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/wider_face.html">WIDER Face</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/yolo.html">YOLO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/formats/yolo_ultralytics.html">YOLO-Ultralytics</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../explanation/plugins/index.html">Plugins</a><input class="toctree-checkbox" id="toctree-checkbox-47" name="toctree-checkbox-47" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-47"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/plugins/openvino_plugin.html">OpenVINO™ Inference Interpreter</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../user-manual/how_to_use_datumaro.html">How to use Datumaro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-manual/model_preparation.html">Model Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-manual/extending.html">Extending</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-manual/how_to_control_tm_data_collection.html">How to control telemetry data collection</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Release Notes</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../release_notes.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-48" name="toctree-checkbox-48" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-48"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+</ul>
+</li>
+</ul>
+
+  </div>
+</nav>
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <section id="transform">
+<h1>Transform<a class="headerlink" href="#transform" title="Permalink to this heading">#</a></h1>
+<section id="transform-dataset">
+<h2>Transform Dataset<a class="headerlink" href="#transform-dataset" title="Permalink to this heading">#</a></h2>
+<p>Often datasets need to be modified during preparation for model training and
+experimenting. In trivial cases it can be done manually - e.g. image renaming
+or label renaming. However, in more complex cases even simple modifications
+can require too much efforts, distracting the user from the real work.
+Datumaro provides the <code class="docutils literal notranslate"><span class="pre">datum</span> <span class="pre">transform</span></code> command to help in such cases.</p>
+<p>This command allows to modify dataset images or annotations all at once.</p>
+<blockquote>
+<div><p>This command is designed for batch dataset processing, so if you only
+need to modify few elements of a dataset, you might want to use
+other approaches for better performance. A possible solution can be
+a simple script, which uses <a class="reference internal" href="../../explanation/architecture.html"><span class="doc std std-doc">Datumaro API</span></a>.</p>
+</div></blockquote>
+<p>The command can be applied to a dataset or a project build target,
+a stage or the combined <code class="docutils literal notranslate"><span class="pre">project</span></code> target, in which case all the project
+targets will be affected. A build tree stage will be recorded
+if <code class="docutils literal notranslate"><span class="pre">--stage</span></code> is enabled, and the resulting dataset(-s) will be
+saved if <code class="docutils literal notranslate"><span class="pre">--apply</span></code> is enabled.</p>
+<p>By default, datasets are updated in-place. The <code class="docutils literal notranslate"><span class="pre">-o/--output-dir</span></code>
+option can be used to specify another output directory. When
+updating in-place, use the <code class="docutils literal notranslate"><span class="pre">--overwrite</span></code> parameter (in-place
+updates fail by default to prevent data loss), unless a project
+target is modified.</p>
+<p>The current project (<code class="docutils literal notranslate"><span class="pre">-p/--project</span></code>) is also used as a context for
+plugins, so it can be useful for dataset paths having custom formats.
+When not specified, the current project’s working tree is used.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform [-h] -t TRANSFORM [-o DST_DIR] [--overwrite]</span>
+<span class="go">  [-p PROJECT_DIR] [--stage STAGE] [--apply APPLY] [target] [-- EXTRA_ARGS]</span>
+</pre></div>
+</div>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;target&gt;</span></code> (string) - Target
+<a class="reference internal" href="../../user-manual/how_to_use_datumaro.html#dataset-path-concepts"><span class="std std-ref">dataset revpath</span></a>.
+By default, transforms all targets of the current project.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t,</span> <span class="pre">--transform</span></code> (string) - Transform method name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--stage</span></code> (bool) - Include this action as a project build step.
+If true, this operation will be saved in the project
+build tree, allowing to reproduce the resulting dataset later.
+Applicable only to main project targets (i.e. data sources
+and the <code class="docutils literal notranslate"><span class="pre">project</span></code> target, but not intermediate stages). Enabled by default.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--apply</span></code> (bool) - Run this command immediately. If disabled, only the
+build tree stage will be written. Enabled by default.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--output-dir</span></code> (string) - Output directory. Can be omitted for
+main project targets (i.e. data sources and the <code class="docutils literal notranslate"><span class="pre">project</span></code> target, but not
+intermediate stages) and dataset targets. If not specified, the results
+will be saved inplace.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--overwrite</span></code> - Allows to overwrite existing files in the output directory,
+when it is specified and is not empty.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-p,</span> <span class="pre">--project</span></code> (string) - Directory of the project to operate on
+(default: current directory).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code> - Print the help message and exit.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;extra</span> <span class="pre">args&gt;</span></code> - The list of extra transformation parameters. Should be
+passed after the <code class="docutils literal notranslate"><span class="pre">--</span></code> separator after the main command arguments. See
+transform descriptions for info about extra parameters. Use the <code class="docutils literal notranslate"><span class="pre">--help</span></code>
+option to print parameter info.</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Split a VOC-like dataset randomly</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t random_split --overwrite path/to/dataset:voc</span>
+</pre></div>
+</div>
+</li>
+<li><p>Rename images in a project data source by a regex from <code class="docutils literal notranslate"><span class="pre">frame_XXX</span></code> to <code class="docutils literal notranslate"><span class="pre">XXX</span></code></p>
+<p><strong>NOTE:</strong> Please use double quotes (<code class="docutils literal notranslate"><span class="pre">&quot;</span></code>) for regex representation. Check <a class="reference external" href="https://stackoverflow.com/questions/51080215/differences-between-single-and-double-quotes-in-cmd">Reason to use double quotes</a>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum project create &lt;...&gt;</span>
+<span class="go">datum project import &lt;...&gt; -n source-1</span>
+<span class="go">datum transform -t rename source-1 -- -e &quot;|^frame_||&quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<section id="built-in-transforms">
+<h3>Built-in transforms<a class="headerlink" href="#built-in-transforms" title="Permalink to this heading">#</a></h3>
+<p>Basic dataset item manipulations:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#rename"><code class="docutils literal notranslate"><span class="pre">rename</span></code></a> - Renames dataset items by regular expression</p></li>
+<li><p><a class="reference internal" href="#id-from-image-name"><code class="docutils literal notranslate"><span class="pre">id_from_image_name</span></code></a> - Renames dataset
+items to their image filenames</p></li>
+<li><p><a class="reference internal" href="#reindex"><code class="docutils literal notranslate"><span class="pre">reindex</span></code></a> - Renames dataset items with numbers</p></li>
+<li><p><a class="reference internal" href="#sort"><code class="docutils literal notranslate"><span class="pre">sort</span></code></a> - Sort dataset items</p></li>
+<li><p><a class="reference internal" href="#ndr"><code class="docutils literal notranslate"><span class="pre">ndr</span></code></a> - Removes duplicated images from dataset</p></li>
+<li><p><a class="reference internal" href="#relevancy-sampler"><code class="docutils literal notranslate"><span class="pre">relevancy_sampler</span></code></a> - Leaves only the most
+important images
+(requires model inference results)</p></li>
+<li><p><a class="reference internal" href="#random-sampler"><code class="docutils literal notranslate"><span class="pre">random_sampler</span></code></a> - Leaves no more than k items
+from the dataset randomly</p></li>
+<li><p><a class="reference internal" href="#random-label-sampler"><code class="docutils literal notranslate"><span class="pre">label_random_sampler</span></code></a> - Leaves at least
+k images with annotations per class</p></li>
+<li><p><a class="reference internal" href="#resize"><code class="docutils literal notranslate"><span class="pre">resize</span></code></a> - Resizes images and annotations in the dataset</p></li>
+<li><p><a class="reference internal" href="#remove-images"><code class="docutils literal notranslate"><span class="pre">remove_images</span></code></a> - Removes specific images</p></li>
+<li><p><a class="reference internal" href="#remove-annotations"><code class="docutils literal notranslate"><span class="pre">remove_annotations</span></code></a> - Removes annotations</p></li>
+<li><p><a class="reference internal" href="#remove-attributes"><code class="docutils literal notranslate"><span class="pre">remove_attributes</span></code></a> - Removes attributes</p></li>
+</ul>
+<p>Subset manipulations:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#random-split"><code class="docutils literal notranslate"><span class="pre">random_split</span></code></a> - Splits dataset into subsets
+randomly</p></li>
+<li><p><a class="reference internal" href="#split"><code class="docutils literal notranslate"><span class="pre">split</span></code></a> - Splits dataset into subsets for classification,
+detection, segmentation or re-identification</p></li>
+<li><p><a class="reference internal" href="#map-subsets"><code class="docutils literal notranslate"><span class="pre">map_subsets</span></code></a> - Renames and removes subsets</p></li>
+</ul>
+<p>Annotation manipulations:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#remap-labels"><code class="docutils literal notranslate"><span class="pre">remap_labels</span></code></a> - Renames, adds or removes
+labels in dataset</p></li>
+<li><p><a class="reference internal" href="#project-labels"><code class="docutils literal notranslate"><span class="pre">project_labels</span></code></a> - Sets dataset labels to
+the requested sequence</p></li>
+<li><p><a class="reference internal" href="#shapes-to-boxes"><code class="docutils literal notranslate"><span class="pre">shapes_to_boxes</span></code></a> - Replaces spatial
+annotations with bounding boxes</p></li>
+<li><p><a class="reference internal" href="#boxes-to-masks"><code class="docutils literal notranslate"><span class="pre">boxes_to_masks</span></code></a> - Converts bounding boxes
+to instance masks</p></li>
+<li><p><a class="reference internal" href="#polygons-to-masks"><code class="docutils literal notranslate"><span class="pre">polygons_to_masks</span></code></a> - Converts polygons
+to instance masks</p></li>
+<li><p><a class="reference internal" href="#masks-to-polygons"><code class="docutils literal notranslate"><span class="pre">masks_to_polygons</span></code></a> - Converts instance
+masks to polygons</p></li>
+<li><p><a class="reference internal" href="#anns-to-labels"><code class="docutils literal notranslate"><span class="pre">anns_to_labels</span></code></a> - Replaces annotations having
+labels with label annotations</p></li>
+<li><p><a class="reference internal" href="#merge-instance-segments"><code class="docutils literal notranslate"><span class="pre">merge_instance_segments</span></code></a> - Merges
+grouped spatial annotations into a mask</p></li>
+<li><p><a class="reference internal" href="#crop-covered-segments"><code class="docutils literal notranslate"><span class="pre">crop_covered_segments</span></code></a> - Removes
+occluded segments of covered masks</p></li>
+<li><p><a class="reference internal" href="#bbox-value-decrement"><code class="docutils literal notranslate"><span class="pre">bbox_value_decrement</span></code></a> - Subtracts
+1 from bbox coordinates</p></li>
+</ul>
+<section id="rename">
+<h4><code class="docutils literal notranslate"><span class="pre">rename</span></code><a class="headerlink" href="#rename" title="Permalink to this heading">#</a></h4>
+<p>Renames items in the dataset. Supports regular expressions.
+The first character in the expression is a delimiter for
+the pattern and replacement parts. Replacement part can also
+contain <code class="docutils literal notranslate"><span class="pre">str.format</span></code> replacement fields with the <code class="docutils literal notranslate"><span class="pre">item</span></code>
+(of type <code class="docutils literal notranslate"><span class="pre">DatasetItem</span></code>) object available.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">rename [-h] [-e REGEX]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-e</span></code>, <code class="docutils literal notranslate"><span class="pre">--regex</span></code> (string) - Regex for renaming in the form
+<code class="docutils literal notranslate"><span class="pre">&lt;sep&gt;&lt;search&gt;&lt;sep&gt;&lt;replacement&gt;&lt;sep&gt;</span></code></p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Replace ‘pattern’ with ‘replacement’</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t rename -- -e &quot;|pattern|replacement|&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Remove the <code class="docutils literal notranslate"><span class="pre">frame_</span></code> prefix from item ids</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t rename -- -e &quot;|^frame_|\1|&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Collect images from subdirectories into the base image directory using regex</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t rename -- -e &quot;|^((.+[/\\])*)?(.+)$|\2|&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add subset prefix to images</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t rename -- -e &quot;|(.*)|{item.subset}_\1|&quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="id-from-image-name">
+<h4><code class="docutils literal notranslate"><span class="pre">id_from_image_name</span></code><a class="headerlink" href="#id-from-image-name" title="Permalink to this heading">#</a></h4>
+<p>Renames items in the dataset using image file name (without extension).</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">id_from_image_name [-h]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+</ul>
+</section>
+<section id="reindex">
+<h4><code class="docutils literal notranslate"><span class="pre">reindex</span></code><a class="headerlink" href="#reindex" title="Permalink to this heading">#</a></h4>
+<p>Replaces dataset item IDs with sequential indices.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">reindex [-h] [-s START]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code>, <code class="docutils literal notranslate"><span class="pre">--start</span></code> (int) - Start value for item ids (default: 1)</p></li>
+</ul>
+</section>
+<section id="sort">
+<h4><code class="docutils literal notranslate"><span class="pre">sort</span></code><a class="headerlink" href="#sort" title="Permalink to this heading">#</a></h4>
+<p>Sorts dataset items.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">reindex [-h] [-s START]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-k</span></code>, <code class="docutils literal notranslate"><span class="pre">--key</span></code> (string/callable) - key function to sort (default: sorted by <code class="docutils literal notranslate"><span class="pre">item.id</span></code>)</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Sort by id converted into integer</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t ndr -- --key &quot;lambda item: int(item.id)&quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="ndr">
+<h4><code class="docutils literal notranslate"><span class="pre">ndr</span></code><a class="headerlink" href="#ndr" title="Permalink to this heading">#</a></h4>
+<p>Removes near-duplicated images in subset.</p>
+<p>Remove duplicated images from a dataset. Keep at most <code class="docutils literal notranslate"><span class="pre">-k/--num_cut</span></code>
+resulting images.</p>
+<p>Available oversampling policies (the <code class="docutils literal notranslate"><span class="pre">-e</span></code> parameter):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">random</span></code> - sample from removed data randomly</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">similarity</span></code> - sample from removed data with ascending similarity score</p></li>
+</ul>
+<p>Available undersampling policies (the <code class="docutils literal notranslate"><span class="pre">-u</span></code> parameter):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">uniform</span></code> - sample data with uniform distribution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inverse</span></code> - sample data with reciprocal of the number of number of
+items with the same similarity</p></li>
+</ul>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">ndr [-h] [-w WORKING_SUBSET] [-d DUPLICATED_SUBSET] [-a {gradient}]</span>
+<span class="go">    [-k NUM_CUT] [-e {random,similarity}] [-u {uniform,inverse}] [-s SEED]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-w</span></code>, <code class="docutils literal notranslate"><span class="pre">--working_subset</span></code> (str) - Name of the subset to operate
+(default: <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d</span></code>, <code class="docutils literal notranslate"><span class="pre">--duplicated_subset</span></code> (str) - Name of the subset for the removed
+data after NDR runs (default: duplicated)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-a</span></code>, <code class="docutils literal notranslate"><span class="pre">--algorithm</span></code> (one of: <code class="docutils literal notranslate"><span class="pre">gradient</span></code>) - Name of the algorithm to
+use (default: <code class="docutils literal notranslate"><span class="pre">gradient</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-k</span></code>, <code class="docutils literal notranslate"><span class="pre">--num_cut</span></code> (int) - Maximum output dataset size</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-e</span></code>, <code class="docutils literal notranslate"><span class="pre">--over_sample</span></code> (one of: <code class="docutils literal notranslate"><span class="pre">random</span></code>, <code class="docutils literal notranslate"><span class="pre">similarity</span></code>) - The policy to use
+when <code class="docutils literal notranslate"><span class="pre">num_cut</span></code> is bigger than result length (default: <code class="docutils literal notranslate"><span class="pre">random</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-u</span></code>, <code class="docutils literal notranslate"><span class="pre">--under_sample</span></code> (one of: <code class="docutils literal notranslate"><span class="pre">uniform</span></code>, <code class="docutils literal notranslate"><span class="pre">inverse</span></code>) - The policy to use
+when <code class="docutils literal notranslate"><span class="pre">num_cut</span></code> is smaller than result length (default: <code class="docutils literal notranslate"><span class="pre">uniform</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code>, <code class="docutils literal notranslate"><span class="pre">--seed</span></code> (int) - Random seed</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Apply NDR, return no more than 100 images</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t ndr -- \</span>
+<span class="go">  --working_subset train</span>
+<span class="go">  --algorithm gradient</span>
+<span class="go">  --num_cut 100</span>
+<span class="go">  --over_sample random</span>
+<span class="go">  --under_sample uniform</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="relevancy-sampler">
+<h4><code class="docutils literal notranslate"><span class="pre">relevancy_sampler</span></code><a class="headerlink" href="#relevancy-sampler" title="Permalink to this heading">#</a></h4>
+<p>Sampler that analyzes model inference results on the dataset
+and picks the most relevant samples for training.</p>
+<p>Creates a dataset from the <code class="docutils literal notranslate"><span class="pre">-k/--count</span></code> hardest items for a model.
+The whole dataset or a single subset will be split into the <code class="docutils literal notranslate"><span class="pre">sampled</span></code>
+and <code class="docutils literal notranslate"><span class="pre">unsampled</span></code> subsets based on the model confidence. The dataset
+<strong>must</strong> contain model confidence values in the <code class="docutils literal notranslate"><span class="pre">scores</span></code> attributes
+of annotations.</p>
+<p>There are five methods of sampling (the <code class="docutils literal notranslate"><span class="pre">-m/--method</span></code> option):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">topk</span></code> - Return the k items with the highest uncertainty data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lowk</span></code> - Return the k items with the lowest uncertainty data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">randk</span></code> - Return random k items</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mixk</span></code> - Return a half using topk, and the other half using lowk method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">randtopk</span></code> - Select 3*k items randomly, and return the topk among them</p></li>
+</ul>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>Each image’s inference result must contain the probability for
+all classes (in the <code class="docutils literal notranslate"><span class="pre">scores</span></code> attribute).</p></li>
+<li><p>Requesting a sample larger than the number of all images will return
+all images.</p></li>
+</ul>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">relevancy_sampler [-h] -k COUNT [-a {entropy}] [-i INPUT_SUBSET]</span>
+<span class="go">                  [-o SAMPLED_SUBSET] [-u UNSAMPLED_SUBSET]</span>
+<span class="go">                  [-m {topk,lowk,randk,mixk,randtopk}] [-d OUTPUT_FILE]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-k</span></code>, <code class="docutils literal notranslate"><span class="pre">--count</span></code> (int) - Number of items to sample</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-a</span></code>, <code class="docutils literal notranslate"><span class="pre">--algorithm</span></code> (one of: <code class="docutils literal notranslate"><span class="pre">entropy</span></code>) - Sampling
+algorithm (default: <code class="docutils literal notranslate"><span class="pre">entropy</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-i</span></code>, <code class="docutils literal notranslate"><span class="pre">--input_subset</span></code> (str) - Subset name to select sample
+from (default: <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span></code>, <code class="docutils literal notranslate"><span class="pre">--sampled_subset</span></code> (str) - Subset name to put sampled data
+to (default: <code class="docutils literal notranslate"><span class="pre">sample</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-u</span></code>, <code class="docutils literal notranslate"><span class="pre">--unsampled_subset</span></code> (str) - Subset name to put the
+rest data to (default: <code class="docutils literal notranslate"><span class="pre">unsampled</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-m</span></code>, <code class="docutils literal notranslate"><span class="pre">--sampling_method</span></code> (one of: <code class="docutils literal notranslate"><span class="pre">topk</span></code>, <code class="docutils literal notranslate"><span class="pre">lowk</span></code>, <code class="docutils literal notranslate"><span class="pre">randk</span></code>, <code class="docutils literal notranslate"><span class="pre">mixk</span></code>,
+<code class="docutils literal notranslate"><span class="pre">randtopk</span></code>) - Sampling method (default: <code class="docutils literal notranslate"><span class="pre">topk</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d</span></code>, <code class="docutils literal notranslate"><span class="pre">--output_file</span></code> (path) - A <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file path to dump sampling results</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Select the most relevant data subset of 20 images
+based on model certainty, put the result into <code class="docutils literal notranslate"><span class="pre">sample</span></code> subset
+and put all the rest into <code class="docutils literal notranslate"><span class="pre">unsampled</span></code> subset, use <code class="docutils literal notranslate"><span class="pre">train</span></code> subset
+as input. The dataset <strong>must</strong> contain model confidence values in the <code class="docutils literal notranslate"><span class="pre">scores</span></code>
+attributes of annotations.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t relevancy_sampler -- \</span>
+<span class="go">  --algorithm entropy \</span>
+<span class="go">  --subset_name train \</span>
+<span class="go">  --sample_name sample \</span>
+<span class="go">  --unsampled_name unsampled \</span>
+<span class="go">  --sampling_method topk -k 20</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="random-sampler">
+<h4><code class="docutils literal notranslate"><span class="pre">random_sampler</span></code><a class="headerlink" href="#random-sampler" title="Permalink to this heading">#</a></h4>
+<p>Sampler that keeps no more than required number of items in the dataset.</p>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>Items are selected uniformly (tries to keep original item distribution
+by subsets)</p></li>
+<li><p>Requesting a sample larger than the number of all images will return
+all images</p></li>
+</ul>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">random_sampler [-h] -k COUNT [-s SUBSET] [--seed SEED]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-k</span></code>, <code class="docutils literal notranslate"><span class="pre">--count</span></code> (int) - Maximum number of items to sample</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code>, <code class="docutils literal notranslate"><span class="pre">--subset</span></code> (str) - Limit changes to this subset
+(default: affect all dataset)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--seed</span></code> (int) - Initial value for random number generator</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Select subset of 20 images randomly</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t random_sampler -- -k 20</span>
+</pre></div>
+</div>
+</li>
+<li><p>Select subset of 20 images, modify only <code class="docutils literal notranslate"><span class="pre">train</span></code> subset</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t random_sampler -- -k 20 -s train</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="random-label-sampler">
+<h4><code class="docutils literal notranslate"><span class="pre">random_label_sampler</span></code><a class="headerlink" href="#random-label-sampler" title="Permalink to this heading">#</a></h4>
+<p>Sampler that keeps at least the required number of annotations of
+each class in the dataset for each subset separately.</p>
+<p>Consider using the “stats” command to get class distribution in the dataset.</p>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>Items can contain annotations of several selected classes
+(e.g. 3 bounding boxes per image). The number of annotations in the
+resulting dataset varies between <code class="docutils literal notranslate"><span class="pre">max(class</span> <span class="pre">counts)</span></code> and <code class="docutils literal notranslate"><span class="pre">sum(class</span> <span class="pre">counts)</span></code></p></li>
+<li><p>If the input dataset does not has enough class annotations, the result
+will contain only what is available</p></li>
+<li><p>Items are selected uniformly</p></li>
+<li><p>For reasons above, the resulting class distribution in the dataset may
+not be the same as requested</p></li>
+<li><p>The resulting dataset will only keep annotations for classes with
+specified <code class="docutils literal notranslate"><span class="pre">count</span></code> &gt; 0</p></li>
+</ul>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">label_random_sampler [-h] -k COUNT [-l LABEL_COUNTS] [--seed SEED]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-k</span></code>, <code class="docutils literal notranslate"><span class="pre">--count</span></code> (int) - Minimum number of annotations of each class</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-l</span></code>, <code class="docutils literal notranslate"><span class="pre">--label</span></code> (str; repeatable) - Minimum number of annotations of
+a specific class. Overrides the <code class="docutils literal notranslate"><span class="pre">-k/--count</span></code> setting for the class.
+The format is <code class="docutils literal notranslate"><span class="pre">&lt;label_name&gt;:&lt;count&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--seed</span></code> (int) - Initial value for random number generator</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Select a dataset with at least 10 images of each class</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t label_random_sampler -- -k 10</span>
+</pre></div>
+</div>
+</li>
+<li><p>Select a dataset with at least 20 <code class="docutils literal notranslate"><span class="pre">cat</span></code> images, 5 <code class="docutils literal notranslate"><span class="pre">dog</span></code>, 0 <code class="docutils literal notranslate"><span class="pre">car</span></code> and 10 of each
+unmentioned class</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t label_random_sampler -- \</span>
+<span class="go">  -l cat:20 \ # keep 20 images with cats</span>
+<span class="go">  -l dog:5 \ # keep 5 images with dogs</span>
+<span class="go">  -l car:0 \ # remove car annotations</span>
+<span class="go">  -k 10 # for remaining classes</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="resize">
+<h4><code class="docutils literal notranslate"><span class="pre">resize</span></code><a class="headerlink" href="#resize" title="Permalink to this heading">#</a></h4>
+<p>Resizes images and annotations in the dataset to the specified size.
+Supports upscaling, downscaling and mixed variants.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">resize [-h] [-dw WIDTH] [-dh HEIGHT]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-dw</span></code>, <code class="docutils literal notranslate"><span class="pre">--width</span></code> (int) - Destination image width</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-dh</span></code>, <code class="docutils literal notranslate"><span class="pre">--height</span></code> (int) - Destination image height</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Resize all images to 256x256 size</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">datum</span> <span class="n">transform</span> <span class="o">-</span><span class="n">t</span> <span class="n">resize</span> <span class="o">--</span> <span class="o">-</span><span class="n">dw</span> <span class="mi">256</span> <span class="o">-</span><span class="n">dh</span> <span class="mi">256</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="remove-images">
+<h4><code class="docutils literal notranslate"><span class="pre">remove_images</span></code><a class="headerlink" href="#remove-images" title="Permalink to this heading">#</a></h4>
+<p>Removes specific dataset items by their ids.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">remove_images [-h] [--id IDs]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--id</span></code> (str) - Item id to remove. Id is ‘<name>:<subset>’ pair (repeatable)</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Remove specific images from the dataset</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t remove_images -- --id &#39;image1:train&#39; --id &#39;image2:test&#39;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="remove-annotations">
+<h4><code class="docutils literal notranslate"><span class="pre">remove_annotations</span></code><a class="headerlink" href="#remove-annotations" title="Permalink to this heading">#</a></h4>
+<p>Allows to remove annotations on specific dataset items.</p>
+<p>Can be useful to clean the dataset from broken or unnecessary annotations.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">remove_annotations [-h] [--id IDs]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--id</span></code> (str) - Item id to clean from annotations. Id is ‘<name>:<subset>’ pair.
+If not specified, removes all annotations (repeatable)</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Remove annotations from specific items in the dataset</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t remove_annotations -- --id &#39;image1:train&#39; --id &#39;image2:test&#39;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="remove-attributes">
+<h4><code class="docutils literal notranslate"><span class="pre">remove_attributes</span></code><a class="headerlink" href="#remove-attributes" title="Permalink to this heading">#</a></h4>
+<p>Allows to remove item and annotation attributes in a dataset.</p>
+<p>Can be useful to clean the dataset from broken or unnecessary attributes.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">remove_attributes [-h] [--id IDs] [--attr ATTRIBUTE_NAME]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--id</span></code> (str) - Image id to clean from annotations. Id is ‘<name>:<subset>’ pair.
+If not specified, affects all items and annotations (repeatable)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-a</span></code>, <code class="docutils literal notranslate"><span class="pre">--attr</span></code> (flag) - Attribute name to be removed. If not specified,
+removes all attributes (repeatable)</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Remove the <code class="docutils literal notranslate"><span class="pre">is_crowd</span></code> attribute from dataset</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t remove_attributes -- \</span>
+<span class="go">  --attr &#39;is_crowd&#39;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Remove the <code class="docutils literal notranslate"><span class="pre">occluded</span></code> attribute from annotations of
+the <code class="docutils literal notranslate"><span class="pre">2010_001705</span></code> item in the <code class="docutils literal notranslate"><span class="pre">train</span></code> subset</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t remove_attributes -- \</span>
+<span class="go">  --id &#39;2010_001705:train&#39; --attr &#39;occluded&#39;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="random-split">
+<h4><code class="docutils literal notranslate"><span class="pre">random_split</span></code><a class="headerlink" href="#random-split" title="Permalink to this heading">#</a></h4>
+<p>Joins all subsets into one and splits the result into few parts.
+It is expected that item ids are unique and subset ratios sum up to 1.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">random_split [-h] [-s SPLITS] [--seed SEED]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code>, <code class="docutils literal notranslate"><span class="pre">--subset</span></code> (str, repeatable) - Subsets in the form: ‘<subset>:<ratio>’
+(repeatable, default: {<code class="docutils literal notranslate"><span class="pre">train</span></code>: 0.67, <code class="docutils literal notranslate"><span class="pre">test</span></code>: 0.33})</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--seed</span></code> (int) - Random seed</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Split a dataset randomly to <code class="docutils literal notranslate"><span class="pre">train</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code> subsets, ratio is 2:1</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t random_split -- --subset train:.67 --subset test:.33</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="split">
+<h4><code class="docutils literal notranslate"><span class="pre">split</span></code><a class="headerlink" href="#split" title="Permalink to this heading">#</a></h4>
+<p>Splits a dataset for model training, using task information:</p>
+<ul class="simple">
+<li><p>classification splits
+Splits dataset into subsets (train/val/test) in class-wise manner.
+Splits dataset images in the specified ratio, keeping the initial
+class distribution.</p></li>
+<li><p>detection &amp; segmentation splits
+Each image can have multiple object annotations - bbox, mask, polygon.
+Since an image shouldn’t be included in multiple subsets at the same time,
+and image annotations shouldn’t be split, in general, dataset annotations are
+unlikely to be split exactly in the specified ratio.
+This split tries to split dataset images as close as possible to the specified
+ratio, keeping the initial class distribution.</p></li>
+<li><p>reidentification splits
+In this task, the test set should consist of images of unseen people or
+objects during the training phase.
+This function splits a dataset in the following way:</p></li>
+</ul>
+<ol class="arabic simple">
+<li><p>Splits the dataset into <code class="docutils literal notranslate"><span class="pre">train</span> <span class="pre">+</span> <span class="pre">val</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code> sets
+based on person or object ID.</p></li>
+<li><p>Splits <code class="docutils literal notranslate"><span class="pre">test</span></code> set into <code class="docutils literal notranslate"><span class="pre">test-gallery</span></code> and <code class="docutils literal notranslate"><span class="pre">test-query</span></code> sets
+in class-wise manner.</p></li>
+<li><p>Splits the <code class="docutils literal notranslate"><span class="pre">train</span> <span class="pre">+</span> <span class="pre">val</span></code> set into <code class="docutils literal notranslate"><span class="pre">train</span></code> and <code class="docutils literal notranslate"><span class="pre">val</span></code> sets
+in the same way.
+The final subsets would be <code class="docutils literal notranslate"><span class="pre">train</span></code>, <code class="docutils literal notranslate"><span class="pre">val</span></code>, <code class="docutils literal notranslate"><span class="pre">test-gallery</span></code> and <code class="docutils literal notranslate"><span class="pre">test-query</span></code>.</p></li>
+</ol>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>Each image is expected to have only one <code class="docutils literal notranslate"><span class="pre">Annotation</span></code>. Unlabeled or
+multi-labeled images will be split into subsets randomly.</p></li>
+<li><p>If Labels also have attributes, also splits by attribute values.</p></li>
+<li><p>If there is not enough images in some class or attributes group,
+the split ratio can’t be guaranteed.</p></li>
+</ul>
+<p>In reidentification task,</p>
+<ul class="simple">
+<li><p>Object ID can be described by Label, or by attribute (<code class="docutils literal notranslate"><span class="pre">--attr</span></code> parameter)</p></li>
+<li><p>The splits of the test set are controlled by <code class="docutils literal notranslate"><span class="pre">--query</span></code> parameter
+Gallery ratio would be <code class="docutils literal notranslate"><span class="pre">1.0</span> <span class="pre">-</span> <span class="pre">query</span></code>.</p></li>
+</ul>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">split [-h] [-t {classification,detection,segmentation,reid}]</span>
+<span class="go">      [-s SPLITS] [--query QUERY] [--attr ATTR_FOR_ID] [--seed SEED]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span></code>, <code class="docutils literal notranslate"><span class="pre">--task</span></code> (one of: <code class="docutils literal notranslate"><span class="pre">classification</span></code>, <code class="docutils literal notranslate"><span class="pre">detection</span></code>, <code class="docutils literal notranslate"><span class="pre">segmentation</span></code>,
+<code class="docutils literal notranslate"><span class="pre">reid</span></code>) - Dataset task (default: <code class="docutils literal notranslate"><span class="pre">classification</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code>, <code class="docutils literal notranslate"><span class="pre">--subset</span></code> (str; repeatable) - Subsets in the form: ‘<subset>:<ratio>’
+(default: {<code class="docutils literal notranslate"><span class="pre">train</span></code>: 0.5, <code class="docutils literal notranslate"><span class="pre">val</span></code>: 0.2, <code class="docutils literal notranslate"><span class="pre">test</span></code>: 0.3})</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--query</span></code> (float) - Query ratio in the test set (default: 0.5)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--attr</span></code> (str) - Attribute name representing the ID (default: use label)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--seed</span></code>(int) - Random seed</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Split by ratio</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">datum</span> <span class="n">transform</span> <span class="o">-</span><span class="n">t</span> <span class="n">split</span> <span class="o">--</span> <span class="o">-</span><span class="n">t</span> <span class="n">classification</span> \
+  <span class="o">--</span><span class="n">subset</span> <span class="n">train</span><span class="p">:</span><span class="mf">.5</span> <span class="o">--</span><span class="n">subset</span> <span class="n">val</span><span class="p">:</span><span class="mf">.2</span> <span class="o">--</span><span class="n">subset</span> <span class="n">test</span><span class="p">:</span><span class="mf">.3</span>
+
+<span class="n">datum</span> <span class="n">transform</span> <span class="o">-</span><span class="n">t</span> <span class="n">split</span> <span class="o">--</span> <span class="o">-</span><span class="n">t</span> <span class="n">detection</span> \
+  <span class="o">--</span><span class="n">subset</span> <span class="n">train</span><span class="p">:</span><span class="mf">.5</span> <span class="o">--</span><span class="n">subset</span> <span class="n">val</span><span class="p">:</span><span class="mf">.2</span> <span class="o">--</span><span class="n">subset</span> <span class="n">test</span><span class="p">:</span><span class="mf">.3</span>
+
+<span class="n">datum</span> <span class="n">transform</span> <span class="o">-</span><span class="n">t</span> <span class="n">split</span> <span class="o">--</span> <span class="o">-</span><span class="n">t</span> <span class="n">segmentation</span> \
+  <span class="o">--</span><span class="n">subset</span> <span class="n">train</span><span class="p">:</span><span class="mf">.5</span> <span class="o">--</span><span class="n">subset</span> <span class="n">val</span><span class="p">:</span><span class="mf">.2</span> <span class="o">--</span><span class="n">subset</span> <span class="n">test</span><span class="p">:</span><span class="mf">.3</span>
+
+<span class="n">datum</span> <span class="n">transform</span> <span class="o">-</span><span class="n">t</span> <span class="n">split</span> <span class="o">--</span> <span class="o">-</span><span class="n">t</span> <span class="n">reid</span> \
+  <span class="o">--</span><span class="n">subset</span> <span class="n">train</span><span class="p">:</span><span class="mf">.5</span> <span class="o">--</span><span class="n">subset</span> <span class="n">val</span><span class="p">:</span><span class="mf">.2</span> <span class="o">--</span><span class="n">subset</span> <span class="n">test</span><span class="p">:</span><span class="mf">.3</span> <span class="o">--</span><span class="n">query</span> <span class="mf">.5</span>
+</pre></div>
+</div>
+</li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">person_id</span></code> attribute for splitting</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t split -- -t detection --attr person_id</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="map-subsets">
+<h4><code class="docutils literal notranslate"><span class="pre">map_subsets</span></code><a class="headerlink" href="#map-subsets" title="Permalink to this heading">#</a></h4>
+<p>Renames subsets in the dataset.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">map_subsets [-h] [-s MAPPING]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code>, <code class="docutils literal notranslate"><span class="pre">--subset</span></code> (str; repeatable) - Subset mapping of the form: <code class="docutils literal notranslate"><span class="pre">src:dst</span></code></p></li>
+</ul>
+</section>
+<section id="remap-labels">
+<h4><code class="docutils literal notranslate"><span class="pre">remap_labels</span></code><a class="headerlink" href="#remap-labels" title="Permalink to this heading">#</a></h4>
+<p>Changes labels in the dataset.</p>
+<p>A label can be:</p>
+<ul class="simple">
+<li><p>renamed (and joined with existing) -
+when <code class="docutils literal notranslate"><span class="pre">--label</span> <span class="pre">&lt;old_name&gt;:&lt;new_name&gt;</span></code> is specified</p></li>
+<li><p>deleted - when <code class="docutils literal notranslate"><span class="pre">--label</span> <span class="pre">&lt;name&gt;:</span></code> is specified, or default action is <code class="docutils literal notranslate"><span class="pre">delete</span></code>
+and the label is not mentioned in the list. When a label
+is deleted, all the associated annotations are removed</p></li>
+<li><p>kept unchanged - when <code class="docutils literal notranslate"><span class="pre">--label</span> <span class="pre">&lt;name&gt;:&lt;name&gt;</span></code> is specified,
+or default action is <code class="docutils literal notranslate"><span class="pre">keep</span></code> and the label is not mentioned in the list
+Annotations with no label are managed by the default action policy.</p></li>
+</ul>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">remap_labels [-h] [-l MAPPING] [--default {keep,delete}]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-l</span></code>, <code class="docutils literal notranslate"><span class="pre">--label</span></code> (str; repeatable) - Label in the form of: <code class="docutils literal notranslate"><span class="pre">&lt;src&gt;:&lt;dst&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--default</span></code> (one of: <code class="docutils literal notranslate"><span class="pre">keep</span></code>, <code class="docutils literal notranslate"><span class="pre">delete</span></code>) - Action for unspecified labels
+(default: <code class="docutils literal notranslate"><span class="pre">keep</span></code>)</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Remove the <code class="docutils literal notranslate"><span class="pre">person</span></code> label (and corresponding annotations)</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t remap_labels -- -l person: --default keep</span>
+</pre></div>
+</div>
+</li>
+<li><p>Rename <code class="docutils literal notranslate"><span class="pre">person</span></code> to <code class="docutils literal notranslate"><span class="pre">pedestrian</span></code> and <code class="docutils literal notranslate"><span class="pre">human</span></code> to <code class="docutils literal notranslate"><span class="pre">pedestrian</span></code>, join annotations
+that had different classes under the same class id for <code class="docutils literal notranslate"><span class="pre">pedestrian</span></code>,
+don’t touch other classes</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t remap_labels -- \</span>
+<span class="go">  -l person:pedestrian -l human:pedestrian --default keep</span>
+</pre></div>
+</div>
+</li>
+<li><p>Rename <code class="docutils literal notranslate"><span class="pre">person</span></code> to <code class="docutils literal notranslate"><span class="pre">car</span></code> and <code class="docutils literal notranslate"><span class="pre">cat</span></code> to <code class="docutils literal notranslate"><span class="pre">dog</span></code>, keep <code class="docutils literal notranslate"><span class="pre">bus</span></code>, remove others</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t remap_labels -- \</span>
+<span class="go">  -l person:car -l bus:bus -l cat:dog --default delete</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="project-labels">
+<h4><code class="docutils literal notranslate"><span class="pre">project_labels</span></code><a class="headerlink" href="#project-labels" title="Permalink to this heading">#</a></h4>
+<p>Changes the order of labels in the dataset from the existing
+to the desired one, removes unknown labels and adds new labels.
+Updates or removes the corresponding annotations.</p>
+<p>Labels are matched by names (case dependent). Parent labels are
+only kept if they are present in the resulting set of labels.
+If new labels are added, and the dataset has mask colors defined,
+new labels will obtain generated colors.</p>
+<p>Useful for merging similar datasets, whose labels need to be aligned.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">project_labels [-h] [-l DST_LABELS]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-l</span></code>, <code class="docutils literal notranslate"><span class="pre">--label</span></code> (str; repeatable) - Label name (ordered)</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Set dataset labels to [<code class="docutils literal notranslate"><span class="pre">person</span></code>, <code class="docutils literal notranslate"><span class="pre">cat</span></code>, <code class="docutils literal notranslate"><span class="pre">dog</span></code>], remove others, add missing.
+Original labels (for example): <code class="docutils literal notranslate"><span class="pre">cat</span></code>, <code class="docutils literal notranslate"><span class="pre">dog</span></code>, <code class="docutils literal notranslate"><span class="pre">elephant</span></code>, <code class="docutils literal notranslate"><span class="pre">human</span></code>.
+New labels: <code class="docutils literal notranslate"><span class="pre">person</span></code> (added), <code class="docutils literal notranslate"><span class="pre">cat</span></code> (kept), <code class="docutils literal notranslate"><span class="pre">dog</span></code> (kept).</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t project_labels -- -l person -l cat -l dog</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="shapes-to-boxes">
+<h4><code class="docutils literal notranslate"><span class="pre">shapes_to_boxes</span></code><a class="headerlink" href="#shapes-to-boxes" title="Permalink to this heading">#</a></h4>
+<p>Converts spatial annotations (masks, polygons, polylines, points)
+to enclosing bounding boxes.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">shapes_to_boxes [-h]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Convert spatial annotations between each other</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t boxes_to_masks</span>
+<span class="go">datum transform -t masks_to_polygons</span>
+<span class="go">datum transform -t polygons_to_masks</span>
+<span class="go">datum transform -t shapes_to_boxes</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="boxes-to-masks">
+<h4><code class="docutils literal notranslate"><span class="pre">boxes_to_masks</span></code><a class="headerlink" href="#boxes-to-masks" title="Permalink to this heading">#</a></h4>
+<p>Converts bounding boxes to masks.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">boxes_to_masks [-h]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+</ul>
+</section>
+<section id="polygons-to-masks">
+<h4><code class="docutils literal notranslate"><span class="pre">polygons_to_masks</span></code><a class="headerlink" href="#polygons-to-masks" title="Permalink to this heading">#</a></h4>
+<p>Converts polygons to masks.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">polygons_to_masks [-h]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+</ul>
+</section>
+<section id="masks-to-polygons">
+<h4><code class="docutils literal notranslate"><span class="pre">masks_to_polygons</span></code><a class="headerlink" href="#masks-to-polygons" title="Permalink to this heading">#</a></h4>
+<p>Converts masks to polygons.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">masks_to_polygons [-h]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+</ul>
+</section>
+<section id="anns-to-labels">
+<h4><code class="docutils literal notranslate"><span class="pre">anns_to_labels</span></code><a class="headerlink" href="#anns-to-labels" title="Permalink to this heading">#</a></h4>
+<p>Collects all labels from annotations (of all types) and transforms
+them into a set of annotations of type <code class="docutils literal notranslate"><span class="pre">Label</span></code></p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">anns_to_labels [-h]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+</ul>
+</section>
+<section id="merge-instance-segments">
+<h4><code class="docutils literal notranslate"><span class="pre">merge_instance_segments</span></code><a class="headerlink" href="#merge-instance-segments" title="Permalink to this heading">#</a></h4>
+<p>Replaces instance masks and, optionally, polygons with a single mask.
+A group of annotations with the same group id is considered an “instance”.
+The largest annotation in the group is considered the group “head”, so the
+resulting mask takes properties from that annotation.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">merge_instance_segments [-h] [--include-polygons]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--include-polygons</span></code> (flag) - Include polygons</p></li>
+</ul>
+</section>
+<section id="crop-covered-segments">
+<h4><code class="docutils literal notranslate"><span class="pre">crop_covered_segments</span></code><a class="headerlink" href="#crop-covered-segments" title="Permalink to this heading">#</a></h4>
+<p>Sorts polygons and masks (“segments”) according to <code class="docutils literal notranslate"><span class="pre">z_order</span></code>,
+crops covered areas of underlying segments. If a segment is split
+into several independent parts by the segments above, produces
+the corresponding number of separate annotations joined into a group.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">crop_covered_segments [-h]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+</ul>
+</section>
+<section id="bbox-value-decrement">
+<h4><code class="docutils literal notranslate"><span class="pre">bbox_value_decrement</span></code><a class="headerlink" href="#bbox-value-decrement" title="Permalink to this heading">#</a></h4>
+<p>Subtracts one from the coordinates of bounding boxes</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">bbox_values_decrement [-h]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="stats.html" title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">Stats</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="validate.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">Validate</p>
+  </div>
+  <i class="fa-solid fa-angle-right"></i>
+  </a>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#transform-dataset">
+   Transform Dataset
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#built-in-transforms">
+     Built-in transforms
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#rename">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         rename
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id-from-image-name">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         id_from_image_name
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#reindex">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         reindex
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#sort">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         sort
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#ndr">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ndr
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#relevancy-sampler">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         relevancy_sampler
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#random-sampler">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         random_sampler
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#random-label-sampler">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         random_label_sampler
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#resize">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         resize
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#remove-images">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         remove_images
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#remove-annotations">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         remove_annotations
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#remove-attributes">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         remove_attributes
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#random-split">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         random_split
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#split">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         split
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#map-subsets">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         map_subsets
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#remap-labels">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         remap_labels
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#project-labels">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         project_labels
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#shapes-to-boxes">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         shapes_to_boxes
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#boxes-to-masks">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         boxes_to_masks
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#polygons-to-masks">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         polygons_to_masks
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#masks-to-polygons">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         masks_to_polygons
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#anns-to-labels">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         anns_to_labels
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#merge-instance-segments">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         merge_instance_segments
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#crop-covered-segments">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         crop_covered_segments
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#bbox-value-decrement">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         bbox_value_decrement
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../../../_sources/docs/command-reference/context_free/transform.md.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>

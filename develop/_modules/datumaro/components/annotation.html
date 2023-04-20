@@ -1,0 +1,1370 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>datumaro.components.annotation &#8212; Datumaro 1.2.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/components/annotation';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../docs/index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../docs/index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <h1>Source code for datumaro.components.annotation</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2021-2022 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">zip_longest</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">attr</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">shapely.geometry</span> <span class="k">as</span> <span class="nn">sg</span>
+<span class="kn">from</span> <span class="nn">attr</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.attrs_util</span> <span class="kn">import</span> <span class="n">default_if_none</span><span class="p">,</span> <span class="n">not_empty</span>
+
+
+<div class="viewcode-block" id="AnnotationType"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.AnnotationType">[docs]</a><span class="k">class</span> <span class="nc">AnnotationType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">polygon</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">polyline</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">caption</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">cuboid_3d</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">super_resolution_annotation</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">depth_annotation</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">ellipse</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">hash_key</span> <span class="o">=</span> <span class="mi">12</span></div>
+
+
+<span class="n">COORDINATE_ROUNDING_DIGITS</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">CHECK_POLYGON_EQ_EPSILONE</span> <span class="o">=</span> <span class="mf">1e-7</span>
+<span class="n">NO_GROUP</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<div class="viewcode-block" id="Annotation"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Annotation">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Annotation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A base annotation class.</span>
+
+<span class="sd">    Derived classes must define the &#39;_type&#39; class variable with a value</span>
+<span class="sd">    from the AnnotationType enum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Describes an identifier of the annotation</span>
+    <span class="c1"># Is not required to be unique within DatasetItem annotations or dataset</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+
+    <span class="c1"># Arbitrary annotation-specific attributes. Typically, includes</span>
+    <span class="c1"># metainfo and properties that are not covered by other fields.</span>
+    <span class="c1"># If possible, try to limit value types of values by the simple</span>
+    <span class="c1"># builtin types (int, float, bool, str) to increase compatibility with</span>
+    <span class="c1"># different formats.</span>
+    <span class="c1"># There are some established names for common attributes like:</span>
+    <span class="c1"># - &quot;occluded&quot; (bool)</span>
+    <span class="c1"># - &quot;visible&quot; (bool)</span>
+    <span class="c1"># Possible dataset attributes can be described in Categories.attributes.</span>
+    <span class="n">attributes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">dict</span><span class="p">))</span>
+
+    <span class="c1"># Annotations can be grouped, which means they describe parts of a</span>
+    <span class="c1"># single object. The value of 0 means there is no group.</span>
+    <span class="n">group</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">NO_GROUP</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">unknown</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnnotationType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span>  <span class="c1"># must be set in subclasses</span>
+
+<div class="viewcode-block" id="Annotation.as_dict"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Annotation.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="s2">&quot;Returns a dictionary { field_name: value }&quot;</span>
+        <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Annotation.wrap"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Annotation.wrap">[docs]</a>    <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="s2">&quot;Returns a modified copy of the object&quot;</span>
+        <span class="k">return</span> <span class="n">attr</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Categories"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.Categories">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Categories</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A base class for annotation metainfo. It is supposed to include</span>
+<span class="sd">    dataset-wide metainfo like available labels, label colors,</span>
+<span class="sd">    label attributes etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Describes the list of possible annotation-type specific attributes</span>
+    <span class="c1"># in a dataset.</span>
+    <span class="n">attributes</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">set</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">set</span><span class="p">),</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LabelCategories"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.LabelCategories">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LabelCategories</span><span class="p">(</span><span class="n">Categories</span><span class="p">):</span>
+<div class="viewcode-block" id="LabelCategories.Category"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.LabelCategories.Category">[docs]</a>    <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">class</span> <span class="nc">Category</span><span class="p">:</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">not_empty</span><span class="p">)</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+        <span class="n">attributes</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">set</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">set</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="LabelCategories.LabelGroup"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.LabelCategories.LabelGroup">[docs]</a>    <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">class</span> <span class="nc">LabelGroup</span><span class="p">:</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">not_empty</span><span class="p">)</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">[],</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+        <span class="n">group_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;exclusive&quot;</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span></div>
+
+    <span class="n">items</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+    <span class="n">label_groups</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+    <span class="n">_indices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LabelCategories.from_iterable"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.LabelCategories.from_iterable">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_iterable</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">iterable</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span>
+            <span class="n">Union</span><span class="p">[</span>
+                <span class="nb">str</span><span class="p">,</span>
+                <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+                <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+                <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="p">]</span>
+        <span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabelCategories</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a LabelCategories from iterable.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            iterable: This iterable object can be:</span>
+
+<span class="sd">                - a list of str - will be interpreted as list of Category names</span>
+<span class="sd">                - a list of positional arguments - will generate Categories</span>
+<span class="sd">                  with these arguments</span>
+
+<span class="sd">        Returns: a LabelCategories object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">temp_categories</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">category</span> <span class="o">=</span> <span class="p">[</span><span class="n">category</span><span class="p">]</span>
+            <span class="n">temp_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">category</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">temp_categories</span></div>
+
+    <span class="k">def</span> <span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reindex</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_reindex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">item</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span>
+            <span class="n">indices</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="n">indices</span>
+
+<div class="viewcode-block" id="LabelCategories.add"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.LabelCategories.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attributes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">,</span> <span class="n">name</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">attributes</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="k">return</span> <span class="n">index</span></div>
+
+<div class="viewcode-block" id="LabelCategories.add_label_group"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.LabelCategories.add_label_group">[docs]</a>    <span class="k">def</span> <span class="nf">add_label_group</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">group_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">name</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_groups</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LabelGroup</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">group_type</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">index</span></div>
+
+<div class="viewcode-block" id="LabelCategories.find"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.LabelCategories.find">[docs]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Category</span><span class="p">]]:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Category</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">value</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Category</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Label"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Label">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Label</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HashKey"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.HashKey">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">HashKey</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">hash_key</span>
+    <span class="n">hash_key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span></div>
+
+
+<span class="n">RgbColor</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+
+<span class="n">Colormap</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RgbColor</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Represents { index -&gt; color } mapping for segmentation masks&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="MaskCategories"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.MaskCategories">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MaskCategories</span><span class="p">(</span><span class="n">Categories</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Describes a color map for segmentation masks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MaskCategories.generate"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.MaskCategories.generate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">255</span><span class="p">,</span> <span class="n">include_background</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MaskCategories</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates MaskCategories with the specified size.</span>
+
+<span class="sd">        If include_background is True, the result will include the item</span>
+<span class="sd">            &quot;0: (0, 0, 0)&quot;, which is typically used as a background color.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">generate_colormap</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">generate_colormap</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">include_background</span><span class="o">=</span><span class="n">include_background</span><span class="p">))</span></div>
+
+    <span class="n">colormap</span><span class="p">:</span> <span class="n">Colormap</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">dict</span><span class="p">))</span>
+    <span class="n">_inverse_colormap</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">RgbColor</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse_colormap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">RgbColor</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">invert_colormap</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_colormap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_colormap</span> <span class="o">=</span> <span class="n">invert_colormap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colormap</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_colormap</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RgbColor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colormap</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">label_id</span><span class="p">,</span> <span class="n">my_color</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">other_color</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">colormap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">my_color</span><span class="p">,</span> <span class="n">other_color</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<span class="n">BinaryMaskImage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># 2d array of type bool</span>
+<span class="n">IndexMaskImage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># 2d array of type int</span>
+
+
+<div class="viewcode-block" id="Mask"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Mask">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Mask</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a 2d single-instance binary segmentation mask.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span>
+    <span class="n">_image</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">z_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BinaryMaskImage</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">image</span>
+
+<div class="viewcode-block" id="Mask.as_class_mask"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Mask.as_class_mask">[docs]</a>    <span class="k">def</span> <span class="nf">as_class_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndexMaskImage</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produces a class index mask. Mask label id can be changed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">label_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">label_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+        <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">make_index_mask</span>
+
+        <span class="k">return</span> <span class="n">make_index_mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">label_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Mask.as_instance_mask"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Mask.as_instance_mask">[docs]</a>    <span class="k">def</span> <span class="nf">as_instance_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndexMaskImage</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produces a instance index mask.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">make_index_mask</span>
+
+        <span class="k">return</span> <span class="n">make_index_mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Mask.get_area"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Mask.get_area">[docs]</a>    <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Mask.get_bbox"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Mask.get_bbox">[docs]</a>    <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the bounding box of the mask.</span>
+
+<span class="sd">        Returns: [x, y, w, h]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">find_mask_bbox</span>
+
+        <span class="k">return</span> <span class="n">find_mask_bbox</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Mask.paint"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Mask.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colormap</span><span class="p">:</span> <span class="n">Colormap</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies a colormap to the mask and produces the resulting image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">paint_mask</span>
+
+        <span class="k">return</span> <span class="n">paint_mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_class_mask</span><span class="p">(),</span> <span class="n">colormap</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z_order</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">z_order</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">image</span><span class="p">))</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RleMask"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.RleMask">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">RleMask</span><span class="p">(</span><span class="n">Mask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An RLE-encoded instance segmentation mask.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_rle</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>  <span class="c1"># uses pycocotools RLE representation</span>
+
+    <span class="n">_image</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BinaryMaskImage</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rle</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">rle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rle</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">rle</span><span class="p">):</span>
+            <span class="n">rle</span> <span class="o">=</span> <span class="n">rle</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">rle</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_decode</span><span class="p">(</span><span class="n">rle</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">pycocotools</span> <span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">mask_utils</span>
+
+        <span class="k">return</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">rle</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RleMask.get_area"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.RleMask.get_area">[docs]</a>    <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pycocotools</span> <span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">mask_utils</span>
+
+        <span class="k">return</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rle</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RleMask.get_bbox"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.RleMask.get_bbox">[docs]</a>    <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="kn">from</span> <span class="nn">pycocotools</span> <span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">mask_utils</span>
+
+        <span class="k">return</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">toBbox</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rle</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rle</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">rle</span></div>
+
+
+<span class="n">CompiledMaskImage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># 2d of integers (of different precision)</span>
+
+
+<div class="viewcode-block" id="CompiledMask"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.CompiledMask">[docs]</a><span class="k">class</span> <span class="nc">CompiledMask</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents class- and instance- segmentation masks with</span>
+<span class="sd">    all the instances (opposed to single-instance masks).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CompiledMask.from_instance_masks"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.CompiledMask.from_instance_masks">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_instance_masks</span><span class="p">(</span>
+        <span class="n">instance_masks</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Mask</span><span class="p">],</span>
+        <span class="n">instance_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">instance_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledMask</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Joins instance masks into a single mask. Masks are sorted by</span>
+<span class="sd">        z_order (ascending) prior to merging.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            instance_ids: Instance id values for the produced instance mask.</span>
+<span class="sd">                By default, mask positions are used.</span>
+<span class="sd">            instance_labels: Instance label id values for the produced class</span>
+<span class="sd">                mask. By default, mask labels are used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">make_index_mask</span>
+
+        <span class="n">instance_ids</span> <span class="o">=</span> <span class="n">instance_ids</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="n">instance_labels</span> <span class="o">=</span> <span class="n">instance_labels</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="n">masks</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">zip_longest</span><span class="p">(</span><span class="n">instance_masks</span><span class="p">,</span> <span class="n">instance_ids</span><span class="p">,</span> <span class="n">instance_labels</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">z_order</span>
+        <span class="p">)</span>
+
+        <span class="n">max_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">index_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min_scalar_type</span><span class="p">(</span><span class="n">max_index</span><span class="p">)</span>
+
+        <span class="n">masks</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="nb">id</span> <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">m</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># This optimized version is supposed for:</span>
+        <span class="c1"># 1. Avoiding memory explosion on materialization of all masks</span>
+        <span class="c1"># 2. Optimizing mask materialization calls (RLE decoding)</span>
+        <span class="c1"># 3. Optimizing intermediate mask memory use</span>
+        <span class="c1">#</span>
+        <span class="c1"># Basically, a mask can be quite large (e.g. 10k x 10k @ int32 etc.),</span>
+        <span class="c1"># so we can only afford having just few copies in</span>
+        <span class="c1"># memory simultaneously.</span>
+
+        <span class="n">it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
+
+        <span class="n">instance_map</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">class_map</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">m</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">,</span> <span class="n">class_id</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">class_id</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">index_mask</span> <span class="o">=</span> <span class="n">make_index_mask</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">index_dtype</span><span class="p">)</span>
+        <span class="n">instance_map</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instance_id</span><span class="p">)</span>
+        <span class="n">class_map</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_id</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">,</span> <span class="n">class_id</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">class_id</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">index_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">index_mask</span><span class="p">)</span>
+            <span class="n">instance_map</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instance_id</span><span class="p">)</span>
+            <span class="n">class_map</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_id</span><span class="p">)</span>
+
+        <span class="c1"># Generate compiled masks</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">instance_map</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_index</span><span class="p">)):</span>
+            <span class="n">merged_instance_mask</span> <span class="o">=</span> <span class="n">index_mask</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">merged_instance_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">instance_map</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">min_scalar_type</span><span class="p">(</span><span class="n">instance_map</span><span class="p">))[</span>
+                <span class="n">index_mask</span>
+            <span class="p">]</span>
+
+        <span class="n">merged_class_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">class_map</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">min_scalar_type</span><span class="p">(</span><span class="n">class_map</span><span class="p">))[</span><span class="n">index_mask</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="vm">__class__</span><span class="p">(</span><span class="n">class_mask</span><span class="o">=</span><span class="n">merged_class_mask</span><span class="p">,</span> <span class="n">instance_mask</span><span class="o">=</span><span class="n">merged_instance_mask</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">class_mask</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">CompiledMaskImage</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">CompiledMaskImage</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">instance_mask</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">CompiledMaskImage</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">CompiledMaskImage</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_class_mask</span> <span class="o">=</span> <span class="n">class_mask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_instance_mask</span> <span class="o">=</span> <span class="n">instance_mask</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_image</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">image</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">image</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">class_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CompiledMaskImage</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_class_mask</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">instance_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CompiledMaskImage</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_instance_mask</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">instance_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instance_mask</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+<div class="viewcode-block" id="CompiledMask.get_instance_labels"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.CompiledMask.get_instance_labels">[docs]</a>    <span class="k">def</span> <span class="nf">get_instance_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Matches the class and instance masks.</span>
+
+<span class="sd">        Returns: { instance id: class id }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">class_shift</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">class_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">class_shift</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">uint32</span>
+        <span class="p">)</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">instance_labels</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">k</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">class_shift</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;&gt;</span> <span class="n">class_shift</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">class_shift</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">instance_labels</span></div>
+
+<div class="viewcode-block" id="CompiledMask.extract"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.CompiledMask.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndexMaskImage</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extracts a single-instance mask from the compiled mask.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance_mask</span> <span class="o">==</span> <span class="n">instance_id</span></div>
+
+<div class="viewcode-block" id="CompiledMask.lazy_extract"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.CompiledMask.lazy_extract">[docs]</a>    <span class="k">def</span> <span class="nf">lazy_extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">IndexMaskImage</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extract</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">)</span></div></div>
+
+
+<span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">_Shape</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+    <span class="c1"># Flattened list of point coordinates</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">COORDINATE_ROUNDING_DIGITS</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">z_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">as_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="s2">&quot;Returns [x, y, w, h]&quot;</span>
+
+        <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">points</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+        <span class="n">y0</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+        <span class="n">y1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return points as a list of tuples, e.g. [(x0, y0), (x1, y1), ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">points</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;points should have (2 x points) number of float values.&quot;</span>
+
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)]</span>
+
+
+<div class="viewcode-block" id="PolyLine"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.PolyLine">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">PolyLine</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polyline</span>
+
+<div class="viewcode-block" id="PolyLine.as_polygon"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.PolyLine.as_polygon">[docs]</a>    <span class="k">def</span> <span class="nf">as_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[:]</span></div>
+
+<div class="viewcode-block" id="PolyLine.get_area"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.PolyLine.get_area">[docs]</a>    <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span></div></div>
+
+
+<div class="viewcode-block" id="Cuboid3d"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Cuboid3d">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Cuboid3d</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">cuboid_3d</span>
+    <span class="n">_points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="nd">@_points</span><span class="o">.</span><span class="n">validator</span>
+    <span class="k">def</span> <span class="nf">_points_validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="n">points</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">COORDINATE_ROUNDING_DIGITS</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">position</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="n">position</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rotation</span><span class="p">:</span>
+            <span class="n">rotation</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">scale</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">position</span><span class="p">,</span> <span class="o">*</span><span class="n">rotation</span><span class="p">,</span> <span class="o">*</span><span class="n">scale</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;[x, y, z]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="nd">@position</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">_set_poistion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># TODO: fix the issue with separate coordinate rounding:</span>
+        <span class="c1"># self.position[0] = 12.345676</span>
+        <span class="c1"># - the number assigned won&#39;t be rounded.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">COORDINATE_ROUNDING_DIGITS</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;[rx, ry, rz]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span>
+
+    <span class="nd">@rotation</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">_set_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">COORDINATE_ROUNDING_DIGITS</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;[sx, sy, sz]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">]</span>
+
+    <span class="nd">@scale</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">_set_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">COORDINATE_ROUNDING_DIGITS</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Polygon"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Polygon">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Polygon</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polygon</span>
+
+    <span class="k">def</span> <span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># keep the message on a single line to produce informative output</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="mi">3</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;Wrong polygon points: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Polygon.get_area"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Polygon.get_area">[docs]</a>    <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">pycocotools.mask</span> <span class="k">as</span> <span class="nn">mask_utils</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
+        <span class="n">rle</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">],</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">)</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">rle</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">area</span></div>
+
+<div class="viewcode-block" id="Polygon.as_polygon"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Polygon.as_polygon">[docs]</a>    <span class="k">def</span> <span class="nf">as_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span></div>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="n">Annotation</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">label</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_order</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">z_order</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">self_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_points</span><span class="p">()</span>
+        <span class="n">other_points</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">get_points</span><span class="p">()</span>
+        <span class="n">self_polygon</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">self_points</span><span class="p">)</span>
+        <span class="n">other_polygon</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">other_points</span><span class="p">)</span>
+        <span class="c1"># if polygon is not valid, compare points</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">self_polygon</span><span class="o">.</span><span class="n">is_valid</span> <span class="ow">and</span> <span class="n">other_polygon</span><span class="o">.</span><span class="n">is_valid</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">self_points</span> <span class="o">==</span> <span class="n">other_points</span>
+        <span class="n">inter_area</span> <span class="o">=</span> <span class="n">self_polygon</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">other_polygon</span><span class="p">)</span><span class="o">.</span><span class="n">area</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">self_polygon</span><span class="o">.</span><span class="n">area</span> <span class="o">-</span> <span class="n">inter_area</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">CHECK_POLYGON_EQ_EPSILONE</span></div>
+
+
+<div class="viewcode-block" id="Bbox"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Bbox">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Bbox</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># comes from wrap()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">w</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Bbox.get_area"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Bbox.get_area">[docs]</a>    <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span></div>
+
+<div class="viewcode-block" id="Bbox.get_bbox"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Bbox.get_bbox">[docs]</a>    <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Bbox.as_polygon"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Bbox.as_polygon">[docs]</a>    <span class="k">def</span> <span class="nf">as_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Bbox.iou"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Bbox.iou">[docs]</a>    <span class="k">def</span> <span class="nf">iou</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">_Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]:</span>
+        <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">bbox_iou</span>
+
+        <span class="k">return</span> <span class="n">bbox_iou</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(),</span> <span class="n">other</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Bbox.wrap"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Bbox.wrap">[docs]</a>    <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">h</span><span class="p">}</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">attr</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PointsCategories"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.PointsCategories">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">PointsCategories</span><span class="p">(</span><span class="n">Categories</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Describes (key-)point metainfo such as point names and joints.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PointsCategories.Category"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.PointsCategories.Category">[docs]</a>    <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">class</span> <span class="nc">Category</span><span class="p">:</span>
+        <span class="c1"># Names for specific points, e.g. eye, hose, mouth etc.</span>
+        <span class="c1"># These labels are not required to be in LabelCategories</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+
+        <span class="c1"># Pairs of connected point indices</span>
+        <span class="n">joints</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">set</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">set</span><span class="p">))</span></div>
+
+    <span class="n">items</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Category</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">dict</span><span class="p">))</span>
+
+<div class="viewcode-block" id="PointsCategories.from_iterable"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.PointsCategories.from_iterable">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_iterable</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">iterable</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Set</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span>
+        <span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PointsCategories</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create PointsCategories from an iterable.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            iterable: An Iterable with the following elements:</span>
+
+<span class="sd">                - a label id</span>
+<span class="sd">                - a list of positional arguments for Categories</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PointsCategories: PointsCategories object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temp_categories</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+            <span class="n">temp_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">temp_categories</span></div>
+
+<div class="viewcode-block" id="PointsCategories.add"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.PointsCategories.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">label_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">joints</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">joints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">joints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">joints</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">joints</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">joints</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Category</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Points"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Points">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Points</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an ordered set of points.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Points.Visibility"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Points.Visibility">[docs]</a>    <span class="k">class</span> <span class="nc">Visibility</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+        <span class="n">absent</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">visible</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span>
+
+    <span class="n">visibility</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">IntEnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="nd">@visibility</span><span class="o">.</span><span class="n">validator</span>
+    <span class="k">def</span> <span class="nf">_visibility_validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">visibility</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">visibility</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">visibility</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Visibility</span><span class="o">.</span><span class="n">visible</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">visibility</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Visibility</span><span class="p">):</span>
+                    <span class="n">visibility</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Visibility</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">visibility</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visibility</span> <span class="o">=</span> <span class="n">visibility</span>
+
+    <span class="k">def</span> <span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
+
+<div class="viewcode-block" id="Points.get_area"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Points.get_area">[docs]</a>    <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="Points.get_bbox"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Points.get_bbox">[docs]</a>    <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">p</span>
+            <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">visibility</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="vm">__class__</span><span class="o">.</span><span class="n">Visibility</span><span class="o">.</span><span class="n">absent</span>
+        <span class="p">]</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">p</span>
+            <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">visibility</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="vm">__class__</span><span class="o">.</span><span class="n">Visibility</span><span class="o">.</span><span class="n">absent</span>
+        <span class="p">]</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">y0</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">y1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="Caption"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Caption">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Caption</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents arbitrary text annotations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">caption</span>
+    <span class="n">caption</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span></div>
+
+
+<span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">_ImageAnnotation</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SuperResolutionAnnotation"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.SuperResolutionAnnotation">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">SuperResolutionAnnotation</span><span class="p">(</span><span class="n">_ImageAnnotation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents high resolution images.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">super_resolution_annotation</span></div>
+
+
+<div class="viewcode-block" id="DepthAnnotation"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.annotation.html#datumaro.components.algorithms.rise.DepthAnnotation">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">DepthAnnotation</span><span class="p">(</span><span class="n">_ImageAnnotation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents depth images.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">depth_annotation</span></div>
+
+
+<div class="viewcode-block" id="Ellipse"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Ellipse">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Ellipse</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ellipse represents an ellipse that is encapsulated by a rectangle.</span>
+
+<span class="sd">    - x1 and y1 represent the top-left coordinate of the encapsulating rectangle</span>
+<span class="sd">    - x2 and y2 representing the bottom-right coordinate of the encapsulating rectangle</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    x1: float</span>
+<span class="sd">        left x coordinate of encapsulating rectangle</span>
+<span class="sd">    y1: float</span>
+<span class="sd">        top y coordinate of encapsulating rectangle</span>
+<span class="sd">    x2: float</span>
+<span class="sd">        right x coordinate of encapsulating rectangle</span>
+<span class="sd">    y2: float</span>
+<span class="sd">        bottom y coordinate of encapsulating rectangle</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">ellipse</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">x2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># comes from wrap()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">([</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">w</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">c_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">c_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Ellipse.get_area"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Ellipse.get_area">[docs]</a>    <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span></div>
+
+<div class="viewcode-block" id="Ellipse.get_bbox"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Ellipse.get_bbox">[docs]</a>    <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Ellipse.get_points"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Ellipse.get_points">[docs]</a>    <span class="k">def</span> <span class="nf">get_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">720</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return points as a list of tuples, e.g. [(x0, y0), (x1, y1), ...].</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_points: int</span>
+<span class="sd">            The number of boundary points of the ellipse.</span>
+<span class="sd">            By default, one point is created for every 1 degree of interior angle (num_points=360).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_polygon</span><span class="p">(</span><span class="n">num_points</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">])]</span></div>
+
+<div class="viewcode-block" id="Ellipse.as_polygon"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Ellipse.as_polygon">[docs]</a>    <span class="k">def</span> <span class="nf">as_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">720</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a polygon as a list of tuples, e.g. [x0, y0, x1, y1, ...].</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_points: int</span>
+<span class="sd">            The number of boundary points of the ellipse.</span>
+<span class="sd">            By default, one point is created for every 1 degree of interior angle (num_points=360).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num_points</span><span class="p">)</span>
+
+        <span class="n">l1</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+        <span class="n">l2</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span>
+        <span class="n">x_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_x</span> <span class="o">+</span> <span class="n">l1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">y_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_y</span> <span class="o">+</span> <span class="n">l2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x_points</span><span class="p">,</span> <span class="n">y_points</span><span class="p">):</span>
+            <span class="n">points</span> <span class="o">+=</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">points</span></div>
+
+<div class="viewcode-block" id="Ellipse.iou"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Ellipse.iou">[docs]</a>    <span class="k">def</span> <span class="nf">iou</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">_Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]:</span>
+        <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">bbox_iou</span>
+
+        <span class="k">return</span> <span class="n">bbox_iou</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(),</span> <span class="n">other</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Ellipse.wrap"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.algorithms.rise.Ellipse.wrap">[docs]</a>    <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">Ellipse</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ellipse</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x1&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">x1</span><span class="p">,</span> <span class="s2">&quot;y1&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">y1</span><span class="p">,</span> <span class="s2">&quot;x2&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">x2</span><span class="p">,</span> <span class="s2">&quot;y2&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">y2</span><span class="p">}</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">attr</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span></div></div>
+</pre></div>
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>

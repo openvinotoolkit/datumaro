@@ -1,0 +1,649 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>datumaro.components.filter &#8212; Datumaro 1.2.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/components/filter';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../docs/index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../docs/index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <h1>Source code for datumaro.components.filter</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2019-2021 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
+
+<span class="c1"># Disable B410: import_lxml - the library is used for writing</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span> <span class="k">as</span> <span class="n">ET</span>  <span class="c1"># nosec</span>
+
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Annotation</span><span class="p">,</span>
+    <span class="n">AnnotationType</span><span class="p">,</span>
+    <span class="n">Bbox</span><span class="p">,</span>
+    <span class="n">Caption</span><span class="p">,</span>
+    <span class="n">Ellipse</span><span class="p">,</span>
+    <span class="n">Label</span><span class="p">,</span>
+    <span class="n">Mask</span><span class="p">,</span>
+    <span class="n">Points</span><span class="p">,</span>
+    <span class="n">Polygon</span><span class="p">,</span>
+    <span class="n">PolyLine</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.transformer</span> <span class="kn">import</span> <span class="n">ItemTransform</span>
+
+
+<div class="viewcode-block" id="DatasetItemEncoder"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder">[docs]</a><span class="k">class</span> <span class="nc">DatasetItemEncoder</span><span class="p">:</span>
+<div class="viewcode-block" id="DatasetItemEncoder.encode"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">item_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;item&quot;</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">item_elem</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">item_elem</span><span class="p">,</span> <span class="s2">&quot;subset&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
+            <span class="n">item_elem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">encode_image</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
+            <span class="n">item_elem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">encode_annotation</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">categories</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">item_elem</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_image"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_image">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_image</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="n">image_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">)</span>
+
+        <span class="n">size</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">image_elem</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">image_elem</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">image_elem</span><span class="p">,</span> <span class="s2">&quot;has_data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">has_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">):</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">image_elem</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">path</span>
+
+        <span class="k">return</span> <span class="n">image_elem</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_annotation_base"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_annotation_base">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_annotation_base</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">annotation</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">annotation</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">)</span>
+        <span class="n">ann_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;annotation&quot;</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">k</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">group</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ann_elem</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_label</span><span class="p">(</span><span class="n">label_id</span><span class="p">,</span> <span class="n">categories</span><span class="p">):</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">label_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">categories</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">label_cat</span> <span class="o">=</span> <span class="n">categories</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">label_cat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">label_cat</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="n">label</span>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_label_object"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_label_object">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_label_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">categories</span><span class="p">):</span>
+        <span class="n">ann_elem</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_annotation_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_label</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">categories</span><span class="p">))</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ann_elem</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_mask_object"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_mask_object">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_mask_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">categories</span><span class="p">):</span>
+        <span class="n">ann_elem</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_annotation_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_label</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">categories</span><span class="p">))</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ann_elem</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_bbox_object"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_bbox_object">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_bbox_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">categories</span><span class="p">):</span>
+        <span class="n">ann_elem</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_annotation_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_label</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">categories</span><span class="p">))</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get_area</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">ann_elem</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_points_object"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_points_object">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_points_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">categories</span><span class="p">):</span>
+        <span class="n">ann_elem</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_annotation_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_label</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">categories</span><span class="p">))</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">h</span>
+        <span class="n">bbox_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;bbox&quot;</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+
+        <span class="n">points</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">points</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">point_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">)</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">point_elem</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">point_elem</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">point_elem</span><span class="p">,</span> <span class="s2">&quot;visible&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">visibility</span><span class="p">[</span><span class="n">i</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ann_elem</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_polygon_object"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_polygon_object">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_polygon_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">categories</span><span class="p">):</span>
+        <span class="n">ann_elem</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_annotation_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_label</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">categories</span><span class="p">))</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">h</span>
+        <span class="n">bbox_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;bbox&quot;</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+
+        <span class="n">points</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">points</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">point_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">)</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">point_elem</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">point_elem</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">ann_elem</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_polyline_object"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_polyline_object">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_polyline_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">categories</span><span class="p">):</span>
+        <span class="n">ann_elem</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_annotation_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_label</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">categories</span><span class="p">))</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">h</span>
+        <span class="n">bbox_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;bbox&quot;</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+
+        <span class="n">points</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">points</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">point_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">)</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">point_elem</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">point_elem</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">ann_elem</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_caption_object"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_caption_object">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_caption_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">ann_elem</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_annotation_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;caption&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">caption</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ann_elem</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_ellipse_object"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_ellipse_object">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_ellipse_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Ellipse</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">:</span>
+        <span class="n">ann_elem</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_annotation_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_label</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">categories</span><span class="p">))</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;label_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;x1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">x1</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;y1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">y1</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;x2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">x2</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;y2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">y2</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">ann_elem</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get_area</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">ann_elem</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.encode_annotation"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.encode_annotation">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode_annotation</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Label</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_label_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Mask</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_mask_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Bbox</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_bbox_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Points</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_points_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">PolyLine</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_polyline_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_polygon_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Caption</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_caption_object</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Ellipse</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_ellipse_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unexpected annotation object passed: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">o</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DatasetItemEncoder.to_string"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.filter.html#datumaro.components.filter.DatasetItemEncoder.to_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="n">encoded_item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">encoded_item</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;unicode&quot;</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="XPathDatasetFilter"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.filter.XPathDatasetFilter">[docs]</a><span class="k">class</span> <span class="nc">XPathDatasetFilter</span><span class="p">(</span><span class="n">ItemTransform</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extractor</span><span class="p">,</span> <span class="n">xpath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">extractor</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">xpath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">xpath</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">XPath</span><span class="p">(</span><span class="n">xpath</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to create XPath from expression &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">xpath</span><span class="p">)</span>
+                <span class="k">raise</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span>
+                <span class="n">xpath</span><span class="p">(</span><span class="n">DatasetItemEncoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">extractor</span><span class="o">.</span><span class="n">categories</span><span class="p">()))</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="XPathDatasetFilter.transform_item"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.filter.XPathDatasetFilter.transform_item">[docs]</a>    <span class="k">def</span> <span class="nf">transform_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">item</span></div></div>
+
+
+<div class="viewcode-block" id="XPathAnnotationsFilter"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.filter.XPathAnnotationsFilter">[docs]</a><span class="k">class</span> <span class="nc">XPathAnnotationsFilter</span><span class="p">(</span><span class="n">ItemTransform</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extractor</span><span class="p">,</span> <span class="n">xpath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">remove_empty</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">extractor</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">xpath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">xpath</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">XPath</span><span class="p">(</span><span class="n">xpath</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to create XPath from expression &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">xpath</span><span class="p">)</span>
+                <span class="k">raise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span> <span class="o">=</span> <span class="n">xpath</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_empty</span> <span class="o">=</span> <span class="n">remove_empty</span>
+
+<div class="viewcode-block" id="XPathAnnotationsFilter.transform_item"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.filter.XPathAnnotationsFilter.transform_item">[docs]</a>    <span class="k">def</span> <span class="nf">transform_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">item</span>
+
+        <span class="n">encoded</span> <span class="o">=</span> <span class="n">DatasetItemEncoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">categories</span><span class="p">())</span>
+        <span class="n">filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span><span class="p">(</span><span class="n">encoded</span><span class="p">)</span>
+        <span class="n">filtered</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">filtered</span> <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;annotation&quot;</span><span class="p">]</span>
+
+        <span class="n">encoded</span> <span class="o">=</span> <span class="n">encoded</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;annotation&quot;</span><span class="p">)</span>
+        <span class="n">annotations</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">[</span><span class="n">encoded</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">e</span><span class="p">)]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">filtered</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_empty</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_item</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">)</span></div></div>
+</pre></div>
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+Samples package
+===============
+
+.. toctree::
+   :glob:
+
+   *

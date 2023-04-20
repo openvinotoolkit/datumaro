@@ -1,0 +1,447 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>datumaro.components.merge &#8212; Datumaro 1.2.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/components/merge';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../docs/index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../docs/index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <h1>Source code for datumaro.components.merge</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2023 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Merger</span>
+<span class="kn">from</span> <span class="nn">.exact_merge</span> <span class="kn">import</span> <span class="n">ExactMerge</span>
+<span class="kn">from</span> <span class="nn">.intersect_merge</span> <span class="kn">import</span> <span class="n">IntersectMerge</span>
+<span class="kn">from</span> <span class="nn">.union_merge</span> <span class="kn">import</span> <span class="n">UnionMerge</span>
+
+<span class="n">DEFAULT_MERGE_POLICY</span> <span class="o">=</span> <span class="s2">&quot;exact&quot;</span>
+
+
+<div class="viewcode-block" id="get_merger"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.hl_ops.get_merger">[docs]</a><span class="k">def</span> <span class="nf">get_merger</span><span class="p">(</span><span class="n">merge_policy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_MERGE_POLICY</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Merger</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get :class:`Merger` according to `merge_policy`. You have to choose an appropriate `Merger`</span>
+<span class="sd">    for your purpose. The available merge policies are &quot;union&quot;, &quot;intersect&quot;, and &quot;exact&quot;.</span>
+
+<span class="sd">    1. :class:`UnionMerge`</span>
+
+<span class="sd">    Merge several datasets with &quot;union&quot; policy:</span>
+
+<span class="sd">    - Label categories are merged according to the union of their label names.</span>
+<span class="sd">    For example, if Dataset-A has {&quot;car&quot;, &quot;cat&quot;, &quot;dog&quot;} and Dataset-B has</span>
+<span class="sd">    {&quot;car&quot;, &quot;bus&quot;, &quot;truck&quot;} labels, the merged dataset will have</span>
+<span class="sd">    {&quot;bust&quot;, &quot;car&quot;, &quot;cat&quot;, &quot;dog&quot;, &quot;truck&quot;} labels.</span>
+
+<span class="sd">    - If there are two or more dataset items whose (id, subset) pairs match each other,</span>
+<span class="sd">    both are included in the merged dataset. At this time, since the same (id, subset)</span>
+<span class="sd">    pair cannot be duplicated in the dataset, we add a suffix to the id of each source item.</span>
+<span class="sd">    For example, if Dataset-A has DatasetItem(id=&quot;magic&quot;, subset=&quot;train&quot;) and Dataset-B has</span>
+<span class="sd">    also DatasetItem(id=&quot;magic&quot;, subset=&quot;train&quot;), the merged dataset will have</span>
+<span class="sd">    DatasetItem(id=&quot;magic-0&quot;, subset=&quot;train&quot;) and DatasetItem(id=&quot;magic-1&quot;, subset=&quot;train&quot;).</span>
+
+<span class="sd">    2. :class:`IntersectMerge`</span>
+
+<span class="sd">    Merge several datasets with &quot;intersect&quot; policy:</span>
+
+<span class="sd">    - If there are two or more dataset items whose (id, subset) pairs match each other,</span>
+<span class="sd">    we can consider this as having an intersection in our dataset. This method merges</span>
+<span class="sd">    the annotations of the corresponding :class:`DatasetItem` into one :class:`DatasetItem`</span>
+<span class="sd">    to handle this intersection. The rule to handle merging annotations is provided by</span>
+<span class="sd">    :class:`AnnotationMerger` according to their annotation types. For example,</span>
+<span class="sd">    DatasetItem(id=&quot;item_1&quot;, subset=&quot;train&quot;, annotations=[Bbox(0, 0, 1, 1)]) from Dataset-A and</span>
+<span class="sd">    DatasetItem(id=&quot;item_1&quot;, subset=&quot;train&quot;, annotations=[Bbox(.5, .5, 1, 1)]) from Dataset-B can be</span>
+<span class="sd">    merged into DatasetItem(id=&quot;item_1&quot;, subset=&quot;train&quot;, annotations=[Bbox(0, 0, 1, 1)]).</span>
+
+<span class="sd">    - Label categories are merged according to the union of their label names</span>
+<span class="sd">    (Same as `UnionMerge`). For example, if Dataset-A has {&quot;car&quot;, &quot;cat&quot;, &quot;dog&quot;}</span>
+<span class="sd">    and Dataset-B has {&quot;car&quot;, &quot;bus&quot;, &quot;truck&quot;} labels, the merged dataset will have</span>
+<span class="sd">    {&quot;bust&quot;, &quot;car&quot;, &quot;cat&quot;, &quot;dog&quot;, &quot;truck&quot;} labels.</span>
+
+<span class="sd">    - This merge has configuration parameters (`conf`) to control the annotation merge behaviors.</span>
+
+<span class="sd">    For example,</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    merge = IntersectMerge(</span>
+<span class="sd">        conf=IntersectMerge.Conf(</span>
+<span class="sd">            pairwise_dist=0.25,</span>
+<span class="sd">            groups=[],</span>
+<span class="sd">            output_conf_thresh=0.0,</span>
+<span class="sd">            quorum=0,</span>
+<span class="sd">        )</span>
+<span class="sd">    )</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    For more details for the parameters, please refer to :class:`IntersectMerge.Conf`.</span>
+
+<span class="sd">    3. :class:`ExactMerge`</span>
+
+<span class="sd">    Merges several datasets using the &quot;simple&quot; algorithm:</span>
+
+<span class="sd">    - All datasets should have the same categories</span>
+<span class="sd">    - items are matched by (id, subset) pairs</span>
+<span class="sd">    - matching items share the media info available:</span>
+<span class="sd">        - nothing + nothing = nothing</span>
+<span class="sd">        - nothing + something = something</span>
+<span class="sd">        - something A + something B = conflict</span>
+<span class="sd">    - annotations are matched by value and shared</span>
+<span class="sd">    - in case of conflicts, throws an error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">merge_policy</span> <span class="o">==</span> <span class="s2">&quot;union&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">UnionMerge</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">merge_policy</span> <span class="o">==</span> <span class="s2">&quot;intersect&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">IntersectMerge</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">merge_policy</span> <span class="o">==</span> <span class="s2">&quot;exact&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ExactMerge</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">merge_policy</span><span class="si">}</span><span class="s2"> is invalid Merger name.&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>
