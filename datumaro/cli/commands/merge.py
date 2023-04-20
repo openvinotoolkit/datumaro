@@ -84,26 +84,26 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Merge annotations from 3 (or more) annotators:|n
-        |s|s%(prog)s project1/ project2/ project3/|n
+        |s|s%(prog)s <path/to/project1/> <path/to/project2/> <path/to/project3/>|n
         |n
         - Merge datasets with varying merge policies:|n
-        |s|s%(prog)s project1/ project2/ -m <union|intersect|exact>|n
+        |s|s%(prog)s <path/to/project1/> <path/to/project2/> -m <union|intersect|exact>|n
         |n
         - Check groups of the merged dataset for consistency:|n
         |s|s|slook for groups consising of 'person', 'hand' 'head', 'foot'|n
-        |s|s%(prog)s project1/ project2/ -g 'person,hand?,head,foot?'|n
+        |s|s%(prog)s <path/to/project1/> <path/to/project2/> -g 'person,hand?,head,foot?'|n
         |n
         - Merge two datasets, specify formats:|n
-        |s|s%(prog)s path/to/dataset1:voc path/to/dataset2:coco|n
+        |s|s%(prog)s <path/to/dataset1/>:voc <path/to/dataset2/>:coco|n
         |n
         - Merge the current working tree and a dataset:|n
-        |s|s%(prog)s path/to/dataset2:coco|n
+        |s|s%(prog)s <path/to/dataset/>:coco|n
         |n
         - Merge a source from a previous revision and a dataset:|n
-        |s|s%(prog)s HEAD~2:source-2 path/to/dataset2:yolo
+        |s|s%(prog)s HEAD~2:source-2 <path/to/dataset/>:yolo|n
         |n
         - Merge datasets and save in different format:|n
-        |s|s%(prog)s -f voc dataset1/:yolo path2/:coco -- --save-media
+        |s|s%(prog)s -f voc <path/to/dataset1/>:yolo <path/to/dataset2/>:coco -- --save-images
         """,
         formatter_class=MultilineFormatter,
     )
