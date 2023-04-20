@@ -1,8 +1,8 @@
 
 # OpenVINO™ Inference Interpreter
 
-'Interpreter samples to parse OpenVINO™ inference outputs.
-  This section on [GitHub](https://github.com/openvinotoolkit/datumaro/tree/develop/datumaro/plugins/openvino_plugin)'
+Interpreter samples to parse OpenVINO™ inference outputs.
+This section is related to [datumaro/plugins/openvino_plugin](https://github.com/openvinotoolkit/datumaro/tree/develop/datumaro/plugins/openvino_plugin).
 
 ## Models supported from interpreter samples
 There are detection and image classification examples.
@@ -44,7 +44,7 @@ OpenVINO™ Trained Models.
 
 Prerequisites:
 - OpenVINO™ (To install OpenVINO™, please see the
-  [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
+  [OpenVINO™ Installation Instruction](https://docs.openvino.ai/latest/openvino_docs_install_guides_overview.html))
 - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
 - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
 
@@ -66,8 +66,8 @@ cd /opt/intel/openvino/deployment_tools/open_model_zoo/tools/downloader
 
 Prerequisites:
 - OpenVINO™ (To install OpenVINO™, please see the
-  [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
-- Datumaro (To install Datumaro, please see the [user manual](../../user-manual/how_to_use_datumaro/))
+  [OpenVINO™ Installation Instruction](https://docs.openvino.ai/latest/openvino_docs_install_guides_overview.html))
+- Datumaro (To install Datumaro, please see the [user manual](../../get-started/quick-start-guide/installation.rst))
 - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
 - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
 
@@ -78,10 +78,10 @@ please follow the instructions below.
 
 ```bash
 source <openvino_dir>/bin/setupvars.sh
-datum create -o <proj_dir>
+datum project create -o <proj_dir>
 datum model add -l <launcher> -p <proj_dir> --copy -- \
   -d <path/to/xml> -w <path/to/bin> -i <path/to/interpreter/script>
-datum import -p <proj_dir> -f <format> <path_to_dataset>
+datum project import -p <proj_dir> -f <format> <path_to_dataset>
 datum model run -p <proj_dir> -m model-0
 ```
 
@@ -90,13 +90,13 @@ datum model run -p <proj_dir> -m model-0
 ```bash
 source /opt/intel/openvino/bin/setupvars.sh
 cd datumaro/plugins/openvino_plugin
-datum create -o proj
+datum project create -o proj
 datum model add -l openvino -p proj --copy -- \
     --output-layers=do_ExpandDims_conf/sigmoid \
     -d model/ssd_mobilenet_v2_coco.xml \
     -w model/ssd_mobilenet_v2_coco.bin \
     -i samples/ssd_mobilenet_coco_detection_interp.py
-datum import -p proj -f voc VOCdevkit/
+datum project import -p proj -f voc VOCdevkit/
 datum model run -p proj -m model-0
 ```
 
@@ -105,11 +105,11 @@ datum model run -p proj -m model-0
 ```bash
 source /opt/intel/openvino/bin/setupvars.sh
 cd datumaro/plugins/openvino_plugin
-datum create -o proj
+datum project create -o proj
 datum model add -l openvino -p proj --copy -- \
     -d model/mobilenet-v2-pytorch.xml \
     -w model/mobilenet-v2-pytorch.bin \
     -i samples/mobilenet_v2_pytorch_interp.py
-datum import -p proj -f voc VOCdevkit/
+datum project import -p proj -f voc VOCdevkit/
 datum model run -p proj -m model-0
 ```
