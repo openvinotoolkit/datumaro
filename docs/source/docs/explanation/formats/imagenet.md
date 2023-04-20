@@ -31,7 +31,7 @@ datum import -f imagenet_txt <path_to_dataset>
 
 > Note: if you use `datum import` then <path_to_dataset> should not be a
 > subdirectory of directory with Datumaro project, see more information about
-> it in the [docs](/docs/command-reference/sources.md#add-dataset).
+> it in the [docs](../../command-reference/context/sources.md#add-dataset).
 
 Load ImageNet dataset through the Python API:
 

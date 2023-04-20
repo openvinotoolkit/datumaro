@@ -20,7 +20,7 @@ commits, use `--allow-empty`.
 Usage:
 
 ``` bash
-datum commit [-h] -m MESSAGE [--allow-empty] [--allow-foreign]
+datum project commit [-h] -m MESSAGE [--allow-empty] [--allow-foreign]
   [--no-cache] [-p PROJECT_DIR]
 ```
 
@@ -35,7 +35,7 @@ Parameters:
 Example:
 
 ``` bash
-datum create
-datum import -f coco <path/to/coco/>
-datum commit -m "Added COCO"
+datum project create
+datum project import -f coco <path/to/coco/>
+datum project commit -m "Added COCO"
 ```

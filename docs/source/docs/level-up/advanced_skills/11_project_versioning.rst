@@ -34,7 +34,7 @@ In this step, we create a project and import `UCMerced <http://weegee.vision.ucm
 
         # Commit change
         datum project commit -m "Add my-dataset"
-        datum project dinfo
+        datum dinfo
 
     You can see that the project successfully imports the dataset.
 
@@ -83,7 +83,7 @@ Additionally, if you require a new operation on the dataset for a new target, yo
 
         datum project transform -t random_split
         datum project commit -m "Split train-test"
-        datum project dinfo --all
+        datum dinfo --all
 
     You can see that your dataset is successfully splitted into "train" and "subset".
 
@@ -131,7 +131,7 @@ Additionally, if you require a new operation on the dataset for a new target, yo
 
     .. code-block:: bash
 
-        datum project dinfo --all
+        datum dinfo --all
 
     Now, we have a different label categories ("airport" is added) but our dataset only has "train" subset since we go back to the old revision.
 

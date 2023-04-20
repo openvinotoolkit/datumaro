@@ -8,7 +8,7 @@ Prints lines in the following format:
 Usage:
 
 ``` bash
-datum log [-h] [-n MAX_COUNT] [-p PROJECT_DIR]
+datum project log [-h] [-n MAX_COUNT] [-p PROJECT_DIR]
 ```
 
 Parameters:

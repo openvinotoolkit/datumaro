@@ -37,15 +37,15 @@ datum patch [-h] [-o DST_DIR] [--overwrite] [-p PROJECT_DIR]
   [-- EXPORT_ARGS]
 ```
 
-\<revpath\> - either [a dataset path or a revision path](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts).
+\<revpath\> - either [a dataset path or a revision path](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).
 
 The current project (`-p/--project`) is also used as a context for
 plugins, so it can be useful for dataset paths having custom formats.
 When not specified, the current project's working tree is used.
 
 Parameters:
-- `<target dataset>` (string) - Target [dataset revpath](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts)
-- `<patch dataset>` (string) - Patch [dataset revpath](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts)
+- `<target dataset>` (string) - Target [dataset revpath](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts)
+- `<patch dataset>` (string) - Patch [dataset revpath](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts)
 - `-o, --output-dir` (string) - Output directory. By default, saves in-place
 - `--overwrite` - Allows to overwrite existing files in the output directory,
   when it is not empty.

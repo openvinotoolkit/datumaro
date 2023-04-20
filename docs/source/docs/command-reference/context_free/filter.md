@@ -83,7 +83,7 @@ datum filter [-h] [-e FILTER] [-m MODE] [--dry-run] [--stage STAGE]
 
 Parameters:
 - `<target>` (string) - Target
-  [dataset revpath](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts).
+  [dataset revpath](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).
   By default, filters all targets of the current project.
 - `-e, --filter` (string) - XML XPath filter expression for dataset items
 - `-m, --mode` (string) - The filtering mode. Default is the `i` mode.

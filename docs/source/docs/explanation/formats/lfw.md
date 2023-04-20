@@ -31,7 +31,7 @@ datum create
 datum import -f lfw <path_to_lfw_dataset>
 ```
 See more information about adding datasets to the project in the
-[docs](/docs/command-reference/sources.md#add-dataset).
+[docs](../../command-reference/context/sources.md#add-dataset).
 
 Also you can import LFW dataset from Python API:
 ```python

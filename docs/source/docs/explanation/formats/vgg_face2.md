@@ -25,7 +25,7 @@ datum import -f vgg_face2 <path_to_dataset>
 
 > Note: if you use `datum import` then <path_to_dataset> should not be a
 > subdirectory of directory with Datumaro project, see more information about
-> it in the [docs](/docs/command-reference/sources.md#add-dataset).
+> it in the [docs](../../command-reference/context/sources.md#add-dataset).
 
 And you can also load Vgg Face 2 through the Python API:
 

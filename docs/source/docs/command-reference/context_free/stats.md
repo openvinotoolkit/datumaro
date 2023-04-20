@@ -16,7 +16,7 @@ datum stats [-h] [-p PROJECT_DIR] [target]
 
 Parameters:
 - `<target>` (string) - Target
-  [source revpath](/docs/user-manual/how_to_use_datumaro.md#dataset-path-concepts).
+  [source revpath](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).
   By default, computes statistics of the merged dataset.
 - `-s, --subset` (string) - Compute stats only for a specific subset
 - `--image-stats` (bool) - Compute image mean and std (default: True)

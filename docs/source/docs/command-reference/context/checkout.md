@@ -20,13 +20,13 @@ working directory and the target revision, an error is raised, unless
 The current revision is used, when not set.
 
 "--" can be used to separate source names and revisions:
-- `datum checkout name` - will look for revision "name"
-- `datum checkout -- name` - will look for source "name" in the current
+- `datum project checkout name` - will look for revision "name"
+- `datum project checkout -- name` - will look for source "name" in the current
   revision
 
 Usage:
 ``` bash
-datum checkout [-h] [-f] [-p PROJECT_DIR] [rev] [--] [sources [sources ...]]
+datum project checkout [-h] [-f] [-p PROJECT_DIR] [rev] [--] [sources [sources ...]]
 ```
 
 Parameters:
@@ -37,13 +37,13 @@ Parameters:
 
 Examples:
 - Restore the previous revision:
-  `datum checkout HEAD~1`
+  `datum project checkout HEAD~1`
   <br>
 
 - Restore the saved version of a source in the working tree
-  `datum checkout -- source-1`
+  `datum project checkout -- source-1`
   <br>
 
 - Restore a previous version of a source
-  `datum checkout 33fbfbe my-source`
+  `datum project checkout 33fbfbe my-source`
   <br>

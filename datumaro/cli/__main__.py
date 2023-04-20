@@ -116,7 +116,7 @@ def make_parser():
     if known_commands:
         if subcommands_desc:
             subcommands_desc += "\n"
-        subcommands_desc += "Basic Commands:\n"
+        subcommands_desc += "Context-free Commands:\n"
         subcommands_desc += make_subcommands_help(known_commands, help_line_start)
     if subcommands_desc:
         subcommands_desc += (

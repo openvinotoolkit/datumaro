@@ -1,7 +1,9 @@
-Command Reference
-#################
+========
+Overview
+========
 
-The command line is split into the separate _commands_ and command _contexts_.
+The command line is split into the separate ``commands`` (:ref:`Context Commands`)
+and command ``contexts`` (:ref:`Context-free Commands`).
 Contexts group multiple commands related to a specific topic, e.g.
 project operations, data source operations etc. Almost all the commands
 operate on projects, so the ``project`` context and commands without a context
@@ -32,32 +34,3 @@ Parameters:
   ``debug``, ``info``, ``warning``, ``error``, ``critical`` (default: ``info``)
 - ``--version`` - Print the version number and exit.
 - ``-h, --help`` - Print the help message and exit.
-
-.. toctree::
-   :maxdepth: 1
-
-   checkout
-   commit
-   convert
-   create
-   describe-downloads
-   detect
-   diff
-   download
-   explain
-   export
-   filter
-   generate
-   info
-   log
-   merge
-   models
-   patch
-   projects
-   searcher
-   sources
-   stats
-   status
-   transform
-   util
-   validate
