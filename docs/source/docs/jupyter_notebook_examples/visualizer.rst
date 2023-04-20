@@ -9,6 +9,12 @@ visualization tool. That is, regardless of annotation types, `vis_gallery` descr
 annotation-overlapped images from a list of multiple media ids. We can control the transparency of
 annotations over images by adjusting `alpha`.
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   notebooks/03_visualize
+
 .. grid:: 1 2 2 2
    :gutter: 2
 

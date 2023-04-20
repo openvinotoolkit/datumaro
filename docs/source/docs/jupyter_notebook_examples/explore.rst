@@ -1,6 +1,13 @@
 Explore
 #######
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   notebooks/07_data_explorer
+   notebooks/11_validate
+
 .. grid:: 1 2 2 2
    :gutter: 2
 

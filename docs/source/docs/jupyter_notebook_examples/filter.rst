@@ -46,6 +46,12 @@ For the annotation-based filtration, we need to set the argument ``filter_annota
 We provide the argument ``remove_empty`` to remove all media with an empty annotation. We note that
 datasets are updated in-place by default.
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   notebooks/04_filter
+
 .. grid:: 1 2 2 2
    :gutter: 2
 

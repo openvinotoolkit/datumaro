@@ -2,6 +2,13 @@
 Transform
 =========
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   notebooks/05_transform
+   notebooks/06_tiling
+
 .. grid:: 1 2 2 2
    :gutter: 2
 

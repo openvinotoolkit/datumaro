@@ -119,14 +119,14 @@ A project can contain an arbitrary number of datasets ([data sources](#datasets-
 A project acts as a manager for them and allows to manipulate them
 separately or as a whole, in which case it combines dataset items
 from all the sources into one composite dataset. You can manage separate
-datasets in a project by commands in the [`datum source`](/docs/command-reference/sources)
+datasets in a project by commands in the [`datum source`](../command-reference/context/sources)
 command line context.
 
 Note that **modifying operations** (`transform`, `filter`, `patch`)
 **are applied in-place** to the datasets by default.
 
 If you want to interact with models, you need to add them to the project
-first using the [`model add`](/docs/command-reference/models.md#register-model) command.
+first using the [`model add`](../command-reference/context/models.md#register-model) command.
 
 A typical way to obtain Datumaro projects is to export tasks in
 [CVAT](https://github.com/opencv/cvat) UI.
