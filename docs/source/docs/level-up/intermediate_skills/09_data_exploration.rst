@@ -15,18 +15,20 @@ The Python example for the usage of explorer is described in [here](../../jupyte
 
         With the project-based CLI, we first require to create a project by
 
-        ..code-block:: bash
+        .. code-block:: bash
+
             datum project create -o <path/to/project>
 
         We now import data in to project through
 
-        ..code-block:: bash
+        .. code-block:: bash
 
             datum project import <path/to/dataset/>
 
         We can explore similar items for the query
 
-        ..code-block:: bash
+        .. code-block:: bash
+
             datum explore -q QUERY -topk TOPK_NUM
 
         ``QUERY`` could be image file path, text description, list of both of them
