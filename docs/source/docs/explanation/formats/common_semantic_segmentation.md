@@ -75,4 +75,4 @@ dataset.export('save_dir', 'camvid', save_media=True)
 ## Examples
 
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_common_semantic_segmentation_format.py)
+[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/unit/data_formats/test_common_semantic_segmentation_format.py)
