@@ -8,13 +8,13 @@ Using this feature, you can download some datasets in the `catalog <https://www.
 
 Prepare installation
 ====================
-To use Datumaro download feature, you should install Datumaro with ``[tf,tfds]`` extras:
+To use Datumaro ``download`` feature, you should install Datumaro with ``[tf,tfds]`` extras:
 
   .. code-block:: bash
 
     pip install datumaro[tf,tfds]
 
-.. note:: You cannot use Datumaro download feature if you installed it with the default option, e.g., ``pip install datumaro``. Please check it!
+.. note:: You cannot use Datumaro download feature if you installed Datumaro with the default option, e.g., ``pip install datumaro``. Please check it!
 
 Which datasets are available?
 =============================
@@ -29,7 +29,7 @@ Which datasets are available?
 
       datum download describe [--report-format {text,json}] [--report-file REPORT_FILE]
 
-How to download datasets?
+How can we download datasets?
 =========================
 
 .. tab-set::
@@ -44,8 +44,8 @@ How to download datasets?
 
       datum download get [-h] -i DATASET_ID [-f OUTPUT_FORMAT] [-o DST_DIR] [--overwrite] [-s SUBSET] ...
 
-    .. note:: By default, this command does not export the media files (e.g. images).
-      We recommand you to run this command with ```--save-media`` option to export the media files as well,
+    .. note:: By default, ``download`` does not export the media files (e.g. images).
+      We recommand you to run this command with ``--save-media`` option to export the media files as well,
       for example, ``datum download get -i tfds:mnist -- --save-media``.
 
 In the :ref:`next level <Level 3: Data Import and Export>`, we will look into how to import and export the dataset using Datumaro!

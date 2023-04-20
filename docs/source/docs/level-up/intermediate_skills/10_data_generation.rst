@@ -11,14 +11,14 @@ Base on the [FractalDB]_,
 Datumaro provides a fractal image dataset (FractalDB) generator that can be utilized to pre-train the vision models.
 Learning visual features of FractalDB is known to increase the performance of Vision Transformer (ViT) models.
 Note that a fractal patterns in FractalDB is calculated mathmatically using the interated function system (IFS) with random parameters.
-We thus not need to concern about any privacy issues.
+We thus don't need to concern about any privacy issues.
 
 
 .. tab-set::
 
   .. tab-item:: CLI
 
-    We can generate the synthetic images by the following CLI command:
+    We can ``generate`` the synthetic images by the following CLI command:
 
     .. code-block:: bash
 
@@ -40,6 +40,6 @@ We thus not need to concern about any privacy issues.
     ``GEN_IMG_COUNT`` is an integer that indicates the number of images to be generated. (e.g. ``count=300``)
     ``GEN_IMG_SHAPE`` is a tuple representing the shape of generated images as (width, height) (e.g. ``shape=(240, 180)``)
 
-Congratulations! You complete reading all Datumaro level-up documents for the intermediate skills.
+Congratulations! You completed reading all Datumaro level-up documents for the intermediate skills.
 
-.. [FractalDB] Can Vision Transformers Learn without Natural Images?, Kodai Nakashima, et. al., 2013.
+.. [FractalDB] Can Vision Transformers Learn without Natural Images?, Kodai Nakashima, et. al., 2021.

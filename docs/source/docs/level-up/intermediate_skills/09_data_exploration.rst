@@ -27,7 +27,7 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
             env = Environment()
             detected_formats = env.detect_dataset(data_path)
 
-            dataset = Dataset.import_from(path, detected_formats[0])
+            dataset = Dataset.import_from(data_path, detected_formats[0])
 
             explorer = Explorer(dataset)
             query = '/path/to/image/file'
