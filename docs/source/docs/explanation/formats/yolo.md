@@ -159,7 +159,7 @@ For examples, please see the following directory structures.
 
 #### Class names file
 
-Same as [Import YOLO dataset - Class names file section](#class-names-file). If it is not existed in the dataset, you can make this file easily. Please see the example [here](/docs/reference/jupyter_notebook_examples/tiling).
+Same as [Import YOLO dataset - Class names file section](#class-names-file). If it is not existed in the dataset, you can make this file easily. Please see the example [here](../../jupyter_notebook_examples/notebooks/06_tiling.ipynb#Download-Six-sided-Dice-dataset).
 
 #### Bounding box annotation text file
 

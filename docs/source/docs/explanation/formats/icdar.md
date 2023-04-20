@@ -96,7 +96,7 @@ For `icdar_text_segmentation`
 ├── ...
 ```
 See more information about adding datasets to the project in the
-[docs](../../command-reference/sources.md#add-dataset).
+[docs](../../command-reference/context/sources.md#add-dataset).
 
 ## Export to other formats
 Datumaro can convert ICDAR dataset into any other format

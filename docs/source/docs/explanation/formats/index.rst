@@ -7,6 +7,7 @@ Formats
    ade20k2017
    ade20k2020
    align_celeba
+   arrow
    ava_action
    brats
    brats_numpy
