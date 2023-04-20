@@ -64,19 +64,19 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Update a VOC-like dataset with COCO-like annotations:|n
-        |s|s%(prog)s --overwrite <path/to/dataset1/>:voc <path/to/dataset2/>:coco -- --save-images|n
+        |s|s%(prog)s --overwrite dataset1/:voc dataset2/:coco -- --save-images|n
         |n
         - Generate a patched dataset, based on a project:|n
-        |s|s%(prog)s -o <path/to/patched/project1/> <path/to/project1/> <path/to/project2/>|n
+        |s|s%(prog)s -o patched_proj1/ proj1/ proj2/|n
         |n
         - Update the "source1" source in the current project with a dataset:|n
-        |s|s%(prog)s --overwrite source1 <path/to/dataset/>:coco|n
+        |s|s%(prog)s -p proj/ --overwrite source1 path/to/dataset2:coco|n
         |n
         - Generate a patched source from a previous revision and a dataset:|n
-        |s|s%(prog)s -o new_src2/ HEAD~2:source-2 <path/to/dataset>:yolo|n
+        |s|s%(prog)s -o new_src2/ HEAD~2:source-2 path/to/dataset2:yolo|n
         |n
         - Update a dataset in a custom format, described in a project plugin:|n
-        |s|s%(prog)s -p <path/to/project/> --overwrite <path/to/dataset1/>:my_format <path/to/dataset2/>:coco
+        |s|s%(prog)s -p proj/ --overwrite dataset/:my_format dataset2/:coco
         """,
         formatter_class=MultilineFormatter,
     )

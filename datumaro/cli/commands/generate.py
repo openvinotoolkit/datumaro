@@ -27,8 +27,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         Uses the algorithm from the article: https://arxiv.org/abs/2103.13023 |n
         |n
         Examples:|n
-        - Generate 300 3-channel images with H=224, W=256 and store to <path/to/save/>:|n
-        |s|s%(prog)s -o <path/to/save/> -k 300 --shape 224 256
+        - Generate 300 3-channel images with H=224, W=256 and store to data_dir:|n
+        |s|s%(prog)s -o data_dir -k 300 --shape 224 256
         """,
         formatter_class=MultilineFormatter,
     )

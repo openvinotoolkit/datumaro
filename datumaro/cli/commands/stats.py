@@ -40,7 +40,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Compute project statistics:|n
-        |s|s%(prog)s -p <path/to/project/>
+        |s|s%(prog)s
         """,
         formatter_class=MultilineFormatter,
     )

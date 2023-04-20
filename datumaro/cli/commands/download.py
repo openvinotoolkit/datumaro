@@ -36,8 +36,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         |s|spip install datumaro[tf,tfds]|n
         |n
-        To download the dataset, run "datum download get". On the other hand,
-        for information about the datasets, run "datum download describe".|n
+        To download the dataset, run "datum download run". On the other hand,
+        for information about the datasets, run "datum download describe".
         """,
         formatter_class=MultilineFormatter,
     )

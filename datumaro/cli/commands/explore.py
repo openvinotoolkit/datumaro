@@ -30,17 +30,14 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         When not specified, the current project's working tree is used.|n
         |n
         Examples:|n
-        - Explore top10 similar images of image query:|n
-        |s|s%(prog)s -q <path/to/image> -topk 10 <path/to/dataset>|n
-        |n
-        - Explore top10 similar images of text query, elephant:|n
-        |s|s%(prog)s -q elephant -topk 10 <path/to/dataset/>|n
-        |n
-        - Explore top50 similar images of image query list:|n
-        |s|s%(prog)s -q <path/to/image1> <path/to/image2> <path/to/image3> -topk 50 <path/to/dataset/>|n
-        |n
-        - Explore top50 similar images of text query list:|n
-        |s|s%(prog)s -q motorcycle bus train -topk 50 <path/to/dataset/>
+        - Explore top50 similar images of image query in COCO dataset:|n
+        |s|s%(prog)s -q path/to/image.jpg -topk 50|n
+        - Explore top50 similar images of text query, elephant, in COCO dataset:|n
+        |s|s%(prog)s -q elephant -topk 50|n
+        - Explore top50 similar images of image query list in COCO dataset:|n
+        |s|s%(prog)s -q path/to/image1.jpg/ path/to/image2.jpg/ path/to/image3.jpg/ -topk 50|n
+        - Explore top50 similar images of text query list in COCO dataset:|n
+        |s|s%(prog)s -q motorcycle/ bus/ train/ -topk 50
         """,
         formatter_class=MultilineFormatter,
     )

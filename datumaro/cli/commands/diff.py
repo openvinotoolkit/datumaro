@@ -60,20 +60,20 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         Examples:|n
         - Compare two projects by distance, match boxes if IoU > 0.7,|n
         |s|s|s|ssave results to Tensorboard:|n
-        |s|s%(prog)s <path/to/other/project/> -m distance -f tensorboard --iou-thresh 0.7 -o diff/|n
+        |s|s%(prog)s other/project -o diff/ -f tensorboard --iou-thresh 0.7|n
         |n
         - Compare two projects for equality, exclude annotation groups |n
         |s|s|s|sand the 'is_crowd' attribute from comparison:|n
-        |s|s%(prog)s <path/to/other/project/> -if group -ia is_crowd|n
+        |s|s%(prog)s other/project/ -if group -ia is_crowd|n
         |n
-        - Compare two datasets for equality, specify formats:|n
-        |s|s%(prog)s <path/to/dataset1/>:voc <path/to/dataset2/>:coco|n
+        - Compare two datasets, specify formats:|n
+        |s|s%(prog)s path/to/dataset1:voc path/to/dataset2:coco|n
         |n
-        - Compare the current working tree and a dataset for equality:|n
-        |s|s%(prog)s <path/to/dataset/>:coco|n
+        - Compare the current working tree and a dataset:|n
+        |s|s%(prog)s path/to/dataset2:coco|n
         |n
-        - Compare a source from a previous revision and a dataset for equality:|n
-        |s|s%(prog)s HEAD~2:source-2 <path/to/dataset2/>:yolo
+        - Compare a source from a previous revision and a dataset:|n
+        |s|s%(prog)s HEAD~2:source-2 path/to/dataset2:yolo
         """,
         formatter_class=MultilineFormatter,
     )
@@ -109,7 +109,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "--output-dir",
         dest="dst_dir",
         default=None,
-        help="Directory to save comparison results (default: generate automatically)",
+        help="Directory to save comparison results " "(default: generate automatically)",
     )
     parser.add_argument(
         "-m",
@@ -136,7 +136,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         type=float,
         help="IoU match threshold for shapes (default: %(default)s)",
     )
-    distance_parser.add_argument(
+    parser.add_argument(
         "-f",
         "--format",
         type=_parse_output_format,

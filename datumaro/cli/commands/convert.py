@@ -37,10 +37,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Export a dataset as a PASCAL VOC dataset, include images:|n
-        |s|s%(prog)s -i <path/to/dataset/> -f voc -- --save-images|n
+        |s|s%(prog)s -i src/path -f voc -- --save-images|n
         |n
-        - Export a dataset as a COCO dataset to a specific directory without images:|n
-        |s|s%(prog)s -i <path/to/dataset/> -f coco -o <path/to/save/>
+        - Export a dataset as a COCO dataset to a specific directory:|n
+        |s|s%(prog)s -i src/path -f coco -o path/I/like/
         """.format(
             ", ".join(builtin_readers), ", ".join(builtin_writers)
         ),
@@ -52,7 +52,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "--input-path",
         default=".",
         dest="source",
-        help="Input dataset path. (default: current dir)",
+        help="Input dataset path (default: current dir)",
     )
     parser.add_argument(
         "-if", "--input-format", help="Input dataset format. Will try to detect, if not specified."
@@ -62,16 +62,16 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "-o",
         "--output-dir",
         dest="dst_dir",
-        help="Directory to save output. (default: a subdir in the current one)",
+        help="Directory to save output (default: a subdir in the current one)",
     )
     parser.add_argument(
-        "--overwrite", action="store_true", help="Overwrite existing files in the save directory."
+        "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
     )
     parser.add_argument(
         "-e",
         "--filter",
         help='XML XPath filter expression for dataset items. Read "filter" '
-        "command docs for more info.",
+        "command docs for more info",
     )
     parser.add_argument(
         "--filter-mode",

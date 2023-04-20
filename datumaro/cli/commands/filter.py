@@ -85,7 +85,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |s|s%(prog)s -m i+a -e '/item/annotation[occluded="True"]'|n
         |n
         - Filter a VOC-like dataset inplace:|n
-        |s|s%(prog)s -e '/item/annotation[label = "bus"]' --overwrite <path/to/dataset/>:voc
+        |s|s%(prog)s -e '/item/annotation[label = "bus"]' --overwrite dataset/:voc
         """,
         formatter_class=MultilineFormatter,
     )
