@@ -11,8 +11,8 @@ New features
 ^^^^^^^^^^^^
 - Add Skill Up section to documentation
 - Add LossDynamicsAnalyzer for noisy label detection
-- Add sort transform
 - Add Apache Arrow format support
+- Add sort transform
 
 Enhancements
 ^^^^^^^^^^^^

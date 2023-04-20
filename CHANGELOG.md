@@ -13,10 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/920>, <https://github.com/openvinotoolkit/datumaro/pull/933>, <https://github.com/openvinotoolkit/datumaro/pull/945>, <https://github.com/openvinotoolkit/datumaro/pull/949>, <https://github.com/openvinotoolkit/datumaro/pull/953>, <https://github.com/openvinotoolkit/datumaro/pull/959>, <https://github.com/openvinotoolkit/datumaro/pull/960>)
 - Add LossDynamicsAnalyzer for noisy label detection
   (<https://github.com/openvinotoolkit/datumaro/pull/928>)
-- Add sort transform
-  (<https://github.com/openvinotoolkit/datumaro/pull/931>)
 - Add Apache Arrow format support
   (<https://github.com/openvinotoolkit/datumaro/pull/931>, <https://github.com/openvinotoolkit/datumaro/pull/948>)
+- Add sort transform
+  (<https://github.com/openvinotoolkit/datumaro/pull/931>)
 
 ### Enhancements
 - Add multiprocessing to DatumaroBinaryBase
