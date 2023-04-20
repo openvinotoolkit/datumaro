@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 20/04/2023 - Release 1.2.0
 ### New features
 - Add Skill Up section to documentation
-  (<https://github.com/openvinotoolkit/datumaro/pull/920>, <https://github.com/openvinotoolkit/datumaro/pull/933>, <https://github.com/openvinotoolkit/datumaro/pull/945>, <https://github.com/openvinotoolkit/datumaro/pull/949>, <https://github.com/openvinotoolkit/datumaro/pull/953>, <https://github.com/openvinotoolkit/datumaro/pull/959>, <https://github.com/openvinotoolkit/datumaro/pull/960>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/920>, <https://github.com/openvinotoolkit/datumaro/pull/933>, <https://github.com/openvinotoolkit/datumaro/pull/935>, <https://github.com/openvinotoolkit/datumaro/pull/945>, <https://github.com/openvinotoolkit/datumaro/pull/949>, <https://github.com/openvinotoolkit/datumaro/pull/953>, <https://github.com/openvinotoolkit/datumaro/pull/959>, <https://github.com/openvinotoolkit/datumaro/pull/960>, <https://github.com/openvinotoolkit/datumaro/pull/967>)
 - Add LossDynamicsAnalyzer for noisy label detection
   (<https://github.com/openvinotoolkit/datumaro/pull/928>)
 - Add Apache Arrow format support
@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tfds:uc_merced and tfds:eurosat download
   (<https://github.com/openvinotoolkit/datumaro/pull/914>)
 - Migrate documentation framework to Sphinx
-  (<https://github.com/openvinotoolkit/datumaro/pull/917>, <https://github.com/openvinotoolkit/datumaro/pull/922>, <https://github.com/openvinotoolkit/datumaro/pull/947>, <https://github.com/openvinotoolkit/datumaro/pull/954>, <https://github.com/openvinotoolkit/datumaro/pull/958>, <https://github.com/openvinotoolkit/datumaro/pull/961>, <https://github.com/openvinotoolkit/datumaro/pull/962>, <https://github.com/openvinotoolkit/datumaro/pull/963>, <https://github.com/openvinotoolkit/datumaro/pull/964>, <https://github.com/openvinotoolkit/datumaro/pull/965>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/917>, <https://github.com/openvinotoolkit/datumaro/pull/922>, <https://github.com/openvinotoolkit/datumaro/pull/947>, <https://github.com/openvinotoolkit/datumaro/pull/954>, <https://github.com/openvinotoolkit/datumaro/pull/958>, <https://github.com/openvinotoolkit/datumaro/pull/961>, <https://github.com/openvinotoolkit/datumaro/pull/962>, <https://github.com/openvinotoolkit/datumaro/pull/963>, <https://github.com/openvinotoolkit/datumaro/pull/964>, <https://github.com/openvinotoolkit/datumaro/pull/965>, <https://github.com/openvinotoolkit/datumaro/pull/969>)
 - Update merge tutorial for real life usecase
   (<https://github.com/openvinotoolkit/datumaro/pull/930>)
 - Abbreviate "detect-format" to "detect" for prettifying
