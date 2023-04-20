@@ -58,7 +58,7 @@ Once you can use the components:
 .. operations
 .. progress_reporting
 .. project
-.. searcher
+.. explorer
 .. shift_analyzer
 .. transformer
 .. validator
