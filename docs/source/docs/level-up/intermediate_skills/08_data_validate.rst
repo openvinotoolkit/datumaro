@@ -10,7 +10,7 @@ be paid, and sometimes it may be necessary to filter or correct the data in adva
 data validation functionality for this purpose.
 
 More detailed descriptions about validation errors and warnings are given by :ref:`here <Validate>`.
-The Python example for the usage of validator is described in this `notebook <https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/11_validate.ipynb>`_.
+The Python example for the usage of validator is described in this `notebook <../../jupyter_notebook_examples/notebooks/11_validate>`_.
 
 
 .. tab-set::

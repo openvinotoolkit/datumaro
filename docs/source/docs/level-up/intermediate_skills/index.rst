@@ -72,8 +72,8 @@ Intermediate Skills
 
          Level 09: Data Exploration
 
-      :bdg-info:`CLI`
       :bdg-warning:`Python`
+      :bdg-success:`ProjectCLI`
 
    .. grid-item-card::
 

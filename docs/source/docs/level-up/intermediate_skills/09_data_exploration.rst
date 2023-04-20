@@ -36,19 +36,19 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
 
     .. tab-item:: ProjectCLI
 
-        With the project-based CLI, we first require to create a project by
+        With the project-based CLI, we first require to ``create`` a project by
 
         .. code-block:: bash
 
             datum project create -o <path/to/project>
 
-        We now import data in to project through
+        We now ``import`` data in to project through
 
         .. code-block:: bash
 
             datum project import --project <path/to/project> <path/to/data>
 
-        We can explore similar items for the query
+        We can ``explore`` similar items for the query
 
         .. code-block:: bash
 
