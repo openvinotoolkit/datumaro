@@ -42,4 +42,4 @@ We thus don't need to concern about any privacy issues.
 
 Congratulations! You completed reading all Datumaro level-up documents for the intermediate skills.
 
-.. [FractalDB] Can Vision Transformers Learn without Natural Images?, Kodai Nakashima, et. al., 2021.
+.. [FractalDB] Nakashima, Kodai, et al. "Can vision transformers learn without natural images?." Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 36. No. 2. 2022.
