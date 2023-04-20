@@ -14,15 +14,12 @@ Create a project
 
   .. tab-item:: ProjectCLI
 
-    You can create a project using the following command.
+    The following command creates a project in the current working directory.
 
     .. code-block:: bash
 
-      datum project create [-h] [-o DST_DIR] [--overwrite]
-
-    The default command create a project in the current directory,
-    but you can specify a specific directory path with ``-o DST_DIR``.
-    Use ``--overwrite`` if you need to overwrite an existing project.
+      cd <path/where/you/want>
+      datum project create
 
 Import a dataset to the project
 ===============================
@@ -31,17 +28,8 @@ Import a dataset to the project
 
   .. tab-item:: ProjectCLI
 
-    .. code-block:: bash
-
-      datum project import [-h] [-n NAME] -f FORMAT [-r RPATH] [--no-check] [-p PROJECT_DIR] url ...
-
-    ``-n NAME`` is the name of dataset you can assign. if you don't give it, Datumaro generates it automatically
-    (``source-0``, ``source-1``, ...). ``-f FORMAT`` is the format of the dataset to be imported to the project.
-    The default behavior adds the dataset to the project in the current working directory,
-    but you can specify a specific directory path of the project with ``-p PROJECT_DIR``.
-    ``url`` should be given for the path of the dataset to import.
-
-    For example, the following command is an example of importing the :ref:`Cityscapes` dataset to the project with naming it as ``my-dataset``.
+    After creating the project, you can import datasets to the project.
+    In this example, we import :ref:`Cityscapes` dataset to the project with naming it ``my-dataset``.
 
     .. code-block:: bash
 
@@ -54,14 +42,8 @@ Remove a dataset from the project
 
   .. tab-item:: ProjectCLI
 
-    .. code-block:: bash
-
-      datum project remove [-h] [--force] [--keep-data] [-p PROJECT_DIR] names [names ...]
-
-    ``names`` are the names of the imported dataset you want to remove it from the project.
-    If you want to remove only the metadata and keep the actual data, use ``--keep-data``.
-
-    For example, the following command is an example of removing the :ref:`Cityscapes` dataset from the previous step.
+    Conversely, it is also possible to delete a dataset that has been added to the project.
+    This command removes the :ref:`Cityscapes` dataset named ``my-dataset`` from the previous step.
 
     .. code-block:: bash
 
@@ -74,20 +56,12 @@ Print dataset information
 
   .. tab-item:: ProjectCLI
 
-    Print dataset information added in the project.
+    We can also check the dataset information added in the project.
+    This is an example of printing information about the dataset named ``my-dataset``.
 
     .. code-block:: bash
 
-      datum dinfo [-h] [--all] [-p PROJECT_DIR] [revpath]
-
-    ``revpath`` is either a dataset path or a revision path. For more information on the revision, please see
-    :ref:`Level 11: Project Versioning`. ``--all`` directive shows all information omitted due to text length limits.
-
-    For example, the following command is an example of printing information about the :ref:`Cityscapes` dataset from the previous step.
-
-    .. code-block:: bash
-
-      datum project dinfo my-dataset
+      datum dinfo my-dataset
 
 Add model to project
 ====================
@@ -96,15 +70,8 @@ Add model to project
 
   .. tab-item:: ProjectCLI
 
-    .. code-block:: bash
-
-      datum model add [-h] [-n NAME] -l LAUNCHER [--copy] [--no-check] [-p PROJECT_DIR] ...
-
-    Add an AI model into a project. The model requires an inference launcher for its model format.
+    You can add an AI model into a project. The model requires an inference launcher for its model format.
     Currently, we only support `OpenVINO™ <https://github.com/openvinotoolkit/openvino>`_ launcher.
-    Each launcher has its own options, which are passed after the ``--`` separator, pass ``-- -h`` for more info.
-    To copy the model files into the project directory, you can use ``--copy`` argument.
-
     Here is an example to add an `OpenVINO™ <https://github.com/openvinotoolkit/openvino>`_ model to the project.
 
     .. code-block:: bash
@@ -127,17 +94,11 @@ Remove model from project
 
   .. tab-item:: ProjectCLI
 
-    .. code-block:: bash
-
-      datum model remove [-h] [-p PROJECT_DIR] name
-
-    To remove the model added in your project, you can use this command. It requires a name of the added model.
-
-    For example, the model added in the previous step has its name as ``my-model``. We can remove this model as follows.
+    We can remove ``my-model`` model from the project as follows.
 
     .. code-block:: bash
 
-      datum model add -n my-model -l openvino -- -d <path/to/model.xml> -w <path/to/model.bin> -i <path/to/interpreter.py>
+      datum model remove my-model
 
 Print project information
 =========================
@@ -146,11 +107,13 @@ Print project information
 
   .. tab-item:: ProjectCLI
 
-    Print an overall information of the project.
+    We can print an overall information of the project.
 
     .. code-block:: bash
 
-      datum project info [-h] [-p PROJECT_DIR] [revision]
+      datum project info
 
-    ``revision`` means the version of you project (:ref:`Level 11: Project Versioning`).
-    If it is not given, the latest revision of the project is shown.
+.. note::
+  Many CLI commands, including those we introduce above, have ``-p PROJECT_DIR``, ``--project PROJECT_DIR`` CLI arguments.
+  This argument allows you to specify the path of the target project where the CLI operation will be executed.
+  This is useful if you don't want to change your current working directory.
