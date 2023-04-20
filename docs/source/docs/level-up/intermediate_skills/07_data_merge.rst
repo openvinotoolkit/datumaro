@@ -75,8 +75,10 @@ Merge datasets
       datum merge --merge_policy union --format imagenet --output-dir <path/to/output> <path/to/project1> <path/to/project2> -- --save-media
 
     Similar to merge without projects, we have the merge report named by ``merge_report.json`` inside the output directory.
-    Finally, we import the merged data (``<path/to/output>``) into a project
+    Finally, we import the merged data (``<path/to/output>``) into a project.
+    In this tutorial, we create another project and import this into the project.
 
     .. code-block:: bash
 
-      datum project import --format imagenet --project <path/to/project1> <path/to/output>
+      datum project create --output-dir <path/to/project3>
+      datum project import --format imagenet --project <path/to/project3> <path/to/output>
