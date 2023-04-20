@@ -35,8 +35,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         project's working tree is used.|n
         |n
         Examples:|n
-        - Validate a project's subset as a classification dataset:|n |n
-        |s|s%(prog)s -t classification -s train
+        - Validate a project's subset as a classification dataset:|n
+        |s|s%(prog)s -t classification -s train|n
+        |n
+        - Give warning when imbalance ratio of data with classification task over 40:|n
+        |s|s%(prog)s -p <path/to/project/> -t classification -- -ir 40
         """,
         formatter_class=MultilineFormatter,
     )
