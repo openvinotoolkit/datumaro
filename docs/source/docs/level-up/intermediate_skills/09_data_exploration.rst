@@ -7,7 +7,7 @@ Datumaro support exploration feature to find out similar data for query among da
 Through this feature, you could figure out dataset property. You could check the visualization result of exploration using `Visualizer`.
 
 More detailed descriptions about explorer are given by :ref:`Explore`
-The Python example for the usage of explorer is described in `here <https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/07_data_explorer.ipynb>`_.
+The Python example for the usage of explorer is described in [here](https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/07_data_explorer.ipynb).
 
 .. tab-set::
 
