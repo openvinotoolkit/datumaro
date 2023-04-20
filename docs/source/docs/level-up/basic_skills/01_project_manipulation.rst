@@ -2,10 +2,10 @@
 Level 1: Project Manipulation
 =============================
 
-Projects are intended for complex use of Datumaro CLI commands.
-If you want to know more about the concept and meaning of the project, please see :ref:`Projects`.
-You might be able to skip this page, if you plan to do various dataset management tasks using the Datumaro Python API rather than CLI commands.
-However, even for the Python API, you have to get back to the project if you need dataset versioning.
+Projects are designed to facilitate the use of Datumaro CLI commands for complex tasks.
+If you need more information about the project's concept and meaning, please refer to :ref:`Projects`.
+If you plan to perform various dataset management tasks using the Datumaro Python API instead of CLI commands, you may be able to skip this page.
+However, even when using the Python API, you will need to refer back to the project if you require dataset versioning.
 
 Create a project
 ================

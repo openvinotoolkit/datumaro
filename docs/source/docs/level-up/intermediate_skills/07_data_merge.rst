@@ -72,6 +72,7 @@ Merge datasets
     We merge two projects through
 
     .. code-block:: bash
+
       datum merge --merge_policy union --format imagenet --output-dir <path/to/output> <path/to/project1> <path/to/project2> -- --save-media
 
     Similar to merge without projects, we have the merge report named by ``merge_report.json`` inside the output directory.
