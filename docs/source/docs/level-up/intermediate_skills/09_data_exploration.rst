@@ -22,7 +22,7 @@ The Python example for the usage of explorer is described in `here <https://gith
 
         ..code-block:: bash
 
-            datum import <path/to/dataset/>
+            datum project import <path/to/dataset/>
 
         We can explore similar items for the query
 

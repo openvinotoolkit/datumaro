@@ -12,7 +12,7 @@ New features
 - Add with_subset_dirs decorator (Add ImagenetWithSubsetDirsImporter)
 - Add CommonSemanticSegmentationWithSubsetDirsImporter
 - Add DatumaroBinary format
-- Add Explorer CLI documentation
+- Add Searcher CLI documentation
 - Add version to dataset exported as datumaro format
 - Add Ava action data format support
 - Add Shift Analyzer (both covariate and label shifts)
