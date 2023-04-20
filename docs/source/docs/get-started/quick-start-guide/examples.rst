@@ -29,6 +29,7 @@ Examples
 
     # Download COCO dataset http://cocodataset.org/#download
     # Put images to coco/images/ and annotations to coco/annotations/
+    mkdir my_project && cd my_project
     datum project create
     datum project import --format coco <path/to/coco>
     datum project export --filter '/image[images_I_dont_like]' --format cvat
