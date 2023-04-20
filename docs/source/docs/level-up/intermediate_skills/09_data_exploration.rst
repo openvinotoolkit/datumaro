@@ -46,13 +46,13 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
 
         .. code-block:: bash
 
-            datum project import <path/to/dataset/>
+            datum project import --project <path/to/project> <path/to/data>
 
         We can explore similar items for the query
 
         .. code-block:: bash
 
-            datum explore -q QUERY -topk TOPK_NUM
+            datum explore -q QUERY -topk TOPK_NUM -p <path/to/project>
 
         ``QUERY`` could be image file path, text description, list of both of them
 
