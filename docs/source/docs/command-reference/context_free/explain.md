@@ -10,10 +10,10 @@ inputs and outputs of the trained model, i.e. determine decision boundaries
 and belief intervals for the classifier.
 
 Currently, the only available algorithm is RISE ([article](https://arxiv.org/pdf/1806.07421.pdf)),
-which runs model a single time and then re-runs a model multiple times on
+which runs a model a single time and then re-runs a model multiple times on
 each image to produce a heatmap of activations for each output of the
 first inference. Each time a part of the input image is masked. As a result,
-we obtain a number heatmaps, which show, how specific image pixels affected
+we obtain a number heatmaps, which show how specific image pixels affected
 the inference result. This algorithm doesn't require any special information
 about the model, but it requires the model to return all the outputs and
 confidences. The original algorithm supports only classification scenario,
@@ -25,9 +25,9 @@ The following use cases available:
 
 Usage:
 
-``` bash
+```console
 datum explain [-h] -m MODEL [-o SAVE_DIR] [-p PROJECT_DIR]
-  [target] {rise} [RISE_ARGS]
+              [target] {rise} [RISE_ARGS]
 ```
 
 Parameters:
@@ -62,26 +62,29 @@ Parameters:
   - `--display` - Visualize results during computations
 
 Examples:
-- Run RISE on an image, display results:
-`datum explain path/to/image.jpg -m mymodel rise --max-samples 50`
+- Run RISE on an image, display results
+  ```console
+  datum explain <path/to/image> -m mymodel rise --max-samples 50
+  ```
 
-- Run RISE on a source revision:
-`datum explain HEAD~1:source-1 -m model rise`
+- Run RISE on a source revision
+  ```console
+  datum explain HEAD~1:source-1 -m model rise
+  ```
 
 - Run inference explanation on a single image with online visualization
-
-``` bash
-datum project create <...>
-datum model add mymodel <...>
-datum explain -t image.png -m mymodel \
-    rise --max-samples 1000 --display
-```
+  ```console
+  datum project create <...>
+  datum model add mymodel <...>
+  datum explain -t image.png -m mymodel \
+      rise --max-samples 1000 --display
+  ```
 
 > **Note**: this algorithm requires the model to return
 > _all_ (or a _reasonable_ amount) the outputs and confidences unfiltered,
 > i.e. all the `Label` annotations for classification models and
 > all the `Bbox`es for detection models.
-> You can find examples of the expected model outputs in [`tests/test_RISE.py`](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_RISE.py)
+> You can find examples of the expected model outputs in [`tests/test_RISE.py`](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/unit/algorithms/test_RISE.py)
 
 For OpenVINO models the output processing script would look like this:
 

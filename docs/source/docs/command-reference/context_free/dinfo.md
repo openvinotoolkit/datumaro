@@ -7,7 +7,7 @@ categories and subsets.
 
 Usage:
 
-``` bash
+```console
 datum dinfo [-h] [--all] [-p PROJECT_DIR] [revpath]
 ```
 
@@ -20,12 +20,20 @@ Parameters:
 - `-h, --help` - Print the help message and exit.
 
 Examples:
+- Print dataset info for the current project's working tree
+  ```console
+  datum dinfo
+  ```
 
-- Print info about a project dataset:
-`datum dinfo -p test_project/`
+- Print dataset info for a COCO-like dataset
+  ```console
+  datum dinfo <path/to/dataset/>:coco
+  ```
 
-- Print info about a COCO-like dataset:
-`datum dinfo path/to/dataset:coco`
+- Print dataset info for a source from a past revision
+  ```console
+  datum info HEAD~2:source-2
+  ```
 
 Sample output:
 

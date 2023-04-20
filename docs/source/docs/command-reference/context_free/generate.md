@@ -8,13 +8,13 @@ and saves it in the provided directory.
 Currently, can only generate fractal images, useful for network compression.
 To create 3-channel images, you should provide the number of images, height and width.
 The images are colorized with a model, which will be downloaded automatically.
-Uses the algorithm from the article: <https://arxiv.org/abs/2103.13023>
+Uses the algorithm from the [article](https://arxiv.org/abs/2103.13023).
 
 Usage:
 
-``` bash
+```console
 datum generate [-h] -o OUTPUT_DIR -k COUNT --shape SHAPE [SHAPE ...]
-  [-t {image}] [--overwrite] [--model-dir MODEL_PATH]
+               [-t {image}] [--overwrite] [--model-dir MODEL_PATH]
 ```
 
 Parameters:
@@ -29,7 +29,7 @@ Parameters:
 - `-h, --help` - Print the help message and exit.
 
 Examples:
-Generate 300 3-channel fractal images with H=224, W=256 and store in the `images/` dir:
-```bash
-datum generate -o images/ --count 300 --shape 224 256
-```
+- Generate 300 3-channel fractal images with H=224, W=256 and store in the `images/` dir
+  ```console
+  datum generate -o images/ --count 300 --shape 224 256
+  ```

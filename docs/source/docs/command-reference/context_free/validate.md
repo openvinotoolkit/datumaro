@@ -19,9 +19,9 @@ The validation result contains
 
 Usage:
 
-``` bash
+```console
 datum validate [-h] -t TASK [-s SUBSET_NAME] [-p PROJECT_DIR]
-  [target] [-- EXTRA_ARGS]
+               [target] [-- EXTRA_ARGS]
 ```
 
 Parameters:
@@ -46,14 +46,19 @@ Parameters:
   - `-k, --topk-bins` (number) - The ratio of bins with the highest
     number of data to total bins in the histogram
 
-Example : give warning when imbalance ratio of data with classification task
-over 40
+Examples:
+- Validate a project's subset as a classification dataset
+  ```console
+  datum validate -t classification -s subset
+  ```
 
-``` bash
-datum validate -p prj/ -t classification -- -ir 40
-```
+- Give warning when imbalance ratio of data with classification task
+  over 40
+  ```console
+  datum validate -p <path/to/project/> -t classification -- -ir 40
+  ```
 
-Here is the list of validation items(a.k.a. anomaly types).
+### List of validation items (annomaly types)
 
 | Anomaly Type | Description | Task Type |
 | ------------ | ----------- | --------- |
@@ -82,7 +87,7 @@ Validation Result Format:
 
 <details>
 
-``` bash
+```console
 {
     'statistics': {
         ## common statistics

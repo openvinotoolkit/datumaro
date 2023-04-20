@@ -50,7 +50,7 @@ keypoints are grouped and all the necessary object components in the same
 group.
 
 This command has multiple forms:
-``` bash
+```console
 1) datum merge <revpath>
 2) datum merge <revpath> <revpath> ...
 ```
@@ -71,25 +71,17 @@ and after the `--` separator. Particularly, this is useful to include
 images in the output dataset with `--save-images`.
 
 Usage:
-``` bash
-datum merge [-h] [-iou IOU_THRESH] [-oconf OUTPUT_CONF_THRESH]
-  [--quorum QUORUM] [-g GROUPS] [-o DST_DIR] [--overwrite]
-  [-p PROJECT_DIR] [-f FORMAT]
-  target [target ...] [-- EXTRA_FORMAT_ARGS]
+```console
+datum merge [-h] [-m MERGE_POLICY] [-o DST_DIR] [--overwrite] [-f FORMAT] [-p PROJECT_DIR]
+            [-iou IOU_THRESH] [-oconf OUTPUT_CONF_THRESH] [--quorum QUORUM] [-g GROUPS]
+            target [target ...] [-- EXTRA_FORMAT_ARGS]
 ```
 
 Parameters:
 - `<target>` (string) - Target [dataset revpaths](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts)
   (repeatable)
-- `-iou`, `--iou-thresh` (number) - IoU matching threshold for spatial
-  annotations (both maximum inter-cluster and pairwise). Default is 0.25.
-- `--quorum` (number) - Minimum count of votes for a label or attribute
-  to be counted. Default is 0.
-- `-g, --groups` (string) - A comma-separated list of label names in
-  annotation groups to check. The `?` postfix can be added to a label to
-  make it optional in the group (repeatable)
-- `-oconf`, `--output-conf-thresh` (number) - Confidence threshold for output
-  annotations to be included in the resulting dataset. Default is 0.
+- `-m`, `--merge-policy` (string) - Policy for how to merge datasets.
+  Supported policies are union, intersect, exact. (default: union)
 - `-o, --output-dir` (string) - Output directory. By default, a new directory
   is created in the current directory.
 - `--overwrite` - Allows to overwrite existing files in the output directory,
@@ -100,37 +92,59 @@ Parameters:
 - `-h, --help` - Print the help message and exit.
 - `-- <extra format args>` - Additional arguments for the format writer
   (use `-- -h` for help). Must be specified after the main command arguments.
+- intersect merge policy options:
+  - `-iou`, `--iou-thresh` (number) - IoU matching threshold for spatial
+    annotations (both maximum inter-cluster and pairwise). Default is 0.25.
+  - `-oconf`, `--output-conf-thresh` (number) - Confidence threshold for output
+    annotations to be included in the resulting dataset. Default is 0.
+  - `--quorum` (number) - Minimum count of votes for a label or attribute
+    to be counted. Default is 0.
+  - `-g, --groups` (string) - A comma-separated list of label names in
+    annotation groups to check. The `?` postfix can be added to a label to
+    make it optional in the group (repeatable)
 
 Examples:
+- Merge 4 (partially-)intersecting projects,
+  - consider voting successful when there are no less than 3 same votes
+  - consider shapes intersecting when IoU >= 0.6
+  - check annotation groups to have `person`, `hand`, `head` and `foot`
+  (`?` is used for optional parts)
 
-Merge 4 (partially-)intersecting projects,
-- consider voting successful when there are no less than 3 same votes
-- consider shapes intersecting when IoU >= 0.6
-- check annotation groups to have `person`, `hand`, `head` and `foot`
-(`?` is used for optional parts)
+  ```console
+  datum merge <path/to/project1/> <path/to/project2/> <path/to/project3/> <path/to/project4/> \
+    -m intersect \
+    --quorum 3 \
+    -iou 0.6 \
+    --groups 'person,hand?,head,foot?'
+  ```
 
-``` bash
-datum merge project1/ project2/ project3/ project4/ \
-  --quorum 3 \
-  -iou 0.6 \
-  --groups 'person,hand?,head,foot?'
-```
+- Merge images and annotations from 2 datasets in COCO format
+  ```console
+  datum merge <path/to/dataset1/>:image_dir <path/to/dataset2/>:coco <path/to/dataset3/>:coco
+  ```
 
-Merge images and annotations from 2 datasets in COCO format:
-`datum merge dataset1/:image_dir dataset2/:coco dataset3/:coco`
-
-Check groups of the merged dataset for consistency:
+- Check groups of the merged dataset for consistency
   look for groups consisting of `person`, `hand` `head`, `foot`
-`datum merge project1/ project2/ -g 'person,hand?,head,foot?'`
+  ```console
+  datum merge <path/to/project1/> <path/to/project2/> -m intersect -g 'person,hand?,head,foot?'
+  ```
 
-Merge two datasets, specify formats:
-`datum merge path/to/dataset1:voc path/to/dataset2:coco`
+- Merge two datasets, specify formats
+  ```console
+  datum merge <path/to/dataset1/>:voc <path/to/dataset2/>:coco
+  ```
 
-Merge the current working tree and a dataset:
-`datum merge path/to/dataset2:coco`
+- Merge the current working tree and a dataset
+  ```console
+  datum merge <path/to/dataset/>:coco
+  ```
 
-Merge a source from a previous revision and a dataset:
-`datum merge HEAD~2:source-2 path/to/dataset2:yolo`
+- Merge a source from a previous revision and a dataset
+  ```console
+  datum merge HEAD~2:source-2 <path/to/dataset/>:yolo
+  ```
 
-Merge datasets and save in different format:
-`datum merge -f voc dataset1/:yolo path2/:coco -- --save-images`
+- Merge datasets and save in different format
+  ```console
+  datum merge -f voc <path/to/dataset1/>:yolo <path/to/dataset2/>:coco -- --save-images
+  ```

@@ -2,7 +2,7 @@
 
 ## Compare datasets
 
-The command compares two datasets and saves the results in the
+This command compares two datasets and saves the results in the
 specified directory. The current project is considered to be
 "ground truth".
 
@@ -11,7 +11,7 @@ Datasets can be compared using different methods:
 - `distance` - A distance metric is used
 
 This command has multiple forms:
-``` bash
+```console
 1) datum diff <revpath>
 2) datum diff <revpath> <revpath>
 ```
@@ -24,12 +24,12 @@ This command has multiple forms:
 \<revpath\> - [a dataset path or a revision path](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).
 
 Usage:
-``` bash
+```console
 datum diff [-h] [-o DST_DIR] [-m METHOD] [--overwrite] [-p PROJECT_DIR]
-  [--iou-thresh IOU_THRESH] [-f FORMAT]
-  [-iia IGNORE_ITEM_ATTR] [-ia IGNORE_ATTR] [-if IGNORE_FIELD]
-  [--match-images] [--all]
-  first_target [second_target]
+           [--iou-thresh IOU_THRESH] [-f FORMAT]
+           [-iia IGNORE_ITEM_ATTR] [-ia IGNORE_ATTR] [-if IGNORE_FIELD]
+           [--match-images] [--all]
+           first_target [second_target]
 ```
 
 Parameters:
@@ -60,27 +60,37 @@ Parameters:
 
 <!-- markdownlint-disable-line MD028 -->Examples:
 - Compare two projects by distance, match boxes if IoU > 0.7,
-  save results to TensorBoard:
-`datum diff other/project -o diff/ -f tensorboard --iou-thresh 0.7`
+  save results to TensorBoard
+  ```console
+  datum diff <path/to/other/project/> -m distance -f tensorboard --iou-thresh 0.7 -o diff/
+  ```
 
 - Compare two projects for equality, exclude annotation groups
-  and the `is_crowd` attribute from comparison:
-`datum diff other/project/ -if group -ia is_crowd`
+  and the `is_crowd` attribute from comparison
+  ```console
+  datum diff <path/to/other/project/> -if group -ia is_crowd
+  ```
 
-- Compare two datasets, specify formats:
-`datum diff path/to/dataset1:voc path/to/dataset2:coco`
+- Compare two datasets for equality, specify formats
+  ```console
+  datum diff <path/to/dataset1/>:voc <path/to/dataset2/>:coco
+  ```
 
-- Compare the current working tree and a dataset:
-`datum diff path/to/dataset2:coco`
+- Compare the current working tree and a dataset for equality
+  ```console
+  datum diff <path/to/dataset2/>:coco
+  ```
 
-- Compare a source from a previous revision and a dataset:
-`datum diff HEAD~2:source-2 path/to/dataset2:yolo`
+- Compare a source from a previous revision and a dataset for equality
+  ```console
+  datum diff HEAD~2:source-2 <path/to/dataset2/>:yolo
+  ```
 
 - Compare a dataset with model inference
-``` bash
-datum create
-datum import <...>
-datum model add mymodel <...>
-datum transform <...> -o inference
-datum diff inference -o diff
-```
+  ```console
+  datum project create <...>
+  datum project import <...>
+  datum model add mymodel <...>
+  datum transform <...> -o inference
+  datum diff inference -o diff
+  ```

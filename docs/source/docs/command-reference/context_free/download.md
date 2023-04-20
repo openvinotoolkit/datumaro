@@ -2,7 +2,7 @@
 
 ## Describe downloadable datasets
 
-This command reports reports various information about datasets that can be
+This command reports various information about datasets that can be
 downloaded with the `download` command. The information is reported either as
 human-readable text (the default) or as a JSON object. The format can be selected
 with the `--report-format` option.
@@ -77,7 +77,7 @@ To use a proxy for downloading, configure it with the conventional
 
 Usage:
 
-``` bash
+```console
 datum download get [-h] -i DATASET_ID [-f OUTPUT_FORMAT] [-o DST_DIR]
                    [--overwrite] [-s SUBSET] [-- EXTRA_EXPORT_ARGS]
 ```
@@ -98,8 +98,8 @@ Parameters:
 - `-- <extra export args>` - Additional arguments for the format writer
   (use `-- -h` for help). Must be specified after the main command arguments.
 
-Example: download the MNIST dataset, saving it in the ImageNet text format:
-
-``` bash
-datum download get -i tfds:mnist -f imagenet_txt -- --save-images
-```
+Examples:
+- Download the MNIST dataset, saving it in the ImageNet text format
+  ```console
+  datum download get -i tfds:mnist -f imagenet_txt -- --save-images
+  ```

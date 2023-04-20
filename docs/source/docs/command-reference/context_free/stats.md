@@ -10,8 +10,8 @@ This command computes various project statistics, such as:
 
 Usage:
 
-``` bash
-datum stats [-h] [-p PROJECT_DIR] [target]
+```console
+datum stats [-h] [-s SUBSET] [--image-stats IMAGE_STATS] [--ann-stats ANN_STATS] [-p PROJECT_DIR] [target]
 ```
 
 Parameters:
@@ -19,17 +19,17 @@ Parameters:
   [source revpath](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).
   By default, computes statistics of the merged dataset.
 - `-s, --subset` (string) - Compute stats only for a specific subset
-- `--image-stats` (bool) - Compute image mean and std (default: True)
-- `--ann-stats` (bool) - Compute annotation statistics (default: True)
+- `--image-stats` (bool) - Compute image mean and std (default: `True`)
+- `--ann-stats` (bool) - Compute annotation statistics (default: `True`)
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
 - `-h, --help` - Print the help message and exit.
 
 Example:
-
-``` bash
-datum stats -p test_project
-```
+- Compute project statistics
+  ```console
+  datum stats -p <path/to/project/>
+  ```
 
 Sample output:
 

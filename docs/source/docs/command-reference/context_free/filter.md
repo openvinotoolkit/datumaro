@@ -76,9 +76,9 @@ dataset(-s) will be saved if `--apply` is enabled.
 
 Usage:
 
-``` bash
+```console
 datum filter [-h] [-e FILTER] [-m MODE] [--dry-run] [--stage STAGE]
-  [--apply APPLY] [-o DST_DIR] [--overwrite] [-p PROJECT_DIR] [target]
+             [--apply APPLY] [-o DST_DIR] [--overwrite] [-p PROJECT_DIR] [target]
 ```
 
 Parameters:
@@ -105,39 +105,29 @@ Parameters:
   (default: current directory).
 - `-h, --help` - Print the help message and exit.
 
-Example: extract a dataset with images with `width` < `height`
+Example:
+- Extract a dataset with images with `width` < `height`
+  ```console
+  datum filter -e '/item[image/width < image/height]'
+  ```
 
-``` bash
-datum filter \
-  -p test_project \
-  -e '/item[image/width < image/height]'
-```
+- Extract a dataset with images of the `train` subset
+  ```console
+  datum filter -e '/item[subset="train"]'
+  ```
 
-Example: extract a dataset with images of the `train` subset
+- Extract a dataset with only large annotations of the `cat` class and any non-`persons`
+  ```console
+  datum filter --mode annotations \
+    -e '/item/annotation[(label="cat" and area > 99.5) or label!="person"]'
+  ```
 
-``` bash
-datum filter \
-  -p test_project \
-  -e '/item[subset="train"]'
-```
-
-Example: extract a dataset with only large annotations of the `cat` class and
-any non-`persons`
-
-``` bash
-datum filter \
-  -p test_project \
-  --mode annotations \
-  -e '/item/annotation[(label="cat" and area > 99.5) or label!="person"]'
-```
-
-Example: extract a dataset with non-occluded annotations, remove empty images.
-Use data only from the "s1" source of the project.
-
-``` bash
-datum create
-datum import --format voc -i <path/to/dataset1/> --name s1
-datum import --format voc -i <path/to/dataset2/> --name s2
-datum filter s1 \
-  -m i+a -e '/item/annotation[occluded="False"]'
-```
+- Extract a dataset with non-occluded annotations, remove empty images.
+  Use data only from the "s1" source of the project
+  ```console
+  datum project create
+  datum project import --format voc -i <path/to/dataset1/> --name s1
+  datum project import --format voc -i <path/to/dataset2/> --name s2
+  datum filter s1 \
+    -m i+a -e '/item/annotation[occluded="False"]'
+  ```
