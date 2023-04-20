@@ -33,7 +33,7 @@ When not specified, the current project's working tree is used.
 
 Usage:
 
-``` bash
+```console
 datum transform [-h] -t TRANSFORM [-o DST_DIR] [--overwrite]
   [-p PROJECT_DIR] [--stage STAGE] [--apply APPLY] [target] [-- EXTRA_ARGS]
 ```
@@ -66,20 +66,20 @@ Parameters:
 
 Examples:
 
-- Split a VOC-like dataset randomly:
-``` bash
-datum transform -t random_split --overwrite path/to/dataset:voc
-```
+- Split a VOC-like dataset randomly
+  ```console
+  datum transform -t random_split --overwrite path/to/dataset:voc
+  ```
 
-- Rename images in a project data source by a regex from `frame_XXX` to `XXX`:
+- Rename images in a project data source by a regex from `frame_XXX` to `XXX`
 
   **NOTE:** Please use double quotes (`"`) for regex representation. Check [Reason to use double quotes](https://stackoverflow.com/questions/51080215/differences-between-single-and-double-quotes-in-cmd).
 
-``` bash
-datum create <...>
-datum import <...> -n source-1
-datum transform -t rename source-1 -- -e "|^frame_||"
-```
+  ```console
+  datum project create <...>
+  datum project import <...> -n source-1
+  datum transform -t rename source-1 -- -e "|^frame_||"
+  ```
 
 ### Built-in transforms
 
@@ -88,6 +88,7 @@ Basic dataset item manipulations:
 - [`id_from_image_name`](#id_from_image_name) - Renames dataset
   items to their image filenames
 - [`reindex`](#reindex) - Renames dataset items with numbers
+- [`sort`](#sort) - Sort dataset items
 - [`ndr`](#ndr) - Removes duplicated images from dataset
 - [`relevancy_sampler`](#relevancy_sampler) - Leaves only the most
   important images
@@ -139,7 +140,7 @@ contain `str.format` replacement fields with the `item`
 (of type `DatasetItem`) object available.
 
 Usage:
-``` bash
+```console
 rename [-h] [-e REGEX]
 ```
 
@@ -149,32 +150,32 @@ Optional arguments:
   `<sep><search><sep><replacement><sep>`
 
 Examples:
-Replace 'pattern' with 'replacement':
-```bash
-datum transform -t rename -- -e "|pattern|replacement|"
-```
+- Replace 'pattern' with 'replacement'
+  ```console
+  datum transform -t rename -- -e "|pattern|replacement|"
+  ```
 
-Remove the `frame_` prefix from item ids:
-```bash
-datum transform -t rename -- -e "|^frame_|\1|"
-```
+- Remove the `frame_` prefix from item ids
+  ```console
+  datum transform -t rename -- -e "|^frame_|\1|"
+  ```
 
-Collect images from subdirectories into the base image directory using regex:
-```bash
-datum transform -t rename -- -e "|^((.+[/\\])*)?(.+)$|\2|"
-```
+- Collect images from subdirectories into the base image directory using regex
+  ```console
+  datum transform -t rename -- -e "|^((.+[/\\])*)?(.+)$|\2|"
+  ```
 
-Add subset prefix to images:
-```bash
-datum transform -t rename -- -e "|(.*)|{item.subset}_\1|"
-```
+- Add subset prefix to images
+  ```console
+  datum transform -t rename -- -e "|(.*)|{item.subset}_\1|"
+  ```
 
 #### `id_from_image_name`
 
 Renames items in the dataset using image file name (without extension).
 
 Usage:
-```bash
+```console
 id_from_image_name [-h]
 ```
 
@@ -186,13 +187,32 @@ Optional arguments:
 Replaces dataset item IDs with sequential indices.
 
 Usage:
-```bash
+```console
 reindex [-h] [-s START]
 ```
 
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 - `-s`, `--start` (int) - Start value for item ids (default: 1)
+
+#### `sort`
+
+Sorts dataset items.
+
+Usage:
+```console
+reindex [-h] [-s START]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `-k`, `--key` (string/callable) - key function to sort (default: sorted by `item.id`)
+
+Examples:
+- Sort by id converted into integer
+  ```console
+  datum transform -t ndr -- --key "lambda item: int(item.id)"
+  ```
 
 #### `ndr`
 
@@ -211,9 +231,9 @@ Available undersampling policies (the `-u` parameter):
   items with the same similarity
 
 Usage:
-```bash
+```console
 ndr [-h] [-w WORKING_SUBSET] [-d DUPLICATED_SUBSET] [-a {gradient}]
-  [-k NUM_CUT] [-e {random,similarity}] [-u {uniform,inverse}] [-s SEED]
+    [-k NUM_CUT] [-e {random,similarity}] [-u {uniform,inverse}] [-s SEED]
 ```
 
 Optional arguments:
@@ -231,15 +251,16 @@ Optional arguments:
   when `num_cut` is smaller than result length (default: `uniform`)
 - `-s`, `--seed` (int) - Random seed
 
-Example: apply NDR, return no more than 100 images
-``` bash
-datum transform -t ndr -- \
-  --working_subset train
-  --algorithm gradient
-  --num_cut 100
-  --over_sample random
-  --under_sample uniform
-```
+Examples:
+- Apply NDR, return no more than 100 images
+  ```console
+  datum transform -t ndr -- \
+    --working_subset train
+    --algorithm gradient
+    --num_cut 100
+    --over_sample random
+    --under_sample uniform
+  ```
 
 #### `relevancy_sampler`
 
@@ -266,10 +287,10 @@ Notes:
   all images.
 
 Usage:
-```bash
+```console
 relevancy_sampler [-h] -k COUNT [-a {entropy}] [-i INPUT_SUBSET]
-  [-o SAMPLED_SUBSET] [-u UNSAMPLED_SUBSET]
-  [-m {topk,lowk,randk,mixk,randtopk}] [-d OUTPUT_FILE]
+                  [-o SAMPLED_SUBSET] [-u UNSAMPLED_SUBSET]
+                  [-m {topk,lowk,randk,mixk,randtopk}] [-d OUTPUT_FILE]
 ```
 
 Optional arguments:
@@ -288,19 +309,19 @@ Optional arguments:
 - `-d`, `--output_file` (path) - A `.csv` file path to dump sampling results
 
 Examples:
-Select the most relevant data subset of 20 images
-based on model certainty, put the result into `sample` subset
-and put all the rest into `unsampled` subset, use `train` subset
-as input. The dataset **must** contain model confidence values in the `scores`
-attributes of annotations.
-```bash
-datum transform -t relevancy_sampler -- \
-  --algorithm entropy \
-  --subset_name train \
-  --sample_name sample \
-  --unsampled_name unsampled \
-  --sampling_method topk -k 20
-```
+- Select the most relevant data subset of 20 images
+  based on model certainty, put the result into `sample` subset
+  and put all the rest into `unsampled` subset, use `train` subset
+  as input. The dataset **must** contain model confidence values in the `scores`
+  attributes of annotations.
+  ```console
+  datum transform -t relevancy_sampler -- \
+    --algorithm entropy \
+    --subset_name train \
+    --sample_name sample \
+    --unsampled_name unsampled \
+    --sampling_method topk -k 20
+  ```
 
 #### `random_sampler`
 
@@ -313,7 +334,7 @@ Notes:
   all images
 
 Usage:
-```bash
+```console
 random_sampler [-h] -k COUNT [-s SUBSET] [--seed SEED]
 ```
 
@@ -325,15 +346,15 @@ Optional arguments:
 - `--seed` (int) - Initial value for random number generator
 
 Examples:
-Select subset of 20 images randomly
-```bash
-datum transform -t random_sampler -- -k 20
-```
+- Select subset of 20 images randomly
+  ```console
+  datum transform -t random_sampler -- -k 20
+  ```
 
-Select subset of 20 images, modify only `train` subset
-```bash
-datum transform -t random_sampler -- -k 20 -s train
-```
+- Select subset of 20 images, modify only `train` subset
+  ```console
+  datum transform -t random_sampler -- -k 20 -s train
+  ```
 
 #### `random_label_sampler`
 
@@ -355,7 +376,7 @@ Notes:
   specified `count` > 0
 
 Usage:
-```bash
+```console
 label_random_sampler [-h] -k COUNT [-l LABEL_COUNTS] [--seed SEED]
 ```
 
@@ -368,20 +389,20 @@ Optional arguments:
 - `--seed` (int) - Initial value for random number generator
 
 Examples:
-Select a dataset with at least 10 images of each class:
-``` bash
-datum transform -t label_random_sampler -- -k 10
-```
+- Select a dataset with at least 10 images of each class
+  ```console
+  datum transform -t label_random_sampler -- -k 10
+  ```
 
-Select a dataset with at least 20 `cat` images, 5 `dog`, 0 `car` and 10 of each
-unmentioned class:
-``` bash
-datum transform -t label_random_sampler -- \
-  -l cat:20 \ # keep 20 images with cats
-  -l dog:5 \ # keep 5 images with dogs
-  -l car:0 \ # remove car annotations
-  -k 10 # for remaining classes
-```
+- Select a dataset with at least 20 `cat` images, 5 `dog`, 0 `car` and 10 of each
+  unmentioned class
+  ```console
+  datum transform -t label_random_sampler -- \
+    -l cat:20 \ # keep 20 images with cats
+    -l dog:5 \ # keep 5 images with dogs
+    -l car:0 \ # remove car annotations
+    -k 10 # for remaining classes
+  ```
 
 #### `resize`
 
@@ -389,7 +410,7 @@ Resizes images and annotations in the dataset to the specified size.
 Supports upscaling, downscaling and mixed variants.
 
 Usage:
-```bash
+```console
 resize [-h] [-dw WIDTH] [-dh HEIGHT]
 ```
 
@@ -399,17 +420,17 @@ Optional arguments:
 - `-dh`, `--height` (int) - Destination image height
 
 Examples:
-Resize all images to 256x256 size
-```
-datum transform -t resize -- -dw 256 -dh 256
-```
+- Resize all images to 256x256 size
+  ```
+  datum transform -t resize -- -dw 256 -dh 256
+  ```
 
 #### `remove_images`
 
 Removes specific dataset items by their ids.
 
 Usage:
-```bash
+```console
 remove_images [-h] [--id IDs]
 ```
 
@@ -418,11 +439,10 @@ Optional arguments:
 - `--id` (str) - Item id to remove. Id is '<name>:<subset>' pair (repeatable)
 
 Examples:
-
-Remove specific images from the dataset
-```bash
-datum transform -t remove_images -- --id 'image1:train' --id 'image2:test'
-```
+- Remove specific images from the dataset
+  ```console
+  datum transform -t remove_images -- --id 'image1:train' --id 'image2:test'
+  ```
 
 #### `remove_annotations`
 
@@ -431,7 +451,7 @@ Allows to remove annotations on specific dataset items.
 Can be useful to clean the dataset from broken or unnecessary annotations.
 
 Usage:
-```bash
+```console
 remove_annotations [-h] [--id IDs]
 ```
 
@@ -441,10 +461,10 @@ Optional arguments:
   If not specified, removes all annotations (repeatable)
 
 Examples:
-Remove annotations from specific items in the dataset
-```bash
-datum transform -t remove_annotations -- --id 'image1:train' --id 'image2:test'
-```
+- Remove annotations from specific items in the dataset
+  ```console
+  datum transform -t remove_annotations -- --id 'image1:train' --id 'image2:test'
+  ```
 
 #### `remove_attributes`
 
@@ -453,7 +473,7 @@ Allows to remove item and annotation attributes in a dataset.
 Can be useful to clean the dataset from broken or unnecessary attributes.
 
 Usage:
-```bash
+```console
 remove_attributes [-h] [--id IDs] [--attr ATTRIBUTE_NAME]
 ```
 
@@ -465,18 +485,18 @@ Optional arguments:
   removes all attributes (repeatable)
 
 Examples:
-Remove the `is_crowd` attribute from dataset
-```bash
-datum transform -t remove_attributes -- \
-  --attr 'is_crowd'
-```
+- Remove the `is_crowd` attribute from dataset
+  ```console
+  datum transform -t remove_attributes -- \
+    --attr 'is_crowd'
+  ```
 
-Remove the `occluded` attribute from annotations of
-the `2010_001705` item in the `train` subset
-```bash
-datum transform -t remove_attributes -- \
-  --id '2010_001705:train' --attr 'occluded'
-```
+- Remove the `occluded` attribute from annotations of
+  the `2010_001705` item in the `train` subset
+  ```console
+  datum transform -t remove_attributes -- \
+    --id '2010_001705:train' --attr 'occluded'
+  ```
 
 #### `random_split`
 
@@ -484,7 +504,7 @@ Joins all subsets into one and splits the result into few parts.
 It is expected that item ids are unique and subset ratios sum up to 1.
 
 Usage:
-```bash
+```console
 random_split [-h] [-s SPLITS] [--seed SEED]
 ```
 
@@ -494,11 +514,11 @@ Optional arguments:
   (repeatable, default: {`train`: 0.67, `test`: 0.33})
 - `--seed` (int) - Random seed
 
-Example:
-Split a dataset randomly to `train` and `test` subsets, ratio is 2:1
-``` bash
-datum transform -t random_split -- --subset train:.67 --subset test:.33
-```
+Examples:
+- Split a dataset randomly to `train` and `test` subsets, ratio is 2:1
+  ```console
+  datum transform -t random_split -- --subset train:.67 --subset test:.33
+  ```
 
 #### `split`
 
@@ -542,9 +562,9 @@ In reidentification task,
   Gallery ratio would be `1.0 - query`.
 
 Usage:
-```bash
+```console
 split [-h] [-t {classification,detection,segmentation,reid}]
-  [-s SPLITS] [--query QUERY] [--attr ATTR_FOR_ID] [--seed SEED]
+      [-s SPLITS] [--query QUERY] [--attr ATTR_FOR_ID] [--seed SEED]
 ```
 
 Optional arguments:
@@ -557,32 +577,33 @@ Optional arguments:
 - `--attr` (str) - Attribute name representing the ID (default: use label)
 - `--seed`(int) - Random seed
 
-Example:
-```
-datum transform -t split -- -t classification \
-  --subset train:.5 --subset val:.2 --subset test:.3
+Examples:
+- Split by ratio
+  ```
+  datum transform -t split -- -t classification \
+    --subset train:.5 --subset val:.2 --subset test:.3
 
-datum transform -t split -- -t detection \
-  --subset train:.5 --subset val:.2 --subset test:.3
+  datum transform -t split -- -t detection \
+    --subset train:.5 --subset val:.2 --subset test:.3
 
-datum transform -t split -- -t segmentation \
-  --subset train:.5 --subset val:.2 --subset test:.3
+  datum transform -t split -- -t segmentation \
+    --subset train:.5 --subset val:.2 --subset test:.3
 
-datum transform -t split -- -t reid \
-  --subset train:.5 --subset val:.2 --subset test:.3 --query .5
-```
+  datum transform -t split -- -t reid \
+    --subset train:.5 --subset val:.2 --subset test:.3 --query .5
+  ```
 
-Example: use `person_id` attribute for splitting
-```bash
-datum transform -t split -- -t detection --attr person_id
-```
+- Use `person_id` attribute for splitting
+  ```console
+  datum transform -t split -- -t detection --attr person_id
+  ```
 
 #### `map_subsets`
 
 Renames subsets in the dataset.
 
 Usage:
-```bash
+```console
 map_subsets [-h] [-s MAPPING]
 ```
 
@@ -605,7 +626,7 @@ A label can be:
 Annotations with no label are managed by the default action policy.
 
 Usage:
-```bash
+```console
 remap_labels [-h] [-l MAPPING] [--default {keep,delete}]
 ```
 
@@ -616,24 +637,24 @@ Optional arguments:
   (default: `keep`)
 
 Examples:
-Remove the `person` label (and corresponding annotations):
-```bash
-datum transform -t remap_labels -- -l person: --default keep
-```
+- Remove the `person` label (and corresponding annotations)
+  ```console
+  datum transform -t remap_labels -- -l person: --default keep
+  ```
 
-Rename `person` to `pedestrian` and `human` to `pedestrian`, join annotations
-that had different classes under the same class id for `pedestrian`,
-don't touch other classes:
-```bash
-datum transform -t remap_labels -- \
-  -l person:pedestrian -l human:pedestrian --default keep
-```
+- Rename `person` to `pedestrian` and `human` to `pedestrian`, join annotations
+  that had different classes under the same class id for `pedestrian`,
+  don't touch other classes
+  ```console
+  datum transform -t remap_labels -- \
+    -l person:pedestrian -l human:pedestrian --default keep
+  ```
 
-Rename `person` to `car` and `cat` to `dog`, keep `bus`, remove others:
-```bash
-datum transform -t remap_labels -- \
-  -l person:car -l bus:bus -l cat:dog --default delete
-```
+- Rename `person` to `car` and `cat` to `dog`, keep `bus`, remove others
+  ```console
+  datum transform -t remap_labels -- \
+    -l person:car -l bus:bus -l cat:dog --default delete
+  ```
 
 #### `project_labels`
 
@@ -649,7 +670,7 @@ new labels will obtain generated colors.
 Useful for merging similar datasets, whose labels need to be aligned.
 
 Usage:
-```bash
+```console
 project_labels [-h] [-l DST_LABELS]
 ```
 
@@ -658,12 +679,12 @@ Optional arguments:
 - `-l`, `--label` (str; repeatable) - Label name (ordered)
 
 Examples:
-Set dataset labels to \[`person`, `cat`, `dog`\], remove others, add missing.
-Original labels (for example): `cat`, `dog`, `elephant`, `human`.
-New labels: `person` (added), `cat` (kept), `dog` (kept).
-``` bash
-datum transform -t project_labels -- -l person -l cat -l dog
-```
+- Set dataset labels to \[`person`, `cat`, `dog`\], remove others, add missing.
+  Original labels (for example): `cat`, `dog`, `elephant`, `human`.
+  New labels: `person` (added), `cat` (kept), `dog` (kept).
+  ```console
+  datum transform -t project_labels -- -l person -l cat -l dog
+  ```
 
 #### `shapes_to_boxes`
 
@@ -671,28 +692,28 @@ Converts spatial annotations (masks, polygons, polylines, points)
 to enclosing bounding boxes.
 
 Usage:
-```bash
+```console
 shapes_to_boxes [-h]
 ```
 
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 
-Example:
-Convert spatial annotations between each other
-``` bash
-datum transform -t boxes_to_masks
-datum transform -t masks_to_polygons
-datum transform -t polygons_to_masks
-datum transform -t shapes_to_boxes
-```
+Examples:
+- Convert spatial annotations between each other
+  ```console
+  datum transform -t boxes_to_masks
+  datum transform -t masks_to_polygons
+  datum transform -t polygons_to_masks
+  datum transform -t shapes_to_boxes
+  ```
 
 #### `boxes_to_masks`
 
 Converts bounding boxes to masks.
 
 Usage:
-```bash
+```console
 boxes_to_masks [-h]
 ```
 
@@ -704,7 +725,7 @@ Optional arguments:
 Converts polygons to masks.
 
 Usage:
-```bash
+```console
 polygons_to_masks [-h]
 ```
 
@@ -716,7 +737,7 @@ Optional arguments:
 Converts masks to polygons.
 
 Usage:
-```bash
+```console
 masks_to_polygons [-h]
 ```
 
@@ -729,7 +750,7 @@ Collects all labels from annotations (of all types) and transforms
 them into a set of annotations of type `Label`
 
 Usage:
-```bash
+```console
 anns_to_labels [-h]
 ```
 
@@ -744,7 +765,7 @@ The largest annotation in the group is considered the group "head", so the
 resulting mask takes properties from that annotation.
 
 Usage:
-```bash
+```console
 merge_instance_segments [-h] [--include-polygons]
 ```
 
@@ -760,7 +781,7 @@ into several independent parts by the segments above, produces
 the corresponding number of separate annotations joined into a group.
 
 Usage:
-```bash
+```console
 crop_covered_segments [-h]
 ```
 
@@ -772,7 +793,7 @@ Optional arguments:
 Subtracts one from the coordinates of bounding boxes
 
 Usage:
-```bash
+```console
 bbox_values_decrement [-h]
 ```
 

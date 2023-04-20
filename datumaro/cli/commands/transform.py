@@ -57,17 +57,17 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         saved if '--apply' is enabled.|n
         |n
         Examples:|n
-        - Convert instance polygons to masks:|n |n
+        - Convert instance polygons to masks:|n
         |s|s%(prog)s -t polygons_to_masks|n
         |n
-        - Rename dataset items by a regular expression:|n |n
-        |s|s- Replace 'pattern' with 'replacement':|n |n
+        - Rename dataset items by a regular expression:|n
+        |s|s- Replace 'pattern' with 'replacement':|n
         |s|s|s|s%(prog)s -t rename -- -e '|pattern|replacement|'|n
         |n
-        |s|s- Remove 'frame_' from item ids:|n |n
+        |s|s- Remove 'frame_' from item ids:|n
         |s|s|s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'|n
         |n
-        - Split a dataset randomly:|n |n
+        - Split a dataset randomly:|n
         |s|s%(prog)s -t random_split --overwrite path/to/dataset:voc
         """.format(
             ", ".join(builtins)
