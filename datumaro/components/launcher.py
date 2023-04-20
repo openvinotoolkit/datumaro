@@ -42,7 +42,9 @@ class ModelTransform(Transform):
         for batch in take_by(self._extractor, self._batch_size):
             inputs = []
             for item in batch:
-                if not self._launcher.type_check(item) and not self._launcher.inferenced_check(item):
+                if not self._launcher.type_check(item) and not self._launcher.inferenced_check(
+                    item
+                ):
                     continue
                 inputs.append(np.atleast_3d(item.media.data))
             inputs = np.array(inputs)

@@ -79,6 +79,7 @@ def get_sensitive_args():
         ]
     }
 
+
 @scoped
 def explore_command(args):
     project = None

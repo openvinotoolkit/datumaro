@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from typing import List, Optional, Union
-import logging as log
 
 import numpy as np
 
@@ -60,8 +59,6 @@ class Explorer:
                         item_list.append(item)
                     except Exception:
                         hash_key = None
-        log.info("Compute hash for all '%i' datasetitems in dataset" % len(item_list))
-        # print("Compute hash for all '%i' datasetitems in dataset" % len(item_list))
 
         self._database_keys = database_keys
         self._item_list = item_list

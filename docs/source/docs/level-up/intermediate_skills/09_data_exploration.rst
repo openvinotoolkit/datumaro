@@ -25,10 +25,10 @@ The Python example for the usage of explorer is described in `here <https://gith
             datum import <path/to/dataset/>
 
         We can explore similar items for the query
-        
+
         ..code-block:: bash
             datum explore -q QUERY -topk TOPK_NUM
-        
+
         ``QUERY`` could be image file path, text description, list of both of them
         ``TOPK_NUM`` is an integer that you want to find the number of similar results for query
 
@@ -43,7 +43,7 @@ The Python example for the usage of explorer is described in `here <https://gith
             from datumaro.components.dataset import Dataset
             from datumaro.components.environment import Environment
             from datumaro.componenets.explorer import Explorer
-            
+
             data_path = '/path/to/data'
 
             env = Environment()
