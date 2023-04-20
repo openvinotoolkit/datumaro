@@ -9,7 +9,7 @@ The detection result may be one of:
 
 - a single format being detected;
 - no formats being detected (if the dataset doesn't match any known format);
-- multiple formats being detected (if the dataset is ambiguous).
+- multiple formats being detected (if the dataset is ambiguous);
 
 The command outputs this result in a human-readable form and
 optionally as a machine-readable JSON report (see `--json-report`).
@@ -47,16 +47,15 @@ Other reason codes may be defined in the future.
 
 Usage:
 
-``` bash
+```console
 datum detect [-h] [-p PROJECT_DIR] [--show-rejections]
-             [--json-report JSON_REPORT] url
+             [--json-report JSON_REPORT] [--depth DEPTH] url
 ```
 
 Parameters:
 
 - `<url>` - Path to the dataset to analyse.
-- `-h`, `--help` - Print the help message and exit.
-- `-p, --project` (string) - Directory of the project to use as the context
+- `-p, --project` (string) - Directory of the project to operate on
   (default: current directory). The project might contain local plugins with
   custom formats, which will be used for detection.
 - `--show-rejections` - Describe why each supported format that wasn't
@@ -64,10 +63,12 @@ Parameters:
   machine-readable report always includes rejection information.
 - `--json-report` (string) - Path to which to save a JSON report describing
   detected and rejected formats. By default, no report is saved.
+- `--depth` (int) - The maximum depth for recursive search. (default: 2)
+- `-h`, `--help` - Print the help message and exit.
 
-Example: detect the format of a dataset in a given directory,
-showing rejection information:
-
-``` bash
-datum detect --show-rejections path/to/dataset
-```
+Examples:
+- Detect the format of a dataset in a given directory,
+  showing rejection information
+  ```console
+  datum detect --show-rejections <path/to/dataset/>
+  ```

@@ -30,8 +30,9 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         The value of -p/--project is used as a context for plugins.|n
         |n
-        Example:|n
-        |s|s%(prog)s --show-rejections path/to/dataset
+        Examples:|n
+        - Detect the format of a dataset in a given directory, showing rejection information:|n
+        |s|s%(prog)s --show-rejections <path/to/dataset>
         """,
         formatter_class=MultilineFormatter,
     )
@@ -41,19 +42,24 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "-p",
         "--project",
         dest="project_dir",
-        help="Directory of the project to use as the context " "(default: current dir)",
+        help="Directory of the project to operate on (default: current dir)",
     )
     parser.add_argument(
         "--show-rejections",
         action="store_true",
-        help="Describe why each supported format that wasn't detected " "was rejected",
+        help="Describe why each supported format that wasn't detected was rejected",
     )
     parser.add_argument(
         "--json-report",
         help="Path to which to save a JSON report describing detected "
         "and rejected formats. By default, no report is saved.",
     )
-    parser.add_argument("--depth", help="The maximum depth for recursive search (default: 2) ")
+    parser.add_argument(
+        "--depth",
+        type=int,
+        default=2,
+        help="The maximum depth for recursive search (default: %(default)s) "
+    )
     parser.set_defaults(command=detect_format_command)
 
     return parser
@@ -91,7 +97,7 @@ def detect_format_command(args):
             "message": human_message,
         }
 
-    depth = 2 if not args.depth else int(args.depth)
+    depth = int(args.depth)
     detected_formats = env.detect_dataset(
         args.url, rejection_callback=rejection_callback, depth=depth
     )
