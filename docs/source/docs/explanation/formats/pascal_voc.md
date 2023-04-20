@@ -230,7 +230,7 @@ datum export -f voc_segmentation -- --label-map voc
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Pascal VOC format in particular. Follow
-[user manual](/docs/user-manual/index/)
+[user manual](../../user-manual/how_to_use_datumaro/)
 to get more information about these operations.
 
 There are few examples of using Datumaro operations to solve

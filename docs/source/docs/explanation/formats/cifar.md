@@ -158,7 +158,7 @@ exported depends on the presence of superclasses in the `LabelCategories`.
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the CIFAR format in particular. Follow the [user manual](/docs/user-manual/index)
+and for the CIFAR format in particular. Follow the [user manual](../../user-manual/how_to_use_datumaro)
 to get more information about these operations.
 
 There are several examples of using Datumaro operations to solve

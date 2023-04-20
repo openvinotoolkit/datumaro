@@ -148,7 +148,7 @@ datum export -f cityscapes -- --label-map cityscapes
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Cityscapes format in particular. Follow the
-[user manual](/docs/user-manual/index/)
+[user manual](../../user-manual/how_to_use_datumaro/)
 to get more information about these operations.
 
 There are several examples of using Datumaro operations to solve
