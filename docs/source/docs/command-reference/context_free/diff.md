@@ -68,7 +68,7 @@ Parameters:
 - Compare two projects for equality, exclude annotation groups
   and the `is_crowd` attribute from comparison
   ```console
-  datum diff <path/to/other/project/>/ -if group -ia is_crowd
+  datum diff <path/to/other/project/> -if group -ia is_crowd
   ```
 
 - Compare two datasets for equality, specify formats
