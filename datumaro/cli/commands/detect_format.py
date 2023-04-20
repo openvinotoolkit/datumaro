@@ -58,7 +58,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "--depth",
         type=int,
         default=2,
-        help="The maximum depth for recursive search (default: %(default)s) "
+        help="The maximum depth for recursive search (default: %(default)s) ",
     )
     parser.set_defaults(command=detect_format_command)
 
