@@ -55,6 +55,8 @@ class _LogManager:
 
         # Suppress own deprecation warnings
         warnings.filterwarnings("ignore", category=DeprecationWarning, module=r"datumaro\..*")
+        # We don't use sklearn directly, but it yells out too much about its deprecations.
+        warnings.filterwarnings("ignore", category=DeprecationWarning, module=r"sklearn\..*")
 
     @staticmethod
     def _define_loglevel_option(parser):
@@ -114,7 +116,7 @@ def make_parser():
     if known_commands:
         if subcommands_desc:
             subcommands_desc += "\n"
-        subcommands_desc += "Basic Commands:\n"
+        subcommands_desc += "Context-free Commands:\n"
         subcommands_desc += make_subcommands_help(known_commands, help_line_start)
     if subcommands_desc:
         subcommands_desc += (

@@ -25,12 +25,12 @@ The AVA action dataset is available for free download
 A Datumaro project with a AVA action source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format ava <path/to/dataset>
+datum project create
+datum project import --format ava <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 The AVA action dataset directory should have the following structure:
 
@@ -70,9 +70,9 @@ e.g., AVA action annotations can be converted to `COCO detection`.
 There are several ways to convert a AVA action dataset to other dataset formats:
 
 ``` bash
-datum create
-datum import -f ava <path/to/ava>
-datum export -f coco -o <output/dir>
+datum project create
+datum project import -f ava <path/to/ava>
+datum project export -f coco -o <output/dir>
 ```
 or
 ``` bash
@@ -94,7 +94,7 @@ There are several ways to convert an existing dataset to AVA action format:
 
 ``` bash
 # export dataset into AVA action format (detection) from existing project
-datum export -p <path/to/project> -f ava -o <output/dir> --
+datum project export -p <path/to/project> -f ava -o <output/dir> --
 ```
 ``` bash
 # converting to AVA action format from other format
@@ -109,7 +109,7 @@ Extra options for exporting to AVA action format:
   (by default `False`).
 
 ```bash
-datum export -f ava -- --extra-option-1 --extra-option-2 ...
+datum project export -f ava -- --extra-option-1 --extra-option-2 ...
 ```
 
 ## Examples

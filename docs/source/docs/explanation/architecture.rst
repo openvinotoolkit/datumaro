@@ -219,7 +219,7 @@ Projects
 
 Projects are intended for complex use of Datumaro. They provide means of
 persistence, versioning, high-level operations for datasets and also
-allow to extend Datumaro via `plugins <#plugins>`_. A project provides
+allow to extend Datumaro via :ref:`Plugins`. A project provides
 access to build trees and revisions, data sources, models, configuration,
 plugins and cache. Projects can have multiple data sources, which are
 `joined <#dataset-merging>`_ on dataset creation. Project configuration is available
@@ -232,7 +232,7 @@ The :mod:`Environment <datumaro.components.environment>` class is responsible fo
 project-specific plugins. For a :mod:`Project <datumaro.components.project.Project>` object, there is an instance of
 related :mod:`Environment <datumaro.components.environment>` in :mod:`project.env <datumaro.components.project.Project.env>`.
 
-Check the :ref:`Data Model section of the User Manual <supported_formats>`:
+Check the :ref:`Data Model section of the User Manual <Project data model>`:
 for more info about Project behavior and high-level details.
 
 Library contents
@@ -418,10 +418,9 @@ Single commands are handy shorter alternatives for the most used commands
 and also special commands, which are hard to be put into any specific context.
 `Docker <https://www.docker.com/>`_ is an example of similar approach.
 
-.. raw:: html
-   :file: ../../../images/command_diag1.svg
+.. graphviz:: command_line.dot
 
-:ref:`List of plugins available through the CLI <supported_formats>`
+:ref:`List of plugins available through the CLI <Supported Plugins>`
 
 Model-View-ViewModel (MVVM) UI pattern is used.
 

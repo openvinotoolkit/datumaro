@@ -220,7 +220,6 @@ class DiffTest(TestCase):
             result_dir = osp.join(test_dir, "cmp_result")
             run(
                 self,
-                "project",
                 "diff",
                 dataset1_url + ":coco",
                 dataset2_url + ":voc",
@@ -273,7 +272,6 @@ class DiffTest(TestCase):
             result_dir = osp.join(test_dir, "cmp_result")
             run(
                 self,
-                "project",
                 "diff",
                 dataset1_url + ":coco",
                 dataset2_url + ":voc",

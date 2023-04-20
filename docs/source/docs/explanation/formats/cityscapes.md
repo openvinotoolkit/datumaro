@@ -21,8 +21,8 @@ The Cityscapes dataset is available for free [download](https://www.cityscapes-d
 A Datumaro project with a Cityscapes source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format cityscapes <path/to/dataset>
+datum project create
+datum project import --format cityscapes <path/to/dataset>
 ```
 
 Cityscapes dataset directory should have the following structure:
@@ -89,9 +89,9 @@ There are several ways to convert a Cityscapes dataset to other dataset
 formats using CLI:
 
 ``` bash
-datum create
-datum import -f cityscapes <path/to/cityscapes>
-datum export -f voc -o <output/dir>
+datum project create
+datum project import -f cityscapes <path/to/cityscapes>
+datum project export -f voc -o <output/dir>
 ```
 or
 ``` bash
@@ -114,7 +114,7 @@ There are several ways to convert a dataset to Cityscapes format:
 
 ``` bash
 # export dataset into Cityscapes format from existing project
-datum export -p <path/to/project> -f cityscapes -o <output/dir> \
+datum project export -p <path/to/project> -f cityscapes -o <output/dir> \
     -- --save-media
 ```
 ``` bash
@@ -137,18 +137,18 @@ Extra options for exporting to Cityscapes format:
 # 0 0 255 sky
 # 255 0 0 person
 #...
-datum export -f cityscapes -- --label-map mycolormap.txt
+datum project export -f cityscapes -- --label-map mycolormap.txt
 ```
 or you can use original cityscapes colomap:
 ``` bash
-datum export -f cityscapes -- --label-map cityscapes
+datum project export -f cityscapes -- --label-map cityscapes
 ```
 
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Cityscapes format in particular. Follow the
-[user manual](/docs/user-manual/index/)
+[user manual](../../user-manual/how_to_use_datumaro/)
 to get more information about these operations.
 
 There are several examples of using Datumaro operations to solve
@@ -157,10 +157,10 @@ particular problems with a Cityscapes dataset:
 ### Example 1. Load the original Cityscapes dataset and convert to Pascal VOC
 
 ```bash
-datum create -o project
-datum import -p project -f cityscapes ./Cityscapes/
+datum project create -o project
+datum project import -p project -f cityscapes ./Cityscapes/
 datum stats -p project
-datum export -p project -o dataset/ -f voc -- --save-media
+datum project export -p project -o dataset/ -f voc -- --save-media
 ```
 
 ### Example 2. Create a custom Cityscapes-like dataset

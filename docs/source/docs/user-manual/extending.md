@@ -60,7 +60,7 @@ This plugin provides support for model inference with [OpenVINO™](https://01.o
 **Dependencies**
 
 The plugin depends on the OpenVINO™ Toolkit, which can be installed by
-following [these instructions](https://docs.openvinotoolkit.org/latest/index.html#packaging_and_deployment)
+following [these instructions](https://docs.openvino.ai/latest/openvino_docs_install_guides_install_runtime.html)
 
 ## Dataset Formats
 

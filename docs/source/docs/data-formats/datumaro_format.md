@@ -4,11 +4,11 @@ So far, in the field of computer vision, there are various tasks such as classif
 and segmentation, as well as pose estimation and visual tracking, and public data is used by providing
 a format suitable for each task. Even within the same segmentation task, some data formats provide
 annotation information as polygons, while others provide mask form. In order to ensure compatibility
-with different tasks and formats, we provide a novel Datumaro format with `.json` or `.datum`
+with different tasks and formats, we provide a novel Datumaro format with `.json` ([Datumaro](../explanation/formats/datumaro.md)) or `.datum` ([DatumaroBinary](../explanation/formats/datumaro.md))
 extensions.
 
 A variety of metadata can be stored in the datumaro format. First of all, `dm_format_version` field
-is provided for backward compatibility to help with data version tracing.And various metadata can be
+is provided for backward compatibility to help with data version tracing and various metadata can be
 added to the `info` field. For example, you can record task types such as detection and segmentation,
 or record data creation time. Labels and attributes can be saved in the `categories` field, and mask
 colormap information can be saved. In addition, in the datumaro format, in order to respond to

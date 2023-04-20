@@ -89,10 +89,10 @@ class ProjectIntegrationScenarios(TestCase):
             run(self, "project", "import", "-f", "coco", "-p", test_dir, coco_dir)
 
             with self.subTest("on project"):
-                run(self, "project", "pinfo", "-p", test_dir)
+                run(self, "project", "info", "-p", test_dir)
 
             with self.subTest("on project revision"):
-                run(self, "project", "pinfo", "-p", test_dir, "HEAD")
+                run(self, "project", "info", "-p", test_dir, "HEAD")
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_list_dataset_info(self):
@@ -107,19 +107,19 @@ class ProjectIntegrationScenarios(TestCase):
             run(self, "project", "commit", "-m", "first", "-p", test_dir)
 
             with self.subTest("on current project"):
-                run(self, "project", "dinfo", "-p", test_dir)
+                run(self, "dinfo", "-p", test_dir)
 
             with self.subTest("on current project revision"):
-                run(self, "project", "dinfo", "-p", test_dir, "HEAD")
+                run(self, "dinfo", "-p", test_dir, "HEAD")
 
             with self.subTest("on other project"):
-                run(self, "project", "dinfo", test_dir)
+                run(self, "dinfo", test_dir)
 
             with self.subTest("on other project revision"):
-                run(self, "project", "dinfo", test_dir + "@HEAD")
+                run(self, "dinfo", test_dir + "@HEAD")
 
             with self.subTest("on dataset"):
-                run(self, "project", "dinfo", coco_dir + ":coco")
+                run(self, "dinfo", coco_dir + ":coco")
 
     def test_can_use_vcs(self):
         with TestDir() as test_dir:
@@ -147,7 +147,6 @@ class ProjectIntegrationScenarios(TestCase):
 
             run(
                 self,
-                "project",
                 "transform",
                 "-p",
                 project_dir,
@@ -298,10 +297,9 @@ class ProjectIntegrationScenarios(TestCase):
             source_url,
         )
         run(self, "filter", "-p", project_dir, "-e", '/item/annotation[label="b"]')
-        run(self, "project", "transform", "-p", project_dir, "-t", "rename", "--", "-e", "|2|qq|")
+        run(self, "transform", "-p", project_dir, "-t", "rename", "--", "-e", "|2|qq|")
         run(
             self,
-            "project",
             "transform",
             "-p",
             project_dir,

@@ -58,12 +58,12 @@ Annotations:
 A Datumaro project with a COCO source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format coco <path/to/dataset>
+datum project create
+datum project import --format coco <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 Extra options for adding a source in the COCO format:
 
@@ -134,8 +134,8 @@ instead of the whole dataset. This option also allows to import annotation
 files with non-default names. For example:
 
 ``` bash
-datum create
-datum import --format coco_stuff -r <relpath/to/stuff.json> <path/to/dataset>
+datum project create
+datum project import --format coco_stuff -r <relpath/to/stuff.json> <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
@@ -156,9 +156,9 @@ There are several ways to convert a COCO dataset to other dataset formats
 using CLI:
 
 ``` bash
-datum create
-datum import -f coco <path/to/coco>
-datum export -f voc -o <output/dir>
+datum project create
+datum project import -f coco <path/to/coco>
+datum project export -f voc -o <output/dir>
 ```
 or
 ``` bash
@@ -180,7 +180,7 @@ There are several ways to convert a dataset to COCO format:
 
 ``` bash
 # export dataset into COCO format from existing project
-datum export -p <path/to/project> -f coco -o <output/dir> \
+datum project export -p <path/to/project> -f coco -o <output/dir> \
     -- --save-media
 ```
 ``` bash
@@ -224,16 +224,16 @@ Extra options for exporting to COCO format:
   by default Datumaro uses all tasks. Example:
 
 ```bash
-datum create
-datum import -f coco <path/to/dataset>
-datum export -f coco -- --tasks instances,stuff
+datum project create
+datum project import -f coco <path/to/dataset>
+datum project export -f coco -- --tasks instances,stuff
 ```
 
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the COCO format in particular. Follow the
-[user manual](/docs/user-manual/index/)
+[user manual](../../user-manual/how_to_use_datumaro/)
 to get more information about these operations.
 
 There are several examples of using Datumaro operations to solve
@@ -242,10 +242,10 @@ particular problems with a COCO dataset:
 ### Example 1. How to load an original panoptic COCO dataset and convert to Pascal VOC
 
 ```bash
-datum create -o project
-datum import -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
+datum project create -o project
+datum project import -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
 datum stats -p project
-datum export -p project -f voc -- --save-media
+datum project export -p project -f voc -- --save-media
 ```
 
 ### Example 2. How to create custom COCO-like dataset

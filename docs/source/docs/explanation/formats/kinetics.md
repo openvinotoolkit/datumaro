@@ -22,8 +22,8 @@ A Datumaro project with a Kinetics dataset can be created
 in the following way using CLI:
 
 ```
-datum create
-datum import -f kinetics <path_to_dataset>
+datum project create
+datum project import -f kinetics <path_to_dataset>
 ```
 
 Or using Python API:

@@ -26,8 +26,8 @@ Supported attributes:
 A Datumaro project with a CelebA source can be created in the following way:
 
 ```bash
-datum create
-datum import --format celeba <path/to/dataset>
+datum project create
+datum project import --format celeba <path/to/dataset>
 ```
 
 It is also possible to import the dataset using Python API:
@@ -79,9 +79,9 @@ There are several ways to convert a CelebA dataset to other dataset
 formats using CLI:
 
 ```bash
-datum create
-datum import -f celeba <path/to/dataset>
-datum export -f imagenet_txt -o ./save_dir -- --save-media
+datum project create
+datum project import -f celeba <path/to/dataset>
+datum project export -f imagenet_txt -o ./save_dir -- --save-media
 ```
 or
 ``` bash
@@ -101,4 +101,4 @@ dataset.export('save_dir', 'voc')
 ## Examples
 
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_celeba_format.py)
+[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/unit/test_celeba_format.py)

@@ -71,8 +71,8 @@ To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supp
 A Datumaro project with a KITTI source can be created in the following way:
 
 ```bash
-datum create
-datum import --format kitti_raw <path/to/dataset>
+datum project create
+datum project import --format kitti_raw <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project,
@@ -92,9 +92,9 @@ but not in COCO keypoints.
 There are several ways to convert a KITTI Raw dataset to other dataset formats:
 
 ``` bash
-datum create
-datum import -f kitti_raw <path/to/kitti_raw>
-datum export -f sly_pointcloud -o <output/dir>
+datum project create
+datum project import -f kitti_raw <path/to/kitti_raw>
+datum project export -f sly_pointcloud -o <output/dir>
 ```
 or
 ``` bash
@@ -116,7 +116,7 @@ There are several ways to convert a dataset to KITTI Raw format:
 
 ``` bash
 # export dataset into KITTI Raw format from existing project
-datum export -p <path/to/project> -f kitti_raw -o <output/dir> \
+datum project export -p <path/to/project> -f kitti_raw -o <output/dir> \
     -- --save-media
 ```
 ``` bash
@@ -141,8 +141,8 @@ Extra options for exporting to KITTI Raw format:
 ### Example 1. Import dataset, compute statistics
 
 ```bash
-datum create -o project
-datum import -p project -f kitti_raw ../kitti_raw/
+datum project create -o project
+datum project import -p project -f kitti_raw ../kitti_raw/
 datum stats -p project
 ```
 

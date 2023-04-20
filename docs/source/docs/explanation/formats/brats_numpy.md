@@ -15,8 +15,8 @@ A Datumaro project with a BraTS Numpy source can be created
 in the following way:
 
 ```bash
-datum create
-datum import --format brats_numpy <path/to/dataset>
+datum project create
+datum project import --format brats_numpy <path/to/dataset>
 ```
 
 It is also possible to import the dataset using Python API:
@@ -56,9 +56,9 @@ There are several ways to convert a BraTS Numpy dataset to other dataset
 formats using CLI:
 
 ```bash
-datum create
-datum import -f brats_numpy <path/to/dataset>
-datum export -f voc -o <output/dir> -- --save-media
+datum project create
+datum project import -f brats_numpy <path/to/dataset>
+datum project export -f voc -o <output/dir> -- --save-media
 ```
 or
 ``` bash
@@ -78,4 +78,4 @@ dataset.export('save_dir', 'voc')
 ## Examples
 
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_brats_numpy_format.py)
+[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/unit/test_brats_numpy_format.py)

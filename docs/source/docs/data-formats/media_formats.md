@@ -9,8 +9,9 @@ To create an unlabelled dataset from an arbitrary directory with images use
 `image_dir` and `image_zip` formats:
 
 ``` bash
-datum create -o <project/dir>
-datum import -p <project/dir> -f image_dir <directory/path/>
+cd </path/to/project>
+datum project create
+datum project import -f image_dir </path/to/directory/containing/images>
 ```
 
 or, if you work with Datumaro API:
@@ -20,8 +21,8 @@ or, if you work with Datumaro API:
   ```python
   from datumaro.project import Project
 
-  project = Project.init()
-  project.import_source('source1', format='image_dir', url='directory/path/')
+  project = Project.init('/path/to/project')
+  project.import_source('source1', format='image_dir', url='/path/to/directory/containing/images')
   dataset = project.working_tree.make_dataset()
   ```
 
@@ -30,7 +31,7 @@ or, if you work with Datumaro API:
   ```python
   from datumaro import Dataset
 
-  dataset = Dataset.import_from('directory/path/', 'image_dir')
+  dataset = Dataset.import_from('/path/to/directory/containing/images', 'image_dir')
   ```
 
 This will search for images in the directory recursively and add
@@ -45,7 +46,7 @@ Once there is a `Dataset` instance, its items can be split into subsets,
 renamed, filtered, joined with annotations, exported in various formats etc.
 
 To import frames from a video, you can split the video into frames with
-the [`split_video` command](/docs/command-reference/util.md#split-video-into-frames)
+the [`split_video` command](../command-reference/context/util.md#split-video-into-frames)
 and then use the `image_dir` format described above. In more complex cases,
 consider using [FFmpeg](https://ffmpeg.org/) and other tools for
 video processing.
@@ -57,14 +58,15 @@ Alternatively, you can use the `video_frames` format directly:
 > splitting the video into frames by any method.
 
 ``` bash
-datum create -o <project/dir>
-datum import -p <project/dir> -f video_frames <video/path.avi>
+cd </path/to/project>
+datum project create
+datum project import -f video_frames </path/to/video>
 ```
 
 ```python
 from datumaro import Dataset
 
-dataset = Dataset.import_from('video.mp4', 'video_frames')
+dataset = Dataset.import_from('/path/to/video', 'video_frames')
 ```
 
 Datumaro supports the following video formats:

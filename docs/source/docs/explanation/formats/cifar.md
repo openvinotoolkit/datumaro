@@ -29,12 +29,12 @@ The CIFAR dataset is available for free download:
 A Datumaro project with a CIFAR source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format cifar <path/to/dataset>
+datum project create
+datum project import --format cifar <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 CIFAR-10 dataset directory should have the following structure:
 
@@ -109,9 +109,9 @@ There are several ways to convert a CIFAR dataset to other dataset
 formats using CLI:
 
 ``` bash
-datum create
-datum import -f cifar <path/to/cifar>
-datum export -f imagenet -o <output/dir>
+datum project create
+datum project import -f cifar <path/to/cifar>
+datum project export -f imagenet -o <output/dir>
 ```
 or
 ``` bash
@@ -134,7 +134,7 @@ There are several ways to convert a dataset to CIFAR format:
 
 ``` bash
 # export dataset into CIFAR format from existing project
-datum export -p <path/to/project> -f cifar -o <output/dir> \
+datum project export -p <path/to/project> -f cifar -o <output/dir> \
     -- --save-media
 ```
 ``` bash
@@ -158,7 +158,7 @@ exported depends on the presence of superclasses in the `LabelCategories`.
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the CIFAR format in particular. Follow the [user manual](/docs/user-manual/index)
+and for the CIFAR format in particular. Follow the [user manual](../../user-manual/how_to_use_datumaro)
 to get more information about these operations.
 
 There are several examples of using Datumaro operations to solve
@@ -197,4 +197,4 @@ datum convert --input-format cifar --input-path <path/to/cifar> \
 ```
 
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_cifar_format.py)
+[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/unit/test_cifar_format.py)

@@ -170,7 +170,6 @@ class YoloIntegrationScenarios(TestCase):
 
             run(
                 self,
-                "project",
                 "transform",
                 "-p",
                 test_dir,

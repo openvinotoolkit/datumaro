@@ -1670,7 +1670,7 @@ class Project:
                         log.warning(
                             f"Failed to migrate the source '{name}'. "
                             "Try to add this source manually with "
-                            "'datum import', once migration is finished. The "
+                            "'datum project import', once migration is finished. The "
                             "reason is: %s",
                             e,
                         )

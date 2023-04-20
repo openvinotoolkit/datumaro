@@ -36,11 +36,11 @@ These item attributes decodes into the image name with such convention:
 
 Importing of Market-1501 dataset into the Datumaro project:
 ```bash
-datum create
-datum import -f market1501 <path_to_market1501>
+datum project create
+datum project import -f market1501 <path_to_market1501>
 ```
 See more information about adding datasets to the project in the
-[docs](/docs/command-reference/sources.md#add-dataset).
+[docs](../../command-reference/context/sources.md#add-dataset).
 
 Or you can import Market-1501 using Python API:
 
@@ -82,9 +82,9 @@ datum convert -if mars -i ./mars_dataset \
 ```
 ``` bash
 # Export dataaset to the Market-1501 format through the Datumaro project:
-datum create
-datum add -f mars ../mars
-datum export -f market1501 -o ./output_dir -- --save-media --image-ext png
+datum project create
+datum project add -f mars ../mars
+datum project export -f market1501 -o ./output_dir -- --save-media --image-ext png
 ```
 
 > Note: if your dataset contains only person_id attributes Datumaro

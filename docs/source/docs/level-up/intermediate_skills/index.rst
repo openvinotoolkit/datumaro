@@ -23,7 +23,7 @@ Intermediate Skills
          :outline:
          :expand:
 
-         Level 05: Data Aggregation
+         Level 05: Data Subset Aggregation
 
       :bdg-warning:`Python`
 
@@ -47,8 +47,9 @@ Intermediate Skills
 
          Level 07: Dataset Merge
 
-      :bdg-warning:`Python`
       :bdg-info:`CLI`
+      :bdg-warning:`Python`
+      :bdg-success:`ProjectCLI`
 
    .. grid-item-card::
 
@@ -72,7 +73,7 @@ Intermediate Skills
          Level 09: Data Exploration
 
       :bdg-warning:`Python`
-      :bdg-info:`CLI`
+      :bdg-success:`ProjectCLI`
 
    .. grid-item-card::
 
@@ -83,5 +84,5 @@ Intermediate Skills
 
          Level 10: Data Generation
 
-      :bdg-warning:`Python`
       :bdg-info:`CLI`
+      :bdg-warning:`Python`

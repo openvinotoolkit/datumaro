@@ -30,9 +30,19 @@ Docs
 .. toctree::
   :maxdepth: 1
   :hidden:
+  :caption: Hands-on Examples
+  :glob:
+
+  jupyter_notebook_examples/*
+
+.. toctree::
+  :maxdepth: 1
+  :hidden:
   :caption: Command Line Reference
 
-  command-reference/index
+  command-reference/overview
+  command-reference/context_free/index
+  command-reference/context/index
 
 .. toctree::
   :maxdepth: 1
@@ -44,7 +54,6 @@ Docs
   reference/components/components
   reference/plugins/plugins
   reference/util/util/util
-  reference/jupyter_notebook_examples/index
 
 .. toctree::
   :maxdepth: 1
@@ -60,7 +69,10 @@ Docs
   :hidden:
   :caption: Misc
 
-  user-manual/index
+  user-manual/how_to_use_datumaro
+  user-manual/model_preparation
+  user-manual/extending
+  user-manual/how_to_control_tm_data_collection
 
 .. toctree::
   :maxdepth: 1

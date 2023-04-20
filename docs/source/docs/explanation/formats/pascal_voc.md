@@ -46,12 +46,12 @@ The Pascal VOC dataset is available for free download
 A Datumaro project with a Pascal VOC source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format voc <path/to/dataset>
+datum project create
+datum project import --format voc <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
-`datum create --help` for more information.
+`datum project create --help` for more information.
 
 Pascal VOC dataset directory should have the following structure:
 
@@ -141,7 +141,7 @@ of Pascal VOC dataset instead of the whole dataset,
 for example:
 
 ``` bash
-datum import -f voc_detection -r ImageSets/Main/train.txt <path/to/dataset>
+datum project import -f voc_detection -r ImageSets/Main/train.txt <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you
@@ -160,9 +160,9 @@ saved in `ImageNet` format, but not as `COCO keypoints`.
 There are several ways to convert a Pascal VOC dataset to other dataset formats:
 
 ``` bash
-datum create
-datum import -f voc <path/to/voc>
-datum export -f coco -o <output/dir>
+datum project create
+datum project import -f voc <path/to/voc>
+datum project export -f coco -o <output/dir>
 ```
 or
 ``` bash
@@ -184,7 +184,7 @@ There are several ways to convert an existing dataset to Pascal VOC format:
 
 ``` bash
 # export dataset into Pascal VOC format (classification) from existing project
-datum export -p <path/to/project> -f voc -o <output/dir> -- --tasks classification
+datum project export -p <path/to/project> -f voc -o <output/dir> -- --tasks classification
 ```
 ``` bash
 # converting to Pascal VOC format from other format
@@ -210,7 +210,7 @@ Extra options for exporting to Pascal VOC format:
   by default Datumaro uses all tasks. Example:
 
 ```bash
-datum export -f voc -- --tasks detection,classification
+datum project export -f voc -- --tasks detection,classification
 ```
 
 - `--label_map PATH` - allows to define a custom colormap. Example:
@@ -219,18 +219,18 @@ datum export -f voc -- --tasks detection,classification
 # mycolormap.txt [label : color_rgb : parts : actions]:
 # cat:0,0,255::
 # person:255,0,0:head:
-datum export -f voc_segmentation -- --label-map mycolormap.txt
+datum project export -f voc_segmentation -- --label-map mycolormap.txt
 ```
 or you can use original voc colomap:
 ``` bash
-datum export -f voc_segmentation -- --label-map voc
+datum project export -f voc_segmentation -- --label-map voc
 ```
 
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Pascal VOC format in particular. Follow
-[user manual](/docs/user-manual/index/)
+[user manual](../../user-manual/how_to_use_datumaro/)
 to get more information about these operations.
 
 There are few examples of using Datumaro operations to solve
@@ -246,13 +246,13 @@ splitting into subsets,
 export the result to Pascal VOC format.
 
 ```bash
-datum create -o project
-datum import -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/trainval.txt
+datum project create -o project
+datum project import -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/trainval.txt
 datum stats -p project # check statisctics.json -> repeated images
 datum transform -p project -t ndr -- -w trainval -k 2500
 datum filter -p project -e '/item[subset="trainval"]'
 datum transform -p project -t random_split -- -s train:.8 -s val:.2
-datum export -p project -f voc -- --label-map voc --save-media
+datum project export -p project -f voc -- --label-map voc --save-media
 ```
 
 ### Example 2. How to create a custom dataset

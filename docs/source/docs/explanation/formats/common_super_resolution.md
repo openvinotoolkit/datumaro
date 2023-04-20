@@ -15,8 +15,8 @@ Supported attributes:
 A Datumaro project with a CSR source can be created in the following way:
 
 ``` bash
-datum create
-datum import --format common_super_resolution <path/to/dataset>
+datum project create
+datum project import --format common_super_resolution <path/to/dataset>
 ```
 
 CSR dataset directory should have the following structure:
@@ -44,4 +44,4 @@ run `datum project info`, which will display the project information.
 ## Examples
 
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_common_super_resolution_format.py)
+[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/unit/test_common_super_resolution_format.py)

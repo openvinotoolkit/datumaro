@@ -25,17 +25,17 @@ def _get_action_name(command):
     # TODO: We should clean these nonsense if-else branches.
     if command is commands.require_project.versioning.info.info_command:
         return "project_info_result"
-    elif command is commands.require_project.dataset_operations.stats.stats_command:
+    elif command is commands.stats.stats_command:
         return "project_stats_result"
     elif command is contexts.project.migrate_command:
         return "project_migrate_result"
-    elif command is commands.require_project.dataset_operations.export.export_command:
+    elif command is commands.require_project.modification.export.export_command:
         return "project_export_result"
-    elif command is commands.require_project.dataset_operations.validate.validate_command:
+    elif command is commands.validate.validate_command:
         return "project_validate_result"
     elif command is commands.filter.filter_command:
         return "project_filter_result"
-    elif command is commands.require_project.dataset_operations.transform.transform_command:
+    elif command is commands.transform.transform_command:
         return "project_transform_result"
     elif command is commands.require_project.modification.import_.import_command:
         return "source_add_result"
@@ -59,13 +59,13 @@ def _get_action_name(command):
         return "convert_result"
     elif command is commands.require_project.modification.create.create_command:
         return "create_result"
-    elif command is commands.require_project.dataset_operations.diff.diff_command:
+    elif command is commands.diff.diff_command:
         return "diff_result"
     elif command is commands.explain.explain_command:
         return "explain_result"
     elif command is commands.generate.generate_command:
         return "generate_result"
-    elif command is commands.require_project.dataset_operations.info.info_command:
+    elif command is commands.info.info_command:
         return "info_result"
     elif command is commands.require_project.versioning.log.log_command:
         return "log_result"

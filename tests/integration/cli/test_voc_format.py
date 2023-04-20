@@ -141,7 +141,6 @@ class VocIntegrationScenarios(TestCase):
 
             run(
                 self,
-                "project",
                 "transform",
                 "-p",
                 test_dir,
@@ -724,7 +723,6 @@ class VocIntegrationScenarios(TestCase):
 
             run(
                 self,
-                "project",
                 "transform",
                 "-p",
                 test_dir,

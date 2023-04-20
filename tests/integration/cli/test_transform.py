@@ -36,7 +36,6 @@ class TransformTest(TestCase):
 
         run(
             self,
-            "project",
             "transform",
             "-t",
             "remap_labels",
@@ -72,7 +71,6 @@ class TransformTest(TestCase):
 
             run(
                 self,
-                "project",
                 "transform",
                 "-t",
                 "random_split",
@@ -112,7 +110,6 @@ class TransformTest(TestCase):
             with self.subTest("without overwrite"):
                 run(
                     self,
-                    "project",
                     "transform",
                     "-p",
                     project_dir,
@@ -126,7 +123,6 @@ class TransformTest(TestCase):
                 with self.assertRaises(ReadonlyDatasetError):
                     run(
                         self,
-                        "project",
                         "transform",
                         "-p",
                         project_dir,
