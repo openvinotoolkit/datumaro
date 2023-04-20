@@ -30,6 +30,14 @@ Docs
 .. toctree::
   :maxdepth: 1
   :hidden:
+  :caption: Hands-on Examples
+  :glob:
+
+  jupyter_notebook_examples/*
+
+.. toctree::
+  :maxdepth: 1
+  :hidden:
   :caption: Command Line Reference
 
   command-reference/overview
@@ -46,7 +54,6 @@ Docs
   reference/components/components
   reference/plugins/plugins
   reference/util/util/util
-  reference/jupyter_notebook_examples/index
 
 .. toctree::
   :maxdepth: 1
