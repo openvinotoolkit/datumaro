@@ -2,10 +2,9 @@
 Level 4: Detect Data Format from an Unknown Dataset
 ===================================================
 
-Datumaro provides a function to detect the format of a dataset before importing data. This can be
-useful in cases where information about the original format of the data has been lost or is unclear.
-With this function, users can easily identify the format and proceed with appropriate data
-handling processes.
+Datumaro has a built-in function that allows users to detect the format of a dataset.
+This feature is useful in situations where the original format of the data is unknown or unclear.
+By utilizing this function, users can easily determine the format of the data and then proceed with the appropriate data handling processes.
 
 Detect data format
 ==================
@@ -18,7 +17,7 @@ Detect data format
 
       datum detect-format <path/to/data>
 
-    The printed format can be utilized as `format` argument when importing a dataset as following the
+    The printed format can be utilized as ``format`` argument when importing a dataset as following the
     :ref:`previous level <Level 3: Data Import and Export>`.
 
   .. tab-item:: Python

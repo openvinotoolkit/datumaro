@@ -10,7 +10,7 @@ be paid, and sometimes it may be necessary to filter or correct the data in adva
 data validation functionality for this purpose.
 
 More detailed descriptions about validation errors and warnings are given by :ref:`here <Validate>`.
-The Python example for the usage of validator is described in `here <https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/11_validate.ipynb>`_.
+The Python example for the usage of validator is described in this `notebook <https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/11_validate.ipynb>`_.
 
 
 .. tab-set::
@@ -28,7 +28,7 @@ The Python example for the usage of validator is described in `here <https://git
 
         detected_formats = env.detect_dataset(data_path)
 
-        dataset = Dataset.import_from(path, detected_formats[0])
+        dataset = Dataset.import_from(data_path, detected_formats[0])
 
         from datumaro.plugins.validators import DetectionValidator
 
@@ -38,13 +38,13 @@ The Python example for the usage of validator is described in `here <https://git
 
   .. tab-item:: ProjectCLI
 
-    With the project-based CLI, we first require to create a project by
+    With the project-based CLI, we first require to ``create`` a project by
 
     .. code-block:: bash
 
       datum project create -o <path/to/project>
 
-    We now import MS-COCO validation data into the project through
+    We now ``import`` MS-COCO validation data into the project through
 
     .. code-block:: bash
 
@@ -64,7 +64,7 @@ The Python example for the usage of validator is described in `here <https://git
 
       datum project dinfo -p <path/to/project>
 
-    Finally, we validate the data within the project as
+    Finally, we ``validate`` the data within the project as
 
     .. code-block:: bash
 

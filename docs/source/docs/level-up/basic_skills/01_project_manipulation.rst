@@ -2,10 +2,10 @@
 Level 1: Project Manipulation
 =============================
 
-Projects are intended for complex use of Datumaro CLI commands.
-If you want to know more about the concept and meaning of the project, please see :ref:`Projects`.
-You might be able to skip this page, if you plan to do various dataset management tasks using the Datumaro Python API rather than CLI commands.
-However, even for the Python API, you have to get back to the project if you need dataset versioning.
+The purpose of projects is to facilitate the use of Datumaro CLI commands for complex tasks.
+If you need more information about the project's concept and meaning, please refer :ref:`Projects`. 
+If you plan to perform various dataset management tasks using the Datumaro Python API instead of CLI commands, you may be able to skip this page.
+However, even when using the Python API, you will need to refer back to the project if you require dataset versioning.
 
 Create a project
 ================
@@ -22,7 +22,7 @@ Create a project
 
     The default command create a project in the current directory,
     but you can specify a specific directory path with ``-o DST_DIR``.
-    Use ``--overwrite`` if you need to overwrite an existing project.
+    Use ``--overwrite`` if you want to overwrite an existing project.
 
 Import a dataset to the project
 ===============================
@@ -35,7 +35,7 @@ Import a dataset to the project
 
       datum project import [-h] [-n NAME] -f FORMAT [-r RPATH] [--no-check] [-p PROJECT_DIR] url ...
 
-    ``-n NAME`` is the name of dataset you can assign. if you don't give it, Datumaro generates it automatically
+    ``-n NAME`` is the name of dataset you can assign. If you don't give it, Datumaro generates it automatically
     (``source-0``, ``source-1``, ...). ``-f FORMAT`` is the format of the dataset to be imported to the project.
     The default behavior adds the dataset to the project in the current working directory,
     but you can specify a specific directory path of the project with ``-p PROJECT_DIR``.
@@ -58,7 +58,7 @@ Remove a dataset from the project
 
       datum project remove [-h] [--force] [--keep-data] [-p PROJECT_DIR] names [names ...]
 
-    ``names`` are the names of the imported dataset you want to remove it from the project.
+    ``names`` are the names of the imported datasets you want to remove it from the project.
     If you want to remove only the metadata and keep the actual data, use ``--keep-data``.
 
     For example, the following command is an example of removing the :ref:`Cityscapes` dataset from the previous step.
@@ -80,7 +80,7 @@ Print dataset information
 
       datum project dinfo [-h] [--all] [-p PROJECT_DIR] [revpath]
 
-    ``revpath`` is either a dataset path or a revision path. For more information on the revision, please see
+    ``revpath`` is either a dataset path or a revision path. For more information about the revision, please see
     :ref:`Level 11: Project Versioning`. ``--all`` directive shows all the dataset information of your project.
 
     For example, the following command is an example of printing information about the :ref:`Cityscapes` dataset from the previous step.
@@ -112,10 +112,10 @@ Add model to project
       datum model add -n my-model -l openvino -- -d <path/to/model.xml> -w <path/to/model.bin> -i <path/to/interpreter.py>
 
     .. note::
-      In addition to entering the path to the model weights (``-w WEIGHTS``) and metafiles (``-d DESCRIPTION``),
-      you must enter the interpreter file path (``-i INTERPRETER``) written in Python to interpret that model output as well.
+      To use the model weights (``-w WEIGHTS``) and metafiles (``-d DESCRIPTION``) as argument,
+      you need to provide the path to the Python interpreter file (``-i INTERPRETER``) that can interpret the model output.
 
-      .. collapse:: An example of the interpreter (``ssd_mobilenet_coco_detection_interp.py``)
+      .. collapse:: An example of the interpreter: ssd_mobilenet_coco_detection_interp.py
 
         .. literalinclude:: ../../../../../datumaro/plugins/openvino_plugin/samples/ssd_mobilenet_coco_detection_interp.py
           :language: python
@@ -131,9 +131,9 @@ Remove model from project
 
       datum model remove [-h] [-p PROJECT_DIR] name
 
-    To remove the model added in your project, you can use this command. It requires a name of the added model.
+    To remove the model added in your project, you can use ``remove`` command. It requires the name of the added model.
 
-    For example, the model added in the previous step has its name as ``my-model``. We can remove this model as follows.
+    For example, the model added in the previous step has its name as ``my-model``. We can remove model using the following command.
 
     .. code-block:: bash
 
@@ -152,5 +152,5 @@ Print project information
 
       datum project pinfo [-h] [-p PROJECT_DIR] [revision]
 
-    ``revision`` means the version of you project (:ref:`Level 11: Project Versioning`).
-    If it is not given, the latest revision of the project is shown.
+    ``revision`` means the version of your project (:ref:`Level 11: Project Versioning`).
+    If it is not given, the latest revision of the project will be shown.

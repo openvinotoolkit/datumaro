@@ -18,17 +18,17 @@ The Cityscapes dataset is available for free `download <https://www.cityscapes-d
 Convert data format
 ===================
 
-Users sometimes needs to compare, merge, or manage various kinds of public datasets in a unified
-system. To achieve this, Datumaro not only has `import` and `export` funcionalities, but also
-provides `convert`, which shortens the import and export into a single command line.
-We now convert the Cityscapes data into the MS-COCO format, which is described in :ref:`here <COCO>`.
+Users sometimes need to compare, merge, or manage various kinds of public datasets in a unified
+system. To achieve this, Datumaro not only has ``import`` and ``export`` funcionalities, but also
+provides ``convert``, which shortens the import and export into a single command line.
+Let's convert the Cityscapes data into the MS-COCO format, which is described in :ref:`here <COCO>`.
 
 
 .. tab-set::
 
   .. tab-item:: CLI
 
-    Without creation of a project, we can achieve this with a single line command `convert` in Datumaro
+    Without creation of a project, we can achieve this with a single line command ``convert`` in Datumaro
 
     .. code-block:: bash
 
@@ -36,7 +36,7 @@ We now convert the Cityscapes data into the MS-COCO format, which is described i
 
   .. tab-item:: Python
 
-    With Pthon API, we can import the data through `Dataset` as below.
+    With Python API, we can import the data through ``Dataset`` as below.
 
     .. code-block:: python
 
@@ -57,36 +57,36 @@ We now convert the Cityscapes data into the MS-COCO format, which is described i
 
   .. tab-item:: ProjectCLI
 
-    With the project-based CLI, we first require to create a project by
+    With the project-based CLI, we first need to ``create`` a project by
 
     .. code-block:: bash
 
         datum project create -o <path/to/project>
 
-    We now import Cityscapes data into the project through
+    We now ``import`` Cityscapes data into the project through
 
     .. code-block:: bash
 
         datum project import --format cityscapes -p <path/to/project> <path/to/cityscapes>
 
     (Optional) When we import a data, the change is automatically commited in the project.
-    This can be shown through `log` as
+    This can be shown through ``log`` as
 
     .. code-block:: bash
 
         datum project log -p <path/to/project>
 
     (Optional) We can check the imported dataset information such as subsets, number of data, or
-    categories through `info`.
+    categories through ``info``.
 
     .. code-block:: bash
 
         datum project info -p <path/to/project>
 
-    Finally, we export the data within the project with MS-COCO format as
+    Finally, we ``export`` the data within the project with MS-COCO format as
 
     .. code-block:: bash
 
         datum project export --format coco -p <path/to/project> -o <path/to/save> -- --save-media
 
-For a data with an unknown format, we can detect the format in the :ref:`next level <Level 4: Detect Data Format from an Unknown Dataset>`!
+Even if you are not sure about the format of the dataset, there's no need to worry. You can easily detect the format in the next level, which is described in the :ref:`next level <Level 4: Detect Data Format from an Unknown Dataset>`!
