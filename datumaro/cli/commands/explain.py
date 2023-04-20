@@ -60,7 +60,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Run RISE on an image, display results:|n
-        |s|s%(prog)s path/to/image.jpg -m mymodel rise --max-samples 50|n
+        |s|s%(prog)s <path/to/image> -m mymodel rise --max-samples 50|n
         |n
         - Run RISE on a source revision:|n
         |s|s%(prog)s HEAD~1:source-1 -m model rise
