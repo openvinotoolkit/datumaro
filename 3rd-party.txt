@@ -5786,7 +5786,6 @@ The MIT License (MIT)
  SOFTWARE.
 
 -------------------------------------------------------------
-shapely
 
 BSD 3-Clause License
 
