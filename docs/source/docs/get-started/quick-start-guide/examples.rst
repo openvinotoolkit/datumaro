@@ -61,6 +61,7 @@ Examples
 
 .. code-block::
 
+    mkdir my_project && cd my_project
     datum project create
     datum project import --format voc <path/to/voc/dataset>
 
