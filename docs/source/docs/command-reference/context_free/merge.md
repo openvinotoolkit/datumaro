@@ -111,7 +111,7 @@ Examples:
   (`?` is used for optional parts)
 
   ```console
-  datum merge <path/to/project1/> <path/to/project2/> <path/to/project3/> <path/toproject4/> \
+  datum merge <path/to/project1/> <path/to/project2/> <path/to/project3/> <path/to/project4/> \
     -m intersect \
     --quorum 3 \
     -iou 0.6 \

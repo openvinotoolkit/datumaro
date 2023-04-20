@@ -7,9 +7,9 @@ Currently, only local directories are supported.
 
 The detection result may be one of:
 
-- a single format being detected;
-- no formats being detected (if the dataset doesn't match any known format);
-- multiple formats being detected (if the dataset is ambiguous);
+- a single format being detected.
+- no formats being detected (if the dataset doesn't match any known format).
+- multiple formats being detected (if the dataset is ambiguous).
 
 The command outputs this result in a human-readable form and
 optionally as a machine-readable JSON report (see `--json-report`).
