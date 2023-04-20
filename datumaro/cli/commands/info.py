@@ -37,7 +37,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |s|s%(prog)s|n
         |n
         - Print dataset info for a path and a format name:|n
-        |s|s%(prog)s path/to/dataset:voc|n
+        |s|s%(prog)s <path/to/dataset/>:voc|n
         |n
         - Print dataset info for a source from a past revision:|n
         |s|s%(prog)s HEAD~2:source-2
