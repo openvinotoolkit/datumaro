@@ -8,7 +8,7 @@ with different tasks and formats, we provide a novel Datumaro format with `.json
 extensions.
 
 A variety of metadata can be stored in the datumaro format. First of all, `dm_format_version` field
-is provided for backward compatibility to help with data version tracing.And various metadata can be
+is provided for backward compatibility to help with data version tracing and various metadata can be
 added to the `info` field. For example, you can record task types such as detection and segmentation,
 or record data creation time. Labels and attributes can be saved in the `categories` field, and mask
 colormap information can be saved. In addition, in the datumaro format, in order to respond to
