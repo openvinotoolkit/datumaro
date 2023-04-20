@@ -4,6 +4,36 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.2.0 (2023.04)
+----------------
+
+New features
+^^^^^^^^^^^^
+- Add Skill Up section to documentation
+- Add LossDynamicsAnalyzer for noisy label detection
+- Add sort transform
+- Add Apache Arrow format support
+
+Enhancements
+^^^^^^^^^^^^
+- Add multiprocessing to DatumaroBinaryBase
+- Refactor merge code
+- Refactor download CLI commands
+- Refactor CLI commands w/ and w/o project
+- Refactor Media to be initialized from explicit sources
+- Refactor hl_ops.py
+- Add tfds:uc_merced and tfds:eurosat download
+- Migrate documentation framework to Sphinx
+- Update merge tutorial for real life usecase
+- Abbreviate "detect-format" to "detect" for prettifying
+
+Bug fixes
+^^^^^^^^^
+- Add UserWarning if an invalid media_type comes to image statistics computation
+- Fix negated `is_encrypted`
+- Save extra images of PointCloud when exporting to datumaro format
+- Fix log issue when importing celeba and align celeba dataset
+
 v1.1.0 (2023.03)
 ----------------
 
