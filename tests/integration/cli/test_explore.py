@@ -49,36 +49,6 @@ class ExploreTest(TestCase):
         )
         return dataset
 
-    @property
-    def test_dataset_black_white(self):
-        train_img = np.full((5, 5, 3), 255, dtype=np.uint8)
-        test_img = np.full((5, 5, 3), 0, dtype=np.uint8)
-        train_Image = Image.from_numpy(data=train_img)
-
-        dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=4,
-                    subset="train",
-                    media=train_Image,
-                    annotations=[Label(1, id=1), Caption("cat")],
-                ),
-                DatasetItem(
-                    id=5,
-                    subset="train",
-                    media=train_Image,
-                    annotations=[Label(1, id=1), Caption("cat")],
-                ),
-                DatasetItem(
-                    id=6,
-                    subset="test",
-                    media=Image.from_numpy(data=test_img),
-                    annotations=[Label(2, id=2), Caption("dog")],
-                ),
-            ]
-        )
-        return dataset
-
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "

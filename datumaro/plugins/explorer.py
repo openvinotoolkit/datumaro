@@ -5,7 +5,6 @@
 import numpy as np
 from tokenizers import Tokenizer
 
-from datumaro.components.annotation import HashKey
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
