@@ -16,6 +16,7 @@ CVAT annotations                             ---> Publication, statistics etc.
 <!--lint enable fenced-code-flag-->
 
 - [Getting started](https://openvinotoolkit.github.io/datumaro/latest/docs/get-started/quick-start-guide)
+- [Level Up](https://openvinotoolkit.github.io/datumaro/latest/docs/level-up/basic_skills)
 - [Features](#features)
 - [User manual](https://openvinotoolkit.github.io/datumaro/latest/docs/user-manual/how_to_use_datumaro)
 - [Developer manual](https://openvinotoolkit.github.io/datumaro/latest/docs/reference/datumaro/datumaro)
