@@ -15,10 +15,10 @@ CVAT annotations                             ---> Publication, statistics etc.
 ```
 <!--lint enable fenced-code-flag-->
 
-- [Getting started](https://openvinotoolkit.github.io/datumaro/docs/getting_started)
+- [Getting started](https://openvinotoolkit.github.io/datumaro/latest/docs/get-started/quick-start-guide)
 - [Features](#features)
-- [User manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual)
-- [Developer manual](https://openvinotoolkit.github.io/datumaro/api)
+- [User manual](https://openvinotoolkit.github.io/datumaro/latest/docs/user-manual/how_to_use_datumaro)
+- [Developer manual](https://openvinotoolkit.github.io/datumaro/latest/docs/reference/datumaro/datumaro)
 - [Contributing](#contributing)
 
 ## Features
@@ -45,7 +45,7 @@ CVAT annotations                             ---> Publication, statistics etc.
     (`bboxes`, `masks`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
 
-  Other formats and documentation for them can be found [here](https://openvinotoolkit.github.io/datumaro/docs/user-manual/supported_formats).
+  Other formats and documentation for them can be found [here](https://openvinotoolkit.github.io/datumaro/latest/docs/data-formats/supported_formats).
 - Dataset building
   - Merging multiple datasets into one
   - Dataset filtering by a custom criteria:
@@ -85,10 +85,10 @@ CVAT annotations                             ---> Publication, statistics etc.
     - RISE for object detection
 
 > Check
-  [the design document](https://openvinotoolkit.github.io/datumaro/docs/design)
+  [the design document](https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/architecture)
   for a full list of features.
 > Check
-  [the user manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual)
+  [the user manual](https://openvinotoolkit.github.io/datumaro/latest/docs/user-manual/how_to_use_datumaro)
   for usage instructions.
 
 ## Contributing
@@ -99,7 +99,7 @@ Feel free to
 [open an Issue](https://github.com/openvinotoolkit/datumaro/issues/new), if you
 think something needs to be changed. You are welcome to participate in
 development, instructions are available in our
-[contribution guide](https://openvinotoolkit.github.io/datumaro/docs/contributing).
+[contribution guide](https://github.com/openvinotoolkit/datumaro/blob/develop/contributing.md).
 
 ## Telemetry data collection note
 
@@ -107,4 +107,4 @@ The [OpenVINO™ telemetry library](https://github.com/openvinotoolkit/telemetry
 is used to collect basic information about Datumaro usage.
 
 To enable/disable telemetry data collection please see the
-[guide](https://openvinotoolkit.github.io/datumaro/docs/user-manual/how_to_control_tm_data_collection/).
+[guide](https://openvinotoolkit.github.io/datumaro/latest/docs/user-manual/how_to_control_tm_data_collection).
