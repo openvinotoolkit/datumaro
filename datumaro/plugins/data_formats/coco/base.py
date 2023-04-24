@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging as log
 import os.path as osp
 from inspect import isclass
 from typing import Any, Dict, Tuple, Type, TypeVar, Union, overload
@@ -115,16 +116,14 @@ class _CocoBase(SubsetBase):
         yield from self._items.values()
 
     def _load_categories(self, json_data, *, keep_original_ids):
+        self._categories = {}
+
         if has_meta_file(self._rootpath):
             labels = parse_meta_file(self._rootpath).keys()
             self._categories = {AnnotationType.label: LabelCategories.from_iterable(labels)}
             # 0 is reserved for no class
             self._label_map = {i + 1: i for i in range(len(labels))}
-            return
-
-        self._categories = {}
-
-        if self._task in [
+        elif self._task in [
             CocoTask.instances,
             CocoTask.labels,
             CocoTask.person_keypoints,
@@ -136,8 +135,24 @@ class _CocoBase(SubsetBase):
                 keep_original_ids=keep_original_ids,
             )
 
-        if self._task == CocoTask.person_keypoints:
-            self._load_person_kp_categories(self._parse_field(json_data, "categories", list))
+            if self._task == CocoTask.person_keypoints:
+                self._load_person_kp_categories(self._parse_field(json_data, "categories", list))
+
+        # informs users if 0 is found as category id sicne 0 is reserved for no class
+        found = [
+            self._categories[AnnotationType.label][label_id].name
+            for cat_id, label_id in self._label_map.items()
+            if cat_id == 0
+            and self._categories[AnnotationType.label][label_id].name.lower() != "background"
+        ]
+        if found:
+            category_name = found[0]
+            log.warning(
+                "Category id of '0' is reserved for no class (background) but "
+                f"category named '{category_name}' with id of '0' is found in {self._path}. "
+                "Please be warned that annotations with category id of '0' would have `None` as label. "
+                "(https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/formats/coco.html#import-coco-dataset)"
+            )
 
     def _load_label_categories(self, json_cat, *, keep_original_ids):
         categories = LabelCategories()
