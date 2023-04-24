@@ -281,6 +281,7 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
+<span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">isclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
@@ -394,16 +395,14 @@
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_load_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">keep_original_ids</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="p">{}</span>
+
         <span class="k">if</span> <span class="n">has_meta_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">):</span>
             <span class="n">labels</span> <span class="o">=</span> <span class="n">parse_meta_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">LabelCategories</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">labels</span><span class="p">)}</span>
             <span class="c1"># 0 is reserved for no class</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_label_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">))}</span>
-            <span class="k">return</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="n">CocoTask</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span>
             <span class="n">CocoTask</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
             <span class="n">CocoTask</span><span class="o">.</span><span class="n">person_keypoints</span><span class="p">,</span>
@@ -415,8 +414,24 @@
                 <span class="n">keep_original_ids</span><span class="o">=</span><span class="n">keep_original_ids</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">==</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">person_keypoints</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_load_person_kp_categories</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="s2">&quot;categories&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">==</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">person_keypoints</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load_person_kp_categories</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="s2">&quot;categories&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span>
+
+        <span class="c1"># informs users if 0 is found as category id sicne 0 is reserved for no class</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">][</span><span class="n">label_id</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">for</span> <span class="n">cat_id</span><span class="p">,</span> <span class="n">label_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">cat_id</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">][</span><span class="n">label_id</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;background&quot;</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">category_name</span> <span class="o">=</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Category id of &#39;0&#39; is reserved for no class (background) but &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;category named &#39;</span><span class="si">{</span><span class="n">category_name</span><span class="si">}</span><span class="s2">&#39; with id of &#39;0&#39; is found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Please be warned that annotations with category id of &#39;0&#39; would have `None` as label. &quot;</span>
+                <span class="s2">&quot;(https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/formats/coco.html#import-coco-dataset)&quot;</span>
+            <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_label_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_cat</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">keep_original_ids</span><span class="p">):</span>
         <span class="n">categories</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
