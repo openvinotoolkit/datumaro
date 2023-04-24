@@ -4,7 +4,7 @@ Level 10: Data Generation
 
 
 Pre-training of deep learning models for vision tasks can increase model accuracy.
-Training model with the synthetic dataset is one of famouse pre-training approach
+Training model with the synthetic dataset is one of famous pre-training approach
 since the manual annotations is quite expensive work.
 
 Base on the [FractalDB]_,
