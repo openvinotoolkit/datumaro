@@ -18,6 +18,7 @@ from tests.utils.test_utils import compare_datasets
 class TestDataFormatBase:
     IMPORTER: Importer
     EXPORTER: Exporter
+    USE_TEST_CAN_EXPORT_AND_IMPORT = True
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self, fxt_dataset_dir: str):
@@ -48,9 +49,12 @@ class TestDataFormatBase:
         importer: Optional[Importer] = None,
     ):
         if exporter is None:
-            exporter = self.EXPORTER
+            exporter = getattr(self, "EXPORTER", None)
         if importer is None:
-            importer = self.IMPORTER
+            importer = getattr(self, "IMPORTER", None)
+
+        if exporter is None or importer is None:
+            pytest.skip(reason="exporter or importer is None.")
 
         helper_tc = request.getfixturevalue("helper_tc")
 
