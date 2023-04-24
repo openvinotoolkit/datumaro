@@ -143,7 +143,7 @@ class _CocoBase(SubsetBase):
         found = [
             self._categories[AnnotationType.label][label_id].name
             for cat_id, label_id in self._label_map.items()
-            if cat_id == 0 and self._categories[AnnotationType.label][label_id].name != "background"
+            if cat_id == 0 and self._categories[AnnotationType.label][label_id].name.lower() != "background"
         ]
         if found:
             category_name = found[0]
