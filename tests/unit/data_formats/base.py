@@ -18,7 +18,6 @@ from tests.utils.test_utils import compare_datasets
 class TestDataFormatBase:
     IMPORTER: Importer
     EXPORTER: Exporter
-    USE_TEST_CAN_EXPORT_AND_IMPORT = True
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self, fxt_dataset_dir: str):
