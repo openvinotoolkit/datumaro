@@ -123,18 +123,17 @@ class _CocoBase(SubsetBase):
             self._categories = {AnnotationType.label: LabelCategories.from_iterable(labels)}
             # 0 is reserved for no class
             self._label_map = {i + 1: i for i in range(len(labels))}
-        else:
-            if self._task in [
-                CocoTask.instances,
-                CocoTask.labels,
-                CocoTask.person_keypoints,
-                CocoTask.stuff,
-                CocoTask.panoptic,
-            ]:
-                self._load_label_categories(
-                    self._parse_field(json_data, "categories", list),
-                    keep_original_ids=keep_original_ids,
-                )
+        elif self._task in [
+            CocoTask.instances,
+            CocoTask.labels,
+            CocoTask.person_keypoints,
+            CocoTask.stuff,
+            CocoTask.panoptic,
+        ]:
+            self._load_label_categories(
+                self._parse_field(json_data, "categories", list),
+                keep_original_ids=keep_original_ids,
+            )
 
             if self._task == CocoTask.person_keypoints:
                 self._load_person_kp_categories(self._parse_field(json_data, "categories", list))
@@ -150,7 +149,8 @@ class _CocoBase(SubsetBase):
             log.warning(
                 "Category id of '0' is reserved for no class (background) but "
                 f"category named '{category_name}' with id of '0' is found in {self._path}. "
-                "Please be warned that annotations with category id of '0' would have `None` as label."
+                "Please be warned that annotations with category id of '0' would have `None` as label. "
+                "(https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/formats/coco.html#import-coco-dataset)"
             )
 
     def _load_label_categories(self, json_cat, *, keep_original_ids):
