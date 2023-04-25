@@ -30,6 +30,7 @@ from typing import (
 import networkx as nx
 import ruamel.yaml as yaml
 
+from datumaro.components.annotation import HashKey
 from datumaro.components.config import Config
 from datumaro.components.config_model import (
     BuildStage,
@@ -1585,6 +1586,10 @@ class Project:
         return None
 
     @staticmethod
+    def wrap_item(item, **kwargs):
+        return item.wrap(**kwargs)
+
+    @staticmethod
     @scoped
     def migrate_from_v1_to_v2(src_dir: str, dst_dir: str, skip_import_errors=False):
         if not osp.isdir(src_dir):
@@ -2695,3 +2700,31 @@ class Project:
         data_dir = self.model_data_dir(name)
         if osp.isdir(data_dir):
             rmtree(data_dir)
+
+    def save_hashkey(self, item_list):
+        hashkey_dict = {}
+
+        for item in item_list:
+            id = item.id
+            for annotation in item.annotations:
+                if isinstance(annotation, HashKey):
+                    hashkey = annotation.hash_key
+                    break
+            hashkey_dict.update({id: hashkey.tolist()})
+        self._config.hashkey = hashkey_dict
+
+    def load_hashkey(self, dataset):
+        import numpy as np
+
+        hashkey_dict = self._config.hashkey
+
+        if not hashkey_dict:
+            return dataset
+
+        updated_item_list = []
+        for item in dataset:
+            hashkey = [HashKey(np.array(hashkey_dict.get(item.id)))]
+            annotations = item.annotations + hashkey
+            updated_item_list.append(item.wrap(annotations=annotations))
+        dataset = Dataset.from_iterable(updated_item_list)
+        return dataset

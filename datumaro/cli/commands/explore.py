@@ -45,7 +45,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "_positionals", nargs=argparse.REMAINDER, help=argparse.SUPPRESS
     )  # workaround for -- eaten by positionals
-    parser.add_argument("target", nargs="+", default="project", help="Target dataset")
+    parser.add_argument("target", nargs="?", default="project", help="Target dataset")
     parser.add_argument(
         "-q",
         "--query",
@@ -72,9 +72,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def get_sensitive_args():
     return {
         explore_command: [
-            "target",
+            # "target",
             "query",
             "topk",
+            "project_dir",
             "save",
         ]
     }
@@ -89,9 +90,18 @@ def explore_command(args):
         if args.project_dir:
             raise
 
-    dataset, _ = parse_full_revpath(args.target[0], project)
+    targets = list(project.working_tree.sources)
+    # dataset, project = parse_full_revpath(args.target[0], project)
+    source_datasets = []
+    for t in targets:
+        target_dataset, _ = parse_full_revpath(t, project)
+        source_datasets.append(target_dataset)
+    # dataset, _ = parse_full_revpath(targets[0], project)
+    dataset = project.load_hashkey(source_datasets[0])
 
     explorer = Explorer(dataset)
+    project.save_hashkey(explorer._item_list)
+    project.save()
 
     # Get query datasetitem through query path
     if osp.exists(args.query):

@@ -116,6 +116,7 @@ PROJECT_SCHEMA = (
     _SchemaBuilder()
     .add("format_version", int)
     .add("models", lambda: _DictConfig(lambda v=None: Model(v)))
+    .add("hashkey", dict)
     .build()
 )
 
