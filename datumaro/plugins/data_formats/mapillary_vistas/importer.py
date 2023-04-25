@@ -7,6 +7,7 @@ import os.path as osp
 
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
 from datumaro.components.importer import Importer
+from datumaro.util import str_to_bool
 
 from .base import MapillaryVistasInstancesBase, MapillaryVistasPanopticBase
 from .format import MapillaryVistasPath, MapillaryVistasTask
@@ -21,6 +22,18 @@ class MapillaryVistasImporter(Importer):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "--format-version",
+            default="v2.0",
+            type=str,
+            help="Use original config*.json file for your version of dataset",
+        )
+        parser.add_argument(
+            "--parse-polygon",
+            type=str_to_bool,
+            default=False,
+            help="Use original config*.json file for your version of dataset",
+        )
         parser.add_argument(
             "--use-original-config",
             action="store_true",
@@ -71,6 +84,8 @@ class MapillaryVistasImporter(Importer):
             if task == selected_task
         ]
 
+        print('sources:', sources)
+
         return sources
 
     @classmethod
@@ -94,6 +109,8 @@ class MapillaryVistasImporter(Importer):
             for ann_path in glob.glob(osp.join(path, "*", suffix)):
                 subset = osp.dirname(osp.dirname(osp.relpath(ann_path, path)))
                 subsets.setdefault(subset, {})[task] = osp.join(path, subset)
+
+        print('subsets:', subsets)
 
         return subsets
 

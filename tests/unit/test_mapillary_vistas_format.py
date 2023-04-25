@@ -23,11 +23,83 @@ from ..requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import TestDir, compare_datasets
 
-DUMMY_DATASET_V1_2 = get_test_asset_path("mapillary_vistas_dataset", "v1.2")
+DUMMY_DATASET_V1_2 = get_test_asset_path("mapillary_vistas_dataset")
 DUMMY_DATASET_V2_0 = get_test_asset_path("mapillary_vistas_dataset", "v2.0")
 DUMMY_DATASET_WITH_META_FILE = get_test_asset_path(
     "mapillary_vistas_dataset", "dataset_with_meta_file"
 )
+
+import pytest
+
+@pytest.fixture
+def fxt_dataset_expected():
+    label_cat = LabelCategories.from_iterable(
+        ["animal--bird", "construction--barrier--curb", "human--person"]
+    )
+    mask_cat = MaskCategories({0: (10, 50, 90), 1: (20, 30, 80), 2: (30, 70, 40)})
+
+    expected_dataset = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="0",
+                subset="val",
+                annotations=[
+                    Mask(image=np.array([[1, 1, 0, 0, 0]] * 5), label=0),
+                    Mask(image=np.array([[0, 0, 1, 1, 0]] * 5), label=1),
+                    Mask(image=np.array([[0, 0, 0, 0, 1]] * 5), label=2),
+                ],
+                media=Image.from_numpy(data=np.ones((5, 5, 3))),
+            ),
+            DatasetItem(
+                id="1",
+                subset="train",
+                annotations=[
+                    Mask(image=np.array([[1, 1, 0, 0, 0]] * 5), label=0, id=0),
+                    Mask(image=np.array([[0, 0, 0, 0, 1]] * 5), label=0, id=1),
+                    Mask(image=np.array([[0, 0, 1, 1, 0]] * 5), label=1, id=0),
+                ],
+                media=Image.from_numpy(data=np.ones((5, 5, 3))),
+            ),
+            DatasetItem(
+                id="2",
+                subset="train",
+                annotations=[
+                    Mask(image=np.array([[1, 1, 0, 1, 1]] * 5), label=1, id=0),
+                    Mask(image=np.array([[0, 0, 1, 0, 0]] * 5), label=2, id=0),
+                ],
+                media=Image.from_numpy(data=np.ones((5, 5, 3))),
+            ),
+        ],
+        categories={AnnotationType.label: label_cat, AnnotationType.mask: mask_cat},
+    )
+
+    return expected_dataset
+
+@pytest.mark.parametrize(
+    "fxt_dataset,task,version,polygon",
+    [
+        ("fxt_dataset_expected", "mapillary_vistas_instances", "v1.2", False),
+        ("fxt_dataset_expected", "mapillary_vistas_instances", "v2.0", False),
+        ("fxt_dataset_expected", "mapillary_vistas_panoptic", "v2.0", False),
+    ],
+)
+def test_covariate_shift(
+    fxt_dataset: Dataset, task: str, version: str, polygon: bool, request: pytest.FixtureRequest
+):
+    test = TestCase()
+
+    exptected_dataset = request.getfixturevalue(fxt_dataset)
+
+    print("e", exptected_dataset)
+
+    imported_dataset = Dataset.import_from(DUMMY_DATASET_V1_2, task, format_version=version, parse_polygon=polygon)
+    
+    print("i", imported_dataset)
+    for d in imported_dataset:
+        print(d)
+
+    compare_datasets(test, exptected_dataset, imported_dataset, require_media=True)
+
 
 
 class MapillaryVistasImporterTest(TestCase):
