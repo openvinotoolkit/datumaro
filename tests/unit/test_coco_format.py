@@ -47,6 +47,7 @@ from datumaro.plugins.data_formats.coco.exporter import (
     CocoPersonKeypointsExporter,
     CocoStuffExporter,
 )
+from datumaro.plugins.data_formats.coco.format import CocoPath
 from datumaro.plugins.data_formats.coco.importer import CocoImporter
 from datumaro.util import dump_json_file, parse_json_file
 
@@ -80,6 +81,50 @@ class CocoImporterTest(TestCase):
                 dataset.export(path_test_dir, format)
                 back_dataset = Dataset.import_from(path_test_dir)
             compare_datasets(self, dataset, back_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_from_any_cwd(self):
+        class ChangeCWD:
+            def __init__(self, path):
+                self.cwd = os.getcwd()
+                self.cd_path = path
+
+            def __enter__(self):
+                os.chdir(self.cd_path)
+
+            def __exit__(self, exc_type, exc_val, exc_tb):
+                os.chdir(self.cwd)
+
+        format_paths = [
+            ("coco_captions", osp.join(DUMMY_DATASET_DIR, "coco_captions")),
+            ("coco_image_info", osp.join(DUMMY_DATASET_DIR, "coco_image_info")),
+            ("coco_instances", osp.join(DUMMY_DATASET_DIR, "coco_instances")),
+            ("coco_labels", osp.join(DUMMY_DATASET_DIR, "coco_labels")),
+            ("coco_person_keypoints", osp.join(DUMMY_DATASET_DIR, "coco_person_keypoints")),
+            ("coco_stuff", osp.join(DUMMY_DATASET_DIR, "coco_stuff")),
+        ]
+        for format, path in format_paths:
+            # absolute path import
+            Dataset.import_from(path, format)
+            for anno_file in os.listdir(os.path.join(path, CocoPath.ANNOTATIONS_DIR)):
+                Dataset.import_from(os.path.join(path, CocoPath.ANNOTATIONS_DIR, anno_file), format)
+
+            # relative path import
+            for rel_path in [
+                path,
+                os.path.join(path, CocoPath.ANNOTATIONS_DIR),
+                os.path.join(path, CocoPath.IMAGES_DIR),
+                os.getcwd(),
+            ]:
+                with ChangeCWD(rel_path):
+                    Dataset.import_from(osp.relpath(path, rel_path), format)
+                    for anno_file in os.listdir(os.path.join(path, CocoPath.ANNOTATIONS_DIR)):
+                        Dataset.import_from(
+                            osp.relpath(
+                                os.path.join(path, CocoPath.ANNOTATIONS_DIR, anno_file), rel_path
+                            ),
+                            format,
+                        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_instances(self):

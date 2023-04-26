@@ -46,7 +46,8 @@ class DirPathExtracter:
     @staticmethod
     def find_rootpath(path: str) -> str:
         """Find root path from annotation json file path."""
-        if path.endswith(osp.join(CocoPath.ANNOTATIONS_DIR, osp.basename(path))):
+        path = osp.abspath(path)
+        if osp.dirname(path).endswith(CocoPath.ANNOTATIONS_DIR):
             return path.rsplit(CocoPath.ANNOTATIONS_DIR, maxsplit=1)[0]
         raise DatasetImportError(
             f"Annotation path ({path}) should be under the directory which is named {CocoPath.ANNOTATIONS_DIR}. "
