@@ -48,9 +48,12 @@ class TestDataFormatBase:
         importer: Optional[Importer] = None,
     ):
         if exporter is None:
-            exporter = self.EXPORTER
+            exporter = getattr(self, "EXPORTER", None)
         if importer is None:
-            importer = self.IMPORTER
+            importer = getattr(self, "IMPORTER", None)
+
+        if exporter is None or importer is None:
+            pytest.skip(reason="exporter or importer is None.")
 
         helper_tc = request.getfixturevalue("helper_tc")
 

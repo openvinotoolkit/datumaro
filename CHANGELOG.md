@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+### New features
+- Add CocoRoboflowImporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/976>)
+
 ### Enhancements
 - Use autosummary for fully-automatic Python module docs generation
   (<https://github.com/openvinotoolkit/datumaro/pull/973>)

@@ -145,18 +145,6 @@ class CommonSemanticSegmentationImporterTest(TestDataFormatBase):
             fxt_dataset_dir, fxt_expected_dataset, fxt_import_kwargs, request
         )
 
-    def test_can_export_and_import(
-        self,
-        fxt_expected_dataset: Dataset,
-        test_dir: str,
-        fxt_import_kwargs: Dict[str, Any],
-        fxt_export_kwargs: Dict[str, Any],
-        request: pytest.FixtureRequest,
-        exporter: Optional[Exporter] = None,
-        importer: Optional[Importer] = None,
-    ):
-        """CommonSemanticSegmentation does not have exporter."""
-
 
 class CommonSemanticSegmentationWithSubsetDirsImporterTest(TestDataFormatBase):
     IMPORTER = CommonSemanticSegmentationWithSubsetDirsImporter
@@ -200,15 +188,3 @@ class CommonSemanticSegmentationWithSubsetDirsImporterTest(TestDataFormatBase):
             fxt_import_kwargs,
             request,
         )
-
-    def test_can_export_and_import(
-        self,
-        fxt_expected_dataset: Dataset,
-        test_dir: str,
-        fxt_import_kwargs: Dict[str, Any],
-        fxt_export_kwargs: Dict[str, Any],
-        request: pytest.FixtureRequest,
-        exporter: Optional[Exporter] = None,
-        importer: Optional[Importer] = None,
-    ):
-        """CommonSemanticSegmentation does not have exporter."""
