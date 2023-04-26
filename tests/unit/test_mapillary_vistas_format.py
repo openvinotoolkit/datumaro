@@ -1,8 +1,8 @@
 import os.path as osp
 from unittest import TestCase
-import pytest
 
 import numpy as np
+import pytest
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -19,10 +19,10 @@ from datumaro.plugins.data_formats.mapillary_vistas.format import (
     make_mapillary_instance_categories,
 )
 
+from ..requirements import Requirements, mark_requirement
+
 from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import compare_datasets
-
-from ..requirements import Requirements, mark_requirement
 
 DUMMY_DATASET = get_test_asset_path("mapillary_vistas_dataset")
 
