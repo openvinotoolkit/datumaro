@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 import glob
@@ -84,7 +84,7 @@ class MapillaryVistasImporter(Importer):
             if task == selected_task
         ]
 
-        print('sources:', sources)
+        print("sources:", sources)
 
         return sources
 
@@ -110,7 +110,7 @@ class MapillaryVistasImporter(Importer):
                 subset = osp.dirname(osp.dirname(osp.relpath(ann_path, path)))
                 subsets.setdefault(subset, {})[task] = osp.join(path, subset)
 
-        print('subsets:', subsets)
+        print("subsets:", subsets)
 
         return subsets
 

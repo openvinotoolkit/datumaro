@@ -1,7 +1,6 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-import glob
 import logging as log
 import os
 import os.path as osp
@@ -34,12 +33,19 @@ from .format import (
 
 class _MapillaryVistasBase(SubsetBase):
     def __init__(
-        self, path, task, subset=None, use_original_config=False, keep_original_category_ids=False, format_version="v2.0", parse_polygon=False
+        self,
+        path,
+        task,
+        subset=None,
+        use_original_config=False,
+        keep_original_category_ids=False,
+        format_version="v2.0",
+        parse_polygon=False,
     ):
-        if format_version != "v2.0" and task == MapillaryVistasTask.panoptic:
+        if format_version == "v1.2" and parse_polygon is True:
             raise ImportError(
-                "Format version %s is not available for the task %s."
-                % (format_version, MapillaryVistasTask.panoptic)
+                "Format version %s is not available for polygons. "
+                "Please try with v2.0 for parsing polygons." % format_version
             )
 
         assert osp.isdir(path), path
@@ -54,7 +60,7 @@ class _MapillaryVistasBase(SubsetBase):
             raise NotADirectoryError(
                 "Can't find annotation directory at %s. "
                 "Expected one of these directories: %s"
-                % (path, ",".join(MapillaryVistasPath.ANNOTATIONS_DIR_PATTERNS))
+                % (path, ",".join(MapillaryVistasPath.ANNOTATIONS_DIRS))
             )
         elif len(annotations_dirs) > 1:
             log.warning(
@@ -81,10 +87,11 @@ class _MapillaryVistasBase(SubsetBase):
             )
             self._items = self._load_panoptic_items(panoptic_config)
 
-    @staticmethod
-    def _load_panoptic_config(path):
+    def _load_panoptic_config(self, path):
         panoptic_config_path = osp.join(
-            path, MapillaryVistasPath.PANOPTIC_DIR, MapillaryVistasPath.PANOPTIC_CONFIG
+            path,
+            MapillaryVistasPath.PANOPTIC_DIR,
+            MapillaryVistasPath.PANOPTIC_CONFIG[self._format_version],
         )
 
         if not osp.isfile(panoptic_config_path):
@@ -166,7 +173,7 @@ class _MapillaryVistasBase(SubsetBase):
                 )
 
             if self._parse_polygon:
-                polygon_path = osp.join(polygon_dir, item_id + '.json')
+                polygon_path = osp.join(polygon_dir, item_id + ".json")
                 item_info = parse_json_file(polygon_path)
 
                 polygons = item_info["objects"]
@@ -238,7 +245,7 @@ class _MapillaryVistasBase(SubsetBase):
                 )
 
             if self._parse_polygon:
-                polygon_path = osp.join(polygon_dir, item_id + '.json')
+                polygon_path = osp.join(polygon_dir, item_id + ".json")
                 item_info = parse_json_file(polygon_path)
 
                 polygons = item_info["objects"]
@@ -251,7 +258,9 @@ class _MapillaryVistasBase(SubsetBase):
                     points = [int(coord) for point in polygon["polygon"] for coord in point]
                     annotations.append(Polygon(label=label_id, points=points))
 
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset, media=image, annotations=annotations)
+            items[item_id] = DatasetItem(
+                id=item_id, subset=self._subset, media=image, annotations=annotations
+            )
 
         return items.values()
 
