@@ -161,8 +161,7 @@ class ImageTest(TestCase):
                     img = Image.from_bytes(**args)
                     self.assertTrue(img.has_data)
                     np.testing.assert_array_equal(img.data, image)
-                    if img.bytes:
-                        self.assertEqual(img.bytes, image_bytes)
+                    self.assertEqual(img.bytes, image_bytes)
                     self.assertEqual(img.size, tuple(image.shape[:2]))
 
             with self.subTest():
