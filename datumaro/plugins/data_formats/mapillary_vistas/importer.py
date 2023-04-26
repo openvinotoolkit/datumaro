@@ -84,8 +84,6 @@ class MapillaryVistasImporter(Importer):
             if task == selected_task
         ]
 
-        print("sources:", sources)
-
         return sources
 
     @classmethod
@@ -109,8 +107,6 @@ class MapillaryVistasImporter(Importer):
             for ann_path in glob.glob(osp.join(path, "*", suffix)):
                 subset = osp.dirname(osp.dirname(osp.relpath(ann_path, path)))
                 subsets.setdefault(subset, {})[task] = osp.join(path, subset)
-
-        print("subsets:", subsets)
 
         return subsets
 
