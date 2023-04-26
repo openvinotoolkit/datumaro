@@ -24,26 +24,26 @@ class ExploreTest(TestCase):
         train_img[2, :] = 0
         test_img = np.full((5, 5, 3), 0, dtype=np.uint8)
         test_img[2, :] = 255
-        train_Image = Image.from_numpy(data=train_img)
+
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id=1,
                     subset="train",
-                    media=train_Image,
-                    annotations=[Label(1, id=1), Caption("cat")],
+                    media=Image.from_numpy(data=train_img),
+                    annotations=[Label(0), Caption("cat")],
                 ),
                 DatasetItem(
                     id=2,
                     subset="train",
-                    media=train_Image,
-                    annotations=[Label(1, id=1), Caption("cat")],
+                    media=Image.from_numpy(data=train_img),
+                    annotations=[Label(0), Caption("cat")],
                 ),
                 DatasetItem(
                     id=3,
                     subset="test",
                     media=Image.from_numpy(data=test_img),
-                    annotations=[Label(2, id=2), Caption("dog")],
+                    annotations=[Label(1), Caption("dog")],
                 ),
             ]
         )
@@ -53,27 +53,26 @@ class ExploreTest(TestCase):
     def test_dataset_black_white(self):
         train_img = np.full((5, 5, 3), 255, dtype=np.uint8)
         test_img = np.full((5, 5, 3), 0, dtype=np.uint8)
-        train_Image = Image.from_numpy(data=train_img)
 
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id=4,
                     subset="train",
-                    media=train_Image,
-                    annotations=[Label(1, id=1), Caption("cat")],
+                    media=Image.from_numpy(data=train_img),
+                    annotations=[Label(0), Caption("cat")],
                 ),
                 DatasetItem(
                     id=5,
                     subset="train",
-                    media=train_Image,
-                    annotations=[Label(1, id=1), Caption("cat")],
+                    media=Image.from_numpy(data=train_img),
+                    annotations=[Label(0), Caption("cat")],
                 ),
                 DatasetItem(
                     id=6,
                     subset="test",
                     media=Image.from_numpy(data=test_img),
-                    annotations=[Label(2, id=2), Caption("dog")],
+                    annotations=[Label(1), Caption("dog")],
                 ),
             ]
         )
@@ -104,7 +103,9 @@ class ExploreTest(TestCase):
             train_image_path,
             "-topk",
             "2",
+            "-p",
             proj_dir,
+            "source-1",
         )
 
     @skipIf(
@@ -123,7 +124,18 @@ class ExploreTest(TestCase):
 
         train_image_path = osp.join(test_dir, "train", "1.jpg")
         run(self, "project", "create", "-o", proj_dir)
-        run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset1_url)
+        run(
+            self,
+            "project",
+            "import",
+            "-p",
+            proj_dir,
+            "-f",
+            "datumaro",
+            "-n",
+            "source-1",
+            dataset1_url,
+        )
 
         run(
             self,
@@ -134,9 +146,8 @@ class ExploreTest(TestCase):
             "2",
             "-p",
             proj_dir,
+            "source-1",
         )
-
-        run(self, "project", "commit", "-m", "first", "-p", proj_dir)
 
         dataset2_url = osp.join(proj_dir, "dataset2")
         self.test_dataset_black_white.save(dataset2_url, save_media=True)
@@ -152,8 +163,6 @@ class ExploreTest(TestCase):
             dataset2_url,
         )
 
-        run(self, "project", "export", "-f", "datumaro", "-p", proj_dir, "--", "--save-images")
-
         run(
             self,
             "explore",
@@ -163,6 +172,7 @@ class ExploreTest(TestCase):
             "2",
             "-p",
             proj_dir,
+            "dataset2",
         )
 
     @skipIf(
@@ -183,32 +193,25 @@ class ExploreTest(TestCase):
         run(self, "project", "create", "-o", proj_dir)
         run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset1_url)
 
-        run(
-            self,
-            "explore",
-            "-q",
-            train_image_path,
-            "-topk",
-            "2",
-            "-p",
-            proj_dir,
-        )
+        run(self, "explore", "-q", train_image_path, "-topk", "2", "-p", proj_dir, "source-1")
 
         run(self, "project", "commit", "-m", "first", "-p", proj_dir)
 
-        dataset2_url = osp.join(proj_dir, "dataset2")
+        dataset2_url = osp.join(test_dir, "dataset2")
         self.test_dataset_black_white.save(dataset2_url, save_media=True)
-
+        result_dir = osp.join(test_dir, "result")
         run(
             self,
-            "project",
             "merge",
             "-f",
             "datumaro",
-            "-p",
-            proj_dir,
+            "-o",
+            result_dir,
+            dataset1_url,
             dataset2_url,
         )
+
+        run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", "-n", "result", result_dir)
 
         run(
             self,
@@ -219,4 +222,5 @@ class ExploreTest(TestCase):
             "2",
             "-p",
             proj_dir,
+            "result",
         )

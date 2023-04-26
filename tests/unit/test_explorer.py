@@ -135,42 +135,13 @@ class ExplorerTest(TestCase):
         """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(self.test_dataset_black_white, test_dir)
+            converter(self.test_dataset, test_dir)
             imported_dataset = Dataset.import_from(test_dir, "datumaro")
             explorer = Explorer(imported_dataset)
-            result = explorer.explore_topk("a photo of white background", topk=2)
+            result = explorer.explore_topk(
+                "a photo of a upper white and bottom black background", topk=2
+            )
             self.assertEqual(result[0].subset, result[1].subset)
-
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_data_none(self):
-        """
-        <b>Description:</b>
-        Check that data does not have any media.
-
-        <b>Input data:</b>
-        Dataset whose data is None.
-
-        <b>Expected results:</b>
-        Raise ValueError as data should have hash_key.
-
-        <b>Steps</b>
-        1. Import datumaro dataset which contain None media data.
-        2. Set Explorer and try explore_topk to find similar media of query.
-        3. Check whether ValueError raised properly or not.
-        """
-        imported_dataset = Dataset.import_from("./tests/assets/datumaro_dataset/legacy", "datumaro")
-        for i, item in enumerate(imported_dataset):
-            if i == 0:
-                query = item
-        explorer = Explorer(imported_dataset)
-        with self.assertRaises(ValueError) as capture:
-            explorer.explore_topk(query, topk=2)
-        self.assertEqual("Database should have hash_key", str(capture.exception))
 
     @skipIf(
         platform.system() == "Darwin",

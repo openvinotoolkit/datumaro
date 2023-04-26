@@ -45,7 +45,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "_positionals", nargs=argparse.REMAINDER, help=argparse.SUPPRESS
     )  # workaround for -- eaten by positionals
-    parser.add_argument("target", nargs="?", default="project", help="Target dataset")
+    parser.add_argument("target", nargs="+", help="Target dataset")
     parser.add_argument(
         "-q",
         "--query",
@@ -72,7 +72,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def get_sensitive_args():
     return {
         explore_command: [
-            # "target",
+            "target",
             "query",
             "topk",
             "project_dir",
@@ -90,14 +90,16 @@ def explore_command(args):
         if args.project_dir:
             raise
 
-    targets = list(project.working_tree.sources)
+    targets = args.target
+    target_dataset, _ = parse_full_revpath(targets[0], project)
     # dataset, project = parse_full_revpath(args.target[0], project)
-    source_datasets = []
-    for t in targets:
-        target_dataset, _ = parse_full_revpath(t, project)
-        source_datasets.append(target_dataset)
-    # dataset, _ = parse_full_revpath(targets[0], project)
-    dataset = project.load_hashkey(source_datasets[0])
+    # source_datasets = []
+    # for t in targets:
+    #     target_dataset, _ = parse_full_revpath(t, project)
+    #     source_datasets.append(target_dataset)
+    # # dataset, _ = parse_full_revpath(targets[0], project)
+    # dataset = project.load_hashkey(source_datasets[0])
+    dataset = project.load_hashkey(target_dataset)
 
     explorer = Explorer(dataset)
     project.save_hashkey(explorer._item_list)
@@ -114,13 +116,13 @@ def explore_command(args):
     subset_list = []
     id_list = []
     result_path_list = []
-    log.info("Most similar {} results of query in dataset".format(args.topk))
+    log.info(f"Most similar {args.topk} results of query in dataset")
     for result in results:
         subset_list.append(result.subset)
         id_list.append(result.id)
         path = getattr(result.media, "path", None)
         result_path_list.append(path)
-        log.info("id: {} | subset: {} | path : {}".format(result.id, result.subset, path))
+        log.info(f"id: {result.id} | subset: {result.subset} | path : {path}")
 
     visualizer = Visualizer(dataset, figsize=(20, 20), alpha=0)
     fig = visualizer.vis_gallery(id_list, subset_list)

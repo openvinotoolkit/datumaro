@@ -2,9 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os.path as osp
+
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, HashKey, LabelCategories
+from datumaro.util.samples import get_samples_path
 
 
 def normalize(inputs):
@@ -26,4 +29,12 @@ def process_outputs(inputs, outputs):
 
 def get_categories():
     label_categories = LabelCategories()
+
+    openvino_plugin_samples_dir = get_samples_path()
+    imagenet_class_path = osp.join(openvino_plugin_samples_dir, "imagenet.class")
+    with open(imagenet_class_path, "r", encoding="utf-8") as file:
+        for line in file.readlines():
+            label = line.strip()
+            label_categories.add(label)
+
     return {AnnotationType.label: label_categories}

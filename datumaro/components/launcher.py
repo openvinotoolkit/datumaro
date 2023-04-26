@@ -27,6 +27,9 @@ class Launcher(CliPlugin):
     def type_check(self, item):
         return True
 
+    def inferenced_check(self, batch):
+        return False
+
 
 # pylint: enable=no-self-use
 
@@ -46,7 +49,13 @@ class ModelTransform(Transform):
                     continue
                 inputs.append(np.atleast_3d(item.media.data))
             inputs = np.array(inputs)
-            inference = self._launcher.launch(inputs)
+
+            if self._launcher.inferenced_check(batch):
+                # check whether already inferenced or not to avoid redundant work
+                inference = [batch[0].annotations]
+                self._append_annotation = False
+            else:
+                inference = self._launcher.launch(inputs)
 
             for item, annotations in zip(batch, inference):
                 self._check_annotations(annotations)

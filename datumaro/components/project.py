@@ -28,6 +28,7 @@ from typing import (
 )
 
 import networkx as nx
+import numpy as np
 import ruamel.yaml as yaml
 
 from datumaro.components.annotation import HashKey
@@ -2705,17 +2706,15 @@ class Project:
         hashkey_dict = {}
 
         for item in item_list:
-            id = item.id
+            item_id = item.id
             for annotation in item.annotations:
                 if isinstance(annotation, HashKey):
                     hashkey = annotation.hash_key
                     break
-            hashkey_dict.update({id: hashkey.tolist()})
+            hashkey_dict.update({item_id: hashkey.tolist()})
         self._config.hashkey = hashkey_dict
 
     def load_hashkey(self, dataset):
-        import numpy as np
-
         hashkey_dict = self._config.hashkey
 
         if not hashkey_dict:
@@ -2723,8 +2722,10 @@ class Project:
 
         updated_item_list = []
         for item in dataset:
-            hashkey = [HashKey(np.array(hashkey_dict.get(item.id)))]
-            annotations = item.annotations + hashkey
+            hashkey_ = np.array(hashkey_dict.get(item.id))
+            if not (hashkey_ is None).any():
+                hashkey_ = hashkey_.astype(np.uint8)
+            annotations = item.annotations + [HashKey(hashkey_)]
             updated_item_list.append(item.wrap(annotations=annotations))
         dataset = Dataset.from_iterable(updated_item_list)
         return dataset
