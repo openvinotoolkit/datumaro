@@ -30,7 +30,7 @@ from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import compare_datasets
 
 DATASET_DIR = get_test_asset_path("mapillary_vistas_dataset")
-VAL_DATASET_DIR = osp.join(DATASET_DIR, "val")
+VAL_DATASET_DIR = get_test_asset_path("mapillary_vistas_dataset", "val")
 
 
 @pytest.fixture
@@ -368,6 +368,7 @@ def fxt_dataset_panoptic_wo_polygon():
 
     return expected_dataset
 
+
 @pytest.fixture
 def fxt_dataset_original_config():
     return Dataset.from_iterable(
@@ -394,6 +395,7 @@ def fxt_dataset_original_config():
         ],
         categories=make_mapillary_instance_categories(MapillaryVistasLabelMaps["v1.2"]),
     )
+
 
 @pytest.fixture
 def fxt_dataset_keep_category():
@@ -460,6 +462,7 @@ def fxt_dataset_keep_category():
         categories={AnnotationType.label: label_cat, AnnotationType.mask: mask_cat},
     )
 
+
 class MapillaryVistasTest(TestDataFormatBase):
     IMPORTER = MapillaryVistasImporter
     USE_TEST_CAN_EXPORT_AND_IMPORT = False
@@ -472,19 +475,63 @@ class MapillaryVistasTest(TestDataFormatBase):
         detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(fxt_dataset_dir)
 
         for detected_format in detected_formats:
-            assert detected_format in ["mapillary_vistas", "mapillary_vistas_instances", "mapillary_vistas_panoptic"]
+            assert detected_format in [
+                "mapillary_vistas",
+                "mapillary_vistas_instances",
+                "mapillary_vistas_panoptic",
+            ]
 
     @pytest.mark.parametrize(
         "fxt_dataset_dir,fxt_expected_dataset,fxt_importer_name,fxt_import_kwargs",
         [
-            (DATASET_DIR, "fxt_dataset_instances_wo_polygon", "mapillary_vistas_instances", {"format_version": "v1.2"}),
-            (DATASET_DIR, "fxt_dataset_instances_wo_polygon", "mapillary_vistas_instances", {"format_version": "v2.0"}),
-            (DATASET_DIR, "fxt_dataset_instances_w_polygon", "mapillary_vistas_instances", {"format_version": "v2.0", "parse_polygon": True}),
-            (DATASET_DIR, "fxt_dataset_panoptic_wo_polygon", "mapillary_vistas_panoptic", {"format_version": "v1.2"}),
-            (DATASET_DIR, "fxt_dataset_panoptic_wo_polygon", "mapillary_vistas_panoptic", {"format_version": "v2.0"}),
-            (DATASET_DIR, "fxt_dataset_panoptic_w_polygon", "mapillary_vistas_panoptic", {"format_version": "v2.0", "parse_polygon": True}),
-            (VAL_DATASET_DIR, "fxt_dataset_original_config", "mapillary_vistas_instances", {"format_version": "v1.2", "use_original_config": True}),
-            (VAL_DATASET_DIR, "fxt_dataset_keep_category", "mapillary_vistas_panoptic", {"format_version": "v2.0", "keep_original_category_ids": True}),
+            (
+                DATASET_DIR,
+                "fxt_dataset_instances_wo_polygon",
+                "mapillary_vistas_instances",
+                {"format_version": "v1.2"},
+            ),
+            (
+                DATASET_DIR,
+                "fxt_dataset_instances_wo_polygon",
+                "mapillary_vistas_instances",
+                {"format_version": "v2.0"},
+            ),
+            (
+                DATASET_DIR,
+                "fxt_dataset_instances_w_polygon",
+                "mapillary_vistas_instances",
+                {"format_version": "v2.0", "parse_polygon": True},
+            ),
+            (
+                DATASET_DIR,
+                "fxt_dataset_panoptic_wo_polygon",
+                "mapillary_vistas_panoptic",
+                {"format_version": "v1.2"},
+            ),
+            (
+                DATASET_DIR,
+                "fxt_dataset_panoptic_wo_polygon",
+                "mapillary_vistas_panoptic",
+                {"format_version": "v2.0"},
+            ),
+            (
+                DATASET_DIR,
+                "fxt_dataset_panoptic_w_polygon",
+                "mapillary_vistas_panoptic",
+                {"format_version": "v2.0", "parse_polygon": True},
+            ),
+            (
+                VAL_DATASET_DIR,
+                "fxt_dataset_original_config",
+                "mapillary_vistas_instances",
+                {"format_version": "v1.2", "use_original_config": True},
+            ),
+            (
+                VAL_DATASET_DIR,
+                "fxt_dataset_keep_category",
+                "mapillary_vistas_panoptic",
+                {"format_version": "v2.0", "keep_original_category_ids": True},
+            ),
         ],
     )
     def test_can_import(
@@ -501,4 +548,3 @@ class MapillaryVistasTest(TestDataFormatBase):
         dataset = Dataset.import_from(fxt_dataset_dir, fxt_importer_name, **fxt_import_kwargs)
 
         compare_datasets(helper_tc, exptected_dataset, dataset, require_media=True)
-
