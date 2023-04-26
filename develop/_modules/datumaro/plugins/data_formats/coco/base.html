@@ -316,9 +316,51 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">bgr2index</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
 
-<span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">CocoPath</span><span class="p">,</span> <span class="n">CocoTask</span>
+<span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">CocoImporterType</span><span class="p">,</span> <span class="n">CocoPath</span><span class="p">,</span> <span class="n">CocoTask</span>
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DirPathExtracter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/coco/datumaro.plugins.data_formats.coco.base.html#datumaro.plugins.data_formats.coco.base.DirPathExtracter">[docs]</a><span class="k">class</span> <span class="nc">DirPathExtracter</span><span class="p">:</span>
+<div class="viewcode-block" id="DirPathExtracter.find_rootpath"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/coco/datumaro.plugins.data_formats.coco.base.html#datumaro.plugins.data_formats.coco.base.DirPathExtracter.find_rootpath">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_rootpath</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find root path from annotation json file path.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CocoPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))):</span>
+            <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">CocoPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Annotation path (</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">) should be under the directory which is named </span><span class="si">{</span><span class="n">CocoPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;If not, Datumaro fails to find the root path for this dataset. &quot;</span>
+            <span class="s2">&quot;Please follow this instruction, https://github.com/cocodataset/cocoapi/blob/master/README.txt&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DirPathExtracter.find_images_dir"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/coco/datumaro.plugins.data_formats.coco.base.html#datumaro.plugins.data_formats.coco.base.DirPathExtracter.find_images_dir">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_images_dir</span><span class="p">(</span><span class="n">rootpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find images directory from the root path.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">rootpath</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">CocoPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)):</span>
+            <span class="n">images_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">CocoPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">images_dir</span><span class="p">,</span> <span class="n">subset</span> <span class="ow">or</span> <span class="n">DEFAULT_SUBSET_NAME</span><span class="p">)):</span>
+                <span class="n">images_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">images_dir</span><span class="p">,</span> <span class="n">subset</span> <span class="ow">or</span> <span class="n">DEFAULT_SUBSET_NAME</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">images_dir</span>
+
+        <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;We found the rootpath (</span><span class="si">{</span><span class="n">rootpath</span><span class="si">}</span><span class="s2">) for this dataset. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;However, there should exist a directory for images as </span><span class="si">{</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span><span class="w"> </span><span class="n">CocoPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;If not, Datumaro fails to find the image directory path. &quot;</span>
+            <span class="s2">&quot;Please follow this instruction, https://github.com/cocodataset/cocoapi/blob/master/README.txt&quot;</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RoboflowDirPathExtracter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/coco/datumaro.plugins.data_formats.coco.base.html#datumaro.plugins.data_formats.coco.base.RoboflowDirPathExtracter">[docs]</a><span class="k">class</span> <span class="nc">RoboflowDirPathExtracter</span><span class="p">(</span><span class="n">DirPathExtracter</span><span class="p">):</span>
+<div class="viewcode-block" id="RoboflowDirPathExtracter.find_rootpath"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/coco/datumaro.plugins.data_formats.coco.base.html#datumaro.plugins.data_formats.coco.base.RoboflowDirPathExtracter.find_rootpath">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_rootpath</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span></div>
+
+<div class="viewcode-block" id="RoboflowDirPathExtracter.find_images_dir"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/coco/datumaro.plugins.data_formats.coco.base.html#datumaro.plugins.data_formats.coco.base.RoboflowDirPathExtracter.find_images_dir">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_images_dir</span><span class="p">(</span><span class="n">rootpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">_CocoBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
@@ -335,6 +377,7 @@
         <span class="n">merge_instance_polygons</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">subset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">keep_original_category_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">coco_importer_type</span><span class="p">:</span> <span class="n">CocoImporterType</span> <span class="o">=</span> <span class="n">CocoImporterType</span><span class="o">.</span><span class="n">default</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
@@ -346,8 +389,15 @@
             <span class="n">subset</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_rootpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_images_dir</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">coco_importer_type</span> <span class="o">==</span> <span class="n">CocoImporterType</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">DirPathExtracter</span><span class="o">.</span><span class="n">find_rootpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span> <span class="o">=</span> <span class="n">DirPathExtracter</span><span class="o">.</span><span class="n">find_images_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">coco_importer_type</span> <span class="o">==</span> <span class="n">CocoImporterType</span><span class="o">.</span><span class="n">roboflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">RoboflowDirPathExtracter</span><span class="o">.</span><span class="n">find_rootpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span> <span class="o">=</span> <span class="n">RoboflowDirPathExtracter</span><span class="o">.</span><span class="n">find_images_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">coco_importer_type</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">=</span> <span class="n">task</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_merge_instance_polygons</span> <span class="o">=</span> <span class="n">merge_instance_polygons</span>
@@ -362,34 +412,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">==</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">panoptic</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_mask_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_find_rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find root path from annotation json file path.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CocoPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))):</span>
-            <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">CocoPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Annotation path (</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">) should be under the directory which is named </span><span class="si">{</span><span class="n">CocoPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="si">}</span><span class="s2">. &quot;</span>
-            <span class="s2">&quot;If not, Datumaro fails to find the root path for this dataset. &quot;</span>
-            <span class="s2">&quot;Please follow this instruction, https://github.com/cocodataset/cocoapi/blob/master/README.txt&quot;</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_find_images_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find images directory from the root path.&quot;&quot;&quot;</span>
-
-        <span class="n">rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span>
-
-        <span class="k">if</span> <span class="n">rootpath</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">CocoPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)):</span>
-            <span class="n">images_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">CocoPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">images_dir</span><span class="p">,</span> <span class="n">subset</span> <span class="ow">or</span> <span class="n">DEFAULT_SUBSET_NAME</span><span class="p">)):</span>
-                <span class="n">images_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">images_dir</span><span class="p">,</span> <span class="n">subset</span> <span class="ow">or</span> <span class="n">DEFAULT_SUBSET_NAME</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">images_dir</span>
-
-        <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;We found the rootpath (</span><span class="si">{</span><span class="n">rootpath</span><span class="si">}</span><span class="s2">) for this dataset. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;However, there should exist a directory for images as </span><span class="si">{</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span><span class="w"> </span><span class="n">CocoPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
-            <span class="s2">&quot;If not, Datumaro fails to find the image directory path. &quot;</span>
-            <span class="s2">&quot;Please follow this instruction, https://github.com/cocodataset/cocoapi/blob/master/README.txt&quot;</span>
-        <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
