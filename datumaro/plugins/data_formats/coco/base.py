@@ -47,7 +47,8 @@ class DirPathExtracter:
     def find_rootpath(path: str) -> str:
         """Find root path from annotation json file path."""
         if path.endswith(osp.join(CocoPath.ANNOTATIONS_DIR, osp.basename(path))):
-            return path.rsplit(CocoPath.ANNOTATIONS_DIR, maxsplit=1)[0]
+            root_path = path.rsplit(CocoPath.ANNOTATIONS_DIR, maxsplit=1)[0]
+            return root_path if root_path else "./"
         raise DatasetImportError(
             f"Annotation path ({path}) should be under the directory which is named {CocoPath.ANNOTATIONS_DIR}. "
             "If not, Datumaro fails to find the root path for this dataset. "
