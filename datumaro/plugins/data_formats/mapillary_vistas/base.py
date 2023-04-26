@@ -190,7 +190,6 @@ class _MapillaryVistasBase(SubsetBase):
                 id=item_id, subset=self._subset, annotations=annotations, media=image
             )
 
-        # self._load_polygons(items)
         return items.values()
 
     def _load_instances_categories(self):
