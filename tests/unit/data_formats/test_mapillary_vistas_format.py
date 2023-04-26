@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MIT
 from typing import Any, Dict
 
-import os.path as osp
-
 import numpy as np
 import pytest
 
