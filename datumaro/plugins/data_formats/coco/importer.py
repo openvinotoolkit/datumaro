@@ -19,7 +19,7 @@ from datumaro.plugins.data_formats.coco.base import (
     CocoStuffBase,
 )
 
-from .format import CocoTask
+from .format import CocoImporterType, CocoTask
 
 
 class CocoImporter(Importer):
@@ -32,6 +32,7 @@ class CocoImporter(Importer):
         CocoTask.panoptic: CocoPanopticBase,
         CocoTask.stuff: CocoStuffBase,
     }
+    _IMPORTER_TYPE = CocoImporterType.default
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -88,7 +89,7 @@ class CocoImporter(Importer):
             )
 
         sources = []
-        for ann_files in subsets.values():
+        for subset, ann_files in subsets.items():
             for ann_type, ann_file in ann_files.items():
                 if ann_type in conflicting_types:
                     if ann_type is not selected_ann_type:
@@ -98,11 +99,15 @@ class CocoImporter(Importer):
                         continue
                 log.info("Found a dataset at '%s'" % ann_file)
 
+                options = dict(extra_params)
+                options["coco_importer_type"] = self._IMPORTER_TYPE
+                options["subset"] = subset
+
                 sources.append(
                     {
                         "url": ann_file,
                         "format": self._TASKS[ann_type].NAME,
-                        "options": dict(extra_params),
+                        "options": options,
                     }
                 )
 
@@ -180,3 +185,29 @@ class CocoPanopticImporter(CocoImporter):
 class CocoStuffImporter(CocoImporter):
     _TASK = CocoTask.stuff
     _TASKS = {_TASK: CocoImporter._TASKS[_TASK]}
+
+
+class CocoRoboflowImporter(CocoImporter):
+    # Currently, All Roboflow exported COCO format can be handled by our Coco instances task implements.
+    _TASK = CocoTask.instances
+    _IMPORTER_TYPE = CocoImporterType.roboflow
+
+    @classmethod
+    def detect(
+        cls,
+        context: FormatDetectionContext,
+    ) -> FormatDetectionConfidence:
+        context.require_file("*/_annotations.coco.json")
+        return FormatDetectionConfidence.MEDIUM
+
+    @classmethod
+    def find_sources(cls, path):
+        subset_paths = glob(osp.join(path, "*", "_annotations.coco.json"), recursive=True)
+
+        subsets = {}
+        for subset_path in subset_paths:
+            subset_name = osp.basename(osp.dirname(subset_path))
+            osp.basename(subset_path)
+            subsets.setdefault(subset_name, {})[cls._TASK] = subset_path
+
+        return subsets
