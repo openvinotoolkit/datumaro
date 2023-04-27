@@ -184,9 +184,7 @@ class FromDataMixin(Generic[AnyData]):
     @property
     def bytes(self) -> Optional[bytes]:
         if self.has_data:
-            if callable(self._data):
-                _bytes = self._data()
-            _bytes = self._data
+            _bytes = self._data() if callable(self._data) else self._data
             if isinstance(_bytes, bytes):
                 return _bytes
         return None
