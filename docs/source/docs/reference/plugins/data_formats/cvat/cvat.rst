@@ -1,7 +1,0 @@
-CVAT package
-============
-
-.. toctree::
-   :glob:
-
-   *

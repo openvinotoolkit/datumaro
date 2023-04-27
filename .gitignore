@@ -77,3 +77,6 @@ datumaro/*.so
 
 # Secrets
 .secrets
+
+# Autosummary generated rst files
+docs/**/_autosummary/
