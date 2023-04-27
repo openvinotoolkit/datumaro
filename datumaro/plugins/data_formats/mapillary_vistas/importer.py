@@ -52,15 +52,15 @@ class MapillaryVistasImporter(Importer):
         subsets = self.find_sources(path)
 
         if len(subsets) == 0:
-            raise Exception("Failed to find Mapillary Vistas dataset at '%s'" % path)
+            raise Exception(f"Failed to find Mapillary Vistas dataset at {path}")
 
         tasks = list(set(task for subset in subsets.values() for task in subset))
         selected_task = tasks[0]
         if 1 < len(tasks):
+            task_types = ",".join(task.name for task in tasks)
             log.warning(
-                "Found potentially conflicting source types: %s"
-                "Only one one type will be used: %s"
-                % (",".join(task.name for task in tasks), selected_task.name)
+                f"Found potentially conflicting source types: {task_types}"
+                f"Only one one type will be used: {selected_task.name}"
             )
 
         if selected_task == MapillaryVistasTask.instances:
@@ -73,8 +73,8 @@ class MapillaryVistasImporter(Importer):
 
             if not has_config and not extra_params.get("use_original_config"):
                 raise Exception(
-                    "Failed to find config*.json at '%s'. "
-                    "See extra args for using original config" % path
+                    f"Failed to find config*.json at {path}. "
+                    "See extra args for using original config."
                 )
 
         sources = [

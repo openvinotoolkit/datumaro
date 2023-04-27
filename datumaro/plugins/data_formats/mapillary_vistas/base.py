@@ -44,8 +44,8 @@ class _MapillaryVistasBase(SubsetBase):
     ):
         if format_version == "v1.2" and parse_polygon is True:
             raise ImportError(
-                "Format version %s is not available for polygons. "
-                "Please try with v2.0 for parsing polygons." % format_version
+                f"Format version {format_version} is not available for polygons. "
+                "Please try with v2.0 for parsing polygons."
             )
 
         assert osp.isdir(path), path
@@ -57,15 +57,16 @@ class _MapillaryVistasBase(SubsetBase):
         annotations_dirs = [d for d in os.listdir(path) if d in MapillaryVistasPath.ANNOTATION_DIRS]
 
         if len(annotations_dirs) == 0:
+            expected_dirs = ",".join(MapillaryVistasPath.ANNOTATION_DIRS[format_version])
             raise NotADirectoryError(
-                "Can't find annotation directory at %s. "
-                "Expected one of these directories: %s"
-                % (path, ",".join(MapillaryVistasPath.ANNOTATIONS_DIRS))
+                f"Can't find annotation directory at {path}. "
+                f"Expected one of these directories: {expected_dirs}."
             )
         elif len(annotations_dirs) > 1:
+            skipped_dirs = ",".join(annotations_dirs[1:])
             log.warning(
-                "Directory(-es): %s will be skipped, dataset should contain "
-                "only one annotation directory" % ",".join(annotations_dirs[1:])
+                f"Directory(-es): {skipped_dirs} will be skipped, dataset should "
+                "contain only one annotation directory"
             )
 
         self._use_original_config = use_original_config
@@ -96,8 +97,7 @@ class _MapillaryVistasBase(SubsetBase):
 
         if not osp.isfile(panoptic_config_path):
             raise FileNotFoundError(
-                "Can't find panoptic config file: '%s' at '%s'"
-                % (MapillaryVistasPath.PANOPTIC_CONFIG, panoptic_config_path)
+                f"Can't find panoptic config file: {MapillaryVistasPath.PANOPTIC_CONFIG} at {panoptic_config_path}"
             )
 
         return parse_json_file(panoptic_config_path)
