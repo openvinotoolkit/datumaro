@@ -1,7 +1,6 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-import glob
 import logging as log
 import os
 import os.path as osp
@@ -34,8 +33,21 @@ from .format import (
 
 class _MapillaryVistasBase(SubsetBase):
     def __init__(
-        self, path, task, subset=None, use_original_config=False, keep_original_category_ids=False
+        self,
+        path,
+        task,
+        subset=None,
+        use_original_config=False,
+        keep_original_category_ids=False,
+        format_version="v2.0",
+        parse_polygon=False,
     ):
+        if format_version == "v1.2" and parse_polygon is True:
+            raise ImportError(
+                f"Format version {format_version} is not available for polygons. "
+                "Please try with v2.0 for parsing polygons."
+            )
+
         assert osp.isdir(path), path
         self._path = path
         if subset is None:
@@ -45,24 +57,25 @@ class _MapillaryVistasBase(SubsetBase):
         annotations_dirs = [d for d in os.listdir(path) if d in MapillaryVistasPath.ANNOTATION_DIRS]
 
         if len(annotations_dirs) == 0:
+            expected_dirs = ",".join(MapillaryVistasPath.ANNOTATION_DIRS[format_version])
             raise NotADirectoryError(
-                "Can't find annotation directory at %s. "
-                "Expected one of these directories: %s"
-                % (path, ",".join(MapillaryVistasPath.ANNOTATIONS_DIR_PATTERNS))
+                f"Can't find annotation directory at {path}. "
+                f"Expected one of these directories: {expected_dirs}."
             )
         elif len(annotations_dirs) > 1:
+            skipped_dirs = ",".join(annotations_dirs[1:])
             log.warning(
-                "Directory(-es): %s will be skipped, dataset should contain "
-                "only one annotation directory" % ",".join(annotations_dirs[1:])
+                f"Directory(-es): {skipped_dirs} will be skipped, dataset should "
+                "contain only one annotation directory"
             )
 
         self._use_original_config = use_original_config
-        self._format_version = annotations_dirs[0]
-        self._annotations_dir = osp.join(path, annotations_dirs[0])
+        self._format_version = format_version
+        self._parse_polygon = parse_polygon
+        self._annotations_dir = osp.join(path, format_version)
         self._images_dir = osp.join(path, MapillaryVistasPath.IMAGES_DIR)
-        self._task = task
 
-        if self._task == MapillaryVistasTask.instances:
+        if task == MapillaryVistasTask.instances:
             if has_meta_file(path):
                 self._categories = make_mapillary_instance_categories(parse_meta_file(path))
             else:
@@ -75,16 +88,16 @@ class _MapillaryVistasBase(SubsetBase):
             )
             self._items = self._load_panoptic_items(panoptic_config)
 
-    @staticmethod
-    def _load_panoptic_config(path):
+    def _load_panoptic_config(self, path):
         panoptic_config_path = osp.join(
-            path, MapillaryVistasPath.PANOPTIC_DIR, MapillaryVistasPath.PANOPTIC_CONFIG
+            path,
+            MapillaryVistasPath.PANOPTIC_DIR,
+            MapillaryVistasPath.PANOPTIC_CONFIG[self._format_version],
         )
 
         if not osp.isfile(panoptic_config_path):
             raise FileNotFoundError(
-                "Can't find panoptic config file: '%s' at '%s'"
-                % (MapillaryVistasPath.PANOPTIC_CONFIG, panoptic_config_path)
+                f"Can't find panoptic config file: {MapillaryVistasPath.PANOPTIC_CONFIG} at {panoptic_config_path}"
             )
 
         return parse_json_file(panoptic_config_path)
@@ -127,6 +140,8 @@ class _MapillaryVistasBase(SubsetBase):
             for img in config["images"]
         }
 
+        polygon_dir = osp.join(self._annotations_dir, MapillaryVistasPath.POLYGON_DIR)
+
         for item_ann in config["annotations"]:
             item_id = item_ann["image_id"]
             image = None
@@ -136,13 +151,13 @@ class _MapillaryVistasBase(SubsetBase):
                     size=self._get_image_size(images_info[item_id]),
                 )
 
-            annotations = []
             mask_path = osp.join(
                 self._annotations_dir, MapillaryVistasPath.PANOPTIC_DIR, item_ann["file_name"]
             )
             mask = lazy_image(mask_path, loader=self._load_pan_mask)
             mask = CompiledMask(instance_mask=mask)
 
+            annotations = []
             for segment_info in item_ann["segments_info"]:
                 cat_id = self._get_label_id(segment_info)
                 segment_id = segment_info["id"]
@@ -157,11 +172,24 @@ class _MapillaryVistasBase(SubsetBase):
                     )
                 )
 
+            if self._parse_polygon:
+                polygon_path = osp.join(polygon_dir, item_id + ".json")
+                item_info = parse_json_file(polygon_path)
+
+                polygons = item_info["objects"]
+                for polygon in polygons:
+                    label = polygon["label"]
+                    label_id = self._categories[AnnotationType.label].find(label)[0]
+                    if label_id is None:
+                        label_id = self._categories[AnnotationType.label].add(label)
+
+                    points = [int(coord) for point in polygon["polygon"] for coord in point]
+                    annotations.append(Polygon(label=label_id, points=points))
+
             items[item_id] = DatasetItem(
                 id=item_id, subset=self._subset, annotations=annotations, media=image
             )
 
-        self._load_polygons(items)
         return items.values()
 
     def _load_instances_categories(self):
@@ -180,10 +208,32 @@ class _MapillaryVistasBase(SubsetBase):
     def _load_instances_items(self):
         items = {}
 
-        instances_dir = osp.join(self._annotations_dir, MapillaryVistasPath.INSTANCES_DIR)
-        for instance_path in find_images(instances_dir, recursive=True):
-            item_id = osp.splitext(osp.relpath(instance_path, instances_dir))[0]
+        # class_dir = osp.join(self._annotations_dir, MapillaryVistasPath.CLASS_DIR)
+        # for class_path in find_images(class_dir, recursive=True):
+        #     item_id = osp.splitext(osp.relpath(class_path, class_dir))[0]
+        #     if item_id in items:
+        #         continue
 
+        #     from PIL import Image as PILImage
+
+        #     class_mask = np.array(PILImage.open(class_path))
+        #     classes = np.unique(class_mask)
+
+        #     annotations = []
+        #     for label_id in classes:
+        #         annotations.append(
+        #             Mask(label=label_id, image=self._lazy_extract_mask(class_mask, label_id))
+        #         )
+
+        #     items[item_id] = DatasetItem(id=item_id, subset=self._subset, annotations=annotations)
+
+        instance_dir = osp.join(self._annotations_dir, MapillaryVistasPath.INSTANCES_DIR)
+        polygon_dir = osp.join(self._annotations_dir, MapillaryVistasPath.POLYGON_DIR)
+        for image_path in find_images(self._images_dir, recursive=True):
+            item_id = osp.splitext(osp.relpath(image_path, self._images_dir))[0]
+            image = Image.from_file(path=image_path)
+
+            instance_path = osp.join(instance_dir, item_id + MapillaryVistasPath.MASK_EXT)
             mask = load_image(instance_path, dtype=np.uint32)
 
             annotations = []
@@ -193,67 +243,25 @@ class _MapillaryVistasBase(SubsetBase):
                     Mask(image=self._lazy_extract_mask(mask, uval), label=label_id, id=instance_id)
                 )
 
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset, annotations=annotations)
+            if self._parse_polygon:
+                polygon_path = osp.join(polygon_dir, item_id + ".json")
+                item_info = parse_json_file(polygon_path)
 
-        class_dir = osp.join(self._annotations_dir, MapillaryVistasPath.CLASS_DIR)
-        for class_path in find_images(class_dir, recursive=True):
-            item_id = osp.splitext(osp.relpath(class_path, class_dir))[0]
-            if item_id in items:
-                continue
+                polygons = item_info["objects"]
+                for polygon in polygons:
+                    label = polygon["label"]
+                    label_id = self._categories[AnnotationType.label].find(label)[0]
+                    if label_id is None:
+                        label_id = self._categories[AnnotationType.label].add(label)
 
-            from PIL import Image as PILImage
+                    points = [int(coord) for point in polygon["polygon"] for coord in point]
+                    annotations.append(Polygon(label=label_id, points=points))
 
-            class_mask = np.array(PILImage.open(class_path))
-            classes = np.unique(class_mask)
+            items[item_id] = DatasetItem(
+                id=item_id, subset=self._subset, media=image, annotations=annotations
+            )
 
-            annotations = []
-            for label_id in classes:
-                annotations.append(
-                    Mask(label=label_id, image=self._lazy_extract_mask(class_mask, label_id))
-                )
-
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset, annotations=annotations)
-
-        for image_path in find_images(self._images_dir, recursive=True):
-            item_id = osp.splitext(osp.relpath(image_path, self._images_dir))[0]
-            image = Image.from_file(path=image_path)
-            if item_id in items:
-                items[item_id].media = image
-            else:
-                items[item_id] = DatasetItem(id=item_id, subset=self._subset, media=image)
-
-        self._load_polygons(items)
         return items.values()
-
-    def _load_polygons(self, items):
-        polygons_dir = osp.join(self._annotations_dir, MapillaryVistasPath.POLYGON_DIR)
-        for item_path in glob.glob(osp.join(polygons_dir, "**", "*.json"), recursive=True):
-            item_id = osp.splitext(osp.relpath(item_path, polygons_dir))[0]
-            item = items.get(item_id)
-            item_info = {}
-            item_info = parse_json_file(item_path)
-
-            image_size = self._get_image_size(item_info)
-            if image_size and item.has_image:
-                item.media = item.image.from_self(size=image_size)
-
-            polygons = item_info["objects"]
-            annotations = []
-            for polygon in polygons:
-                label = polygon["label"]
-                label_id = self._categories[AnnotationType.label].find(label)[0]
-                if label_id is None:
-                    label_id = self._categories[AnnotationType.label].add(label)
-
-                points = [coord for point in polygon["polygon"] for coord in point]
-                annotations.append(Polygon(label=label_id, points=points))
-
-            if item is None:
-                items[item_id] = DatasetItem(
-                    id=item_id, subset=self._subset, annotations=annotations
-                )
-            else:
-                item.annotations.extend(annotations)
 
     @staticmethod
     def _get_image_size(image_info):

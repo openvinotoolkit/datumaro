@@ -61,38 +61,29 @@ They differ in the number of classes, the name of the classes, supported types
 of annotations, and the names of the directory with annotations.
 So, the directory with dataset should have one of these structures:
 
-<!--lint disable fenced-code-flag-->
-{{< tabpane >}}
-  {{< tab header="v1.2">}}
+```
 dataset
-├── dataset_meta.json # a list of custom labels (optional)
-├── config_v1.2.json # config file with description of classes (id, color, name)
-├── <subset_name1>
-│   ├── images
-│   │   ├── <image_name1>.jpg
-│   │   ├── <image_name2>.jpg
-│   │   ├── ...
-│   └── v1.2
-│       ├── instances # directory with instance masks
-│       │   └── <image_name1>.png
-│       │   ├── <image_name2>.png
-│       │   ├── ...
-│       └── labels # directory with class masks
-│           └── <image_name1>.png
-│           ├── <image_name2>.png
-│           ├── ...
-├── <subset_name2>
-│   ├── ...
-├── ...
-  {{< /tab >}}
-  {{< tab header="v2.0">}}
-dataset
+├── config_v1.2.json
 ├── config_v2.0.json
-├── <subset_name1> # config file with description of classes (id, color, name)
+├── <training> # config file with description of classes (id, color, name)
 │   ├── images
 │   │   ├── <image_name1>.jpg
 │   │   ├── <image_name2>.jpg
 │   │   ├── ...
+│   ├── v1.2
+│   |   ├── instances # directory with instance masks
+│   |   │   ├── <image_name1>.png
+│   |   │   ├── <image_name2>.png
+│   |   │   ├── ...
+│   |   ├── labels # directory with class masks
+│   |   │   ├── <image_name1>.png
+│   |   │   ├── <image_name2>.png
+│   |   │   ├── ...
+│   |   └── panoptic # directory with panoptic masks and panoptic config file
+│   |       ├── panoptic_2018.json # description of classes and annotations
+│   |       ├── <image_name1>.png
+│   |       ├── <image_name2>.png
+│   |       ├── ...
 │   └── v2.0
 │       ├── instances # directory with instance masks
 │       │   ├── <image_name1>.png
@@ -111,54 +102,10 @@ dataset
 │           ├── <image_name1>.json
 │           ├── <image_name2>.json
 │           ├── ...
-├── <subset_name2>
-    ├── ...
+├── <validation>
+|   ├── ...
 ├── ...
-  {{< /tab >}}
-  {{< tab header="v1.2 w/o subsets">}}
-dataset
-├── config_v1.2.json # config file with description of classes (id, color, name)
-├── images
-│   ├── <image_name1>.jpg
-│   ├── <image_name2>.jpg
-│   ├── ...
-└── v1.2
-    ├── instances # directory with instance masks
-    │   └── <image_name1>.png
-    │   ├── <image_name2>.png
-    │   ├── ...
-    └── labels # directory with class masks
-        └── <image_name1>.png
-        ├── <image_name2>.png
-        ├── ...
-  {{< /tab >}}
-  {{< tab header="v2.0 w/o subsets">}}
-dataset
-├── config_v2.0.json
-├── images
-│   ├── <image_name1>.jpg
-│   ├── <image_name2>.jpg
-│   ├── ...
-└── v2.0
-    ├── instances # directory with instance masks
-    │   ├── <image_name1>.png
-    │   ├── <image_name2>.png
-    │   ├── ...
-    ├── labels # directory with class masks
-    │   ├── <image_name1>.png
-    │   ├── <image_name2>.png
-    │   ├── ...
-    ├── panoptic # directory with panoptic masks and panoptic config file
-    │   ├── panoptic_2020.json # description of classes and annotation objects
-    │   ├── <image_name1>.png
-    │   ├── <image_name2>.png
-    │   ├── ...
-    └── polygons # directory with description of polygons
-        ├── <image_name1>.json
-        ├── <image_name2>.json
-        ├── ...
-  {{< /tab >}}
-{{< /tabpane >}}
+```
 
 To add custom classes, you can use [`dataset_meta.json`](/docs/data-formats/supported_formats.md#dataset-meta-info-file).
 
