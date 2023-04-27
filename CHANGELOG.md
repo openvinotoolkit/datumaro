@@ -6,10 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
-
 ### New features
 - Add CocoRoboflowImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/976>)
+
+### Enhancements
+
+### Bug fixes
+- Fix Mapillary Vistas data format (<https://github.com/openvinotoolkit/datumaro/pull/977>)
 
 ## 20/04/2023 - Release 1.2.0
 ### New features
