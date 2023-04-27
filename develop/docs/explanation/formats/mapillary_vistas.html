@@ -829,104 +829,51 @@ in the original annotation file.</p></li>
 They differ in the number of classes, the name of the classes, supported types
 of annotations, and the names of the directory with annotations.
 So, the directory with dataset should have one of these structures:</p>
-<!--lint disable fenced-code-flag-->
-<p>{{&lt; tabpane &gt;}}
-{{&lt; tab header=”v1.2”&gt;}}
-dataset
-├── dataset_meta.json # a list of custom labels (optional)
-├── config_v1.2.json # config file with description of classes (id, color, name)
-├── &lt;subset_name1&gt;
-│   ├── images
-│   │   ├── &lt;image_name1&gt;.jpg
-│   │   ├── &lt;image_name2&gt;.jpg
-│   │   ├── …
-│   └── v1.2
-│       ├── instances # directory with instance masks
-│       │   └── &lt;image_name1&gt;.png
-│       │   ├── &lt;image_name2&gt;.png
-│       │   ├── …
-│       └── labels # directory with class masks
-│           └── &lt;image_name1&gt;.png
-│           ├── &lt;image_name2&gt;.png
-│           ├── …
-├── &lt;subset_name2&gt;
-│   ├── …
-├── …
-{{&lt; /tab &gt;}}
-{{&lt; tab header=”v2.0”&gt;}}
-dataset
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>dataset
+├── config_v1.2.json
 ├── config_v2.0.json
-├── &lt;subset_name1&gt; # config file with description of classes (id, color, name)
+├── &lt;training&gt; # config file with description of classes (id, color, name)
 │   ├── images
 │   │   ├── &lt;image_name1&gt;.jpg
 │   │   ├── &lt;image_name2&gt;.jpg
-│   │   ├── …
+│   │   ├── ...
+│   ├── v1.2
+│   |   ├── instances # directory with instance masks
+│   |   │   ├── &lt;image_name1&gt;.png
+│   |   │   ├── &lt;image_name2&gt;.png
+│   |   │   ├── ...
+│   |   ├── labels # directory with class masks
+│   |   │   ├── &lt;image_name1&gt;.png
+│   |   │   ├── &lt;image_name2&gt;.png
+│   |   │   ├── ...
+│   |   └── panoptic # directory with panoptic masks and panoptic config file
+│   |       ├── panoptic_2018.json # description of classes and annotations
+│   |       ├── &lt;image_name1&gt;.png
+│   |       ├── &lt;image_name2&gt;.png
+│   |       ├── ...
 │   └── v2.0
 │       ├── instances # directory with instance masks
 │       │   ├── &lt;image_name1&gt;.png
 │       │   ├── &lt;image_name2&gt;.png
-│       │   ├── …
+│       │   ├── ...
 │       ├── labels # directory with class masks
 │       │   ├── &lt;image_name1&gt;.png
 │       │   ├── &lt;image_name2&gt;.png
-│       │   ├── …
+│       │   ├── ...
 │       ├── panoptic # directory with panoptic masks and panoptic config file
 │       │   ├── panoptic_2020.json # description of classes and annotations
 │       │   ├── &lt;image_name1&gt;.png
 │       │   ├── &lt;image_name2&gt;.png
-│       │   ├── …
+│       │   ├── ...
 │       └── polygons # directory with description of polygons
 │           ├── &lt;image_name1&gt;.json
 │           ├── &lt;image_name2&gt;.json
-│           ├── …
-├── &lt;subset_name2&gt;
-├── …
-├── …
-{{&lt; /tab &gt;}}
-{{&lt; tab header=”v1.2 w/o subsets”&gt;}}
-dataset
-├── config_v1.2.json # config file with description of classes (id, color, name)
-├── images
-│   ├── &lt;image_name1&gt;.jpg
-│   ├── &lt;image_name2&gt;.jpg
-│   ├── …
-└── v1.2
-├── instances # directory with instance masks
-│   └── &lt;image_name1&gt;.png
-│   ├── &lt;image_name2&gt;.png
-│   ├── …
-└── labels # directory with class masks
-└── &lt;image_name1&gt;.png
-├── &lt;image_name2&gt;.png
-├── …
-{{&lt; /tab &gt;}}
-{{&lt; tab header=”v2.0 w/o subsets”&gt;}}
-dataset
-├── config_v2.0.json
-├── images
-│   ├── &lt;image_name1&gt;.jpg
-│   ├── &lt;image_name2&gt;.jpg
-│   ├── …
-└── v2.0
-├── instances # directory with instance masks
-│   ├── &lt;image_name1&gt;.png
-│   ├── &lt;image_name2&gt;.png
-│   ├── …
-├── labels # directory with class masks
-│   ├── &lt;image_name1&gt;.png
-│   ├── &lt;image_name2&gt;.png
-│   ├── …
-├── panoptic # directory with panoptic masks and panoptic config file
-│   ├── panoptic_2020.json # description of classes and annotation objects
-│   ├── &lt;image_name1&gt;.png
-│   ├── &lt;image_name2&gt;.png
-│   ├── …
-└── polygons # directory with description of polygons
-├── &lt;image_name1&gt;.json
-├── &lt;image_name2&gt;.json
-├── …
-{{&lt; /tab &gt;}}
-{{&lt; /tabpane &gt;}}</p>
+│           ├── ...
+├── &lt;validation&gt;
+|   ├── ...
+├── ...
+</pre></div>
+</div>
 <p>To add custom classes, you can use <a class="reference internal" href="../../data-formats/supported_formats.html#dataset-meta-info-file"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">dataset_meta.json</span></code></span></a>.</p>
 <p>See examples of annotation files in
 <a class="reference external" href="https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mapillary_vistas_dataset">test assets</a>.</p>
