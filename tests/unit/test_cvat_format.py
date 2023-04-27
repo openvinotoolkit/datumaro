@@ -155,7 +155,7 @@ class CvatImporterTest(TestCase):
         for expected_dataset, dataset_dir in zip(EXPECTED_IMAGE_DATASETS, DUMMY_IMAGE_DATASET_DIRS):
             parsed_dataset = Dataset.import_from(dataset_dir, "cvat")
 
-            compare_datasets(self, expected_dataset, parsed_dataset)
+            compare_datasets(self, expected_dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load_video(self):
@@ -243,7 +243,7 @@ class CvatImporterTest(TestCase):
                 DatasetItem(
                     id="frame_000016",
                     subset="annotations",
-                    media=Image.from_file(path="frame_0000016.png", size=(20, 25)),
+                    media=Image.from_numpy(data=255 * np.ones((20, 25, 3))),
                     annotations=[
                         Bbox(
                             8,
@@ -283,7 +283,7 @@ class CvatImporterTest(TestCase):
 
         parsed_dataset = Dataset.import_from(DUMMY_VIDEO_DATASET_DIR, "cvat")
 
-        compare_datasets(self, expected_dataset, parsed_dataset)
+        compare_datasets(self, expected_dataset, parsed_dataset, require_media=True)
 
 
 class CvatExporterTest(TestCase):
