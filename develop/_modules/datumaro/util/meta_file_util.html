@@ -290,19 +290,19 @@
 <span class="n">DATASET_META_FILE</span> <span class="o">=</span> <span class="s2">&quot;dataset_meta.json&quot;</span>
 
 
-<div class="viewcode-block" id="is_meta_file"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.meta_file_util.html#datumaro.util.meta_file_util.is_meta_file">[docs]</a><span class="k">def</span> <span class="nf">is_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="is_meta_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.meta_file_util.html#datumaro.util.meta_file_util.is_meta_file">[docs]</a><span class="k">def</span> <span class="nf">is_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;.json&quot;</span></div>
 
 
-<div class="viewcode-block" id="has_meta_file"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.meta_file_util.html#datumaro.util.meta_file_util.has_meta_file">[docs]</a><span class="k">def</span> <span class="nf">has_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="has_meta_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.meta_file_util.html#datumaro.util.meta_file_util.has_meta_file">[docs]</a><span class="k">def</span> <span class="nf">has_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">get_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="get_meta_file"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.meta_file_util.html#datumaro.util.meta_file_util.get_meta_file">[docs]</a><span class="k">def</span> <span class="nf">get_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="get_meta_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.meta_file_util.html#datumaro.util.meta_file_util.get_meta_file">[docs]</a><span class="k">def</span> <span class="nf">get_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">DATASET_META_FILE</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="parse_meta_file"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.meta_file_util.html#datumaro.util.meta_file_util.parse_meta_file">[docs]</a><span class="k">def</span> <span class="nf">parse_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="parse_meta_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.meta_file_util.html#datumaro.util.meta_file_util.parse_meta_file">[docs]</a><span class="k">def</span> <span class="nf">parse_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="n">meta_file</span> <span class="o">=</span> <span class="n">path</span>
     <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
         <span class="n">meta_file</span> <span class="o">=</span> <span class="n">get_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -324,7 +324,7 @@
     <span class="k">return</span> <span class="n">label_map</span></div>
 
 
-<div class="viewcode-block" id="save_meta_file"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.meta_file_util.html#datumaro.util.meta_file_util.save_meta_file">[docs]</a><span class="k">def</span> <span class="nf">save_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">categories</span><span class="p">):</span>
+<div class="viewcode-block" id="save_meta_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.meta_file_util.html#datumaro.util.meta_file_util.save_meta_file">[docs]</a><span class="k">def</span> <span class="nf">save_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">categories</span><span class="p">):</span>
     <span class="n">dataset_meta</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]]</span>

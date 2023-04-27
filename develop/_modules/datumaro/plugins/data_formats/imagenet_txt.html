@@ -297,7 +297,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
 
 
-<div class="viewcode-block" id="ImagenetTxtPath"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtPath">[docs]</a><span class="k">class</span> <span class="nc">ImagenetTxtPath</span><span class="p">:</span>
+<div class="viewcode-block" id="ImagenetTxtPath"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtPath">[docs]</a><span class="k">class</span> <span class="nc">ImagenetTxtPath</span><span class="p">:</span>
     <span class="n">LABELS_FILE</span> <span class="o">=</span> <span class="s2">&quot;synsets.txt&quot;</span>
     <span class="n">IMAGE_DIR</span> <span class="o">=</span> <span class="s2">&quot;images&quot;</span></div>
 
@@ -326,7 +326,7 @@
     <span class="k">return</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">label_ids</span>
 
 
-<div class="viewcode-block" id="ImagenetTxtBase"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtBase">[docs]</a><span class="k">class</span> <span class="nc">ImagenetTxtBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="ImagenetTxtBase"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtBase">[docs]</a><span class="k">class</span> <span class="nc">ImagenetTxtBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -412,8 +412,8 @@
         <span class="k">return</span> <span class="n">items</span></div>
 
 
-<div class="viewcode-block" id="ImagenetTxtImporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtImporter">[docs]</a><span class="k">class</span> <span class="nc">ImagenetTxtImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
-<div class="viewcode-block" id="ImagenetTxtImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ImagenetTxtImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtImporter">[docs]</a><span class="k">class</span> <span class="nc">ImagenetTxtImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="ImagenetTxtImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">annot_path</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;*.txt&quot;</span><span class="p">,</span> <span class="n">exclude_fnames</span><span class="o">=</span><span class="n">ImagenetTxtPath</span><span class="o">.</span><span class="n">LABELS_FILE</span><span class="p">)</span>
 
@@ -430,7 +430,7 @@
                 <span class="c1"># not actually an ImageNet file.</span>
                 <span class="k">raise</span> <span class="ne">Exception</span></div>
 
-<div class="viewcode-block" id="ImagenetTxtImporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtImporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ImagenetTxtImporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtImporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -448,7 +448,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">parser</span></div>
 
-<div class="viewcode-block" id="ImagenetTxtImporter.find_sources_with_params"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtImporter.find_sources_with_params">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ImagenetTxtImporter.find_sources_with_params"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtImporter.find_sources_with_params">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources_with_params</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_params</span><span class="p">):</span>
         <span class="k">if</span> <span class="s2">&quot;labels&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extra_params</span> <span class="ow">or</span> <span class="n">extra_params</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">_LabelsSource</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
             <span class="n">labels_file_name</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span>
@@ -464,10 +464,10 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;imagenet_txt&quot;</span><span class="p">,</span> <span class="n">file_filter</span><span class="o">=</span><span class="n">file_filter</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="ImagenetTxtExporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtExporter">[docs]</a><span class="k">class</span> <span class="nc">ImagenetTxtExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<div class="viewcode-block" id="ImagenetTxtExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtExporter">[docs]</a><span class="k">class</span> <span class="nc">ImagenetTxtExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.jpg&quot;</span>
 
-<div class="viewcode-block" id="ImagenetTxtExporter.apply"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ImagenetTxtExporter.apply"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet_txt.html#datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 

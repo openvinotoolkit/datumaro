@@ -295,7 +295,7 @@
 <span class="kn">from</span> <span class="nn">..util.project</span> <span class="kn">import</span> <span class="n">generate_next_file_name</span><span class="p">,</span> <span class="n">load_project</span><span class="p">,</span> <span class="n">parse_full_revpath</span>
 
 
-<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../../../docs/reference/cli/commands/datumaro.cli.commands.validate.html#datumaro.cli.commands.validate.build_parser">[docs]</a><span class="k">def</span> <span class="nf">build_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.validate.html#datumaro.cli.commands.validate.build_parser">[docs]</a><span class="k">def</span> <span class="nf">build_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_ctor</span><span class="p">(</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Validate project&quot;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
@@ -362,13 +362,13 @@
     <span class="k">return</span> <span class="n">parser</span></div>
 
 
-<div class="viewcode-block" id="get_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/cli/commands/datumaro.cli.commands.validate.html#datumaro.cli.commands.validate.get_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_sensitive_args</span><span class="p">():</span>
+<div class="viewcode-block" id="get_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.validate.html#datumaro.cli.commands.validate.get_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_sensitive_args</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">validate_command</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="s2">&quot;project_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;subset_name&quot;</span><span class="p">,</span> <span class="s2">&quot;extra_args&quot;</span><span class="p">],</span>
     <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="validate_command"><a class="viewcode-back" href="../../../../docs/reference/cli/commands/datumaro.cli.commands.validate.html#datumaro.cli.commands.validate.validate_command">[docs]</a><span class="nd">@scoped</span>
+<div class="viewcode-block" id="validate_command"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.validate.html#datumaro.cli.commands.validate.validate_command">[docs]</a><span class="nd">@scoped</span>
 <span class="k">def</span> <span class="nf">validate_command</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">has_sep</span> <span class="o">=</span> <span class="s2">&quot;--&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">_positionals</span>
     <span class="k">if</span> <span class="n">has_sep</span><span class="p">:</span>

@@ -298,7 +298,7 @@
 <span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">KittiRawPath</span><span class="p">,</span> <span class="n">OcclusionStates</span><span class="p">,</span> <span class="n">TruncationStates</span>
 
 
-<div class="viewcode-block" id="KittiRawBase"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.base.html#datumaro.plugins.data_formats.kitti_raw.base.KittiRawBase">[docs]</a><span class="k">class</span> <span class="nc">KittiRawBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="KittiRawBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_raw.base.html#datumaro.plugins.data_formats.kitti_raw.base.KittiRawBase">[docs]</a><span class="k">class</span> <span class="nc">KittiRawBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
     <span class="c1"># http://www.cvlibs.net/datasets/kitti/raw_data.php</span>
     <span class="c1"># https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip</span>
     <span class="c1"># Check cpp header implementation for field meaning</span>
@@ -549,8 +549,8 @@
         <span class="k">return</span> <span class="n">items</span></div>
 
 
-<div class="viewcode-block" id="KittiRawImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.base.html#datumaro.plugins.data_formats.kitti_raw.base.KittiRawImporter">[docs]</a><span class="k">class</span> <span class="nc">KittiRawImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="KittiRawImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.base.html#datumaro.plugins.data_formats.kitti_raw.base.KittiRawImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="KittiRawImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_raw.base.html#datumaro.plugins.data_formats.kitti_raw.base.KittiRawImporter">[docs]</a><span class="k">class</span> <span class="nc">KittiRawImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="KittiRawImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_raw.base.html#datumaro.plugins.data_formats.kitti_raw.base.KittiRawImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">annot_file</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;*.xml&quot;</span><span class="p">)</span>
 
@@ -568,7 +568,7 @@
             <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s2">&quot;tracklets&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span></div>
 
-<div class="viewcode-block" id="KittiRawImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.base.html#datumaro.plugins.data_formats.kitti_raw.base.KittiRawImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="KittiRawImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_raw.base.html#datumaro.plugins.data_formats.kitti_raw.base.KittiRawImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.xml&quot;</span><span class="p">,</span> <span class="s2">&quot;kitti_raw&quot;</span><span class="p">)</span></div></div>
 </pre></div>

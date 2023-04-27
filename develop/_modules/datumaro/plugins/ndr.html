@@ -294,22 +294,22 @@
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_str_enum_value</span>
 
 
-<div class="viewcode-block" id="Algorithm"><a class="viewcode-back" href="../../../docs/reference/plugins/plugins/datumaro.plugins.ndr.html#datumaro.plugins.ndr.Algorithm">[docs]</a><span class="k">class</span> <span class="nc">Algorithm</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="Algorithm"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.ndr.html#datumaro.plugins.ndr.Algorithm">[docs]</a><span class="k">class</span> <span class="nc">Algorithm</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">gradient</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
     <span class="c1"># other algorithms will be added</span>
 
 
-<div class="viewcode-block" id="OverSamplingMethod"><a class="viewcode-back" href="../../../docs/reference/plugins/plugins/datumaro.plugins.ndr.html#datumaro.plugins.ndr.OverSamplingMethod">[docs]</a><span class="k">class</span> <span class="nc">OverSamplingMethod</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="OverSamplingMethod"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.ndr.html#datumaro.plugins.ndr.OverSamplingMethod">[docs]</a><span class="k">class</span> <span class="nc">OverSamplingMethod</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">random</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">similarity</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="UnderSamplingMethod"><a class="viewcode-back" href="../../../docs/reference/plugins/plugins/datumaro.plugins.ndr.html#datumaro.plugins.ndr.UnderSamplingMethod">[docs]</a><span class="k">class</span> <span class="nc">UnderSamplingMethod</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="UnderSamplingMethod"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.ndr.html#datumaro.plugins.ndr.UnderSamplingMethod">[docs]</a><span class="k">class</span> <span class="nc">UnderSamplingMethod</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">uniform</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">inverse</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="NDR"><a class="viewcode-back" href="../../../docs/reference/plugins/plugins/datumaro.plugins.ndr.html#datumaro.plugins.ndr.NDR">[docs]</a><span class="k">class</span> <span class="nc">NDR</span><span class="p">(</span><span class="n">Transform</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="NDR"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.ndr.html#datumaro.plugins.ndr.NDR">[docs]</a><span class="k">class</span> <span class="nc">NDR</span><span class="p">(</span><span class="n">Transform</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Removes near-duplicated images in subset|n</span>
 <span class="sd">    |n</span>
@@ -337,7 +337,7 @@
 <span class="sd">    |s|s|s|s--under_sample uniform</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="NDR.build_cmdline_parser"><a class="viewcode-back" href="../../../docs/reference/plugins/plugins/datumaro.plugins.ndr.html#datumaro.plugins.ndr.NDR.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="NDR.build_cmdline_parser"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.ndr.html#datumaro.plugins.ndr.NDR.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>

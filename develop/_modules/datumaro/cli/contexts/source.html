@@ -290,7 +290,7 @@
 <span class="kn">from</span> <span class="nn">..util.project</span> <span class="kn">import</span> <span class="n">load_project</span>
 
 
-<div class="viewcode-block" id="build_info_parser"><a class="viewcode-back" href="../../../../docs/reference/cli/contexts/datumaro.cli.contexts.source.html#datumaro.cli.contexts.source.build_info_parser">[docs]</a><span class="k">def</span> <span class="nf">build_info_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+<div class="viewcode-block" id="build_info_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.contexts.source.html#datumaro.cli.contexts.source.build_info_parser">[docs]</a><span class="k">def</span> <span class="nf">build_info_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_ctor</span><span class="p">()</span>
 
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Source name&quot;</span><span class="p">)</span>
@@ -306,7 +306,7 @@
     <span class="k">return</span> <span class="n">parser</span></div>
 
 
-<div class="viewcode-block" id="get_info_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/cli/contexts/datumaro.cli.contexts.source.html#datumaro.cli.contexts.source.get_info_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_info_sensitive_args</span><span class="p">():</span>
+<div class="viewcode-block" id="get_info_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.contexts.source.html#datumaro.cli.contexts.source.get_info_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_info_sensitive_args</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">info_command</span><span class="p">:</span> <span class="p">[</span>
             <span class="s2">&quot;name&quot;</span><span class="p">,</span>
@@ -315,7 +315,7 @@
     <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="info_command"><a class="viewcode-back" href="../../../../docs/reference/cli/contexts/datumaro.cli.contexts.source.html#datumaro.cli.contexts.source.info_command">[docs]</a><span class="nd">@scoped</span>
+<div class="viewcode-block" id="info_command"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.contexts.source.html#datumaro.cli.contexts.source.info_command">[docs]</a><span class="nd">@scoped</span>
 <span class="k">def</span> <span class="nf">info_command</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">project</span> <span class="o">=</span> <span class="n">scope_add</span><span class="p">(</span><span class="n">load_project</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">project_dir</span><span class="p">))</span>
 
@@ -329,7 +329,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../../../docs/reference/cli/contexts/datumaro.cli.contexts.source.html#datumaro.cli.contexts.source.build_parser">[docs]</a><span class="k">def</span> <span class="nf">build_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.contexts.source.html#datumaro.cli.contexts.source.build_parser">[docs]</a><span class="k">def</span> <span class="nf">build_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_ctor</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            Manipulate data sources inside of a project.|n</span>
@@ -356,7 +356,7 @@
     <span class="k">return</span> <span class="n">parser</span></div>
 
 
-<div class="viewcode-block" id="get_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/cli/contexts/datumaro.cli.contexts.source.html#datumaro.cli.contexts.source.get_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_sensitive_args</span><span class="p">():</span>
+<div class="viewcode-block" id="get_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.contexts.source.html#datumaro.cli.contexts.source.get_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_sensitive_args</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">add</span><span class="o">.</span><span class="n">get_sensitive_args</span><span class="p">(),</span>
         <span class="o">**</span><span class="n">import_</span><span class="o">.</span><span class="n">get_sensitive_args</span><span class="p">(),</span>

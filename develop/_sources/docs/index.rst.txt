@@ -49,11 +49,8 @@ Docs
   :hidden:
   :caption: API Reference
 
-  reference/datumaro/datumaro
-  reference/cli/cli
-  reference/components/components
-  reference/plugins/plugins
-  reference/util/util/util
+  reference/datumaro_module
+  reference/supported_plugins
 
 .. toctree::
   :maxdepth: 1

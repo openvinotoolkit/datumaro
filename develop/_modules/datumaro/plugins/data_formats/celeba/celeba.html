@@ -300,7 +300,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
 
 
-<div class="viewcode-block" id="CelebaPath"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/celeba/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaPath">[docs]</a><span class="k">class</span> <span class="nc">CelebaPath</span><span class="p">:</span>
+<div class="viewcode-block" id="CelebaPath"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaPath">[docs]</a><span class="k">class</span> <span class="nc">CelebaPath</span><span class="p">:</span>
     <span class="n">IMAGES_DIR</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;Img&quot;</span><span class="p">,</span> <span class="s2">&quot;img_celeba&quot;</span><span class="p">)</span>
     <span class="n">LABELS_FILE</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;Anno&quot;</span><span class="p">,</span> <span class="s2">&quot;identity_CelebA.txt&quot;</span><span class="p">)</span>
     <span class="n">BBOXES_FILE</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;Anno&quot;</span><span class="p">,</span> <span class="s2">&quot;list_bbox_celeba.txt&quot;</span><span class="p">)</span>
@@ -311,7 +311,7 @@
     <span class="n">BBOXES_HEADER</span> <span class="o">=</span> <span class="s2">&quot;image_id x_1 y_1 width height&quot;</span></div>
 
 
-<div class="viewcode-block" id="CelebaBase"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/celeba/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaBase">[docs]</a><span class="k">class</span> <span class="nc">CelebaBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="CelebaBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaBase">[docs]</a><span class="k">class</span> <span class="nc">CelebaBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t read dataset directory &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
@@ -493,7 +493,7 @@
 
         <span class="k">return</span> <span class="n">items</span>
 
-<div class="viewcode-block" id="CelebaBase.split_annotation"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/celeba/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaBase.split_annotation">[docs]</a>    <span class="k">def</span> <span class="nf">split_annotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+<div class="viewcode-block" id="CelebaBase.split_annotation"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaBase.split_annotation">[docs]</a>    <span class="k">def</span> <span class="nf">split_annotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="n">item</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
@@ -509,10 +509,10 @@
         <span class="k">return</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span></div></div>
 
 
-<div class="viewcode-block" id="CelebaImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/celeba/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaImporter">[docs]</a><span class="k">class</span> <span class="nc">CelebaImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="CelebaImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaImporter">[docs]</a><span class="k">class</span> <span class="nc">CelebaImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
     <span class="n">PATH_CLS</span> <span class="o">=</span> <span class="n">CelebaPath</span>
 
-<div class="viewcode-block" id="CelebaImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/celeba/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CelebaImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FormatDetectionConfidence</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
@@ -520,7 +520,7 @@
             <span class="n">context</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">MEDIUM</span></div>
 
-<div class="viewcode-block" id="CelebaImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/celeba/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CelebaImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.celeba.celeba.html#datumaro.plugins.data_formats.celeba.celeba.CelebaImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">dirname</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">PATH_CLS</span><span class="o">.</span><span class="n">LABELS_FILE</span><span class="p">)</span>
         <span class="n">filename</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">PATH_CLS</span><span class="o">.</span><span class="n">LABELS_FILE</span><span class="p">))</span>

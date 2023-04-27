@@ -295,19 +295,19 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">IMAGE_EXTENSIONS</span><span class="p">,</span> <span class="n">encode_image</span>
 
 
-<div class="viewcode-block" id="Compression"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.Compression">[docs]</a><span class="k">class</span> <span class="nc">Compression</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="Compression"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.Compression">[docs]</a><span class="k">class</span> <span class="nc">Compression</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">ZIP_STORED</span> <span class="o">=</span> <span class="n">ZIP_STORED</span>
     <span class="n">ZIP_DEFLATED</span> <span class="o">=</span> <span class="n">ZIP_DEFLATED</span>
     <span class="n">ZIP_BZIP2</span> <span class="o">=</span> <span class="n">ZIP_BZIP2</span>
     <span class="n">ZIP_LZMA</span> <span class="o">=</span> <span class="n">ZIP_LZMA</span></div>
 
 
-<div class="viewcode-block" id="ImageZipPath"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipPath">[docs]</a><span class="k">class</span> <span class="nc">ImageZipPath</span><span class="p">:</span>
+<div class="viewcode-block" id="ImageZipPath"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipPath">[docs]</a><span class="k">class</span> <span class="nc">ImageZipPath</span><span class="p">:</span>
     <span class="n">DEFAULT_ARCHIVE_NAME</span> <span class="o">=</span> <span class="s2">&quot;default.zip&quot;</span>
     <span class="n">DEFAULT_COMPRESSION</span> <span class="o">=</span> <span class="n">Compression</span><span class="o">.</span><span class="n">ZIP_STORED</span></div>
 
 
-<div class="viewcode-block" id="ImageZipBase"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipBase">[docs]</a><span class="k">class</span> <span class="nc">ImageZipBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageZipBase"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipBase">[docs]</a><span class="k">class</span> <span class="nc">ImageZipBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">media_type</span><span class="o">=</span><span class="n">Image</span><span class="p">)</span>
 
@@ -322,13 +322,13 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DatasetItem</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span> <span class="n">media</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="ImageZipImporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipImporter">[docs]</a><span class="k">class</span> <span class="nc">ImageZipImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="ImageZipImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ImageZipImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipImporter">[docs]</a><span class="k">class</span> <span class="nc">ImageZipImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageZipImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.zip&quot;</span><span class="p">,</span> <span class="s2">&quot;image_zip&quot;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="ImageZipExporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipExporter">[docs]</a><span class="k">class</span> <span class="nc">ImageZipExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageZipExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipExporter">[docs]</a><span class="k">class</span> <span class="nc">ImageZipExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.jpg&quot;</span>
 
     <span class="nd">@staticmethod</span>
@@ -340,7 +340,7 @@
 
             <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentTypeError</span><span class="p">()</span>
 
-<div class="viewcode-block" id="ImageZipExporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipExporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ImageZipExporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipExporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -374,7 +374,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_archive_name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_compression</span> <span class="o">=</span> <span class="n">compression</span><span class="o">.</span><span class="n">value</span>
 
-<div class="viewcode-block" id="ImageZipExporter.apply"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageZipExporter.apply"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">archive_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archive_name</span><span class="p">)</span>

@@ -1,0 +1,38 @@
+datumaro.plugins.data\_formats.synthia
+======================================
+
+.. automodule:: datumaro.plugins.data_formats.synthia
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      make_categories
+      parse_label_map
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      SynthiaBase
+      SynthiaImporter
+      SynthiaPath
+   
+   
+
+   
+   
+   
+
+
+

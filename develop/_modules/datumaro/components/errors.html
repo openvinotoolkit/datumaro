@@ -288,30 +288,30 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.attrs_util</span> <span class="kn">import</span> <span class="n">has_length</span><span class="p">,</span> <span class="n">not_empty</span>
 
 
-<div class="viewcode-block" id="ImmutableObjectError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ImmutableObjectError">[docs]</a><span class="k">class</span> <span class="nc">ImmutableObjectError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="ImmutableObjectError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ImmutableObjectError">[docs]</a><span class="k">class</span> <span class="nc">ImmutableObjectError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Cannot set value of immutable object&quot;</span></div>
 
 
-<div class="viewcode-block" id="DatumaroError"><a class="viewcode-back" href="../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.cli.commands.stats.DatumaroError">[docs]</a><span class="k">class</span> <span class="nc">DatumaroError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="DatumaroError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.cli.commands.require_project.modification.add.DatumaroError">[docs]</a><span class="k">class</span> <span class="nc">DatumaroError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="VcsError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.VcsError">[docs]</a><span class="k">class</span> <span class="nc">VcsError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="VcsError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.VcsError">[docs]</a><span class="k">class</span> <span class="nc">VcsError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ReadonlyDatasetError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ReadonlyDatasetError">[docs]</a><span class="k">class</span> <span class="nc">ReadonlyDatasetError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
+<div class="viewcode-block" id="ReadonlyDatasetError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ReadonlyDatasetError">[docs]</a><span class="k">class</span> <span class="nc">ReadonlyDatasetError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Can&#39;t update a read-only dataset&quot;</span></div>
 
 
-<div class="viewcode-block" id="ReadonlyProjectError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ReadonlyProjectError">[docs]</a><span class="k">class</span> <span class="nc">ReadonlyProjectError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
+<div class="viewcode-block" id="ReadonlyProjectError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ReadonlyProjectError">[docs]</a><span class="k">class</span> <span class="nc">ReadonlyProjectError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Can&#39;t change a read-only project&quot;</span></div>
 
 
-<div class="viewcode-block" id="UnknownRefError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.UnknownRefError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="UnknownRefError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UnknownRefError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UnknownRefError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -319,15 +319,15 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Can&#39;t parse ref &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
 
 
-<div class="viewcode-block" id="MissingObjectError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MissingObjectError">[docs]</a><span class="k">class</span> <span class="nc">MissingObjectError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
+<div class="viewcode-block" id="MissingObjectError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MissingObjectError">[docs]</a><span class="k">class</span> <span class="nc">MissingObjectError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MismatchingObjectError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MismatchingObjectError">[docs]</a><span class="k">class</span> <span class="nc">MismatchingObjectError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
+<div class="viewcode-block" id="MismatchingObjectError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MismatchingObjectError">[docs]</a><span class="k">class</span> <span class="nc">MismatchingObjectError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="UnsavedChangesError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.UnsavedChangesError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="UnsavedChangesError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UnsavedChangesError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UnsavedChangesError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="n">paths</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -335,64 +335,64 @@
         <span class="k">return</span> <span class="s2">&quot;There are some uncommitted changes: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ForeignChangesError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ForeignChangesError">[docs]</a><span class="k">class</span> <span class="nc">ForeignChangesError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
+<div class="viewcode-block" id="ForeignChangesError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ForeignChangesError">[docs]</a><span class="k">class</span> <span class="nc">ForeignChangesError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="EmptyCommitError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.EmptyCommitError">[docs]</a><span class="k">class</span> <span class="nc">EmptyCommitError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
+<div class="viewcode-block" id="EmptyCommitError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.EmptyCommitError">[docs]</a><span class="k">class</span> <span class="nc">EmptyCommitError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="PathOutsideSourceError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.PathOutsideSourceError">[docs]</a><span class="k">class</span> <span class="nc">PathOutsideSourceError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
+<div class="viewcode-block" id="PathOutsideSourceError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.PathOutsideSourceError">[docs]</a><span class="k">class</span> <span class="nc">PathOutsideSourceError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="SourceUrlInsideProjectError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.SourceUrlInsideProjectError">[docs]</a><span class="k">class</span> <span class="nc">SourceUrlInsideProjectError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
+<div class="viewcode-block" id="SourceUrlInsideProjectError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.SourceUrlInsideProjectError">[docs]</a><span class="k">class</span> <span class="nc">SourceUrlInsideProjectError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Source URL cannot point inside the project&quot;</span></div>
 
 
-<div class="viewcode-block" id="UnexpectedUrlError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.UnexpectedUrlError">[docs]</a><span class="k">class</span> <span class="nc">UnexpectedUrlError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
+<div class="viewcode-block" id="UnexpectedUrlError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UnexpectedUrlError">[docs]</a><span class="k">class</span> <span class="nc">UnexpectedUrlError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MissingSourceHashError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MissingSourceHashError">[docs]</a><span class="k">class</span> <span class="nc">MissingSourceHashError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
+<div class="viewcode-block" id="MissingSourceHashError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MissingSourceHashError">[docs]</a><span class="k">class</span> <span class="nc">MissingSourceHashError</span><span class="p">(</span><span class="n">VcsError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="PipelineError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.PipelineError">[docs]</a><span class="k">class</span> <span class="nc">PipelineError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.PipelineError">[docs]</a><span class="k">class</span> <span class="nc">PipelineError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="InvalidPipelineError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.InvalidPipelineError">[docs]</a><span class="k">class</span> <span class="nc">InvalidPipelineError</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
+<div class="viewcode-block" id="InvalidPipelineError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.InvalidPipelineError">[docs]</a><span class="k">class</span> <span class="nc">InvalidPipelineError</span><span class="p">(</span><span class="n">PipelineError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="EmptyPipelineError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.EmptyPipelineError">[docs]</a><span class="k">class</span> <span class="nc">EmptyPipelineError</span><span class="p">(</span><span class="n">InvalidPipelineError</span><span class="p">):</span>
+<div class="viewcode-block" id="EmptyPipelineError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.EmptyPipelineError">[docs]</a><span class="k">class</span> <span class="nc">EmptyPipelineError</span><span class="p">(</span><span class="n">InvalidPipelineError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MultiplePipelineHeadsError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MultiplePipelineHeadsError">[docs]</a><span class="k">class</span> <span class="nc">MultiplePipelineHeadsError</span><span class="p">(</span><span class="n">InvalidPipelineError</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiplePipelineHeadsError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MultiplePipelineHeadsError">[docs]</a><span class="k">class</span> <span class="nc">MultiplePipelineHeadsError</span><span class="p">(</span><span class="n">InvalidPipelineError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MissingPipelineHeadError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MissingPipelineHeadError">[docs]</a><span class="k">class</span> <span class="nc">MissingPipelineHeadError</span><span class="p">(</span><span class="n">InvalidPipelineError</span><span class="p">):</span>
+<div class="viewcode-block" id="MissingPipelineHeadError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MissingPipelineHeadError">[docs]</a><span class="k">class</span> <span class="nc">MissingPipelineHeadError</span><span class="p">(</span><span class="n">InvalidPipelineError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="InvalidStageError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.InvalidStageError">[docs]</a><span class="k">class</span> <span class="nc">InvalidStageError</span><span class="p">(</span><span class="n">InvalidPipelineError</span><span class="p">):</span>
+<div class="viewcode-block" id="InvalidStageError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.InvalidStageError">[docs]</a><span class="k">class</span> <span class="nc">InvalidStageError</span><span class="p">(</span><span class="n">InvalidPipelineError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="UnknownStageError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.UnknownStageError">[docs]</a><span class="k">class</span> <span class="nc">UnknownStageError</span><span class="p">(</span><span class="n">InvalidStageError</span><span class="p">):</span>
+<div class="viewcode-block" id="UnknownStageError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UnknownStageError">[docs]</a><span class="k">class</span> <span class="nc">UnknownStageError</span><span class="p">(</span><span class="n">InvalidStageError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MigrationError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MigrationError">[docs]</a><span class="k">class</span> <span class="nc">MigrationError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="MigrationError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MigrationError">[docs]</a><span class="k">class</span> <span class="nc">MigrationError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="OldProjectError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.OldProjectError">[docs]</a><span class="k">class</span> <span class="nc">OldProjectError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="OldProjectError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.OldProjectError">[docs]</a><span class="k">class</span> <span class="nc">OldProjectError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            The project you&#39;re trying to load was</span>
@@ -401,7 +401,7 @@
 <span class="s2">            &quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="ProjectNotFoundError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ProjectNotFoundError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ProjectNotFoundError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ProjectNotFoundError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ProjectNotFoundError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -409,7 +409,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Can&#39;t find project at &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
 
 
-<div class="viewcode-block" id="ProjectAlreadyExists"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ProjectAlreadyExists">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ProjectAlreadyExists"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ProjectAlreadyExists">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ProjectAlreadyExists</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -417,7 +417,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Can&#39;t create project: a project already exists &quot;</span> <span class="sa">f</span><span class="s2">&quot;at &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
 
 
-<div class="viewcode-block" id="UnknownSourceError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.UnknownSourceError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="UnknownSourceError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UnknownSourceError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UnknownSourceError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -425,7 +425,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Unknown source &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
 
 
-<div class="viewcode-block" id="UnknownTargetError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.UnknownTargetError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="UnknownTargetError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UnknownTargetError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UnknownTargetError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -433,7 +433,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Unknown target &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
 
 
-<div class="viewcode-block" id="UnknownFormatError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.UnknownFormatError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="UnknownFormatError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UnknownFormatError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UnknownFormatError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="nb">format</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -445,7 +445,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="SourceExistsError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.SourceExistsError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="SourceExistsError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.SourceExistsError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">SourceExistsError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -453,11 +453,11 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Source &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; already exists&quot;</span></div>
 
 
-<div class="viewcode-block" id="DatasetExportError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.DatasetExportError">[docs]</a><span class="k">class</span> <span class="nc">DatasetExportError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetExportError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetExportError">[docs]</a><span class="k">class</span> <span class="nc">DatasetExportError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ItemExportError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ItemExportError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ItemExportError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ItemExportError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ItemExportError</span><span class="p">(</span><span class="n">DatasetExportError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents additional item error info. The error itself is supposed to be</span>
@@ -470,22 +470,22 @@
         <span class="k">return</span> <span class="s2">&quot;Failed to export item </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_id</span><span class="p">,)</span></div>
 
 
-<div class="viewcode-block" id="AnnotationExportError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.AnnotationExportError">[docs]</a><span class="k">class</span> <span class="nc">AnnotationExportError</span><span class="p">(</span><span class="n">ItemExportError</span><span class="p">):</span>
+<div class="viewcode-block" id="AnnotationExportError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.AnnotationExportError">[docs]</a><span class="k">class</span> <span class="nc">AnnotationExportError</span><span class="p">(</span><span class="n">ItemExportError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="DatasetImportError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.DatasetImportError">[docs]</a><span class="k">class</span> <span class="nc">DatasetImportError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetImportError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetImportError">[docs]</a><span class="k">class</span> <span class="nc">DatasetImportError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="InvalidAnnotationError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.InvalidAnnotationError">[docs]</a><span class="k">class</span> <span class="nc">InvalidAnnotationError</span><span class="p">(</span><span class="n">DatasetImportError</span><span class="p">):</span>
+<div class="viewcode-block" id="InvalidAnnotationError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.InvalidAnnotationError">[docs]</a><span class="k">class</span> <span class="nc">InvalidAnnotationError</span><span class="p">(</span><span class="n">DatasetImportError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A basic dataset parsing error. Should include the problem description in</span>
 <span class="sd">    the message.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="InvalidFieldError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.InvalidFieldError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="InvalidFieldError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.InvalidFieldError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">InvalidFieldError</span><span class="p">(</span><span class="n">InvalidAnnotationError</span><span class="p">):</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="p">[</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">not_empty</span><span class="p">])</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Field name&quot;&quot;&quot;</span>
@@ -494,7 +494,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Invalid annotation field &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; value&quot;</span></div>
 
 
-<div class="viewcode-block" id="InvalidFieldTypeError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.InvalidFieldTypeError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="InvalidFieldTypeError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.InvalidFieldTypeError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">InvalidFieldTypeError</span><span class="p">(</span><span class="n">InvalidFieldError</span><span class="p">):</span>
     <span class="n">actual</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="p">[</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">not_empty</span><span class="p">])</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Actual type of the field&quot;&quot;&quot;</span>
@@ -510,13 +510,13 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Invalid annotation field &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; type &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">actual</span><span class="si">}</span><span class="s2">&#39;. Expected </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
-<div class="viewcode-block" id="MissingFieldError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MissingFieldError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="MissingFieldError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MissingFieldError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MissingFieldError</span><span class="p">(</span><span class="n">InvalidFieldError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Missing annotation field &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
 
 
-<div class="viewcode-block" id="UndeclaredLabelError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.UndeclaredLabelError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="UndeclaredLabelError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UndeclaredLabelError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UndeclaredLabelError</span><span class="p">(</span><span class="n">InvalidAnnotationError</span><span class="p">):</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Index or name&quot;&quot;&quot;</span>
@@ -525,7 +525,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Undeclared label &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
 
 
-<div class="viewcode-block" id="ItemImportError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ItemImportError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ItemImportError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ItemImportError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ItemImportError</span><span class="p">(</span><span class="n">DatasetImportError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wraps a dataset parsing error and provides additional error context info.</span>
@@ -544,12 +544,12 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Failed to import item </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">item_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__cause__</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
-<div class="viewcode-block" id="AnnotationImportError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.AnnotationImportError">[docs]</a><span class="k">class</span> <span class="nc">AnnotationImportError</span><span class="p">(</span><span class="n">ItemImportError</span><span class="p">):</span>
+<div class="viewcode-block" id="AnnotationImportError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.AnnotationImportError">[docs]</a><span class="k">class</span> <span class="nc">AnnotationImportError</span><span class="p">(</span><span class="n">ItemImportError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Failed to import item </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">item_id</span><span class="si">}</span><span class="s2"> annotation: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__cause__</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
-<div class="viewcode-block" id="DatasetNotFoundError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.DatasetNotFoundError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="DatasetNotFoundError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetNotFoundError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">DatasetNotFoundError</span><span class="p">(</span><span class="n">DatasetImportError</span><span class="p">):</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -557,7 +557,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Failed to find dataset at &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
 
 
-<div class="viewcode-block" id="MultipleFormatsMatchError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MultipleFormatsMatchError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="MultipleFormatsMatchError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MultipleFormatsMatchError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MultipleFormatsMatchError</span><span class="p">(</span><span class="n">DatasetImportError</span><span class="p">):</span>
     <span class="n">formats</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -568,34 +568,34 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="NoMatchingFormatsError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.NoMatchingFormatsError">[docs]</a><span class="k">class</span> <span class="nc">NoMatchingFormatsError</span><span class="p">(</span><span class="n">DatasetImportError</span><span class="p">):</span>
+<div class="viewcode-block" id="NoMatchingFormatsError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.NoMatchingFormatsError">[docs]</a><span class="k">class</span> <span class="nc">NoMatchingFormatsError</span><span class="p">(</span><span class="n">DatasetImportError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Failed to detect dataset format automatically: &quot;</span> <span class="s2">&quot;no matching formats found&quot;</span></div>
 
 
-<div class="viewcode-block" id="DatasetError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.cli.commands.stats.DatasetError">[docs]</a><span class="k">class</span> <span class="nc">DatasetError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.cli.commands.require_project.modification.add.DatasetError">[docs]</a><span class="k">class</span> <span class="nc">DatasetError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MediaTypeError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MediaTypeError">[docs]</a><span class="k">class</span> <span class="nc">MediaTypeError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="MediaTypeError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MediaTypeError">[docs]</a><span class="k">class</span> <span class="nc">MediaTypeError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MediaShapeError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MediaShapeError">[docs]</a><span class="k">class</span> <span class="nc">MediaShapeError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="MediaShapeError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MediaShapeError">[docs]</a><span class="k">class</span> <span class="nc">MediaShapeError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="DatasetInfosRedefinedError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.DatasetInfosRedefinedError">[docs]</a><span class="k">class</span> <span class="nc">DatasetInfosRedefinedError</span><span class="p">(</span><span class="n">DatasetError</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetInfosRedefinedError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetInfosRedefinedError">[docs]</a><span class="k">class</span> <span class="nc">DatasetInfosRedefinedError</span><span class="p">(</span><span class="n">DatasetError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Infos can only be set once for a dataset&quot;</span></div>
 
 
-<div class="viewcode-block" id="CategoriesRedefinedError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.CategoriesRedefinedError">[docs]</a><span class="k">class</span> <span class="nc">CategoriesRedefinedError</span><span class="p">(</span><span class="n">DatasetError</span><span class="p">):</span>
+<div class="viewcode-block" id="CategoriesRedefinedError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.CategoriesRedefinedError">[docs]</a><span class="k">class</span> <span class="nc">CategoriesRedefinedError</span><span class="p">(</span><span class="n">DatasetError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Categories can only be set once for a dataset&quot;</span></div>
 
 
-<div class="viewcode-block" id="RepeatedItemError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.RepeatedItemError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="RepeatedItemError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.RepeatedItemError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">RepeatedItemError</span><span class="p">(</span><span class="n">DatasetError</span><span class="p">):</span>
     <span class="n">item_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -603,11 +603,11 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Item </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">item_id</span><span class="si">}</span><span class="s2"> is repeated in the source sequence.&quot;</span></div>
 
 
-<div class="viewcode-block" id="DatasetQualityError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.DatasetQualityError">[docs]</a><span class="k">class</span> <span class="nc">DatasetQualityError</span><span class="p">(</span><span class="n">DatasetError</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetQualityError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetQualityError">[docs]</a><span class="k">class</span> <span class="nc">DatasetQualityError</span><span class="p">(</span><span class="n">DatasetError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="AnnotationsTooCloseError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.AnnotationsTooCloseError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="AnnotationsTooCloseError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.cli.commands.require_project.modification.add.AnnotationsTooCloseError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">AnnotationsTooCloseError</span><span class="p">(</span><span class="n">DatasetQualityError</span><span class="p">):</span>
     <span class="n">item_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -623,7 +623,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="WrongGroupError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.WrongGroupError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="WrongGroupError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.cli.commands.require_project.modification.add.WrongGroupError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">WrongGroupError</span><span class="p">(</span><span class="n">DatasetQualityError</span><span class="p">):</span>
     <span class="n">item_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">found</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
@@ -639,7 +639,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="DatasetMergeError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.DatasetMergeError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="DatasetMergeError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.cli.commands.require_project.modification.add.DatasetMergeError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">DatasetMergeError</span><span class="p">(</span><span class="n">DatasetError</span><span class="p">):</span>
     <span class="n">sources</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">set</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">set</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -653,7 +653,7 @@
 <span class="nb">setattr</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">,</span> <span class="s2">&quot;__init__&quot;</span><span class="p">,</span> <span class="n">DatasetMergeError</span><span class="o">.</span><span class="n">_my__init__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="MismatchingImageInfoError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MismatchingImageInfoError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="MismatchingImageInfoError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.cli.commands.require_project.modification.add.MismatchingImageInfoError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MismatchingImageInfoError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
     <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="n">a</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
@@ -663,7 +663,7 @@
         <span class="k">return</span> <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: mismatching image size info: </span><span class="si">%s</span><span class="s2"> vs </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MismatchingMediaPathError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MismatchingMediaPathError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="MismatchingMediaPathError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.cli.commands.require_project.modification.add.MismatchingMediaPathError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MismatchingMediaPathError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
     <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="n">a</span><span class="p">:</span> <span class="nb">str</span>
@@ -673,7 +673,7 @@
         <span class="k">return</span> <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: mismatching media path info: </span><span class="si">%s</span><span class="s2"> vs </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MismatchingMediaError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MismatchingMediaError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="MismatchingMediaError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.cli.commands.require_project.modification.add.MismatchingMediaError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MismatchingMediaError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
     <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="n">a</span><span class="p">:</span> <span class="n">Any</span>
@@ -683,7 +683,7 @@
         <span class="k">return</span> <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: mismatching media info: </span><span class="si">%s</span><span class="s2"> vs </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MismatchingAttributesError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MismatchingAttributesError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="MismatchingAttributesError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.cli.commands.require_project.modification.add.MismatchingAttributesError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MismatchingAttributesError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
     <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="n">key</span><span class="p">:</span> <span class="nb">str</span>
@@ -699,11 +699,11 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ConflictingCategoriesError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ConflictingCategoriesError">[docs]</a><span class="k">class</span> <span class="nc">ConflictingCategoriesError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
+<div class="viewcode-block" id="ConflictingCategoriesError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.cli.commands.require_project.modification.add.ConflictingCategoriesError">[docs]</a><span class="k">class</span> <span class="nc">ConflictingCategoriesError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="NoMatchingAnnError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.NoMatchingAnnError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="NoMatchingAnnError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.cli.commands.require_project.modification.add.NoMatchingAnnError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">NoMatchingAnnError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
     <span class="n">item_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">ann</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -716,7 +716,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="NoMatchingItemError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.NoMatchingItemError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="NoMatchingItemError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.cli.commands.require_project.modification.add.NoMatchingItemError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">NoMatchingItemError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
     <span class="n">item_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -724,7 +724,7 @@
         <span class="k">return</span> <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: can&#39;t find matching item in sources </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FailedLabelVotingError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.FailedLabelVotingError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="FailedLabelVotingError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.FailedLabelVotingError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">FailedLabelVotingError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
     <span class="n">item_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">votes</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -739,7 +739,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FailedAttrVotingError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.FailedAttrVotingError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="FailedAttrVotingError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.cli.commands.require_project.modification.add.FailedAttrVotingError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">FailedAttrVotingError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
     <span class="n">item_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">attr</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -755,7 +755,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="VideoMergeError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.VideoMergeError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="VideoMergeError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.cli.commands.require_project.modification.add.VideoMergeError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">VideoMergeError</span><span class="p">(</span><span class="n">DatasetMergeError</span><span class="p">):</span>
     <span class="n">item_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -763,11 +763,11 @@
         <span class="k">return</span> <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: video merging is not possible&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_id</span><span class="p">,)</span></div>
 
 
-<div class="viewcode-block" id="DatasetValidationError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.DatasetValidationError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="DatasetValidationError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetValidationError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">DatasetValidationError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="n">severity</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
-<div class="viewcode-block" id="DatasetValidationError.to_dict"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.DatasetValidationError.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetValidationError.to_dict"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetValidationError.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;anomaly_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
@@ -775,25 +775,25 @@
         <span class="p">}</span></div></div>
 
 
-<div class="viewcode-block" id="DatasetItemValidationError"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.DatasetItemValidationError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="DatasetItemValidationError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetItemValidationError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">DatasetItemValidationError</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="n">item_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">subset</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
-<div class="viewcode-block" id="DatasetItemValidationError.to_dict"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.DatasetItemValidationError.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetItemValidationError.to_dict"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetItemValidationError.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dict_repr</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="n">dict_repr</span><span class="p">[</span><span class="s2">&quot;item_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_id</span>
         <span class="n">dict_repr</span><span class="p">[</span><span class="s2">&quot;subset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subset</span>
         <span class="k">return</span> <span class="n">dict_repr</span></div></div>
 
 
-<div class="viewcode-block" id="MissingLabelCategories"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MissingLabelCategories">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="MissingLabelCategories"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MissingLabelCategories">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MissingLabelCategories</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Metadata (ex. LabelCategories) should be defined&quot;</span> <span class="s2">&quot; to validate a dataset.&quot;</span></div>
 
 
-<div class="viewcode-block" id="MissingAnnotation"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MissingAnnotation">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="MissingAnnotation"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MissingAnnotation">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MissingAnnotation</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
     <span class="n">ann_type</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -801,13 +801,13 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Item needs &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ann_type</span><span class="si">}</span><span class="s2">&#39; annotation(s), &quot;</span> <span class="s2">&quot;but not found.&quot;</span></div>
 
 
-<div class="viewcode-block" id="MultiLabelAnnotations"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MultiLabelAnnotations">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="MultiLabelAnnotations"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MultiLabelAnnotations">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MultiLabelAnnotations</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Item needs a single label but multiple labels are found.&quot;</span></div>
 
 
-<div class="viewcode-block" id="MissingAttribute"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.MissingAttribute">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="MissingAttribute"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MissingAttribute">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MissingAttribute</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">attr_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -816,7 +816,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Item needs the attribute &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39; &quot;</span> <span class="sa">f</span><span class="s2">&quot;for the label &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">label_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span></div>
 
 
-<div class="viewcode-block" id="UndefinedLabel"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.UndefinedLabel">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="UndefinedLabel"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UndefinedLabel">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UndefinedLabel</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -824,7 +824,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Item has the label &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">label_name</span><span class="si">}</span><span class="s2">&#39; which &quot;</span> <span class="s2">&quot;is not defined in metadata.&quot;</span></div>
 
 
-<div class="viewcode-block" id="UndefinedAttribute"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.UndefinedAttribute">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="UndefinedAttribute"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UndefinedAttribute">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UndefinedAttribute</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">attr_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -836,7 +836,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="LabelDefinedButNotFound"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.LabelDefinedButNotFound">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="LabelDefinedButNotFound"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.LabelDefinedButNotFound">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">LabelDefinedButNotFound</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -847,7 +847,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="AttributeDefinedButNotFound"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.AttributeDefinedButNotFound">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="AttributeDefinedButNotFound"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.AttributeDefinedButNotFound">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">AttributeDefinedButNotFound</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">attr_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -860,7 +860,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="OnlyOneLabel"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.OnlyOneLabel">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="OnlyOneLabel"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.OnlyOneLabel">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">OnlyOneLabel</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
@@ -868,7 +868,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;The dataset has only one label &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">label_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span></div>
 
 
-<div class="viewcode-block" id="OnlyOneAttributeValue"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.OnlyOneAttributeValue">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="OnlyOneAttributeValue"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.OnlyOneAttributeValue">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">OnlyOneAttributeValue</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">attr_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -882,7 +882,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FewSamplesInLabel"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.FewSamplesInLabel">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="FewSamplesInLabel"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.FewSamplesInLabel">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">FewSamplesInLabel</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">count</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -894,7 +894,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FewSamplesInAttribute"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.FewSamplesInAttribute">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="FewSamplesInAttribute"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.FewSamplesInAttribute">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">FewSamplesInAttribute</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">attr_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -910,13 +910,13 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ImbalancedLabels"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ImbalancedLabels">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ImbalancedLabels"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ImbalancedLabels">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ImbalancedLabels</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;There is an imbalance in the label distribution.&quot;</span></div>
 
 
-<div class="viewcode-block" id="ImbalancedAttribute"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ImbalancedAttribute">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ImbalancedAttribute"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ImbalancedAttribute">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ImbalancedAttribute</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">attr_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -928,7 +928,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ImbalancedDistInLabel"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ImbalancedDistInLabel">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ImbalancedDistInLabel"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ImbalancedDistInLabel">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ImbalancedDistInLabel</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">prop</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -939,7 +939,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ImbalancedDistInAttribute"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.ImbalancedDistInAttribute">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ImbalancedDistInAttribute"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ImbalancedDistInAttribute">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ImbalancedDistInAttribute</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">attr_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -954,7 +954,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="NegativeLength"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.NegativeLength">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="NegativeLength"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.NegativeLength">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">NegativeLength</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
     <span class="n">ann_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">prop</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -968,7 +968,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="InvalidValue"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.InvalidValue">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="InvalidValue"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.InvalidValue">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">InvalidValue</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
     <span class="n">ann_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">prop</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -981,7 +981,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FarFromLabelMean"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.FarFromLabelMean">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="FarFromLabelMean"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.FarFromLabelMean">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">FarFromLabelMean</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">ann_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
@@ -998,7 +998,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FarFromAttrMean"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.errors.html#datumaro.cli.commands.stats.FarFromAttrMean">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="FarFromAttrMean"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.FarFromAttrMean">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">FarFromAttrMean</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
     <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">ann_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>

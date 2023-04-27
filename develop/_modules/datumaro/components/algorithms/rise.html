@@ -303,7 +303,7 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="RISE"><a class="viewcode-back" href="../../../../docs/reference/components/algorithms/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE">[docs]</a><span class="k">class</span> <span class="nc">RISE</span><span class="p">:</span>
+<div class="viewcode-block" id="RISE"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE">[docs]</a><span class="k">class</span> <span class="nc">RISE</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements RISE: Randomized Input Sampling for</span>
 <span class="sd">    Explanation of Black-box Models algorithm.</span>
@@ -332,7 +332,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">det_conf_thresh</span> <span class="o">=</span> <span class="n">det_conf_thresh</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
 
-<div class="viewcode-block" id="RISE.split_outputs"><a class="viewcode-back" href="../../../../docs/reference/components/algorithms/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.split_outputs">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RISE.split_outputs"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.split_outputs">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">split_outputs</span><span class="p">(</span><span class="n">annotations</span><span class="p">):</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">bboxes</span> <span class="o">=</span> <span class="p">[]</span>
@@ -343,7 +343,7 @@
                 <span class="n">bboxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">labels</span><span class="p">,</span> <span class="n">bboxes</span></div>
 
-<div class="viewcode-block" id="RISE.normalize_hmaps"><a class="viewcode-back" href="../../../../docs/reference/components/algorithms/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.normalize_hmaps">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_hmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">heatmaps</span><span class="p">,</span> <span class="n">counts</span><span class="p">):</span>
+<div class="viewcode-block" id="RISE.normalize_hmaps"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.normalize_hmaps">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_hmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">heatmaps</span><span class="p">,</span> <span class="n">counts</span><span class="p">):</span>
         <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">heatmaps</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
         <span class="n">mhmaps</span> <span class="o">=</span> <span class="n">_flatmatvec</span><span class="p">(</span><span class="n">heatmaps</span><span class="p">)</span>
         <span class="n">mhmaps</span> <span class="o">/=</span> <span class="n">_expand</span><span class="p">(</span><span class="n">counts</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
@@ -351,7 +351,7 @@
         <span class="n">mhmaps</span> <span class="o">/=</span> <span class="n">_expand</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">mhmaps</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mhmaps</span><span class="p">,</span> <span class="n">heatmaps</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RISE.apply"><a class="viewcode-back" href="../../../../docs/reference/components/algorithms/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">progressive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="RISE.apply"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">progressive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">cv2</span>
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;Expected an input image in (H, W, C) format&quot;</span>

@@ -323,7 +323,7 @@
     <span class="k">return</span> <span class="n">meta_root</span><span class="p">,</span> <span class="n">context</span>
 
 
-<div class="viewcode-block" id="CvatBase"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/cvat/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatBase">[docs]</a><span class="k">class</span> <span class="nc">CvatBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="CvatBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatBase">[docs]</a><span class="k">class</span> <span class="nc">CvatBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
     <span class="n">_SUPPORTED_SHAPES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;box&quot;</span><span class="p">,</span> <span class="s2">&quot;polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;polyline&quot;</span><span class="p">,</span> <span class="s2">&quot;points&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -613,8 +613,8 @@
         <span class="k">return</span> <span class="n">parsed</span></div>
 
 
-<div class="viewcode-block" id="CvatImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/cvat/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatImporter">[docs]</a><span class="k">class</span> <span class="nc">CvatImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="CvatImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/cvat/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CvatImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatImporter">[docs]</a><span class="k">class</span> <span class="nc">CvatImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="CvatImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">annot_file</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;*.xml&quot;</span><span class="p">)</span>
 
@@ -626,14 +626,14 @@
             <span class="k">if</span> <span class="n">root_elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s2">&quot;annotations&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span></div>
 
-<div class="viewcode-block" id="CvatImporter.find_subsets"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/cvat/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatImporter.find_subsets">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CvatImporter.find_subsets"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatImporter.find_subsets">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">find_subsets</span><span class="p">(</span><span class="n">meta_root</span><span class="p">):</span>
         <span class="n">subsets</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">meta_root</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s2">&quot;subset&quot;</span><span class="p">)]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subsets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span><span class="s2">&quot;CVAT XML should include &lt;subset&gt; tags.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">subsets</span></div>
 
-<div class="viewcode-block" id="CvatImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/cvat/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CvatImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">source_files</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.xml&quot;</span><span class="p">,</span> <span class="s2">&quot;cvat&quot;</span><span class="p">)</span>
         <span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>

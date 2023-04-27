@@ -295,13 +295,13 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">find_images</span>
 
 
-<div class="viewcode-block" id="MarsPath"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsPath">[docs]</a><span class="k">class</span> <span class="nc">MarsPath</span><span class="p">:</span>
+<div class="viewcode-block" id="MarsPath"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsPath">[docs]</a><span class="k">class</span> <span class="nc">MarsPath</span><span class="p">:</span>
     <span class="n">SUBSET_DIR_PATTERN</span> <span class="o">=</span> <span class="s2">&quot;bbox_*&quot;</span>
     <span class="n">IMAGE_DIR_PATTERNS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;[0-9]&quot;</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;00-1&quot;</span><span class="p">]</span>
     <span class="n">IMAGE_NAME_POSTFIX</span> <span class="o">=</span> <span class="s2">&quot;C[0-9]&quot;</span> <span class="o">+</span> <span class="s2">&quot;T&quot;</span> <span class="o">+</span> <span class="s2">&quot;[0-9]&quot;</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="s2">&quot;F&quot;</span> <span class="o">+</span> <span class="s2">&quot;[0-9]&quot;</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="s2">&quot;.*&quot;</span></div>
 
 
-<div class="viewcode-block" id="MarsBase"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsBase">[docs]</a><span class="k">class</span> <span class="nc">MarsBase</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="MarsBase"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsBase">[docs]</a><span class="k">class</span> <span class="nc">MarsBase</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">path</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -324,7 +324,7 @@
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span>
 
-<div class="viewcode-block" id="MarsBase.categories"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsBase.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MarsBase.categories"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsBase.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span></div>
 
     <span class="k">def</span> <span class="nf">_load_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -384,8 +384,8 @@
         <span class="k">return</span> <span class="n">items</span></div>
 
 
-<div class="viewcode-block" id="MarsImporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsImporter">[docs]</a><span class="k">class</span> <span class="nc">MarsImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="MarsImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MarsImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsImporter">[docs]</a><span class="k">class</span> <span class="nc">MarsImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="MarsImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">require_any</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">image_dir</span> <span class="ow">in</span> <span class="n">MarsPath</span><span class="o">.</span><span class="n">IMAGE_DIR_PATTERNS</span><span class="p">:</span>
@@ -400,7 +400,7 @@
                         <span class="p">)</span>
                     <span class="p">)</span></div>
 
-<div class="viewcode-block" id="MarsImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MarsImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">path</span><span class="p">,</span> <span class="n">subset_dir</span><span class="p">,</span> <span class="n">image_dir</span><span class="p">,</span> <span class="n">image_dir</span> <span class="o">+</span> <span class="n">MarsPath</span><span class="o">.</span><span class="n">IMAGE_NAME_POSTFIX</span><span class="p">))</span>

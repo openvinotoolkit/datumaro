@@ -296,7 +296,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
 
 
-<div class="viewcode-block" id="SynthiaPath"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.SynthiaPath">[docs]</a><span class="k">class</span> <span class="nc">SynthiaPath</span><span class="p">:</span>
+<div class="viewcode-block" id="SynthiaPath"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.SynthiaPath">[docs]</a><span class="k">class</span> <span class="nc">SynthiaPath</span><span class="p">:</span>
     <span class="n">IMAGES_DIR</span> <span class="o">=</span> <span class="s2">&quot;RGB&quot;</span>
     <span class="n">LABELS_SEGM_DIR</span> <span class="o">=</span> <span class="s2">&quot;GT/LABELS&quot;</span>
     <span class="n">SEMANTIC_SEGM_DIR</span> <span class="o">=</span> <span class="s2">&quot;GT/COLOR&quot;</span>
@@ -325,7 +325,7 @@
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="make_categories"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.make_categories">[docs]</a><span class="k">def</span> <span class="nf">make_categories</span><span class="p">(</span><span class="n">label_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="make_categories"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.make_categories">[docs]</a><span class="k">def</span> <span class="nf">make_categories</span><span class="p">(</span><span class="n">label_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">label_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">label_map</span> <span class="o">=</span> <span class="n">SYNTHIA_LABEL_MAP</span>
 
@@ -349,7 +349,7 @@
     <span class="k">return</span> <span class="n">categories</span></div>
 
 
-<div class="viewcode-block" id="parse_label_map"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.parse_label_map">[docs]</a><span class="k">def</span> <span class="nf">parse_label_map</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="parse_label_map"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.parse_label_map">[docs]</a><span class="k">def</span> <span class="nf">parse_label_map</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="n">label_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
@@ -375,7 +375,7 @@
     <span class="k">return</span> <span class="n">label_map</span></div>
 
 
-<div class="viewcode-block" id="SynthiaBase"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.SynthiaBase">[docs]</a><span class="k">class</span> <span class="nc">SynthiaBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="SynthiaBase"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.SynthiaBase">[docs]</a><span class="k">class</span> <span class="nc">SynthiaBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t read dataset directory &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
@@ -465,8 +465,8 @@
         <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">mask</span> <span class="o">==</span> <span class="n">c</span></div>
 
 
-<div class="viewcode-block" id="SynthiaImporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.SynthiaImporter">[docs]</a><span class="k">class</span> <span class="nc">SynthiaImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="SynthiaImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.SynthiaImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SynthiaImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.SynthiaImporter">[docs]</a><span class="k">class</span> <span class="nc">SynthiaImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="SynthiaImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.SynthiaImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">require_any</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">(</span>
@@ -477,7 +477,7 @@
                 <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">alternative</span><span class="p">():</span>
                     <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">/**/*.png&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SynthiaImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.SynthiaImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SynthiaImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.html#datumaro.plugins.data_formats.synthia.SynthiaImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;synthia&quot;</span><span class="p">}]</span></div></div>
 </pre></div>

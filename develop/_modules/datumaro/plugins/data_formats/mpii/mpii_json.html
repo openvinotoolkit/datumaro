@@ -301,14 +301,14 @@
 <span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">MPII_POINTS_JOINTS</span><span class="p">,</span> <span class="n">MPII_POINTS_LABELS</span>
 
 
-<div class="viewcode-block" id="MpiiJsonPath"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_json.html#datumaro.plugins.data_formats.mpii.mpii_json.MpiiJsonPath">[docs]</a><span class="k">class</span> <span class="nc">MpiiJsonPath</span><span class="p">:</span>
+<div class="viewcode-block" id="MpiiJsonPath"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mpii.mpii_json.html#datumaro.plugins.data_formats.mpii.mpii_json.MpiiJsonPath">[docs]</a><span class="k">class</span> <span class="nc">MpiiJsonPath</span><span class="p">:</span>
     <span class="n">ANNOTATION_FILE</span> <span class="o">=</span> <span class="s2">&quot;mpii_annotations.json&quot;</span>
     <span class="n">HEADBOXES_FILE</span> <span class="o">=</span> <span class="s2">&quot;mpii_headboxes.npy&quot;</span>
     <span class="n">VISIBILITY_FILE</span> <span class="o">=</span> <span class="s2">&quot;jnt_visible.npy&quot;</span>
     <span class="n">POS_GT_FILE</span> <span class="o">=</span> <span class="s2">&quot;mpii_pos_gt.npy&quot;</span></div>
 
 
-<div class="viewcode-block" id="MpiiJsonBase"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_json.html#datumaro.plugins.data_formats.mpii.mpii_json.MpiiJsonBase">[docs]</a><span class="k">class</span> <span class="nc">MpiiJsonBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="MpiiJsonBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mpii.mpii_json.html#datumaro.plugins.data_formats.mpii.mpii_json.MpiiJsonBase">[docs]</a><span class="k">class</span> <span class="nc">MpiiJsonBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t read annotation file &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
@@ -436,12 +436,12 @@
         <span class="k">return</span> <span class="n">items</span></div>
 
 
-<div class="viewcode-block" id="MpiiJsonImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_json.html#datumaro.plugins.data_formats.mpii.mpii_json.MpiiJsonImporter">[docs]</a><span class="k">class</span> <span class="nc">MpiiJsonImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="MpiiJsonImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_json.html#datumaro.plugins.data_formats.mpii.mpii_json.MpiiJsonImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MpiiJsonImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mpii.mpii_json.html#datumaro.plugins.data_formats.mpii.mpii_json.MpiiJsonImporter">[docs]</a><span class="k">class</span> <span class="nc">MpiiJsonImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="MpiiJsonImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mpii.mpii_json.html#datumaro.plugins.data_formats.mpii.mpii_json.MpiiJsonImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">,</span> <span class="s2">&quot;mpii_json&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MpiiJsonImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_json.html#datumaro.plugins.data_formats.mpii.mpii_json.MpiiJsonImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MpiiJsonImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mpii.mpii_json.html#datumaro.plugins.data_formats.mpii.mpii_json.MpiiJsonImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="n">MpiiJsonPath</span><span class="o">.</span><span class="n">ANNOTATION_FILE</span><span class="p">)</span></div></div>
 </pre></div>

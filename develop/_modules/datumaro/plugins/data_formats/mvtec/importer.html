@@ -290,14 +290,14 @@
 <span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">MvtecPath</span><span class="p">,</span> <span class="n">MvtecTask</span>
 
 
-<div class="viewcode-block" id="MvtecImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mvtec/datumaro.plugins.data_formats.mvtec.importer.html#datumaro.plugins.data_formats.mvtec.importer.MvtecImporter">[docs]</a><span class="k">class</span> <span class="nc">MvtecImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="MvtecImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mvtec.importer.html#datumaro.plugins.data_formats.mvtec.importer.MvtecImporter">[docs]</a><span class="k">class</span> <span class="nc">MvtecImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">MvtecTask</span><span class="o">.</span><span class="n">classification</span><span class="p">:</span> <span class="s2">&quot;mvtec_classification&quot;</span><span class="p">,</span>
         <span class="n">MvtecTask</span><span class="o">.</span><span class="n">detection</span><span class="p">:</span> <span class="s2">&quot;mvtec_detection&quot;</span><span class="p">,</span>
         <span class="n">MvtecTask</span><span class="o">.</span><span class="n">segmentation</span><span class="p">:</span> <span class="s2">&quot;mvtec_segmentation&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="MvtecImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mvtec/datumaro.plugins.data_formats.mvtec.importer.html#datumaro.plugins.data_formats.mvtec.importer.MvtecImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MvtecImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mvtec.importer.html#datumaro.plugins.data_formats.mvtec.importer.MvtecImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">subset_paths</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -320,19 +320,19 @@
         <span class="k">return</span> <span class="n">sources</span></div></div>
 
 
-<div class="viewcode-block" id="MvtecClassificationImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mvtec/datumaro.plugins.data_formats.mvtec.importer.html#datumaro.plugins.data_formats.mvtec.importer.MvtecClassificationImporter">[docs]</a><span class="k">class</span> <span class="nc">MvtecClassificationImporter</span><span class="p">(</span><span class="n">MvtecImporter</span><span class="p">):</span>
+<div class="viewcode-block" id="MvtecClassificationImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mvtec.importer.html#datumaro.plugins.data_formats.mvtec.importer.MvtecClassificationImporter">[docs]</a><span class="k">class</span> <span class="nc">MvtecClassificationImporter</span><span class="p">(</span><span class="n">MvtecImporter</span><span class="p">):</span>
     <span class="n">DETECT_CONFIDENCE</span> <span class="o">=</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">MEDIUM</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">MvtecTask</span><span class="o">.</span><span class="n">classification</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">MvtecImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
 
 
-<div class="viewcode-block" id="MvtecDetectionImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mvtec/datumaro.plugins.data_formats.mvtec.importer.html#datumaro.plugins.data_formats.mvtec.importer.MvtecDetectionImporter">[docs]</a><span class="k">class</span> <span class="nc">MvtecDetectionImporter</span><span class="p">(</span><span class="n">MvtecImporter</span><span class="p">):</span>
+<div class="viewcode-block" id="MvtecDetectionImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mvtec.importer.html#datumaro.plugins.data_formats.mvtec.importer.MvtecDetectionImporter">[docs]</a><span class="k">class</span> <span class="nc">MvtecDetectionImporter</span><span class="p">(</span><span class="n">MvtecImporter</span><span class="p">):</span>
     <span class="n">DETECT_CONFIDENCE</span> <span class="o">=</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">MEDIUM</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">MvtecTask</span><span class="o">.</span><span class="n">detection</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">MvtecImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
 
 
-<div class="viewcode-block" id="MvtecSegmentationImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mvtec/datumaro.plugins.data_formats.mvtec.importer.html#datumaro.plugins.data_formats.mvtec.importer.MvtecSegmentationImporter">[docs]</a><span class="k">class</span> <span class="nc">MvtecSegmentationImporter</span><span class="p">(</span><span class="n">MvtecImporter</span><span class="p">):</span>
+<div class="viewcode-block" id="MvtecSegmentationImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mvtec.importer.html#datumaro.plugins.data_formats.mvtec.importer.MvtecSegmentationImporter">[docs]</a><span class="k">class</span> <span class="nc">MvtecSegmentationImporter</span><span class="p">(</span><span class="n">MvtecImporter</span><span class="p">):</span>
     <span class="n">DETECT_CONFIDENCE</span> <span class="o">=</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">MEDIUM</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">MvtecTask</span><span class="o">.</span><span class="n">segmentation</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">MvtecImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>

@@ -299,7 +299,7 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ava_label_pb2</span>
 
 
-<div class="viewcode-block" id="AvaPath"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/ava/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaPath">[docs]</a><span class="k">class</span> <span class="nc">AvaPath</span><span class="p">:</span>
+<div class="viewcode-block" id="AvaPath"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaPath">[docs]</a><span class="k">class</span> <span class="nc">AvaPath</span><span class="p">:</span>
     <span class="n">IMAGE_DIR</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
     <span class="n">IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.jpg&quot;</span>
     <span class="n">ANNOTATION_DIR</span> <span class="o">=</span> <span class="s2">&quot;annotations&quot;</span>
@@ -310,7 +310,7 @@
     <span class="n">PROPOSAL_EXT</span> <span class="o">=</span> <span class="s2">&quot;.pkl&quot;</span></div>
 
 
-<div class="viewcode-block" id="AvaBase"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/ava/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaBase">[docs]</a><span class="k">class</span> <span class="nc">AvaBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="AvaBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaBase">[docs]</a><span class="k">class</span> <span class="nc">AvaBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can&#39;t find CSV file at &#39;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
@@ -423,8 +423,8 @@
         <span class="k">return</span> <span class="n">items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="AvaImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/ava/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaImporter">[docs]</a><span class="k">class</span> <span class="nc">AvaImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="AvaImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/ava/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="AvaImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaImporter">[docs]</a><span class="k">class</span> <span class="nc">AvaImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="AvaImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">ann_files</span> <span class="o">=</span> <span class="n">find_files</span><span class="p">(</span>
             <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">AvaPath</span><span class="o">.</span><span class="n">ANNOTATION_DIR</span><span class="p">),</span> <span class="n">exts</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">1</span>
@@ -437,16 +437,16 @@
 
         <span class="k">return</span> <span class="n">sources</span></div>
 
-<div class="viewcode-block" id="AvaImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/ava/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="AvaImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FormatDetectionConfidence</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">MEDIUM</span></div></div>
 
 
-<div class="viewcode-block" id="AvaExporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/ava/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaExporter">[docs]</a><span class="k">class</span> <span class="nc">AvaExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<div class="viewcode-block" id="AvaExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaExporter">[docs]</a><span class="k">class</span> <span class="nc">AvaExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">AvaPath</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
 
-<div class="viewcode-block" id="AvaExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/ava/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AvaExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ava.ava.html#datumaro.plugins.data_formats.ava.ava.AvaExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 

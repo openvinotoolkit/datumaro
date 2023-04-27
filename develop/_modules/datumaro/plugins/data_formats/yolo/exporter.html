@@ -309,11 +309,11 @@
     <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span>
 
 
-<div class="viewcode-block" id="YoloExporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloExporter">[docs]</a><span class="k">class</span> <span class="nc">YoloExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<div class="viewcode-block" id="YoloExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloExporter">[docs]</a><span class="k">class</span> <span class="nc">YoloExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="c1"># https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.jpg&quot;</span>
 
-<div class="viewcode-block" id="YoloExporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloExporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="YoloExporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloExporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -331,7 +331,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span> <span class="k">if</span> <span class="n">add_path_prefix</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
-<div class="viewcode-block" id="YoloExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="YoloExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">extractor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span>
         <span class="n">save_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span>
 
@@ -439,7 +439,7 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="o">.</span><span class="n">error_policy</span><span class="o">.</span><span class="n">report_item_error</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">item_id</span><span class="o">=</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">))</span>
 
-<div class="viewcode-block" id="YoloExporter.patch"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloExporter.patch">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="YoloExporter.patch"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloExporter.patch">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">patch</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">patch</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">conv</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">conv</span><span class="o">.</span><span class="n">_patch</span> <span class="o">=</span> <span class="n">patch</span>
@@ -467,7 +467,7 @@
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ann_path</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="YoloUltralyticsExporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloUltralyticsExporter">[docs]</a><span class="k">class</span> <span class="nc">YoloUltralyticsExporter</span><span class="p">(</span><span class="n">YoloExporter</span><span class="p">):</span>
+<div class="viewcode-block" id="YoloUltralyticsExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloUltralyticsExporter">[docs]</a><span class="k">class</span> <span class="nc">YoloUltralyticsExporter</span><span class="p">(</span><span class="n">YoloExporter</span><span class="p">):</span>
     <span class="n">allowed_subset_names</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">}</span>
     <span class="n">must_subset_names</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">}</span>
 
@@ -500,7 +500,7 @@
                     <span class="s2">&quot;but YoloUltralytics requires both of them.&quot;</span>
                 <span class="p">)</span>
 
-<div class="viewcode-block" id="YoloUltralyticsExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloUltralyticsExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="YoloUltralyticsExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloUltralyticsExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">extractor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span>
         <span class="n">save_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span>
 
@@ -555,7 +555,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;data.yaml&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
             <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">yaml_dict</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="YoloUltralyticsExporter.patch"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloUltralyticsExporter.patch">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="YoloUltralyticsExporter.patch"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloUltralyticsExporter.patch">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">patch</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">patch</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">conv</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">conv</span><span class="o">.</span><span class="n">_patch</span> <span class="o">=</span> <span class="n">patch</span>

@@ -300,7 +300,7 @@
 <span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">MPII_POINTS_JOINTS</span><span class="p">,</span> <span class="n">MPII_POINTS_LABELS</span>
 
 
-<div class="viewcode-block" id="MpiiBase"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_mat.html#datumaro.plugins.data_formats.mpii.mpii_mat.MpiiBase">[docs]</a><span class="k">class</span> <span class="nc">MpiiBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="MpiiBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mpii.mpii_mat.html#datumaro.plugins.data_formats.mpii.mpii_mat.MpiiBase">[docs]</a><span class="k">class</span> <span class="nc">MpiiBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t read annotation file &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
@@ -412,12 +412,12 @@
         <span class="k">return</span> <span class="n">items</span></div>
 
 
-<div class="viewcode-block" id="MpiiImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_mat.html#datumaro.plugins.data_formats.mpii.mpii_mat.MpiiImporter">[docs]</a><span class="k">class</span> <span class="nc">MpiiImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="MpiiImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_mat.html#datumaro.plugins.data_formats.mpii.mpii_mat.MpiiImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MpiiImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mpii.mpii_mat.html#datumaro.plugins.data_formats.mpii.mpii_mat.MpiiImporter">[docs]</a><span class="k">class</span> <span class="nc">MpiiImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="MpiiImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mpii.mpii_mat.html#datumaro.plugins.data_formats.mpii.mpii_mat.MpiiImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.mat&quot;</span><span class="p">,</span> <span class="s2">&quot;mpii&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MpiiImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mpii/datumaro.plugins.data_formats.mpii.mpii_mat.html#datumaro.plugins.data_formats.mpii.mpii_mat.MpiiImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MpiiImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mpii.mpii_mat.html#datumaro.plugins.data_formats.mpii.mpii_mat.MpiiImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;*.mat&quot;</span><span class="p">)</span></div></div>
 </pre></div>

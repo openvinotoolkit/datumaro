@@ -311,7 +311,7 @@
     <span class="n">TFDS_EXTRACTOR_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
 
 
-<div class="viewcode-block" id="TfdsDatasetMetadata"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDatasetMetadata">[docs]</a><span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="TfdsDatasetMetadata"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDatasetMetadata">[docs]</a><span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TfdsDatasetMetadata</span><span class="p">:</span>
     <span class="c1"># If you add attributes to this class, make sure to update the reporting logic</span>
     <span class="c1"># in the `describe-downloads` command to include them.</span>
@@ -821,12 +821,12 @@
 <span class="c1"># the reporting logic in the `describe-downloads` command to include them.</span>
 
 
-<div class="viewcode-block" id="TfdsSubsetRemoteMetadata"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsSubsetRemoteMetadata">[docs]</a><span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="TfdsSubsetRemoteMetadata"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsSubsetRemoteMetadata">[docs]</a><span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TfdsSubsetRemoteMetadata</span><span class="p">:</span>
     <span class="n">num_items</span><span class="p">:</span> <span class="nb">int</span></div>
 
 
-<div class="viewcode-block" id="TfdsDatasetRemoteMetadata"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDatasetRemoteMetadata">[docs]</a><span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="TfdsDatasetRemoteMetadata"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDatasetRemoteMetadata">[docs]</a><span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TfdsDatasetRemoteMetadata</span><span class="p">(</span><span class="n">TfdsDatasetMetadata</span><span class="p">):</span>
     <span class="c1"># For convenience, the remote metadata also includes the local metadata.</span>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
@@ -839,7 +839,7 @@
     <span class="n">version</span><span class="p">:</span> <span class="nb">str</span></div>
 
 
-<div class="viewcode-block" id="TfdsDataset"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset">[docs]</a><span class="k">class</span> <span class="nc">TfdsDataset</span><span class="p">:</span>
+<div class="viewcode-block" id="TfdsDataset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset">[docs]</a><span class="k">class</span> <span class="nc">TfdsDataset</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tfds_ds_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tfds_ds_name</span> <span class="o">=</span> <span class="n">tfds_ds_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_adapter</span> <span class="o">=</span> <span class="n">_TFDS_ADAPTERS</span><span class="p">[</span><span class="n">tfds_ds_name</span><span class="p">]</span>
@@ -848,10 +848,10 @@
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TfdsDatasetMetadata</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adapter</span><span class="o">.</span><span class="n">metadata</span>
 
-<div class="viewcode-block" id="TfdsDataset.make_extractor"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset.make_extractor">[docs]</a>    <span class="k">def</span> <span class="nf">make_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
+<div class="viewcode-block" id="TfdsDataset.make_extractor"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset.make_extractor">[docs]</a>    <span class="k">def</span> <span class="nf">make_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_TfdsExtractor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tfds_ds_name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TfdsDataset.query_remote_metadata"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset.query_remote_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">query_remote_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TfdsDatasetRemoteMetadata</span><span class="p">:</span>
+<div class="viewcode-block" id="TfdsDataset.query_remote_metadata"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset.query_remote_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">query_remote_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TfdsDatasetRemoteMetadata</span><span class="p">:</span>
         <span class="n">tfds_builder</span> <span class="o">=</span> <span class="n">tfds</span><span class="o">.</span><span class="n">builder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tfds_ds_name</span><span class="p">)</span>
 
         <span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>

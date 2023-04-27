@@ -1,7 +1,0 @@
-Celeba package
-==============
-
-.. toctree::
-   :glob:
-
-   *

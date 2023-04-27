@@ -302,7 +302,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
 
 
-<div class="viewcode-block" id="MotsPath"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsPath">[docs]</a><span class="k">class</span> <span class="nc">MotsPath</span><span class="p">:</span>
+<div class="viewcode-block" id="MotsPath"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsPath">[docs]</a><span class="k">class</span> <span class="nc">MotsPath</span><span class="p">:</span>
     <span class="n">MASKS_DIR</span> <span class="o">=</span> <span class="s2">&quot;instances&quot;</span>
     <span class="n">IMAGE_DIR</span> <span class="o">=</span> <span class="s2">&quot;images&quot;</span>
     <span class="n">IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.jpg&quot;</span>
@@ -310,15 +310,15 @@
     <span class="n">MAX_INSTANCES</span> <span class="o">=</span> <span class="mi">1000</span></div>
 
 
-<div class="viewcode-block" id="MotsLabels"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsLabels">[docs]</a><span class="k">class</span> <span class="nc">MotsLabels</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="MotsLabels"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsLabels">[docs]</a><span class="k">class</span> <span class="nc">MotsLabels</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">background</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">car</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">pedestrian</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">ignored</span> <span class="o">=</span> <span class="mi">10</span></div>
 
 
-<div class="viewcode-block" id="MotsPngExtractor"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsPngExtractor">[docs]</a><span class="k">class</span> <span class="nc">MotsPngExtractor</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
-<div class="viewcode-block" id="MotsPngExtractor.detect_dataset"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsPngExtractor.detect_dataset">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="MotsPngExtractor"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsPngExtractor">[docs]</a><span class="k">class</span> <span class="nc">MotsPngExtractor</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="MotsPngExtractor.detect_dataset"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsPngExtractor.detect_dataset">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">detect_dataset</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">MotsPath</span><span class="o">.</span><span class="n">MASKS_DIR</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">MotsPngExtractor</span><span class="o">.</span><span class="n">NAME</span><span class="p">}]</span>
@@ -406,8 +406,8 @@
         <span class="k">return</span> <span class="n">masks</span></div>
 
 
-<div class="viewcode-block" id="MotsImporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsImporter">[docs]</a><span class="k">class</span> <span class="nc">MotsImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="MotsImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MotsImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsImporter">[docs]</a><span class="k">class</span> <span class="nc">MotsImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="MotsImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -422,10 +422,10 @@
         <span class="k">return</span> <span class="n">subsets</span></div></div>
 
 
-<div class="viewcode-block" id="MotsPngExporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsPngExporter">[docs]</a><span class="k">class</span> <span class="nc">MotsPngExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<div class="viewcode-block" id="MotsPngExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsPngExporter">[docs]</a><span class="k">class</span> <span class="nc">MotsPngExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">MotsPath</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
 
-<div class="viewcode-block" id="MotsPngExporter.apply"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsPngExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MotsPngExporter.apply"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mots.html#datumaro.plugins.data_formats.mots.MotsPngExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 

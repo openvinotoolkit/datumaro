@@ -1,0 +1,29 @@
+datumaro.plugins.accuracy\_checker\_plugin.details.ac
+=====================================================
+
+.. automodule:: datumaro.plugins.accuracy_checker_plugin.details.ac
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      GenericAcLauncher
+   
+   
+
+   
+   
+   
+
+
+

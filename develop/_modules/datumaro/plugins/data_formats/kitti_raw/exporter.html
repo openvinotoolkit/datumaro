@@ -547,10 +547,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_close_serialization</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="KittiRawExporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.exporter.html#datumaro.plugins.data_formats.kitti_raw.exporter.KittiRawExporter">[docs]</a><span class="k">class</span> <span class="nc">KittiRawExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<div class="viewcode-block" id="KittiRawExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_raw.exporter.html#datumaro.plugins.data_formats.kitti_raw.exporter.KittiRawExporter">[docs]</a><span class="k">class</span> <span class="nc">KittiRawExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.jpg&quot;</span>
 
-<div class="viewcode-block" id="KittiRawExporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.exporter.html#datumaro.plugins.data_formats.kitti_raw.exporter.KittiRawExporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="KittiRawExporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_raw.exporter.html#datumaro.plugins.data_formats.kitti_raw.exporter.KittiRawExporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -739,7 +739,7 @@
 
         <span class="k">return</span> <span class="n">index</span>
 
-<div class="viewcode-block" id="KittiRawExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.exporter.html#datumaro.plugins.data_formats.kitti_raw.exporter.KittiRawExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="KittiRawExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_raw.exporter.html#datumaro.plugins.data_formats.kitti_raw.exporter.KittiRawExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">PointCloud</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not a point cloud&quot;</span><span class="p">)</span>
 
@@ -759,7 +759,7 @@
             <span class="n">writer</span> <span class="o">=</span> <span class="n">_XmlAnnotationWriter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">tracklets</span><span class="p">)</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="KittiRawExporter.patch"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/kitti_raw/datumaro.plugins.data_formats.kitti_raw.exporter.html#datumaro.plugins.data_formats.kitti_raw.exporter.KittiRawExporter.patch">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="KittiRawExporter.patch"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_raw.exporter.html#datumaro.plugins.data_formats.kitti_raw.exporter.KittiRawExporter.patch">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">patch</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">patch</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">conv</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">patch</span><span class="o">.</span><span class="n">as_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">conv</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span>

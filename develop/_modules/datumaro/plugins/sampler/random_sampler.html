@@ -293,7 +293,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">cast</span>
 
 
-<div class="viewcode-block" id="RandomSampler"><a class="viewcode-back" href="../../../../docs/reference/plugins/sampler/datumaro.plugins.sampler.random_sampler.html#datumaro.plugins.sampler.random_sampler.RandomSampler">[docs]</a><span class="k">class</span> <span class="nc">RandomSampler</span><span class="p">(</span><span class="n">Transform</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomSampler"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sampler.random_sampler.html#datumaro.plugins.sampler.random_sampler.RandomSampler">[docs]</a><span class="k">class</span> <span class="nc">RandomSampler</span><span class="p">(</span><span class="n">Transform</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sampler that keeps no more than required number of items in the dataset.|n</span>
 <span class="sd">    |n</span>
@@ -315,7 +315,7 @@
 <span class="sd">    |s|s%(prog)s -k 20 -s train</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RandomSampler.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/plugins/sampler/datumaro.plugins.sampler.random_sampler.html#datumaro.plugins.sampler.random_sampler.RandomSampler.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="RandomSampler.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sampler.random_sampler.html#datumaro.plugins.sampler.random_sampler.RandomSampler.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -386,7 +386,7 @@
                 <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 
-<div class="viewcode-block" id="LabelRandomSampler"><a class="viewcode-back" href="../../../../docs/reference/plugins/sampler/datumaro.plugins.sampler.random_sampler.html#datumaro.plugins.sampler.random_sampler.LabelRandomSampler">[docs]</a><span class="k">class</span> <span class="nc">LabelRandomSampler</span><span class="p">(</span><span class="n">Transform</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="LabelRandomSampler"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sampler.random_sampler.html#datumaro.plugins.sampler.random_sampler.LabelRandomSampler">[docs]</a><span class="k">class</span> <span class="nc">LabelRandomSampler</span><span class="p">(</span><span class="n">Transform</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sampler that keeps at least the required number of annotations of</span>
 <span class="sd">    each class in the dataset for each subset separately.|n</span>
@@ -429,7 +429,7 @@
 
         <span class="k">return</span> <span class="n">label</span><span class="p">,</span> <span class="n">count</span>
 
-<div class="viewcode-block" id="LabelRandomSampler.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/plugins/sampler/datumaro.plugins.sampler.random_sampler.html#datumaro.plugins.sampler.random_sampler.LabelRandomSampler.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LabelRandomSampler.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sampler.random_sampler.html#datumaro.plugins.sampler.random_sampler.LabelRandomSampler.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>

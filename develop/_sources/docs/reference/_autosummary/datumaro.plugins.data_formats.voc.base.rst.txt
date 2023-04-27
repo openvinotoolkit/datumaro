@@ -1,0 +1,33 @@
+datumaro.plugins.data\_formats.voc.base
+=======================================
+
+.. automodule:: datumaro.plugins.data_formats.voc.base
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      VocActionBase
+      VocClassificationBase
+      VocDetectionBase
+      VocLayoutBase
+      VocSegmentationBase
+   
+   
+
+   
+   
+   
+
+
+

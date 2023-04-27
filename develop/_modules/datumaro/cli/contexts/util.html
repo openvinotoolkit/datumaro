@@ -292,7 +292,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
 
-<div class="viewcode-block" id="build_split_video_parser"><a class="viewcode-back" href="../../../../docs/reference/cli/contexts/datumaro.cli.contexts.util.html#datumaro.cli.contexts.util.build_split_video_parser">[docs]</a><span class="k">def</span> <span class="nf">build_split_video_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+<div class="viewcode-block" id="build_split_video_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.contexts.util.html#datumaro.cli.contexts.util.build_split_video_parser">[docs]</a><span class="k">def</span> <span class="nf">build_split_video_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_ctor</span><span class="p">(</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Split video into frames&quot;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
@@ -353,13 +353,13 @@
     <span class="k">return</span> <span class="n">parser</span></div>
 
 
-<div class="viewcode-block" id="get_split_video_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/cli/contexts/datumaro.cli.contexts.util.html#datumaro.cli.contexts.util.get_split_video_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_split_video_sensitive_args</span><span class="p">():</span>
+<div class="viewcode-block" id="get_split_video_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.contexts.util.html#datumaro.cli.contexts.util.get_split_video_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_split_video_sensitive_args</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">split_video_command</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;src_path&quot;</span><span class="p">,</span> <span class="s2">&quot;dst_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;name_pattern&quot;</span><span class="p">],</span>
     <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="split_video_command"><a class="viewcode-back" href="../../../../docs/reference/cli/contexts/datumaro.cli.contexts.util.html#datumaro.cli.contexts.util.split_video_command">[docs]</a><span class="k">def</span> <span class="nf">split_video_command</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="split_video_command"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.contexts.util.html#datumaro.cli.contexts.util.split_video_command">[docs]</a><span class="k">def</span> <span class="nf">split_video_command</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">src_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
 
     <span class="n">dst_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dst_dir</span>
@@ -390,7 +390,7 @@
     <span class="k">return</span> <span class="mi">0</span></div>
 
 
-<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../../../docs/reference/cli/contexts/datumaro.cli.contexts.util.html#datumaro.cli.contexts.util.build_parser">[docs]</a><span class="k">def</span> <span class="nf">build_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.contexts.util.html#datumaro.cli.contexts.util.build_parser">[docs]</a><span class="k">def</span> <span class="nf">build_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_ctor</span><span class="p">()</span>
 
     <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
@@ -399,7 +399,7 @@
     <span class="k">return</span> <span class="n">parser</span></div>
 
 
-<div class="viewcode-block" id="get_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/cli/contexts/datumaro.cli.contexts.util.html#datumaro.cli.contexts.util.get_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_sensitive_args</span><span class="p">():</span>
+<div class="viewcode-block" id="get_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.contexts.util.html#datumaro.cli.contexts.util.get_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_sensitive_args</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">get_split_video_sensitive_args</span><span class="p">(),</span>
     <span class="p">}</span></div>

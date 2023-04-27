@@ -1,0 +1,29 @@
+datumaro.plugins.shift\_analyzer
+================================
+
+.. automodule:: datumaro.plugins.shift_analyzer
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ShiftAnalyzerLauncher
+   
+   
+
+   
+   
+   
+
+
+

@@ -339,7 +339,7 @@
     <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module </span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> has no attribute </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="load_image"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image.html#datumaro.util.image.load_image">[docs]</a><span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">crypter</span><span class="p">:</span> <span class="n">Crypter</span> <span class="o">=</span> <span class="n">NULL_CRYPTER</span><span class="p">):</span>
+<div class="viewcode-block" id="load_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.load_image">[docs]</a><span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">crypter</span><span class="p">:</span> <span class="n">Crypter</span> <span class="o">=</span> <span class="n">NULL_CRYPTER</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads an image in the HWC Grayscale/BGR(A) float [0; 255] format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -372,7 +372,7 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="copyto_image"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image.html#datumaro.util.image.copyto_image">[docs]</a><span class="k">def</span> <span class="nf">copyto_image</span><span class="p">(</span>
+<div class="viewcode-block" id="copyto_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.copyto_image">[docs]</a><span class="k">def</span> <span class="nf">copyto_image</span><span class="p">(</span>
     <span class="n">src</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IOBase</span><span class="p">],</span> <span class="n">dst</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IOBase</span><span class="p">],</span> <span class="n">src_crypter</span><span class="p">:</span> <span class="n">Crypter</span><span class="p">,</span> <span class="n">dst_crypter</span><span class="p">:</span> <span class="n">Crypter</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">src_crypter</span> <span class="o">==</span> <span class="n">dst_crypter</span> <span class="ow">and</span> <span class="n">src</span> <span class="o">==</span> <span class="n">dst</span><span class="p">:</span>
@@ -395,7 +395,7 @@
         <span class="n">dst_fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dst_crypter</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">_bytes</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="save_image"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image.html#datumaro.util.image.save_image">[docs]</a><span class="k">def</span> <span class="nf">save_image</span><span class="p">(</span>
+<div class="viewcode-block" id="save_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.save_image">[docs]</a><span class="k">def</span> <span class="nf">save_image</span><span class="p">(</span>
     <span class="n">dst</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IOBase</span><span class="p">],</span>
     <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">ext</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -462,7 +462,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="encode_image"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image.html#datumaro.util.image.encode_image">[docs]</a><span class="k">def</span> <span class="nf">encode_image</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<div class="viewcode-block" id="encode_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.encode_image">[docs]</a><span class="k">def</span> <span class="nf">encode_image</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ext</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -504,7 +504,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="decode_image"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image.html#datumaro.util.image.decode_image">[docs]</a><span class="k">def</span> <span class="nf">decode_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="decode_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.decode_image">[docs]</a><span class="k">def</span> <span class="nf">decode_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">_IMAGE_BACKEND</span> <span class="o">==</span> <span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">cv2</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">cv2</span>
 
@@ -553,7 +553,7 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="find_images"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image.html#datumaro.util.image.find_images">[docs]</a><span class="k">def</span> <span class="nf">find_images</span><span class="p">(</span>
+<div class="viewcode-block" id="find_images"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.find_images">[docs]</a><span class="k">def</span> <span class="nf">find_images</span><span class="p">(</span>
     <span class="n">dirpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">exts</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -569,12 +569,12 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="is_image"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image.html#datumaro.util.image.is_image">[docs]</a><span class="k">def</span> <span class="nf">is_image</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="is_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.is_image">[docs]</a><span class="k">def</span> <span class="nf">is_image</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="n">trunk</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">trunk</span> <span class="ow">and</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">IMAGE_EXTENSIONS</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="lazy_image"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image.html#datumaro.util.image.lazy_image">[docs]</a><span class="k">class</span> <span class="nc">lazy_image</span><span class="p">:</span>
+<div class="viewcode-block" id="lazy_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.lazy_image">[docs]</a><span class="k">class</span> <span class="nc">lazy_image</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -636,7 +636,7 @@
 <span class="n">DEFAULT_IMAGE_META_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;images.meta&quot;</span>
 
 
-<div class="viewcode-block" id="load_image_meta_file"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image.html#datumaro.util.image.load_image_meta_file">[docs]</a><span class="k">def</span> <span class="nf">load_image_meta_file</span><span class="p">(</span><span class="n">image_meta_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageMeta</span><span class="p">:</span>
+<div class="viewcode-block" id="load_image_meta_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.load_image_meta_file">[docs]</a><span class="k">def</span> <span class="nf">load_image_meta_file</span><span class="p">(</span><span class="n">image_meta_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageMeta</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads image metadata from a file with the following format:</span>
 
@@ -671,7 +671,7 @@
     <span class="k">return</span> <span class="n">image_meta</span></div>
 
 
-<div class="viewcode-block" id="save_image_meta_file"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image.html#datumaro.util.image.save_image_meta_file">[docs]</a><span class="k">def</span> <span class="nf">save_image_meta_file</span><span class="p">(</span><span class="n">image_meta</span><span class="p">:</span> <span class="n">ImageMeta</span><span class="p">,</span> <span class="n">image_meta_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="save_image_meta_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.save_image_meta_file">[docs]</a><span class="k">def</span> <span class="nf">save_image_meta_file</span><span class="p">(</span><span class="n">image_meta</span><span class="p">:</span> <span class="n">ImageMeta</span><span class="p">,</span> <span class="n">image_meta_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Saves image_meta to the path specified by image_meta_path in the format</span>
 <span class="sd">    defined in load_image_meta_file&#39;s documentation.</span>

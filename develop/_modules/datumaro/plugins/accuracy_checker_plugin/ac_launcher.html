@@ -291,12 +291,12 @@
 <span class="kn">from</span> <span class="nn">.details.ac</span> <span class="kn">import</span> <span class="n">GenericAcLauncher</span> <span class="k">as</span> <span class="n">_GenericAcLauncher</span>
 
 
-<div class="viewcode-block" id="AcLauncher"><a class="viewcode-back" href="../../../../docs/reference/plugins/accuracy_checker_plugin/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher">[docs]</a><span class="k">class</span> <span class="nc">AcLauncher</span><span class="p">(</span><span class="n">Launcher</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="AcLauncher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher">[docs]</a><span class="k">class</span> <span class="nc">AcLauncher</span><span class="p">(</span><span class="n">Launcher</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generic model launcher with Accuracy Checker backend.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="AcLauncher.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/plugins/accuracy_checker_plugin/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="AcLauncher.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -314,10 +314,10 @@
             <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_launcher</span> <span class="o">=</span> <span class="n">_GenericAcLauncher</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AcLauncher.launch"><a class="viewcode-back" href="../../../../docs/reference/plugins/accuracy_checker_plugin/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.launch">[docs]</a>    <span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+<div class="viewcode-block" id="AcLauncher.launch"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.launch">[docs]</a>    <span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_launcher</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AcLauncher.categories"><a class="viewcode-back" href="../../../../docs/reference/plugins/accuracy_checker_plugin/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AcLauncher.categories"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_launcher</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span></div></div>
 </pre></div>
 

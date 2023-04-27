@@ -292,13 +292,13 @@
 <span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">MapillaryVistasPath</span><span class="p">,</span> <span class="n">MapillaryVistasTask</span>
 
 
-<div class="viewcode-block" id="MapillaryVistasImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasImporter">[docs]</a><span class="k">class</span> <span class="nc">MapillaryVistasImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="MapillaryVistasImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasImporter">[docs]</a><span class="k">class</span> <span class="nc">MapillaryVistasImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">MapillaryVistasTask</span><span class="o">.</span><span class="n">instances</span><span class="p">:</span> <span class="n">MapillaryVistasInstancesBase</span><span class="p">,</span>
         <span class="n">MapillaryVistasTask</span><span class="o">.</span><span class="n">panoptic</span><span class="p">:</span> <span class="n">MapillaryVistasPanopticBase</span><span class="p">,</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="MapillaryVistasImporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasImporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MapillaryVistasImporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasImporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -365,7 +365,7 @@
 
         <span class="k">return</span> <span class="n">sources</span>
 
-<div class="viewcode-block" id="MapillaryVistasImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MapillaryVistasImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">subsets</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -390,12 +390,12 @@
         <span class="k">return</span> <span class="n">subsets</span></div></div>
 
 
-<div class="viewcode-block" id="MapillaryVistasInstancesImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasInstancesImporter">[docs]</a><span class="k">class</span> <span class="nc">MapillaryVistasInstancesImporter</span><span class="p">(</span><span class="n">MapillaryVistasImporter</span><span class="p">):</span>
+<div class="viewcode-block" id="MapillaryVistasInstancesImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasInstancesImporter">[docs]</a><span class="k">class</span> <span class="nc">MapillaryVistasInstancesImporter</span><span class="p">(</span><span class="n">MapillaryVistasImporter</span><span class="p">):</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">MapillaryVistasTask</span><span class="o">.</span><span class="n">instances</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">MapillaryVistasImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
 
 
-<div class="viewcode-block" id="MapillaryVistasPanopticImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/mapillary_vistas/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasPanopticImporter">[docs]</a><span class="k">class</span> <span class="nc">MapillaryVistasPanopticImporter</span><span class="p">(</span><span class="n">MapillaryVistasImporter</span><span class="p">):</span>
+<div class="viewcode-block" id="MapillaryVistasPanopticImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasPanopticImporter">[docs]</a><span class="k">class</span> <span class="nc">MapillaryVistasPanopticImporter</span><span class="p">(</span><span class="n">MapillaryVistasImporter</span><span class="p">):</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">MapillaryVistasTask</span><span class="o">.</span><span class="n">panoptic</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">MapillaryVistasImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
 </pre></div>

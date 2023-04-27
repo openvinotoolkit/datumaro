@@ -305,7 +305,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
 
 
-<div class="viewcode-block" id="Ade20k2020Path"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Path">[docs]</a><span class="k">class</span> <span class="nc">Ade20k2020Path</span><span class="p">:</span>
+<div class="viewcode-block" id="Ade20k2020Path"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Path">[docs]</a><span class="k">class</span> <span class="nc">Ade20k2020Path</span><span class="p">:</span>
     <span class="n">MASK_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;.+_seg</span>
 <span class="sd">        | .+_parts_\d+</span>
@@ -315,7 +315,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Ade20k2020Base"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Base">[docs]</a><span class="k">class</span> <span class="nc">Ade20k2020Base</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="Ade20k2020Base"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Base">[docs]</a><span class="k">class</span> <span class="nc">Ade20k2020Base</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t read dataset directory &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
@@ -344,7 +344,7 @@
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Ade20k2020Base.categories"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Base.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Ade20k2020Base.categories"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Base.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span></div>
 
     <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">):</span>
@@ -494,8 +494,8 @@
         <span class="k">return</span> <span class="n">mask</span></div>
 
 
-<div class="viewcode-block" id="Ade20k2020Importer"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Importer">[docs]</a><span class="k">class</span> <span class="nc">Ade20k2020Importer</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="Ade20k2020Importer.detect"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Importer.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Ade20k2020Importer"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Importer">[docs]</a><span class="k">class</span> <span class="nc">Ade20k2020Importer</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="Ade20k2020Importer.detect"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Importer.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">annot_path</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;*/**/*.json&quot;</span><span class="p">)</span>
 
@@ -509,7 +509,7 @@
             <span class="k">if</span> <span class="s2">&quot;annotation&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span></div>
 
-<div class="viewcode-block" id="Ade20k2020Importer.find_sources"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Importer.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Ade20k2020Importer.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.ade20k2020.html#datumaro.plugins.data_formats.ade20k2020.Ade20k2020Importer.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">iglob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="n">i</span><span class="p">))):</span>

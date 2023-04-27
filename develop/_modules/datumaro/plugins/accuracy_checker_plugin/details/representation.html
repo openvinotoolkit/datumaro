@@ -291,7 +291,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">softmax</span>
 
 
-<div class="viewcode-block" id="import_predictions"><a class="viewcode-back" href="../../../../../docs/reference/plugins/accuracy_checker_plugin/details/datumaro.plugins.accuracy_checker_plugin.details.representation.html#datumaro.plugins.accuracy_checker_plugin.details.representation.import_predictions">[docs]</a><span class="k">def</span> <span class="nf">import_predictions</span><span class="p">(</span><span class="n">predictions</span><span class="p">):</span>
+<div class="viewcode-block" id="import_predictions"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.accuracy_checker_plugin.details.representation.html#datumaro.plugins.accuracy_checker_plugin.details.representation.import_predictions">[docs]</a><span class="k">def</span> <span class="nf">import_predictions</span><span class="p">(</span><span class="n">predictions</span><span class="p">):</span>
     <span class="c1"># Convert Accuracy checker predictions to Datumaro annotations</span>
 
     <span class="n">anns</span> <span class="o">=</span> <span class="p">[]</span>
@@ -302,7 +302,7 @@
     <span class="k">return</span> <span class="n">anns</span></div>
 
 
-<div class="viewcode-block" id="import_prediction"><a class="viewcode-back" href="../../../../../docs/reference/plugins/accuracy_checker_plugin/details/datumaro.plugins.accuracy_checker_plugin.details.representation.html#datumaro.plugins.accuracy_checker_plugin.details.representation.import_prediction">[docs]</a><span class="k">def</span> <span class="nf">import_prediction</span><span class="p">(</span><span class="n">pred</span><span class="p">):</span>
+<div class="viewcode-block" id="import_prediction"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.accuracy_checker_plugin.details.representation.html#datumaro.plugins.accuracy_checker_plugin.details.representation.import_prediction">[docs]</a><span class="k">def</span> <span class="nf">import_prediction</span><span class="p">(</span><span class="n">pred</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">ac</span><span class="o">.</span><span class="n">ClassificationPrediction</span><span class="p">):</span>
         <span class="n">scores</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">pred</span><span class="o">.</span><span class="n">scores</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>

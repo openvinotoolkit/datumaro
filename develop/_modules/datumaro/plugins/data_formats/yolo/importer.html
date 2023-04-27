@@ -420,14 +420,14 @@
     <span class="n">FORMAT</span> <span class="o">=</span> <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_ultralytics</span><span class="o">.</span><span class="n">name</span>
 
 
-<div class="viewcode-block" id="YoloImporter"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter">[docs]</a><span class="k">class</span> <span class="nc">YoloImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="YoloImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter">[docs]</a><span class="k">class</span> <span class="nc">YoloImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
     <span class="n">SUB_IMPORTERS</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">YoloFormatType</span><span class="p">,</span> <span class="n">Importer</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_strict</span><span class="p">:</span> <span class="n">_YoloStrictImporter</span><span class="p">,</span>
         <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_loose</span><span class="p">:</span> <span class="n">_YoloLooseImporter</span><span class="p">,</span>
         <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_ultralytics</span><span class="p">:</span> <span class="n">_YoloUltralyticsImporter</span><span class="p">,</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="YoloImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="YoloImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FormatDetectionConfidence</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">require_any</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">importer_cls</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">SUB_IMPORTERS</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -436,7 +436,7 @@
 
         <span class="n">context</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s2">&quot;Any yolo format is not detected.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="YoloImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/plugins/data_formats/yolo/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="YoloImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
         <span class="k">for</span> <span class="n">importer_cls</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">SUB_IMPORTERS</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="c1"># TODO: From Python &gt;= 3.8, we can use</span>

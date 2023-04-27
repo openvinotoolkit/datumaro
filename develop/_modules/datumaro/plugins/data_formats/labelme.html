@@ -304,7 +304,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="n">split_path</span>
 
 
-<div class="viewcode-block" id="LabelMePath"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMePath">[docs]</a><span class="k">class</span> <span class="nc">LabelMePath</span><span class="p">:</span>
+<div class="viewcode-block" id="LabelMePath"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMePath">[docs]</a><span class="k">class</span> <span class="nc">LabelMePath</span><span class="p">:</span>
     <span class="n">MASKS_DIR</span> <span class="o">=</span> <span class="s2">&quot;Masks&quot;</span>
     <span class="n">IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.jpg&quot;</span>
 
@@ -322,7 +322,7 @@
     <span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="LabelMeBase"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeBase">[docs]</a><span class="k">class</span> <span class="nc">LabelMeBase</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="LabelMeBase"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeBase">[docs]</a><span class="k">class</span> <span class="nc">LabelMeBase</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">path</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -570,15 +570,15 @@
 
         <span class="k">return</span> <span class="n">image_annotations</span>
 
-<div class="viewcode-block" id="LabelMeBase.categories"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeBase.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LabelMeBase.categories"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeBase.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span></div>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span></div>
 
 
-<div class="viewcode-block" id="LabelMeImporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeImporter">[docs]</a><span class="k">class</span> <span class="nc">LabelMeImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="LabelMeImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LabelMeImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeImporter">[docs]</a><span class="k">class</span> <span class="nc">LabelMeImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="LabelMeImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">annot_paths</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">require_files</span><span class="p">(</span><span class="s2">&quot;**/*.xml&quot;</span><span class="p">)</span>
 
@@ -617,7 +617,7 @@
         <span class="c1"># If we got here, then every file was ambiguous. We&#39;ll have to</span>
         <span class="c1"># (implicitly) return a match.</span>
 
-<div class="viewcode-block" id="LabelMeImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LabelMeImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">subsets</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
@@ -636,10 +636,10 @@
         <span class="k">return</span> <span class="n">subsets</span></div></div>
 
 
-<div class="viewcode-block" id="LabelMeExporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeExporter">[docs]</a><span class="k">class</span> <span class="nc">LabelMeExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<div class="viewcode-block" id="LabelMeExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeExporter">[docs]</a><span class="k">class</span> <span class="nc">LabelMeExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">LabelMePath</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
 
-<div class="viewcode-block" id="LabelMeExporter.apply"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LabelMeExporter.apply"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 

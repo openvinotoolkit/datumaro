@@ -288,13 +288,13 @@
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">is_method_redefined</span>
 
 
-<div class="viewcode-block" id="Transform"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.transformer.html#datumaro.components.hl_ops.Transform">[docs]</a><span class="k">class</span> <span class="nc">Transform</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="Transform"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.transformer.html#datumaro.components.hl_ops.Transform">[docs]</a><span class="k">class</span> <span class="nc">Transform</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A base class for dataset transformations that change dataset items</span>
 <span class="sd">    or their annotations.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Transform.wrap_item"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.transformer.html#datumaro.components.hl_ops.Transform.wrap_item">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Transform.wrap_item"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.transformer.html#datumaro.components.hl_ops.Transform.wrap_item">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">wrap_item</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -303,10 +303,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span> <span class="o">=</span> <span class="n">extractor</span>
 
-<div class="viewcode-block" id="Transform.categories"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.transformer.html#datumaro.components.hl_ops.Transform.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Transform.categories"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.transformer.html#datumaro.components.hl_ops.Transform.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Transform.subsets"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.transformer.html#datumaro.components.hl_ops.Transform.subsets">[docs]</a>    <span class="k">def</span> <span class="nf">subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Transform.subsets"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.transformer.html#datumaro.components.hl_ops.Transform.subsets">[docs]</a>    <span class="k">def</span> <span class="nf">subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subsets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_subsets</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">subsets</span><span class="p">())</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">subsets</span><span class="p">()</span></div>
@@ -321,12 +321,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Transform.media_type"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.transformer.html#datumaro.components.hl_ops.Transform.media_type">[docs]</a>    <span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Transform.media_type"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.transformer.html#datumaro.components.hl_ops.Transform.media_type">[docs]</a>    <span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="ItemTransform"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.transformer.html#datumaro.components.hl_ops.ItemTransform">[docs]</a><span class="k">class</span> <span class="nc">ItemTransform</span><span class="p">(</span><span class="n">Transform</span><span class="p">):</span>
-<div class="viewcode-block" id="ItemTransform.transform_item"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.transformer.html#datumaro.components.hl_ops.ItemTransform.transform_item">[docs]</a>    <span class="k">def</span> <span class="nf">transform_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
+<div class="viewcode-block" id="ItemTransform"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.transformer.html#datumaro.components.hl_ops.ItemTransform">[docs]</a><span class="k">class</span> <span class="nc">ItemTransform</span><span class="p">(</span><span class="n">Transform</span><span class="p">):</span>
+<div class="viewcode-block" id="ItemTransform.transform_item"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.transformer.html#datumaro.components.hl_ops.ItemTransform.transform_item">[docs]</a>    <span class="k">def</span> <span class="nf">transform_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a modified copy of the input item.</span>
 

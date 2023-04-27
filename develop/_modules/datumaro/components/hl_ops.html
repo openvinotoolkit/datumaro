@@ -302,10 +302,10 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;HLOps&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="HLOps"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps">[docs]</a><span class="k">class</span> <span class="nc">HLOps</span><span class="p">:</span>
+<div class="viewcode-block" id="HLOps"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps">[docs]</a><span class="k">class</span> <span class="nc">HLOps</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;High-level dataset operations for Python API.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="HLOps.transform"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.transform">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HLOps.transform"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.transform">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">Transform</span><span class="p">]],</span>
@@ -342,7 +342,7 @@
 
         <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">produced</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HLOps.filter"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.filter">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HLOps.filter"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.filter">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
         <span class="n">expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -376,7 +376,7 @@
                 <span class="k">return</span> <span class="n">dataset</span>
             <span class="k">return</span> <span class="n">HLOps</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">XPathDatasetFilter</span><span class="p">,</span> <span class="n">xpath</span><span class="o">=</span><span class="n">expr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HLOps.merge"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.merge">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HLOps.merge"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.merge">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span>
         <span class="o">*</span><span class="n">datasets</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span>
         <span class="n">merge_policy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_MERGE_POLICY</span><span class="p">,</span>
@@ -404,7 +404,7 @@
             <span class="n">merger</span><span class="o">.</span><span class="n">save_merge_report</span><span class="p">(</span><span class="n">report_path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">merged</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HLOps.run_model"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.run_model">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HLOps.run_model"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.run_model">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">run_model</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Launcher</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">ModelTransform</span><span class="p">]],</span>
@@ -445,7 +445,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected model argument type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HLOps.export"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.export">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HLOps.export"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.export">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="nd">@scoped</span>
     <span class="k">def</span> <span class="nf">export</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
@@ -485,7 +485,7 @@
 
         <span class="n">exporter</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HLOps.validate"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.validate">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HLOps.validate"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.validate">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
         <span class="n">task</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskType</span><span class="p">],</span>
@@ -513,7 +513,7 @@
         <span class="n">validator</span><span class="p">:</span> <span class="n">Validator</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">validators</span><span class="p">[</span><span class="n">task</span><span class="p">](</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HLOps.aggregate"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.aggregate">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HLOps.aggregate"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.aggregate">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">from_subsets</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">to_subset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
         <span class="n">subset_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">subsets</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 

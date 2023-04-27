@@ -288,8 +288,8 @@
 <span class="n">DEFAULT_CAPACITY</span> <span class="o">=</span> <span class="mi">2</span>
 
 
-<div class="viewcode-block" id="ImageCache"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache">[docs]</a><span class="k">class</span> <span class="nc">ImageCache</span><span class="p">:</span>
-<div class="viewcode-block" id="ImageCache.get_instance"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache.get_instance">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ImageCache"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache">[docs]</a><span class="k">class</span> <span class="nc">ImageCache</span><span class="p">:</span>
+<div class="viewcode-block" id="ImageCache.get_instance"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache.get_instance">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_instance</span><span class="p">():</span>
         <span class="k">global</span> <span class="n">_instance</span>
         <span class="k">if</span> <span class="n">_instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -300,12 +300,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">capacity</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">items</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
 
-<div class="viewcode-block" id="ImageCache.push"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageCache.push"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">popitem</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">image</span></div>
 
-<div class="viewcode-block" id="ImageCache.get"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_id</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageCache.get"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_id</span><span class="p">):</span>
         <span class="n">default</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
         <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
@@ -314,10 +314,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">move_to_end</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># naive splay tree</span>
         <span class="k">return</span> <span class="n">item</span></div>
 
-<div class="viewcode-block" id="ImageCache.size"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageCache.size"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageCache.clear"><a class="viewcode-back" href="../../../docs/reference/util/util/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageCache.clear"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div></div>
 </pre></div>
 

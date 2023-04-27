@@ -291,8 +291,8 @@
 <span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">Mapper</span><span class="p">,</span> <span class="n">StringMapper</span>
 
 
-<div class="viewcode-block" id="MediaMapper"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaMapper">[docs]</a><span class="k">class</span> <span class="nc">MediaMapper</span><span class="p">(</span><span class="n">Mapper</span><span class="p">):</span>
-<div class="viewcode-block" id="MediaMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MediaMapper"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaMapper">[docs]</a><span class="k">class</span> <span class="nc">MediaMapper</span><span class="p">(</span><span class="n">Mapper</span><span class="p">):</span>
+<div class="viewcode-block" id="MediaMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;I&quot;</span><span class="p">,</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span>
@@ -305,7 +305,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">_type</span><span class="si">}</span><span class="s2"> is not allowed for MediaMapper.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MediaMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MediaMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
@@ -326,11 +326,11 @@
             <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">media_type</span><span class="si">}</span><span class="s2"> is not allowed for MediaMapper.&quot;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="MediaElementMapper"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaElementMapper">[docs]</a><span class="k">class</span> <span class="nc">MediaElementMapper</span><span class="p">(</span><span class="n">Mapper</span><span class="p">):</span>
+<div class="viewcode-block" id="MediaElementMapper"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaElementMapper">[docs]</a><span class="k">class</span> <span class="nc">MediaElementMapper</span><span class="p">(</span><span class="n">Mapper</span><span class="p">):</span>
     <span class="n">MAGIC_PATH</span> <span class="o">=</span> <span class="s2">&quot;/NOT/A/REAL/PATH&quot;</span>
     <span class="n">MEDIA_TYPE</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">MEDIA_ELEMENT</span>
 
-<div class="viewcode-block" id="MediaElementMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaElementMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MediaElementMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaElementMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">MediaElement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="n">bytes_arr</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
         <span class="n">bytes_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;I&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
@@ -339,7 +339,7 @@
 
         <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">bytes_arr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MediaElementMapper.backward_dict"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaElementMapper.backward_dict">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MediaElementMapper.backward_dict"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaElementMapper.backward_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">backward_dict</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
@@ -359,7 +359,7 @@
             <span class="k">else</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">media_path_prefix</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">MEDIA_TYPE</span><span class="p">],</span> <span class="n">path</span><span class="p">),</span>
         <span class="p">},</span> <span class="n">offset</span></div>
 
-<div class="viewcode-block" id="MediaElementMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaElementMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MediaElementMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.MediaElementMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
@@ -370,11 +370,11 @@
         <span class="k">return</span> <span class="n">MediaElement</span><span class="p">(),</span> <span class="n">offset</span></div></div>
 
 
-<div class="viewcode-block" id="ImageMapper"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.ImageMapper">[docs]</a><span class="k">class</span> <span class="nc">ImageMapper</span><span class="p">(</span><span class="n">MediaElementMapper</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageMapper"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.ImageMapper">[docs]</a><span class="k">class</span> <span class="nc">ImageMapper</span><span class="p">(</span><span class="n">MediaElementMapper</span><span class="p">):</span>
     <span class="n">MAGIC_SIZE_FOR_NONE</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1583</span><span class="p">,</span> <span class="o">-</span><span class="mi">1597</span><span class="p">)</span>
     <span class="n">MEDIA_TYPE</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">IMAGE</span>
 
-<div class="viewcode-block" id="ImageMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.ImageMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ImageMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.ImageMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Image</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="n">size</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">size</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">has_size</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">MAGIC_SIZE_FOR_NONE</span>
 
@@ -384,7 +384,7 @@
 
         <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">bytes_arr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.ImageMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ImageMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.ImageMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
@@ -403,10 +403,10 @@
         <span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="PointCloudMapper"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.PointCloudMapper">[docs]</a><span class="k">class</span> <span class="nc">PointCloudMapper</span><span class="p">(</span><span class="n">MediaElementMapper</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloudMapper"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.PointCloudMapper">[docs]</a><span class="k">class</span> <span class="nc">PointCloudMapper</span><span class="p">(</span><span class="n">MediaElementMapper</span><span class="p">):</span>
     <span class="n">MEDIA_TYPE</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">POINT_CLOUD</span>
 
-<div class="viewcode-block" id="PointCloudMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.PointCloudMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PointCloudMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.PointCloudMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">PointCloud</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="n">bytes_arr</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
         <span class="n">bytes_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
@@ -416,7 +416,7 @@
 
         <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">bytes_arr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PointCloudMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/plugins/data_formats/datumaro_binary/mapper/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.PointCloudMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PointCloudMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.PointCloudMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>

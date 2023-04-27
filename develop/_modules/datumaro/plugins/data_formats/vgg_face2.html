@@ -296,7 +296,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
 
 
-<div class="viewcode-block" id="VggFace2Path"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Path">[docs]</a><span class="k">class</span> <span class="nc">VggFace2Path</span><span class="p">:</span>
+<div class="viewcode-block" id="VggFace2Path"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Path">[docs]</a><span class="k">class</span> <span class="nc">VggFace2Path</span><span class="p">:</span>
     <span class="n">ANNOTATION_DIR</span> <span class="o">=</span> <span class="s2">&quot;bb_landmark&quot;</span>
     <span class="n">IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.jpg&quot;</span>
     <span class="n">BBOXES_FILE</span> <span class="o">=</span> <span class="s2">&quot;loose_bb_&quot;</span>
@@ -305,7 +305,7 @@
     <span class="n">IMAGES_DIR_NO_LABEL</span> <span class="o">=</span> <span class="s2">&quot;no_label&quot;</span></div>
 
 
-<div class="viewcode-block" id="VggFace2Base"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Base">[docs]</a><span class="k">class</span> <span class="nc">VggFace2Base</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="VggFace2Base"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Base">[docs]</a><span class="k">class</span> <span class="nc">VggFace2Base</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">subset</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
@@ -346,7 +346,7 @@
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">)</span>
 
-<div class="viewcode-block" id="VggFace2Base.categories"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Base.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VggFace2Base.categories"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Base.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span></div>
 
     <span class="k">def</span> <span class="nf">_load_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -467,15 +467,15 @@
         <span class="k">return</span> <span class="n">items</span></div>
 
 
-<div class="viewcode-block" id="VggFace2Importer"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Importer">[docs]</a><span class="k">class</span> <span class="nc">VggFace2Importer</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="VggFace2Importer.detect"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Importer.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="VggFace2Importer"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Importer">[docs]</a><span class="k">class</span> <span class="nc">VggFace2Importer</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="VggFace2Importer.detect"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Importer.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">require_any</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">(</span><span class="n">VggFace2Path</span><span class="o">.</span><span class="n">BBOXES_FILE</span><span class="p">,</span> <span class="n">VggFace2Path</span><span class="o">.</span><span class="n">LANDMARKS_FILE</span><span class="p">):</span>
                 <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">alternative</span><span class="p">():</span>
                     <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">VggFace2Path</span><span class="o">.</span><span class="n">ANNOTATION_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">*.csv&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VggFace2Importer.find_sources"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Importer.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="VggFace2Importer.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Importer.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="n">annotation_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">VggFace2Path</span><span class="o">.</span><span class="n">ANNOTATION_DIR</span><span class="p">)</span>
@@ -500,10 +500,10 @@
         <span class="k">return</span> <span class="p">[]</span></div></div>
 
 
-<div class="viewcode-block" id="VggFace2Exporter"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Exporter">[docs]</a><span class="k">class</span> <span class="nc">VggFace2Exporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<div class="viewcode-block" id="VggFace2Exporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Exporter">[docs]</a><span class="k">class</span> <span class="nc">VggFace2Exporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">VggFace2Path</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
 
-<div class="viewcode-block" id="VggFace2Exporter.apply"><a class="viewcode-back" href="../../../../docs/reference/plugins/data_formats/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Exporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VggFace2Exporter.apply"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Exporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">_get_name_id</span><span class="p">(</span><span class="n">item_parts</span><span class="p">,</span> <span class="n">label_name</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">item_parts</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">label_name</span><span class="p">:</span>
                 <span class="k">return</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">label_name</span><span class="p">,</span> <span class="o">*</span><span class="n">item_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>

@@ -286,17 +286,17 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.cli_plugin</span> <span class="kn">import</span> <span class="n">CliPlugin</span>
 
 
-<div class="viewcode-block" id="DatasetGenerator"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.generator.html#datumaro.components.generator.DatasetGenerator">[docs]</a><span class="k">class</span> <span class="nc">DatasetGenerator</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetGenerator"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.generator.html#datumaro.components.generator.DatasetGenerator">[docs]</a><span class="k">class</span> <span class="nc">DatasetGenerator</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ImageGenerator generates synthetic data with provided shape.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="DatasetGenerator.generate"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.generator.html#datumaro.components.generator.DatasetGenerator.generate">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="DatasetGenerator.generate"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.generator.html#datumaro.components.generator.DatasetGenerator.generate">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
         <span class="n">generator</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_dataset</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DatasetGenerator.generate_dataset"><a class="viewcode-back" href="../../../docs/reference/components/components/datumaro.components.generator.html#datumaro.components.generator.DatasetGenerator.generate_dataset">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="DatasetGenerator.generate_dataset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.generator.html#datumaro.components.generator.DatasetGenerator.generate_dataset">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">generate_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="o">...</span></div></div>
 </pre></div>
