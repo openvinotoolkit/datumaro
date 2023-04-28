@@ -93,6 +93,6 @@ class ExplorerLauncher(OpenvinoLauncher):
             raise ValueError("Can not check whether inferenced or not for multiple items in batch")
 
         for annotation in batch[0].annotations:
-            if isinstance(annotation, HashKey) and not (annotation.hash_key is None):
+            if isinstance(annotation, HashKey) and (annotation.hash_key is not None):
                 return True
         return False
