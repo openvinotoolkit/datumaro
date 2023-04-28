@@ -2714,18 +2714,23 @@ class Project:
             hashkey_dict.update({item_id: hashkey.tolist()})
         self._config.hashkey = hashkey_dict
 
-    def load_hashkey(self, dataset):
+    def load_hashkey(self, datasets):
         hashkey_dict = self._config.hashkey
 
         if not hashkey_dict:
-            return dataset
+            return datasets
 
-        updated_item_list = []
-        for item in dataset:
-            hashkey_ = np.array(hashkey_dict.get(item.id))
-            if not (hashkey_ is None).any():
-                hashkey_ = hashkey_.astype(np.uint8)
-            annotations = item.annotations + [HashKey(hashkey_)]
-            updated_item_list.append(item.wrap(annotations=annotations))
-        dataset = Dataset.from_iterable(updated_item_list)
-        return dataset
+        dataset_list = []
+        for dataset_ in datasets:
+            updated_item_list = []
+            for item in dataset_:
+                hashkey_ = np.array(hashkey_dict.get(item.id))
+                if not (hashkey_ == None).any():
+                    hashkey_ = hashkey_.astype(np.uint8)
+                    annotations = item.annotations + [HashKey(hashkey_)]
+                    updated_item_list.append(item.wrap(annotations=annotations))
+                else:
+                    updated_item_list.append(item)
+            dataset = Dataset.from_iterable(updated_item_list)
+            dataset_list.append(dataset)
+        return dataset_list

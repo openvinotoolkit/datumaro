@@ -4,7 +4,9 @@
 
 import argparse
 import logging as log
+import os
 import os.path as osp
+import shutil
 
 import numpy as np
 
@@ -42,10 +44,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter,
     )
 
-    parser.add_argument(
-        "_positionals", nargs=argparse.REMAINDER, help=argparse.SUPPRESS
-    )  # workaround for -- eaten by positionals
-    parser.add_argument("target", nargs="+", help="Target dataset")
+    # parser.add_argument(
+    #     "_positionals", nargs=argparse.REMAINDER, help=argparse.SUPPRESS
+    # )  # workaround for -- eaten by positionals
+    parser.add_argument("target", nargs="?", help="Target dataset")
     parser.add_argument(
         "-q",
         "--query",
@@ -61,7 +63,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Directory of the project to operate on (default: current dir)",
     )
     parser.add_argument(
-        "-s", "--save", dest="save", default=True, help="Save explorer result as png"
+        "-s", "--save", action="store_true", default=False, help="Save explorer result files on explore_result folder"
     )
 
     parser.set_defaults(command=explore_command)
@@ -76,7 +78,6 @@ def get_sensitive_args():
             "query",
             "topk",
             "project_dir",
-            "save",
         ]
     }
 
@@ -90,16 +91,15 @@ def explore_command(args):
         if args.project_dir:
             raise
 
-    targets = args.target
-    target_dataset, _ = parse_full_revpath(targets[0], project)
-    # dataset, project = parse_full_revpath(args.target[0], project)
-    # source_datasets = []
-    # for t in targets:
-    #     target_dataset, _ = parse_full_revpath(t, project)
-    #     source_datasets.append(target_dataset)
-    # # dataset, _ = parse_full_revpath(targets[0], project)
-    # dataset = project.load_hashkey(source_datasets[0])
-    dataset = project.load_hashkey(target_dataset)
+    if args.target:
+        targets = [args.target]
+    else:
+        targets = list(project.working_tree.sources)
+    source_datasets = []
+    for t in targets:
+        target_dataset, _ = parse_full_revpath(t, project)
+        source_datasets.append(target_dataset)
+    dataset = project.load_hashkey(source_datasets)
 
     explorer = Explorer(dataset)
     project.save_hashkey(explorer._item_list)
@@ -113,24 +113,21 @@ def explore_command(args):
 
     results = explorer.explore_topk(query_datasetitem, args.topk)
 
-    subset_list = []
-    id_list = []
     result_path_list = []
     log.info(f"Most similar {args.topk} results of query in dataset")
     for result in results:
-        subset_list.append(result.subset)
-        id_list.append(result.id)
         path = getattr(result.media, "path", None)
         result_path_list.append(path)
         log.info(f"id: {result.id} | subset: {result.subset} | path : {path}")
 
-    visualizer = Visualizer(dataset, figsize=(20, 20), alpha=0)
-    fig = visualizer.vis_gallery(id_list, subset_list)
-
     if args.save:
-        fig.canvas.draw()
-        data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-        data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-        save_image(osp.join("./explorer.png"), data, create_dir=True)
+        saved_result_path = osp.join(args.project_dir, "explore_result")
+        if osp.exists(saved_result_path):
+            os.rmdir(saved_result_path)
+        os.makedirs(saved_result_path)
+        for result in results:
+            if not osp.exists(osp.join(saved_result_path, result.subset)):
+                os.makedirs(osp.join(saved_result_path, result.subset))
+            shutil.copyfile(path, osp.join(saved_result_path, result.subset, result.id + '.jpg'))
 
     return 0

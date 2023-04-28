@@ -28,7 +28,7 @@ def calculate_hamming(B1, B2):
 class Explorer:
     def __init__(
         self,
-        dataset: IDataset,
+        dataset: Union[List[IDataset], IDataset],
         topk: int = 10,
     ) -> None:
         """
@@ -43,22 +43,23 @@ class Explorer:
         """
         self._model = ExplorerLauncher(model_name="clip_visual_ViT-B_32")
         self._text_model = ExplorerLauncher(model_name="clip_text_ViT-B_32")
-        inference = dataset.run_model(self._model, append_annotation=True)
         self._topk = topk
-
         database_keys = []
         item_list = []
 
-        for item in inference:
-            for annotation in item.annotations:
-                if isinstance(annotation, HashKey):
-                    try:
-                        hash_key = annotation.hash_key[0]
-                        hash_key = np.unpackbits(hash_key, axis=-1)
-                        database_keys.append(hash_key)
-                        item_list.append(item)
-                    except Exception:
-                        hash_key = None
+        for dataset_ in dataset:
+            inference = dataset_.run_model(self._model, append_annotation=True)
+        
+            for item in inference:
+                for annotation in item.annotations:
+                    if isinstance(annotation, HashKey):
+                        try:
+                            hash_key = annotation.hash_key[0]
+                            hash_key = np.unpackbits(hash_key, axis=-1)
+                            database_keys.append(hash_key)
+                            item_list.append(item)
+                        except Exception:
+                            hash_key = None
 
         self._database_keys = database_keys
         self._item_list = item_list
