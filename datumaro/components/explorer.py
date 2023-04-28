@@ -46,10 +46,12 @@ class Explorer:
         self._topk = topk
         database_keys = []
         item_list = []
+        if not isinstance(dataset, List):
+            dataset = [dataset]
 
         for dataset_ in dataset:
             inference = dataset_.run_model(self._model, append_annotation=True)
-        
+
             for item in inference:
                 for annotation in item.annotations:
                     if isinstance(annotation, HashKey):

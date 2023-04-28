@@ -2724,9 +2724,9 @@ class Project:
         for dataset_ in datasets:
             updated_item_list = []
             for item in dataset_:
-                hashkey_ = np.array(hashkey_dict.get(item.id))
-                if not (hashkey_ == None).any():
-                    hashkey_ = hashkey_.astype(np.uint8)
+                hashkey_ = hashkey_dict.get(item.id)
+                if hashkey_ is not None:
+                    hashkey_ = np.array(hashkey_).astype(np.uint8)
                     annotations = item.annotations + [HashKey(hashkey_)]
                     updated_item_list.append(item.wrap(annotations=annotations))
                 else:

@@ -64,7 +64,7 @@ class ExplorerLauncher(OpenvinoLauncher):
             inputs = self._tokenize(prompt_text)
             inputs = {self._input_blob: inputs}
         else:
-            if (inputs == None).any():
+            if inputs is None:
                 # media.data is None case
                 return None
 
@@ -93,6 +93,6 @@ class ExplorerLauncher(OpenvinoLauncher):
             raise ValueError("Can not check whether inferenced or not for multiple items in batch")
 
         for annotation in batch[0].annotations:
-            if isinstance(annotation, HashKey) and not (annotation.hash_key == None).any():
+            if isinstance(annotation, HashKey) and not (annotation.hash_key is None):
                 return True
         return False

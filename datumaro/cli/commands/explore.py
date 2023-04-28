@@ -8,12 +8,8 @@ import os
 import os.path as osp
 import shutil
 
-import numpy as np
-
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.explorer import Explorer
-from datumaro.components.visualizer import Visualizer
-from datumaro.util.image import save_image
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
@@ -63,7 +59,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Directory of the project to operate on (default: current dir)",
     )
     parser.add_argument(
-        "-s", "--save", action="store_true", default=False, help="Save explorer result files on explore_result folder"
+        "-s",
+        "--save",
+        action="store_true",
+        default=False,
+        help="Save explorer result files on explore_result folder",
     )
 
     parser.set_defaults(command=explore_command)
@@ -128,6 +128,6 @@ def explore_command(args):
         for result in results:
             if not osp.exists(osp.join(saved_result_path, result.subset)):
                 os.makedirs(osp.join(saved_result_path, result.subset))
-            shutil.copyfile(path, osp.join(saved_result_path, result.subset, result.id + '.jpg'))
+            shutil.copyfile(path, osp.join(saved_result_path, result.subset, result.id + ".jpg"))
 
     return 0

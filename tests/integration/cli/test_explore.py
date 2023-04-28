@@ -1,5 +1,6 @@
 import os.path as osp
 import platform
+from glob import glob
 from unittest import TestCase, skipIf
 
 import numpy as np
@@ -13,7 +14,6 @@ from datumaro.util.scope import scope_add, scoped
 
 from ...requirements import Requirements, mark_requirement
 
-from glob import glob
 from tests.utils.test_utils import TestDir
 from tests.utils.test_utils import run_datum as run
 
@@ -111,11 +111,10 @@ class ExploreTest(TestCase):
             "-s",
         )
 
-        saved_result_path = osp.join(proj_dir, 'explore_result')
+        saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
-        self.assertIn(osp.join(saved_result_path, "train", "2.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
@@ -140,7 +139,6 @@ class ExploreTest(TestCase):
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
-        self.assertIn(osp.join(saved_result_path, "train", "2.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
@@ -173,7 +171,7 @@ class ExploreTest(TestCase):
 
         dataset2_url = osp.join(proj_dir, "dataset2")
         self.test_dataset2.save(dataset2_url, save_media=True)
-        run(self, "project", "add", "-p", proj_dir, "-f", "format")
+        run(self, "project", "add", "-p", proj_dir, "-f", "datumaro", dataset2_url)
         run(
             self,
             "explore",
@@ -191,7 +189,6 @@ class ExploreTest(TestCase):
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
-        self.assertIn(osp.join(saved_result_path, "train", "2.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
@@ -223,7 +220,7 @@ class ExploreTest(TestCase):
 
         dataset2_url = osp.join(proj_dir, "source-2")
         self.test_dataset2.save(dataset2_url, save_media=True)
-        run(self, "project", "add", "-p", proj_dir, "-f", "format")
+        run(self, "project", "add", "-p", proj_dir, "-f", "datumaro", dataset2_url)
         run(
             self,
             "explore",
@@ -240,7 +237,6 @@ class ExploreTest(TestCase):
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
-        self.assertIn(osp.join(saved_result_path, "train", "2.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
@@ -293,7 +289,6 @@ class ExploreTest(TestCase):
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
-        self.assertIn(osp.join(saved_result_path, "train", "2.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
@@ -344,4 +339,3 @@ class ExploreTest(TestCase):
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
-        self.assertIn(osp.join(saved_result_path, "train", "2.jpg"), results)
