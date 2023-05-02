@@ -16,6 +16,7 @@ from glob import glob
 from tempfile import TemporaryDirectory
 from typing import Any, Collection, List, Optional, Union
 
+import pytest
 from typing_extensions import Literal
 
 from datumaro.components.annotation import AnnotationType
@@ -429,3 +430,6 @@ class TestCaseHelper:
         assert len(list1) == len(list2), err_msg
         for item1, item2 in zip(list1, list2):
             self.assertEqual(item1, item2, err_msg)
+
+    def fail(self, msg):
+        pytest.fail(reason=msg)
