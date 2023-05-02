@@ -324,7 +324,7 @@ class CvatBase(SubsetBase):
             elif image_path_opt_2 and osp.exists(image_path_opt_2):
                 image = image_path_opt_2
             elif "name" not in item_desc:
-                # Use track
+                # If --use-track flag is on
                 # TODO: Revisit all the CVAT import/export parts.
                 image = image_path_opt_1
             else:
