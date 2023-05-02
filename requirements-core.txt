@@ -43,4 +43,7 @@ cryptography>= 38.03
 pyemd
 
 # apache arrow
+# apache-beam>=2.46.0
 pyarrow
+
+protobuf==3.19.4;python_version=="3.10" and sys_platform=="darwin"
