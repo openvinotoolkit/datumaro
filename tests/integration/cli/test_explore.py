@@ -5,11 +5,11 @@ from unittest import TestCase, skipIf
 
 import numpy as np
 
+from datumaro.cli.util.project import load_project
 from datumaro.components.annotation import Caption, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
 
 from ...requirements import Requirements, mark_requirement
@@ -339,3 +339,90 @@ class ExploreTest(TestCase):
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
+
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_checkout_load_hashkey(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, "proj")
+        dataset1_url = osp.join(test_dir, "dataset")
+        train_image_path = osp.join(test_dir, "train", "1.jpg")
+
+        self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
+
+        dataset2_url = osp.join(test_dir, "dataset2")
+        self.test_dataset2.save(dataset2_url, save_media=True)
+        result_dir = osp.join(test_dir, "result")
+
+        with TestDir() as proj_dir:
+            run(self, "project", "create", "-o", proj_dir)
+            run(
+                self,
+                "project",
+                "import",
+                "-n",
+                "source-1",
+                "-f",
+                "datumaro",
+                "-p",
+                proj_dir,
+                dataset1_url,
+            )
+
+            run(self, "explore", "source-1", "-q", train_image_path, "-topk", "2", "-p", proj_dir)
+            run(self, "project", "commit", "-p", proj_dir, "-m", "commit1")
+            commit1_proj = load_project(proj_dir)
+            commit1_hashkey = commit1_proj.working_tree._config.hashkey
+
+            run(
+                self,
+                "merge",
+                "-f",
+                "datumaro",
+                "-o",
+                result_dir,
+                dataset1_url,
+                dataset2_url,
+            )
+            run(
+                self,
+                "project",
+                "import",
+                "-n",
+                "result",
+                "-p",
+                proj_dir,
+                "-f",
+                "datumaro",
+                result_dir,
+            )
+            run(
+                self,
+                "explore",
+                "result",
+                "-q",
+                train_image_path,
+                "-topk",
+                "2",
+                "-p",
+                proj_dir,
+            )
+
+            run(self, "project", "commit", "-p", proj_dir, "-m", "commit2")
+            commit2_proj = load_project(proj_dir)
+            commit2_hashkey = commit2_proj.working_tree._config.hashkey
+            self.assertTrue(len(commit2_hashkey) > len(commit1_hashkey))
+
+            run(self, "project", "checkout", "-p", proj_dir, "HEAD~1")
+            checkout_proj = load_project(proj_dir)
+            checkout_hashkey = checkout_proj.working_tree._config.hashkey
+
+            self.assertEqual(len(checkout_hashkey), len(commit1_hashkey))
+            self.assertEqual(checkout_hashkey["1"], commit1_hashkey["1"])
+            self.assertEqual(checkout_hashkey["2"], commit1_hashkey["2"])
+            self.assertEqual(checkout_hashkey["3"], commit1_hashkey["3"])

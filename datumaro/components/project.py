@@ -1560,6 +1560,39 @@ class Tree:
         obj_hash = self.build_targets[source].head.hash
         return self._project.cache_path(obj_hash)
 
+    def save_hashkey(self, item_list):
+        hashkey_dict = {}
+
+        for item in item_list:
+            item_id = item.id
+            for annotation in item.annotations:
+                if isinstance(annotation, HashKey):
+                    hashkey = annotation.hash_key
+                    break
+            hashkey_dict.update({item_id: hashkey.tolist()})
+        self._config.hashkey = hashkey_dict
+
+    def load_hashkey(self, datasets):
+        hashkey_dict = self._config.hashkey
+
+        if not hashkey_dict:
+            return datasets
+
+        dataset_list = []
+        for dataset_ in datasets:
+            updated_item_list = []
+            for item in dataset_:
+                hashkey_ = hashkey_dict.get(item.id)
+                if hashkey_ is not None:
+                    hashkey_ = np.array(hashkey_).astype(np.uint8)
+                    annotations = item.annotations + [HashKey(hashkey_)]
+                    updated_item_list.append(item.wrap(annotations=annotations))
+                else:
+                    updated_item_list.append(item)
+            dataset = Dataset.from_iterable(updated_item_list)
+            dataset_list.append(dataset)
+        return dataset_list
+
 
 class DiffStatus(Enum):
     added = auto()
@@ -2701,36 +2734,3 @@ class Project:
         data_dir = self.model_data_dir(name)
         if osp.isdir(data_dir):
             rmtree(data_dir)
-
-    def save_hashkey(self, item_list):
-        hashkey_dict = {}
-
-        for item in item_list:
-            item_id = item.id
-            for annotation in item.annotations:
-                if isinstance(annotation, HashKey):
-                    hashkey = annotation.hash_key
-                    break
-            hashkey_dict.update({item_id: hashkey.tolist()})
-        self._config.hashkey = hashkey_dict
-
-    def load_hashkey(self, datasets):
-        hashkey_dict = self._config.hashkey
-
-        if not hashkey_dict:
-            return datasets
-
-        dataset_list = []
-        for dataset_ in datasets:
-            updated_item_list = []
-            for item in dataset_:
-                hashkey_ = hashkey_dict.get(item.id)
-                if hashkey_ is not None:
-                    hashkey_ = np.array(hashkey_).astype(np.uint8)
-                    annotations = item.annotations + [HashKey(hashkey_)]
-                    updated_item_list.append(item.wrap(annotations=annotations))
-                else:
-                    updated_item_list.append(item)
-            dataset = Dataset.from_iterable(updated_item_list)
-            dataset_list.append(dataset)
-        return dataset_list

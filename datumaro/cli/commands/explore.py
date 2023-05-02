@@ -40,9 +40,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter,
     )
 
-    # parser.add_argument(
-    #     "_positionals", nargs=argparse.REMAINDER, help=argparse.SUPPRESS
-    # )  # workaround for -- eaten by positionals
     parser.add_argument("target", nargs="?", help="Target dataset")
     parser.add_argument(
         "-q",
@@ -99,10 +96,10 @@ def explore_command(args):
     for t in targets:
         target_dataset, _ = parse_full_revpath(t, project)
         source_datasets.append(target_dataset)
-    dataset = project.load_hashkey(source_datasets)
+    dataset = project.working_tree.load_hashkey(source_datasets)
 
     explorer = Explorer(dataset)
-    project.save_hashkey(explorer._item_list)
+    project.working_tree.save_hashkey(explorer._item_list)
     project.save()
 
     # Get query datasetitem through query path
