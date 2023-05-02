@@ -323,6 +323,10 @@ class CvatBase(SubsetBase):
                 image = image_path_opt_1
             elif image_path_opt_2 and osp.exists(image_path_opt_2):
                 image = image_path_opt_2
+            elif "name" not in item_desc:
+                # Use track
+                # TODO: Revisit all the CVAT import/export parts.
+                image = image_path_opt_1
             else:
                 raise DatasetImportError(f"Cannot find an image which has name={name}.")
 
