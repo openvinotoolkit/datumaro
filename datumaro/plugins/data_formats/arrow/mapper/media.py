@@ -188,21 +188,16 @@ class ImageMapper(MediaElementMapper):
         attributes_ = [DictMapper.backward(attributes)[0] for attributes in attributes_]
 
         images = []
-
-        def data_loader(path, idx):
-            options = {
-                "path": path if os.path.exists(path) else None,
-                "data": pa_batches_decoder(batches, f"{parent}.bytes" if parent else "bytes")[idx],
-            }
-            return cls.decode(**options)
-
         for idx, (path, attributes) in enumerate(zip(paths, attributes_)):
             if os.path.exists(path):
                 images.append(Image.from_file(path=path, size=attributes["size"]))
             else:
                 images.append(
                     Image.from_bytes(
-                        data=partial(data_loader, idx=idx, path=path), size=attributes["size"]
+                        data=lambda: pa_batches_decoder(
+                            batches, f"{parent}.bytes" if parent else "bytes"
+                        )[idx],
+                        size=attributes["size"],
                     )
                 )
         return images
@@ -269,10 +264,6 @@ class PointCloudMapper(MediaElementMapper):
     ) -> List[PointCloud]:
         paths = pa_batches_decoder(batches, f"{parent}.path" if parent else "path")
 
-        def data_loader(idx):
-            data = pa_batches_decoder(batches, f"{parent}.bytes" if parent else "bytes")[idx]
-            return data
-
         def extra_images(idx):
             offset = 0
             attributes = pa_batches_decoder(
@@ -298,7 +289,9 @@ class PointCloudMapper(MediaElementMapper):
             else:
                 point_clouds.append(
                     PointCloud.from_bytes(
-                        data=partial(data_loader, idx=idx),
+                        data=lambda: pa_batches_decoder(
+                            batches, f"{parent}.bytes" if parent else "bytes"
+                        )[idx],
                         extra_images=partial(extra_images, idx=idx),
                     )
                 )
