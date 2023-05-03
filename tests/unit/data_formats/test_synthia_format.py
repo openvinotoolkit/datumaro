@@ -25,6 +25,137 @@ DUMMY_DATASET_DIR_CUSTOM_LABELMAP = get_test_asset_path(
 DUMMY_DATASET_DIR_META_FILE = get_test_asset_path("synthia_dataset", "dataset_with_meta_file")
 
 
+@pytest.fixture
+def fxt_default_dataset():
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="Stereo_Left/Omni_F/000000",
+                media=Image.from_numpy(data=np.ones((1, 5, 3))),
+                annotations=[
+                    Mask(
+                        np.array([[1, 1, 0, 0, 0]]),
+                        label=1,
+                        attributes={"dynamic_object": False},
+                    ),
+                    Mask(
+                        np.array([[0, 0, 1, 1, 1]]),
+                        label=10,
+                        attributes={"dynamic_object": True},
+                    ),
+                ],
+            ),
+            DatasetItem(
+                id="Stereo_Left/Omni_F/000001",
+                media=Image.from_numpy(data=np.ones((1, 5, 3))),
+                annotations=[
+                    Mask(
+                        np.array([[1, 0, 0, 0, 0]]),
+                        label=8,
+                        attributes={"dynamic_object": True},
+                    ),
+                    Mask(
+                        np.array([[0, 1, 1, 0, 0]]),
+                        label=11,
+                        attributes={"dynamic_object": True},
+                    ),
+                    Mask(
+                        np.array([[0, 0, 0, 1, 1]]),
+                        label=3,
+                        attributes={"dynamic_object": False},
+                    ),
+                ],
+            ),
+            DatasetItem(
+                id="Stereo_Left/Omni_F/000000",
+                media=Image.from_numpy(data=np.ones((1, 5, 3))),
+                annotations=[
+                    Mask(
+                        np.array([[1, 1, 0, 0, 0]]),
+                        label=1,
+                        attributes={"dynamic_object": False},
+                    ),
+                    Mask(
+                        np.array([[0, 0, 1, 1, 0]]),
+                        label=2,
+                        attributes={"dynamic_object": False},
+                    ),
+                    Mask(
+                        np.array([[0, 0, 0, 0, 1]]),
+                        label=3,
+                        attributes={"dynamic_object": False},
+                    ),
+                ],
+            ),
+            DatasetItem(
+                id="Stereo_Left/Omni_F/000001",
+                media=Image.from_numpy(data=np.ones((1, 5, 3))),
+                annotations=[
+                    Mask(
+                        np.array([[1, 0, 0, 0, 0]]),
+                        label=1,
+                        attributes={"dynamic_object": False},
+                    ),
+                    Mask(
+                        np.array([[0, 1, 0, 0, 0]]),
+                        label=2,
+                        attributes={"dynamic_object": False},
+                    ),
+                    Mask(
+                        np.array([[0, 0, 1, 1, 0]]),
+                        label=15,
+                        attributes={"dynamic_object": False},
+                    ),
+                    Mask(
+                        np.array([[0, 0, 0, 0, 1]]),
+                        label=3,
+                        attributes={"dynamic_object": False},
+                    ),
+                ],
+            ),
+        ],
+        categories=Synthia.make_categories(),
+    )
+
+class SynthiaRandFormatTest(TestDataFormatBase):
+    IMPORTER = SynthiaRandImporter
+
+    @pytest.mark.parametrize(
+        "fxt_dataset_dir",
+        [RAND_DIR, SF_DIR, AL_DIR],
+        ids=["rand", "sf", "al"],
+    )
+    def test_can_detect(self, fxt_dataset_dir: str):
+        return super().test_can_detect(fxt_dataset_dir)
+
+    @pytest.mark.parametrize(
+        [
+            "fxt_dataset_dir",
+            "fxt_expected_dataset",
+            "fxt_import_kwargs",
+        ],
+        [
+            (RAND_DIR, "fxt_dataset", {}),
+            (SF_DIR, "fxt_dataset", {}),
+            (AL_DIR, "fxt_dataset", {}),
+        ],
+        indirect=["fxt_expected_dataset"],
+        ids=["rand", "sf", "al"],
+    )
+    def test_can_import(
+        self,
+        fxt_dataset_dir: str,
+        fxt_expected_dataset: Dataset,
+        fxt_import_kwargs: Dict[str, Any],
+        request: pytest.FixtureRequest,
+    ):
+        return super().test_can_import(
+            fxt_dataset_dir,
+            fxt_expected_dataset,
+            fxt_import_kwargs,
+            request,
+        )
+
 class SynthiaImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_497)
     def test_can_detect(self):
@@ -46,7 +177,7 @@ class SynthiaImporterTest(TestCase):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="Stereo_Left/Omni_B/000000",
+                    id="Stereo_Left/Omni_F/000000",
                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(
@@ -62,7 +193,7 @@ class SynthiaImporterTest(TestCase):
                     ],
                 ),
                 DatasetItem(
-                    id="Stereo_Left/Omni_B/000001",
+                    id="Stereo_Left/Omni_F/000001",
                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
                     annotations=[
                         Mask(
