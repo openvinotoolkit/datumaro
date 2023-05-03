@@ -43,4 +43,6 @@ cryptography>= 38.03
 pyemd
 
 # apache arrow
+# protobuf >= 3.20 causes apache-beam installation failure on MacOS with Python 3.10
+protobuf==3.19.4; python_version == '3.10' and sys_platform == "darwin"
 pyarrow
