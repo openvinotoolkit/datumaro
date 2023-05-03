@@ -217,7 +217,7 @@ class PointCloudMapper(MediaElementMapper):
         _bytes = None
         if isinstance(encoder, Callable):
             _bytes = encoder(obj)
-        else:
+        elif encoder != "NONE":
             _bytes = obj.data
         out["bytes"] = _bytes
 
