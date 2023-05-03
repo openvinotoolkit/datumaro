@@ -16,21 +16,18 @@ class SynthiaRandPath:
     IMAGES_DIR = "RGB"
     LABELS_SEGM_DIR = "GTTXT"
     SEMANTIC_SEGM_DIR = "GT"
-    LABELMAP_FILE = "label_colors.txt"
 
 
 class SynthiaSfPath:
     IMAGES_DIR = "RGBLeft"
     SEMANTIC_SEGM_DIR = "GTLeft"
     DEPTH_DIR = "DepthLeft"
-    LABELMAP_FILE = "label_colors.txt"
 
 
 class SynthiaAlPath:
     IMAGES_DIR = "RGB"
     SEMANTIC_SEGM_DIR = "SemSeg"
     DEPTH_DIR = "Depth"
-    LABELMAP_FILE = "label_colors.txt"
 
 
 SynthiaRandLabelMap = OrderedDict(

@@ -67,12 +67,7 @@ class _SynthiaBase(SubsetBase):
     def _load_categories(self, path):
         if has_meta_file(path):
             return self._make_categories(parse_meta_file(path))
-        label_map_path = osp.join(path, self._path_format.LABELMAP_FILE)
-        if osp.isfile(label_map_path):
-            label_map = self._parse_label_map(label_map_path)
-        else:
-            label_map = self._label_map
-        return self._make_categories(label_map)
+        return self._make_categories(self._label_map)
 
     def _load_items(self, root_dir):
         image_dir = osp.join(root_dir, self._path_format.IMAGES_DIR)
