@@ -589,37 +589,44 @@ it in the <a class="reference internal" href="../../command-reference/context/so
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datumaro</span> <span class="k">as</span> <span class="nn">dm</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s1">&#39;&lt;path_to_dataset&gt;&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;imagenet_txt&#39;</span><span class="p">)</span>
+<span class="c1"># or</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s1">&#39;&lt;path_to_dataset&gt;&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;imagenet&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For successful importing of ImageNet dataset the input directory with dataset
 should has the following structure:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">imagenet</span></code> format:</p>
 <!--lint disable fenced-code-flag-->
-<p>{{&lt; tabpane &gt;}}
-{{&lt; tab header=”imagenet”&gt;}}
-imagenet_dataset/
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>imagenet_dataset/
 ├── label_0
 │   ├── &lt;image_name_0&gt;.jpg
 │   ├── &lt;image_name_1&gt;.jpg
 │   ├── &lt;image_name_2&gt;.jpg
-│   ├── …
+│   ├── ...
 ├── label_1
-│    ├── &lt;image_name_0&gt;.jpg
-│    ├── &lt;image_name_1&gt;.jpg
-│    ├── &lt;image_name_2&gt;.jpg
-│    ├── …
-├── …
-{{&lt; /tab &gt;}}
-{{&lt; tab header=”imagenet_txt”&gt;}}
-imagenet_txt_dataset/
+│   ├── &lt;image_name_0&gt;.jpg
+│   ├── &lt;image_name_1&gt;.jpg
+│   ├── &lt;image_name_2&gt;.jpg
+│   ├── ...
+├── ...
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">imagenet_txt</span></code> format:</p>
+<!--lint disable fenced-code-flag-->
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>imagenet_txt_dataset/
 ├── images # directory with images
 │   ├── &lt;image_name_0&gt;.jpg
 │   ├── &lt;image_name_1&gt;.jpg
 │   ├── &lt;image_name_2&gt;.jpg
-│   ├── …
+│   ├── ...
 ├── synsets.txt # optional, list of labels
 └── train.txt   # list of pairs (image_name, label)
-{{&lt; /tab &gt;}}
-{{&lt; /tabpane &gt;}}</p>
+</pre></div>
+</div>
+</li>
+</ul>
 <blockquote>
 <div><p>Note: if you don’t have synsets file then Datumaro will automatically generate
 classes with a name pattern <code class="docutils literal notranslate"><span class="pre">class-&lt;i&gt;</span></code>.</p>
