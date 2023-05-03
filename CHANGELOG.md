@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+### Bug fixes
+- Fix media contents not returning bytes in arrow format
+  (<https://github.com/openvinotoolkit/datumaro/pull/986>)
+
 ## 20/04/2023 - Release 1.2.0
 ### New features
 - Add Skill Up section to documentation
