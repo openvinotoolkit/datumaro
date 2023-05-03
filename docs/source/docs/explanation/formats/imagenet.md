@@ -40,7 +40,7 @@ import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path_to_dataset>', format='imagenet_txt')
 # or
-dataset = dm.Dataset.import_from('<path_to_dataset>', format='imagent')
+dataset = dm.Dataset.import_from('<path_to_dataset>', format='imagenet')
 ```
 
 For successful importing of ImageNet dataset the input directory with dataset
@@ -56,10 +56,10 @@ should has the following structure:
   │   ├── <image_name_2>.jpg
   │   ├── ...
   ├── label_1
-  │    ├── <image_name_0>.jpg
-  │    ├── <image_name_1>.jpg
-  │    ├── <image_name_2>.jpg
-  │    ├── ...
+  │   ├── <image_name_0>.jpg
+  │   ├── <image_name_1>.jpg
+  │   ├── <image_name_2>.jpg
+  │   ├── ...
   ├── ...
   ```
 - `imagenet_txt` format:
