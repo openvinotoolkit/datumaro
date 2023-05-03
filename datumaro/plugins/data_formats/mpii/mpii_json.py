@@ -1,8 +1,9 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+from typing import Optional
 
 import numpy as np
 
@@ -15,7 +16,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util import parse_json_file
 
@@ -30,11 +31,17 @@ class MpiiJsonPath:
 
 
 class MpiiJsonBase(SubsetBase):
-    def __init__(self, path):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
-        super().__init__()
+        super().__init__(subset=subset, ctx=ctx)
 
         self._categories = {
             AnnotationType.label: LabelCategories.from_iterable(["human"]),

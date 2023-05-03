@@ -1,16 +1,17 @@
-# Copyright (C) 2020-2022 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import os
 import os.path as osp
 import re
+from typing import Optional
 
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
 from datumaro.util.image import find_images
@@ -27,12 +28,12 @@ class Market1501Path:
 
 
 class Market1501Base(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
             raise NotADirectoryError("Can't open folder with annotation files '%s'" % path)
 
         self._path = path
-        super().__init__()
+        super().__init__(ctx=ctx)
 
         subsets = {}
         for p in os.listdir(path):

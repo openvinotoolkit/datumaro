@@ -1,17 +1,19 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
 import fnmatch
 import glob
 import logging as log
 import os
 import os.path as osp
+from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset import DatasetItem
 from datumaro.components.dataset_base import DatasetBase
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
@@ -23,9 +25,9 @@ class MarsPath:
 
 
 class MarsBase(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         assert osp.isdir(path), path
-        super().__init__()
+        super().__init__(ctx=ctx)
 
         self._dataset_dir = path
         self._subsets = {

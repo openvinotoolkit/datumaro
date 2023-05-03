@@ -18,6 +18,7 @@ from datumaro.components.errors import (
     InvalidAnnotationError,
     UndeclaredLabelError,
 )
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
 from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME,
@@ -57,9 +58,11 @@ class YoloStrictBase(SubsetBase):
         self,
         config_path: str,
         image_info: Union[None, str, ImageMeta] = None,
-        **kwargs,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(subset=subset, ctx=ctx)
 
         if not osp.isfile(config_path):
             raise DatasetImportError(f"Can't read dataset descriptor file '{config_path}'")
@@ -297,9 +300,11 @@ class YoloLooseBase(SubsetBase):
         config_path: str,
         image_info: Union[None, str, ImageMeta] = None,
         urls: Optional[List[str]] = None,
-        **kwargs,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(subset=subset, ctx=ctx)
 
         if not osp.isdir(config_path):
             raise DatasetImportError(f"{config_path} should be a directory.")

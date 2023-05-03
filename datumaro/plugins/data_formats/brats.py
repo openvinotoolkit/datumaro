@@ -1,9 +1,10 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import glob
 import os.path as osp
+from typing import Optional
 
 import nibabel as nib
 import numpy as np
@@ -11,7 +12,7 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import MultiframeImage
 
 
@@ -22,7 +23,7 @@ class BratsPath:
 
 
 class BratsBase(SubsetBase):
-    def __init__(self, path):
+    def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
@@ -32,7 +33,7 @@ class BratsBase(SubsetBase):
             subset = "train"
         elif self._subset_suffix == "Ts":
             subset = "test"
-        super().__init__(subset=subset, media_type=MultiframeImage)
+        super().__init__(subset=subset, media_type=MultiframeImage, ctx=ctx)
 
         self._root_dir = osp.dirname(path)
         self._categories = self._load_categories()

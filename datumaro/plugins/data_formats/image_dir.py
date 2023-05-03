@@ -1,15 +1,16 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import logging as log
 import os
 import os.path as osp
+from typing import Optional
 
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
@@ -38,8 +39,14 @@ class ImageDirImporter(Importer):
 
 
 class ImageDirBase(SubsetBase):
-    def __init__(self, url, subset=None):
-        super().__init__(subset=subset)
+    def __init__(
+        self,
+        url: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
+        super().__init__(subset=subset, ctx=ctx)
 
         assert osp.isdir(url), url
 

@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatasetImportError
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
 from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
@@ -23,7 +24,15 @@ from ..datumaro.base import DatumaroBase
 class DatumaroBinaryBase(DatumaroBase):
     """"""
 
-    def __init__(self, path: str, encryption_key: Optional[bytes] = None, num_workers: int = 0):
+    def __init__(
+        self,
+        path: str,
+        *,
+        encryption_key: Optional[bytes] = None,
+        num_workers: int = 0,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         """
         Parameters
         ----------
@@ -38,7 +47,7 @@ class DatumaroBinaryBase(DatumaroBase):
         self._crypter = Crypter(encryption_key) if encryption_key is not None else NULL_CRYPTER
         self._media_encryption = False
         self._num_workers = num_workers
-        super().__init__(path)
+        super().__init__(path, subset=subset, ctx=ctx)
 
     def _get_dm_format_version(self, path: str) -> str:
         with open(path, "rb") as fp:

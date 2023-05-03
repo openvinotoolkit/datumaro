@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -6,11 +6,12 @@ import logging as log
 import os
 import os.path as osp
 from enum import Enum
+from typing import Optional
 from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.exporter import Exporter
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util import parse_str_enum_value
 from datumaro.util.image import IMAGE_EXTENSIONS, encode_image
@@ -29,8 +30,14 @@ class ImageZipPath:
 
 
 class ImageZipBase(SubsetBase):
-    def __init__(self, url, subset=None):
-        super().__init__(subset=subset, media_type=Image)
+    def __init__(
+        self,
+        url: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
+        super().__init__(subset=subset, media_type=Image, ctx=ctx)
 
         assert url.endswith(".zip"), url
 

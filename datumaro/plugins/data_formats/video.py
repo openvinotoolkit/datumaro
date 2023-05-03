@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -10,7 +10,7 @@ import numpy as np
 
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetBase, DatasetItem
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Video, VideoFrame
 from datumaro.util.os_util import find_files
 
@@ -103,14 +103,15 @@ class VideoFramesBase(DatasetBase):
         self,
         url: str,
         *,
-        subset: Optional[str] = None,
         name_pattern: str = "%06d",
         step: int = 1,
         start_frame: int = 0,
         end_frame: Optional[int] = None,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
     ) -> None:
         self._subset = subset or DEFAULT_SUBSET_NAME
-        super().__init__(subsets=[self._subset], media_type=VideoFrame)
+        super().__init__(subsets=[self._subset], media_type=VideoFrame, ctx=ctx)
 
         assert osp.isfile(url), url
 

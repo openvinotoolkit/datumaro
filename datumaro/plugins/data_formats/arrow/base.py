@@ -4,11 +4,13 @@
 
 import os.path as osp
 import struct
+from typing import List, Optional
 
 import pyarrow as pa
 
 from datumaro.components.dataset_base import SubsetBase
 from datumaro.components.errors import MediaTypeError
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import MediaType
 from datumaro.components.merge import get_merger
 from datumaro.plugins.data_formats.datumaro.base import DatumaroBase
@@ -19,10 +21,19 @@ from .mapper.dataset_item import DatasetItemMapper
 
 
 class ArrowBase(SubsetBase):
-    def __init__(self, path, ctx, subset, additional_paths=[]):
+    def __init__(
+        self,
+        path: str,
+        additional_paths: Optional[List[str]] = None,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         super().__init__(subset=subset, ctx=ctx)
 
-        self._paths = [path] + additional_paths
+        self._paths = [path]
+        if additional_paths:
+            self._paths += additional_paths
 
         self._load()
 

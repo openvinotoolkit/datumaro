@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -13,7 +13,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -52,16 +52,17 @@ class ImagenetTxtBase(SubsetBase):
         self,
         path: str,
         *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
         labels: Union[Iterable[str], str] = _LabelsSource.file.name,
         labels_file: str = ImagenetTxtPath.LABELS_FILE,
         image_dir: Optional[str] = None,
-        subset: Optional[str] = None,
     ):
         assert osp.isfile(path), path
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, ctx=ctx)
 
         root_dir = osp.dirname(path)
         if not image_dir:

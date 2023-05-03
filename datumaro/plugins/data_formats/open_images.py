@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -14,6 +14,7 @@ import os
 import os.path as osp
 import re
 import types
+from typing import Optional, Union
 
 import cv2
 import numpy as np
@@ -30,7 +31,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.components.validator import Severity
 from datumaro.util import parse_json_file
@@ -168,11 +169,17 @@ class OpenImagesPath:
 
 
 class OpenImagesBase(DatasetBase):
-    def __init__(self, path, image_meta=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        image_meta: Optional[Union[dict, str]] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
-        super().__init__()
+        super().__init__(ctx=ctx)
 
         self._dataset_dir = path
 

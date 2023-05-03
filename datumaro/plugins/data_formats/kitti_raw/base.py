@@ -1,16 +1,17 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import os
 import os.path as osp
+from typing import Optional
 
 from defusedxml import ElementTree as ET
 
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image, PointCloud
 from datumaro.util import cast
 from datumaro.util.image import find_images
@@ -24,11 +25,17 @@ class KittiRawBase(SubsetBase):
     # https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip
     # Check cpp header implementation for field meaning
 
-    def __init__(self, path, subset=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         assert osp.isfile(path), path
         self._rootdir = osp.dirname(path)
 
-        super().__init__(subset=subset, media_type=PointCloud)
+        super().__init__(subset=subset, media_type=PointCloud, ctx=ctx)
 
         items, categories = self._parse(path)
         self._items = list(self._load_items(items).values())

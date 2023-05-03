@@ -1,14 +1,16 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import glob
 import os.path as osp
+from typing import Optional
 
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Mask
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
 from datumaro.util.image import find_images, load_image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -17,15 +19,21 @@ from .format import KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, 
 
 
 class _KittiBase(SubsetBase):
-    def __init__(self, path, task, subset=None):
+    def __init__(
+        self,
+        path: str,
+        task: KittiTask,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         assert osp.isdir(path), path
         self._path = path
         self._task = task
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-        self._subset = subset
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, ctx=ctx)
 
         self._categories = self._load_categories(osp.dirname(self._path))
         self._items = list(self._load_items().values())
@@ -155,10 +163,10 @@ class _KittiBase(SubsetBase):
 
 
 class KittiSegmentationBase(_KittiBase):
-    def __init__(self, path):
-        super().__init__(path, task=KittiTask.segmentation)
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=KittiTask.segmentation, **kwargs)
 
 
 class KittiDetectionBase(_KittiBase):
-    def __init__(self, path):
-        super().__init__(path, task=KittiTask.detection)
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=KittiTask.detection, **kwargs)

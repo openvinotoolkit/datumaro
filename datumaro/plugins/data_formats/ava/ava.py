@@ -1,10 +1,11 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import csv
 import os
 import os.path as osp
+from typing import Optional
 
 import google.protobuf.text_format as text_format
 
@@ -13,7 +14,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.os_util import find_files
 
@@ -32,17 +33,24 @@ class AvaPath:
 
 
 class AvaBase(SubsetBase):
-    def __init__(self, path):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isfile(path):
             raise DatasetImportError(f"Can't find CSV file at '{path}'")
         self._path = path
 
-        subset = (
-            osp.splitext(osp.basename(path))[0]
-            .replace(AvaPath.ANNOTATION_PREFIX, "")
-            .replace(AvaPath.ANNOTATION_VERSION, "")
-        )
-        super().__init__(subset=subset)
+        if not subset:
+            subset = (
+                osp.splitext(osp.basename(path))[0]
+                .replace(AvaPath.ANNOTATION_PREFIX, "")
+                .replace(AvaPath.ANNOTATION_VERSION, "")
+            )
+        super().__init__(subset=subset, ctx=ctx)
 
         if path.endswith(osp.join(AvaPath.ANNOTATION_DIR, osp.basename(path))):
             self._rootpath = path.rsplit(AvaPath.ANNOTATION_DIR, maxsplit=1)[0]

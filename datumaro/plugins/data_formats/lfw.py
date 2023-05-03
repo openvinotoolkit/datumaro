@@ -1,17 +1,18 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import os
 import os.path as osp
 import re
+from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories, Points
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -28,13 +29,20 @@ class LfwPath:
 
 
 class LfwBase(SubsetBase):
-    def __init__(self, path, subset=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
         if not subset:
             subset = osp.basename(osp.dirname(osp.dirname(path)))
-        super().__init__(subset=subset)
+
+        super().__init__(subset=subset, ctx=ctx)
 
         self._dataset_dir = osp.dirname(osp.dirname(osp.dirname(path)))
         self._annotations_dir = osp.dirname(path)

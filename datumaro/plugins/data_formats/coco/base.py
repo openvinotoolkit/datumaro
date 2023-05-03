@@ -5,7 +5,7 @@
 import logging as log
 import os.path as osp
 from inspect import isclass
-from typing import Any, Dict, Tuple, Type, TypeVar, Union, overload
+from typing import Any, Dict, Optional, Tuple, Type, TypeVar, Union, overload
 
 import pycocotools.mask as mask_utils
 from attrs import define
@@ -31,6 +31,7 @@ from datumaro.components.errors import (
     MissingFieldError,
     UndeclaredLabelError,
 )
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
 from datumaro.util import NOTSET, parse_json_file, take_by
 from datumaro.util.image import lazy_image, load_image
@@ -96,11 +97,11 @@ class _CocoBase(SubsetBase):
         path,
         task,
         *,
-        merge_instance_polygons=False,
-        subset=None,
-        keep_original_category_ids=False,
+        merge_instance_polygons: bool = False,
+        keep_original_category_ids: bool = False,
         coco_importer_type: CocoImporterType = CocoImporterType.default,
-        **kwargs,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
     ):
         if not osp.isfile(path):
             raise DatasetImportError(f"Can't find JSON file at '{path}'")
@@ -109,7 +110,7 @@ class _CocoBase(SubsetBase):
         if not subset:
             parts = osp.splitext(osp.basename(path))[0].split(task.name + "_", maxsplit=1)
             subset = parts[1] if len(parts) == 2 else None
-        super().__init__(subset=subset, **kwargs)
+        super().__init__(subset=subset, ctx=ctx)
 
         if coco_importer_type == CocoImporterType.default:
             self._rootpath = DirPathExtracter.find_rootpath(path)

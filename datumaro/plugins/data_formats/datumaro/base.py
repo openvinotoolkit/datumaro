@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+from typing import Optional
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -21,6 +22,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import parse_json_file
 from datumaro.version import __version__
@@ -36,7 +38,13 @@ class DatumaroBase(SubsetBase):
     # ALLOWED_VERSIONS = {LEGACY_VERSION, 1.0, ..., CURRENT_DATUMARO_FORMAT_VERSION}
     ALLOWED_VERSIONS = {LEGACY_VERSION, CURRENT_DATUMARO_FORMAT_VERSION}
 
-    def __init__(self, path):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         assert osp.isfile(path), path
 
         dm_version = self._get_dm_format_version(path)
@@ -50,9 +58,9 @@ class DatumaroBase(SubsetBase):
                 "Please install the latest Datumaro."
             )
 
-        self.default_reader(path=path)
+        self.default_reader(path=path, subset=subset, ctx=ctx)
 
-    def default_reader(self, path: str):
+    def default_reader(self, path, subset, ctx):
         """
         Default Datumaro reader for the latest version
         """
@@ -71,7 +79,10 @@ class DatumaroBase(SubsetBase):
             pcd_dir = osp.join(rootpath, DatumaroPath.PCD_DIR)
         self._pcd_dir = pcd_dir
 
-        super().__init__(subset=osp.splitext(osp.basename(path))[0])
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+
+        super().__init__(subset=subset, ctx=ctx)
         self._load_impl(path)
 
     def _get_dm_format_version(self, path: str):

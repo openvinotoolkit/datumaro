@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -24,7 +24,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
@@ -171,14 +171,21 @@ def _parse_annotation_line(line: str) -> Tuple[str, Optional[str]]:
 
 
 class CamvidBase(SubsetBase):
-    def __init__(self, path, subset=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         assert osp.isfile(path), path
         self._path = path
         self._dataset_dir = osp.dirname(path)
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-        super().__init__(subset=subset)
+
+        super().__init__(subset=subset, ctx=ctx)
 
         self._categories = self._load_categories(self._dataset_dir)
         self._items = list(self._load_items(path).values())

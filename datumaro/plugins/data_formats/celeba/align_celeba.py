@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+from typing import Optional
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -13,6 +14,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -30,11 +32,17 @@ class AlignCelebaPath(CelebaPath):
 
 
 class AlignCelebaBase(SubsetBase):
-    def __init__(self, path):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
 
-        super().__init__()
+        super().__init__(subset=subset, ctx=ctx)
         self._anno_dir = osp.dirname(path)
 
         self._categories = {AnnotationType.label: LabelCategories()}
@@ -62,7 +70,9 @@ class AlignCelebaBase(SubsetBase):
 
         labels_path = osp.join(root_dir, AlignCelebaPath.LABELS_FILE)
         if not osp.isfile(labels_path):
-            raise DatasetImportError("File '%s': was not found" % labels_path)
+            self._ctx.error_policy.fail(
+                DatasetImportError("File '%s': was not found" % labels_path)
+            )
 
         with open(labels_path, encoding="utf-8") as f:
             for line in f:
@@ -96,16 +106,23 @@ class AlignCelebaBase(SubsetBase):
                     landmarks = [float(id) for id in item_ann]
 
                     if len(landmarks) != len(point_cat):
-                        raise DatasetImportError(
-                            "File '%s', line %s: "
-                            "points do not match the header of this file" % (landmark_path, line)
+                        self._ctx.error_policy.report_annotation_error(
+                            DatasetImportError(
+                                "File '%s', line %s: "
+                                "points do not match the header of this file"
+                                % (landmark_path, line)
+                            ),
+                            item_id=(item_id, self._subset),
                         )
 
                     if item_id not in items:
-                        raise DatasetImportError(
-                            "File '%s', line %s: "
-                            "for this item are not label in %s "
-                            % (landmark_path, line, AlignCelebaPath.LABELS_FILE)
+                        self._ctx.error_policy.report_annotation_error(
+                            DatasetImportError(
+                                "File '%s', line %s: "
+                                "for this item are not label in %s "
+                                % (landmark_path, line, AlignCelebaPath.LABELS_FILE)
+                            ),
+                            item_id=(item_id, self._subset),
                         )
 
                     anno = items[item_id].annotations
@@ -113,10 +130,12 @@ class AlignCelebaBase(SubsetBase):
                     anno.append(Points(landmarks, label=label))
 
                 if landmarks_number - 1 != counter:
-                    raise DatasetImportError(
-                        "File '%s': the number of "
-                        "landmarks does not match the specified number "
-                        "at the beginning of the file " % landmark_path
+                    self._ctx.error_policy.fail(
+                        DatasetImportError(
+                            "File '%s': the number of "
+                            "landmarks does not match the specified number "
+                            "at the beginning of the file " % landmark_path
+                        )
                     )
 
         attr_path = osp.join(root_dir, AlignCelebaPath.ATTRS_FILE)
@@ -129,11 +148,14 @@ class AlignCelebaBase(SubsetBase):
                 for counter, line in enumerate(f):
                     item_id, item_ann = self.split_annotation(line)
                     if len(attr_names) != len(item_ann):
-                        raise DatasetImportError(
-                            "File '%s', line %s: "
-                            "the number of attributes "
-                            "in the line does not match the number at the "
-                            "beginning of the file " % (attr_path, line)
+                        self._ctx.error_policy.report_item_error(
+                            DatasetImportError(
+                                "File '%s', line %s: "
+                                "the number of attributes "
+                                "in the line does not match the number at the "
+                                "beginning of the file " % (attr_path, line)
+                            ),
+                            item_id=(item_id, self._subset),
                         )
 
                     attrs = {name: 0 < int(ann) for name, ann in zip(attr_names, item_ann)}
@@ -148,10 +170,12 @@ class AlignCelebaBase(SubsetBase):
                     items[item_id].attributes = attrs
 
                 if attr_number - 1 != counter:
-                    raise DatasetImportError(
-                        "File %s: the number of items "
-                        "with attributes does not match the specified number "
-                        "at the beginning of the file " % attr_path
+                    self._ctx.error_policy.fail(
+                        DatasetImportError(
+                            "File %s: the number of items "
+                            "with attributes does not match the specified number "
+                            "at the beginning of the file " % attr_path
+                        )
                     )
 
         subset_path = osp.join(root_dir, AlignCelebaPath.SUBSETS_FILE)

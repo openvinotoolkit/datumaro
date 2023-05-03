@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -25,6 +25,7 @@ from datumaro.components.errors import (
     MissingFieldError,
     UndeclaredLabelError,
 )
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import invert_colormap, lazy_mask
@@ -45,7 +46,14 @@ T = TypeVar("T")
 
 
 class _VocBase(SubsetBase):
-    def __init__(self, path, task, **kwargs):
+    def __init__(
+        self,
+        path: str,
+        task: VocTask,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isfile(path):
             raise DatasetImportError(f"Can't find txt subset list file at '{path}'")
         self._path = path
@@ -53,7 +61,10 @@ class _VocBase(SubsetBase):
 
         self._task = task
 
-        super().__init__(subset=osp.splitext(osp.basename(path))[0], **kwargs)
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+
+        super().__init__(subset=subset, ctx=ctx)
 
         self._categories = self._load_categories(self._dataset_dir)
 

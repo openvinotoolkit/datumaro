@@ -1,14 +1,15 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import csv
 import os.path as osp
+from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -18,11 +19,20 @@ class VottCsvPath:
 
 
 class VottCsvBase(SubsetBase):
-    def __init__(self, path):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
-        super().__init__(subset=osp.splitext(osp.basename(path))[0].rsplit("-", maxsplit=1)[0])
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0].rsplit("-", maxsplit=1)[0]
+
+        super().__init__(subset=subset, ctx=ctx)
 
         if has_meta_file(path):
             self._categories = {

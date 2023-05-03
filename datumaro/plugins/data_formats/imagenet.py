@@ -1,17 +1,18 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import logging as log
 import os
 import os.path as osp
+from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
-from datumaro.components.importer import Importer, with_subset_dirs
+from datumaro.components.importer import ImportContext, Importer, with_subset_dirs
 from datumaro.components.media import Image
 from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
 from datumaro.util.image import find_images
@@ -23,9 +24,17 @@ class ImagenetPath:
 
 
 class ImagenetBase(SubsetBase):
-    def __init__(self, path, subset=None):
-        assert osp.isdir(path), path
-        super().__init__(subset=subset)
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
+        if not osp.isdir(path):
+            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
+
+        super().__init__(subset=subset, ctx=ctx)
 
         self._categories = self._load_categories(path)
         self._items = list(self._load_items(path).values())
@@ -33,6 +42,10 @@ class ImagenetBase(SubsetBase):
     def _load_categories(self, path):
         label_cat = LabelCategories()
         for dirname in sorted(os.listdir(path)):
+            if not os.path.isdir(os.path.join(path, dirname)):
+                self._ctx.error_policy.fail(
+                    DatasetImportError(f"'{os.path.join(path, dirname)}' is not a directory.")
+                )
             if dirname != ImagenetPath.IMAGE_DIR_NO_LABEL:
                 label_cat.add(dirname)
         return {AnnotationType.label: label_cat}
@@ -48,16 +61,24 @@ class ImagenetBase(SubsetBase):
 
             item_id = label + ImagenetPath.SEP_TOKEN + image_name
             item = items.get(item_id)
-            if item is None:
-                item = DatasetItem(
-                    id=item_id, subset=self._subset, media=Image.from_file(path=image_path)
-                )
-                items[item_id] = item
+            try:
+                if item is None:
+                    item = DatasetItem(
+                        id=item_id, subset=self._subset, media=Image.from_file(path=image_path)
+                    )
+                    items[item_id] = item
+            except Exception as e:
+                self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
             annotations = item.annotations
 
             if label != ImagenetPath.IMAGE_DIR_NO_LABEL:
-                label = self._categories[AnnotationType.label].find(label)[0]
-                annotations.append(Label(label=label))
+                try:
+                    label = self._categories[AnnotationType.label].find(label)[0]
+                    annotations.append(Label(label=label))
+                except Exception as e:
+                    self._ctx.error_policy.report_annotation_error(
+                        e, item_id=(item_id, self._subset)
+                    )
 
         return items
 
