@@ -20,11 +20,6 @@ class _SynthiaImporter(Importer):
             if not osp.isdir(osp.join(context.root_path, folder)):
                 context.fail("Any Synthia format is not detected.")
 
-        # with context.require_any():
-        #     for prefix in cls.META_FOLDERS:
-        #         with context.alternative():
-        #             context.require_file(f"{prefix}/*.png")
-
         return FormatDetectionConfidence.MEDIUM
 
     @classmethod
