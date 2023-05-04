@@ -6,8 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
-
 ### Bug fixes
+- Fix project level CVAT for images format import
+  (<https://github.com/openvinotoolkit/datumaro/pull/980>)
 - Fix media contents not returning bytes in arrow format
   (<https://github.com/openvinotoolkit/datumaro/pull/986>)
 
@@ -53,8 +54,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/918>)
 - Fix log issue when importing celeba and align celeba dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/919>)
-- Fix project level CVAT for images format import
-  (<https://github.com/openvinotoolkit/datumaro/pull/980>)
 
 ## 28/03/2023 - Release 1.1.1
 ### Bug fixes
