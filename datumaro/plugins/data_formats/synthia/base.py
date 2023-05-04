@@ -11,8 +11,8 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.media import Image
-from datumaro.util.image import find_images, load_image
-from datumaro.util.mask_tools import generate_colormap
+from datumaro.util.image import find_images
+from datumaro.util.mask_tools import generate_colormap, load_mask
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import (
@@ -144,17 +144,10 @@ class _SynthiaBase(SubsetBase):
 
                 inverse_cls_colormap = self._categories[AnnotationType.mask].inverse_colormap
 
-                seg_img = load_image(seg_img_path, dtype=np.uint16)
-                color_mask = np.zeros_like(seg_img[:, :, 0])
-                for i in range(seg_img.shape[0]):
-                    for j in range(seg_img.shape[1]):
-                        pixel_color = tuple(seg_img[i, j, :])
-                        if pixel_color in inverse_cls_colormap.keys():
-                            color_mask[i, j] = inverse_cls_colormap[pixel_color]
-
-                classes = np.unique(color_mask)
+                color_mask = load_mask(seg_img_path, inverse_cls_colormap)
 
                 anno = []
+                classes = np.unique(color_mask)
                 for label_id in classes:
                     anno.append(
                         Mask(image=self._lazy_extract_mask(color_mask, label_id), label=label_id)

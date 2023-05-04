@@ -17,17 +17,29 @@ class SynthiaRandPath:
     LABELS_SEGM_DIR = "GTTXT"
     SEMANTIC_SEGM_DIR = "GT"
 
+    @classmethod
+    def meta_folders(cls):
+        return [val for val in vars(cls).values() if isinstance(val, str) and "datumaro" not in val]
+
 
 class SynthiaSfPath:
     IMAGES_DIR = "RGBLeft"
     SEMANTIC_SEGM_DIR = "GTLeft"
     DEPTH_DIR = "DepthLeft"
 
+    @classmethod
+    def meta_folders(cls):
+        return [val for val in vars(cls).values() if isinstance(val, str) and "datumaro" not in val]
+
 
 class SynthiaAlPath:
     IMAGES_DIR = "RGB"
     SEMANTIC_SEGM_DIR = "SemSeg"
     DEPTH_DIR = "Depth"
+
+    @classmethod
+    def meta_folders(cls):
+        return [val for val in vars(cls).values() if isinstance(val, str) and "datumaro" not in val]
 
 
 SynthiaRandLabelMap = OrderedDict(

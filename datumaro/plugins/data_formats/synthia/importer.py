@@ -29,23 +29,14 @@ class _SynthiaImporter(Importer):
 
 class SynthiaRandImporter(_SynthiaImporter):
     FORMAT = SynthiaFormatType.synthia_rand.name
-    META_FOLDERS = []
-    for prefix in vars(SynthiaRandPath).values():
-        if isinstance(prefix, str) and "datumaro" not in prefix:
-            META_FOLDERS.append(prefix)
+    META_FOLDERS = SynthiaRandPath.meta_folders()
 
 
 class SynthiaSfImporter(_SynthiaImporter):
     FORMAT = SynthiaFormatType.synthia_sf.name
-    META_FOLDERS = []
-    for prefix in vars(SynthiaSfPath).values():
-        if isinstance(prefix, str) and "datumaro" not in prefix:
-            META_FOLDERS.append(prefix)
+    META_FOLDERS = SynthiaSfPath.meta_folders()
 
 
 class SynthiaAlImporter(_SynthiaImporter):
     FORMAT = SynthiaFormatType.synthia_al.name
-    META_FOLDERS = []
-    for prefix in vars(SynthiaAlPath).values():
-        if isinstance(prefix, str) and "datumaro" not in prefix:
-            META_FOLDERS.append(prefix)
+    META_FOLDERS = SynthiaAlPath.meta_folders()
