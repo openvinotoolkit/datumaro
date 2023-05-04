@@ -1168,7 +1168,12 @@ class CocoExtractorTests(TestCase):
                     dump_json_file(ann_path, anns)
 
                     with self.assertRaises(MissingFieldError) as capture:
-                        Dataset.import_from(ann_path, "coco_instances")
+                        try:
+                            Dataset.import_from(ann_path, "coco_instances")
+                        except Exception as e:
+                            if isinstance(e, DatasetImportError) and e.__cause__:
+                                raise e.__cause__
+                            raise
                     self.assertEqual(capture.exception.name, field)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
@@ -1182,7 +1187,12 @@ class CocoExtractorTests(TestCase):
                     dump_json_file(ann_path, anns)
 
                     with self.assertRaises(MissingFieldError) as capture:
-                        Dataset.import_from(ann_path, "coco_instances")
+                        try:
+                            Dataset.import_from(ann_path, "coco_instances")
+                        except Exception as e:
+                            if isinstance(e, DatasetImportError) and e.__cause__:
+                                raise e.__cause__
+                            raise
                     self.assertEqual(capture.exception.name, field)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)

@@ -1249,8 +1249,8 @@ class Dataset(IDataset):
             dataset = cls.from_extractors(*extractors, env=env, merge_policy=merge_policy)
             if eager:
                 dataset.init_cache()
-        except _ImportFail as e:
-            cause = e.__cause__
+        except (_ImportFail, DatasetImportError) as e:
+            cause = e.__cause__ if isinstance(e, _ImportFail) else e
             cause.__traceback__ = e.__traceback__
             raise DatasetImportError(f"Failed to import dataset '{format}' at '{path}'.") from cause
 
