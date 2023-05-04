@@ -4,6 +4,15 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.2.1 (2023.05)
+----------------
+
+Bug fixes
+^^^^^^^^^
+- Fix project level CVAT for images format import
+- Fix an info message when using the convert CLI command with no args.input_format
+- Fix media contents not returning bytes in arrow format
+
 v1.2.0 (2023.04)
 ----------------
 
