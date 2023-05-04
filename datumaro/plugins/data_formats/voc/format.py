@@ -131,11 +131,23 @@ LabelMapConfig = Dict[str, Tuple[Optional[RgbColor], List[str], List[str]]]
 # TODO: refactor, make type annotations conform with actual usage
 
 
-def make_voc_label_map() -> LabelMapConfig:
-    labels = sorted(VocLabel, key=lambda l: l.value)
-    label_map = OrderedDict((label.name, [VocColormap[label.value], [], []]) for label in labels)
-    label_map[VocLabel.person.name][1] = [p.name for p in VocBodyPart]
-    label_map[VocLabel.person.name][2] = [a.name for a in VocAction]
+def make_voc_label_map(task: VocTask) -> LabelMapConfig:
+    if task == VocTask.action_classification:
+        labels = sorted(VocAction, key=lambda l: l.value)
+        label_map = OrderedDict((label.name, [VocColormap[label.value], [], []]) for label in labels)
+    elif task == VocTask.person_layout:
+        labels = sorted(VocBodyPart, key=lambda l: l.value)
+        label_map = OrderedDict((label.name, [VocColormap[label.value], [], []]) for label in labels)
+    elif task == VocTask.classification or task == VocTask.detection or task == VocTask.segmentation:
+        labels = sorted(VocLabel, key=lambda l: l.value)
+        label_map = OrderedDict((label.name, [VocColormap[label.value], [], []]) for label in labels)
+    else:
+        labels = sorted(VocLabel, key=lambda l: l.value)
+        label_map = OrderedDict((label.name, [VocColormap[label.value], [], []]) for label in labels)
+        label_map[VocLabel.person.name][1] = [p.name for p in VocBodyPart]
+        label_map[VocLabel.person.name][2] = [a.name for a in VocAction]
+        
+    print("####### format 147", label_map)
     return label_map
 
 
@@ -277,9 +289,9 @@ def write_meta_file(path: str, label_map: LabelMapConfig):
     dump_json_file(get_meta_file(path), dataset_meta)
 
 
-def make_voc_categories(label_map: Optional[LabelMapConfig] = None) -> CategoriesInfo:
+def make_voc_categories(label_map: Optional[LabelMapConfig] = None, task: Optional[VocTask] = None) -> CategoriesInfo:
     if label_map is None:
-        label_map = make_voc_label_map()
+        label_map = make_voc_label_map(task)
 
     categories = {}
 

@@ -97,8 +97,9 @@ class _VocBase(SubsetBase):
             label_map_path = osp.join(dataset_path, VocPath.LABELMAP_FILE)
             if osp.isfile(label_map_path):
                 label_map = parse_label_map(label_map_path)
+        print("#### voc base.py L89", self._task, label_map)
 
-        return make_voc_categories(label_map)
+        return make_voc_categories(label_map, self._task)
 
     def _load_subset_list(self, subset_path):
         subset_list = []
