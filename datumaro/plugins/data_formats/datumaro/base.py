@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
     Caption,
     Cuboid3d,
     Ellipse,
+    HashKey,
     Label,
     LabelCategories,
     MaskCategories,
@@ -25,6 +26,7 @@ from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import parse_json_file
+from datumaro.util.meta_file_util import has_hashkey_file, parse_hashkey_file
 from datumaro.version import __version__
 
 from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
@@ -146,6 +148,9 @@ class DatumaroBase(SubsetBase):
         return categories
 
     def _load_items(self, parsed):
+        if has_hashkey_file(self._rootpath):
+            hashkey_dict = parse_hashkey_file(self._rootpath)
+
         items = []
         for item_desc in parsed["items"]:
             item_id = item_desc["id"]
@@ -218,6 +223,8 @@ class DatumaroBase(SubsetBase):
             label_id = ann.get("label_id")
             z_order = ann.get("z_order")
             points = ann.get("points")
+
+            hash_key = ann.get("hash_key")
 
             if ann_type == AnnotationType.label:
                 loaded.append(Label(label=label_id, id=ann_id, attributes=attributes, group=group))
@@ -314,6 +321,13 @@ class DatumaroBase(SubsetBase):
                         attributes=attributes,
                         group=group,
                         z_order=z_order,
+                    )
+                )
+
+            elif ann_type == AnnotationType.HashKey:
+                loaded.append(
+                    HashKey(
+                        hash_key=hash_key,
                     )
                 )
 

@@ -290,6 +290,7 @@ class BuildStageType(Enum):
     filter = auto()
     convert = auto()
     inference = auto()
+    explore = auto()
 
 
 class Pipeline:
@@ -917,6 +918,18 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
             name=name,
         )
 
+    def add_explore_stage(
+        self, target: str, params: Optional[Dict] = None, name: Optional[str] = None
+    ):
+        return self.add_stage(
+            target,
+            {
+                "type": BuildStageType.explore.name,
+                "params": params or {},
+            },
+            name=name,
+        )
+
     @staticmethod
     def make_target_name(target: str, stage: Optional[str] = None) -> str:
         if stage:
@@ -1081,7 +1094,9 @@ class GitWrapper:
             repo_root = osp.abspath(self._project_dir)
             assert is_subpath(base, base=repo_root), "Base path should be inside of the repo"
             base = osp.relpath(base, repo_root)
-            path_rewriter = lambda entry: osp.relpath(entry.path, base).replace("\\", "/")
+
+            def path_rewriter(entry):
+                return osp.relpath(entry.path, base).replace("\\", "/")
 
         if isinstance(paths, str):
             paths = [paths]

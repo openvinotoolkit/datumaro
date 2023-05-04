@@ -20,6 +20,7 @@ from datumaro.components.annotation import (
     Caption,
     Cuboid3d,
     Ellipse,
+    HashKey,
     Label,
     LabelCategories,
     Mask,
@@ -174,6 +175,8 @@ class _SubsetWriter:
                 converted_ann = self._convert_cuboid_3d_object(ann)
             elif isinstance(ann, Ellipse):
                 converted_ann = self._convert_ellipse_object(ann)
+            elif isinstance(ann, HashKey):
+                converted_ann = self._convert_hashkey_object(ann)
             else:
                 raise NotImplementedError()
             annotations.append(converted_ann)
@@ -303,6 +306,11 @@ class _SubsetWriter:
     def _convert_ellipse_object(self, obj: Ellipse):
         return self._convert_shape_object(obj)
 
+    def _convert_hashkey_object(self, obj):
+        converted = self._convert_annotation(obj)
+        converted.update({"hashkey": cast(obj.hash_key, np.array)})
+        return converted
+
     def _convert_attribute_categories(self, attributes):
         return sorted(attributes)
 
@@ -419,6 +427,11 @@ class DatumaroExporter(Exporter):
             subset = item.subset or DEFAULT_SUBSET_NAME
             writers[subset].add_item(item, pool)
 
+            for annotation in item.annotations:
+                if isinstance(annotation, HashKey):
+                    self._save_hashkey_meta = True
+                    break
+
         for subset, writer in writers.items():
             if self._patch and subset in self._patch.updated_subsets and writer.is_empty():
                 if osp.isfile(writer.ann_file):
@@ -427,6 +440,9 @@ class DatumaroExporter(Exporter):
                 continue
 
             writer.write(pool)
+
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):

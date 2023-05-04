@@ -24,7 +24,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
-from datumaro.util.meta_file_util import save_meta_file
+from datumaro.util.meta_file_util import save_hashkey_file, save_meta_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
@@ -174,6 +174,7 @@ class Exporter(CliPlugin):
         image_ext: Optional[str] = None,
         default_image_ext: Optional[str] = None,
         save_dataset_meta: bool = False,
+        save_hashkey_meta: bool = False,
         ctx: Optional[ExportContext] = None,
     ):
         default_image_ext = default_image_ext or self.DEFAULT_IMAGE_EXT
@@ -202,6 +203,7 @@ class Exporter(CliPlugin):
         self._save_dir = save_dir
 
         self._save_dataset_meta = save_dataset_meta
+        self._save_hashkey_meta = save_hashkey_meta
 
         # TODO: refactor this variable.
         # Can be used by a subclass to store the current patch info
@@ -278,9 +280,14 @@ class Exporter(CliPlugin):
     def _save_meta_file(self, path):
         save_meta_file(path, self._extractor.categories())
 
+    def _save_hashkey_file(self, path):
+        save_hashkey_file(path, self._extractor)
+
 
 # TODO: Currently, ExportContextComponent is introduced only for Datumaro and DatumaroBinary format
 # for multi-processing. We need to propagate this to everywhere in Datumaro 1.2.0
+
+
 class ExportContextComponent:
     def __init__(
         self,

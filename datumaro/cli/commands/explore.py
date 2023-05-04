@@ -10,10 +10,22 @@ import shutil
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.explorer import Explorer
+from datumaro.util import str_to_bool
+from datumaro.util.meta_file_util import parse_hashkey_file
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
 from ..util.project import load_project, parse_full_revpath
+
+
+def load_hashkey(datasets):
+    for dataset in datasets:
+        dsr_path = dataset.data_path
+        hashkey_dict = parse_hashkey_file(dsr_path)
+        if not hashkey_dict:
+            return datasets
+
+        dataset_list = []
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
@@ -62,7 +74,19 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         default=False,
         help="Save explorer result files on explore_result folder",
     )
-
+    parser.add_argument(
+        "--stage",
+        type=str_to_bool,
+        default=True,
+        help="""
+            Include this action as a project build step.
+            If true, this operation will be saved in the project
+            build tree, allowing to reproduce the resulting dataset later.
+            Applicable only to main project targets (i.e. data sources
+            and the 'project' target, but not intermediate stages)
+            (default: %(default)s)
+            """,
+    )
     parser.set_defaults(command=explore_command)
 
     return parser
@@ -92,15 +116,28 @@ def explore_command(args):
         targets = [args.target]
     else:
         targets = list(project.working_tree.sources)
+
     source_datasets = []
     for t in targets:
         target_dataset, _ = parse_full_revpath(t, project)
         source_datasets.append(target_dataset)
-    dataset = project.working_tree.load_hashkey(source_datasets)
+    dataset_list = load_hashkey(source_datasets)
 
-    explorer = Explorer(dataset)
-    project.working_tree.save_hashkey(explorer._item_list)
-    project.save()
+    explorer_args = {"save_hashkey": True}
+    build_tree = project.working_tree.clone()
+    for target in targets:
+        build_tree.build_targets.add_explore_stage(target, params=explorer_args)
+    # dataset_list = project.working_tree.load_hashkey(source_datasets)
+
+    explorer = Explorer(dataset_list)
+    for dataset in dataset_list:
+        dst_dir = dataset.data_path
+        dataset.save(dst_dir, save_media=True, save_hashkey_meta=True)
+
+    if args.stage:
+        # build_tree.save_hashkey(explorer._item_list)
+        project.working_tree.config.update(build_tree.config)
+        project.working_tree.save()
 
     # Get query datasetitem through query path
     if osp.exists(args.query):

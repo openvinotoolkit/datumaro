@@ -350,7 +350,7 @@ class ExploreTest(TestCase):
     def test_can_checkout_load_hashkey(self):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
-        dataset1_url = osp.join(test_dir, "dataset")
+        dataset1_url = osp.join(test_dir, "dataset1")
         train_image_path = osp.join(test_dir, "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
@@ -359,70 +359,75 @@ class ExploreTest(TestCase):
         self.test_dataset2.save(dataset2_url, save_media=True)
         result_dir = osp.join(test_dir, "result")
 
-        with TestDir() as proj_dir:
-            run(self, "project", "create", "-o", proj_dir)
-            run(
-                self,
-                "project",
-                "import",
-                "-n",
-                "source-1",
-                "-f",
-                "datumaro",
-                "-p",
-                proj_dir,
-                dataset1_url,
-            )
+        # with TestDir() as proj_dir:
+        run(self, "project", "create", "-o", proj_dir)
+        run(
+            self,
+            "project",
+            "import",
+            "-n",
+            "source-1",
+            "-f",
+            "datumaro",
+            "-p",
+            proj_dir,
+            dataset1_url,
+        )
 
-            run(self, "explore", "source-1", "-q", train_image_path, "-topk", "2", "-p", proj_dir)
-            run(self, "project", "commit", "-p", proj_dir, "-m", "commit1")
-            commit1_proj = load_project(proj_dir)
-            commit1_hashkey = commit1_proj.working_tree._config.hashkey
+        run(self, "explore", "source-1", "-q", train_image_path, "-topk", "2", "-p", proj_dir)
+        run(self, "project", "commit", "-p", proj_dir, "-m", "commit1")
+        commit1_proj = load_project(proj_dir)
+        new_tree = commit1_proj.working_tree.clone()
+        commit1_hashkey = new_tree._config.hashkey
 
-            run(
-                self,
-                "merge",
-                "-f",
-                "datumaro",
-                "-o",
-                result_dir,
-                dataset1_url,
-                dataset2_url,
-            )
-            run(
-                self,
-                "project",
-                "import",
-                "-n",
-                "result",
-                "-p",
-                proj_dir,
-                "-f",
-                "datumaro",
-                result_dir,
-            )
-            run(
-                self,
-                "explore",
-                "result",
-                "-q",
-                train_image_path,
-                "-topk",
-                "2",
-                "-p",
-                proj_dir,
-            )
+        # check stage added
+        stage = new_tree.build_targets.add_explore_stage("source-1", params={"save_hashkey": True})
+        self.assertTrue(stage in new_tree.build_targets)
 
-            run(self, "project", "commit", "-p", proj_dir, "-m", "commit2")
-            commit2_proj = load_project(proj_dir)
-            commit2_hashkey = commit2_proj.working_tree._config.hashkey
-            self.assertTrue(len(commit2_hashkey) > len(commit1_hashkey))
+        run(
+            self,
+            "merge",
+            "-f",
+            "datumaro",
+            "-o",
+            result_dir,
+            dataset1_url,
+            dataset2_url,
+        )
+        run(
+            self,
+            "project",
+            "import",
+            "-n",
+            "result",
+            "-p",
+            proj_dir,
+            "-f",
+            "datumaro",
+            result_dir,
+        )
+        run(
+            self,
+            "explore",
+            "result",
+            "-q",
+            train_image_path,
+            "-topk",
+            "2",
+            "-p",
+            proj_dir,
+        )
 
-            run(self, "project", "checkout", "-p", proj_dir, "HEAD~1")
-            checkout_proj = load_project(proj_dir)
-            checkout_hashkey = checkout_proj.working_tree._config.hashkey
+        run(self, "project", "commit", "-p", proj_dir, "-m", "commit2")
+        commit2_proj = load_project(proj_dir)
+        commit2_hashkey = commit2_proj.working_tree._config.hashkey
+        self.assertTrue(len(commit2_hashkey) > len(commit1_hashkey))
 
-            self.assertEqual(len(checkout_hashkey), len(commit1_hashkey))
-            self.assertEqual(checkout_hashkey["1"], commit1_hashkey["1"])
-            self.assertEqual(checkout_hashkey["2"], commit1_hashkey["2"])
-            self.assertEqual(checkout_hashkey["3"], commit1_hashkey["3"])
+        run(self, "project", "checkout", "-p", proj_dir, "HEAD~1")
+        checkout_proj = load_project(proj_dir)
+        checkout_hashkey = checkout_proj.working_tree._config.hashkey
+
+        self.assertEqual(len(checkout_hashkey), len(commit1_hashkey))
+        self.assertEqual(checkout_hashkey["1"], commit1_hashkey["1"])
+        self.assertEqual(checkout_hashkey["2"], commit1_hashkey["2"])
+        self.assertEqual(checkout_hashkey["3"], commit1_hashkey["3"])
