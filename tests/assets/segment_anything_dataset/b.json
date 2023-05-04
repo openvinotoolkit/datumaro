@@ -1,0 +1,1 @@
+{"image": {"image_id": 2, "width": 5, "height": 10, "file_name": "b.jpg"}, "annotations": [{"id": 1, "segmentation": {"size": [5, 10], "counts": "b1"}, "bbox": [0.0, 0.0, 0.0, 0.0], "area": 0, "predicted_iou": 0.8607975925446022, "stability_score": 0.36768932422921985, "crop_box": [0.0, 0.0, 1.0, 1.0], "point_coords": [[3, 8]]}]}
