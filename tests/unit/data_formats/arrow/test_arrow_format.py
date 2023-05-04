@@ -368,25 +368,25 @@ class ArrowFormatTest:
             ),
         ],
     )
-    def test_media_contents(self, fxt_dataset, save_media, test_dir, helper_tc, request):
+    def test_media_contents(self, fxt_dataset, save_media, test_dir, request):
         fxt_dataset = request.getfixturevalue(fxt_dataset)
 
         fxt_dataset.export(test_dir, format=self.format, save_media=save_media)
         imported_dataset = Dataset.import_from(test_dir)
         for item_a, item_b in zip(fxt_dataset, imported_dataset):
             if isinstance(item_a.media, FromFileMixin):
-                helper_tc.assertTrue(item_a.media.bytes is not None)
-            helper_tc.assertTrue(item_a.media.data is not None)
+                assert item_a.media.bytes is not None
+            assert item_a.media.data is not None
             if save_media:
-                helper_tc.assertTrue(item_b.media.bytes is not None)
-                helper_tc.assertTrue(item_b.media.data is not None)
+                assert item_b.media.bytes is not None
+                assert item_b.media.data is not None
             else:
                 if isinstance(item_a.media, FromFileMixin):
-                    helper_tc.assertTrue(item_b.media.bytes is not None)
-                    helper_tc.assertTrue(item_b.media.data is not None)
+                    assert item_b.media.bytes is not None
+                    assert item_b.media.data is not None
                 else:
-                    helper_tc.assertTrue(item_b.media.bytes is None)
-                    helper_tc.assertTrue(item_b.media.data is None)
+                    assert item_b.media.bytes is None
+                    assert item_b.media.data is None
 
     # Below is testing special cases...
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
