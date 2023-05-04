@@ -133,11 +133,11 @@ LabelMapConfig = Dict[str, Tuple[Optional[RgbColor], List[str], List[str]]]
 
 def make_voc_label_map(task: VocTask) -> LabelMapConfig:
     if task == VocTask.action_classification:
-        labels = sorted(VocAction, key=lambda l: l.value)
-        label_map = OrderedDict((label.name, [VocColormap[label.value], [], []]) for label in labels)
+        label_map = {VocLabel.person.name: [VocColormap[VocLabel.person.value], [], []]}
+        label_map[VocLabel.person.name][1] = [p.name for p in VocAction]
     elif task == VocTask.person_layout:
-        labels = sorted(VocBodyPart, key=lambda l: l.value)
-        label_map = OrderedDict((label.name, [VocColormap[label.value], [], []]) for label in labels)
+        label_map = {VocLabel.person.name: [VocColormap[VocLabel.person.value], [], []]}
+        label_map[VocLabel.person.name][1] = [p.name for p in VocBodyPart]
     elif task == VocTask.classification or task == VocTask.detection or task == VocTask.segmentation:
         labels = sorted(VocLabel, key=lambda l: l.value)
         label_map = OrderedDict((label.name, [VocColormap[label.value], [], []]) for label in labels)
@@ -146,8 +146,7 @@ def make_voc_label_map(task: VocTask) -> LabelMapConfig:
         label_map = OrderedDict((label.name, [VocColormap[label.value], [], []]) for label in labels)
         label_map[VocLabel.person.name][1] = [p.name for p in VocBodyPart]
         label_map[VocLabel.person.name][2] = [a.name for a in VocAction]
-        
-    print("####### format 147", label_map)
+
     return label_map
 
 

@@ -10,7 +10,7 @@ from datumaro.components.importer import Importer
 from .format import VocPath, VocTask
 
 
-class VocImporter(Importer):
+class _VocImporter(Importer):
     _TASKS = {
         VocTask.classification: ("voc_classification", "Main"),
         VocTask.detection: ("voc_detection", "Main"),
@@ -64,26 +64,26 @@ class VocImporter(Importer):
         return subsets
 
 
-class VocClassificationImporter(VocImporter):
+class VocClassificationImporter(_VocImporter):
     _TASK = VocTask.classification
-    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
-class VocDetectionImporter(VocImporter):
+class VocDetectionImporter(_VocImporter):
     _TASK = VocTask.detection
-    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
-class VocSegmentationImporter(VocImporter):
+class VocSegmentationImporter(_VocImporter):
     _TASK = VocTask.segmentation
-    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
-class VocLayoutImporter(VocImporter):
+class VocLayoutImporter(_VocImporter):
     _TASK = VocTask.person_layout
-    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
-class VocActionImporter(VocImporter):
+class VocActionImporter(_VocImporter):
     _TASK = VocTask.action_classification
-    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}

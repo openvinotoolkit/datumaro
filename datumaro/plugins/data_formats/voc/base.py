@@ -97,7 +97,6 @@ class _VocBase(SubsetBase):
             label_map_path = osp.join(dataset_path, VocPath.LABELMAP_FILE)
             if osp.isfile(label_map_path):
                 label_map = parse_label_map(label_map_path)
-        print("#### voc base.py L89", self._task, label_map)
 
         return make_voc_categories(label_map, self._task)
 
@@ -272,66 +271,141 @@ class _VocXmlBase(_VocBase):
             raise InvalidFieldError(xpath)
         return elem.text == "1"
 
+    # def _parse_annotations(self, root_elem, *, item_id: Tuple[str, str]) -> List[Annotation]:
+    #     item_annotations = []
+
+    #     for obj_id, object_elem in enumerate(root_elem.iterfind("object")):
+    #         try:
+    #             obj_id += 1
+    #             attributes = {}
+    #             group = obj_id
+
+    #             obj_label_id = self._get_label_id(self._parse_field(object_elem, "name"))
+
+    #             obj_bbox = self._parse_bbox(object_elem)
+
+    #             for key in ["difficult", "truncated", "occluded"]:
+    #                 attributes[key] = self._parse_bool_field(object_elem, key, default=False)
+
+    #             pose_elem = object_elem.find("pose")
+    #             if pose_elem is not None:
+    #                 attributes["pose"] = pose_elem.text
+
+    #             point_elem = object_elem.find("point")
+    #             if point_elem is not None:
+    #                 point_x = self._parse_field(point_elem, "x", float)
+    #                 point_y = self._parse_field(point_elem, "y", float)
+    #                 attributes["point"] = (point_x, point_y)
+
+    #             actions_elem = object_elem.find("actions")
+    #             actions = {
+    #                 a: False
+    #                 for a in self._categories[AnnotationType.label].items[obj_label_id].attributes
+    #             }
+    #             if actions_elem is not None:
+    #                 for action_elem in actions_elem:
+    #                     actions[action_elem.tag] = self._parse_bool_field(
+    #                         actions_elem, action_elem.tag
+    #                     )
+    #             for action, present in actions.items():
+    #                 attributes[action] = present
+
+    #             has_parts = False
+    #             for part_elem in object_elem.findall("part"):
+    #                 part_label_id = self._get_label_id(self._parse_field(part_elem, "name"))
+    #                 part_bbox = self._parse_bbox(part_elem)
+
+    #                 if self._task is not VocTask.person_layout:
+    #                     break
+    #                 has_parts = True
+    #                 item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
+
+    #             attributes_elem = object_elem.find("attributes")
+    #             if attributes_elem is not None:
+    #                 for attr_elem in attributes_elem.iter("attribute"):
+    #                     attributes[self._parse_field(attr_elem, "name")] = self._parse_field(
+    #                         attr_elem, "value"
+    #                     )
+
+    #             if self._task is VocTask.person_layout and not has_parts:
+    #                 continue
+    #             if self._task is VocTask.action_classification and not actions:
+    #                 continue
+
+    #             item_annotations.append(
+    #                 Bbox(
+    #                     *obj_bbox, label=obj_label_id, attributes=attributes, id=obj_id, group=group
+    #                 )
+    #             )
+    #         except Exception as e:
+    #             self._ctx.error_policy.report_annotation_error(e, item_id=item_id)
+
+    #     return item_annotations
+
+    def _parse_attribute(self, object_elem):
+        attributes = {}
+
+        for key in ["difficult", "truncated", "occluded"]:
+            attributes[key] = self._parse_bool_field(object_elem, key, default=False)
+
+        pose_elem = object_elem.find("pose")
+        if pose_elem is not None:
+            attributes["pose"] = pose_elem.text
+
+        point_elem = object_elem.find("point")
+        if point_elem is not None:
+            point_x = self._parse_field(point_elem, "x", float)
+            point_y = self._parse_field(point_elem, "y", float)
+            attributes["point"] = (point_x, point_y)
+        
+        attributes_elem = object_elem.find("attributes")
+        if attributes_elem is not None:
+            for attr_elem in attributes_elem.iter("attribute"):
+                attributes[self._parse_field(attr_elem, "name")] = self._parse_field(
+                    attr_elem, "value"
+                )
+
+        return attributes
+
     def _parse_annotations(self, root_elem, *, item_id: Tuple[str, str]) -> List[Annotation]:
         item_annotations = []
 
         for obj_id, object_elem in enumerate(root_elem.iterfind("object")):
             try:
                 obj_id += 1
-                attributes = {}
                 group = obj_id
 
-                obj_label_id = self._get_label_id(self._parse_field(object_elem, "name"))
+                label_name = self._parse_field(object_elem, "name")
 
+                if (self._task == VocTask.person_layout or self._task == VocTask.action_classification) and label_name != "person":
+                    continue
+
+                obj_label_id = self._get_label_id(label_name)
                 obj_bbox = self._parse_bbox(object_elem)
+                attributes = self._parse_attribute(object_elem)
 
-                for key in ["difficult", "truncated", "occluded"]:
-                    attributes[key] = self._parse_bool_field(object_elem, key, default=False)
+                if self._task == VocTask.person_layout:
+                    for part_elem in object_elem.findall("part"):
+                        part_label_id = self._get_label_id(self._parse_field(part_elem, "name"))
+                        part_bbox = self._parse_bbox(part_elem)
 
-                pose_elem = object_elem.find("pose")
-                if pose_elem is not None:
-                    attributes["pose"] = pose_elem.text
+                        if self._task is not VocTask.person_layout:
+                            break
+                        item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
 
-                point_elem = object_elem.find("point")
-                if point_elem is not None:
-                    point_x = self._parse_field(point_elem, "x", float)
-                    point_y = self._parse_field(point_elem, "y", float)
-                    attributes["point"] = (point_x, point_y)
-
-                actions_elem = object_elem.find("actions")
-                actions = {
-                    a: False
-                    for a in self._categories[AnnotationType.label].items[obj_label_id].attributes
-                }
-                if actions_elem is not None:
-                    for action_elem in actions_elem:
-                        actions[action_elem.tag] = self._parse_bool_field(
-                            actions_elem, action_elem.tag
-                        )
-                for action, present in actions.items():
-                    attributes[action] = present
-
-                has_parts = False
-                for part_elem in object_elem.findall("part"):
-                    part_label_id = self._get_label_id(self._parse_field(part_elem, "name"))
-                    part_bbox = self._parse_bbox(part_elem)
-
-                    if self._task is not VocTask.person_layout:
-                        break
-                    has_parts = True
-                    item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
-
-                attributes_elem = object_elem.find("attributes")
-                if attributes_elem is not None:
-                    for attr_elem in attributes_elem.iter("attribute"):
-                        attributes[self._parse_field(attr_elem, "name")] = self._parse_field(
-                            attr_elem, "value"
-                        )
-
-                if self._task is VocTask.person_layout and not has_parts:
-                    continue
-                if self._task is VocTask.action_classification and not actions:
-                    continue
+                if self._task == VocTask.action_classification:
+                    actions_elem = object_elem.find("actions")
+                    actions = {
+                        a: False
+                        for a in self._categories[AnnotationType.label].items[obj_label_id].attributes
+                    }
+                    if actions_elem is not None:
+                        for action_elem in actions_elem:
+                            actions[action_elem.tag] = self._parse_bool_field(
+                                actions_elem, action_elem.tag
+                            )
+                    for action, present in actions.items():
+                        attributes[action] = present
 
                 item_annotations.append(
                     Bbox(
