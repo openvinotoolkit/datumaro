@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/977>)
 - Fix `bytes` property returning `None` if function is given to `data`
   (<https://github.com/openvinotoolkit/datumaro/pull/978>)
-- Fix Synthia-Rand data format 
+- Fix Synthia-Rand data format
   (<https://github.com/openvinotoolkit/datumaro/pull/987>)
 
 ## 20/04/2023 - Release 1.2.0
