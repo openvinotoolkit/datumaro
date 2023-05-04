@@ -6,9 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+## 04/05/2023 - Release 1.2.1
 ### Bug fixes
 - Fix project level CVAT for images format import
   (<https://github.com/openvinotoolkit/datumaro/pull/980>)
+- Fix an info message when using the convert CLI command with no args.input_format
+  (<https://github.com/openvinotoolkit/datumaro/pull/982>)
 - Fix media contents not returning bytes in arrow format
   (<https://github.com/openvinotoolkit/datumaro/pull/986>)
 
