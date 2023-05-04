@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 import glob
@@ -7,6 +7,7 @@ import os.path as osp
 
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
 from datumaro.components.importer import Importer
+from datumaro.util import str_to_bool
 
 from .base import MapillaryVistasInstancesBase, MapillaryVistasPanopticBase
 from .format import MapillaryVistasPath, MapillaryVistasTask
@@ -21,6 +22,18 @@ class MapillaryVistasImporter(Importer):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "--format-version",
+            default="v2.0",
+            type=str,
+            help="Use original config*.json file for your version of dataset",
+        )
+        parser.add_argument(
+            "--parse-polygon",
+            type=str_to_bool,
+            default=False,
+            help="Use original config*.json file for your version of dataset",
+        )
         parser.add_argument(
             "--use-original-config",
             action="store_true",
@@ -39,15 +52,15 @@ class MapillaryVistasImporter(Importer):
         subsets = self.find_sources(path)
 
         if len(subsets) == 0:
-            raise Exception("Failed to find Mapillary Vistas dataset at '%s'" % path)
+            raise Exception(f"Failed to find Mapillary Vistas dataset at {path}")
 
         tasks = list(set(task for subset in subsets.values() for task in subset))
         selected_task = tasks[0]
         if 1 < len(tasks):
+            task_types = ",".join(task.name for task in tasks)
             log.warning(
-                "Found potentially conflicting source types: %s"
-                "Only one one type will be used: %s"
-                % (",".join(task.name for task in tasks), selected_task.name)
+                f"Found potentially conflicting source types: {task_types}"
+                f"Only one one type will be used: {selected_task.name}"
             )
 
         if selected_task == MapillaryVistasTask.instances:
@@ -60,8 +73,8 @@ class MapillaryVistasImporter(Importer):
 
             if not has_config and not extra_params.get("use_original_config"):
                 raise Exception(
-                    "Failed to find config*.json at '%s'. "
-                    "See extra args for using original config" % path
+                    f"Failed to find config*.json at {path}. "
+                    "See extra args for using original config."
                 )
 
         sources = [

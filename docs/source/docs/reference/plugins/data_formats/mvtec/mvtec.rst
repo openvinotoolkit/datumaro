@@ -1,7 +1,0 @@
-MVTEC package
-===================
-
-.. toctree::
-   :glob:
-
-   *

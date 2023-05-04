@@ -1,9 +1,11 @@
+import logging
 import os
 import os.path as osp
 import pickle  # nosec import_pickle
 import shutil
 from copy import deepcopy
 from functools import partial
+from io import StringIO
 from itertools import product
 from unittest import TestCase
 
@@ -45,8 +47,9 @@ from datumaro.plugins.data_formats.coco.exporter import (
     CocoPersonKeypointsExporter,
     CocoStuffExporter,
 )
+from datumaro.plugins.data_formats.coco.format import CocoPath
 from datumaro.plugins.data_formats.coco.importer import CocoImporter
-from datumaro.util import dump_json_file
+from datumaro.util import dump_json_file, parse_json_file
 
 from ..requirements import Requirements, mark_requirement
 
@@ -78,6 +81,50 @@ class CocoImporterTest(TestCase):
                 dataset.export(path_test_dir, format)
                 back_dataset = Dataset.import_from(path_test_dir)
             compare_datasets(self, dataset, back_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_from_any_cwd(self):
+        class ChangeCWD:
+            def __init__(self, path):
+                self.cwd = os.getcwd()
+                self.cd_path = path
+
+            def __enter__(self):
+                os.chdir(self.cd_path)
+
+            def __exit__(self, exc_type, exc_val, exc_tb):
+                os.chdir(self.cwd)
+
+        format_paths = [
+            ("coco_captions", osp.join(DUMMY_DATASET_DIR, "coco_captions")),
+            ("coco_image_info", osp.join(DUMMY_DATASET_DIR, "coco_image_info")),
+            ("coco_instances", osp.join(DUMMY_DATASET_DIR, "coco_instances")),
+            ("coco_labels", osp.join(DUMMY_DATASET_DIR, "coco_labels")),
+            ("coco_person_keypoints", osp.join(DUMMY_DATASET_DIR, "coco_person_keypoints")),
+            ("coco_stuff", osp.join(DUMMY_DATASET_DIR, "coco_stuff")),
+        ]
+        for format, path in format_paths:
+            # absolute path import
+            Dataset.import_from(path, format)
+            for anno_file in os.listdir(os.path.join(path, CocoPath.ANNOTATIONS_DIR)):
+                Dataset.import_from(os.path.join(path, CocoPath.ANNOTATIONS_DIR, anno_file), format)
+
+            # relative path import
+            for rel_path in [
+                path,
+                os.path.join(path, CocoPath.ANNOTATIONS_DIR),
+                os.path.join(path, CocoPath.IMAGES_DIR),
+                os.getcwd(),
+            ]:
+                with ChangeCWD(rel_path):
+                    Dataset.import_from(osp.relpath(path, rel_path), format)
+                    for anno_file in os.listdir(os.path.join(path, CocoPath.ANNOTATIONS_DIR)):
+                        Dataset.import_from(
+                            osp.relpath(
+                                os.path.join(path, CocoPath.ANNOTATIONS_DIR, anno_file), rel_path
+                            ),
+                            format,
+                        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_instances(self):
@@ -192,6 +239,61 @@ class CocoImporterTest(TestCase):
 
             imported_dataset = Dataset.import_from(dataset_dir, format)
             compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_warning_users_with_zero_category_id(self):
+        expected_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="a",
+                    subset="default",
+                    media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                    attributes={"id": 5},
+                    annotations=[
+                        Bbox(2, 2, 3, 1, label=1, group=1, id=1, attributes={"is_crowd": False})
+                    ],
+                ),
+            ],
+            categories=["a", "b", "c"],
+        )
+
+        class CaptureLogger:
+            def __init__(self, logger=None, level=None):
+                self._logger = logger if logger else logging.getLogger()
+                self._level = level
+                self._origin_level = None
+                self._string_io = StringIO()
+
+            def __enter__(self):
+                self._logger.addHandler(logging.StreamHandler(self._string_io))
+                if self._level is not None:
+                    self._origin_level = self._logger.level
+                    self._logger.setLevel(self._level)
+                return self._string_io
+
+            def __exit__(self, exc_type, exc_val, exc_tb):
+                self._logger.handlers.pop()
+                if self._origin_level is not None:
+                    self._logger.setLevel(self._origin_level)
+
+        format = "coco_instances"
+        with TestDir() as test_dir:
+            dataset_dir = osp.join(test_dir, "dataset")
+            expected_dataset.export(dataset_dir, format, save_media=True)
+
+            # modify annotation file to have zero category id
+            anno_file = osp.join(dataset_dir, "annotations", "instances_default.json")
+            anno = parse_json_file(anno_file)
+            anno["categories"][0]["id"] = 0
+            anno["annotations"][0]["category_id"] = 0
+            dump_json_file(anno_file, anno)
+
+            with CaptureLogger(level=logging.WARNING) as strio:
+                imported_dataset = Dataset.import_from(dataset_dir, format)
+                assert "Category id of '0' is reserved for no class" in strio.getvalue()
+
+            item = next(iter(imported_dataset))
+            assert item.annotations[0].label is None
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_instances_with_original_cat_ids(self):

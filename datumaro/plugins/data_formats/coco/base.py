@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging as log
 import os.path as osp
 from inspect import isclass
 from typing import Any, Dict, Tuple, Type, TypeVar, Union, overload
@@ -36,9 +37,52 @@ from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
-from .format import CocoPath, CocoTask
+from .format import CocoImporterType, CocoPath, CocoTask
 
 T = TypeVar("T")
+
+
+class DirPathExtracter:
+    @staticmethod
+    def find_rootpath(path: str) -> str:
+        """Find root path from annotation json file path."""
+        path = osp.abspath(path)
+        if osp.dirname(path).endswith(CocoPath.ANNOTATIONS_DIR):
+            return path.rsplit(CocoPath.ANNOTATIONS_DIR, maxsplit=1)[0]
+        raise DatasetImportError(
+            f"Annotation path ({path}) should be under the directory which is named {CocoPath.ANNOTATIONS_DIR}. "
+            "If not, Datumaro fails to find the root path for this dataset. "
+            "Please follow this instruction, https://github.com/cocodataset/cocoapi/blob/master/README.txt"
+        )
+
+    @staticmethod
+    def find_images_dir(rootpath: str, subset: str) -> str:
+        """Find images directory from the root path."""
+
+        if rootpath and osp.isdir(osp.join(rootpath, CocoPath.IMAGES_DIR)):
+            images_dir = osp.join(rootpath, CocoPath.IMAGES_DIR)
+            if osp.isdir(osp.join(images_dir, subset or DEFAULT_SUBSET_NAME)):
+                images_dir = osp.join(images_dir, subset or DEFAULT_SUBSET_NAME)
+            return images_dir
+
+        raise DatasetImportError(
+            f"We found the rootpath ({rootpath}) for this dataset. "
+            f"However, there should exist a directory for images as {osp.join(rootpath, CocoPath.IMAGES_DIR)}. "
+            "If not, Datumaro fails to find the image directory path. "
+            "Please follow this instruction, https://github.com/cocodataset/cocoapi/blob/master/README.txt"
+        )
+
+
+class RoboflowDirPathExtracter(DirPathExtracter):
+    @staticmethod
+    def find_rootpath(path: str) -> str:
+        path, _ = osp.split(path)
+        path, _ = osp.split(path)
+        return path
+
+    @staticmethod
+    def find_images_dir(rootpath: str, subset: str) -> str:
+        return osp.join(rootpath, subset)
 
 
 class _CocoBase(SubsetBase):
@@ -55,6 +99,7 @@ class _CocoBase(SubsetBase):
         merge_instance_polygons=False,
         subset=None,
         keep_original_category_ids=False,
+        coco_importer_type: CocoImporterType = CocoImporterType.default,
         **kwargs,
     ):
         if not osp.isfile(path):
@@ -66,8 +111,15 @@ class _CocoBase(SubsetBase):
             subset = parts[1] if len(parts) == 2 else None
         super().__init__(subset=subset, **kwargs)
 
-        self._rootpath = self._find_rootpath(path)
-        self._images_dir = self._find_images_dir(subset)
+        if coco_importer_type == CocoImporterType.default:
+            self._rootpath = DirPathExtracter.find_rootpath(path)
+            self._images_dir = DirPathExtracter.find_images_dir(self._rootpath, subset)
+        elif coco_importer_type == CocoImporterType.roboflow:
+            self._rootpath = RoboflowDirPathExtracter.find_rootpath(path)
+            self._images_dir = RoboflowDirPathExtracter.find_images_dir(self._rootpath, subset)
+        else:
+            raise ValueError(coco_importer_type)
+
         self._task = task
 
         self._merge_instance_polygons = merge_instance_polygons
@@ -83,48 +135,18 @@ class _CocoBase(SubsetBase):
             self._mask_dir = osp.splitext(path)[0]
         self._items = self._load_items(json_data)
 
-    def _find_rootpath(self, path: str) -> str:
-        """Find root path from annotation json file path."""
-        if path.endswith(osp.join(CocoPath.ANNOTATIONS_DIR, osp.basename(path))):
-            return path.rsplit(CocoPath.ANNOTATIONS_DIR, maxsplit=1)[0]
-        raise DatasetImportError(
-            f"Annotation path ({path}) should be under the directory which is named {CocoPath.ANNOTATIONS_DIR}. "
-            "If not, Datumaro fails to find the root path for this dataset. "
-            "Please follow this instruction, https://github.com/cocodataset/cocoapi/blob/master/README.txt"
-        )
-
-    def _find_images_dir(self, subset: str) -> str:
-        """Find images directory from the root path."""
-
-        rootpath = self._rootpath
-
-        if rootpath and osp.isdir(osp.join(rootpath, CocoPath.IMAGES_DIR)):
-            images_dir = osp.join(rootpath, CocoPath.IMAGES_DIR)
-            if osp.isdir(osp.join(images_dir, subset or DEFAULT_SUBSET_NAME)):
-                images_dir = osp.join(images_dir, subset or DEFAULT_SUBSET_NAME)
-            return images_dir
-
-        raise DatasetImportError(
-            f"We found the rootpath ({rootpath}) for this dataset. "
-            f"However, there should exist a directory for images as {osp.join(rootpath, CocoPath.IMAGES_DIR)}. "
-            "If not, Datumaro fails to find the image directory path. "
-            "Please follow this instruction, https://github.com/cocodataset/cocoapi/blob/master/README.txt"
-        )
-
     def __iter__(self):
         yield from self._items.values()
 
     def _load_categories(self, json_data, *, keep_original_ids):
+        self._categories = {}
+
         if has_meta_file(self._rootpath):
             labels = parse_meta_file(self._rootpath).keys()
             self._categories = {AnnotationType.label: LabelCategories.from_iterable(labels)}
             # 0 is reserved for no class
             self._label_map = {i + 1: i for i in range(len(labels))}
-            return
-
-        self._categories = {}
-
-        if self._task in [
+        elif self._task in [
             CocoTask.instances,
             CocoTask.labels,
             CocoTask.person_keypoints,
@@ -136,8 +158,24 @@ class _CocoBase(SubsetBase):
                 keep_original_ids=keep_original_ids,
             )
 
-        if self._task == CocoTask.person_keypoints:
-            self._load_person_kp_categories(self._parse_field(json_data, "categories", list))
+            if self._task == CocoTask.person_keypoints:
+                self._load_person_kp_categories(self._parse_field(json_data, "categories", list))
+
+        # informs users if 0 is found as category id sicne 0 is reserved for no class
+        found = [
+            self._categories[AnnotationType.label][label_id].name
+            for cat_id, label_id in self._label_map.items()
+            if cat_id == 0
+            and self._categories[AnnotationType.label][label_id].name.lower() != "background"
+        ]
+        if found:
+            category_name = found[0]
+            log.warning(
+                "Category id of '0' is reserved for no class (background) but "
+                f"category named '{category_name}' with id of '0' is found in {self._path}. "
+                "Please be warned that annotations with category id of '0' would have `None` as label. "
+                "(https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/formats/coco.html#import-coco-dataset)"
+            )
 
     def _load_label_categories(self, json_cat, *, keep_original_ids):
         categories = LabelCategories()

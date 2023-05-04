@@ -1,7 +1,0 @@
-AVA package
-===========
-
-.. toctree::
-   :glob:
-
-   *

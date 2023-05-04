@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -49,12 +49,12 @@ class MapillaryVistasPath:
     MASK_EXT = ".png"
 
     ANNOTATION_DIRS = {
-        "v1.2": [CLASS_DIR, INSTANCES_DIR],
+        "v1.2": [CLASS_DIR, INSTANCES_DIR, PANOPTIC_DIR],
         "v2.0": [CLASS_DIR, INSTANCES_DIR, PANOPTIC_DIR, POLYGON_DIR],
     }
 
     CONFIG_FILES = {"v1.2": "config_v1.2.json", "v2.0": "config_v2.0.json"}
-    PANOPTIC_CONFIG = "panoptic_2020.json"
+    PANOPTIC_CONFIG = {"v1.2": "panoptic_2018.json", "v2.0": "panoptic_2020.json"}
 
     CLASS_BY_DIR = {
         INSTANCES_DIR: MapillaryVistasTask.instances,

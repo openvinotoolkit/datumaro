@@ -44,3 +44,6 @@ pyemd
 
 # apache arrow
 pyarrow
+
+# ava data format
+protobuf

@@ -15,6 +15,11 @@ class CocoTask(Enum):
     stuff = auto()
 
 
+class CocoImporterType(Enum):
+    default = auto()
+    roboflow = auto()
+
+
 class CocoPath:
     IMAGES_DIR = "images"
     ANNOTATIONS_DIR = "annotations"
