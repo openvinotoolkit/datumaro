@@ -7,6 +7,7 @@ import os.path as osp
 from glob import glob
 
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
+from datumaro.components.errors import DatasetNotFoundError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.plugins.data_formats.coco.base import (
@@ -67,7 +68,7 @@ class CocoImporter(Importer):
         subsets = self.find_sources(path)
 
         if len(subsets) == 0:
-            raise Exception("Failed to find 'coco' dataset at '%s'" % path)
+            raise DatasetNotFoundError(path, self.NAME)
 
         # TODO: should be removed when proper label merging is implemented
         conflicting_types = {
