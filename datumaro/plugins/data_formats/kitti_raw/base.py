@@ -10,6 +10,7 @@ from defusedxml import ElementTree as ET
 
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image, PointCloud
@@ -128,7 +129,7 @@ class KittiRawBase(SubsetBase):
                 # common tags
                 elif attr is not None and elem.tag == "name":
                     if not elem.text:
-                        raise ValueError("Attribute name can't be empty")
+                        raise InvalidAnnotationError("Attribute name can't be empty")
                     attr["name"] = elem.text
                 elif attr is not None and elem.tag == "value":
                     attr["value"] = elem.text or ""
@@ -140,7 +141,7 @@ class KittiRawBase(SubsetBase):
                     attr = None
 
         if track is not None or shape is not None or attr is not None:
-            raise Exception("Failed to parse annotations from '%s'" % path)
+            raise InvalidAnnotationError("Failed to parse annotations from '%s'" % path)
 
         special_attrs = KittiRawPath.SPECIAL_ATTRS
         common_attrs = ["occluded"]

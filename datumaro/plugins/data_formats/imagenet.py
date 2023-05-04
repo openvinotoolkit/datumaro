@@ -9,7 +9,7 @@ from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import DatasetImportError, MediaTypeError
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer, with_subset_dirs
@@ -43,9 +43,7 @@ class ImagenetBase(SubsetBase):
         label_cat = LabelCategories()
         for dirname in sorted(os.listdir(path)):
             if not os.path.isdir(os.path.join(path, dirname)):
-                self._ctx.error_policy.fail(
-                    DatasetImportError(f"'{os.path.join(path, dirname)}' is not a directory.")
-                )
+                raise NotADirectoryError(f"'{os.path.join(path, dirname)}' is not a directory.")
             if dirname != ImagenetPath.IMAGE_DIR_NO_LABEL:
                 label_cat.add(dirname)
         return {AnnotationType.label: label_cat}

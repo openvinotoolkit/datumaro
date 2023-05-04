@@ -6,7 +6,7 @@ import os
 import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, CompiledMask
-from datumaro.components.errors import DatumaroError, MediaTypeError
+from datumaro.components.errors import DatasetExportError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
 from datumaro.util.image import save_image
@@ -113,7 +113,9 @@ class IcdarTextSegmentationExporter(Exporter):
                 if color:
                     color = color.split()
                     if len(color) != 3:
-                        raise DatumaroError("Item %s: mask #%s has invalid color" % (item.id, i))
+                        raise DatasetExportError(
+                            "Item %s: mask #%s has invalid color" % (item.id, i)
+                        )
 
                     color = tuple(map(int, color))
                 else:

@@ -18,6 +18,7 @@ from datumaro.components.annotation import (
     Polygon,
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
 from datumaro.util import parse_json_file
@@ -48,7 +49,7 @@ class _MapillaryVistasBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if format_version == "v1.2" and parse_polygon is True:
-            raise ImportError(
+            raise DatasetImportError(
                 f"Format version {format_version} is not available for polygons. "
                 "Please try with v2.0 for parsing polygons."
             )

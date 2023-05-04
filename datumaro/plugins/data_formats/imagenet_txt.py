@@ -10,7 +10,7 @@ from typing import Iterable, Optional, Sequence, Tuple, Union
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import DatasetImportError, MediaTypeError
+from datumaro.components.errors import DatasetImportError, InvalidAnnotationError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
@@ -37,7 +37,9 @@ def _parse_annotation_line(line: str) -> Tuple[str, str, Sequence[int]]:
             image = item_id + item[0]
             label_ids = [int(id) for id in item[1:]]
         else:
-            raise Exception("Line %s: unexpected number " "of quotes in filename" % line)
+            raise InvalidAnnotationError(
+                "Line %s: unexpected number " "of quotes in filename" % line
+            )
     else:
         item = line.split()
         item_id = osp.splitext(item[0])[0]
@@ -58,7 +60,8 @@ class ImagenetTxtBase(SubsetBase):
         labels_file: str = ImagenetTxtPath.LABELS_FILE,
         image_dir: Optional[str] = None,
     ):
-        assert osp.isfile(path), path
+        if not osp.isfile(path):
+            raise FileNotFoundError("Can't read dataset '%s'" % path)
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]

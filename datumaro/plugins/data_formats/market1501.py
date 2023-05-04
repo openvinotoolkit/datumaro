@@ -30,7 +30,7 @@ class Market1501Path:
 class Market1501Base(DatasetBase):
     def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise NotADirectoryError("Can't open folder with annotation files '%s'" % path)
+            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
 
         self._path = path
         super().__init__(ctx=ctx)

@@ -104,7 +104,7 @@ class _CocoBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isfile(path):
-            raise DatasetImportError(f"Can't find JSON file at '{path}'")
+            raise FileNotFoundError(f"Can't find JSON file at '{path}'")
         self._path = path
 
         if not subset:

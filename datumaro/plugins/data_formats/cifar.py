@@ -13,7 +13,7 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import InvalidAnnotationError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
@@ -127,10 +127,14 @@ class CifarBase(SubsetBase):
         size = annotation_dict.get("image_sizes")
 
         if len(labels) != len(filenames):
-            raise Exception("The sizes of the arrays 'filenames', " "'labels' don't match.")
+            raise InvalidAnnotationError(
+                "The sizes of the arrays 'filenames', " "'labels' don't match."
+            )
 
         if 0 < len(images_data) and len(images_data) != len(filenames):
-            raise Exception("The sizes of the arrays 'data', " "'filenames', 'labels' don't match.")
+            raise InvalidAnnotationError(
+                "The sizes of the arrays 'data', " "'filenames', 'labels' don't match."
+            )
 
         for i, (filename, label) in enumerate(zip(filenames, labels)):
             item_id = osp.splitext(filename)[0]

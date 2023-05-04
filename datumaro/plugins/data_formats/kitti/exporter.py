@@ -11,7 +11,7 @@ from enum import Enum, auto
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, CompiledMask, LabelCategories
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import InvalidAnnotationError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
 from datumaro.util import cast, parse_str_enum_value, str_to_bool
@@ -241,7 +241,7 @@ class KittiExporter(Exporter):
                 label_map = parse_label_map(label_map_source)
 
         else:
-            raise Exception(
+            raise InvalidAnnotationError(
                 "Wrong labelmap specified, "
                 "expected one of %s or a file path" % ", ".join(t.name for t in LabelmapType)
             )

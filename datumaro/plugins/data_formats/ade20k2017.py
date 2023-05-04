@@ -13,6 +13,7 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, CompiledMask, LabelCategories, Mask
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
+from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
@@ -32,7 +33,7 @@ class Ade20k2017Path:
 class Ade20k2017Base(DatasetBase):
     def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
 
         # exclude dataset meta file
         subsets = [subset for subset in os.listdir(path) if osp.splitext(subset)[-1] != ".json"]
@@ -128,16 +129,16 @@ class Ade20k2017Base(DatasetBase):
     def _load_item_info(self, path):
         attr_path = osp.splitext(path)[0] + "_atr.txt"
         if not osp.isfile(attr_path):
-            raise Exception("Can't find annotation file for image %s" % path)
+            raise FileNotFoundError("Can't find annotation file for image %s" % path)
 
         item_info = []
         with open(attr_path, "r", encoding="utf-8") as f:
             for line in f:
                 columns = [s.strip() for s in line.split("#")]
                 if len(columns) != 6:
-                    raise Exception("Invalid line in %s" % attr_path)
+                    raise InvalidAnnotationError("Invalid line in %s" % attr_path)
                 if columns[5][0] != '"' or columns[5][-1] != '"':
-                    raise Exception(
+                    raise InvalidAnnotationError(
                         "Attributes column are expected \
                         in double quotes, file %s"
                         % attr_path

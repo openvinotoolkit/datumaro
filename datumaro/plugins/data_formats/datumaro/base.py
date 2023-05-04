@@ -21,7 +21,7 @@ from datumaro.components.annotation import (
     RleMask,
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import DatasetImportError
+from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import parse_json_file
@@ -166,7 +166,7 @@ class DatumaroBase(SubsetBase):
 
             pcd_info = item_desc.get("point_cloud")
             if media and pcd_info:
-                raise DatasetImportError("Dataset cannot contain multiple media types")
+                raise MediaTypeError("Dataset cannot contain multiple media types")
             if pcd_info:
                 pcd_path = pcd_info.get("path")
                 point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)

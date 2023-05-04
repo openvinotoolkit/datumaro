@@ -11,7 +11,7 @@ import google.protobuf.text_format as text_format
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import DatasetImportError, MediaTypeError
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
@@ -41,7 +41,7 @@ class AvaBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isfile(path):
-            raise DatasetImportError(f"Can't find CSV file at '{path}'")
+            raise FileNotFoundError(f"Can't find CSV file at '{path}'")
         self._path = path
 
         if not subset:
@@ -55,7 +55,7 @@ class AvaBase(SubsetBase):
         if path.endswith(osp.join(AvaPath.ANNOTATION_DIR, osp.basename(path))):
             self._rootpath = path.rsplit(AvaPath.ANNOTATION_DIR, maxsplit=1)[0]
         else:
-            raise DatasetImportError(
+            raise FileNotFoundError(
                 f"Annotation path ({path}) should be under the directory which is named {AvaPath.ANNOTATION_DIR}. "
                 "If not, Datumaro fails to find the root path for this dataset."
             )
@@ -63,7 +63,7 @@ class AvaBase(SubsetBase):
         if self._rootpath and osp.isdir(osp.join(self._rootpath, AvaPath.IMAGE_DIR)):
             self._images_dir = osp.join(self._rootpath, AvaPath.IMAGE_DIR)
         else:
-            raise DatasetImportError(
+            raise FileNotFoundError(
                 f"Root path ({self._rootpath}) should contain the directory which is named {AvaPath.IMAGE_DIR}. "
                 "If not, Datumaro fails to find the image directory path."
             )
@@ -86,7 +86,7 @@ class AvaBase(SubsetBase):
 
     def _load_categories(self, category_path):
         if not osp.exists(category_path):
-            raise DatasetImportError(
+            raise FileNotFoundError(
                 f"Label lists cannot be found in ({category_path}). "
                 "If not, Datumaro fails to import AVA action dataset."
             )

@@ -12,6 +12,7 @@ import numpy as np
 
 from datumaro.components.annotation import Bbox, Caption, Mask, MaskCategories, Polygon
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
@@ -46,7 +47,9 @@ class _IcdarBase(SubsetBase):
             self._items = list(self._load_recognition_items().values())
         elif task in {IcdarTask.text_localization, IcdarTask.text_segmentation}:
             if not osp.isdir(path):
-                raise NotADirectoryError("Can't open folder with annotation files '%s'" % path)
+                raise NotADirectoryError(
+                    "Can't read dataset directory with annotation files '%s'" % path
+                )
 
             if not subset:
                 subset = osp.basename(path)
@@ -126,7 +129,7 @@ class _IcdarBase(SubsetBase):
                         if len(objects) == 3:
                             text = objects[1]
                         else:
-                            raise Exception(
+                            raise InvalidAnnotationError(
                                 "Line %s: unexpected number " "of quotes in filename" % line
                             )
                     else:
@@ -212,7 +215,7 @@ class _IcdarBase(SubsetBase):
                         objects[9] = '" "'
                         objects.pop()
                     if len(objects) != 10:
-                        raise Exception(
+                        raise InvalidAnnotationError(
                             "Line %s contains the wrong number "
                             'of arguments, e.g. \'241 73 144 1 4 0 3 1 4 "h"' % line
                         )

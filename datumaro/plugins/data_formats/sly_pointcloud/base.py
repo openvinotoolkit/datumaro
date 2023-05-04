@@ -8,6 +8,7 @@ from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.errors import InvalidFieldError, UndeclaredLabelError
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image, PointCloud
 from datumaro.util import parse_json_file
@@ -58,7 +59,7 @@ class SuperviselyPointCloudBase(SubsetBase):
             if applicable_to == "imagesOnly":
                 continue  # an image attribute
             elif applicable_to not in {"all", "objectsOnly"}:
-                raise Exception("Unexpected tag 'applicable_type' value '%s'" % applicable_to)
+                raise InvalidFieldError(applicable_to)
 
             applicable_classes = tag.get("classes", [])
             if not applicable_classes:
@@ -67,7 +68,7 @@ class SuperviselyPointCloudBase(SubsetBase):
                 for label_name in applicable_classes:
                     _, label = label_cat.find(label_name)
                     if label is None:
-                        raise Exception("Unknown class for tag '%s'" % label_name)
+                        raise UndeclaredLabelError(label_name)
 
                     label.attributes.add(tag["name"])
 

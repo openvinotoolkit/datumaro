@@ -21,7 +21,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import AnnotationExportError, InvalidAnnotationError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
@@ -100,7 +100,7 @@ def parse_label_map(path):
                 color = None
 
             if name in label_map:
-                raise ValueError("Label '%s' is already defined" % name)
+                raise InvalidAnnotationError("Label '%s' is already defined" % name)
 
             label_map[name] = color
     return label_map
@@ -160,7 +160,9 @@ def _parse_annotation_line(line: str) -> Tuple[str, Optional[str]]:
             objects[0] = objects[1]
             objects[1] = objects[3]
         else:
-            raise Exception("Line %s: unexpected number " "of quotes in filename" % line)
+            raise InvalidAnnotationError(
+                "Line %s: unexpected number " "of quotes in filename" % line
+            )
     else:
         objects = line.split()
 
@@ -422,7 +424,7 @@ class CamvidExporter(Exporter):
                 label_map = parse_label_map(label_map_source)
 
         else:
-            raise Exception(
+            raise AnnotationExportError(
                 "Wrong labelmap specified, "
                 "expected one of %s or a file path" % ", ".join(t.name for t in LabelmapType)
             )

@@ -124,7 +124,9 @@ class YoloExporter(Exporter):
     def _export_media(self, item: DatasetItem, subset_img_dir: str) -> str:
         try:
             if not item.media or not (item.media.has_data or item.media.has_size):
-                raise Exception("Failed to export item '%s': " "item has no image info" % item.id)
+                raise DatasetExportError(
+                    "Failed to export item '%s': " "item has no image info" % item.id
+                )
 
             image_name = self._make_image_filename(item)
             image_fpath = osp.join(subset_img_dir, image_name)

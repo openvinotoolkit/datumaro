@@ -177,7 +177,7 @@ class OpenImagesBase(DatasetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
 
         super().__init__(ctx=ctx)
 

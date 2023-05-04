@@ -69,7 +69,7 @@ def parse_label_map(path):
                 color = None
 
             if name in label_map:
-                raise ValueError("Label '%s' is already defined" % name)
+                raise InvalidAnnotationError("Label '%s' is already defined" % name)
 
             label_map[name] = color
     return label_map
@@ -86,7 +86,7 @@ class _SynthiaBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
 
         super().__init__(subset=subset, ctx=ctx)
 

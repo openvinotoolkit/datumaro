@@ -20,7 +20,7 @@ from datumaro.util.os_util import find_files
 class KineticsBase(DatasetBase):
     def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
         self._path = path
 
         super().__init__(media_type=Video, ctx=ctx)

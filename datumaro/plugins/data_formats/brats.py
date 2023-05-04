@@ -25,7 +25,7 @@ class BratsPath:
 class BratsBase(SubsetBase):
     def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
 
         self._subset_suffix = osp.basename(path)[len(BratsPath.IMAGES_DIR) :]
         subset = None

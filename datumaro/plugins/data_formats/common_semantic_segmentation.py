@@ -10,7 +10,6 @@ import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer, with_subset_dirs
 from datumaro.components.media import Image
@@ -57,7 +56,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
 
         super().__init__(subset=subset, ctx=ctx)
 
@@ -71,7 +70,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
             label_map = parse_meta_file(meta_file[0])
             self._categories = make_categories(label_map)
         else:
-            raise DatasetImportError("Dataset meta info file was not found in %s" % path)
+            raise FileNotFoundError("Dataset meta info file was not found in %s" % path)
 
         self._items = list(self._load_items().values())
 

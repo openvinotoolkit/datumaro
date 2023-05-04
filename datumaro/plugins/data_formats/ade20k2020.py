@@ -40,7 +40,7 @@ class Ade20k2020Path:
 class Ade20k2020Base(DatasetBase):
     def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
 
         # exclude dataset meta file
         subsets = [subset for subset in os.listdir(path) if osp.splitext(subset)[-1] != ".json"]
@@ -168,7 +168,7 @@ class Ade20k2020Base(DatasetBase):
         json_path = osp.splitext(path)[0] + ".json"
         item_info = []
         if not osp.isfile(json_path):
-            raise Exception(
+            raise FileNotFoundError(
                 "Can't find annotation file (*.json) \
                 for image %s"
                 % path
