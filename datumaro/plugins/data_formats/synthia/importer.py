@@ -7,7 +7,7 @@ import os.path as osp
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 
-from .format import SynthiaFormatType, SynthiaRandPath, SynthiaSfPath, SynthiaAlPath
+from .format import SynthiaAlPath, SynthiaFormatType, SynthiaRandPath, SynthiaSfPath
 
 
 class _SynthiaImporter(Importer):

@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
 import os.path as osp
-
+from collections import OrderedDict
 from glob import glob
+
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
@@ -16,12 +16,12 @@ from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import (
-    SynthiaRandPath,
-    SynthiaRandLabelMap,
-    SynthiaSfPath,
-    SynthiaSfLabelMap,
-    SynthiaAlPath,
     SynthiaAlLabelMap,
+    SynthiaAlPath,
+    SynthiaRandLabelMap,
+    SynthiaRandPath,
+    SynthiaSfLabelMap,
+    SynthiaSfPath,
 )
 
 
