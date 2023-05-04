@@ -25,7 +25,7 @@ jobs:
       - name: Installing dependencies
         run: |
           python -m pip install -r tests/requirements.txt
-          python -m pip install -e '.[default,tf,tfds-dev]'
+          python -m pip install -e '.[default,tf]'
       - name: Nightly regression testing
         run: |
           python -m pytest -v --html=nightly_regression_test_report.html

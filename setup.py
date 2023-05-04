@@ -88,9 +88,6 @@ setuptools.setup(
         "tfds": [
             "tensorflow-datasets<4.9.0"
         ],  # 4.9.0 fails on Windows and MacOS, https://github.com/openvinotoolkit/datumaro/actions/runs/4618774184
-        "tfds-dev": [
-            "tensorflow-datasets[dev]<4.9.0"
-        ],  # 4.9.0 fails on Windows and MacOS, https://github.com/openvinotoolkit/datumaro/actions/runs/4618774184
         "tf-gpu": ["tensorflow-gpu"],
         "default": DEFAULT_REQUIREMENTS,
     },

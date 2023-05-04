@@ -6,3 +6,7 @@ pytest-cov>=4.0.0
 pytest-stress
 pytest-html
 coverage
+
+# testing tensorflow-dataset
+# 4.9.0 fails on Windows and MacOS, https://github.com/openvinotoolkit/datumaro/actions/runs/4618774184
+tensorflow-datasets[dev]<4.9.0
