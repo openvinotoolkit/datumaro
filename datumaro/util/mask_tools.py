@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging as log
 from functools import partial
 from itertools import chain
 from typing import Tuple
@@ -53,7 +54,7 @@ _default_colormap = generate_colormap()
 _default_unpaint_colormap = invert_colormap(_default_colormap)
 
 
-def unpaint_mask(painted_mask, inverse_colormap=None):
+def unpaint_mask(painted_mask, inverse_colormap=None, default_id=None):
     """
     Convert color mask to index mask
 
@@ -78,8 +79,10 @@ def unpaint_mask(painted_mask, inverse_colormap=None):
     palette = []
     for v in uvals:
         class_id = map_fn(v)
-        if class_id is None:
+        if class_id is None and default_id is None:
             raise KeyError(f"Undeclared color {((v >> 16) & 255, (v >> 8) & 255, v & 255)}")
+        elif class_id is None and default_id is not None:
+            class_id = default_id
         palette.append(class_id)
     palette = np.array(palette, dtype=np.min_scalar_type(len(uvals)))
     unpainted_mask = palette[unpainted_mask].reshape(painted_mask.shape[:2])
@@ -141,11 +144,11 @@ def index2bgr(id_map):
     return np.dstack((id_map >> 16, id_map >> 8, id_map)).astype(np.uint8)
 
 
-def load_mask(path, inverse_colormap=None):
+def load_mask(path, inverse_colormap=None, default_id=None):
     mask = load_image(path, dtype=np.uint8)
     if inverse_colormap is not None:
         if len(mask.shape) == 3 and mask.shape[2] != 1:
-            mask = unpaint_mask(mask, inverse_colormap)
+            mask = unpaint_mask(mask, inverse_colormap, default_id)
     return mask
 
 

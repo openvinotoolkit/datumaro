@@ -144,7 +144,7 @@ class _SynthiaBase(SubsetBase):
 
                 inverse_cls_colormap = self._categories[AnnotationType.mask].inverse_colormap
 
-                color_mask = load_mask(seg_img_path, inverse_cls_colormap)
+                color_mask = load_mask(seg_img_path, inverse_cls_colormap, default_id=0)
 
                 anno = []
                 classes = np.unique(color_mask)
