@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Release Notes &#8212; Datumaro 1.2.0 documentation</title>
+    <title>Release Notes &#8212; Datumaro 1.2.1 documentation</title>
   
   
   
@@ -554,6 +554,17 @@
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 </div>
+<section id="v1-2-1-2023-05">
+<h2>v1.2.1 (2023.05)<a class="headerlink" href="#v1-2-1-2023-05" title="Permalink to this heading">#</a></h2>
+<section id="bug-fixes">
+<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fix project level CVAT for images format import</p></li>
+<li><p>Fix an info message when using the convert CLI command with no args.input_format</p></li>
+<li><p>Fix media contents not returning bytes in arrow format</p></li>
+</ul>
+</section>
+</section>
 <section id="v1-2-0-2023-04">
 <h2>v1.2.0 (2023.04)<a class="headerlink" href="#v1-2-0-2023-04" title="Permalink to this heading">#</a></h2>
 <section id="new-features">
@@ -580,8 +591,8 @@
 <li><p>Abbreviate “detect-format” to “detect” for prettifying</p></li>
 </ul>
 </section>
-<section id="bug-fixes">
-<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">#</a></h3>
+<section id="id1">
+<h3>Bug fixes<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add UserWarning if an invalid media_type comes to image statistics computation</p></li>
 <li><p>Fix negated <cite>is_encrypted</cite></p></li>
@@ -592,8 +603,8 @@
 </section>
 <section id="v1-1-0-2023-03">
 <h2>v1.1.0 (2023.03)<a class="headerlink" href="#v1-1-0-2023-03" title="Permalink to this heading">#</a></h2>
-<section id="id1">
-<h3>New features<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<section id="id2">
+<h3>New features<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add with_subset_dirs decorator (Add ImagenetWithSubsetDirsImporter)</p></li>
 <li><p>Add CommonSemanticSegmentationWithSubsetDirsImporter</p></li>
@@ -606,14 +617,14 @@
 <li><p>Add Ultralytics YOLO format</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3>Enhancements<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<section id="id3">
+<h3>Enhancements<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Refactor Datumaro format code and test code</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>Bug fixes<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<section id="id4">
+<h3>Bug fixes<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix image filenames and anomaly mask appearance in MVTec exporter</p></li>
 <li><p>Fix CIFAR10 and 100 detect function</p></li>
@@ -627,24 +638,24 @@
 </section>
 <section id="v1-0-0-2023-02">
 <h2>v1.0.0 (2023.02)<a class="headerlink" href="#v1-0-0-2023-02" title="Permalink to this heading">#</a></h2>
-<section id="id4">
-<h3>New features<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<section id="id5">
+<h3>New features<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add Data Explorer</p></li>
 <li><p>Add Ellipse annotation type</p></li>
 <li><p>Add MVTec anomaly data support</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Enhancements<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<section id="id6">
+<h3>Enhancements<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Refactor existing tests</p></li>
 <li><p>Raise ImportError on importing malformed COCO directory</p></li>
 <li><p>Remove the duplicated and cyclical category context in documentation</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>Bug fixes<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<section id="id7">
+<h3>Bug fixes<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix for importing CVAT image 1.1 data format exported to project level</p></li>
 <li><p>Fix a problem on setting log-level via CLI</p></li>
@@ -692,6 +703,18 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#v1-2-1-2023-05">
+   v1.2.1 (2023.05)
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#bug-fixes">
+     Bug fixes
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#v1-2-0-2023-04">
    v1.2.0 (2023.04)
   </a>
@@ -707,7 +730,7 @@
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#bug-fixes">
+    <a class="reference internal nav-link" href="#id1">
      Bug fixes
     </a>
    </li>
@@ -719,17 +742,17 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id1">
+    <a class="reference internal nav-link" href="#id2">
      New features
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id2">
+    <a class="reference internal nav-link" href="#id3">
      Enhancements
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id3">
+    <a class="reference internal nav-link" href="#id4">
      Bug fixes
     </a>
    </li>
@@ -741,17 +764,17 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id4">
+    <a class="reference internal nav-link" href="#id5">
      New features
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id5">
+    <a class="reference internal nav-link" href="#id6">
      Enhancements
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id6">
+    <a class="reference internal nav-link" href="#id7">
      Bug fixes
     </a>
    </li>

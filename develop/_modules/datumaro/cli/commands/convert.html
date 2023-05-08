@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.cli.commands.convert &#8212; Datumaro 1.2.0 documentation</title>
+    <title>datumaro.cli.commands.convert &#8212; Datumaro 1.2.1 documentation</title>
   
   
   
@@ -405,7 +405,11 @@
             <span class="k">return</span> <span class="mi">2</span>
 
         <span class="n">fmt</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Source dataset format detected as &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">input_format</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Source dataset format detected as </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">args</span><span class="o">.</span><span class="n">output_format</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;The source data format and the output data format is same as </span><span class="si">{fmt}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">3</span>
 
     <span class="n">source</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
 
