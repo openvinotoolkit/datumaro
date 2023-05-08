@@ -5,6 +5,8 @@
 import os.path as osp
 from typing import Optional
 
+import numpy as np
+
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
@@ -26,7 +28,6 @@ from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import parse_json_file
-from datumaro.util.meta_file_util import has_hashkey_file, parse_hashkey_file
 from datumaro.version import __version__
 
 from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
@@ -148,9 +149,6 @@ class DatumaroBase(SubsetBase):
         return categories
 
     def _load_items(self, parsed):
-        if has_hashkey_file(self._rootpath):
-            hashkey_dict = parse_hashkey_file(self._rootpath)
-
         items = []
         for item_desc in parsed["items"]:
             item_id = item_desc["id"]
@@ -224,7 +222,7 @@ class DatumaroBase(SubsetBase):
             z_order = ann.get("z_order")
             points = ann.get("points")
 
-            hash_key = ann.get("hash_key")
+            hash_key = ann.get("hashkey")
 
             if ann_type == AnnotationType.label:
                 loaded.append(Label(label=label_id, id=ann_id, attributes=attributes, group=group))
@@ -324,10 +322,11 @@ class DatumaroBase(SubsetBase):
                     )
                 )
 
-            elif ann_type == AnnotationType.HashKey:
+            elif ann_type == AnnotationType.hash_key:
+                hash_key = np.asarray(hash_key, dtype=np.uint8)
                 loaded.append(
                     HashKey(
-                        hash_key=hash_key,
+                        hash_key=np.array(hash_key),
                     )
                 )
 

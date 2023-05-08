@@ -10,6 +10,7 @@ from datumaro.components.annotation import Caption, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
+from datumaro.util.meta_file_util import has_hashkey_file, parse_hashkey_file
 from datumaro.util.scope import scope_add, scoped
 
 from ...requirements import Requirements, mark_requirement
@@ -354,35 +355,26 @@ class ExploreTest(TestCase):
         train_image_path = osp.join(test_dir, "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
+        run(self, "project", "create", "-o", proj_dir)
+        run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset1_url)
+        run(self, "explore", "source-1", "-q", train_image_path, "-topk", "2", "-p", proj_dir)
+        run(self, "project", "commit", "-p", proj_dir, "-m", "commit1")
+
+        commit1_proj = load_project(proj_dir)
+        commit1_srcs = list(commit1_proj.working_tree.config.sources.keys())
+        self.assertTrue(len(commit1_srcs), 1)
+        src_dir = commit1_proj.source_data_dir(commit1_srcs[0])
+        self.assertTrue(has_hashkey_file(src_dir))
+        commit1_hashkey = parse_hashkey_file(src_dir)
+
+        # check stage added
+        new_tree = commit1_proj.working_tree.clone()
+        stage = new_tree.build_targets.add_explore_stage("source-1", params={"save_hashkey": True})
+        self.assertTrue(stage in new_tree.build_targets)
 
         dataset2_url = osp.join(test_dir, "dataset2")
         self.test_dataset2.save(dataset2_url, save_media=True)
         result_dir = osp.join(test_dir, "result")
-
-        # with TestDir() as proj_dir:
-        run(self, "project", "create", "-o", proj_dir)
-        run(
-            self,
-            "project",
-            "import",
-            "-n",
-            "source-1",
-            "-f",
-            "datumaro",
-            "-p",
-            proj_dir,
-            dataset1_url,
-        )
-
-        run(self, "explore", "source-1", "-q", train_image_path, "-topk", "2", "-p", proj_dir)
-        run(self, "project", "commit", "-p", proj_dir, "-m", "commit1")
-        commit1_proj = load_project(proj_dir)
-        new_tree = commit1_proj.working_tree.clone()
-        commit1_hashkey = new_tree._config.hashkey
-
-        # check stage added
-        stage = new_tree.build_targets.add_explore_stage("source-1", params={"save_hashkey": True})
-        self.assertTrue(stage in new_tree.build_targets)
 
         run(
             self,
@@ -391,21 +383,11 @@ class ExploreTest(TestCase):
             "datumaro",
             "-o",
             result_dir,
-            dataset1_url,
-            dataset2_url,
-        )
-        run(
-            self,
-            "project",
-            "import",
-            "-n",
-            "result",
             "-p",
             proj_dir,
-            "-f",
-            "datumaro",
-            result_dir,
+            dataset2_url + ":datumaro",
         )
+        run(self, "project", "import", "-n", "result", "-p", proj_dir, "-f", "datumaro", result_dir)
         run(
             self,
             "explore",
@@ -420,12 +402,21 @@ class ExploreTest(TestCase):
 
         run(self, "project", "commit", "-p", proj_dir, "-m", "commit2")
         commit2_proj = load_project(proj_dir)
-        commit2_hashkey = commit2_proj.working_tree._config.hashkey
+        commit2_srcs = list(commit2_proj.working_tree.config.sources.keys())
+        self.assertTrue(len(commit2_srcs), 2)
+
+        src_dir = commit2_proj.source_data_dir("result")
+        self.assertTrue(has_hashkey_file(src_dir))
+        commit2_hashkey = parse_hashkey_file(src_dir)
+
         self.assertTrue(len(commit2_hashkey) > len(commit1_hashkey))
 
         run(self, "project", "checkout", "-p", proj_dir, "HEAD~1")
         checkout_proj = load_project(proj_dir)
-        checkout_hashkey = checkout_proj.working_tree._config.hashkey
+        checkout_srcs = list(checkout_proj.working_tree.config.sources.keys())
+        self.assertTrue(len(checkout_srcs), 1)
+        src_dir = checkout_proj.source_data_dir(checkout_srcs[0])
+        checkout_hashkey = parse_hashkey_file(src_dir)
 
         self.assertEqual(len(checkout_hashkey), len(commit1_hashkey))
         self.assertEqual(checkout_hashkey["1"], commit1_hashkey["1"])

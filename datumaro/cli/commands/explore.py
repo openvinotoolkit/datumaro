@@ -11,21 +11,10 @@ import shutil
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.explorer import Explorer
 from datumaro.util import str_to_bool
-from datumaro.util.meta_file_util import parse_hashkey_file
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
 from ..util.project import load_project, parse_full_revpath
-
-
-def load_hashkey(datasets):
-    for dataset in datasets:
-        dsr_path = dataset.data_path
-        hashkey_dict = parse_hashkey_file(dsr_path)
-        if not hashkey_dict:
-            return datasets
-
-        dataset_list = []
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
@@ -118,24 +107,21 @@ def explore_command(args):
         targets = list(project.working_tree.sources)
 
     source_datasets = []
-    for t in targets:
-        target_dataset, _ = parse_full_revpath(t, project)
+    for target in targets:
+        target_dataset, _ = parse_full_revpath(target, project)
         source_datasets.append(target_dataset)
-    dataset_list = load_hashkey(source_datasets)
 
     explorer_args = {"save_hashkey": True}
     build_tree = project.working_tree.clone()
     for target in targets:
         build_tree.build_targets.add_explore_stage(target, params=explorer_args)
-    # dataset_list = project.working_tree.load_hashkey(source_datasets)
 
-    explorer = Explorer(dataset_list)
-    for dataset in dataset_list:
+    explorer = Explorer(source_datasets)
+    for dataset in source_datasets:
         dst_dir = dataset.data_path
         dataset.save(dst_dir, save_media=True, save_hashkey_meta=True)
 
     if args.stage:
-        # build_tree.save_hashkey(explorer._item_list)
         project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
