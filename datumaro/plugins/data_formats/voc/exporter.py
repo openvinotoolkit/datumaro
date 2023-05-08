@@ -72,6 +72,11 @@ def _write_xml_bbox(bbox, parent_elem):
 
 class LabelmapType(Enum):
     voc = auto()
+    voc_classification = auto()
+    voc_detection = auto()
+    voc_segmentation = auto()
+    voc_layout = auto()
+    voc_action = auto()
     source = auto()
 
 
@@ -328,9 +333,13 @@ class VocExporter(Exporter):
                 if bbox is not None:
                     _write_xml_bbox(bbox, obj_elem)
 
-                for part_bbox in filter(
-                    lambda x: obj.group and obj.group == x.group, layout_bboxes
-                ):
+                # for part_bbox in filter(
+                #     lambda x: obj.group and obj.group == x.group, layout_bboxes
+                # ):
+                for part_bbox in layout_bboxes:
+                    if part_bbox.group != obj.group:
+                        continue
+
                     part_elem = ET.SubElement(obj_elem, "part")
                     ET.SubElement(part_elem, "name").text = self.get_label(part_bbox.label)
                     _write_xml_bbox(part_bbox.get_bbox(), part_elem)
@@ -592,9 +601,25 @@ class VocExporter(Exporter):
             write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
-        if label_map_source == LabelmapType.voc.name:
+        if label_map_source == LabelmapType.voc_classification.name:
             # use the default VOC colormap
-            label_map = make_voc_label_map()
+            label_map = make_voc_label_map(task=VocTask.classification)
+
+        elif label_map_source == LabelmapType.voc_detection.name:
+            # use the default VOC colormap
+            label_map = make_voc_label_map(task=VocTask.detection)
+
+        elif label_map_source == LabelmapType.voc_segmentation.name:
+            # use the default VOC colormap
+            label_map = make_voc_label_map(task=VocTask.segmentation)
+
+        elif label_map_source == LabelmapType.voc_layout.name:
+            # use the default VOC colormap
+            label_map = make_voc_label_map(task=VocTask.person_layout)
+
+        elif label_map_source == LabelmapType.voc_action.name:
+            # use the default VOC colormap
+            label_map = make_voc_label_map(task=VocTask.action_classification)
 
         elif (
             label_map_source == LabelmapType.source.name
