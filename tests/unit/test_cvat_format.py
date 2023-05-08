@@ -155,7 +155,7 @@ class CvatImporterTest(TestCase):
         for expected_dataset, dataset_dir in zip(EXPECTED_IMAGE_DATASETS, DUMMY_IMAGE_DATASET_DIRS):
             parsed_dataset = Dataset.import_from(dataset_dir, "cvat")
 
-            compare_datasets(self, expected_dataset, parsed_dataset)
+            compare_datasets(self, expected_dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load_video(self):
@@ -243,7 +243,7 @@ class CvatImporterTest(TestCase):
                 DatasetItem(
                     id="frame_000016",
                     subset="annotations",
-                    media=Image.from_file(path="frame_0000016.png", size=(20, 25)),
+                    media=Image.from_numpy(data=255 * np.ones((20, 25, 3))),
                     annotations=[
                         Bbox(
                             8,
@@ -283,7 +283,7 @@ class CvatImporterTest(TestCase):
 
         parsed_dataset = Dataset.import_from(DUMMY_VIDEO_DATASET_DIR, "cvat")
 
-        compare_datasets(self, expected_dataset, parsed_dataset)
+        compare_datasets(self, expected_dataset, parsed_dataset, require_media=True)
 
 
 class CvatExporterTest(TestCase):
@@ -333,6 +333,7 @@ class CvatExporterTest(TestCase):
                 DatasetItem(
                     id=1,
                     subset="s1",
+                    media=Image.from_numpy(data=np.zeros((5, 10, 3))),
                     annotations=[
                         PolyLine([0, 0, 4, 0, 4, 4], label=3, id=4, group=4),
                         Bbox(5, 0, 1, 9, label=3, id=4, group=4),
@@ -353,7 +354,7 @@ class CvatExporterTest(TestCase):
                         PolyLine([5, 0, 9, 0, 5, 5]),  # will be skipped as no label
                     ],
                 ),
-                DatasetItem(id=3, subset="s3", media=Image.from_file(path="3.jpg", size=(2, 4))),
+                DatasetItem(id=3, subset="s3", media=Image.from_numpy(data=np.zeros((5, 10, 3)))),
             ],
             categories={AnnotationType.label: src_label_cat},
         )
@@ -389,6 +390,7 @@ class CvatExporterTest(TestCase):
                 ),
                 DatasetItem(
                     id=1,
+                    media=Image.from_numpy(data=np.zeros((5, 10, 3))),
                     subset="s1",
                     annotations=[
                         PolyLine(
@@ -416,7 +418,7 @@ class CvatExporterTest(TestCase):
                 DatasetItem(
                     id=3,
                     subset="s3",
-                    media=Image.from_file(path="3.jpg", size=(2, 4)),
+                    media=Image.from_numpy(data=np.zeros((5, 10, 3))),
                     attributes={"frame": 0},
                 ),
             ],
@@ -429,6 +431,7 @@ class CvatExporterTest(TestCase):
                 partial(CvatExporter.convert, save_media=True),
                 test_dir,
                 target_dataset=target_dataset,
+                require_media=True,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -437,6 +440,7 @@ class CvatExporterTest(TestCase):
             [
                 DatasetItem(
                     id=0,
+                    media=Image.from_numpy(data=np.zeros((5, 10, 3))),
                     annotations=[
                         Label(0, attributes={"x": 4, "y": 2}),
                         Bbox(1, 2, 3, 4, label=0, attributes={"x": 1, "y": 1}),
@@ -452,6 +456,7 @@ class CvatExporterTest(TestCase):
             [
                 DatasetItem(
                     id=0,
+                    media=Image.from_numpy(data=np.zeros((5, 10, 3))),
                     annotations=[
                         Label(0, attributes={"x": "4", "y": "2"}),
                         Bbox(
@@ -467,9 +472,10 @@ class CvatExporterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(CvatExporter.convert, allow_undeclared_attrs=True),
+                partial(CvatExporter.convert, allow_undeclared_attrs=True, save_media=True),
                 test_dir,
                 target_dataset=target_dataset,
+                require_media=True,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -601,7 +607,12 @@ class CvatExporterTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset, CvatExporter.convert, test_dir)
+            self._test_save_and_load(
+                expected_dataset,
+                partial(CvatExporter.convert, save_media=True),
+                test_dir,
+                require_media=True,
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
@@ -629,18 +640,19 @@ class CvatExporterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(CvatExporter.convert, reindex=True),
+                partial(CvatExporter.convert, save_media=True, reindex=True),
                 test_dir,
                 target_dataset=expected_dataset,
+                require_media=True,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         expected = Dataset.from_iterable(
             [
-                DatasetItem(1, subset="a"),
+                DatasetItem(1, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 DatasetItem(2, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
-                DatasetItem(2, subset="b"),
+                DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
             ],
             categories=[],
         )
@@ -649,8 +661,8 @@ class CvatExporterTest(TestCase):
             # generate initial dataset
             dataset = Dataset.from_iterable(
                 [
-                    DatasetItem(1, subset="a"),
-                    DatasetItem(2, subset="b"),
+                    DatasetItem(1, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
+                    DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                     DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 ]
             )
@@ -661,7 +673,7 @@ class CvatExporterTest(TestCase):
             dataset.save(save_media=True)
 
             self.assertEqual({"a.xml", "b.xml", "images"}, set(os.listdir(path)))
-            self.assertEqual({"2.jpg"}, set(os.listdir(osp.join(path, "images"))))
+            self.assertEqual({"1.jpg", "2.jpg"}, set(os.listdir(osp.join(path, "images"))))
             compare_datasets(
                 self,
                 expected,

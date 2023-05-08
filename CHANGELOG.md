@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix `bytes` property returning `None` if function is given to `data`
   (<https://github.com/openvinotoolkit/datumaro/pull/978>)
 
+## 04/05/2023 - Release 1.2.1
+### Bug fixes
+- Fix project level CVAT for images format import
+  (<https://github.com/openvinotoolkit/datumaro/pull/980>)
+- Fix an info message when using the convert CLI command with no args.input_format
+  (<https://github.com/openvinotoolkit/datumaro/pull/982>)
+- Fix media contents not returning bytes in arrow format
+  (<https://github.com/openvinotoolkit/datumaro/pull/986>)
+
 ## 20/04/2023 - Release 1.2.0
 ### New features
 - Add Skill Up section to documentation

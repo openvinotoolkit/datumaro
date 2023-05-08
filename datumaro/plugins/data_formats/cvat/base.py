@@ -314,16 +314,28 @@ class CvatBase(SubsetBase):
     def _load_items(self, parsed):
         for frame_id, item_desc in parsed.items():
             name = item_desc.get("name", "frame_%06d.png" % int(frame_id))
-            image = osp.join(self._images_dir, name)
+
+            image_path_opt_1 = osp.join(self._images_dir, name)
+            image_path_opt_2 = (
+                osp.join(self._images_dir, self._subset, name) if self._subset is not None else None
+            )
+            if osp.exists(image_path_opt_1):
+                image = image_path_opt_1
+            elif image_path_opt_2 and osp.exists(image_path_opt_2):
+                image = image_path_opt_2
+            elif "name" not in item_desc:
+                # If --use-track flag is on
+                # TODO: Revisit all the CVAT import/export parts.
+                image = image_path_opt_1
+            else:
+                raise DatasetImportError(f"Cannot find an image which has name={name}.")
+
             image_size = (item_desc.get("height"), item_desc.get("width"))
             if all(image_size):
                 image = Image.from_file(path=image, size=tuple(map(int, image_size)))
             else:
                 image = Image.from_file(path=image)
 
-            subset = item_desc.get("subset")
-            if subset is not None and subset != self._subset:
-                continue
             parsed[frame_id] = DatasetItem(
                 id=osp.splitext(name)[0],
                 subset=self._subset,

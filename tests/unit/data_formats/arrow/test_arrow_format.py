@@ -12,7 +12,7 @@ import pytest
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.importer import DatasetImportError
-from datumaro.components.media import Image
+from datumaro.components.media import FromFileMixin, Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.arrow import ArrowExporter, ArrowImporter
 from datumaro.plugins.data_formats.arrow.arrow_dataset import ArrowDataset
@@ -342,6 +342,51 @@ class ArrowFormatTest:
 
         detected_formats = Environment().detect_dataset(test_dir)
         assert [self.importer.NAME] == detected_formats
+
+    @pytest.mark.parametrize(
+        ["fxt_dataset", "save_media"],
+        [
+            pytest.param(
+                "fxt_image",
+                True,
+                id="image_with_media",
+            ),
+            pytest.param(
+                "fxt_point_cloud",
+                True,
+                id="point_cloud_with_media",
+            ),
+            pytest.param(
+                "fxt_image",
+                False,
+                id="image_without_media",
+            ),
+            pytest.param(
+                "fxt_point_cloud",
+                False,
+                id="point_cloud_without_media",
+            ),
+        ],
+    )
+    def test_media_contents(self, fxt_dataset, save_media, test_dir, request):
+        fxt_dataset = request.getfixturevalue(fxt_dataset)
+
+        fxt_dataset.export(test_dir, format=self.format, save_media=save_media)
+        imported_dataset = Dataset.import_from(test_dir)
+        for item_a, item_b in zip(fxt_dataset, imported_dataset):
+            if isinstance(item_a.media, FromFileMixin):
+                assert item_a.media.bytes is not None
+            assert item_a.media.data is not None
+            if save_media:
+                assert item_b.media.bytes is not None
+                assert item_b.media.data is not None
+            else:
+                if isinstance(item_a.media, FromFileMixin):
+                    assert item_b.media.bytes is not None
+                    assert item_b.media.data is not None
+                else:
+                    assert item_b.media.bytes is None
+                    assert item_b.media.data is None
 
     # Below is testing special cases...
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
