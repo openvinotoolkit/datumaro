@@ -49,7 +49,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.synthia';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.tf_detection_api" href="datumaro.plugins.data_formats.tf_detection_api.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.synthia.base" href="datumaro.plugins.data_formats.synthia.base.html" />
     <link rel="prev" title="datumaro.plugins.data_formats.sly_pointcloud.format" href="datumaro.plugins.data_formats.sly_pointcloud.format.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
@@ -553,89 +553,20 @@
               
   <section id="module-datumaro.plugins.data_formats.synthia">
 <span id="datumaro-plugins-data-formats-synthia"></span><h1>datumaro.plugins.data_formats.synthia<a class="headerlink" href="#module-datumaro.plugins.data_formats.synthia" title="Permalink to this heading">#</a></h1>
-<p class="rubric">Functions</p>
+<p class="rubric">Modules</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.synthia.make_categories" title="datumaro.plugins.data_formats.synthia.make_categories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_categories</span></code></a>([label_map])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.synthia.base.html#module-datumaro.plugins.data_formats.synthia.base" title="datumaro.plugins.data_formats.synthia.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.synthia.base</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.synthia.parse_label_map" title="datumaro.plugins.data_formats.synthia.parse_label_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_label_map</span></code></a>(path)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.synthia.format.html#module-datumaro.plugins.data_formats.synthia.format" title="datumaro.plugins.data_formats.synthia.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.synthia.format</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.synthia.importer.html#module-datumaro.plugins.data_formats.synthia.importer" title="datumaro.plugins.data_formats.synthia.importer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.synthia.importer</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Classes</p>
-<table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.synthia.SynthiaBase" title="datumaro.plugins.data_formats.synthia.SynthiaBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SynthiaBase</span></code></a>(path)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.synthia.SynthiaImporter" title="datumaro.plugins.data_formats.synthia.SynthiaImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SynthiaImporter</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.synthia.SynthiaPath" title="datumaro.plugins.data_formats.synthia.SynthiaPath"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SynthiaPath</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.SynthiaPath">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.synthia.</span></span><span class="sig-name descname"><span class="pre">SynthiaPath</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/synthia.html#SynthiaPath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.SynthiaPath" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.SynthiaPath.IMAGES_DIR">
-<span class="sig-name descname"><span class="pre">IMAGES_DIR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RGB'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.SynthiaPath.IMAGES_DIR" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.SynthiaPath.LABELS_SEGM_DIR">
-<span class="sig-name descname"><span class="pre">LABELS_SEGM_DIR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GT/LABELS'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.SynthiaPath.LABELS_SEGM_DIR" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.SynthiaPath.SEMANTIC_SEGM_DIR">
-<span class="sig-name descname"><span class="pre">SEMANTIC_SEGM_DIR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GT/COLOR'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.SynthiaPath.SEMANTIC_SEGM_DIR" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.SynthiaPath.LABELMAP_FILE">
-<span class="sig-name descname"><span class="pre">LABELMAP_FILE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'label_colors.txt'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.SynthiaPath.LABELMAP_FILE" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.make_categories">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.synthia.</span></span><span class="sig-name descname"><span class="pre">make_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/synthia.html#make_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.make_categories" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.parse_label_map">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.synthia.</span></span><span class="sig-name descname"><span class="pre">parse_label_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/synthia.html#parse_label_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.parse_label_map" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.SynthiaBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.synthia.</span></span><span class="sig-name descname"><span class="pre">SynthiaBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/synthia.html#SynthiaBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.SynthiaBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubsetBase</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.SynthiaImporter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.synthia.</span></span><span class="sig-name descname"><span class="pre">SynthiaImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/synthia.html#SynthiaImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.SynthiaImporter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Importer</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.SynthiaImporter.detect">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionContext" title="datumaro.components.format_detection.FormatDetectionContext"><span class="pre">FormatDetectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/synthia.html#SynthiaImporter.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.SynthiaImporter.detect" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.SynthiaImporter.find_sources">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/synthia.html#SynthiaImporter.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.SynthiaImporter.find_sources" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </section>
 
 
@@ -653,10 +584,10 @@
           <p class="prev-next-title">datumaro.plugins.data_formats.sly_pointcloud.format</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.tf_detection_api.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.synthia.base.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.data_formats.tf_detection_api</p>
+      <p class="prev-next-title">datumaro.plugins.data_formats.synthia.base</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -669,121 +600,6 @@
           
             <div class="bd-sidebar-secondary bd-toc">
               
-<div class="toc-item">
-  
-<div class="tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-</div>
-<nav id="bd-toc-nav" class="page-toc">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.SynthiaPath">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     SynthiaPath
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.SynthiaPath.IMAGES_DIR">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       SynthiaPath.IMAGES_DIR
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.SynthiaPath.LABELS_SEGM_DIR">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       SynthiaPath.LABELS_SEGM_DIR
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.SynthiaPath.SEMANTIC_SEGM_DIR">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       SynthiaPath.SEMANTIC_SEGM_DIR
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.SynthiaPath.LABELMAP_FILE">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       SynthiaPath.LABELMAP_FILE
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.make_categories">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     make_categories()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.parse_label_map">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     parse_label_map()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.SynthiaBase">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     SynthiaBase
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.SynthiaImporter">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     SynthiaImporter
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.SynthiaImporter.detect">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       SynthiaImporter.detect()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.SynthiaImporter.find_sources">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       SynthiaImporter.find_sources()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
-</ul>
-
-</nav>
-</div>
-
 <div class="toc-item">
   
 <div id="searchbox"></div>

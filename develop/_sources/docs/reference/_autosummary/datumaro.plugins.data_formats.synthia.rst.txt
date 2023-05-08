@@ -9,24 +9,9 @@ datumaro.plugins.data\_formats.synthia
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-   
-      make_categories
-      parse_label_map
-   
    
 
    
-   
-   .. rubric:: Classes
-
-   .. autosummary::
-   
-      SynthiaBase
-      SynthiaImporter
-      SynthiaPath
    
    
 
@@ -35,4 +20,14 @@ datumaro.plugins.data\_formats.synthia
    
 
 
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   datumaro.plugins.data_formats.synthia.base
+   datumaro.plugins.data_formats.synthia.format
+   datumaro.plugins.data_formats.synthia.importer
 

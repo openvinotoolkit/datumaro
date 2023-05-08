@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats.tf_detection_api &#8212; Datumaro 1.2.1 documentation</title>
+    <title>datumaro.plugins.data_formats.synthia.importer &#8212; Datumaro 1.2.1 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.tf_detection_api';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.importer';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.tf_detection_api.base" href="datumaro.plugins.data_formats.tf_detection_api.base.html" />
-    <link rel="prev" title="datumaro.plugins.data_formats.synthia.importer" href="datumaro.plugins.data_formats.synthia.importer.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.tf_detection_api" href="datumaro.plugins.data_formats.tf_detection_api.html" />
+    <link rel="prev" title="datumaro.plugins.data_formats.synthia.format" href="datumaro.plugins.data_formats.synthia.format.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -551,22 +551,70 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.data_formats.tf_detection_api">
-<span id="datumaro-plugins-data-formats-tf-detection-api"></span><h1>datumaro.plugins.data_formats.tf_detection_api<a class="headerlink" href="#module-datumaro.plugins.data_formats.tf_detection_api" title="Permalink to this heading">#</a></h1>
-<p class="rubric">Modules</p>
+  <section id="module-datumaro.plugins.data_formats.synthia.importer">
+<span id="datumaro-plugins-data-formats-synthia-importer"></span><h1>datumaro.plugins.data_formats.synthia.importer<a class="headerlink" href="#module-datumaro.plugins.data_formats.synthia.importer" title="Permalink to this heading">#</a></h1>
+<p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.tf_detection_api.base.html#module-datumaro.plugins.data_formats.tf_detection_api.base" title="datumaro.plugins.data_formats.tf_detection_api.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.tf_detection_api.base</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter" title="datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SynthiaAlImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.tf_detection_api.exporter.html#module-datumaro.plugins.data_formats.tf_detection_api.exporter" title="datumaro.plugins.data_formats.tf_detection_api.exporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.tf_detection_api.exporter</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter" title="datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SynthiaRandImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.tf_detection_api.format.html#module-datumaro.plugins.data_formats.tf_detection_api.format" title="datumaro.plugins.data_formats.tf_detection_api.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.tf_detection_api.format</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter" title="datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SynthiaSfImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.synthia.importer.</span></span><span class="sig-name descname"><span class="pre">SynthiaRandImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/synthia/importer.html#SynthiaRandImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_SynthiaImporter</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'synthia_rand'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter.FORMAT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter.META_FOLDERS">
+<span class="sig-name descname"><span class="pre">META_FOLDERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['RGB',</span> <span class="pre">'GTTXT',</span> <span class="pre">'GT']</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter.META_FOLDERS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.synthia.importer.</span></span><span class="sig-name descname"><span class="pre">SynthiaSfImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/synthia/importer.html#SynthiaSfImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_SynthiaImporter</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'synthia_sf'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter.FORMAT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter.META_FOLDERS">
+<span class="sig-name descname"><span class="pre">META_FOLDERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['RGBLeft',</span> <span class="pre">'GTLeft',</span> <span class="pre">'DepthLeft']</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter.META_FOLDERS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.synthia.importer.</span></span><span class="sig-name descname"><span class="pre">SynthiaAlImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/synthia/importer.html#SynthiaAlImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_SynthiaImporter</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'synthia_al'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter.FORMAT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter.META_FOLDERS">
+<span class="sig-name descname"><span class="pre">META_FOLDERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['RGB',</span> <span class="pre">'SemSeg',</span> <span class="pre">'Depth']</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter.META_FOLDERS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -577,17 +625,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.synthia.importer.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.synthia.format.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.data_formats.synthia.importer</p>
+          <p class="prev-next-title">datumaro.plugins.data_formats.synthia.format</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.tf_detection_api.base.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.tf_detection_api.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.data_formats.tf_detection_api.base</p>
+      <p class="prev-next-title">datumaro.plugins.data_formats.tf_detection_api</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -602,6 +650,105 @@
               
 <div class="toc-item">
   
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     SynthiaRandImporter
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter.FORMAT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SynthiaRandImporter.FORMAT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaRandImporter.META_FOLDERS">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SynthiaRandImporter.META_FOLDERS
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     SynthiaSfImporter
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter.FORMAT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SynthiaSfImporter.FORMAT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaSfImporter.META_FOLDERS">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SynthiaSfImporter.META_FOLDERS
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     SynthiaAlImporter
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter.FORMAT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SynthiaAlImporter.FORMAT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.synthia.importer.SynthiaAlImporter.META_FOLDERS">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SynthiaAlImporter.META_FOLDERS
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
 <div id="searchbox"></div>
 </div>
 
@@ -612,7 +759,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.tf_detection_api.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.importer.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
