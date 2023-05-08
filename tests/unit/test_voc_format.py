@@ -30,6 +30,7 @@ from datumaro.components.errors import (
     UndeclaredLabelError,
 )
 from datumaro.components.media import Image
+
 from datumaro.plugins.data_formats.voc.exporter import (
     VocActionExporter,
     VocClassificationExporter,
@@ -38,7 +39,14 @@ from datumaro.plugins.data_formats.voc.exporter import (
     VocLayoutExporter,
     VocSegmentationExporter,
 )
-from datumaro.plugins.data_formats.voc.importer import VocImporter
+from datumaro.plugins.data_formats.voc.format import VocTask
+from datumaro.plugins.data_formats.voc.importer import (
+    VocActionImporter,
+    VocClassificationImporter,
+    VocDetectionImporter,
+    VocLayoutImporter,
+    VocSegmentationImporter,
+)
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import load_mask
 
@@ -154,402 +162,6 @@ class TestExtractorBase(DatasetBase):
 DUMMY_DATASET_DIR = get_test_asset_path("voc_dataset", "voc_dataset1")
 DUMMY_DATASET2_DIR = get_test_asset_path("voc_dataset", "voc_dataset2")
 DUMMY_DATASET3_DIR = get_test_asset_path("voc_dataset", "voc_dataset3")
-
-
-class VocImportTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
-        class DstExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter(
-                    [
-                        DatasetItem(
-                            id="2007_000001",
-                            subset="train",
-                            media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                            annotations=[
-                                Label(self._label(l.name)) for l in VOC.VocLabel if l.value % 2 == 1
-                            ]
-                            + [
-                                Bbox(
-                                    1,
-                                    2,
-                                    2,
-                                    2,
-                                    label=self._label("cat"),
-                                    attributes={
-                                        "pose": VOC.VocPose(1).name,
-                                        "truncated": True,
-                                        "difficult": False,
-                                        "occluded": False,
-                                    },
-                                    id=1,
-                                    group=1,
-                                ),
-                                # Only main boxes denote instances (have ids)
-                                Mask(
-                                    image=np.ones([10, 20]),
-                                    label=self._label(VOC.VocLabel(2).name),
-                                    group=1,
-                                ),
-                                Bbox(
-                                    4,
-                                    5,
-                                    2,
-                                    2,
-                                    label=self._label("person"),
-                                    attributes={
-                                        "truncated": False,
-                                        "difficult": False,
-                                        "occluded": False,
-                                        **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
-                                    },
-                                    id=2,
-                                    group=2,
-                                ),
-                                # Only main boxes denote instances (have ids)
-                                Bbox(
-                                    5.5,
-                                    6,
-                                    2,
-                                    2,
-                                    label=self._label(VOC.VocBodyPart(1).name),
-                                    group=2,
-                                ),
-                            ],
-                        ),
-                        DatasetItem(
-                            id="2007_000002",
-                            subset="test",
-                            media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                        ),
-                    ]
-                )
-
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR, "voc")
-
-        compare_datasets(self, DstExtractor(), dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_voc_classification_dataset(self):
-        class DstExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter(
-                    [
-                        DatasetItem(
-                            id="2007_000001",
-                            subset="train",
-                            media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                            annotations=[
-                                Label(self._label(l.name)) for l in VOC.VocLabel if l.value % 2 == 1
-                            ],
-                        ),
-                        DatasetItem(
-                            id="2007_000002",
-                            subset="test",
-                            media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                        ),
-                    ]
-                )
-
-        expected_dataset = DstExtractor()
-
-        rpath = osp.join("ImageSets", "Main", "train.txt")
-        matrix = [
-            ("voc_classification", "", ""),
-            ("voc_classification", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
-
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
-
-                compare_datasets(self, expected, actual, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_voc_layout_dataset(self):
-        expected_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="2007_000001",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                    annotations=[
-                        Bbox(
-                            4.0,
-                            5.0,
-                            2.0,
-                            2.0,
-                            label=15,
-                            id=2,
-                            group=2,
-                            attributes={
-                                "difficult": False,
-                                "truncated": False,
-                                "occluded": False,
-                                **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
-                            },
-                        ),
-                        Bbox(5.5, 6.0, 2.0, 2.0, label=22, group=2),
-                    ],
-                ),
-                DatasetItem(
-                    id="2007_000002",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                ),
-            ],
-            categories=VOC.make_voc_categories(),
-        )
-
-        rpath = osp.join("ImageSets", "Layout", "train.txt")
-        matrix = [
-            ("voc_layout", "", ""),
-            ("voc_layout", "train", rpath),
-            ("voc", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
-
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
-
-                compare_datasets(self, expected, actual, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_voc_detection_dataset(self):
-        expected_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="2007_000001",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                    annotations=[
-                        Bbox(
-                            1.0,
-                            2.0,
-                            2.0,
-                            2.0,
-                            label=8,
-                            id=1,
-                            group=1,
-                            attributes={
-                                "difficult": False,
-                                "truncated": True,
-                                "occluded": False,
-                                "pose": "Unspecified",
-                            },
-                        ),
-                        Bbox(
-                            4.0,
-                            5.0,
-                            2.0,
-                            2.0,
-                            label=15,
-                            id=2,
-                            group=2,
-                            attributes={
-                                "difficult": False,
-                                "truncated": False,
-                                "occluded": False,
-                                **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
-                            },
-                        ),
-                    ],
-                ),
-                DatasetItem(
-                    id="2007_000002",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                ),
-            ],
-            categories=VOC.make_voc_categories(),
-        )
-
-        rpath = osp.join("ImageSets", "Main", "train.txt")
-        matrix = [
-            ("voc_detection", "", ""),
-            ("voc_detection", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
-
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
-
-                compare_datasets(self, expected, actual, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_voc_segmentation_dataset(self):
-        expected_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="2007_000001",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                    annotations=[Mask(image=np.ones([10, 20]), label=2, group=1)],
-                ),
-                DatasetItem(
-                    id="2007_000002",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                ),
-            ],
-            categories=VOC.make_voc_categories(),
-        )
-
-        rpath = osp.join("ImageSets", "Segmentation", "train.txt")
-        matrix = [
-            ("voc_segmentation", "", ""),
-            ("voc_segmentation", "train", rpath),
-            ("voc", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
-
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
-
-                compare_datasets(self, expected, actual, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_voc_action_dataset(self):
-        expected_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="2007_000001",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                    annotations=[
-                        Bbox(
-                            4.0,
-                            5.0,
-                            2.0,
-                            2.0,
-                            label=15,
-                            id=2,
-                            group=2,
-                            attributes={
-                                "difficult": False,
-                                "truncated": False,
-                                "occluded": False,
-                                **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
-                            },
-                        )
-                    ],
-                ),
-                DatasetItem(
-                    id="2007_000002",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                ),
-            ],
-            categories=VOC.make_voc_categories(),
-        )
-
-        rpath = osp.join("ImageSets", "Action", "train.txt")
-        matrix = [
-            ("voc_action", "", ""),
-            ("voc_action", "train", rpath),
-            ("voc", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
-
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
-
-                compare_datasets(self, expected, actual, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect_voc(self):
-        env = Environment()
-
-        for path in [DUMMY_DATASET_DIR, DUMMY_DATASET2_DIR]:
-            with self.subTest(path=path):
-                detected_formats = env.detect_dataset(path)
-                self.assertEqual([VocImporter.NAME], detected_formats)
-
-    @mark_requirement(Requirements.DATUM_BUG_583)
-    def test_can_import_voc_dataset_with_empty_lines_in_subset_lists(self):
-        expected_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="2007_000001",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                    annotations=[
-                        Bbox(
-                            1.0,
-                            2.0,
-                            2.0,
-                            2.0,
-                            label=8,
-                            id=1,
-                            group=1,
-                            attributes={
-                                "difficult": False,
-                                "truncated": True,
-                                "occluded": False,
-                                "pose": "Unspecified",
-                            },
-                        )
-                    ],
-                )
-            ],
-            categories=VOC.make_voc_categories(),
-        )
-
-        rpath = osp.join("ImageSets", "Main", "train.txt")
-        matrix = [
-            ("voc_detection", "", ""),
-            ("voc_detection", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
-
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET3_DIR, path), format)
-
-                compare_datasets(self, expected, actual, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_673)
-    def test_can_pickle(self):
-        formats = [
-            "voc",
-            "voc_classification",
-            "voc_detection",
-            "voc_action",
-            "voc_layout",
-            "voc_segmentation",
-        ]
-
-        for fmt in formats:
-            with self.subTest(fmt=fmt):
-                source = Dataset.import_from(DUMMY_DATASET_DIR, format=fmt)
-
-                parsed = pickle.loads(pickle.dumps(source))  # nosec
-
-                compare_datasets_strict(self, source, parsed)
 
 
 class VocExtractorTest(TestCase):
@@ -833,14 +445,14 @@ class VocExtractorTest(TestCase):
 
 class VocExporterTest(TestCase):
     def _test_save_and_load(
-        self, source_dataset, converter, test_dir, target_dataset=None, importer_args=None, **kwargs
+        self, source_dataset, converter, test_dir, importer, target_dataset=None, importer_args=None, **kwargs
     ):
         return check_save_and_load(
             self,
             source_dataset,
             converter,
             test_dir,
-            importer="voc",
+            importer,
             target_dataset=target_dataset,
             importer_args=importer_args,
             **kwargs,
@@ -876,6 +488,7 @@ class VocExporterTest(TestCase):
                 TestExtractor(),
                 partial(VocClassificationExporter.convert, label_map="voc"),
                 test_dir,
+                importer="voc_classification",
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -982,6 +595,7 @@ class VocExporterTest(TestCase):
                 TestExtractor(),
                 partial(VocDetectionExporter.convert, label_map="voc"),
                 test_dir,
+                importer="voc_detection",
                 target_dataset=DstExtractor(),
             )
 
@@ -1026,6 +640,7 @@ class VocExporterTest(TestCase):
                 TestExtractor(),
                 partial(VocSegmentationExporter.convert, label_map="voc"),
                 test_dir,
+                importer="voc_segmentation",
                 target_dataset=DstExtractor(),
             )
 
@@ -1070,6 +685,7 @@ class VocExporterTest(TestCase):
                 TestExtractor(),
                 partial(VocSegmentationExporter.convert, label_map="voc", apply_colormap=False),
                 test_dir,
+                importer="voc_segmentation",
                 target_dataset=DstExtractor(),
             )
 
@@ -1125,6 +741,7 @@ class VocExporterTest(TestCase):
                 TestExtractor(),
                 partial(VocSegmentationExporter.convert, label_map="voc"),
                 test_dir,
+                importer="voc_segmentation",
                 target_dataset=DstExtractor(),
             )
 
@@ -1166,7 +783,9 @@ class VocExporterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                TestExtractor(), partial(VocLayoutExporter.convert, label_map="voc"), test_dir
+                TestExtractor(), partial(VocLayoutExporter.convert, label_map="voc"),
+                test_dir,
+                importer="voc_layout",
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1262,6 +881,7 @@ class VocExporterTest(TestCase):
                 TestExtractor(),
                 partial(VocActionExporter.convert, label_map="voc", allow_attributes=False),
                 test_dir,
+                importer="voc_action",
                 target_dataset=DstExtractor(),
             )
 

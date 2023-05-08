@@ -23,6 +23,10 @@ class TestDataFormatBase:
     def test_can_detect(self, fxt_dataset_dir: str, importer: Optional[Importer] = None):
         if importer is None:
             importer = getattr(self, "IMPORTER", None)
+
+        if importer is None:
+            pytest.skip(reason="importer is None.")
+        
         detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(fxt_dataset_dir)
         assert [importer.NAME] == detected_formats
 
@@ -37,6 +41,9 @@ class TestDataFormatBase:
     ):
         if importer is None:
             importer = getattr(self, "IMPORTER", None)
+
+        if importer is None:
+            pytest.skip(reason="importer is None.")
 
         helper_tc = request.getfixturevalue("helper_tc")
         dataset = Dataset.import_from(fxt_dataset_dir, importer.NAME, **fxt_import_kwargs)
