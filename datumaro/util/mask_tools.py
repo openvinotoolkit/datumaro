@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
 from functools import partial
 from itertools import chain
 from typing import Tuple
