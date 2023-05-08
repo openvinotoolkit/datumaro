@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import logging as log
 import os
 import os.path as osp
@@ -32,7 +33,7 @@ class ImagenetBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isdir(path):
-            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
         super().__init__(subset=subset, ctx=ctx)
 
@@ -43,7 +44,7 @@ class ImagenetBase(SubsetBase):
         label_cat = LabelCategories()
         for dirname in sorted(os.listdir(path)):
             if not os.path.isdir(os.path.join(path, dirname)):
-                raise NotADirectoryError(f"'{os.path.join(path, dirname)}' is not a directory.")
+                raise NotADirectoryError(errno.ENOTDIR, os.strerror(errno.ENOTDIR), path)
             if dirname != ImagenetPath.IMAGE_DIR_NO_LABEL:
                 label_cat.add(dirname)
         return {AnnotationType.label: label_cat}

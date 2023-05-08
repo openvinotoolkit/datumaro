@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import glob
 import os.path as osp
 from typing import Optional
@@ -25,7 +26,7 @@ class BratsPath:
 class BratsBase(SubsetBase):
     def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
         self._subset_suffix = osp.basename(path)[len(BratsPath.IMAGES_DIR) :]
         subset = None

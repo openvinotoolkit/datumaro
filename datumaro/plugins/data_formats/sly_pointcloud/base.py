@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import os.path as osp
 from glob import iglob
 from typing import Optional
@@ -29,7 +30,7 @@ class SuperviselyPointCloudBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isfile(path):
-            raise FileNotFoundError("Expected a path to 'meta.json', " "got '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find annotations file", path)
 
         rootdir = osp.abspath(osp.dirname(path))
         self._rootdir = rootdir

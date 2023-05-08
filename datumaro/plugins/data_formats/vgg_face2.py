@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import csv
+import errno
 import os
 import os.path as osp
 from typing import Optional
@@ -54,7 +55,7 @@ class VggFace2Base(DatasetBase):
         ]
 
         if len(annotation_files) < 1:
-            raise FileNotFoundError("Can't find annotations in the directory '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find annotations in the directory", path)
 
         super().__init__(ctx=ctx)
 

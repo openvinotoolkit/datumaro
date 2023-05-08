@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import glob
 import os.path as osp
 from typing import Optional
@@ -56,7 +57,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isdir(path):
-            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
         super().__init__(subset=subset, ctx=ctx)
 
@@ -70,7 +71,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
             label_map = parse_meta_file(meta_file[0])
             self._categories = make_categories(label_map)
         else:
-            raise FileNotFoundError("Dataset meta info file was not found in %s" % path)
+            raise FileNotFoundError(errno.ENOENT, "Dataset meta info file was not found", path)
 
         self._items = list(self._load_items().values())
 

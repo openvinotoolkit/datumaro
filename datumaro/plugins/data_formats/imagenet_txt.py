@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import os
 import os.path as osp
 from enum import Enum, auto
@@ -61,7 +62,7 @@ class ImagenetTxtBase(SubsetBase):
         image_dir: Optional[str] = None,
     ):
         if not osp.isfile(path):
-            raise FileNotFoundError("Can't read dataset '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find dataset file", path)
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]

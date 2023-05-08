@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
+import os
 import os.path as osp
 from typing import Optional
 
@@ -40,7 +42,7 @@ class AlignCelebaBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isdir(path):
-            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
         super().__init__(subset=subset, ctx=ctx)
         self._anno_dir = osp.dirname(path)
@@ -70,7 +72,7 @@ class AlignCelebaBase(SubsetBase):
 
         labels_path = osp.join(root_dir, AlignCelebaPath.LABELS_FILE)
         if not osp.isfile(labels_path):
-            raise FileNotFoundError("File '%s': was not found" % labels_path)
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), labels_path)
 
         with open(labels_path, encoding="utf-8") as f:
             for line in f:

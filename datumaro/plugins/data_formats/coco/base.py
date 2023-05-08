@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import logging as log
 import os.path as osp
 from inspect import isclass
@@ -104,7 +105,7 @@ class _CocoBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isfile(path):
-            raise FileNotFoundError(f"Can't find JSON file at '{path}'")
+            raise FileNotFoundError(errno.ENOENT, "Can't find JSON file", path)
         self._path = path
 
         if not subset:

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import logging as log
 import os
 import os.path as osp
@@ -65,8 +66,9 @@ class _MapillaryVistasBase(SubsetBase):
         if len(annotations_dirs) == 0:
             expected_dirs = ",".join(MapillaryVistasPath.ANNOTATION_DIRS[format_version])
             raise NotADirectoryError(
+                errno.ENOTDIR,
                 f"Can't find annotation directory at {path}. "
-                f"Expected one of these directories: {expected_dirs}."
+                f"Expected one of these directories: {expected_dirs}.",
             )
         elif len(annotations_dirs) > 1:
             skipped_dirs = ",".join(annotations_dirs[1:])
@@ -103,7 +105,7 @@ class _MapillaryVistasBase(SubsetBase):
 
         if not osp.isfile(panoptic_config_path):
             raise FileNotFoundError(
-                f"Can't find panoptic config file: {MapillaryVistasPath.PANOPTIC_CONFIG} at {panoptic_config_path}"
+                errno.ENOENT, "Can't find panoptic config file", panoptic_config_path
             )
 
         return parse_json_file(panoptic_config_path)

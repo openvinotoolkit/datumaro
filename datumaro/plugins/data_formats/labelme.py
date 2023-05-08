@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import logging as log
 import os
 import os.path as osp
@@ -232,7 +233,7 @@ class LabelMeBase(DatasetBase):
                     subset_root, LabelMePath.MASKS_DIR, segm_elem.find("mask").text
                 )
                 if not osp.isfile(mask_path):
-                    raise FileNotFoundError("Can't find mask at '%s'" % mask_path)
+                    raise FileNotFoundError(errno.ENOENT, "Can't find mask", mask_path)
                 mask = load_mask(mask_path)
                 mask = np.any(mask, axis=2)
                 ann_items.append(Mask(image=mask, label=label, id=obj_id, attributes=attributes))

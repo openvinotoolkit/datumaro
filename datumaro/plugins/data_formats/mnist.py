@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import gzip
 import os
 import os.path as osp
@@ -36,7 +37,7 @@ class MnistBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isfile(path):
-            raise FileNotFoundError("Can't read annotation file '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find annotations file", path)
         self._dataset_dir = osp.dirname(path)
 
         if not subset:

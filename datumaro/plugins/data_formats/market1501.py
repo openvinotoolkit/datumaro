@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import os
 import os.path as osp
 import re
@@ -30,7 +31,7 @@ class Market1501Path:
 class Market1501Base(DatasetBase):
     def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
         self._path = path
         super().__init__(ctx=ctx)

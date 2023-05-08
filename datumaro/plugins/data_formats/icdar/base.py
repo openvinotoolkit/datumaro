@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import csv
+import errno
 import glob
 import logging as log
 import os.path as osp
@@ -36,7 +37,7 @@ class _IcdarBase(SubsetBase):
 
         if task is IcdarTask.word_recognition:
             if not osp.isfile(path):
-                raise FileNotFoundError("Can't read annotation file '%s'" % path)
+                raise FileNotFoundError(errno.ENOENT, "Can't find annotations file", path)
 
             if not subset:
                 subset = osp.basename(osp.dirname(path))
@@ -48,7 +49,7 @@ class _IcdarBase(SubsetBase):
         elif task in {IcdarTask.text_localization, IcdarTask.text_segmentation}:
             if not osp.isdir(path):
                 raise NotADirectoryError(
-                    "Can't read dataset directory with annotation files '%s'" % path
+                    errno.ENOTDIR, "Can't read dataset directory with annotation files", path
                 )
 
             if not subset:

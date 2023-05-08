@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import csv
+import errno
 import os
 import os.path as osp
 from typing import Optional
@@ -20,7 +21,7 @@ from datumaro.util.os_util import find_files
 class KineticsBase(DatasetBase):
     def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
         self._path = path
 
         super().__init__(media_type=Video, ctx=ctx)

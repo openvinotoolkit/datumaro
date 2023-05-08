@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import os.path as osp
 from typing import Optional
 
@@ -32,7 +33,7 @@ class BratsNumpyBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isfile(path):
-            raise FileNotFoundError("Can't read annotation file '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find annotations file", path)
 
         super().__init__(subset=subset, media_type=MultiframeImage, ctx=ctx)
 

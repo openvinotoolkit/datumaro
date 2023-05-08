@@ -4,6 +4,7 @@
 
 import contextlib
 import csv
+import errno
 import fnmatch
 import functools
 import glob
@@ -177,7 +178,7 @@ class OpenImagesBase(DatasetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isdir(path):
-            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
         super().__init__(ctx=ctx)
 
@@ -245,9 +246,10 @@ class OpenImagesBase(DatasetBase):
 
         if not class_desc_files:
             raise FileNotFoundError(
+                errno.ENOENT,
                 "Can't find class description file, the "
-                "annotations directory does't contain any of these files: %s"
-                % ", ".join(class_desc_patterns)
+                "annotations directory does't contain any of these files",
+                ", ".join(class_desc_patterns),
             )
 
         # In OID v6, the class description file is prefixed with `oidv6-`, whereas

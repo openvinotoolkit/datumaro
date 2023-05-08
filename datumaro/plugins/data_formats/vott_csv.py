@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import csv
+import errno
 import os.path as osp
 from typing import Optional
 
@@ -27,7 +28,7 @@ class VottCsvBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isfile(path):
-            raise FileNotFoundError("Can't read annotation file '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find annotations file", path)
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0].rsplit("-", maxsplit=1)[0]

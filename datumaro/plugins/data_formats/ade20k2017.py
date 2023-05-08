@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import glob
 import logging as log
 import os
@@ -33,12 +34,12 @@ class Ade20k2017Path:
 class Ade20k2017Base(DatasetBase):
     def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise NotADirectoryError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
         # exclude dataset meta file
         subsets = [subset for subset in os.listdir(path) if osp.splitext(subset)[-1] != ".json"]
         if len(subsets) < 1:
-            raise FileNotFoundError("Can't read subsets in directory '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find subsets in directory", path)
 
         super().__init__(subsets=sorted(subsets), ctx=ctx)
         self._path = path
@@ -129,7 +130,9 @@ class Ade20k2017Base(DatasetBase):
     def _load_item_info(self, path):
         attr_path = osp.splitext(path)[0] + "_atr.txt"
         if not osp.isfile(attr_path):
-            raise FileNotFoundError("Can't find annotation file for image %s" % path)
+            raise FileNotFoundError(
+                errno.ENOENT, "Can't find annotation file for image %s" % path, attr_path
+            )
 
         item_info = []
         with open(attr_path, "r", encoding="utf-8") as f:
