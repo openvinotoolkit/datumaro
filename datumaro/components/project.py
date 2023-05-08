@@ -28,10 +28,8 @@ from typing import (
 )
 
 import networkx as nx
-import numpy as np
 import ruamel.yaml as yaml
 
-from datumaro.components.annotation import HashKey
 from datumaro.components.config import Config
 from datumaro.components.config_model import (
     BuildStage,

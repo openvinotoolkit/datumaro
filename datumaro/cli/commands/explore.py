@@ -143,11 +143,12 @@ def explore_command(args):
     if args.save:
         saved_result_path = osp.join(args.project_dir, "explore_result")
         if osp.exists(saved_result_path):
-            os.rmdir(saved_result_path)
+            shutil.rmtree(saved_result_path)
         os.makedirs(saved_result_path)
         for result in results:
-            if not osp.exists(osp.join(saved_result_path, result.subset)):
-                os.makedirs(osp.join(saved_result_path, result.subset))
-            shutil.copyfile(path, osp.join(saved_result_path, result.subset, result.id + ".jpg"))
+            saved_subset_path = osp.join(saved_result_path, result.subset)
+            if not osp.exists(saved_subset_path):
+                os.makedirs(saved_subset_path)
+            shutil.copyfile(path, osp.join(saved_subset_path, result.id + ".jpg"))
 
     return 0

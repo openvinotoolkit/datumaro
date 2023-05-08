@@ -46,13 +46,13 @@ class Explorer:
         self._topk = topk
         database_keys = []
         item_list = []
-        if not isinstance(dataset, List):
+        if isinstance(dataset, IDataset):
             dataset = [dataset]
 
         for dataset_ in dataset:
-            inference = dataset_.run_model(self._model, append_annotation=True)
+            inference_items = dataset_.run_model(self._model, append_annotation=True)
 
-            for item in inference:
+            for item in inference_items:
                 for annotation in item.annotations:
                     if isinstance(annotation, HashKey):
                         try:
@@ -97,11 +97,10 @@ class Explorer:
                     q_hash_key = self._text_model.launch(q)[0][0].hash_key
                     query_hash_key_list.append(q_hash_key)
 
-            sims = np.zeros(
-                shape=database_keys.shape[0] * len(query_hash_key_list))
+            sims = np.zeros(shape=database_keys.shape[0] * len(query_hash_key_list))
             for i, query_hash_key in enumerate(query_hash_key_list):
                 query_hash_key = np.unpackbits(query_hash_key[0], axis=-1)
-                sims[i * db_len: (i + 1) * db_len] = calculate_hamming(
+                sims[i * db_len : (i + 1) * db_len] = calculate_hamming(
                     query_hash_key, database_keys
                 )
 
@@ -129,8 +128,7 @@ class Explorer:
                         raise MediaTypeError(
                             f"Media type should be Image, Current type={type(query.media)}"
                         )
-                    query_key = self._model.launch(query.media.data)[
-                        0][0].hash_key
+                    query_key = self._model.launch(query.media.data)[0][0].hash_key
                 except Exception:
                     # media.data is None case
                     pass
@@ -140,8 +138,7 @@ class Explorer:
         else:
             raise MediaTypeError(
                 "Unexpected media type of query '%s'. "
-                "Expected 'DatasetItem' or 'string', actual'%s'" % (
-                    query, type(query))
+                "Expected 'DatasetItem' or 'string', actual'%s'" % (query, type(query))
             )
 
         if not query_key.any():
