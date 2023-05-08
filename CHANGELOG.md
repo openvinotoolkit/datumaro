@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 - Add CocoRoboflowImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/976>)
+- Add SynthiaSfImporter and SynthiaAlImporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/987>)
 
 ### Enhancements
 - Use autosummary for fully-automatic Python module docs generation
@@ -19,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/977>)
 - Fix `bytes` property returning `None` if function is given to `data`
   (<https://github.com/openvinotoolkit/datumaro/pull/978>)
+- Fix Synthia-Rand data format
+  (<https://github.com/openvinotoolkit/datumaro/pull/987>)
 
 ## 04/05/2023 - Release 1.2.1
 ### Bug fixes
