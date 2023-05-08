@@ -120,7 +120,7 @@ class _CocoBase(SubsetBase):
             self._rootpath = RoboflowDirPathExtracter.find_rootpath(path)
             self._images_dir = RoboflowDirPathExtracter.find_images_dir(self._rootpath, subset)
         else:
-            raise ValueError(coco_importer_type)
+            raise DatasetImportError(f"Not supported type: {coco_importer_type}")
 
         self._task = task
 
