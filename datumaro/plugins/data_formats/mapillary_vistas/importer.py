@@ -6,6 +6,7 @@ import logging as log
 import os.path as osp
 
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
+from datumaro.components.errors import DatasetNotFoundError
 from datumaro.components.importer import Importer
 from datumaro.util import str_to_bool
 
@@ -52,7 +53,7 @@ class MapillaryVistasImporter(Importer):
         subsets = self.find_sources(path)
 
         if len(subsets) == 0:
-            raise Exception(f"Failed to find Mapillary Vistas dataset at {path}")
+            raise DatasetNotFoundError(path, self.NAME)
 
         tasks = list(set(task for subset in subsets.values() for task in subset))
         selected_task = tasks[0]
@@ -72,9 +73,11 @@ class MapillaryVistasImporter(Importer):
             )
 
             if not has_config and not extra_params.get("use_original_config"):
-                raise Exception(
-                    f"Failed to find config*.json at {path}. "
-                    "See extra args for using original config."
+                raise DatasetNotFoundError(
+                    path,
+                    self.NAME,
+                    "Failed to find config*.json at '{path}'. "
+                    "See extra args for using original configs.",
                 )
 
         sources = [

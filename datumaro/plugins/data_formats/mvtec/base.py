@@ -4,11 +4,13 @@
 
 import os
 import os.path as osp
+from typing import Optional
 
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Mask
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
 from datumaro.util.image import find_images, load_image
 
@@ -16,15 +18,21 @@ from .format import MvtecPath, MvtecTask
 
 
 class _MvtecBase(SubsetBase):
-    def __init__(self, path, task, subset=None):
+    def __init__(
+        self,
+        path: str,
+        task: MvtecTask,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         assert osp.isdir(path), path
         self._path = path
         self._task = task
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-        self._subset = subset
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, ctx=ctx)
 
         self._categories = self._load_categories()
         self._items = list(self._load_items().values())
@@ -95,14 +103,17 @@ class _MvtecBase(SubsetBase):
 
 class MvtecClassificationBase(_MvtecBase):
     def __init__(self, path, **kwargs):
-        super().__init__(path, task=MvtecTask.classification)
+        kwargs.pop("merge_policy")
+        super().__init__(path, task=MvtecTask.classification, **kwargs)
 
 
 class MvtecSegmentationBase(_MvtecBase):
     def __init__(self, path, **kwargs):
-        super().__init__(path, task=MvtecTask.segmentation)
+        kwargs.pop("merge_policy")
+        super().__init__(path, task=MvtecTask.segmentation, **kwargs)
 
 
 class MvtecDetectionBase(_MvtecBase):
     def __init__(self, path, **kwargs):
-        super().__init__(path, task=MvtecTask.detection)
+        kwargs.pop("merge_policy")
+        super().__init__(path, task=MvtecTask.detection, **kwargs)

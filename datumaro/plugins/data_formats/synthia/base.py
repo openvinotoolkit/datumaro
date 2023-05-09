@@ -1,15 +1,19 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import os.path as osp
 from collections import OrderedDict
 from glob import glob
+from typing import Optional
 
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.errors import InvalidAnnotationError
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import generate_colormap, load_mask
@@ -25,7 +29,7 @@ from .format import (
 )
 
 
-def make_categories(label_map=None):
+def make_categories(label_map):
     categories = {}
     label_categories = LabelCategories()
     for label in label_map:
@@ -66,18 +70,26 @@ def parse_label_map(path):
                 color = None
 
             if name in label_map:
-                raise ValueError("Label '%s' is already defined" % name)
+                raise InvalidAnnotationError("Label '%s' is already defined" % name)
 
             label_map[name] = color
     return label_map
 
 
 class _SynthiaBase(SubsetBase):
-    def __init__(self, path, path_formats, label_map):
-        super().__init__()
-
+    def __init__(
+        self,
+        path: str,
+        path_formats,
+        label_map,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
+
+        super().__init__(subset=subset, ctx=ctx)
 
         self._path_formats = path_formats
         self._label_map = label_map
@@ -167,15 +179,21 @@ class _SynthiaBase(SubsetBase):
 
 
 class SynthiaRandBase(_SynthiaBase):
-    def __init__(self, path):
-        super().__init__(path=path, path_formats=SynthiaRandPath, label_map=SynthiaRandLabelMap)
+    def __init__(self, path: str, **kwargs):
+        super().__init__(
+            path=path, path_formats=SynthiaRandPath, label_map=SynthiaRandLabelMap, **kwargs
+        )
 
 
 class SynthiaSfBase(_SynthiaBase):
-    def __init__(self, path):
-        super().__init__(path=path, path_formats=SynthiaSfPath, label_map=SynthiaSfLabelMap)
+    def __init__(self, path, **kwargs):
+        super().__init__(
+            path=path, path_formats=SynthiaSfPath, label_map=SynthiaSfLabelMap, **kwargs
+        )
 
 
 class SynthiaAlBase(_SynthiaBase):
-    def __init__(self, path):
-        super().__init__(path=path, path_formats=SynthiaAlPath, label_map=SynthiaAlLabelMap)
+    def __init__(self, path, **kwargs):
+        super().__init__(
+            path=path, path_formats=SynthiaAlPath, label_map=SynthiaAlLabelMap, **kwargs
+        )

@@ -465,4 +465,9 @@ class YoloStrictBaseTest(TestCase):
             os.remove(osp.join(test_dir, "train.txt"))
 
             with self.assertRaisesRegex(InvalidAnnotationError, "subset list file"):
-                Dataset.import_from(test_dir, "yolo").init_cache()
+                try:
+                    Dataset.import_from(test_dir, "yolo").init_cache()
+                except Exception as e:
+                    if isinstance(e, DatasetImportError) and e.__cause__:
+                        raise e.__cause__
+                    raise

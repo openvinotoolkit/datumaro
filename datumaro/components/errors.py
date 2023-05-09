@@ -272,10 +272,12 @@ class AnnotationImportError(ItemImportError):
 
 @define(auto_exc=False)
 class DatasetNotFoundError(DatasetImportError):
-    path = field()
+    path: str = field()
+    format: str = field()
+    template: str = field(default="Failed to find dataset '{format}' at '{path}'")
 
     def __str__(self):
-        return f"Failed to find dataset at '{self.path}'"
+        return self.template.format(path=self.path, format=self.format)
 
 
 @define(auto_exc=False)

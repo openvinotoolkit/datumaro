@@ -2,7 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
+import os
 import os.path as osp
+from typing import Optional
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -12,7 +15,8 @@ from datumaro.components.annotation import (
     PointsCategories,
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import DatasetImportError
+from datumaro.components.errors import DatasetImportError, InvalidAnnotationError
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -30,11 +34,17 @@ class AlignCelebaPath(CelebaPath):
 
 
 class AlignCelebaBase(SubsetBase):
-    def __init__(self, path):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
-        super().__init__()
+        super().__init__(subset=subset, ctx=ctx)
         self._anno_dir = osp.dirname(path)
 
         self._categories = {AnnotationType.label: LabelCategories()}
@@ -62,7 +72,7 @@ class AlignCelebaBase(SubsetBase):
 
         labels_path = osp.join(root_dir, AlignCelebaPath.LABELS_FILE)
         if not osp.isfile(labels_path):
-            raise DatasetImportError("File '%s': was not found" % labels_path)
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), labels_path)
 
         with open(labels_path, encoding="utf-8") as f:
             for line in f:
@@ -96,13 +106,13 @@ class AlignCelebaBase(SubsetBase):
                     landmarks = [float(id) for id in item_ann]
 
                     if len(landmarks) != len(point_cat):
-                        raise DatasetImportError(
+                        raise InvalidAnnotationError(
                             "File '%s', line %s: "
                             "points do not match the header of this file" % (landmark_path, line)
                         )
 
                     if item_id not in items:
-                        raise DatasetImportError(
+                        raise InvalidAnnotationError(
                             "File '%s', line %s: "
                             "for this item are not label in %s "
                             % (landmark_path, line, AlignCelebaPath.LABELS_FILE)
@@ -113,7 +123,7 @@ class AlignCelebaBase(SubsetBase):
                     anno.append(Points(landmarks, label=label))
 
                 if landmarks_number - 1 != counter:
-                    raise DatasetImportError(
+                    raise InvalidAnnotationError(
                         "File '%s': the number of "
                         "landmarks does not match the specified number "
                         "at the beginning of the file " % landmark_path
@@ -183,7 +193,7 @@ class AlignCelebaBase(SubsetBase):
                 item_id = osp.splitext(item[1])[0]
                 item = item[2].split()
             else:
-                raise DatasetImportError(
+                raise InvalidAnnotationError(
                     "Line %s: unexpected number " "of quotes in filename" % line
                 )
         else:

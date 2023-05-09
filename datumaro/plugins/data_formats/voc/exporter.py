@@ -25,7 +25,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import InvalidAnnotationError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
 from datumaro.util import find, str_to_bool
@@ -627,7 +627,7 @@ class VocExporter(Exporter):
                 label_map = parse_label_map(label_map_source)
 
         else:
-            raise Exception(
+            raise InvalidAnnotationError(
                 "Wrong labelmap specified: '%s', "
                 "expected one of %s or a file path"
                 % (label_map_source, ", ".join(t.name for t in LabelmapType))

@@ -1,9 +1,12 @@
 # Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+import errno
 import logging as log
 import os
 import os.path as osp
+from typing import Optional
 
 import numpy as np
 
@@ -16,6 +19,8 @@ from datumaro.components.annotation import (
     Polygon,
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.errors import DatasetImportError
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
 from datumaro.util import parse_json_file
 from datumaro.util.image import find_images, lazy_image, load_image
@@ -34,16 +39,18 @@ from .format import (
 class _MapillaryVistasBase(SubsetBase):
     def __init__(
         self,
-        path,
-        task,
-        subset=None,
-        use_original_config=False,
-        keep_original_category_ids=False,
-        format_version="v2.0",
-        parse_polygon=False,
+        path: str,
+        task: MapillaryVistasTask,
+        *,
+        use_original_config: bool = False,
+        keep_original_category_ids: bool = False,
+        format_version: str = "v2.0",
+        parse_polygon: bool = False,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
     ):
         if format_version == "v1.2" and parse_polygon is True:
-            raise ImportError(
+            raise DatasetImportError(
                 f"Format version {format_version} is not available for polygons. "
                 "Please try with v2.0 for parsing polygons."
             )
@@ -52,15 +59,16 @@ class _MapillaryVistasBase(SubsetBase):
         self._path = path
         if subset is None:
             subset = osp.basename(self._path)
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, ctx=ctx)
 
         annotations_dirs = [d for d in os.listdir(path) if d in MapillaryVistasPath.ANNOTATION_DIRS]
 
         if len(annotations_dirs) == 0:
             expected_dirs = ",".join(MapillaryVistasPath.ANNOTATION_DIRS[format_version])
             raise NotADirectoryError(
+                errno.ENOTDIR,
                 f"Can't find annotation directory at {path}. "
-                f"Expected one of these directories: {expected_dirs}."
+                f"Expected one of these directories: {expected_dirs}.",
             )
         elif len(annotations_dirs) > 1:
             skipped_dirs = ",".join(annotations_dirs[1:])
@@ -97,7 +105,7 @@ class _MapillaryVistasBase(SubsetBase):
 
         if not osp.isfile(panoptic_config_path):
             raise FileNotFoundError(
-                f"Can't find panoptic config file: {MapillaryVistasPath.PANOPTIC_CONFIG} at {panoptic_config_path}"
+                errno.ENOENT, "Can't find panoptic config file", panoptic_config_path
             )
 
         return parse_json_file(panoptic_config_path)

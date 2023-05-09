@@ -1,17 +1,19 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import os
 import os.path as osp
 import re
+from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -29,9 +31,15 @@ class WiderFacePath:
 
 
 class WiderFaceBase(SubsetBase):
-    def __init__(self, path, subset=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isfile(path):
-            raise Exception("Can't read annotation file '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find annotations file", path)
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(path))
 
@@ -39,7 +47,8 @@ class WiderFaceBase(SubsetBase):
             subset = osp.splitext(osp.basename(path))[0]
             if re.fullmatch(r"wider_face_\S+((_bbx_gt)|(_filelist))", subset):
                 subset = subset.split("_")[2]
-        super().__init__(subset=subset)
+
+        super().__init__(subset=subset, ctx=ctx)
 
         self._categories = self._load_categories()
         self._items = list(self._load_items(path).values())

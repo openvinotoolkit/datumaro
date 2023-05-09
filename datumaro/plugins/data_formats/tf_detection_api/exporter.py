@@ -11,6 +11,7 @@ import string
 from collections import OrderedDict
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.errors import DatasetExportError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import ByteImage, Image, ImageFromBytes
 from datumaro.util.annotation_util import find_group_leader, find_instances, max_bbox
@@ -168,7 +169,7 @@ class TfDetectionApiExporter(Exporter):
         features["image/filename"] = bytes_feature(filename.encode("utf-8"))
 
         if not isinstance(item.media, Image):
-            raise Exception(
+            raise DatasetExportError(
                 "Failed to export dataset item '%s': " "item has no image info" % item.id
             )
         height, width = item.media.size

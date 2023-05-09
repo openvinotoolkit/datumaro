@@ -1,16 +1,17 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
 import re
 from collections import OrderedDict
+from typing import Optional
 
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Mask
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.image import decode_image, lazy_image
 from datumaro.util.tf_util import import_tf as _import_tf
@@ -25,7 +26,13 @@ def clamp(value, _min, _max):
 
 
 class TfDetectionApiBase(SubsetBase):
-    def __init__(self, path, subset=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         assert osp.isfile(path), path
         images_dir = ""
         root_dir = osp.dirname(osp.abspath(path))
@@ -37,7 +44,7 @@ class TfDetectionApiBase(SubsetBase):
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, ctx=ctx)
 
         items, labels = self._parse_tfrecord_file(path, self._subset, images_dir)
         self._items = items

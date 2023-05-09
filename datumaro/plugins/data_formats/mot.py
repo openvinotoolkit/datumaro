@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -12,13 +12,14 @@ import os
 import os.path as osp
 from collections import OrderedDict
 from enum import Enum
+from typing import List, Optional, Union
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util import cast
 from datumaro.util.image import find_images
@@ -66,8 +67,17 @@ class MotPath:
 
 
 class MotSeqBase(SubsetBase):
-    def __init__(self, path, labels=None, occlusion_threshold=0, is_gt=None, subset=None):
-        super().__init__(subset=subset)
+    def __init__(
+        self,
+        path: str,
+        *,
+        labels: Optional[Union[str, List[str]]] = None,
+        occlusion_threshold: float = 0.0,
+        is_gt: Optional[bool] = None,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
+        super().__init__(subset=subset, ctx=ctx)
 
         assert osp.isfile(path)
         seq_root = osp.dirname(osp.dirname(path))

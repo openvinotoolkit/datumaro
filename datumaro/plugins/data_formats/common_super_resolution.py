@@ -1,13 +1,15 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import os.path as osp
+from typing import Optional
 
 from datumaro.components.annotation import SuperResolutionAnnotation
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
@@ -19,11 +21,17 @@ class CommonSuperResolutionPath:
 
 
 class CommonSuperResolutionBase(SubsetBase):
-    def __init__(self, path, subset=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, ctx=ctx)
 
         self._items = list(self._load_items(path).values())
 

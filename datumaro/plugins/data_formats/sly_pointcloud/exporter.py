@@ -17,7 +17,7 @@ from datetime import datetime
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetItem, IDataset
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import DatasetExportError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import PointCloud
 from datumaro.util import cast, dump_json_file
@@ -142,7 +142,7 @@ class _SuperviselyPointCloudDumper:
             if tag["value_type"] is None:
                 tag["value_type"] = value_type
             elif tag["value_type"] != value_type:
-                raise Exception(
+                raise DatasetExportError(
                     "Item %s: mismatching "
                     "value types for tag %s: %s vs %s"
                     % (item.id, attr_name, tag["value_type"], value_type)
@@ -228,7 +228,7 @@ class _SuperviselyPointCloudDumper:
                     if tag["value_type"] is None:
                         tag["value_type"] = value_type
                     elif tag["value_type"] != value_type:
-                        raise Exception(
+                        raise DatasetExportError(
                             "Item %s: mismatching "
                             "value types for tag %s: %s vs %s"
                             % (item.id, attr_name, tag["value_type"], value_type)

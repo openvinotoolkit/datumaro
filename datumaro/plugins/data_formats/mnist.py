@@ -1,10 +1,12 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import gzip
 import os
 import os.path as osp
+from typing import Optional
 
 import numpy as np
 
@@ -12,7 +14,7 @@ from datumaro.components.annotation import AnnotationType, Label, LabelCategorie
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -27,9 +29,16 @@ class MnistPath:
 
 
 class MnistBase(SubsetBase):
-    def __init__(self, path, subset=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isfile(path):
-            raise FileNotFoundError("Can't read annotation file '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find annotations file", path)
+        self._dataset_dir = osp.dirname(path)
 
         if not subset:
             file_name = osp.splitext(osp.basename(path))[0]
@@ -38,11 +47,9 @@ class MnistBase(SubsetBase):
             else:
                 subset = file_name.split("-", maxsplit=1)[0]
 
-        super().__init__(subset=subset)
-        self._dataset_dir = osp.dirname(path)
+        super().__init__(subset=subset, ctx=ctx)
 
         self._categories = self._load_categories()
-
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self):

@@ -1,17 +1,18 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import glob
 import os.path as osp
+from typing import Optional
 
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
-from datumaro.components.importer import Importer, with_subset_dirs
+from datumaro.components.importer import ImportContext, Importer, with_subset_dirs
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import generate_colormap, lazy_mask
@@ -48,15 +49,17 @@ def make_categories(label_map=None):
 class CommonSemanticSegmentationBase(SubsetBase):
     def __init__(
         self,
-        path,
-        subset=None,
-        image_prefix="",
-        mask_prefix="",
+        path: str,
+        *,
+        image_prefix: str = "",
+        mask_prefix: str = "",
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
     ):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, ctx=ctx)
 
         self._image_prefix = image_prefix
         self._mask_prefix = mask_prefix
@@ -68,7 +71,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
             label_map = parse_meta_file(meta_file[0])
             self._categories = make_categories(label_map)
         else:
-            raise DatasetImportError("Dataset meta info file was not found in %s" % path)
+            raise FileNotFoundError(errno.ENOENT, "Dataset meta info file was not found", path)
 
         self._items = list(self._load_items().values())
 

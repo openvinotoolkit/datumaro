@@ -1,12 +1,14 @@
-# Copyright (C) 2020-2022 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import logging as log
 import os
 import os.path as osp
 from collections import defaultdict
 from glob import glob, iglob
+from typing import Optional
 
 import numpy as np
 from defusedxml import ElementTree
@@ -16,7 +18,7 @@ from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util import cast, escape, unescape
 from datumaro.util.image import save_image
@@ -44,9 +46,9 @@ class LabelMePath:
 
 
 class LabelMeBase(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         assert osp.isdir(path), path
-        super().__init__()
+        super().__init__(ctx=ctx)
 
         self._items, self._categories, self._subsets = self._parse(path)
         self._length = len(self._items)
@@ -231,7 +233,7 @@ class LabelMeBase(DatasetBase):
                     subset_root, LabelMePath.MASKS_DIR, segm_elem.find("mask").text
                 )
                 if not osp.isfile(mask_path):
-                    raise Exception("Can't find mask at '%s'" % mask_path)
+                    raise FileNotFoundError(errno.ENOENT, "Can't find mask", mask_path)
                 mask = load_mask(mask_path)
                 mask = np.any(mask, axis=2)
                 ann_items.append(Mask(image=mask, label=label, id=obj_id, attributes=attributes))

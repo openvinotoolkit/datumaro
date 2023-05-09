@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -9,6 +9,7 @@ import os
 import os.path as osp
 from enum import Enum
 from glob import iglob
+from typing import Optional
 
 import numpy as np
 
@@ -16,7 +17,7 @@ from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import merge_masks
@@ -45,9 +46,15 @@ class MotsPngExtractor(SubsetBase):
             return [{"url": path, "format": MotsPngExtractor.NAME}]
         return []
 
-    def __init__(self, path, subset=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         assert osp.isdir(path), path
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, ctx=ctx)
         self._images_dir = osp.join(path, "images")
         self._anno_dir = osp.join(path, MotsPath.MASKS_DIR)
         if has_meta_file(path):

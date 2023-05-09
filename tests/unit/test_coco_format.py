@@ -1104,7 +1104,7 @@ class CocoExtractorTests(TestCase):
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_unexpected_file(self):
         with TestDir() as test_dir:
-            with self.assertRaisesRegex(DatasetImportError, "JSON file"):
+            with self.assertRaisesRegex(FileNotFoundError, "JSON file"):
                 CocoInstancesBase(test_dir)
 
     @staticmethod
@@ -1128,7 +1128,12 @@ class CocoExtractorTests(TestCase):
                     dump_json_file(ann_path, anns)
 
                     with self.assertRaises(ItemImportError) as capture:
-                        Dataset.import_from(ann_path, "coco_instances")
+                        try:
+                            Dataset.import_from(ann_path, "coco_instances")
+                        except DatasetImportError as e:
+                            if str(e).startswith("Failed to import dataset"):
+                                raise e.__cause__
+                            raise e
                     self.assertIsInstance(capture.exception.__cause__, MissingFieldError)
                     self.assertEqual(capture.exception.__cause__.name, field)
 
@@ -1143,7 +1148,12 @@ class CocoExtractorTests(TestCase):
                     dump_json_file(ann_path, anns)
 
                     with self.assertRaises(AnnotationImportError) as capture:
-                        Dataset.import_from(ann_path, "coco_instances")
+                        try:
+                            Dataset.import_from(ann_path, "coco_instances")
+                        except DatasetImportError as e:
+                            if str(e).startswith("Failed to import dataset"):
+                                raise e.__cause__
+                            raise e
                     self.assertIsInstance(capture.exception.__cause__, MissingFieldError)
                     self.assertEqual(capture.exception.__cause__.name, field)
 
@@ -1158,7 +1168,12 @@ class CocoExtractorTests(TestCase):
                     dump_json_file(ann_path, anns)
 
                     with self.assertRaises(MissingFieldError) as capture:
-                        Dataset.import_from(ann_path, "coco_instances")
+                        try:
+                            Dataset.import_from(ann_path, "coco_instances")
+                        except Exception as e:
+                            if isinstance(e, DatasetImportError) and e.__cause__:
+                                raise e.__cause__
+                            raise
                     self.assertEqual(capture.exception.name, field)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
@@ -1172,7 +1187,12 @@ class CocoExtractorTests(TestCase):
                     dump_json_file(ann_path, anns)
 
                     with self.assertRaises(MissingFieldError) as capture:
-                        Dataset.import_from(ann_path, "coco_instances")
+                        try:
+                            Dataset.import_from(ann_path, "coco_instances")
+                        except Exception as e:
+                            if isinstance(e, DatasetImportError) and e.__cause__:
+                                raise e.__cause__
+                            raise
                     self.assertEqual(capture.exception.name, field)
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
@@ -1184,7 +1204,12 @@ class CocoExtractorTests(TestCase):
             dump_json_file(ann_path, anns)
 
             with self.assertRaises(AnnotationImportError) as capture:
-                Dataset.import_from(ann_path, "coco_instances")
+                try:
+                    Dataset.import_from(ann_path, "coco_instances")
+                except DatasetImportError as e:
+                    if str(e).startswith("Failed to import dataset"):
+                        raise e.__cause__
+                    raise e
             self.assertIsInstance(capture.exception.__cause__, UndeclaredLabelError)
             self.assertEqual(capture.exception.__cause__.id, "2")
 
@@ -1197,7 +1222,12 @@ class CocoExtractorTests(TestCase):
             dump_json_file(ann_path, anns)
 
             with self.assertRaises(AnnotationImportError) as capture:
-                Dataset.import_from(ann_path, "coco_instances")
+                try:
+                    Dataset.import_from(ann_path, "coco_instances")
+                except DatasetImportError as e:
+                    if str(e).startswith("Failed to import dataset"):
+                        raise e.__cause__
+                    raise e
             self.assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
             self.assertIn("Bbox has wrong value count", str(capture.exception.__cause__))
 
@@ -1210,7 +1240,12 @@ class CocoExtractorTests(TestCase):
             dump_json_file(ann_path, anns)
 
             with self.assertRaises(AnnotationImportError) as capture:
-                Dataset.import_from(ann_path, "coco_instances")
+                try:
+                    Dataset.import_from(ann_path, "coco_instances")
+                except DatasetImportError as e:
+                    if str(e).startswith("Failed to import dataset"):
+                        raise e.__cause__
+                    raise e
             self.assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
             self.assertIn("not divisible by 2", str(capture.exception.__cause__))
 
@@ -1223,7 +1258,12 @@ class CocoExtractorTests(TestCase):
             dump_json_file(ann_path, anns)
 
             with self.assertRaises(AnnotationImportError) as capture:
-                Dataset.import_from(ann_path, "coco_instances")
+                try:
+                    Dataset.import_from(ann_path, "coco_instances")
+                except DatasetImportError as e:
+                    if str(e).startswith("Failed to import dataset"):
+                        raise e.__cause__
+                    raise e
             self.assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
             self.assertIn("at least 3 (x, y) pairs", str(capture.exception.__cause__))
 
@@ -1236,7 +1276,12 @@ class CocoExtractorTests(TestCase):
             dump_json_file(ann_path, anns)
 
             with self.assertRaises(AnnotationImportError) as capture:
-                Dataset.import_from(ann_path, "coco_instances")
+                try:
+                    Dataset.import_from(ann_path, "coco_instances")
+                except DatasetImportError as e:
+                    if str(e).startswith("Failed to import dataset"):
+                        raise e.__cause__
+                    raise e
             self.assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
             self.assertIn("Unknown image id", str(capture.exception.__cause__))
 
@@ -1251,7 +1296,12 @@ class CocoExtractorTests(TestCase):
                     dump_json_file(ann_path, anns)
 
                     with self.assertRaises(ItemImportError) as capture:
-                        Dataset.import_from(ann_path, "coco_instances")
+                        try:
+                            Dataset.import_from(ann_path, "coco_instances")
+                        except DatasetImportError as e:
+                            if str(e).startswith("Failed to import dataset"):
+                                raise e.__cause__
+                            raise e
                     self.assertIsInstance(capture.exception.__cause__, InvalidFieldTypeError)
                     self.assertEqual(capture.exception.__cause__.name, field)
                     self.assertEqual(capture.exception.__cause__.actual, str(type(value)))
@@ -1275,7 +1325,12 @@ class CocoExtractorTests(TestCase):
                     dump_json_file(ann_path, anns)
 
                     with self.assertRaises(AnnotationImportError) as capture:
-                        Dataset.import_from(ann_path, "coco_instances")
+                        try:
+                            Dataset.import_from(ann_path, "coco_instances")
+                        except DatasetImportError as e:
+                            if str(e).startswith("Failed to import dataset"):
+                                raise e.__cause__
+                            raise e
                     self.assertIsInstance(capture.exception.__cause__, InvalidFieldTypeError)
                     self.assertEqual(capture.exception.__cause__.name, field)
                     self.assertEqual(capture.exception.__cause__.actual, str(type(value)))

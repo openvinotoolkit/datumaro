@@ -1,7 +1,8 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import os
 import os.path as osp
 from enum import Enum, auto
@@ -10,10 +11,10 @@ from typing import Iterable, Optional, Sequence, Tuple, Union
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import DatasetImportError, MediaTypeError
+from datumaro.components.errors import DatasetImportError, InvalidAnnotationError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -37,7 +38,9 @@ def _parse_annotation_line(line: str) -> Tuple[str, str, Sequence[int]]:
             image = item_id + item[0]
             label_ids = [int(id) for id in item[1:]]
         else:
-            raise Exception("Line %s: unexpected number " "of quotes in filename" % line)
+            raise InvalidAnnotationError(
+                "Line %s: unexpected number " "of quotes in filename" % line
+            )
     else:
         item = line.split()
         item_id = osp.splitext(item[0])[0]
@@ -52,16 +55,18 @@ class ImagenetTxtBase(SubsetBase):
         self,
         path: str,
         *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
         labels: Union[Iterable[str], str] = _LabelsSource.file.name,
         labels_file: str = ImagenetTxtPath.LABELS_FILE,
         image_dir: Optional[str] = None,
-        subset: Optional[str] = None,
     ):
-        assert osp.isfile(path), path
+        if not osp.isfile(path):
+            raise FileNotFoundError(errno.ENOENT, "Can't find dataset file", path)
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, ctx=ctx)
 
         root_dir = osp.dirname(path)
         if not image_dir:

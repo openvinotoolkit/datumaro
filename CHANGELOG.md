@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Use autosummary for fully-automatic Python module docs generation
   (<https://github.com/openvinotoolkit/datumaro/pull/973>)
+- Enrich stack trace for better user experience when importing
+  (<https://github.com/openvinotoolkit/datumaro/pull/992>)
 
 ### Bug fixes
 - Fix Mapillary Vistas data format

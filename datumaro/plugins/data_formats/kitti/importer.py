@@ -6,6 +6,7 @@ import logging as log
 import os.path as osp
 from glob import glob
 
+from datumaro.components.errors import DatasetNotFoundError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 
@@ -24,7 +25,7 @@ class KittiImporter(Importer):
         subsets = self.find_sources(path)
 
         if len(subsets) == 0:
-            raise Exception("Failed to find 'kitti' dataset at '%s'" % path)
+            raise DatasetNotFoundError(path, self.NAME)
 
         # TODO: should be removed when proper label merging is implemented
         conflicting_types = {"kitti_segmentation", "kitti_detection"}

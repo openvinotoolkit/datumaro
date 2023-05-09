@@ -1,19 +1,22 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import glob
 import logging as log
 import os
 import os.path as osp
 import re
+from typing import Optional
 
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, CompiledMask, LabelCategories, Mask
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
+from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images, lazy_image, load_image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -29,16 +32,16 @@ class Ade20k2017Path:
 
 
 class Ade20k2017Base(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
         # exclude dataset meta file
         subsets = [subset for subset in os.listdir(path) if osp.splitext(subset)[-1] != ".json"]
         if len(subsets) < 1:
-            raise FileNotFoundError("Can't read subsets in directory '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find subsets in directory", path)
 
-        super().__init__(subsets=sorted(subsets))
+        super().__init__(subsets=sorted(subsets), ctx=ctx)
         self._path = path
 
         self._items = []
@@ -127,16 +130,18 @@ class Ade20k2017Base(DatasetBase):
     def _load_item_info(self, path):
         attr_path = osp.splitext(path)[0] + "_atr.txt"
         if not osp.isfile(attr_path):
-            raise Exception("Can't find annotation file for image %s" % path)
+            raise FileNotFoundError(
+                errno.ENOENT, "Can't find annotation file for image %s" % path, attr_path
+            )
 
         item_info = []
         with open(attr_path, "r", encoding="utf-8") as f:
             for line in f:
                 columns = [s.strip() for s in line.split("#")]
                 if len(columns) != 6:
-                    raise Exception("Invalid line in %s" % attr_path)
+                    raise InvalidAnnotationError("Invalid line in %s" % attr_path)
                 if columns[5][0] != '"' or columns[5][-1] != '"':
-                    raise Exception(
+                    raise InvalidAnnotationError(
                         "Attributes column are expected \
                         in double quotes, file %s"
                         % attr_path

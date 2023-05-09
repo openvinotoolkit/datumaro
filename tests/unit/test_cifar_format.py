@@ -14,6 +14,7 @@ from datumaro.components.annotation import Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.cifar import CifarExporter, CifarImporter
 
@@ -271,7 +272,12 @@ class CifarFormatTest(TestCase):
             with open(anno_file, "wb") as file:
                 pickle.dump(enumerate([1, 2, 3]), file)
             with self.assertRaisesRegex(pickle.UnpicklingError, "Global"):
-                Dataset.import_from(dst_dir, "cifar")
+                try:
+                    Dataset.import_from(dst_dir, "cifar")
+                except Exception as e:
+                    if isinstance(e, DatasetImportError) and e.__cause__:
+                        raise e.__cause__
+                    raise
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_meta_file(self):

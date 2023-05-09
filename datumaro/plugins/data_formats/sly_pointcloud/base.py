@@ -1,13 +1,16 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import os.path as osp
 from glob import iglob
+from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.importer import Importer
+from datumaro.components.errors import InvalidFieldError, UndeclaredLabelError
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image, PointCloud
 from datumaro.util import parse_json_file
 from datumaro.util.image import find_images
@@ -19,14 +22,20 @@ class SuperviselyPointCloudBase(SubsetBase):
     NAME = "sly_pointcloud"
     _SUPPORTED_SHAPES = "cuboid"
 
-    def __init__(self, path, subset=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isfile(path):
-            raise FileNotFoundError("Expected a path to 'meta.json', " "got '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find annotations file", path)
 
         rootdir = osp.abspath(osp.dirname(path))
         self._rootdir = rootdir
 
-        super().__init__(subset=subset, media_type=PointCloud)
+        super().__init__(subset=subset, media_type=PointCloud, ctx=ctx)
 
         items, categories = self._parse(rootdir)
         self._items = list(self._load_items(items).values())
@@ -51,7 +60,7 @@ class SuperviselyPointCloudBase(SubsetBase):
             if applicable_to == "imagesOnly":
                 continue  # an image attribute
             elif applicable_to not in {"all", "objectsOnly"}:
-                raise Exception("Unexpected tag 'applicable_type' value '%s'" % applicable_to)
+                raise InvalidFieldError(applicable_to)
 
             applicable_classes = tag.get("classes", [])
             if not applicable_classes:
@@ -60,7 +69,7 @@ class SuperviselyPointCloudBase(SubsetBase):
                 for label_name in applicable_classes:
                     _, label = label_cat.find(label_name)
                     if label is None:
-                        raise Exception("Unknown class for tag '%s'" % label_name)
+                        raise UndeclaredLabelError(label_name)
 
                     label.attributes.add(tag["name"])
 

@@ -1,12 +1,14 @@
-# Copyright (C) 2020-2022 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import glob
 import logging as log
 import os
 import os.path as osp
 import re
+from typing import Optional
 
 import numpy as np
 
@@ -19,7 +21,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util import parse_json
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images, lazy_image, load_image
@@ -37,16 +39,16 @@ class Ade20k2020Path:
 
 
 class Ade20k2020Base(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
 
         # exclude dataset meta file
         subsets = [subset for subset in os.listdir(path) if osp.splitext(subset)[-1] != ".json"]
         if len(subsets) < 1:
-            raise FileNotFoundError("Can't read subsets in directory '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find subsets in directory", path)
 
-        super().__init__(subsets=sorted(subsets))
+        super().__init__(subsets=sorted(subsets), ctx=ctx)
         self._path = path
 
         self._items = []
@@ -167,10 +169,8 @@ class Ade20k2020Base(DatasetBase):
         json_path = osp.splitext(path)[0] + ".json"
         item_info = []
         if not osp.isfile(json_path):
-            raise Exception(
-                "Can't find annotation file (*.json) \
-                for image %s"
-                % path
+            raise FileNotFoundError(
+                errno.ENOENT, "Can't find annotation file for image %s" % path, json_path
             )
 
         with open(json_path, "r", encoding="latin-1") as f:

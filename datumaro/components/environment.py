@@ -294,7 +294,9 @@ class Environment:
             else FormatDetectionConfidence.NONE
         )
 
-        return [str(format) for format in all_matched_formats if format.confidence == max_conf]
+        return sorted(
+            [str(format) for format in all_matched_formats if format.confidence == max_conf]
+        )
 
     def __reduce__(self):
         return (self.__class__, ())

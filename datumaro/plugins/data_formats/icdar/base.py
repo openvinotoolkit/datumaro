@@ -1,18 +1,21 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import csv
+import errno
 import glob
 import logging as log
 import os.path as osp
+from typing import Optional
 
 import numpy as np
 
 from datumaro.components.annotation import Bbox, Caption, Mask, MaskCategories, Polygon
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images
 from datumaro.util.mask_tools import lazy_mask
@@ -21,28 +24,37 @@ from .format import IcdarPath, IcdarTask
 
 
 class _IcdarBase(SubsetBase):
-    def __init__(self, path, task, subset=None):
+    def __init__(
+        self,
+        path: str,
+        task: IcdarTask,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         self._path = path
         self._task = task
 
         if task is IcdarTask.word_recognition:
             if not osp.isfile(path):
-                raise FileNotFoundError("Can't read annotation file '%s'" % path)
+                raise FileNotFoundError(errno.ENOENT, "Can't find annotations file", path)
 
             if not subset:
                 subset = osp.basename(osp.dirname(path))
-            super().__init__(subset=subset)
+            super().__init__(subset=subset, ctx=ctx)
 
             self._dataset_dir = osp.dirname(osp.dirname(path))
 
             self._items = list(self._load_recognition_items().values())
         elif task in {IcdarTask.text_localization, IcdarTask.text_segmentation}:
             if not osp.isdir(path):
-                raise NotADirectoryError("Can't open folder with annotation files '%s'" % path)
+                raise NotADirectoryError(
+                    errno.ENOTDIR, "Can't read dataset directory with annotation files", path
+                )
 
             if not subset:
                 subset = osp.basename(path)
-            super().__init__(subset=subset)
+            super().__init__(subset=subset, ctx=ctx)
 
             self._dataset_dir = osp.dirname(path)
 
@@ -118,7 +130,7 @@ class _IcdarBase(SubsetBase):
                         if len(objects) == 3:
                             text = objects[1]
                         else:
-                            raise Exception(
+                            raise InvalidAnnotationError(
                                 "Line %s: unexpected number " "of quotes in filename" % line
                             )
                     else:
@@ -204,7 +216,7 @@ class _IcdarBase(SubsetBase):
                         objects[9] = '" "'
                         objects.pop()
                     if len(objects) != 10:
-                        raise Exception(
+                        raise InvalidAnnotationError(
                             "Line %s contains the wrong number "
                             'of arguments, e.g. \'241 73 144 1 4 0 3 1 4 "h"' % line
                         )

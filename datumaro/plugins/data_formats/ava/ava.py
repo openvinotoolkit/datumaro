@@ -1,19 +1,21 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import csv
+import errno
 import os
 import os.path as osp
+from typing import Optional
 
 import google.protobuf.text_format as text_format
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.errors import DatasetImportError, MediaTypeError
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.os_util import find_files
 
@@ -32,32 +34,41 @@ class AvaPath:
 
 
 class AvaBase(SubsetBase):
-    def __init__(self, path):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         if not osp.isfile(path):
-            raise DatasetImportError(f"Can't find CSV file at '{path}'")
+            raise FileNotFoundError(errno.ENOENT, "Can't find CSV file", path)
         self._path = path
 
-        subset = (
-            osp.splitext(osp.basename(path))[0]
-            .replace(AvaPath.ANNOTATION_PREFIX, "")
-            .replace(AvaPath.ANNOTATION_VERSION, "")
-        )
-        super().__init__(subset=subset)
+        if not subset:
+            subset = (
+                osp.splitext(osp.basename(path))[0]
+                .replace(AvaPath.ANNOTATION_PREFIX, "")
+                .replace(AvaPath.ANNOTATION_VERSION, "")
+            )
+        super().__init__(subset=subset, ctx=ctx)
 
         if path.endswith(osp.join(AvaPath.ANNOTATION_DIR, osp.basename(path))):
             self._rootpath = path.rsplit(AvaPath.ANNOTATION_DIR, maxsplit=1)[0]
         else:
-            raise DatasetImportError(
+            raise FileNotFoundError(
+                errno.ENOENT,
                 f"Annotation path ({path}) should be under the directory which is named {AvaPath.ANNOTATION_DIR}. "
-                "If not, Datumaro fails to find the root path for this dataset."
+                "If not, Datumaro fails to find the root path for this dataset.",
             )
 
         if self._rootpath and osp.isdir(osp.join(self._rootpath, AvaPath.IMAGE_DIR)):
             self._images_dir = osp.join(self._rootpath, AvaPath.IMAGE_DIR)
         else:
-            raise DatasetImportError(
+            raise FileNotFoundError(
+                errno.ENOENT,
                 f"Root path ({self._rootpath}) should contain the directory which is named {AvaPath.IMAGE_DIR}. "
-                "If not, Datumaro fails to find the image directory path."
+                "If not, Datumaro fails to find the image directory path.",
             )
 
         self._infos = self._load_infos(osp.dirname(path))
@@ -78,9 +89,10 @@ class AvaBase(SubsetBase):
 
     def _load_categories(self, category_path):
         if not osp.exists(category_path):
-            raise DatasetImportError(
+            raise FileNotFoundError(
+                errno.ENOENT,
                 f"Label lists cannot be found in ({category_path}). "
-                "If not, Datumaro fails to import AVA action dataset."
+                "If not, Datumaro fails to import AVA action dataset.",
             )
 
         with open(category_path, "r") as f:

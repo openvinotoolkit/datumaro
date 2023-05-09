@@ -1,15 +1,17 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import csv
+import errno
 import os
 import os.path as osp
+from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Video
 from datumaro.plugins.data_formats.video import VIDEO_EXTENSIONS
 from datumaro.util import parse_json, parse_json_file
@@ -17,12 +19,12 @@ from datumaro.util.os_util import find_files
 
 
 class KineticsBase(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         if not osp.isdir(path):
-            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
+            raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
         self._path = path
 
-        super().__init__(media_type=Video)
+        super().__init__(media_type=Video, ctx=ctx)
 
         self._annotation_files = {}
         for ann_file in find_files(path, ["csv", "json"]):

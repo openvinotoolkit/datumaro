@@ -1,10 +1,11 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
 from collections import OrderedDict
 from copy import deepcopy
+from typing import Optional
 
 from defusedxml import ElementTree
 
@@ -20,7 +21,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 
 from .format import CvatPath
@@ -47,7 +48,13 @@ def _find_meta_root(path: str):
 class CvatBase(SubsetBase):
     _SUPPORTED_SHAPES = ("box", "polygon", "polyline", "points")
 
-    def __init__(self, path, subset=None):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
         assert osp.isfile(path), path
         rootpath = osp.dirname(path)
         images_dir = ""
@@ -58,7 +65,7 @@ class CvatBase(SubsetBase):
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, ctx=ctx)
 
         items, categories = self._parse(path)
         self._items = list(self._load_items(items).values())

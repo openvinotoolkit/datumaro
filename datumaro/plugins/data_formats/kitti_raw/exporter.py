@@ -13,7 +13,7 @@ from xml.sax.saxutils import XMLGenerator  # nosec
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import DatasetExportError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import PointCloud
 from datumaro.util import cast
@@ -302,7 +302,7 @@ class KittiRawExporter(Exporter):
             frame_id = self._write_item(item, frame_id)
 
             if frame_id in name_mapping:
-                raise Exception(
+                raise DatasetExportError(
                     "Item %s: frame id %s is repeated in the dataset" % (item.id, frame_id)
                 )
             name_mapping[frame_id] = item.id
@@ -329,7 +329,7 @@ class KittiRawExporter(Exporter):
                     # unused id. A negative one, for example.
                     track_id = -(len(tracks) + 1)
                 if track_id is None:
-                    raise Exception(
+                    raise DatasetExportError(
                         "Item %s: expected track annotations "
                         "having 'track_id' (integer) attribute. "
                         "Use --reindex to export single shapes." % item.id
@@ -350,13 +350,13 @@ class KittiRawExporter(Exporter):
                 else:
                     if [track["w"], track["h"], track["l"]] != ann.scale:
                         # Tracks have fixed scale in the format
-                        raise Exception(
+                        raise DatasetExportError(
                             "Item %s: mismatching track shapes, "
                             "track id %s" % (item.id, track_id)
                         )
 
                     if track["objectType"] != label:
-                        raise Exception(
+                        raise DatasetExportError(
                             "Item %s: mismatching track labels, "
                             "track id %s: %s vs. %s"
                             % (item.id, track_id, track["objectType"], label)

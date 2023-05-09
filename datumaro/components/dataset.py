@@ -32,6 +32,7 @@ from datumaro.components.environment import DEFAULT_ENVIRONMENT, Environment
 from datumaro.components.errors import (
     CategoriesRedefinedError,
     ConflictingCategoriesError,
+    DatasetImportError,
     DatasetInfosRedefinedError,
     MediaTypeError,
     MultipleFormatsMatchError,
@@ -1249,7 +1250,11 @@ class Dataset(IDataset):
             if eager:
                 dataset.init_cache()
         except _ImportFail as e:
-            raise e.__cause__
+            cause = e.__cause__ if getattr(e, "__cause__", None) is not None else e
+            cause.__traceback__ = e.__traceback__
+            raise DatasetImportError(f"Failed to import dataset '{format}' at '{path}'.") from cause
+        except Exception as e:
+            raise DatasetImportError(f"Failed to import dataset '{format}' at '{path}'.") from e
 
         dataset._source_path = path
         dataset._format = format

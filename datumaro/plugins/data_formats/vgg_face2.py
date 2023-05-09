@@ -1,17 +1,24 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import csv
+import errno
 import os
 import os.path as osp
+from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Points
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import (
+    AnnotationExportError,
+    DatasetImportError,
+    InvalidAnnotationError,
+    MediaTypeError,
+)
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import Importer
+from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -27,7 +34,7 @@ class VggFace2Path:
 
 
 class VggFace2Base(DatasetBase):
-    def __init__(self, path):
+    def __init__(self, path: str, *, ctx: Optional[ImportContext] = None):
         subset = None
         if osp.isdir(path):
             self._path = path
@@ -35,7 +42,7 @@ class VggFace2Base(DatasetBase):
             subset = osp.splitext(osp.basename(path).split("_")[2])[0]
             self._path = osp.dirname(path)
         else:
-            raise Exception("Can't read annotations from '%s'" % path)
+            raise DatasetImportError("Can't read annotations from '%s'" % path)
 
         annotation_files = [
             p
@@ -48,9 +55,9 @@ class VggFace2Base(DatasetBase):
         ]
 
         if len(annotation_files) < 1:
-            raise Exception("Can't find annotations in the directory '%s'" % path)
+            raise FileNotFoundError(errno.ENOENT, "Can't find annotations in the directory", path)
 
-        super().__init__()
+        super().__init__(ctx=ctx)
 
         self._dataset_dir = osp.dirname(self._path)
         self._subsets = (
@@ -140,7 +147,7 @@ class VggFace2Base(DatasetBase):
 
                 annotations = items[item_id].annotations
                 if [a for a in annotations if a.type == AnnotationType.points]:
-                    raise Exception(
+                    raise InvalidAnnotationError(
                         "Item %s: an image can have only one " "set of landmarks" % item_id
                     )
 
@@ -173,7 +180,9 @@ class VggFace2Base(DatasetBase):
 
                 annotations = items[item_id].annotations
                 if [a for a in annotations if a.type == AnnotationType.bbox]:
-                    raise Exception("Item %s: an image can have only one " "bbox" % item_id)
+                    raise InvalidAnnotationError(
+                        "Item %s: an image can have only one " "bbox" % item_id
+                    )
 
                 if len([p for p in row if row[p] == ""]) == 0 and len(row) == 5:
                     annotations.append(
@@ -275,7 +284,7 @@ class VggFace2Exporter(Exporter):
 
                 landmarks = [a for a in item.annotations if a.type == AnnotationType.points]
                 if 1 < len(landmarks):
-                    raise Exception(
+                    raise AnnotationExportError(
                         "Item (%s, %s): an image can have only one "
                         "set of landmarks" % (item.id, item.subset)
                     )
@@ -308,7 +317,7 @@ class VggFace2Exporter(Exporter):
 
                 bboxes = [a for a in item.annotations if a.type == AnnotationType.bbox]
                 if 1 < len(bboxes):
-                    raise Exception(
+                    raise AnnotationExportError(
                         "Item (%s, %s): an image can have only one " "bbox" % (item.id, item.subset)
                     )
                 if bboxes:
