@@ -551,10 +551,12 @@
 
 <div class="viewcode-block" id="DatasetNotFoundError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetNotFoundError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">DatasetNotFoundError</span><span class="p">(</span><span class="n">DatasetImportError</span><span class="p">):</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">template</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;Failed to find dataset &#39;</span><span class="si">{format}</span><span class="s2">&#39; at &#39;</span><span class="si">{path}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Failed to find dataset at &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MultipleFormatsMatchError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MultipleFormatsMatchError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>

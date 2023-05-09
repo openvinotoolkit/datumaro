@@ -392,11 +392,11 @@
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_params</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">DatasetNotFoundError</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">DatasetNotFoundError</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NAME</span><span class="p">)</span>
 
         <span class="n">found_sources</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_sources_with_params</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="o">**</span><span class="n">extra_params</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found_sources</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">DatasetNotFoundError</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">DatasetNotFoundError</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NAME</span><span class="p">)</span>
 
         <span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">found_sources</span><span class="p">:</span>

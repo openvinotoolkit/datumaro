@@ -292,7 +292,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">ItemStatus</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">MediaTypeError</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetExportError</span><span class="p">,</span> <span class="n">MediaTypeError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.exporter</span> <span class="kn">import</span> <span class="n">Exporter</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">PointCloud</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">cast</span>
@@ -581,7 +581,7 @@
             <span class="n">frame_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_item</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="n">name_mapping</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="n">DatasetExportError</span><span class="p">(</span>
                     <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: frame id </span><span class="si">%s</span><span class="s2"> is repeated in the dataset&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">)</span>
                 <span class="p">)</span>
             <span class="n">name_mapping</span><span class="p">[</span><span class="n">frame_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span>
@@ -608,7 +608,7 @@
                     <span class="c1"># unused id. A negative one, for example.</span>
                     <span class="n">track_id</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tracks</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">track_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                    <span class="k">raise</span> <span class="n">DatasetExportError</span><span class="p">(</span>
                         <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: expected track annotations &quot;</span>
                         <span class="s2">&quot;having &#39;track_id&#39; (integer) attribute. &quot;</span>
                         <span class="s2">&quot;Use --reindex to export single shapes.&quot;</span> <span class="o">%</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span>
@@ -629,13 +629,13 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="p">[</span><span class="n">track</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">],</span> <span class="n">track</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">],</span> <span class="n">track</span><span class="p">[</span><span class="s2">&quot;l&quot;</span><span class="p">]]</span> <span class="o">!=</span> <span class="n">ann</span><span class="o">.</span><span class="n">scale</span><span class="p">:</span>
                         <span class="c1"># Tracks have fixed scale in the format</span>
-                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                        <span class="k">raise</span> <span class="n">DatasetExportError</span><span class="p">(</span>
                             <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: mismatching track shapes, &quot;</span>
                             <span class="s2">&quot;track id </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">track_id</span><span class="p">)</span>
                         <span class="p">)</span>
 
                     <span class="k">if</span> <span class="n">track</span><span class="p">[</span><span class="s2">&quot;objectType&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">label</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                        <span class="k">raise</span> <span class="n">DatasetExportError</span><span class="p">(</span>
                             <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: mismatching track labels, &quot;</span>
                             <span class="s2">&quot;track id </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> vs. </span><span class="si">%s</span><span class="s2">&quot;</span>
                             <span class="o">%</span> <span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">track_id</span><span class="p">,</span> <span class="n">track</span><span class="p">[</span><span class="s2">&quot;objectType&quot;</span><span class="p">],</span> <span class="n">label</span><span class="p">)</span>

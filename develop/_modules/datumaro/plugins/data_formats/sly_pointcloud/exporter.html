@@ -296,7 +296,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">ItemStatus</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">IDataset</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">MediaTypeError</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetExportError</span><span class="p">,</span> <span class="n">MediaTypeError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.exporter</span> <span class="kn">import</span> <span class="n">Exporter</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">PointCloud</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">dump_json_file</span>
@@ -421,7 +421,7 @@
             <span class="k">if</span> <span class="n">tag</span><span class="p">[</span><span class="s2">&quot;value_type&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">tag</span><span class="p">[</span><span class="s2">&quot;value_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_type</span>
             <span class="k">elif</span> <span class="n">tag</span><span class="p">[</span><span class="s2">&quot;value_type&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value_type</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="n">DatasetExportError</span><span class="p">(</span>
                     <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: mismatching &quot;</span>
                     <span class="s2">&quot;value types for tag </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> vs </span><span class="si">%s</span><span class="s2">&quot;</span>
                     <span class="o">%</span> <span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">tag</span><span class="p">[</span><span class="s2">&quot;value_type&quot;</span><span class="p">],</span> <span class="n">value_type</span><span class="p">)</span>
@@ -507,7 +507,7 @@
                     <span class="k">if</span> <span class="n">tag</span><span class="p">[</span><span class="s2">&quot;value_type&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">tag</span><span class="p">[</span><span class="s2">&quot;value_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_type</span>
                     <span class="k">elif</span> <span class="n">tag</span><span class="p">[</span><span class="s2">&quot;value_type&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value_type</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                        <span class="k">raise</span> <span class="n">DatasetExportError</span><span class="p">(</span>
                             <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: mismatching &quot;</span>
                             <span class="s2">&quot;value types for tag </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> vs </span><span class="si">%s</span><span class="s2">&quot;</span>
                             <span class="o">%</span> <span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">tag</span><span class="p">[</span><span class="s2">&quot;value_type&quot;</span><span class="p">],</span> <span class="n">value_type</span><span class="p">)</span>

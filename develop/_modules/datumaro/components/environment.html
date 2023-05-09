@@ -573,7 +573,9 @@
             <span class="k">else</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">NONE</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">)</span> <span class="k">for</span> <span class="nb">format</span> <span class="ow">in</span> <span class="n">all_matched_formats</span> <span class="k">if</span> <span class="nb">format</span><span class="o">.</span><span class="n">confidence</span> <span class="o">==</span> <span class="n">max_conf</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">)</span> <span class="k">for</span> <span class="nb">format</span> <span class="ow">in</span> <span class="n">all_matched_formats</span> <span class="k">if</span> <span class="nb">format</span><span class="o">.</span><span class="n">confidence</span> <span class="o">==</span> <span class="n">max_conf</span><span class="p">]</span>
+        <span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="p">())</span>

@@ -277,18 +277,22 @@
             <article class="bd-article" role="main">
               
   <h1>Source code for datumaro.plugins.data_formats.synthia.base</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2021 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2021-2023 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
+<span class="kn">import</span> <span class="nn">errno</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">,</span> <span class="n">Mask</span><span class="p">,</span> <span class="n">MaskCategories</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">SubsetBase</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">InvalidAnnotationError</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">find_images</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">generate_colormap</span><span class="p">,</span> <span class="n">load_mask</span>
@@ -304,7 +308,7 @@
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="make_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.base.html#datumaro.plugins.data_formats.synthia.base.make_categories">[docs]</a><span class="k">def</span> <span class="nf">make_categories</span><span class="p">(</span><span class="n">label_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="make_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.base.html#datumaro.plugins.data_formats.synthia.base.make_categories">[docs]</a><span class="k">def</span> <span class="nf">make_categories</span><span class="p">(</span><span class="n">label_map</span><span class="p">):</span>
     <span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">label_categories</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">label_map</span><span class="p">:</span>
@@ -345,18 +349,26 @@
                 <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">label_map</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Label &#39;</span><span class="si">%s</span><span class="s2">&#39; is already defined&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">InvalidAnnotationError</span><span class="p">(</span><span class="s2">&quot;Label &#39;</span><span class="si">%s</span><span class="s2">&#39; is already defined&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
 
             <span class="n">label_map</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
     <span class="k">return</span> <span class="n">label_map</span></div>
 
 
 <span class="k">class</span> <span class="nc">_SynthiaBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">path_formats</span><span class="p">,</span> <span class="n">label_map</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">path_formats</span><span class="p">,</span>
+        <span class="n">label_map</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ImportContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t read dataset directory &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotADirectoryError</span><span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">ENOTDIR</span><span class="p">,</span> <span class="s2">&quot;Can&#39;t find dataset directory&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_path_formats</span> <span class="o">=</span> <span class="n">path_formats</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_label_map</span> <span class="o">=</span> <span class="n">label_map</span>
@@ -446,18 +458,24 @@
 
 
 <div class="viewcode-block" id="SynthiaRandBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.base.html#datumaro.plugins.data_formats.synthia.base.SynthiaRandBase">[docs]</a><span class="k">class</span> <span class="nc">SynthiaRandBase</span><span class="p">(</span><span class="n">_SynthiaBase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">path_formats</span><span class="o">=</span><span class="n">SynthiaRandPath</span><span class="p">,</span> <span class="n">label_map</span><span class="o">=</span><span class="n">SynthiaRandLabelMap</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">path_formats</span><span class="o">=</span><span class="n">SynthiaRandPath</span><span class="p">,</span> <span class="n">label_map</span><span class="o">=</span><span class="n">SynthiaRandLabelMap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SynthiaSfBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.base.html#datumaro.plugins.data_formats.synthia.base.SynthiaSfBase">[docs]</a><span class="k">class</span> <span class="nc">SynthiaSfBase</span><span class="p">(</span><span class="n">_SynthiaBase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">path_formats</span><span class="o">=</span><span class="n">SynthiaSfPath</span><span class="p">,</span> <span class="n">label_map</span><span class="o">=</span><span class="n">SynthiaSfLabelMap</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">path_formats</span><span class="o">=</span><span class="n">SynthiaSfPath</span><span class="p">,</span> <span class="n">label_map</span><span class="o">=</span><span class="n">SynthiaSfLabelMap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SynthiaAlBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.synthia.base.html#datumaro.plugins.data_formats.synthia.base.SynthiaAlBase">[docs]</a><span class="k">class</span> <span class="nc">SynthiaAlBase</span><span class="p">(</span><span class="n">_SynthiaBase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">path_formats</span><span class="o">=</span><span class="n">SynthiaAlPath</span><span class="p">,</span> <span class="n">label_map</span><span class="o">=</span><span class="n">SynthiaAlLabelMap</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">path_formats</span><span class="o">=</span><span class="n">SynthiaAlPath</span><span class="p">,</span> <span class="n">label_map</span><span class="o">=</span><span class="n">SynthiaAlLabelMap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
 </pre></div>
 
             </article>
