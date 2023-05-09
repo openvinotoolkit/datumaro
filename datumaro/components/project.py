@@ -1600,10 +1600,6 @@ class Project:
         return None
 
     @staticmethod
-    def wrap_item(item, **kwargs):
-        return item.wrap(**kwargs)
-
-    @staticmethod
     @scoped
     def migrate_from_v1_to_v2(src_dir: str, dst_dir: str, skip_import_errors=False):
         if not osp.isdir(src_dir):

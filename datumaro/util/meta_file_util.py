@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import os.path as osp
 from collections import OrderedDict
 
@@ -9,7 +10,7 @@ from datumaro.components.annotation import AnnotationType, HashKey
 from datumaro.util import dump_json_file, find, parse_json_file
 
 DATASET_META_FILE = "dataset_meta.json"
-DATASET_HASHKEY_FILE = "dataset_hashkey.json"
+DATASET_HASHKEY_FILE = "hash_keys.json"
 
 
 def is_meta_file(path):
@@ -29,7 +30,10 @@ def get_meta_file(path):
 
 
 def get_hashkey_file(path):
-    return osp.join(path, DATASET_HASHKEY_FILE)
+    hashkey_folder_path = osp.join(path, "hash_key_meta")
+    if not osp.exists(hashkey_folder_path):
+        os.makedirs(hashkey_folder_path)
+    return osp.join(hashkey_folder_path, DATASET_HASHKEY_FILE)
 
 
 def parse_meta_file(path):

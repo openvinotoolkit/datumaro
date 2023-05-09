@@ -2,15 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import List, Optional, Union
+from typing import List, Optional, Sequence, Union
 
 import numpy as np
 
 from datumaro.components.annotation import HashKey
-from datumaro.components.dataset import IDataset
+from datumaro.components.dataset import Dataset, IDataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.media import Image
+from datumaro.components.media import Image, MediaElement
 from datumaro.plugins.explorer import ExplorerLauncher
 
 
@@ -25,10 +25,18 @@ def calculate_hamming(B1, B2):
     return distH
 
 
+def select_uninferenced_dataset(dataset):
+    uninferenced_dataset = Dataset(media_type=MediaElement)
+    for item in dataset:
+        if not any(isinstance(annotation, HashKey) for annotation in item.annotations):
+            uninferenced_dataset.put(item)
+    return uninferenced_dataset
+
+
 class Explorer:
     def __init__(
         self,
-        dataset: Union[List[IDataset], IDataset],
+        *datasets: Sequence[Dataset],
         topk: int = 10,
     ) -> None:
         """
@@ -46,13 +54,17 @@ class Explorer:
         self._topk = topk
         database_keys = []
         item_list = []
-        if isinstance(dataset, IDataset):
-            dataset = [dataset]
 
-        for dataset_ in dataset:
-            inference_items = dataset_.run_model(self._model, append_annotation=True)
+        datasets = datasets[0]
+        if isinstance(datasets, IDataset):
+            datasets = [datasets]
 
-            for item in inference_items:
+        for dataset in datasets:
+            uninferenced_dataset = select_uninferenced_dataset(dataset)
+            uninferenced_dataset.run_model(self._model, append_annotation=True)
+            dataset.update(uninferenced_dataset)
+
+            for item in dataset:
                 for annotation in item.annotations:
                     if isinstance(annotation, HashKey):
                         try:

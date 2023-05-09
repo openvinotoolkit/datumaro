@@ -5,7 +5,6 @@
 import numpy as np
 from tokenizers import Tokenizer
 
-from datumaro.components.annotation import HashKey
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
@@ -87,12 +86,3 @@ class ExplorerLauncher(OpenvinoLauncher):
         if not isinstance(item.media, Image):
             raise MediaTypeError(f"Media type should be Image, Current type={type(item.media)}")
         return True
-
-    def inferenced_check(self, batch):
-        if len(batch) > 1:
-            raise ValueError("Can not check whether inferenced or not for multiple items in batch")
-
-        for annotation in batch[0].annotations:
-            if isinstance(annotation, HashKey) and (annotation.hash_key is not None):
-                return True
-        return False
