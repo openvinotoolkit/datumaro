@@ -131,7 +131,7 @@ def explore_command(args):
         for dataset in source_datasets:
             try:
                 query_datasetitem = dataset.get_datasetitem_by_path(args.query)
-            except:
+            except Exception:
                 continue
             if not query_datasetitem:
                 break

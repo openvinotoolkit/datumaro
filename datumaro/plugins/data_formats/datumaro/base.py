@@ -11,7 +11,6 @@ from datumaro.components.annotation import (
     Caption,
     Cuboid3d,
     Ellipse,
-    HashKey,
     Label,
     LabelCategories,
     MaskCategories,
