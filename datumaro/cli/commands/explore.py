@@ -116,7 +116,7 @@ def explore_command(args):
     for target in targets:
         build_tree.build_targets.add_explore_stage(target, params=explorer_args)
 
-    explorer = Explorer(source_datasets)
+    explorer = Explorer(*source_datasets)
     for dataset in source_datasets:
         dst_dir = dataset.data_path
         dataset.save(dst_dir, save_media=True)

@@ -5,12 +5,15 @@
 import os.path as osp
 from typing import Optional
 
+import numpy as np
+
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
     Caption,
     Cuboid3d,
     Ellipse,
+    HashKey,
     Label,
     LabelCategories,
     MaskCategories,
@@ -147,6 +150,12 @@ class DatumaroBase(SubsetBase):
 
     def _load_items(self, parsed):
         items = []
+
+        from datumaro.util.meta_file_util import has_hashkey_file, parse_hashkey_file
+
+        if has_hashkey_file(self._rootpath):
+            hashkey_dict = parse_hashkey_file(self._rootpath)
+
         for item_desc in parsed["items"]:
             item_id = item_desc["id"]
 
@@ -189,6 +198,10 @@ class DatumaroBase(SubsetBase):
             if not media and media_desc and media_desc.get("path"):
                 media = MediaElement(path=media_desc.get("path"))
                 self._media_type = MediaElement
+
+            if has_hashkey_file(self._rootpath):
+                hashkey_annot = hashkey_dict[item_id]
+                item_desc.update({"hashkey": hashkey_annot})
 
             annotations = self._load_annotations(item_desc)
 
@@ -322,4 +335,12 @@ class DatumaroBase(SubsetBase):
             else:
                 raise NotImplementedError()
 
+        hash_key = item.get("hashkey", None)
+        if hash_key:
+            hash_key = np.asarray(hash_key, dtype=np.uint8)
+            loaded.append(
+                HashKey(
+                    hash_key=np.array(hash_key),
+                )
+            )
         return loaded

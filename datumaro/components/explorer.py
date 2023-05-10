@@ -7,7 +7,7 @@ from typing import List, Optional, Sequence, Union
 import numpy as np
 
 from datumaro.components.annotation import HashKey
-from datumaro.components.dataset import Dataset, IDataset
+from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image, MediaElement
@@ -54,10 +54,6 @@ class Explorer:
         self._topk = topk
         database_keys = []
         item_list = []
-
-        datasets = datasets[0]
-        if isinstance(datasets, IDataset):
-            datasets = [datasets]
 
         datasets_to_infer = [select_uninferenced_dataset(dataset) for dataset in datasets]
         datasets = self.compute_hash_key(datasets, datasets_to_infer)

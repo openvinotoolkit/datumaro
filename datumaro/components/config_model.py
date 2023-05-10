@@ -92,7 +92,6 @@ TREE_SCHEMA = (
     .add("build_targets", lambda: _DictConfig(lambda v=None: BuildTarget(v)))
     .add("base_dir", str, internal=True)
     .add("config_path", str, internal=True)
-    .add("hashkey", dict)
     .build()
 )
 
