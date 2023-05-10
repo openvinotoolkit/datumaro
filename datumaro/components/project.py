@@ -1092,9 +1092,7 @@ class GitWrapper:
             repo_root = osp.abspath(self._project_dir)
             assert is_subpath(base, base=repo_root), "Base path should be inside of the repo"
             base = osp.relpath(base, repo_root)
-
-            def path_rewriter(entry):
-                return osp.relpath(entry.path, base).replace("\\", "/")
+            path_rewriter = lambda entry: osp.relpath(entry.path, base).replace("\\", "/")
 
         if isinstance(paths, str):
             paths = [paths]
