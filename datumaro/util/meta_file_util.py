@@ -121,7 +121,7 @@ def save_hashkey_file(path, item_list):
             if isinstance(annotation, HashKey):
                 hashkey = annotation.hash_key
                 break
-        hashkey_dict.update({item_subset+'/'+item_id: hashkey.tolist()})
+        hashkey_dict.update({item_subset + "/" + item_id: hashkey.tolist()})
 
     dataset_hashkey["hashkey"] = hashkey_dict
 
