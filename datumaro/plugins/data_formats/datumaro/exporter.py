@@ -176,7 +176,7 @@ class _SubsetWriter:
             elif isinstance(ann, Ellipse):
                 converted_ann = self._convert_ellipse_object(ann)
             elif isinstance(ann, HashKey):
-                converted_ann = self._convert_hashkey_object(ann)
+                continue
             else:
                 raise NotImplementedError()
             annotations.append(converted_ann)
@@ -305,11 +305,6 @@ class _SubsetWriter:
 
     def _convert_ellipse_object(self, obj: Ellipse):
         return self._convert_shape_object(obj)
-
-    def _convert_hashkey_object(self, obj):
-        converted = self._convert_annotation(obj)
-        converted.update({"hashkey": cast(obj.hash_key, np.array)})
-        return converted
 
     def _convert_attribute_categories(self, attributes):
         return sorted(attributes)

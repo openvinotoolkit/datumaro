@@ -5,8 +5,6 @@
 import os.path as osp
 from typing import Optional
 
-import numpy as np
-
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
@@ -222,8 +220,6 @@ class DatumaroBase(SubsetBase):
             z_order = ann.get("z_order")
             points = ann.get("points")
 
-            hash_key = ann.get("hashkey")
-
             if ann_type == AnnotationType.label:
                 loaded.append(Label(label=label_id, id=ann_id, attributes=attributes, group=group))
 
@@ -323,13 +319,7 @@ class DatumaroBase(SubsetBase):
                 )
 
             elif ann_type == AnnotationType.hash_key:
-                hash_key = np.asarray(hash_key, dtype=np.uint8)
-                loaded.append(
-                    HashKey(
-                        hash_key=np.array(hash_key),
-                    )
-                )
-
+                continue
             else:
                 raise NotImplementedError()
 

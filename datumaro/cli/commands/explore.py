@@ -119,7 +119,7 @@ def explore_command(args):
     explorer = Explorer(source_datasets)
     for dataset in source_datasets:
         dst_dir = dataset.data_path
-        dataset.save(dst_dir, save_media=True, save_hashkey_meta=True)
+        dataset.save(dst_dir, save_media=True)
 
     if args.stage:
         project.working_tree.config.update(build_tree.config)
@@ -127,7 +127,14 @@ def explore_command(args):
 
     # Get query datasetitem through query path
     if osp.exists(args.query):
-        query_datasetitem = dataset.get_datasetitem_by_path(args.query)
+        query_datasetitem = None
+        for dataset in source_datasets:
+            try:
+                query_datasetitem = dataset.get_datasetitem_by_path(args.query)
+            except:
+                continue
+            if not query_datasetitem:
+                break
     else:
         query_datasetitem = args.query
 
