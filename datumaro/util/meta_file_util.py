@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -116,11 +116,12 @@ def save_hashkey_file(path, item_list):
 
     for item in item_list:
         item_id = item.id
+        item_subset = item.subset
         for annotation in item.annotations:
             if isinstance(annotation, HashKey):
                 hashkey = annotation.hash_key
                 break
-        hashkey_dict.update({item_id: hashkey.tolist()})
+        hashkey_dict.update({item_subset+'/'+item_id: hashkey.tolist()})
 
     dataset_hashkey["hashkey"] = hashkey_dict
 

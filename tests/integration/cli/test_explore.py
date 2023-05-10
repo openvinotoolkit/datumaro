@@ -419,6 +419,34 @@ class ExploreTest(TestCase):
         checkout_hashkey = parse_hashkey_file(src_dir)
 
         self.assertEqual(len(checkout_hashkey), len(commit1_hashkey))
-        self.assertEqual(checkout_hashkey["1"], commit1_hashkey["1"])
-        self.assertEqual(checkout_hashkey["2"], commit1_hashkey["2"])
-        self.assertEqual(checkout_hashkey["3"], commit1_hashkey["3"])
+        self.assertEqual(checkout_hashkey["train/1"], commit1_hashkey["train/1"])
+        self.assertEqual(checkout_hashkey["train/2"], commit1_hashkey["train/2"])
+        self.assertEqual(checkout_hashkey["test/3"], commit1_hashkey["test/3"])
+
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_parse_hashkey(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, "proj")
+        dataset1_url = osp.join(test_dir, "dataset1")
+        train_image_path = osp.join(test_dir, "train", "1.jpg")
+
+        self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
+        run(self, "project", "create", "-o", proj_dir)
+        run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset1_url)
+        run(self, "explore", "-q", train_image_path, "-topk", "2", "-p", proj_dir)
+
+        proj = load_project(proj_dir)
+        srcs = list(proj.working_tree.config.sources.keys())
+        src_dir = proj.source_data_dir(srcs[0])
+        hashkey = parse_hashkey_file(src_dir)
+
+        for item in self.test_dataset:
+            item_id = item.id
+            item_subset = item.subset
+            self.assertIsNotNone(hashkey[item_subset + "/" + item_id])

@@ -28,6 +28,7 @@ from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import parse_json_file
+from datumaro.util.meta_file_util import has_hashkey_file, parse_hashkey_file
 from datumaro.version import __version__
 
 from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
@@ -102,7 +103,9 @@ class DatumaroBase(SubsetBase):
         """Actual implementation of loading Datumaro format."""
         self._infos = self._load_infos(self._parsed_anns)
         self._categories = self._load_categories(self._parsed_anns)
-        self._items = self._load_items(self._parsed_anns)
+        # self._items = self._load_items(self._parsed_anns)
+        items = self._load_items(self._parsed_anns)
+        self._items = self._load_hash_key(items)
 
     @staticmethod
     def _load_infos(parsed):
@@ -151,11 +154,6 @@ class DatumaroBase(SubsetBase):
     def _load_items(self, parsed):
         items = []
 
-        from datumaro.util.meta_file_util import has_hashkey_file, parse_hashkey_file
-
-        if has_hashkey_file(self._rootpath):
-            hashkey_dict = parse_hashkey_file(self._rootpath)
-
         for item_desc in parsed["items"]:
             item_id = item_desc["id"]
 
@@ -199,10 +197,6 @@ class DatumaroBase(SubsetBase):
                 media = MediaElement(path=media_desc.get("path"))
                 self._media_type = MediaElement
 
-            if has_hashkey_file(self._rootpath):
-                hashkey_annot = hashkey_dict[item_id]
-                item_desc.update({"hashkey": hashkey_annot})
-
             annotations = self._load_annotations(item_desc)
 
             item = DatasetItem(
@@ -215,6 +209,16 @@ class DatumaroBase(SubsetBase):
 
             items.append(item)
 
+        return items
+
+    def _load_hash_key(self, items):
+        if not has_hashkey_file(self._rootpath):
+            return items
+
+        hashkey_dict = parse_hashkey_file(self._rootpath)
+        for item in items:
+            hash_key = hashkey_dict[item.subset + "/" + item.id]
+            item.annotations.append(HashKey(hash_key=np.asarray(hash_key, dtype=np.uint8)))
         return items
 
     @staticmethod
@@ -335,12 +339,4 @@ class DatumaroBase(SubsetBase):
             else:
                 raise NotImplementedError()
 
-        hash_key = item.get("hashkey", None)
-        if hash_key:
-            hash_key = np.asarray(hash_key, dtype=np.uint8)
-            loaded.append(
-                HashKey(
-                    hash_key=np.array(hash_key),
-                )
-            )
         return loaded

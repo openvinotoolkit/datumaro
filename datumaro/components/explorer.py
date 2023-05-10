@@ -89,8 +89,8 @@ class Explorer:
         for dataset in datasets_to_infer:
             if len(dataset) > 0:
                 dataset.run_model(self.model, append_annotation=True)
-            for dataset, dataset_to_infer in zip(datasets, datasets_to_infer):
-                dataset.update(dataset_to_infer)
+        for dataset, dataset_to_infer in zip(datasets, datasets_to_infer):
+            dataset.update(dataset_to_infer)
         return datasets
 
     def explore_topk(
