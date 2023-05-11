@@ -556,7 +556,13 @@
 <p class="rubric">Functions</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.get_meta_file" title="datumaro.util.meta_file_util.get_meta_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_meta_file</span></code></a>(path)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.get_hashkey_file" title="datumaro.util.meta_file_util.get_hashkey_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_hashkey_file</span></code></a>(path)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.get_meta_file" title="datumaro.util.meta_file_util.get_meta_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_meta_file</span></code></a>(path)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.has_hashkey_file" title="datumaro.util.meta_file_util.has_hashkey_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_hashkey_file</span></code></a>(path)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.has_meta_file" title="datumaro.util.meta_file_util.has_meta_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_meta_file</span></code></a>(path)</p></td>
@@ -565,7 +571,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.is_meta_file" title="datumaro.util.meta_file_util.is_meta_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_meta_file</span></code></a>(path)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.parse_meta_file" title="datumaro.util.meta_file_util.parse_meta_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_meta_file</span></code></a>(path)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.parse_hashkey_file" title="datumaro.util.meta_file_util.parse_hashkey_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_hashkey_file</span></code></a>(path)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.parse_meta_file" title="datumaro.util.meta_file_util.parse_meta_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_meta_file</span></code></a>(path)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.save_hashkey_file" title="datumaro.util.meta_file_util.save_hashkey_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_hashkey_file</span></code></a>(path, item_list)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.meta_file_util.save_meta_file" title="datumaro.util.meta_file_util.save_meta_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_meta_file</span></code></a>(path, categories)</p></td>
@@ -584,8 +596,18 @@
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="datumaro.util.meta_file_util.has_hashkey_file">
+<span class="sig-prename descclassname"><span class="pre">datumaro.util.meta_file_util.</span></span><span class="sig-name descname"><span class="pre">has_hashkey_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/meta_file_util.html#has_hashkey_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.meta_file_util.has_hashkey_file" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="datumaro.util.meta_file_util.get_meta_file">
 <span class="sig-prename descclassname"><span class="pre">datumaro.util.meta_file_util.</span></span><span class="sig-name descname"><span class="pre">get_meta_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/meta_file_util.html#get_meta_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.meta_file_util.get_meta_file" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.util.meta_file_util.get_hashkey_file">
+<span class="sig-prename descclassname"><span class="pre">datumaro.util.meta_file_util.</span></span><span class="sig-name descname"><span class="pre">get_hashkey_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/meta_file_util.html#get_hashkey_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.meta_file_util.get_hashkey_file" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -596,6 +618,16 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.util.meta_file_util.save_meta_file">
 <span class="sig-prename descclassname"><span class="pre">datumaro.util.meta_file_util.</span></span><span class="sig-name descname"><span class="pre">save_meta_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/meta_file_util.html#save_meta_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.meta_file_util.save_meta_file" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.util.meta_file_util.parse_hashkey_file">
+<span class="sig-prename descclassname"><span class="pre">datumaro.util.meta_file_util.</span></span><span class="sig-name descname"><span class="pre">parse_hashkey_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/meta_file_util.html#parse_hashkey_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.meta_file_util.parse_hashkey_file" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.util.meta_file_util.save_hashkey_file">
+<span class="sig-prename descclassname"><span class="pre">datumaro.util.meta_file_util.</span></span><span class="sig-name descname"><span class="pre">save_hashkey_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/meta_file_util.html#save_hashkey_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.meta_file_util.save_hashkey_file" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -657,10 +689,28 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.util.meta_file_util.has_hashkey_file">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     has_hashkey_file()
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.util.meta_file_util.get_meta_file">
    <code class="docutils literal notranslate">
     <span class="pre">
      get_meta_file()
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.util.meta_file_util.get_hashkey_file">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     get_hashkey_file()
     </span>
    </code>
   </a>
@@ -679,6 +729,24 @@
    <code class="docutils literal notranslate">
     <span class="pre">
      save_meta_file()
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.util.meta_file_util.parse_hashkey_file">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     parse_hashkey_file()
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.util.meta_file_util.save_hashkey_file">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     save_hashkey_file()
     </span>
    </code>
   </a>

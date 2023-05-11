@@ -341,16 +341,13 @@
                 <span class="n">prompt_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;a photo of a </span><span class="si">{</span><span class="n">inputs</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize</span><span class="p">(</span><span class="n">prompt_text</span><span class="p">)</span>
             <span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span><span class="p">:</span> <span class="n">inputs</span><span class="p">}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">inputs</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-                <span class="c1"># media.data is None case</span>
-                <span class="k">return</span> <span class="kc">None</span>
-
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="c1"># when processing a query key, we expand HWC to NHWC</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
             <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;inputs=</span><span class="si">{</span><span class="n">inputs</span><span class="si">}</span><span class="s2"> is not allowed type.&quot;</span><span class="p">)</span>
 
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="n">hash_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_hash</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_blobs</span><span class="p">])</span>

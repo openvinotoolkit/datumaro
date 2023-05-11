@@ -281,15 +281,15 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">HashKey</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">IDataset</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">MediaTypeError</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MediaElement</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.explorer</span> <span class="kn">import</span> <span class="n">ExplorerLauncher</span>
 
 
@@ -304,10 +304,18 @@
     <span class="k">return</span> <span class="n">distH</span></div>
 
 
+<div class="viewcode-block" id="select_uninferenced_dataset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.explorer.html#datumaro.components.explorer.select_uninferenced_dataset">[docs]</a><span class="k">def</span> <span class="nf">select_uninferenced_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="n">uninferenced_dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">media_type</span><span class="o">=</span><span class="n">MediaElement</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">annotation</span><span class="p">,</span> <span class="n">HashKey</span><span class="p">)</span> <span class="k">for</span> <span class="n">annotation</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">):</span>
+            <span class="n">uninferenced_dataset</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">uninferenced_dataset</span></div>
+
+
 <div class="viewcode-block" id="Explorer"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.explorer.html#datumaro.components.explorer.Explorer">[docs]</a><span class="k">class</span> <span class="nc">Explorer</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">datasets</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">topk</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -320,27 +328,49 @@
 <span class="sd">        topk:</span>
 <span class="sd">            Number of images.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">ExplorerLauncher</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;clip_visual_ViT-B_32&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span> <span class="o">=</span> <span class="n">ExplorerLauncher</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;clip_text_ViT-B_32&quot;</span><span class="p">)</span>
-        <span class="n">inference</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">run_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">append_annotation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_topk</span> <span class="o">=</span> <span class="n">topk</span>
-
         <span class="n">database_keys</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">item_list</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">inference</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">annotation</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">annotation</span><span class="p">,</span> <span class="n">HashKey</span><span class="p">):</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">hash_key</span> <span class="o">=</span> <span class="n">annotation</span><span class="o">.</span><span class="n">hash_key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                        <span class="n">hash_key</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unpackbits</span><span class="p">(</span><span class="n">hash_key</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-                        <span class="n">database_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hash_key</span><span class="p">)</span>
-                        <span class="n">item_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                        <span class="n">hash_key</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">datasets_to_infer</span> <span class="o">=</span> <span class="p">[</span><span class="n">select_uninferenced_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_hash_key</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">datasets_to_infer</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">annotation</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">annotation</span><span class="p">,</span> <span class="n">HashKey</span><span class="p">):</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">hash_key</span> <span class="o">=</span> <span class="n">annotation</span><span class="o">.</span><span class="n">hash_key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">hash_key</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unpackbits</span><span class="p">(</span><span class="n">hash_key</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="n">database_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hash_key</span><span class="p">)</span>
+                            <span class="n">item_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                            <span class="k">continue</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_database_keys</span> <span class="o">=</span> <span class="n">database_keys</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_item_list</span> <span class="o">=</span> <span class="n">item_list</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">ExplorerLauncher</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;clip_visual_ViT-B_32&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">text_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span> <span class="o">=</span> <span class="n">ExplorerLauncher</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;clip_text_ViT-B_32&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span>
+
+<div class="viewcode-block" id="Explorer.compute_hash_key"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.explorer.html#datumaro.components.explorer.Explorer.compute_hash_key">[docs]</a>    <span class="k">def</span> <span class="nf">compute_hash_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">datasets_to_infer</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets_to_infer</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dataset</span><span class="o">.</span><span class="n">run_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">append_annotation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_to_infer</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">datasets_to_infer</span><span class="p">):</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dataset_to_infer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">datasets</span></div>
 
 <div class="viewcode-block" id="Explorer.explore_topk"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.explorer.html#datumaro.components.explorer.Explorer.explore_topk">[docs]</a>    <span class="k">def</span> <span class="nf">explore_topk</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -370,7 +400,7 @@
                             <span class="k">break</span>
                     <span class="n">query_hash_key_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_hash_key</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="n">q_hash_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">q</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash_key</span>
+                    <span class="n">q_hash_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_model</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">q</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash_key</span>
                     <span class="n">query_hash_key_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_hash_key</span><span class="p">)</span>
 
             <span class="n">sims</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">database_keys</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">query_hash_key_list</span><span class="p">))</span>
@@ -410,7 +440,7 @@
                     <span class="k">pass</span>
 
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">query_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">query</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash_key</span>
+            <span class="n">query_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_model</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">query</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hash_key</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span>
                 <span class="s2">&quot;Unexpected media type of query &#39;</span><span class="si">%s</span><span class="s2">&#39;. &quot;</span>
