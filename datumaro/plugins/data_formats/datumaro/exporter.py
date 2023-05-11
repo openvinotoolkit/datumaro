@@ -422,10 +422,7 @@ class DatumaroExporter(Exporter):
             subset = item.subset or DEFAULT_SUBSET_NAME
             writers[subset].add_item(item, pool)
 
-            for annotation in item.annotations:
-                if isinstance(annotation, HashKey):
-                    self._save_hashkey_meta = True
-                    break
+            self._check_hash_key_existence(item)
 
         for subset, writer in writers.items():
             if self._patch and subset in self._patch.updated_subsets and writer.is_empty():
@@ -471,3 +468,11 @@ class DatumaroExporter(Exporter):
             related_images_path = osp.join(save_dir, cls.PATH_CLS.IMAGES_DIR, item.subset, item.id)
             if osp.isdir(related_images_path):
                 shutil.rmtree(related_images_path)
+
+    def _check_hash_key_existence(self, item):
+        if self._save_hashkey_meta:
+            return
+        for annotation in item.annotations:
+            if isinstance(annotation, HashKey):
+                self._save_hashkey_meta = True
+                return

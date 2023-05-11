@@ -103,7 +103,6 @@ class DatumaroBase(SubsetBase):
         """Actual implementation of loading Datumaro format."""
         self._infos = self._load_infos(self._parsed_anns)
         self._categories = self._load_categories(self._parsed_anns)
-        # self._items = self._load_items(self._parsed_anns)
         items = self._load_items(self._parsed_anns)
         self._items = self._load_hash_key(items)
 
