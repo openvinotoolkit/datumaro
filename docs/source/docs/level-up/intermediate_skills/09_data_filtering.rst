@@ -3,7 +3,7 @@ Level 9: Dataset Filtering
 ===========================
 
 With the increasing availability of public data, the need for data filtering has become more apparent. Raw data often
-contains irrelevant or unnecessary information, making it difficult to extract the desired insights or use it effectively 
+contains irrelevant or unnecessary information, making it difficult to extract the desired insights or use it effectively
 for decision-making purposes. Data filtering involves the process of identifying and selecting relevant data points while
 excluding or removing the irrelevant ones to improve the quality and usability of the data. This process is essential for
 ensuring that data can be used effectively and efficiently to drive insights and inform decisions. As the volume and complexity
@@ -35,7 +35,7 @@ operation is given by :doc:`Filter <../../command-reference/context_free/filter>
     .. tab-item:: CLI
 
         Without the project declaration, we can simply filter dataset by
-        
+
         .. code-block:: bash
 
             datum filter <target> -e <how/to/filter/dataset> --output-dir <path/to/output>

@@ -39,7 +39,7 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
         Without the project declaration, we can simply ``explore`` dataset by
 
         .. code-block:: bash
-            
+
             datum explore <target> --query QUERY -topk TOPK_NUM
 
         ``QUERY`` could be image file path, text description, list of both of them
