@@ -1,16 +1,20 @@
 {
  "cells": [
   {
+   "attachments": {},
    "cell_type": "markdown",
    "id": "0c0b77ed",
    "metadata": {},
    "source": [
     "### Merge Heterogeneous Datasets for Detection\n",
-    "Datumaro supports merging heterogeneous datasets into a unified data foramt.\n",
+    "\n",
+    "[![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)](https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/02_merge_heterogeneous_datasets_for_detection.ipynb)\n",
+    "\n",
+    "Datumaro supports merging heterogeneous datasets into a unified data format.\n",
     "\n",
     "In this document, we import two heterogeneous datasets and export a merged dataset into a unified data format.\n",
     "First, we import two sample datasets that the data formats of them are COCO detection, VOC detection, respectively.\n",
-    "Then, we will export the merged dataset as Yolo format."
+    "Then, we will export the merged dataset as `yolo` format."
    ]
   },
   {
@@ -30,12 +34,13 @@
    ]
   },
   {
+   "attachments": {},
    "cell_type": "markdown",
    "id": "d1c8da69",
    "metadata": {},
    "source": [
     "We export sample COCO dataset and VOC datasets seperately.\n",
-    "Note that we can omitt passing 'format' parameter.\n",
+    "Note that we can omit passing `format` parameter.\n",
     "Without the explicit format parameter, Datumaro will dectect the proper dataset format automatically.\n",
     "\n",
     "Since we only interest in COCO instances data, the other annotations (such that labels, stuff, ...) are ignored.\n",
@@ -75,12 +80,13 @@
    ]
   },
   {
+   "attachments": {},
    "cell_type": "markdown",
    "id": "d99699f7",
    "metadata": {},
    "source": [
-    "In the sample COCO dataset, there are 2 images where each image is divided into 'train' and 'val' subset.\n",
-    "In the sample VOC dataset, 1 image to 'train' subset and 1 image to 'test' subset."
+    "In the sample COCO dataset, there are 2 images where each image is divided into `train` and `val` subset.\n",
+    "In the sample VOC dataset, 1 image to `train` subset and 1 image to `test` subset."
    ]
   },
   {
@@ -168,11 +174,12 @@
    ]
   },
   {
+   "attachments": {},
    "cell_type": "markdown",
    "id": "1bb66213",
    "metadata": {},
    "source": [
-    "Since the target datasets are heterogeneous, we should call 'IntersectMerge' to merge them.\n",
+    "Since the target datasets are heterogeneous, we should call `IntersectMerge` to merge them.\n",
     "In the merged dataset, there is a total of 4 images.\n",
     "We can see that the subsets of image are merged by the name."
    ]
@@ -228,11 +235,12 @@
    ]
   },
   {
+   "attachments": {},
    "cell_type": "markdown",
    "id": "e0cfbba1",
    "metadata": {},
    "source": [
-    "Finally, Datatum converts the dataset format to 'Yolo' and exports them to the 'merged_dataset' folder."
+    "Finally, Datumaro converts the dataset format to `yolo` and exports them to the `merged_dataset` folder."
    ]
   },
   {

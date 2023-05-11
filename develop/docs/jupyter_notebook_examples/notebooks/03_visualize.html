@@ -556,6 +556,7 @@
               
   <section id="Visualization">
 <h1>Visualization<a class="headerlink" href="#Visualization" title="Permalink to this heading">#</a></h1>
+<p><a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/03_visualize.ipynb"><img alt="Jupyter Notebook" src="https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&amp;logo=jupyter&amp;logoColor=white" /></a></p>
 <p>In this notebook example, we’ll take a look at Datumaro visualization Python API. Specifically, we are going to provide the example codes for instance segmentation and captioning tasks with MS-COCO 2017 dataset.</p>
 <section id="Prerequisite">
 <h2>Prerequisite<a class="headerlink" href="#Prerequisite" title="Permalink to this heading">#</a></h2>
@@ -591,7 +592,7 @@
 </section>
 <section id="Extract-the-downloaded-dataset">
 <h3>Extract the downloaded dataset<a class="headerlink" href="#Extract-the-downloaded-dataset" title="Permalink to this heading">#</a></h3>
-<p>We extract all the downloaded files and only remain <code class="docutils literal notranslate"><span class="pre">val2017</span></code> subset by removing <code class="docutils literal notranslate"><span class="pre">train2017</span></code> annotation files. After running this cell, you will get the following directory structure.</p>
+<p>We extract all the downloaded files and remove <code class="docutils literal notranslate"><span class="pre">train2017</span></code> annotation files (e.g., <code class="docutils literal notranslate"><span class="pre">instances_train2017.json</span></code>) because we only downloaded the <code class="docutils literal notranslate"><span class="pre">val2017</span></code> images. After running this cell, you will get the following directory structure.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>coco_dataset
 ├── annotations
 │   ├── captions_val2017.json

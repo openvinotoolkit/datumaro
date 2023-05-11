@@ -556,8 +556,9 @@
               
   <section id="Merge-Heterogeneous-Datasets-for-Detection">
 <h1>Merge Heterogeneous Datasets for Detection<a class="headerlink" href="#Merge-Heterogeneous-Datasets-for-Detection" title="Permalink to this heading">#</a></h1>
-<p>Datumaro supports merging heterogeneous datasets into a unified data foramt.</p>
-<p>In this document, we import two heterogeneous datasets and export a merged dataset into a unified data format. First, we import two sample datasets that the data formats of them are COCO detection, VOC detection, respectively. Then, we will export the merged dataset as Yolo format.</p>
+<p><a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/02_merge_heterogeneous_datasets_for_detection.ipynb"><img alt="Jupyter Notebook" src="https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&amp;logo=jupyter&amp;logoColor=white" /></a></p>
+<p>Datumaro supports merging heterogeneous datasets into a unified data format.</p>
+<p>In this document, we import two heterogeneous datasets and export a merged dataset into a unified data format. First, we import two sample datasets that the data formats of them are COCO detection, VOC detection, respectively. Then, we will export the merged dataset as <code class="docutils literal notranslate"><span class="pre">yolo</span></code> format.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -572,7 +573,7 @@
 </pre></div>
 </div>
 </div>
-<p>We export sample COCO dataset and VOC datasets seperately. Note that we can omitt passing ‘format’ parameter. Without the explicit format parameter, Datumaro will dectect the proper dataset format automatically.</p>
+<p>We export sample COCO dataset and VOC datasets seperately. Note that we can omit passing <code class="docutils literal notranslate"><span class="pre">format</span></code> parameter. Without the explicit format parameter, Datumaro will dectect the proper dataset format automatically.</p>
 <p>Since we only interest in COCO instances data, the other annotations (such that labels, stuff, …) are ignored. Datumaro will print warning message during import.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -604,7 +605,7 @@ WARNING:root:File &#39;../tests/assets/coco_dataset/coco/annotations/image_info_
 WARNING:root:File &#39;../tests/assets/coco_dataset/coco/annotations/panoptic_val.json&#39; was skipped, could&#39;t match this file with any of these tasks: coco_instances
 </pre></div></div>
 </div>
-<p>In the sample COCO dataset, there are 2 images where each image is divided into ‘train’ and ‘val’ subset. In the sample VOC dataset, 1 image to ‘train’ subset and 1 image to ‘test’ subset.</p>
+<p>In the sample COCO dataset, there are 2 images where each image is divided into <code class="docutils literal notranslate"><span class="pre">train</span></code> and <code class="docutils literal notranslate"><span class="pre">val</span></code> subset. In the sample VOC dataset, 1 image to <code class="docutils literal notranslate"><span class="pre">train</span></code> subset and 1 image to <code class="docutils literal notranslate"><span class="pre">test</span></code> subset.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -683,7 +684,7 @@ statistics for a sample VOC dataset
     9.411065220006367e-08]}}}
 </pre></div></div>
 </div>
-<p>Since the target datasets are heterogeneous, we should call ‘IntersectMerge’ to merge them. In the merged dataset, there is a total of 4 images. We can see that the subsets of image are merged by the name.</p>
+<p>Since the target datasets are heterogeneous, we should call <code class="docutils literal notranslate"><span class="pre">IntersectMerge</span></code> to merge them. In the merged dataset, there is a total of 4 images. We can see that the subsets of image are merged by the name.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -731,7 +732,7 @@ statistics for the merged dataset
     6.361265799828938e-08]}}}
 </pre></div></div>
 </div>
-<p>Finally, Datatum converts the dataset format to ‘Yolo’ and exports them to the ‘merged_dataset’ folder.</p>
+<p>Finally, Datumaro converts the dataset format to <code class="docutils literal notranslate"><span class="pre">yolo</span></code> and exports them to the <code class="docutils literal notranslate"><span class="pre">merged_dataset</span></code> folder.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>

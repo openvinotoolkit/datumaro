@@ -7,6 +7,8 @@
    "source": [
     "# Tiling\n",
     "\n",
+    "[![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)](https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/06_tiling.ipynb)\n",
+    "\n",
     "In this notebook example, we'll take a look at Datumaro `TileTransform` which is a useful dataset transformation for enhancing [small object detection tasks](https://openaccess.thecvf.com/content_CVPRW_2019/papers/UAVision/Unel_The_Power_of_Tiling_for_Small_Object_Detection_CVPRW_2019_paper.pdf). We are going to look at the example codes for object detection task with [Six-sided Dice Dataset](https://github.com/nell-byler/dice_detection)."
    ]
   },
@@ -232,7 +234,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Then, we will check whether the dataset export is succesful by importing `d6-dice-coco` dataset again."
+    "Then, we will check whether the dataset export is successful by importing `d6-dice-coco` dataset again."
    ]
   },
   {

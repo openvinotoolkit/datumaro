@@ -556,7 +556,8 @@
               
   <section id="Filter-datasets">
 <h1>Filter datasets<a class="headerlink" href="#Filter-datasets" title="Permalink to this heading">#</a></h1>
-<p>In this notebook example, we’ll take a look at Datumaro filter api.</p>
+<p><a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/04_filter.ipynb"><img alt="Jupyter Notebook" src="https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&amp;logo=jupyter&amp;logoColor=white" /></a></p>
+<p>In this notebook example, we’ll take a look at Datumaro <code class="docutils literal notranslate"><span class="pre">filter</span></code> API.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -756,7 +757,7 @@ categories
 </section>
 <section id="Filtered-by-width-and-height">
 <h2>Filtered by width and height<a class="headerlink" href="#Filtered-by-width-and-height" title="Permalink to this heading">#</a></h2>
-<p>We export sample dataset to extract a dataset with images with width &lt; height.</p>
+<p>We export sample dataset to extract a dataset with images which have shorter width than height.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
@@ -927,7 +928,7 @@ Width and height for `width &lt; height` sample COCO dataset images
 </section>
 <section id="Filtered-by-label-and-area">
 <h2>Filtered by label and area<a class="headerlink" href="#Filtered-by-label-and-area" title="Permalink to this heading">#</a></h2>
-<p>We export sample dataset to extract only non-<code class="docutils literal notranslate"><span class="pre">persons</span></code>.</p>
+<p>We export sample dataset to extract only <code class="docutils literal notranslate"><span class="pre">non-persons</span></code>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
@@ -1022,7 +1023,7 @@ categories
 </section>
 <section id="Filtered-by-annotation">
 <h2>Filtered by annotation<a class="headerlink" href="#Filtered-by-annotation" title="Permalink to this heading">#</a></h2>
-<p>We export sample dataset to extract non-occluded annotations, remove empty images. Use data only from the “s1” source of the project.</p>
+<p>We export sample dataset to extract <code class="docutils literal notranslate"><span class="pre">non-occluded</span></code> annotations, remove empty images. Use data only from the “s1” source of the project.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
