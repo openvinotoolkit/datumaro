@@ -20,7 +20,7 @@ from datumaro.components.annotation import (
     MaskCategories,
 )
 from datumaro.components.dataset import Dataset
-from datumaro.components.dataset_base import DatasetBase, DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.errors import (
     AnnotationImportError,
