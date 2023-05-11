@@ -100,7 +100,6 @@ class YoloIntegrationScenarios(TestCase):
                     annotations=[
                         Bbox(1.0, 2.0, 2.0, 2.0, label=8),
                         Bbox(4.0, 5.0, 2.0, 2.0, label=15),
-                        Bbox(5.5, 6, 2, 2, label=22),
                     ],
                 ),
                 DatasetItem(
@@ -123,7 +122,7 @@ class YoloIntegrationScenarios(TestCase):
                 self,
                 "convert",
                 "-if",
-                "voc",
+                "voc_detection",
                 "-i",
                 voc_dir,
                 "-f",
@@ -135,6 +134,7 @@ class YoloIntegrationScenarios(TestCase):
             )
 
             parsed_dataset = Dataset.import_from(yolo_dir, format="yolo")
+
             compare_datasets(self, target_dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

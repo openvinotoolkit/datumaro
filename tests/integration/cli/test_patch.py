@@ -92,14 +92,14 @@ class PatchTest(TestCase):
             patch_url = osp.join(test_dir, "dataset2")
 
             dataset.export(dataset_url, "coco", save_media=True)
-            patch.export(patch_url, "voc", save_media=True)
+            patch.export(patch_url, "voc_detection", save_media=True)
 
             run(
                 self,
                 "patch",
                 "--overwrite",
                 dataset_url + ":coco",
-                patch_url + ":voc",
+                patch_url + ":voc_detection",
                 "--",
                 "--reindex=1",
                 "--save-images",

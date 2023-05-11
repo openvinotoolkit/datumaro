@@ -15,6 +15,7 @@ class _VocImporter(Importer):
         VocTask.classification: ("voc_classification", "Main"),
         VocTask.detection: ("voc_detection", "Main"),
         VocTask.segmentation: ("voc_segmentation", "Segmentation"),
+        VocTask.instance_segmentation: ("voc_instance_segmentation", "Segmentation"),
         VocTask.person_layout: ("voc_layout", "Layout"),
         VocTask.action_classification: ("voc_action", "Action"),
     }
@@ -76,6 +77,11 @@ class VocDetectionImporter(_VocImporter):
 
 class VocSegmentationImporter(_VocImporter):
     _TASK = VocTask.segmentation
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
+
+
+class VocInstanceSegmentationImporter(_VocImporter):
+    _TASK = VocTask.instance_segmentation
     _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 

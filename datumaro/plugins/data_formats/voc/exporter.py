@@ -71,10 +71,10 @@ def _write_xml_bbox(bbox, parent_elem):
 
 
 class LabelmapType(Enum):
-    voc = auto()
     voc_classification = auto()
     voc_detection = auto()
     voc_segmentation = auto()
+    voc_instance_segmentation = auto()
     voc_layout = auto()
     voc_action = auto()
     source = auto()
@@ -158,14 +158,14 @@ class VocExporter(Exporter):
     ):
         super().__init__(extractor, save_dir, **kwargs)
 
-        assert tasks is None or isinstance(tasks, (VocTask, list, set))
-        if tasks is None:
-            tasks = set(VocTask)
-        elif isinstance(tasks, VocTask):
-            tasks = {tasks}
-        else:
-            tasks = set(t if t in VocTask else VocTask[t] for t in tasks)
-        self._tasks = tasks
+        # assert tasks is None or isinstance(tasks, (VocTask, list, set))
+        # if tasks is None:
+        #     tasks = set(VocTask)
+        # elif isinstance(tasks, VocTask):
+        #     tasks = {tasks}
+        # else:
+        #     tasks = set(t if t in VocTask else VocTask[t] for t in tasks)
+        self._task = tasks
 
         self._apply_colormap = apply_colormap
         self._allow_attributes = allow_attributes
@@ -241,20 +241,21 @@ class VocExporter(Exporter):
                 except Exception as e:
                     self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
 
-            if self._tasks & {
+            if self._task in [
                 VocTask.classification,
                 VocTask.detection,
                 VocTask.action_classification,
                 VocTask.person_layout,
-            }:
+                VocTask.instance_segmentation,
+            ]:
                 self.save_clsdet_lists(subset_name, lists.clsdet_list)
-                if self._tasks & {VocTask.classification}:
+                if self._task == VocTask.classification:
                     self.save_class_lists(subset_name, lists.class_lists)
-            if self._tasks & {VocTask.action_classification}:
+            if self._task == VocTask.action_classification:
                 self.save_action_lists(subset_name, lists.action_list)
-            if self._tasks & {VocTask.person_layout}:
+            if self._task == VocTask.person_layout:
                 self.save_layout_lists(subset_name, lists.layout_list)
-            if self._tasks & {VocTask.segmentation}:
+            if self._task in [VocTask.segmentation, VocTask.instance_segmentation]:
                 self.save_segm_lists(subset_name, lists.segm_list)
 
     def _export_annotations(self, item: DatasetItem, *, image_filename: str, lists: _SubsetLists):
@@ -269,7 +270,12 @@ class VocExporter(Exporter):
             elif isinstance(a, Mask):
                 masks.append(a)
 
-        if self._tasks & {VocTask.detection, VocTask.person_layout, VocTask.action_classification}:
+        if self._task in [
+            VocTask.detection,
+            VocTask.instance_segmentation,
+            VocTask.person_layout,
+            VocTask.action_classification,
+        ]:
             root_elem = ET.Element("annotation")
             if "_" in item.id:
                 folder = item.id[: item.id.find("_")]
@@ -303,10 +309,10 @@ class VocExporter(Exporter):
             layout_bboxes = []
             for bbox in bboxes:
                 label = self.get_label(bbox.label)
-                if self._is_part(label):
-                    layout_bboxes.append(bbox)
-                elif self._is_label(label):
+                if self._is_label(label):
                     main_bboxes.append(bbox)
+                elif self._is_part(label):
+                    layout_bboxes.append(bbox)
 
             for new_obj_id, obj in enumerate(main_bboxes):
                 attr = obj.attributes
@@ -333,19 +339,18 @@ class VocExporter(Exporter):
                 if bbox is not None:
                     _write_xml_bbox(bbox, obj_elem)
 
-                # for part_bbox in filter(
-                #     lambda x: obj.group and obj.group == x.group, layout_bboxes
-                # ):
-                for part_bbox in layout_bboxes:
-                    if part_bbox.group != obj.group:
-                        continue
+                if self._task == VocTask.person_layout:
+                    for part_bbox in layout_bboxes:
+                        if part_bbox.group != obj.group:
+                            continue
 
-                    part_elem = ET.SubElement(obj_elem, "part")
-                    ET.SubElement(part_elem, "name").text = self.get_label(part_bbox.label)
-                    _write_xml_bbox(part_bbox.get_bbox(), part_elem)
+                        part_elem = ET.SubElement(obj_elem, "part")
+                        ET.SubElement(part_elem, "name").text = self.get_label(part_bbox.label)
+                        _write_xml_bbox(part_bbox.get_bbox(), part_elem)
 
-                    objects_with_parts.append(new_obj_id)
+                        objects_with_parts.append(new_obj_id)
 
+                # if self._task == VocTask.action_classification:
                 label_actions = self._get_actions(obj_label)
                 actions_elem = ET.Element("actions")
                 for action in label_actions:
@@ -358,6 +363,7 @@ class VocExporter(Exporter):
                         ET.SubElement(actions_elem, action).text = "%d" % present
 
                     objects_with_actions[new_obj_id][action] = present
+
                 if len(actions_elem) != 0:
                     obj_elem.append(actions_elem)
 
@@ -375,11 +381,6 @@ class VocExporter(Exporter):
                     if len(attrs_elem):
                         obj_elem.append(attrs_elem)
 
-            if self._tasks & {
-                VocTask.detection,
-                VocTask.person_layout,
-                VocTask.action_classification,
-            }:
                 ann_path = osp.join(self._ann_dir, item.id + ".xml")
                 os.makedirs(osp.dirname(ann_path), exist_ok=True)
                 with open(ann_path, "w", encoding="utf-8") as f:
@@ -387,10 +388,10 @@ class VocExporter(Exporter):
 
             lists.clsdet_list[item.id] = True
 
-            if objects_with_parts:
+            if self._task == VocTask.person_layout and objects_with_parts:
                 lists.layout_list[item.id] = objects_with_parts
 
-            if objects_with_actions:
+            if self._task == VocTask.action_classification and objects_with_actions:
                 lists.action_list[item.id] = objects_with_actions
 
         for label_ann in labels:
@@ -403,7 +404,8 @@ class VocExporter(Exporter):
 
             lists.clsdet_list[item.id] = True
 
-        if masks and VocTask.segmentation in self._tasks:
+        # if masks and VocTask.segmentation in self._task:
+        if self._task in [VocTask.segmentation, VocTask.instance_segmentation] and masks:
             compiled_mask = CompiledMask.from_instance_masks(
                 masks, instance_labels=[self._label_id_mapping(m.label) for m in masks]
             )
@@ -601,25 +603,11 @@ class VocExporter(Exporter):
             write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
-        if label_map_source == LabelmapType.voc_classification.name:
-            # use the default VOC colormap
-            label_map = make_voc_label_map(task=VocTask.classification)
-
-        elif label_map_source == LabelmapType.voc_detection.name:
-            # use the default VOC colormap
-            label_map = make_voc_label_map(task=VocTask.detection)
-
-        elif label_map_source == LabelmapType.voc_segmentation.name:
-            # use the default VOC colormap
-            label_map = make_voc_label_map(task=VocTask.segmentation)
-
-        elif label_map_source == LabelmapType.voc_layout.name:
-            # use the default VOC colormap
-            label_map = make_voc_label_map(task=VocTask.person_layout)
-
-        elif label_map_source == LabelmapType.voc_action.name:
-            # use the default VOC colormap
-            label_map = make_voc_label_map(task=VocTask.action_classification)
+        if (
+            label_map_source in [t.name for t in LabelmapType]
+            and label_map_source != LabelmapType.source.name
+        ):
+            label_map = make_voc_label_map(task=self._task)
 
         elif (
             label_map_source == LabelmapType.source.name
@@ -667,13 +655,20 @@ class VocExporter(Exporter):
                 label_map[bg_label] = [color, [], []]
             label_map.move_to_end(bg_label, last=False)
 
-        self._categories = make_voc_categories(label_map)
+        self._categories = make_voc_categories(label_map, task=self._task)
 
         # Update colors with assigned values
-        colormap = self._categories[AnnotationType.mask].colormap
-        for label_id, color in colormap.items():
-            label_desc = label_map[self._categories[AnnotationType.label].items[label_id].name]
-            label_desc[0] = color
+        if label_map_source in [
+            LabelmapType.voc_segmentation.name,
+            LabelmapType.voc_instance_segmentation.name,
+        ]:
+            colormap = self._categories[AnnotationType.mask].colormap
+            for label_id, color in colormap.items():
+                if label_id:
+                    label_desc = label_map[
+                        self._categories[AnnotationType.label].items[label_id].name
+                    ]
+                    label_desc[0] = color
 
         self._label_map = label_map
         self._label_id_mapping = self._make_label_id_map()
@@ -703,7 +698,7 @@ class VocExporter(Exporter):
         )
 
         void_labels = [
-            src_label for src_id, src_label in src_labels.items() if src_label not in dst_labels
+            src_label for _, src_label in src_labels.items() if src_label not in dst_labels
         ]
         if void_labels:
             log.warning(
@@ -766,11 +761,12 @@ class VocExporter(Exporter):
             if not to_remove:
                 continue
 
-            if conv._tasks & {
+            if conv._task in [
                 VocTask.detection,
+                VocTask.instance_segmentation,
                 VocTask.action_classification,
                 VocTask.person_layout,
-            }:
+            ]:
                 ann_path = osp.join(conv._ann_dir, item.id + ".xml")
                 if osp.isfile(ann_path):
                     os.remove(ann_path)
@@ -801,6 +797,18 @@ class VocDetectionExporter(VocExporter):
         super().__init__(*args, **kwargs)
 
 
+class VocSegmentationExporter(VocExporter):
+    def __init__(self, *args, **kwargs):
+        kwargs["tasks"] = VocTask.segmentation
+        super().__init__(*args, **kwargs)
+
+
+class VocInstanceSegmentationExporter(VocExporter):
+    def __init__(self, *args, **kwargs):
+        kwargs["tasks"] = VocTask.instance_segmentation
+        super().__init__(*args, **kwargs)
+
+
 class VocLayoutExporter(VocExporter):
     def __init__(self, *args, **kwargs):
         kwargs["tasks"] = VocTask.person_layout
@@ -810,10 +818,4 @@ class VocLayoutExporter(VocExporter):
 class VocActionExporter(VocExporter):
     def __init__(self, *args, **kwargs):
         kwargs["tasks"] = VocTask.action_classification
-        super().__init__(*args, **kwargs)
-
-
-class VocSegmentationExporter(VocExporter):
-    def __init__(self, *args, **kwargs):
-        kwargs["tasks"] = VocTask.segmentation
         super().__init__(*args, **kwargs)

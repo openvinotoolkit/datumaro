@@ -126,7 +126,7 @@ class VocIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, "project", "create", "-o", test_dir)
-            run(self, "project", "import", "-p", test_dir, "-f", "voc", dataset_path)
+            run(self, "project", "import", "-p", test_dir, "-f", "voc_detection", dataset_path)
 
             run(
                 self,
@@ -163,15 +163,15 @@ class VocIntegrationScenarios(TestCase):
                 "-p",
                 test_dir,
                 "-f",
-                "voc",
+                "voc_detection",
                 "-o",
                 export_path,
                 "--",
                 "--label-map",
-                "voc",
+                "voc_detection",
             )
 
-            parsed_dataset = Dataset.import_from(export_path, format="voc")
+            parsed_dataset = Dataset.import_from(export_path, format="voc_detection")
             compare_datasets(self, expected_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -227,14 +227,14 @@ class VocIntegrationScenarios(TestCase):
                 "-p",
                 test_dir,
                 "-f",
-                "voc",
+                "voc_detection",
                 "-o",
                 voc_export,
                 "--",
                 "--save-images",
             )
 
-            parsed_dataset = Dataset.import_from(voc_export, format="voc")
+            parsed_dataset = Dataset.import_from(voc_export, format="voc_detection")
             compare_datasets(self, expected_dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_283)
@@ -298,14 +298,14 @@ class VocIntegrationScenarios(TestCase):
                 "-i",
                 mot_dir,
                 "-f",
-                "voc",
+                "voc_detection",
                 "-o",
                 voc_dir,
                 "--",
                 "--save-images",
             )
 
-            target_dataset = Dataset.import_from(voc_dir, format="voc")
+            target_dataset = Dataset.import_from(voc_dir, format="voc_detection")
             compare_datasets(self, expected_dataset, target_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_283)
@@ -350,7 +350,7 @@ class VocIntegrationScenarios(TestCase):
                 self,
                 "convert",
                 "-if",
-                "voc",
+                "voc_classification",
                 "-i",
                 voc_dir,
                 "-f",

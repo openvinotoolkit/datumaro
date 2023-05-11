@@ -181,8 +181,8 @@ class IntersectMergeTest(TestCase):
                             3,
                             4,
                             label=2,
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "score": 0.5,
                                 "occluded": False,
@@ -196,8 +196,8 @@ class IntersectMergeTest(TestCase):
                             2,
                             3,
                             label=3,
-                            id=2,
-                            group=2,
+                            id=1,
+                            group=1,
                             attributes={
                                 "score": 0.5,
                                 "occluded": False,
@@ -220,7 +220,6 @@ class IntersectMergeTest(TestCase):
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(["background", "a", "b", "c"]),
-                AnnotationType.mask: MaskCategories(VOC.generate_colormap(4)),
             },
         )
 
@@ -229,11 +228,11 @@ class IntersectMergeTest(TestCase):
             dataset2_url = osp.join(test_dir, "dataset2")
 
             dataset1.export(dataset1_url, "coco", save_media=True)
-            dataset2.export(dataset2_url, "voc", save_media=True)
+            dataset2.export(dataset2_url, "voc_detection", save_media=True)
 
             proj_dir = osp.join(test_dir, "proj")
             with Project.init(proj_dir) as project:
-                project.import_source("source", dataset2_url, "voc")
+                project.import_source("source", dataset2_url, "voc_detection")
 
             result_dir = osp.join(test_dir, "result")
             run(
@@ -294,8 +293,8 @@ class IntersectMergeTest(TestCase):
                             3,
                             4,
                             label=2,
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "score": 0.5,
                                 "occluded": False,
@@ -309,8 +308,8 @@ class IntersectMergeTest(TestCase):
                             2,
                             3,
                             label=3,
-                            id=2,
-                            group=2,
+                            id=1,
+                            group=1,
                             attributes={
                                 "score": 0.5,
                                 "occluded": False,
@@ -333,7 +332,6 @@ class IntersectMergeTest(TestCase):
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(["background", "a", "b", "c"]),
-                AnnotationType.mask: MaskCategories(VOC.generate_colormap(4)),
             },
         )
 
@@ -342,7 +340,7 @@ class IntersectMergeTest(TestCase):
             dataset2_url = osp.join(test_dir, "dataset2")
 
             dataset1.export(dataset1_url, "coco", save_media=True)
-            dataset2.export(dataset2_url, "voc", save_media=True)
+            dataset2.export(dataset2_url, "voc_detection", save_media=True)
 
             result_dir = osp.join(test_dir, "result")
             run(
@@ -352,7 +350,7 @@ class IntersectMergeTest(TestCase):
                 "intersect",
                 "-o",
                 result_dir,
-                dataset2_url + ":voc",
+                dataset2_url + ":voc_detection",
                 dataset1_url + ":coco",
             )
 
@@ -410,7 +408,7 @@ class IntersectMergeTest(TestCase):
             dataset2_url = osp.join(test_dir, "dataset2")
 
             dataset1.export(dataset1_url, "coco", save_media=True)
-            dataset2.export(dataset2_url, "voc", save_media=True)
+            dataset2.export(dataset2_url, "voc_detection", save_media=True)
 
             result_dir = osp.join(test_dir, "result")
             run(
@@ -422,7 +420,7 @@ class IntersectMergeTest(TestCase):
                 result_dir,
                 "-f",
                 "yolo",
-                dataset2_url + ":voc",
+                dataset2_url + ":voc_detection",
                 dataset1_url + ":coco",
                 "--",
                 "--save-media",

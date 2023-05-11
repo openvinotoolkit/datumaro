@@ -68,19 +68,20 @@ class _VocBase(SubsetBase):
 
         self._categories = self._load_categories(self._dataset_dir)
 
-        label_color = lambda label_idx: self._categories[AnnotationType.mask].colormap.get(
-            label_idx, None
-        )
-        log.debug(
-            "Loaded labels: %s",
-            ", ".join(
-                "'%s' %s" % (l.name, ("(%s, %s, %s)" % c) if c else "")
-                for i, l, c in (
-                    (i, l, label_color(i))
-                    for i, l in enumerate(self._categories[AnnotationType.label].items)
-                )
-            ),
-        )
+        if task == VocTask.segmentation or task == VocTask.instance_segmentation:
+            label_color = lambda label_idx: self._categories[AnnotationType.mask].colormap.get(
+                label_idx, None
+            )
+            log.debug(
+                "Loaded labels: %s",
+                ", ".join(
+                    "'%s' %s" % (l.name, ("(%s, %s, %s)" % c) if c else "")
+                    for i, l, c in (
+                        (i, l, label_color(i))
+                        for i, l in enumerate(self._categories[AnnotationType.label].items)
+                    )
+                ),
+            )
         self._items = {item: None for item in self._load_subset_list(path)}
 
     def _get_label_id(self, label: str) -> int:
@@ -407,7 +408,7 @@ class VocSegmentationBase(_VocBase):
                     id=item_id,
                     subset=self._subset,
                     media=image,
-                    annotations=self._load_annotations(item_id),
+                    annotations=self._parse_masks(item_id),
                 )
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
@@ -416,7 +417,124 @@ class VocSegmentationBase(_VocBase):
     def _lazy_extract_mask(mask, c):
         return lambda: mask == c
 
-    def _load_annotations(self, item_id):
+    def _parse_masks(self, item_id):
+        item_annotations = []
+
+        class_mask = None
+        segm_path = osp.join(
+            self._dataset_dir, VocPath.SEGMENTATION_DIR, item_id + VocPath.SEGM_EXT
+        )
+        if osp.isfile(segm_path):
+            inverse_cls_colormap = self._categories[AnnotationType.mask].inverse_colormap
+            class_mask = lazy_mask(segm_path, inverse_cls_colormap)
+
+        instances_mask = None
+        inst_path = osp.join(self._dataset_dir, VocPath.INSTANCES_DIR, item_id + VocPath.SEGM_EXT)
+        if osp.isfile(inst_path):
+            instances_mask = lazy_mask(inst_path, _inverse_inst_colormap)
+
+        label_cat = self._categories[AnnotationType.label]
+
+        if instances_mask is not None:
+            compiled_mask = CompiledMask(class_mask, instances_mask)
+
+            if class_mask is not None:
+                instance_labels = compiled_mask.get_instance_labels()
+            else:
+                instance_labels = {i: None for i in range(compiled_mask.instance_count)}
+
+            for instance_id, label_id in instance_labels.items():
+                if len(label_cat) <= label_id:
+                    self._ctx.error_policy.report_annotation_error(
+                        UndeclaredLabelError(str(label_id)), item_id=(item_id, self._subset)
+                    )
+
+                image = compiled_mask.lazy_extract(instance_id)
+
+                item_annotations.append(Mask(image=image, label=label_id, group=instance_id))
+        elif class_mask is not None:
+            log.warning("Item %s: only class segmentations available", item_id)
+
+            class_mask = class_mask()
+            classes = np.unique(class_mask)
+            for label_id in classes:
+                if len(label_cat) <= label_id:
+                    self._ctx.error_policy.report_annotation_error(
+                        UndeclaredLabelError(str(label_id)), item_id=(item_id, self._subset)
+                    )
+
+                image = self._lazy_extract_mask(class_mask, label_id)
+                item_annotations.append(Mask(image=image, label=label_id))
+
+        return item_annotations
+
+
+class VocInstanceSegmentationBase(_VocXmlBase):
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.instance_segmentation, **kwargs)
+
+    def __iter__(self):
+        image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
+        if osp.isdir(image_dir):
+            images = {
+                osp.splitext(osp.relpath(p, image_dir))[0].replace("\\", "/"): p
+                for p in find_images(image_dir, recursive=True)
+            }
+        else:
+            images = {}
+
+        anno_dir = osp.join(self._dataset_dir, VocPath.ANNOTATIONS_DIR)
+
+        for item_id in self._ctx.progress_reporter.iter(
+            self._items, desc=f"Parsing boxes in '{self._subset}'"
+        ):
+            log.debug("Reading item '%s'" % item_id)
+            size = None
+
+            try:
+                anns = []
+                image = None
+
+                ann_file = osp.join(anno_dir, item_id + ".xml")
+                if osp.isfile(ann_file):
+                    root_elem = ElementTree.parse(ann_file).getroot()
+                    if root_elem.tag != "annotation":
+                        raise MissingFieldError("annotation")
+
+                    height = self._parse_field(root_elem, "size/height", int, required=False)
+                    width = self._parse_field(root_elem, "size/width", int, required=False)
+                    if height and width:
+                        size = (height, width)
+
+                    filename_elem = root_elem.find("filename")
+                    if filename_elem is not None:
+                        image = osp.join(image_dir, filename_elem.text)
+
+                    anns = self._parse_annotations(root_elem, item_id=(item_id, self._subset))
+
+                anns += self._parse_masks(item_id)
+
+                if image is None:
+                    image = images.pop(item_id, None)
+
+                if image or size:
+                    image = Image.from_file(path=image, size=size)
+
+                yield DatasetItem(id=item_id, subset=self._subset, media=image, annotations=anns)
+            except ElementTree.ParseError as e:
+                readable_wrapper = InvalidAnnotationError("Failed to parse XML file")
+                readable_wrapper.__cause__ = e
+                self._ctx.error_policy.report_item_error(
+                    readable_wrapper, item_id=(item_id, self._subset)
+                )
+            except Exception as e:
+                self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
+
+    @staticmethod
+    def _lazy_extract_mask(mask, c):
+        return lambda: mask == c
+
+    def _parse_masks(self, item_id):
         item_annotations = []
 
         class_mask = None

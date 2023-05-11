@@ -29,6 +29,7 @@ class VocTask(Enum):
     segmentation = auto()
     action_classification = auto()
     person_layout = auto()
+    instance_segmentation = auto()
 
 
 class VocLabel(Enum):
@@ -155,7 +156,10 @@ def make_voc_label_map(task: VocTask = None) -> LabelMapConfig:
             }
         )
     elif (
-        task == VocTask.classification or task == VocTask.detection or task == VocTask.segmentation
+        task == VocTask.classification
+        or task == VocTask.detection
+        or task == VocTask.segmentation
+        or task == VocTask.instance_segmentation
     ):
         labels = sorted(VocLabel, key=lambda l: l.value)
         label_map = OrderedDict(
@@ -323,20 +327,26 @@ def make_voc_categories(
 
     for label, desc in label_map.items():
         label_categories.add(label, attributes=desc[2])
-    for part in OrderedDict((k, None) for k in chain(*(desc[1] for desc in label_map.values()))):
-        label_categories.add(part)
+
+    if task == VocTask.person_layout:
+        for part in OrderedDict(
+            (k, None) for k in chain(*(desc[1] for desc in label_map.values()))
+        ):
+            label_categories.add(part)
+
     categories[AnnotationType.label] = label_categories
 
-    has_colors = any(v[0] is not None for v in label_map.values())
-    if not has_colors:  # generate new colors
-        colormap = generate_colormap(len(label_map))
-    else:  # only copy defined colors
-        label_id = lambda label: label_categories.find(label)[0]
-        colormap = {
-            label_id(name): desc[0] for name, desc in label_map.items() if desc[0] is not None
-        }
-    mask_categories = MaskCategories(colormap)
-    mask_categories.inverse_colormap  # pylint: disable=pointless-statement
-    categories[AnnotationType.mask] = mask_categories
+    if task == VocTask.segmentation or task == VocTask.instance_segmentation:
+        has_colors = any(v[0] is not None for v in label_map.values())
+        if not has_colors:  # generate new colors
+            colormap = generate_colormap(len(label_map))
+        else:  # only copy defined colors
+            label_id = lambda label: label_categories.find(label)[0]
+            colormap = {
+                label_id(name): desc[0] for name, desc in label_map.items() if desc[0] is not None
+            }
+        mask_categories = MaskCategories(colormap)
+        mask_categories.inverse_colormap  # pylint: disable=pointless-statement
+        categories[AnnotationType.mask] = mask_categories
 
     return categories
