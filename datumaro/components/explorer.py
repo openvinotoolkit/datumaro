@@ -2,15 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import List, Optional, Union
+from typing import List, Optional, Sequence, Union
 
 import numpy as np
 
 from datumaro.components.annotation import HashKey
-from datumaro.components.dataset import IDataset
+from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.media import Image
+from datumaro.components.media import Image, MediaElement
 from datumaro.plugins.explorer import ExplorerLauncher
 
 
@@ -25,10 +25,18 @@ def calculate_hamming(B1, B2):
     return distH
 
 
+def select_uninferenced_dataset(dataset):
+    uninferenced_dataset = Dataset(media_type=MediaElement)
+    for item in dataset:
+        if not any(isinstance(annotation, HashKey) for annotation in item.annotations):
+            uninferenced_dataset.put(item)
+    return uninferenced_dataset
+
+
 class Explorer:
     def __init__(
         self,
-        dataset: IDataset,
+        *datasets: Sequence[Dataset],
         topk: int = 10,
     ) -> None:
         """
@@ -41,27 +49,49 @@ class Explorer:
         topk:
             Number of images.
         """
-        self._model = ExplorerLauncher(model_name="clip_visual_ViT-B_32")
-        self._text_model = ExplorerLauncher(model_name="clip_text_ViT-B_32")
-        inference = dataset.run_model(self._model, append_annotation=True)
+        self._model = None
+        self._text_model = None
         self._topk = topk
-
         database_keys = []
         item_list = []
 
-        for item in inference:
-            for annotation in item.annotations:
-                if isinstance(annotation, HashKey):
-                    try:
-                        hash_key = annotation.hash_key[0]
-                        hash_key = np.unpackbits(hash_key, axis=-1)
-                        database_keys.append(hash_key)
-                        item_list.append(item)
-                    except Exception:
-                        hash_key = None
+        datasets_to_infer = [select_uninferenced_dataset(dataset) for dataset in datasets]
+        datasets = self.compute_hash_key(datasets, datasets_to_infer)
+
+        for dataset in datasets:
+            for item in dataset:
+                for annotation in item.annotations:
+                    if isinstance(annotation, HashKey):
+                        try:
+                            hash_key = annotation.hash_key[0]
+                            hash_key = np.unpackbits(hash_key, axis=-1)
+                            database_keys.append(hash_key)
+                            item_list.append(item)
+                        except Exception:
+                            continue
 
         self._database_keys = database_keys
         self._item_list = item_list
+
+    @property
+    def model(self):
+        if self._model is None:
+            self._model = ExplorerLauncher(model_name="clip_visual_ViT-B_32")
+        return self._model
+
+    @property
+    def text_model(self):
+        if self._text_model is None:
+            self._text_model = ExplorerLauncher(model_name="clip_text_ViT-B_32")
+        return self._text_model
+
+    def compute_hash_key(self, datasets, datasets_to_infer):
+        for dataset in datasets_to_infer:
+            if len(dataset) > 0:
+                dataset.run_model(self.model, append_annotation=True)
+        for dataset, dataset_to_infer in zip(datasets, datasets_to_infer):
+            dataset.update(dataset_to_infer)
+        return datasets
 
     def explore_topk(
         self,
@@ -91,7 +121,7 @@ class Explorer:
                             break
                     query_hash_key_list.append(q_hash_key)
                 elif isinstance(q, str):
-                    q_hash_key = self._text_model.launch(q)[0][0].hash_key
+                    q_hash_key = self.text_model.launch(q)[0][0].hash_key
                     query_hash_key_list.append(q_hash_key)
 
             sims = np.zeros(shape=database_keys.shape[0] * len(query_hash_key_list))
@@ -131,7 +161,7 @@ class Explorer:
                     pass
 
         elif isinstance(query, str):
-            query_key = self._text_model.launch(query)[0][0].hash_key
+            query_key = self.text_model.launch(query)[0][0].hash_key
         else:
             raise MediaTypeError(
                 "Unexpected media type of query '%s'. "

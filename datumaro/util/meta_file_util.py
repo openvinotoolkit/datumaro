@@ -1,14 +1,16 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import os.path as osp
 from collections import OrderedDict
 
-from datumaro.components.annotation import AnnotationType
+from datumaro.components.annotation import AnnotationType, HashKey
 from datumaro.util import dump_json_file, find, parse_json_file
 
 DATASET_META_FILE = "dataset_meta.json"
+DATASET_HASHKEY_FILE = "hash_keys.json"
 
 
 def is_meta_file(path):
@@ -19,8 +21,19 @@ def has_meta_file(path):
     return osp.isfile(get_meta_file(path))
 
 
+def has_hashkey_file(path):
+    return osp.isfile(get_hashkey_file(path))
+
+
 def get_meta_file(path):
     return osp.join(path, DATASET_META_FILE)
+
+
+def get_hashkey_file(path):
+    hashkey_folder_path = osp.join(path, "hash_key_meta")
+    if not osp.exists(hashkey_folder_path):
+        os.makedirs(hashkey_folder_path)
+    return osp.join(hashkey_folder_path, DATASET_HASHKEY_FILE)
 
 
 def parse_meta_file(path):
@@ -72,3 +85,44 @@ def save_meta_file(path, categories):
         meta_file = get_meta_file(path)
 
     dump_json_file(meta_file, dataset_meta, indent=True)
+
+
+def parse_hashkey_file(path):
+    meta_file = path
+    if osp.isdir(path):
+        meta_file = get_hashkey_file(path)
+
+    if not osp.exists(meta_file):
+        return None
+
+    dataset_meta = parse_json_file(meta_file)
+
+    hashkey_dict = OrderedDict()
+    for id_, hashkey in dataset_meta.get("hashkey", {}).items():
+        hashkey_dict[id_] = hashkey
+
+    return hashkey_dict
+
+
+def save_hashkey_file(path, item_list):
+    dataset_hashkey = {}
+
+    if osp.isdir(path):
+        meta_file = get_hashkey_file(path)
+
+    hashkey_dict = parse_hashkey_file(path)
+    if not hashkey_dict:
+        hashkey_dict = {}
+
+    for item in item_list:
+        item_id = item.id
+        item_subset = item.subset
+        for annotation in item.annotations:
+            if isinstance(annotation, HashKey):
+                hashkey = annotation.hash_key
+                break
+        hashkey_dict.update({item_subset + "/" + item_id: hashkey.tolist()})
+
+    dataset_hashkey["hashkey"] = hashkey_dict
+
+    dump_json_file(meta_file, dataset_hashkey, indent=True)

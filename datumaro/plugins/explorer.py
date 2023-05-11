@@ -62,16 +62,13 @@ class ExplorerLauncher(OpenvinoLauncher):
                 prompt_text = f"a photo of a {inputs}"
             inputs = self._tokenize(prompt_text)
             inputs = {self._input_blob: inputs}
-        else:
-            if not inputs.any():
-                # media.data is None case
-                return None
-
+        elif isinstance(inputs, np.ndarray):
             # when processing a query key, we expand HWC to NHWC
             if len(inputs.shape) == 3:
                 inputs = np.expand_dims(inputs, axis=0)
-
             inputs = self.process_inputs(inputs)
+        else:
+            raise ValueError(f"inputs={inputs} is not allowed type.")
 
         results = self._net.infer(inputs)
         hash_key = self._compute_hash(results[self._output_blobs])
