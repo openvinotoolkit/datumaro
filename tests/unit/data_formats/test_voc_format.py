@@ -24,6 +24,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.errors import (
     AnnotationImportError,
+    DatasetImportError,
     InvalidAnnotationError,
     ItemImportError,
 )
@@ -1582,9 +1583,8 @@ class VocFormatErrorTest:
         with open(subset_file, "w") as f:
             f.write('"qwe 1\n')
 
-        with pytest.raises(InvalidAnnotationError) as err_info:
-            Dataset.import_from(test_dir, format="voc_layout")
+        with pytest.raises(DatasetImportError) as err_info:
+            Dataset.import_from(test_dir, format="voc_layout").init_cache()
         assert (
-            str(err_info.value)
-            == "test.txt:1: unexpected number of quotes in filename, expected 0 or 2"
+            "Failed to import dataset" in str(err_info.value)
         )
