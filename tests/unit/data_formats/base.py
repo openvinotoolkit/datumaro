@@ -26,7 +26,7 @@ class TestDataFormatBase:
 
         if importer is None:
             pytest.skip(reason="importer is None.")
-        
+
         detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(fxt_dataset_dir)
         assert [importer.NAME] == detected_formats
 
@@ -47,9 +47,6 @@ class TestDataFormatBase:
 
         helper_tc = request.getfixturevalue("helper_tc")
         dataset = Dataset.import_from(fxt_dataset_dir, importer.NAME, **fxt_import_kwargs)
-        
-        for item in dataset:
-            print(item)
 
         compare_datasets(helper_tc, fxt_expected_dataset, dataset, require_media=True)
 
@@ -78,8 +75,5 @@ class TestDataFormatBase:
             fxt_expected_dataset, save_dir=test_dir, save_media=True, **fxt_export_kwargs
         )
         dataset = Dataset.import_from(test_dir, importer.NAME, **fxt_import_kwargs)
-
-        for item in dataset:
-            print(item)
 
         compare_datasets(helper_tc, fxt_expected_dataset, dataset, require_media=True)
