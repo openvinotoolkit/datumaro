@@ -228,7 +228,7 @@ class IntersectMergeTest(TestCase):
             dataset2_url = osp.join(test_dir, "dataset2")
 
             dataset1.export(dataset1_url, "coco", save_media=True)
-            dataset2.export(dataset2_url, "voc_detection", save_media=True)
+            dataset2.export(dataset2_url, "voc", save_media=True)
 
             proj_dir = osp.join(test_dir, "proj")
             with Project.init(proj_dir) as project:
@@ -340,7 +340,7 @@ class IntersectMergeTest(TestCase):
             dataset2_url = osp.join(test_dir, "dataset2")
 
             dataset1.export(dataset1_url, "coco", save_media=True)
-            dataset2.export(dataset2_url, "voc_detection", save_media=True)
+            dataset2.export(dataset2_url, "voc", save_media=True)
 
             result_dir = osp.join(test_dir, "result")
             run(
@@ -353,6 +353,9 @@ class IntersectMergeTest(TestCase):
                 dataset2_url + ":voc_detection",
                 dataset1_url + ":coco",
             )
+
+            for item in Dataset.load(result_dir):
+                print(item)
 
             compare_datasets(self, expected, Dataset.load(result_dir), require_media=True)
 
@@ -408,7 +411,7 @@ class IntersectMergeTest(TestCase):
             dataset2_url = osp.join(test_dir, "dataset2")
 
             dataset1.export(dataset1_url, "coco", save_media=True)
-            dataset2.export(dataset2_url, "voc_detection", save_media=True)
+            dataset2.export(dataset2_url, "voc", save_media=True)
 
             result_dir = osp.join(test_dir, "result")
             run(

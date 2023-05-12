@@ -215,14 +215,14 @@ class DiffTest(TestCase):
             dataset2_url = osp.join(test_dir, "dataset2")
 
             dataset1.export(dataset1_url, "coco", save_media=True)
-            dataset2.export(dataset2_url, "voc_detection", save_media=True)
+            dataset2.export(dataset2_url, "voc", save_media=True)
 
             result_dir = osp.join(test_dir, "cmp_result")
             run(
                 self,
                 "diff",
                 dataset1_url + ":coco",
-                dataset2_url + ":voc_detection",
+                dataset2_url + ":voc",
                 "-m",
                 "distance",
                 "-o",
@@ -267,14 +267,14 @@ class DiffTest(TestCase):
             dataset2_url = osp.join(test_dir, "dataset2")
 
             dataset1.export(dataset1_url, "coco", save_media=True)
-            dataset2.export(dataset2_url, "voc_detection", save_media=True)
+            dataset2.export(dataset2_url, "voc", save_media=True)
 
             result_dir = osp.join(test_dir, "cmp_result")
             run(
                 self,
                 "diff",
                 dataset1_url + ":coco",
-                dataset2_url + ":voc_detection",
+                dataset2_url + ":voc",
                 "-m",
                 "equality",
                 "-o",

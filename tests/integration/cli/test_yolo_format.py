@@ -134,7 +134,6 @@ class YoloIntegrationScenarios(TestCase):
             )
 
             parsed_dataset = Dataset.import_from(yolo_dir, format="yolo")
-
             compare_datasets(self, target_dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
