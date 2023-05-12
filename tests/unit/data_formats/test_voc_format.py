@@ -1585,6 +1585,4 @@ class VocFormatErrorTest:
 
         with pytest.raises(DatasetImportError) as err_info:
             Dataset.import_from(test_dir, format="voc_layout").init_cache()
-        assert (
-            "Failed to import dataset" in str(err_info.value)
-        )
+        assert "Failed to import dataset" in str(err_info.value)
