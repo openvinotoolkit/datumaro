@@ -12,6 +12,7 @@ from .format import VocPath, VocTask
 
 class _VocImporter(Importer):
     _TASKS = {
+        VocTask.voc: ("voc", "Main"),
         VocTask.classification: ("voc_classification", "Main"),
         VocTask.detection: ("voc_detection", "Main"),
         VocTask.segmentation: ("voc_segmentation", "Segmentation"),
@@ -63,6 +64,11 @@ class _VocImporter(Importer):
                 root_path = osp.dirname(osp.dirname(osp.dirname(task_subsets[0]["url"])))
 
         return subsets
+
+
+class VocImporter(_VocImporter):
+    _TASK = VocTask.voc
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
 class VocClassificationImporter(_VocImporter):

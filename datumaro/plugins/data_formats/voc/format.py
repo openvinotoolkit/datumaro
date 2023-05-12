@@ -24,12 +24,13 @@ from datumaro.util.meta_file_util import get_meta_file
 
 
 class VocTask(Enum):
+    voc = auto()
     classification = auto()
     detection = auto()
     segmentation = auto()
+    instance_segmentation = auto()
     action_classification = auto()
     person_layout = auto()
-    instance_segmentation = auto()
 
 
 class VocLabel(Enum):
@@ -117,6 +118,7 @@ class VocPath:
     LABELMAP_FILE = "labelmap.txt"
 
     TASK_DIR = {
+        VocTask.voc: "Main",
         VocTask.classification: "Main",
         VocTask.detection: "Main",
         VocTask.segmentation: "Segmentation",
@@ -328,7 +330,7 @@ def make_voc_categories(
     for label, desc in label_map.items():
         label_categories.add(label, attributes=desc[2])
 
-    if task == VocTask.person_layout:
+    if task in [VocTask.voc, VocTask.person_layout]:
         for part in OrderedDict(
             (k, None) for k in chain(*(desc[1] for desc in label_map.values()))
         ):
@@ -336,7 +338,7 @@ def make_voc_categories(
 
     categories[AnnotationType.label] = label_categories
 
-    if task == VocTask.segmentation or task == VocTask.instance_segmentation:
+    if task in [VocTask.voc, VocTask.segmentation, VocTask.instance_segmentation]:
         has_colors = any(v[0] is not None for v in label_map.values())
         if not has_colors:  # generate new colors
             colormap = generate_colormap(len(label_map))
