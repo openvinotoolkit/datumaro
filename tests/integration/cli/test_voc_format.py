@@ -416,7 +416,13 @@ class VocIntegrationScenarios(TestCase):
 
         voc_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
         with TestDir() as test_dir:
-            self._test_can_save_and_load(test_dir, voc_dir, source_dataset, "voc_instance_segmentation", label_map="voc_instance_segmentation")
+            self._test_can_save_and_load(
+                test_dir,
+                voc_dir,
+                source_dataset,
+                "voc_instance_segmentation",
+                label_map="voc_instance_segmentation",
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_layout_dataset(self):
@@ -493,7 +499,12 @@ class VocIntegrationScenarios(TestCase):
 
                 with TestDir() as test_dir:
                     self._test_can_save_and_load(
-                        test_dir, dataset_dir, expected, format, result_path=path, label_map="voc_classification"
+                        test_dir,
+                        dataset_dir,
+                        expected,
+                        format,
+                        result_path=path,
+                        label_map="voc_classification",
                     )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -560,7 +571,12 @@ class VocIntegrationScenarios(TestCase):
 
                 with TestDir() as test_dir:
                     self._test_can_save_and_load(
-                        test_dir, dataset_dir, expected, format, result_path=path, label_map="voc_detection"
+                        test_dir,
+                        dataset_dir,
+                        expected,
+                        format,
+                        result_path=path,
+                        label_map="voc_detection",
                     )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -597,7 +613,12 @@ class VocIntegrationScenarios(TestCase):
 
                 with TestDir() as test_dir:
                     self._test_can_save_and_load(
-                        test_dir, dataset_dir, expected, format, result_path=path, label_map="voc_segmentation"
+                        test_dir,
+                        dataset_dir,
+                        expected,
+                        format,
+                        result_path=path,
+                        label_map="voc_segmentation",
                     )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -650,7 +671,12 @@ class VocIntegrationScenarios(TestCase):
 
                 with TestDir() as test_dir:
                     self._test_can_save_and_load(
-                        test_dir, dataset_dir, expected, format, result_path=path, label_map="voc_action"
+                        test_dir,
+                        dataset_dir,
+                        expected,
+                        format,
+                        result_path=path,
+                        label_map="voc_action",
                     )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
