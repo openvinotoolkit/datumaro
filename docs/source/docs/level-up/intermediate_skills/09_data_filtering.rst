@@ -9,11 +9,12 @@ excluding or removing the irrelevant ones to improve the quality and usability o
 ensuring that data can be used effectively and efficiently to drive insights and inform decisions. As the volume and complexity
 of data continue to grow, data filtering will become an increasingly important aspect of data management and analysis.
 By filtering the dataset in this way, we can create a subset of data that is tailored to our specific needs, making it easier
-to extract meaningful inshights or use it effectively for decision-making purposes.
+to extract meaningful insights or use it effectively for decision-making purposes.
 
-In this tutorial, we provide the simple example of filtering dataset using item and annotation. The detailed deescription for filter
-operation is given by :doc:`Filter <../../command-reference/context_free/filter>`. The more advanced Python example is given
-:doc:`this notebook <../../jupyter_notebook_examples/notebooks/04_filter>`.
+In this tutorial, we provide the simple example of filtering dataset using item and annotation. To set how to filter dataset,
+which satisfied some condition, we use XML as query format. Refer this `XPATH <https://devhints.io/xpath>`_ to set your own filter.
+The detailed description for filter operation is given by :doc:`Filter <../../command-reference/context_free/filter>`.
+The more advanced Python example is given :doc:`this notebook <../../jupyter_notebook_examples/notebooks/04_filter>`.
 
 .. tab-set::
 
@@ -32,6 +33,8 @@ operation is given by :doc:`Filter <../../command-reference/context_free/filter>
 
             datum filter -e <how/to/filter/dataset> --project <path/to/project>
 
+        We can set ``<how/to/filter/dataset>`` as your own filter like ``'/item/annotation[label="cat" and area > 85]'``
+
     .. tab-item:: CLI
 
         Without the project declaration, we can simply filter dataset by
@@ -41,6 +44,7 @@ operation is given by :doc:`Filter <../../command-reference/context_free/filter>
             datum filter <target> -e <how/to/filter/dataset> --output-dir <path/to/output>
 
         We could use ``--overwrite`` instead of setting ``--output-dir``.
+        And we can set ``<how/to/filter/dataset>`` as our own filter like ``'/item[subset="test"]'``
 
     .. tab-item:: Python
 
@@ -54,3 +58,5 @@ operation is given by :doc:`Filter <../../command-reference/context_free/filter>
             dataset = Dataset.import_from(dataset_path, 'datumaro')
 
             filtered_result = Dataset.filter(dataset, 'how/to/filter/dataset')
+
+        We can set ``<how/to/filter/dataset>`` as your own filter like ``'/item/annotation[occluded="True"]'``
