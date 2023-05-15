@@ -257,8 +257,7 @@ class VocBase(SubsetBase):
                 label_name = self._parse_field(object_elem, "name")
 
                 if (
-                    self._task
-                    in [VocTask.person_layout, VocTask.action_classification]
+                    self._task in [VocTask.person_layout, VocTask.action_classification]
                     and label_name != "person"
                 ):
                     continue

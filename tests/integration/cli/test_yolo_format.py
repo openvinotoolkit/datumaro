@@ -109,7 +109,10 @@ class YoloIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=[label.name for label in VOC.make_voc_categories(task=VOC.VocTask.voc)[AnnotationType.label]],
+            categories=[
+                label.name
+                for label in VOC.make_voc_categories(task=VOC.VocTask.voc)[AnnotationType.label]
+            ],
         )
 
         with TestDir() as test_dir:
