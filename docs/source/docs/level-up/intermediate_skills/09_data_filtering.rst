@@ -34,7 +34,7 @@ The more advanced Python example is given :doc:`this notebook <../../jupyter_not
             datum filter -e <how/to/filter/dataset> --project <path/to/project>
 
         We can set ``<how/to/filter/dataset>`` as your own filter like ``'/item/annotation[label="cat" and area > 85]'``.
-        This example commands will filter only items through the bbox annotations which have `cat` label and bbox area (`w * h`) more than 85.
+        This example command will filter only items through the bbox annotations which have `cat` label and bbox area (`w * h`) more than 85.
 
     .. tab-item:: CLI
 
@@ -62,4 +62,4 @@ The more advanced Python example is given :doc:`this notebook <../../jupyter_not
             filtered_result = Dataset.filter(dataset, 'how/to/filter/dataset')
 
         We can set ``<how/to/filter/dataset>`` as your own filter like ``'/item/annotation[occluded="True"]'``.
-        This example commands will filter only items through the annotation attribute which has `occluded`.
+        This example command will filter only items through the annotation attribute which has `occluded`.
