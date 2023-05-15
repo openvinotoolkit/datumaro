@@ -99,7 +99,7 @@ class PatchTest(TestCase):
                 "patch",
                 "--overwrite",
                 dataset_url + ":coco",
-                patch_url + ":voc_detection",
+                patch_url + ":voc",
                 "--",
                 "--reindex=1",
                 "--save-images",

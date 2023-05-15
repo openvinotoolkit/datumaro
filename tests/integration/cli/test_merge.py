@@ -220,6 +220,7 @@ class IntersectMergeTest(TestCase):
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(["background", "a", "b", "c"]),
+                AnnotationType.mask: MaskCategories(VOC.generate_colormap(4)),
             },
         )
 
@@ -232,7 +233,7 @@ class IntersectMergeTest(TestCase):
 
             proj_dir = osp.join(test_dir, "proj")
             with Project.init(proj_dir) as project:
-                project.import_source("source", dataset2_url, "voc_detection")
+                project.import_source("source", dataset2_url, "voc")
 
             result_dir = osp.join(test_dir, "result")
             run(
@@ -332,6 +333,7 @@ class IntersectMergeTest(TestCase):
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(["background", "a", "b", "c"]),
+                AnnotationType.mask: MaskCategories(VOC.generate_colormap(4)),
             },
         )
 
@@ -350,12 +352,9 @@ class IntersectMergeTest(TestCase):
                 "intersect",
                 "-o",
                 result_dir,
-                dataset2_url + ":voc_detection",
+                dataset2_url + ":voc",
                 dataset1_url + ":coco",
             )
-
-            for item in Dataset.load(result_dir):
-                print(item)
 
             compare_datasets(self, expected, Dataset.load(result_dir), require_media=True)
 
@@ -423,7 +422,7 @@ class IntersectMergeTest(TestCase):
                 result_dir,
                 "-f",
                 "yolo",
-                dataset2_url + ":voc_detection",
+                dataset2_url + ":voc",
                 dataset1_url + ":coco",
                 "--",
                 "--save-media",
