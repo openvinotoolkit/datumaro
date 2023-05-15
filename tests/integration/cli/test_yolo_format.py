@@ -100,6 +100,7 @@ class YoloIntegrationScenarios(TestCase):
                     annotations=[
                         Bbox(1.0, 2.0, 2.0, 2.0, label=8),
                         Bbox(4.0, 5.0, 2.0, 2.0, label=15),
+                        Bbox(5.5, 6.0, 2.0, 2.0, label=22),
                     ],
                 ),
                 DatasetItem(
@@ -108,7 +109,7 @@ class YoloIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=[label.name for label in VOC.make_voc_categories()[AnnotationType.label]],
+            categories=[label.name for label in VOC.make_voc_categories(task=VOC.VocTask.voc)[AnnotationType.label]],
         )
 
         with TestDir() as test_dir:
@@ -122,7 +123,7 @@ class YoloIntegrationScenarios(TestCase):
                 self,
                 "convert",
                 "-if",
-                "voc_detection",
+                "voc",
                 "-i",
                 voc_dir,
                 "-f",
@@ -134,6 +135,10 @@ class YoloIntegrationScenarios(TestCase):
             )
 
             parsed_dataset = Dataset.import_from(yolo_dir, format="yolo")
+
+            for item in parsed_dataset:
+                print(item)
+
             compare_datasets(self, target_dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
