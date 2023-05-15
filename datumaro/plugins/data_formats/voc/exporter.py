@@ -405,7 +405,6 @@ class VocExporter(Exporter):
 
             lists.clsdet_list[item.id] = True
 
-        # if masks and VocTask.segmentation in self._task:
         if self._task & {VocTask.segmentation, VocTask.instance_segmentation} and masks:
             compiled_mask = CompiledMask.from_instance_masks(
                 masks, instance_labels=[self._label_id_mapping(m.label) for m in masks]
@@ -701,7 +700,7 @@ class VocExporter(Exporter):
         )
 
         void_labels = [
-            src_label for _, src_label in src_labels.items() if src_label not in dst_labels
+            src_label for src_label in src_labels.values() if src_label not in dst_labels
         ]
         if void_labels:
             log.warning(

@@ -27,8 +27,6 @@ class _VocImporter(Importer):
         # `voc_detection`, etc. To remove the ambiguity (and thus make it
         # possible to use autodetection with the VOC datasets), disable
         # autodetection for the single-task formats.
-        # if len(cls._TASKS) == 1:
-        #     context.raise_unsupported()
 
         with context.require_any():
             task_dirs = {task_dir for _, task_dir in cls._TASKS.values()}
