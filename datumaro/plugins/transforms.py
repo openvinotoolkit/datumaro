@@ -1229,3 +1229,86 @@ class RemoveAttributes(ItemTransform):
                 attributes=self._filter_attrs(item.attributes), annotations=filtered_annotations
             )
         return item
+
+
+class Corrector(ItemTransform):
+    """
+    Allows to remove item and annotation attributes in a dataset.|n
+    |n
+    Can be useful to clean the dataset from broken or unnecessary attributes.|n
+    |n
+    Examples:|n
+        - Remove the `is_crowd` attribute from dataset|n
+
+        .. code-block::
+
+        |s|s%(prog)s --attr 'is_crowd'|n
+        |n
+        - Remove the `occluded` attribute from annotations of|n
+        |s|sthe `2010_001705` item in the `train` subset|n
+
+        .. code-block::
+
+        |s|s%(prog)s --id '2010_001705:train' --attr 'occluded'
+    """
+
+    @staticmethod
+    def _parse_id(s):
+        full_id = s.split(":")
+        if len(full_id) != 2:
+            raise argparse.ArgumentTypeError(
+                None, message="Invalid id format of '%s'. " "Expected a 'name:subset' pair." % s
+            )
+        return full_id
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "--id",
+            dest="ids",
+            type=cls._parse_id,
+            action="append",
+            help="Image id to clean from annotations. "
+            "Id is 'name:subset' pair. If not specified, "
+            "affects all images and annotations (repeatable)",
+        )
+        parser.add_argument(
+            "-a",
+            "--attr",
+            action="append",
+            dest="attributes",
+            help="Attribute name to be removed. If not specified, "
+            "removes all attributes (repeatable)",
+        )
+        return parser
+
+    def __init__(
+        self,
+        extractor: IDataset,
+        report: Dict,
+    ):
+        super().__init__(extractor)
+        self._report = report
+        self._ids = set(tuple(v) for v in (ids or []))
+        self._attributes = set(attributes or [])
+
+    def _parse_ann_ids(self, desc: str):
+        return [int(s) for s in str.split(desc, "'") if s.isdigit()][0]
+
+    def _filter_attrs(self, attrs):
+        if not self._attributes:
+            return None
+        else:
+            return filter_dict(attrs, exclude_keys=self._attributes)
+
+    def transform_item(self, item: DatasetItem):
+        if not self._ids or (item.id, item.subset) in self._ids:
+            filtered_annotations = []
+            for ann in item.annotations:
+                filtered_annotations.append(ann.wrap(attributes=self._filter_attrs(ann.attributes)))
+
+            return item.wrap(
+                attributes=self._filter_attrs(item.attributes), annotations=filtered_annotations
+            )
+        return item
