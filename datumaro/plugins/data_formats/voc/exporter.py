@@ -71,6 +71,7 @@ def _write_xml_bbox(bbox, parent_elem):
 
 
 class LabelmapType(Enum):
+    voc = auto()
     voc_classification = auto()
     voc_detection = auto()
     voc_segmentation = auto()
@@ -94,7 +95,7 @@ class VocExporter(Exporter):
     BUILTIN_ATTRS = {"difficult", "pose", "truncated", "occluded"}
 
     @staticmethod
-    def _split_tasks_string(s):
+    def _split_task_string(s):
         return [VocTask[i.strip()] for i in s.split(",")]
 
     @staticmethod
@@ -137,10 +138,11 @@ class VocExporter(Exporter):
             help="Write subset lists even if they are empty " "(default: %(default)s)",
         )
         parser.add_argument(
-            "--tasks",
-            type=cls._split_tasks_string,
-            help="VOC task filter, comma-separated list of {%s} "
-            "(default: all)" % ", ".join(t.name for t in VocTask),
+            "--task",
+            type=cls._split_task_string,
+            default=VocTask.voc,
+            help="VOC task filter, one of list {%s} "
+            "(default: voc)" % ", ".join(t.name for t in VocTask),
         )
 
         return parser
@@ -149,7 +151,7 @@ class VocExporter(Exporter):
         self,
         extractor,
         save_dir,
-        tasks=None,
+        task=None,
         apply_colormap=True,
         label_map=None,
         allow_attributes=True,
@@ -158,14 +160,14 @@ class VocExporter(Exporter):
     ):
         super().__init__(extractor, save_dir, **kwargs)
 
-        assert tasks is None or isinstance(tasks, (VocTask, list, set))
-        if tasks is None:
-            tasks = set(VocTask)
-        elif isinstance(tasks, VocTask):
-            tasks = {tasks}
+        assert task is None or isinstance(task, (VocTask, list, set))
+        if task is None:
+            task = set(VocTask)
+        elif isinstance(task, VocTask):
+            task = {task}
         else:
-            tasks = set(t if t in VocTask else VocTask[t] for t in tasks)
-        self._task = tasks
+            task = set(t if t in VocTask else VocTask[t] for t in task)
+        self._task = task
 
         self._apply_colormap = apply_colormap
         self._allow_attributes = allow_attributes
@@ -659,6 +661,7 @@ class VocExporter(Exporter):
 
         # Update colors with assigned values
         if label_map_source in [
+            LabelmapType.voc.name,
             LabelmapType.voc_segmentation.name,
             LabelmapType.voc_instance_segmentation.name,
         ]:
@@ -787,35 +790,35 @@ class VocExporter(Exporter):
 
 class VocClassificationExporter(VocExporter):
     def __init__(self, *args, **kwargs):
-        kwargs["tasks"] = VocTask.classification
+        kwargs["task"] = VocTask.classification
         super().__init__(*args, **kwargs)
 
 
 class VocDetectionExporter(VocExporter):
     def __init__(self, *args, **kwargs):
-        kwargs["tasks"] = VocTask.detection
+        kwargs["task"] = VocTask.detection
         super().__init__(*args, **kwargs)
 
 
 class VocSegmentationExporter(VocExporter):
     def __init__(self, *args, **kwargs):
-        kwargs["tasks"] = VocTask.segmentation
+        kwargs["task"] = VocTask.segmentation
         super().__init__(*args, **kwargs)
 
 
 class VocInstanceSegmentationExporter(VocExporter):
     def __init__(self, *args, **kwargs):
-        kwargs["tasks"] = VocTask.instance_segmentation
+        kwargs["task"] = VocTask.instance_segmentation
         super().__init__(*args, **kwargs)
 
 
 class VocLayoutExporter(VocExporter):
     def __init__(self, *args, **kwargs):
-        kwargs["tasks"] = VocTask.person_layout
+        kwargs["task"] = VocTask.person_layout
         super().__init__(*args, **kwargs)
 
 
 class VocActionExporter(VocExporter):
     def __init__(self, *args, **kwargs):
-        kwargs["tasks"] = VocTask.action_classification
+        kwargs["task"] = VocTask.action_classification
         super().__init__(*args, **kwargs)
