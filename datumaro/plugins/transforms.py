@@ -35,6 +35,28 @@ from datumaro.components.annotation import (
     PolyLine,
     RleMask,
 )
+from datumaro.components.errors import (
+    AttributeDefinedButNotFound,
+    FarFromAttrMean,
+    FarFromLabelMean,
+    FewSamplesInAttribute,
+    FewSamplesInLabel,
+    ImbalancedAttribute,
+    ImbalancedDistInAttribute,
+    ImbalancedDistInLabel,
+    ImbalancedLabels,
+    InvalidValue,
+    LabelDefinedButNotFound,
+    MissingAnnotation,
+    MissingAttribute,
+    MissingLabelCategories,
+    MultiLabelAnnotations,
+    NegativeLength,
+    OnlyOneAttributeValue,
+    OnlyOneLabel,
+    UndefinedAttribute,
+    UndefinedLabel,
+)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.errors import DatumaroError
@@ -1231,7 +1253,7 @@ class RemoveAttributes(ItemTransform):
         return item
 
 
-class Corrector(ItemTransform):
+class Corrector(Transform):
     """
     Allows to remove item and annotation attributes in a dataset.|n
     |n
@@ -1286,21 +1308,30 @@ class Corrector(ItemTransform):
     def __init__(
         self,
         extractor: IDataset,
-        report: Dict,
+        reports: Dict,
     ):
         super().__init__(extractor)
-        self._report = report
-        self._ids = set(tuple(v) for v in (ids or []))
-        self._attributes = set(attributes or [])
+        self._reports = reports
 
     def _parse_ann_ids(self, desc: str):
         return [int(s) for s in str.split(desc, "'") if s.isdigit()][0]
 
-    def _filter_attrs(self, attrs):
-        if not self._attributes:
-            return None
-        else:
-            return filter_dict(attrs, exclude_keys=self._attributes)
+    def _analyze_reports(self):
+        error_report = {}
+        warning_report = {}
+        for report in self._reports["validation_reports"]:
+            type = report["severity"]
+            id = report["item_id"]
+            subset = report["subset"]
+            ann_id = self._parse_ann_ids(report["description"])
+            if report["severity"] == "error":
+                error_report[type] = (id, subset, ann_id)
+            if report["severity"] == "warning":
+                warning_report[type] = (id, subset, ann_id)
+        print("The number of errors per error type: ", error_report)
+        print("The number of warnings per warning type: ", warning_report)
+
+        return error_report, warning_report
 
     def transform_item(self, item: DatasetItem):
         if not self._ids or (item.id, item.subset) in self._ids:
@@ -1312,3 +1343,7 @@ class Corrector(ItemTransform):
                 attributes=self._filter_attrs(item.attributes), annotations=filtered_annotations
             )
         return item
+
+    def __iter__(self):
+        for i, item in enumerate(self._extractor):
+            yield self.wrap_item(item, subset=self._find_split(i))
