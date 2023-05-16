@@ -1301,7 +1301,6 @@ class VocExporterTest(TestCase):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_action)
 
         with TestDir() as test_dir:
-            test_dir = "/home/wonjulee/temp"
             self._test_save_and_load(
                 TestExtractor(),
                 partial(VocActionExporter.convert, label_map="voc_action", allow_attributes=False),
