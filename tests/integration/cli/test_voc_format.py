@@ -119,7 +119,7 @@ class VocIntegrationScenarios(TestCase):
                     ],
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VOC.VocTask.detection),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
         )
 
         dataset_path = osp.join(DUMMY_DATASETS_DIR, "voc_dataset2")
@@ -227,14 +227,14 @@ class VocIntegrationScenarios(TestCase):
                 "-p",
                 test_dir,
                 "-f",
-                "voc_detection",
+                "voc",
                 "-o",
                 voc_export,
                 "--",
                 "--save-images",
             )
 
-            parsed_dataset = Dataset.import_from(voc_export, format="voc_detection")
+            parsed_dataset = Dataset.import_from(voc_export, format="voc")
             compare_datasets(self, expected_dataset, parsed_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_283)
@@ -298,14 +298,14 @@ class VocIntegrationScenarios(TestCase):
                 "-i",
                 mot_dir,
                 "-f",
-                "voc_detection",
+                "voc",
                 "-o",
                 voc_dir,
                 "--",
                 "--save-images",
             )
 
-            target_dataset = Dataset.import_from(voc_dir, format="voc_detection")
+            target_dataset = Dataset.import_from(voc_dir, format="voc")
             compare_datasets(self, expected_dataset, target_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_283)
@@ -411,7 +411,7 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VOC.VocTask.instance_segmentation),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_instance_segmentation),
         )
 
         voc_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
@@ -456,7 +456,7 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VOC.VocTask.person_layout),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_layout),
         )
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
@@ -481,7 +481,7 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VOC.VocTask.classification),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_classification),
         )
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
@@ -553,7 +553,7 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VOC.VocTask.detection),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
         )
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
@@ -595,7 +595,7 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VOC.VocTask.segmentation),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation),
         )
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
@@ -653,7 +653,7 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VOC.VocTask.action_classification),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_action),
         )
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
@@ -725,7 +725,7 @@ class VocIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, "project", "create", "-o", test_dir)
-            run(self, "project", "import", "-p", test_dir, "-f", "voc_detection", dataset_path)
+            run(self, "project", "import", "-p", test_dir, "-f", "voc", dataset_path)
 
             run(
                 self,
@@ -743,5 +743,5 @@ class VocIntegrationScenarios(TestCase):
                 "cat",
             )
 
-            parsed_dataset = Dataset.import_from(osp.join(test_dir, "source-1"), "voc_detection")
+            parsed_dataset = Dataset.import_from(osp.join(test_dir, "source-1"), "voc")
             compare_datasets(self, expected_dataset, parsed_dataset)
