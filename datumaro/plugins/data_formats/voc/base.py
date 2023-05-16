@@ -68,7 +68,7 @@ class VocBase(SubsetBase):
 
         self._categories = self._load_categories(self._dataset_dir)
 
-        if self._task in [VocTask.voc, VocTask.segmentation, VocTask.instance_segmentation]:
+        if self._task in [VocTask.voc, VocTask.voc_segmentation, VocTask.voc_instance_segmentation]:
             label_color = lambda label_idx: self._categories[AnnotationType.mask].colormap.get(
                 label_idx, None
             )
@@ -109,7 +109,7 @@ class VocBase(SubsetBase):
                 if not line or line[0] == "#":
                     continue
 
-                if self._task == VocTask.person_layout:
+                if self._task == VocTask.voc_layout:
                     objects = line.split('"')
                     if 1 < len(objects):
                         if len(objects) == 3:
@@ -136,6 +136,10 @@ class VocBase(SubsetBase):
         else:
             images = {}
 
+        annotations = (
+            self._parse_labels() if self._task in [VocTask.voc, VocTask.voc_classification] else {}
+        )
+
         anno_dir = osp.join(self._dataset_dir, VocPath.ANNOTATIONS_DIR)
 
         for item_id in self._ctx.progress_reporter.iter(
@@ -145,11 +149,14 @@ class VocBase(SubsetBase):
             size = None
 
             try:
-                anns = []
+                anns = annotations.get(item_id, [])
                 image = None
 
                 ann_file = osp.join(anno_dir, item_id + ".xml")
-                if osp.isfile(ann_file) and self._task != VocTask.segmentation:
+                if osp.isfile(ann_file) and self._task not in [
+                    VocTask.voc_classification,
+                    VocTask.voc_segmentation,
+                ]:
                     root_elem = ElementTree.parse(ann_file).getroot()
                     if root_elem.tag != "annotation":
                         raise MissingFieldError("annotation")
@@ -165,7 +172,11 @@ class VocBase(SubsetBase):
 
                     anns += self._parse_annotations(root_elem, item_id=(item_id, self._subset))
 
-                if self._task in [VocTask.voc, VocTask.segmentation, VocTask.instance_segmentation]:
+                if self._task in [
+                    VocTask.voc,
+                    VocTask.voc_segmentation,
+                    VocTask.voc_instance_segmentation,
+                ]:
                     anns += self._parse_masks(item_id)
 
                 if image is None:
@@ -256,9 +267,9 @@ class VocBase(SubsetBase):
             try:
                 label_name = self._parse_field(object_elem, "name")
 
-                if (
-                    self._task in [VocTask.person_layout, VocTask.action_classification]
-                    and label_name != "person"
+                # person_layout and action_classification are only available for background and person
+                if self._task in [VocTask.voc_layout, VocTask.voc_action] and (
+                    label_name not in ["person", "background"]
                 ):
                     continue
 
@@ -268,14 +279,14 @@ class VocBase(SubsetBase):
 
                 group = obj_id
 
-                if self._task in [VocTask.voc, VocTask.person_layout]:
+                if self._task in [VocTask.voc, VocTask.voc_layout]:
                     for part_elem in object_elem.findall("part"):
                         part_label_id = self._get_label_id(self._parse_field(part_elem, "name"))
                         part_bbox = self._parse_bbox(part_elem)
 
                         item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
 
-                if self._task in [VocTask.voc, VocTask.action_classification]:
+                if self._task in [VocTask.voc, VocTask.voc_action]:
                     actions_elem = object_elem.find("actions")
                     actions = {
                         a: False
@@ -357,35 +368,7 @@ class VocBase(SubsetBase):
 
         return item_annotations
 
-
-class VocClassificationBase(VocBase):
-    def __init__(self, path, **kwargs):
-        super().__init__(path, task=VocTask.classification, **kwargs)
-
-    def __iter__(self):
-        annotations = self._load_annotations()
-
-        image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
-        if osp.isdir(image_dir):
-            images = {
-                osp.splitext(osp.relpath(p, image_dir))[0].replace("\\", "/"): p
-                for p in find_images(image_dir, recursive=True)
-            }
-        else:
-            images = {}
-
-        for item_id in self._ctx.progress_reporter.iter(
-            self._items, desc=f"Parsing labels in '{self._subset}'"
-        ):
-            log.debug("Reading item '%s'", item_id)
-            image = images.get(item_id)
-            if image:
-                image = Image.from_file(path=image)
-            yield DatasetItem(
-                id=item_id, subset=self._subset, media=image, annotations=annotations.get(item_id)
-            )
-
-    def _load_annotations(self):
+    def _parse_labels(self):
         annotations = {}
         task_dir = osp.dirname(self._path)
         for label_id, label in enumerate(self._categories[AnnotationType.label]):
@@ -420,28 +403,31 @@ class VocClassificationBase(VocBase):
         return annotations
 
 
+class VocClassificationBase(VocBase):
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.voc_classification, **kwargs)
+
+
 class VocDetectionBase(VocBase):
     def __init__(self, path, **kwargs):
-        super().__init__(path, task=VocTask.detection, **kwargs)
-        self._task = VocTask.detection
+        super().__init__(path, task=VocTask.voc_detection, **kwargs)
 
 
 class VocSegmentationBase(VocBase):
     def __init__(self, path, **kwargs):
-        super().__init__(path, task=VocTask.segmentation, **kwargs)
+        super().__init__(path, task=VocTask.voc_segmentation, **kwargs)
 
 
 class VocInstanceSegmentationBase(VocBase):
     def __init__(self, path, **kwargs):
-        super().__init__(path, task=VocTask.instance_segmentation, **kwargs)
+        super().__init__(path, task=VocTask.voc_instance_segmentation, **kwargs)
 
 
 class VocLayoutBase(VocBase):
     def __init__(self, path, **kwargs):
-        super().__init__(path, task=VocTask.person_layout, **kwargs)
-        self._task = VocTask.person_layout
+        super().__init__(path, task=VocTask.voc_layout, **kwargs)
 
 
 class VocActionBase(VocBase):
     def __init__(self, path, **kwargs):
-        super().__init__(path, task=VocTask.action_classification, **kwargs)
+        super().__init__(path, task=VocTask.voc_action, **kwargs)

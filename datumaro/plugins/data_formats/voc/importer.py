@@ -13,12 +13,12 @@ from .format import VocPath, VocTask
 class _VocImporter(Importer):
     _TASKS = {
         VocTask.voc: ("voc", "Main"),
-        VocTask.classification: ("voc_classification", "Main"),
-        VocTask.detection: ("voc_detection", "Main"),
-        VocTask.segmentation: ("voc_segmentation", "Segmentation"),
-        VocTask.instance_segmentation: ("voc_instance_segmentation", "Segmentation"),
-        VocTask.person_layout: ("voc_layout", "Layout"),
-        VocTask.action_classification: ("voc_action", "Action"),
+        VocTask.voc_classification: ("voc_classification", "Main"),
+        VocTask.voc_detection: ("voc_detection", "Main"),
+        VocTask.voc_segmentation: ("voc_segmentation", "Segmentation"),
+        VocTask.voc_instance_segmentation: ("voc_instance_segmentation", "Segmentation"),
+        VocTask.voc_layout: ("voc_layout", "Layout"),
+        VocTask.voc_action: ("voc_action", "Action"),
     }
 
     @classmethod
@@ -70,30 +70,30 @@ class VocImporter(_VocImporter):
 
 
 class VocClassificationImporter(_VocImporter):
-    _TASK = VocTask.classification
+    _TASK = VocTask.voc_classification
     _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
 class VocDetectionImporter(_VocImporter):
-    _TASK = VocTask.detection
+    _TASK = VocTask.voc_detection
     _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
 class VocSegmentationImporter(_VocImporter):
-    _TASK = VocTask.segmentation
+    _TASK = VocTask.voc_segmentation
     _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
 class VocInstanceSegmentationImporter(_VocImporter):
-    _TASK = VocTask.instance_segmentation
+    _TASK = VocTask.voc_instance_segmentation
     _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
 class VocLayoutImporter(_VocImporter):
-    _TASK = VocTask.person_layout
+    _TASK = VocTask.voc_layout
     _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
 class VocActionImporter(_VocImporter):
-    _TASK = VocTask.action_classification
+    _TASK = VocTask.voc_action
     _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}

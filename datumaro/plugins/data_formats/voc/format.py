@@ -25,12 +25,12 @@ from datumaro.util.meta_file_util import get_meta_file
 
 class VocTask(Enum):
     voc = auto()
-    classification = auto()
-    detection = auto()
-    segmentation = auto()
-    instance_segmentation = auto()
-    action_classification = auto()
-    person_layout = auto()
+    voc_classification = auto()
+    voc_detection = auto()
+    voc_segmentation = auto()
+    voc_instance_segmentation = auto()
+    voc_action = auto()
+    voc_layout = auto()
 
 
 class VocLabel(Enum):
@@ -119,11 +119,12 @@ class VocPath:
 
     TASK_DIR = {
         VocTask.voc: "Main",
-        VocTask.classification: "Main",
-        VocTask.detection: "Main",
-        VocTask.segmentation: "Segmentation",
-        VocTask.action_classification: "Action",
-        VocTask.person_layout: "Layout",
+        VocTask.voc_classification: "Main",
+        VocTask.voc_detection: "Main",
+        VocTask.voc_segmentation: "Segmentation",
+        VocTask.voc_instance_segmentation: "Segmentation",
+        VocTask.voc_action: "Action",
+        VocTask.voc_layout: "Layout",
     }
 
 
@@ -135,7 +136,7 @@ LabelMapConfig = Dict[str, Tuple[Optional[RgbColor], List[str], List[str]]]
 
 
 def make_voc_label_map(task: VocTask = None) -> LabelMapConfig:
-    if task == VocTask.action_classification:
+    if task == VocTask.voc_action:
         label_map = OrderedDict(
             {
                 VocLabel.background.name: [VocColormap[VocLabel.background.value], [], []],
@@ -146,7 +147,7 @@ def make_voc_label_map(task: VocTask = None) -> LabelMapConfig:
                 ],
             }
         )
-    elif task == VocTask.person_layout:
+    elif task == VocTask.voc_layout:
         label_map = OrderedDict(
             {
                 VocLabel.background.name: [VocColormap[VocLabel.background.value], [], []],
@@ -157,12 +158,12 @@ def make_voc_label_map(task: VocTask = None) -> LabelMapConfig:
                 ],
             }
         )
-    elif (
-        task == VocTask.classification
-        or task == VocTask.detection
-        or task == VocTask.segmentation
-        or task == VocTask.instance_segmentation
-    ):
+    elif task in [
+        VocTask.voc_classification,
+        VocTask.voc_detection,
+        VocTask.voc_segmentation,
+        VocTask.voc_instance_segmentation,
+    ]:
         labels = sorted(VocLabel, key=lambda l: l.value)
         label_map = OrderedDict(
             (label.name, [VocColormap[label.value], [], []]) for label in labels
@@ -317,7 +318,7 @@ def write_meta_file(path: str, label_map: LabelMapConfig):
 
 
 def make_voc_categories(
-    label_map: Optional[LabelMapConfig] = None, task: Optional[VocTask] = None
+    label_map: Optional[LabelMapConfig] = None, task: Optional[VocTask] = VocTask.voc
 ) -> CategoriesInfo:
     if label_map is None:
         label_map = make_voc_label_map(task)
@@ -330,7 +331,7 @@ def make_voc_categories(
     for label, desc in label_map.items():
         label_categories.add(label, attributes=desc[2])
 
-    if task in [VocTask.voc, VocTask.person_layout]:
+    if task in [VocTask.voc, VocTask.voc_layout]:
         for part in OrderedDict(
             (k, None) for k in chain(*(desc[1] for desc in label_map.values()))
         ):
@@ -338,7 +339,7 @@ def make_voc_categories(
 
     categories[AnnotationType.label] = label_categories
 
-    if task not in [VocTask.voc, VocTask.segmentation, VocTask.instance_segmentation]:
+    if task not in [VocTask.voc, VocTask.voc_segmentation, VocTask.voc_instance_segmentation]:
         return categories
 
     has_colors = any(v[0] is not None for v in label_map.values())

@@ -76,7 +76,7 @@ def fxt_classification_dataset():
                 media=Image.from_numpy(data=np.ones((10, 20, 3))),
             ),
         ],
-        categories=VOC.make_voc_categories(task=VocTask.classification),
+        categories=VOC.make_voc_categories(task=VocTask.voc_classification),
     )
 
 
@@ -126,7 +126,7 @@ def fxt_detection_dataset():
                 media=Image.from_numpy(data=np.ones((10, 20, 3))),
             ),
         ],
-        categories=VOC.make_voc_categories(task=VocTask.detection),
+        categories=VOC.make_voc_categories(task=VocTask.voc_detection),
     )
 
 
@@ -146,7 +146,7 @@ def fxt_segmentation_dataset():
                 media=Image.from_numpy(data=np.ones((10, 20, 3))),
             ),
         ],
-        categories=VOC.make_voc_categories(task=VocTask.segmentation),
+        categories=VOC.make_voc_categories(task=VocTask.voc_segmentation),
     )
 
 
@@ -182,7 +182,7 @@ def fxt_layout_dataset():
                 media=Image.from_numpy(data=np.ones((10, 20, 3))),
             ),
         ],
-        categories=VOC.make_voc_categories(task=VocTask.person_layout),
+        categories=VOC.make_voc_categories(task=VocTask.voc_layout),
     )
 
 
@@ -218,7 +218,7 @@ def fxt_action_dataset():
                 media=Image.from_numpy(data=np.ones((10, 20, 3))),
             ),
         ],
-        categories=VOC.make_voc_categories(task=VocTask.action_classification),
+        categories=VOC.make_voc_categories(task=VocTask.voc_action),
     )
 
 
@@ -465,7 +465,7 @@ class VocFormatPracticeTest:
                     ],
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VocTask.detection),
+            categories=VOC.make_voc_categories(task=VocTask.voc_detection),
         )
 
         dst_dataset = Dataset.from_iterable(
@@ -492,7 +492,7 @@ class VocFormatPracticeTest:
                     ],
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VocTask.detection),
+            categories=VOC.make_voc_categories(task=VocTask.voc_detection),
         )
 
         VocDetectionExporter.convert(
@@ -667,7 +667,7 @@ class VocFormatPracticeTest:
                     ],
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VocTask.segmentation),
+            categories=VOC.make_voc_categories(task=VocTask.voc_segmentation),
         )
 
         dst_dataset = Dataset.from_iterable(
@@ -686,7 +686,7 @@ class VocFormatPracticeTest:
                     ],
                 ),
             ],
-            categories=VOC.make_voc_categories(task=VocTask.segmentation),
+            categories=VOC.make_voc_categories(task=VocTask.voc_segmentation),
         )
 
         VocSegmentationExporter.convert(
@@ -1054,7 +1054,7 @@ class VocFormatPracticeTest:
                     ],
                 )
             ],
-            categories=VOC.make_voc_categories(task=VocTask.detection),
+            categories=VOC.make_voc_categories(task=VocTask.voc_detection),
         )
 
         VocDetectionExporter.convert(
@@ -1070,16 +1070,16 @@ class VocFormatPracticeTest:
     @pytest.mark.parametrize(
         "fxt_task,fxt_importer,fxt_exporter",
         [
-            (VocTask.classification, VocClassificationImporter, VocClassificationExporter),
-            (VocTask.detection, VocDetectionImporter, VocDetectionExporter),
-            (VocTask.segmentation, VocSegmentationImporter, VocSegmentationExporter),
+            (VocTask.voc_classification, VocClassificationImporter, VocClassificationExporter),
+            (VocTask.voc_detection, VocDetectionImporter, VocDetectionExporter),
+            (VocTask.voc_segmentation, VocSegmentationImporter, VocSegmentationExporter),
             (
-                VocTask.instance_segmentation,
+                VocTask.voc_instance_segmentation,
                 VocInstanceSegmentationImporter,
                 VocInstanceSegmentationExporter,
             ),
-            (VocTask.person_layout, VocLayoutImporter, VocLayoutExporter),
-            (VocTask.action_classification, VocActionImporter, VocActionExporter),
+            (VocTask.voc_layout, VocLayoutImporter, VocLayoutExporter),
+            (VocTask.voc_action, VocActionImporter, VocActionExporter),
         ],
     )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1109,16 +1109,16 @@ class VocFormatPracticeTest:
     @pytest.mark.parametrize(
         "fxt_task,fxt_importer,fxt_exporter",
         [
-            (VocTask.classification, VocClassificationImporter, VocClassificationExporter),
-            (VocTask.detection, VocDetectionImporter, VocDetectionExporter),
-            (VocTask.segmentation, VocSegmentationImporter, VocSegmentationExporter),
+            (VocTask.voc_classification, VocClassificationImporter, VocClassificationExporter),
+            (VocTask.voc_detection, VocDetectionImporter, VocDetectionExporter),
+            (VocTask.voc_segmentation, VocSegmentationImporter, VocSegmentationExporter),
             (
-                VocTask.instance_segmentation,
+                VocTask.voc_instance_segmentation,
                 VocInstanceSegmentationImporter,
                 VocInstanceSegmentationExporter,
             ),
-            (VocTask.person_layout, VocLayoutImporter, VocLayoutExporter),
-            (VocTask.action_classification, VocActionImporter, VocActionExporter),
+            (VocTask.voc_layout, VocLayoutImporter, VocLayoutExporter),
+            (VocTask.voc_action, VocActionImporter, VocActionExporter),
         ],
     )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1147,16 +1147,16 @@ class VocFormatPracticeTest:
     @pytest.mark.parametrize(
         "fxt_task,fxt_importer,fxt_exporter",
         [
-            (VocTask.classification, VocClassificationImporter, VocClassificationExporter),
-            (VocTask.detection, VocDetectionImporter, VocDetectionExporter),
-            (VocTask.segmentation, VocSegmentationImporter, VocSegmentationExporter),
+            (VocTask.voc_classification, VocClassificationImporter, VocClassificationExporter),
+            (VocTask.voc_detection, VocDetectionImporter, VocDetectionExporter),
+            (VocTask.voc_segmentation, VocSegmentationImporter, VocSegmentationExporter),
             (
-                VocTask.instance_segmentation,
+                VocTask.voc_instance_segmentation,
                 VocInstanceSegmentationImporter,
                 VocInstanceSegmentationExporter,
             ),
-            (VocTask.person_layout, VocLayoutImporter, VocLayoutExporter),
-            (VocTask.action_classification, VocActionImporter, VocActionExporter),
+            (VocTask.voc_layout, VocLayoutImporter, VocLayoutExporter),
+            (VocTask.voc_action, VocActionImporter, VocActionExporter),
         ],
     )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1212,16 +1212,16 @@ class VocFormatPracticeTest:
     @pytest.mark.parametrize(
         "fxt_task,fxt_importer,fxt_exporter",
         [
-            (VocTask.classification, VocClassificationImporter, VocClassificationExporter),
-            (VocTask.detection, VocDetectionImporter, VocDetectionExporter),
-            (VocTask.segmentation, VocSegmentationImporter, VocSegmentationExporter),
+            (VocTask.voc_classification, VocClassificationImporter, VocClassificationExporter),
+            (VocTask.voc_detection, VocDetectionImporter, VocDetectionExporter),
+            (VocTask.voc_segmentation, VocSegmentationImporter, VocSegmentationExporter),
             (
-                VocTask.instance_segmentation,
+                VocTask.voc_instance_segmentation,
                 VocInstanceSegmentationImporter,
                 VocInstanceSegmentationExporter,
             ),
-            (VocTask.person_layout, VocLayoutImporter, VocLayoutExporter),
-            (VocTask.action_classification, VocActionImporter, VocActionExporter),
+            (VocTask.voc_layout, VocLayoutImporter, VocLayoutExporter),
+            (VocTask.voc_action, VocActionImporter, VocActionExporter),
         ],
     )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1249,16 +1249,16 @@ class VocFormatPracticeTest:
     @pytest.mark.parametrize(
         "fxt_task,fxt_importer,fxt_exporter",
         [
-            (VocTask.classification, VocClassificationImporter, VocClassificationExporter),
-            (VocTask.detection, VocDetectionImporter, VocDetectionExporter),
-            (VocTask.segmentation, VocSegmentationImporter, VocSegmentationExporter),
+            (VocTask.voc_classification, VocClassificationImporter, VocClassificationExporter),
+            (VocTask.voc_detection, VocDetectionImporter, VocDetectionExporter),
+            (VocTask.voc_segmentation, VocSegmentationImporter, VocSegmentationExporter),
             (
-                VocTask.instance_segmentation,
+                VocTask.voc_instance_segmentation,
                 VocInstanceSegmentationImporter,
                 VocInstanceSegmentationExporter,
             ),
-            (VocTask.person_layout, VocLayoutImporter, VocLayoutExporter),
-            (VocTask.action_classification, VocActionImporter, VocActionExporter),
+            (VocTask.voc_layout, VocLayoutImporter, VocLayoutExporter),
+            (VocTask.voc_action, VocActionImporter, VocActionExporter),
         ],
     )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1289,16 +1289,16 @@ class VocFormatPracticeTest:
     @pytest.mark.parametrize(
         "fxt_task,fxt_importer,fxt_exporter",
         [
-            (VocTask.classification, VocClassificationImporter, VocClassificationExporter),
-            (VocTask.detection, VocDetectionImporter, VocDetectionExporter),
-            (VocTask.segmentation, VocSegmentationImporter, VocSegmentationExporter),
+            (VocTask.voc_classification, VocClassificationImporter, VocClassificationExporter),
+            (VocTask.voc_detection, VocDetectionImporter, VocDetectionExporter),
+            (VocTask.voc_segmentation, VocSegmentationImporter, VocSegmentationExporter),
             (
-                VocTask.instance_segmentation,
+                VocTask.voc_instance_segmentation,
                 VocInstanceSegmentationImporter,
                 VocInstanceSegmentationExporter,
             ),
-            (VocTask.person_layout, VocLayoutImporter, VocLayoutExporter),
-            (VocTask.action_classification, VocActionImporter, VocActionExporter),
+            (VocTask.voc_layout, VocLayoutImporter, VocLayoutExporter),
+            (VocTask.voc_action, VocActionImporter, VocActionExporter),
         ],
     )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1497,7 +1497,7 @@ class VocFormatErrorTest:
                 DatasetItem("b", subset="test"),
                 DatasetItem("c", subset="test", annotations=[Label(VOC.VocLabel.cat.value)]),
             ],
-            categories=VOC.make_voc_categories(task=VocTask.classification),
+            categories=VOC.make_voc_categories(task=VocTask.voc_classification),
         )
 
         helper_tc = request.getfixturevalue("helper_tc")
