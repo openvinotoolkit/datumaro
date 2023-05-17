@@ -25,7 +25,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.errors import InvalidAnnotationError, MediaTypeError
+from datumaro.components.errors import DatasetExportError, InvalidAnnotationError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
 from datumaro.util import find, str_to_bool
@@ -160,11 +160,12 @@ class VocExporter(Exporter):
     ):
         super().__init__(extractor, save_dir, **kwargs)
 
-        assert task is None or isinstance(task, VocTask)
-        if isinstance(task, VocTask):
-            task = task
-        else:
-            task = VocTask.voc
+        task = VocTask.voc if task is None else task
+        if not isinstance(task, VocTask):
+            raise DatasetExportError(
+                f"The task must be an instance of {VocTask} but {task} is given."
+            )
+
         self._task = task
 
         self._apply_colormap = apply_colormap
