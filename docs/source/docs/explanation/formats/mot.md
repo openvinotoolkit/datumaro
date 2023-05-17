@@ -2,7 +2,7 @@
 
 ## Format specification
 
-The [Multiple Object Tracking (MOT) challange dataset](https://arxiv.org/pdf/1906.04567.pdf) provides bounding box tracking data for multiple objects within image sequences.
+The [Multiple Object Tracking (MOT) challenge dataset](https://arxiv.org/pdf/1906.04567.pdf) provides bounding box tracking data for multiple objects within image sequences.
 
 Supported annotation types:
 - `Bbox` (object detection)
