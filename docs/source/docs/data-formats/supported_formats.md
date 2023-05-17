@@ -111,6 +111,10 @@ List of supported formats:
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/coco_dataset)
   - `labels` are our extension - like `instances` with only `category_id`
   - [Format documentation](../explanation/formats/coco)
+- Roboflow COCO (import-only)
+  - [Format specification](https://roboflow.com/formats/coco-json)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/coco_dataset/coco_roboflow)
+  - [Format documentation](../explanation/formats/coco#coco-from-roboflow)
 - NYU Depth Dataset V2 (`depth estimation`) (import-only)
   - [Format specification](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/nyu_depth_v2_dataset)
