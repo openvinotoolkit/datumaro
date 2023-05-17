@@ -16,7 +16,7 @@ Supported annotation attributes:
 
 ## Import MOT dataset
 
-You can download the MOT challange dataset [here](https://motchallenge.net).
+You can download the MOT challenge dataset [here](https://motchallenge.net).
 
 A Datumaro project with the MOT challange source can be created in the following way:
 
