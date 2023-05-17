@@ -1,5 +1,5 @@
 =====================================================
-Level 9: Dataset Explorartion from a Query Image/Text
+Level 10: Dataset Explorartion from a Query Image/Text
 =====================================================
 
 
@@ -34,13 +34,27 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
             topk = 20
             topk_result = explorer.explore_topk(query, topk)
 
+    .. tab-item:: CLI
+
+        Without the project declaration, we can simply ``explore`` dataset by
+
+        .. code-block:: bash
+
+            datum explore <target> --query QUERY -topk TOPK_NUM
+
+        ``QUERY`` could be image file path, text description, list of both of them
+
+        ``TOPK_NUM`` is an integer that you want to find the number of similar results for query
+
+        Exploration result would be printed by log and result files would be copied into ``explore_result`` folder
+
     .. tab-item:: ProjectCLI
 
         With the project-based CLI, we first require to ``create`` a project by
 
         .. code-block:: bash
 
-            datum project create -o <path/to/project>
+            datum project create --output-dir <path/to/project>
 
         We now ``import`` data in to project through
 
@@ -52,10 +66,10 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
 
         .. code-block:: bash
 
-            datum explore -q QUERY -topk TOPK_NUM -p <path/to/project>
+            datum explore --query QUERY -topk TOPK_NUM -p <path/to/project>
 
         ``QUERY`` could be image file path, text description, list of both of them
 
         ``TOPK_NUM`` is an integer that you want to find the number of similar results for query
 
-        Exploration result would be printed by log and visualized result would be saved by ``explorer.png``
+        Exploration result would be printed by log and result files would be copied into ``explore_result`` folder

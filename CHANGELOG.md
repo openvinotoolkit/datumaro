@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/976>)
 - Add SynthiaSfImporter and SynthiaAlImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/987>)
+- Add intermediate skill docs for filter
+  (<https://github.com/openvinotoolkit/datumaro/pull/996>)
 
 ### Enhancements
 - Use autosummary for fully-automatic Python module docs generation
