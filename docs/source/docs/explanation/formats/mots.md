@@ -2,7 +2,7 @@
 
 ## Format specification
 
-The [Multiple Object Tracking and Segmentation (MOTS) challange dataset](https://arxiv.org/pdf/1906.04567.pdf) provides a pixel-level segmentation masks for multiple objects within image sequences.
+The [Multiple Object Tracking and Segmentation (MOTS) challenge dataset](https://arxiv.org/pdf/1906.04567.pdf) provides a pixel-level segmentation masks for multiple objects within image sequences.
 There are two format specifications according to the representation of segmentation masks: 1) PNG format and 2) TXT format.
 The PNG format represents a segmentation mask as a PNG file with a 16-bits single color channel.
 On the other hand, the TXT format uses run-length encoding (RLE) for a segmentation mask.
