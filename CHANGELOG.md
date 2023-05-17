@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[Unreleased\]
 ### New features
 - Add CocoRoboflowImporter
-  (<https://github.com/openvinotoolkit/datumaro/pull/976>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/976>, <https://github.com/openvinotoolkit/datumaro/pull/1000>)
 - Add SynthiaSfImporter and SynthiaAlImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/987>)
 - Add intermediate skill docs for filter
