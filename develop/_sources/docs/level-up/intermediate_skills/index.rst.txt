@@ -10,8 +10,9 @@ Intermediate Skills
    06_data_comparison
    07_data_merge
    08_data_validate
-   09_data_exploration
-   10_data_generation
+   09_data_filtering
+   10_data_exploration
+   11_data_generation
 
 .. grid:: 1 2 2 2
    :gutter: 2
@@ -65,24 +66,38 @@ Intermediate Skills
 
    .. grid-item-card::
 
-      .. button-ref:: 09_data_exploration
+      .. button-ref:: 09_data_filtering
          :color: primary
          :outline:
          :expand:
 
-         Level 09: Data Exploration
+         Level 09: Data Filtering
+
+      :bdg-success:`ProjectCLI`
+      :bdg-info:`CLI`
+      :bdg-warning:`Python`
+
+   .. grid-item-card::
+
+      .. button-ref:: 10_data_exploration
+         :color: primary
+         :outline:
+         :expand:
+
+         Level 10: Data Exploration
 
       :bdg-warning:`Python`
+      :bdg-info:`CLI`
       :bdg-success:`ProjectCLI`
 
    .. grid-item-card::
 
-      .. button-ref:: 10_data_generation
+      .. button-ref:: 11_data_generation
          :color: primary
          :outline:
          :expand:
 
-         Level 10: Data Generation
+         Level 11: Data Generation
 
       :bdg-info:`CLI`
       :bdg-warning:`Python`

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Level 12: Pseudo Label Generation &#8212; Datumaro 1.2.1 documentation</title>
+    <title>Level 9: Dataset Filtering &#8212; Datumaro 1.2.1 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/level-up/advanced_skills/12_pseudo_label_generation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/level-up/intermediate_skills/09_data_filtering';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Supported Data Formats" href="../../data-formats/supported_formats.html" />
-    <link rel="prev" title="Level 11: Project Versioning" href="11_project_versioning.html" />
+    <link rel="next" title="Level 10: Dataset Explorartion from a Query Image/Text" href="10_data_exploration.html" />
+    <link rel="prev" title="Level 8: Dataset Validation" href="08_data_validate.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -280,18 +280,19 @@
 <li class="toctree-l2"><a class="reference internal" href="../basic_skills/04_detect_data_format.html">Level 4: Detect Data Format from an Unknown Dataset</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../intermediate_skills/index.html">Intermediate Skills</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../intermediate_skills/05_data_aggregation.html">Level 5: Data Subset Aggregation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intermediate_skills/06_data_comparison.html">Level 6: Data Comparison with Two Heterogeneous Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intermediate_skills/07_data_merge.html">Level 7: Merge Two Heterogeneous Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intermediate_skills/08_data_validate.html">Level 8: Dataset Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intermediate_skills/09_data_exploration.html">Level 9: Dataset Explorartion from a Query Image/Text</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intermediate_skills/10_data_generation.html">Level 10: Data Generation</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Intermediate Skills</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="05_data_aggregation.html">Level 5: Data Subset Aggregation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_comparison.html">Level 6: Data Comparison with Two Heterogeneous Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_data_merge.html">Level 7: Merge Two Heterogeneous Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_validate.html">Level 8: Dataset Validation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Level 9: Dataset Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_data_exploration.html">Level 10: Dataset Explorartion from a Query Image/Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_data_generation.html">Level 11: Data Generation</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Advanced Skills</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="11_project_versioning.html">Level 11: Project Versioning</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Level 12: Pseudo Label Generation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../advanced_skills/index.html">Advanced Skills</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../advanced_skills/12_project_versioning.html">Level 12: Project Versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced_skills/13_pseudo_label_generation.html">Level 13: Pseudo Label Generation</a></li>
 </ul>
 </li>
 </ul>
@@ -551,9 +552,63 @@
             
             <article class="bd-article" role="main">
               
-  <section id="level-12-pseudo-label-generation">
-<h1>Level 12: Pseudo Label Generation<a class="headerlink" href="#level-12-pseudo-label-generation" title="Permalink to this heading">#</a></h1>
-<p>TBD</p>
+  <section id="level-9-dataset-filtering">
+<h1>Level 9: Dataset Filtering<a class="headerlink" href="#level-9-dataset-filtering" title="Permalink to this heading">#</a></h1>
+<p>With the increasing availability of public data, the need for data filtering has become more apparent. Raw data often
+contains irrelevant or unnecessary information, making it difficult to extract the desired insights or use it effectively
+for decision-making purposes. Data filtering involves the process of identifying and selecting relevant data points while
+excluding or removing the irrelevant ones to improve the quality and usability of the data. This process is essential for
+ensuring that data can be used effectively and efficiently to drive insights and inform decisions. As the volume and complexity
+of data continue to grow, data filtering will become an increasingly important aspect of data management and analysis.
+By filtering the dataset in this way, we can create a subset of data that is tailored to our specific needs, making it easier
+to extract meaningful insights or use it effectively for decision-making purposes.</p>
+<p>In this tutorial, we provide the simple example of filtering dataset using item and annotation. To set how to filter dataset,
+which satisfied some condition, we use XML as query format. Refer this <a class="reference external" href="https://devhints.io/xpath">XPATH</a> to set your own filter.
+The detailed description for filter operation is given by <a class="reference internal" href="../../command-reference/context_free/filter.html"><span class="doc">Filter</span></a>.
+The more advanced Python example is given <a class="reference internal" href="../../jupyter_notebook_examples/notebooks/04_filter.html"><span class="doc">this notebook</span></a>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-0">
+ProjectCLI</label><div class="sd-tab-content docutils">
+<p>With the project-based CLI, we first create project and import datasets into the project</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span>create<span class="w"> </span>--output-dir<span class="w"> </span>&lt;path/to/project&gt;
+datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>--format<span class="w"> </span>datumaro<span class="w"> </span>--project<span class="w"> </span>&lt;path/to/project&gt;<span class="w"> </span>&lt;path/to/data&gt;
+</pre></div>
+</div>
+<p>We filter dataset through</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>filter<span class="w"> </span>-e<span class="w"> </span>&lt;how/to/filter/dataset&gt;<span class="w"> </span>--project<span class="w"> </span>&lt;path/to/project&gt;
+</pre></div>
+</div>
+<p>We can set <code class="docutils literal notranslate"><span class="pre">&lt;how/to/filter/dataset&gt;</span></code> as your own filter like <code class="docutils literal notranslate"><span class="pre">'/item/annotation[label=&quot;cat&quot;</span> <span class="pre">and</span> <span class="pre">area</span> <span class="pre">&gt;</span> <span class="pre">85]'</span></code>.
+This example command will filter only items through the bbox annotations which have <cite>cat</cite> label and bbox area (<cite>w * h</cite>) more than 85.</p>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-1">
+CLI</label><div class="sd-tab-content docutils">
+<p>Without the project declaration, we can simply filter dataset by</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>filter<span class="w"> </span>&lt;target&gt;<span class="w"> </span>-e<span class="w"> </span>&lt;how/to/filter/dataset&gt;<span class="w"> </span>--output-dir<span class="w"> </span>&lt;path/to/output&gt;
+</pre></div>
+</div>
+<p>We could use <code class="docutils literal notranslate"><span class="pre">--overwrite</span></code> instead of setting <code class="docutils literal notranslate"><span class="pre">--output-dir</span></code>.
+And we can set <code class="docutils literal notranslate"><span class="pre">&lt;how/to/filter/dataset&gt;</span></code> as our own filter like <code class="docutils literal notranslate"><span class="pre">'/item[subset=&quot;test&quot;]'</span></code>
+to filter only items whose <cite>subset</cite> is <cite>test</cite>.</p>
+</div>
+<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-2">
+Python</label><div class="sd-tab-content docutils">
+<p>With Python API, we can filter items as below</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="n">dataset_path</span> <span class="o">=</span> <span class="s1">&#39;/path/to/data&#39;</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="s1">&#39;datumaro&#39;</span><span class="p">)</span>
+
+<span class="n">filtered_result</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;how/to/filter/dataset&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can set <code class="docutils literal notranslate"><span class="pre">&lt;how/to/filter/dataset&gt;</span></code> as your own filter like <code class="docutils literal notranslate"><span class="pre">'/item/annotation[occluded=&quot;True&quot;]'</span></code>.
+This example command will filter only items through the annotation attribute which has <cite>occluded</cite>.</p>
+</div>
+</div>
 </section>
 
 
@@ -564,17 +619,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="11_project_versioning.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="08_data_validate.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">Level 11: Project Versioning</p>
+          <p class="prev-next-title">Level 8: Dataset Validation</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="../../data-formats/supported_formats.html" title="next page">
+  <a class='right-next' id="next-link" href="10_data_exploration.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">Supported Data Formats</p>
+      <p class="prev-next-title">Level 10: Dataset Explorartion from a Query Image/Text</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -599,7 +654,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/level-up/advanced_skills/12_pseudo_label_generation.rst.txt">
+    <a href="../../../_sources/docs/level-up/intermediate_skills/09_data_filtering.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
