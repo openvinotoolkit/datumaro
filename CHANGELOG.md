@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/987>)
 - Add intermediate skill docs for filter
   (<https://github.com/openvinotoolkit/datumaro/pull/996>)
+- Add VocInstanceSegmentationImporter and VocInstanceSegmentationExporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/997>)
 
 ### Enhancements
 - Use autosummary for fully-automatic Python module docs generation
@@ -29,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/978>)
 - Fix Synthia-Rand data format
   (<https://github.com/openvinotoolkit/datumaro/pull/987>)
+- Fix `person_layout` categories and `action_classification` attributes in imported Pascal-VOC dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/997>)
 
 ## 04/05/2023 - Release 1.2.1
 ### Bug fixes
