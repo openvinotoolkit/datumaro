@@ -644,6 +644,7 @@ in the original annotation file.</p></li>
 </pre></div>
 </div>
 <p>For the panoptic task, a dataset directory should have the following structure:</p>
+<p><a id="dir-structure"></a></p>
 <!--lint disable fenced-code-flag-->
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>└─ Dataset/
     ├── dataset_meta.json # a list of custom labels (optional)
@@ -817,6 +818,41 @@ datum<span class="w"> </span>project<span class="w"> </span><span class="nb">exp
 <a class="reference external" href="https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_coco_format.py">the format tests</a></p>
 </section>
 </section>
+<section id="coco-from-roboflow">
+<h2>COCO from Roboflow<a class="headerlink" href="#coco-from-roboflow" title="Permalink to this heading">#</a></h2>
+<p>The datasets available for download from <a class="reference external" href="https://roboflow.com/">Roboflow</a> have the exact same JSON format with MS COCO.
+However, it has a different directory structure than <a class="reference internal" href="#dir-structure"><span class="xref myst">MS COCO</span></a>:</p>
+<!--lint disable fenced-code-flag-->
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>└─ Dataset/
+    ├── dataset_meta.json # a list of custom labels (optional)
+    ├── train
+    │   ├── &lt;image_name1.ext&gt;
+    │   ├── ...
+    │   └── _annotations.coco.json
+    └── val
+        ├── &lt;image_name1.ext&gt;
+        ├── ...
+        └── _annotations.coco.json
+</pre></div>
+</div>
+<p>As you can see, in the root directory there are subdirectories representing a subset (e.g. <code class="docutils literal notranslate"><span class="pre">train</span></code>), which contain the JSON annotations file <code class="docutils literal notranslate"><span class="pre">_annotations.coco.json</span></code>.
+Datumaro supports importing this COCO format dataset available from Roboflow by using <code class="docutils literal notranslate"><span class="pre">coco_roboflow</span></code> data format directive.</p>
+<section id="import-using-cli">
+<h3>Import using CLI<a class="headerlink" href="#import-using-cli" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span>create
+datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>--format<span class="w"> </span>coco_roboflow<span class="w"> </span>&lt;path/to/dataset&gt;
+</pre></div>
+</div>
+</section>
+<section id="import-using-python-api">
+<h3>Import using Python API<a class="headerlink" href="#import-using-python-api" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datumaro</span> <span class="k">as</span> <span class="nn">dm</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s1">&#39;&lt;path/to/dataset&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;coco_roboflow&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
 
@@ -890,6 +926,23 @@ datum<span class="w"> </span>project<span class="w"> </span><span class="nb">exp
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#example-2-how-to-create-custom-coco-like-dataset">
      Example 2. How to create custom COCO-like dataset
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#coco-from-roboflow">
+   COCO from Roboflow
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#import-using-cli">
+     Import using CLI
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#import-using-python-api">
+     Import using Python API
     </a>
    </li>
   </ul>
