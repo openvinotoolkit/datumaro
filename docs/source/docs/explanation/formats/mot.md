@@ -28,7 +28,7 @@ datum project import --format mot <path/to/dataset>
 It is possible to specify project name and project directory. Run
 `datum project create --help` for more information.
 
-The MOT chllange dataset directory should have the following structure:
+The MOT challenge dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
 ```
