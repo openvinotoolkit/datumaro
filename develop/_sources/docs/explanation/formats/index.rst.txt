@@ -30,6 +30,8 @@ Formats
    market1501
    mars
    mnist
+   mot
+   mots
    mpii_json
    mpii
    mvtec

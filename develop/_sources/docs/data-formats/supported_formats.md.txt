@@ -95,9 +95,11 @@ List of supported formats:
 - MOT sequences
   - [Format specification](https://arxiv.org/pdf/1906.04567.pdf)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mot_dataset)
+  - [Format documentation](../explanation/formats/mot)
 - MOTS (png)
   - [Format specification](https://www.vision.rwth-aachen.de/page/mots)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mots_dataset)
+  - [Format documentation](../explanation/formats/mots)
 - MPII Human Pose Dataset (`detection`, `pose estimation`) (import-only)
   - [Format specification](http://human-pose.mpi-inf.mpg.de)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mpii_dataset)
