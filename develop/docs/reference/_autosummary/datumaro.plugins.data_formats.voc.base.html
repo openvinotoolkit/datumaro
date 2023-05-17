@@ -560,10 +560,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocActionBase" title="datumaro.plugins.data_formats.voc.base.VocActionBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocActionBase</span></code></a>(path, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocClassificationBase" title="datumaro.plugins.data_formats.voc.base.VocClassificationBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocClassificationBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocBase</span></code></a>(path[, task, subset, ctx])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocDetectionBase" title="datumaro.plugins.data_formats.voc.base.VocDetectionBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocDetectionBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocClassificationBase" title="datumaro.plugins.data_formats.voc.base.VocClassificationBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocClassificationBase</span></code></a>(path, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocDetectionBase" title="datumaro.plugins.data_formats.voc.base.VocDetectionBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocDetectionBase</span></code></a>(path, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase" title="datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocInstanceSegmentationBase</span></code></a>(path, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocLayoutBase" title="datumaro.plugins.data_formats.voc.base.VocLayoutBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocLayoutBase</span></code></a>(path, **kwargs)</p></td>
@@ -575,33 +581,45 @@
 </tbody>
 </table>
 <dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocTask" title="datumaro.plugins.data_formats.voc.format.VocTask"><span class="pre">VocTask</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">VocTask.voc</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.ImportContext" title="datumaro.components.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubsetBase</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocClassificationBase">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocClassificationBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocClassificationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocClassificationBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocBase</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocDetectionBase">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocDetectionBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocDetectionBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocDetectionBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocXmlBase</span></code></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocLayoutBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocLayoutBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocLayoutBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocLayoutBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocXmlBase</span></code></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocActionBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocActionBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocActionBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocActionBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocXmlBase</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocSegmentationBase">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocSegmentationBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocSegmentationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocSegmentationBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocBase</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocInstanceSegmentationBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocInstanceSegmentationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocLayoutBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocLayoutBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocLayoutBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocLayoutBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocActionBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocActionBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocActionBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocActionBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
 </dd></dl>
 
 </section>
@@ -645,6 +663,15 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocBase">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     VocBase
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocClassificationBase">
    <code class="docutils literal notranslate">
     <span class="pre">
@@ -663,6 +690,24 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocSegmentationBase">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     VocSegmentationBase
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     VocInstanceSegmentationBase
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocLayoutBase">
    <code class="docutils literal notranslate">
     <span class="pre">
@@ -676,15 +721,6 @@
    <code class="docutils literal notranslate">
     <span class="pre">
      VocActionBase
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocSegmentationBase">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     VocSegmentationBase
     </span>
    </code>
   </a>

@@ -569,13 +569,16 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocDetectionExporter" title="datumaro.plugins.data_formats.voc.exporter.VocDetectionExporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocDetectionExporter</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter" title="datumaro.plugins.data_formats.voc.exporter.VocExporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocExporter</span></code></a>(extractor, save_dir[, tasks, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter" title="datumaro.plugins.data_formats.voc.exporter.VocExporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocExporter</span></code></a>(extractor, save_dir[, task, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocLayoutExporter" title="datumaro.plugins.data_formats.voc.exporter.VocLayoutExporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocLayoutExporter</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocInstanceSegmentationExporter" title="datumaro.plugins.data_formats.voc.exporter.VocInstanceSegmentationExporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocInstanceSegmentationExporter</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter" title="datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocSegmentationExporter</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocLayoutExporter" title="datumaro.plugins.data_formats.voc.exporter.VocLayoutExporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocLayoutExporter</span></code></a>(*args, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter" title="datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocSegmentationExporter</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -591,15 +594,45 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_classification">
+<span class="sig-name descname"><span class="pre">voc_classification</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_classification" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_detection">
+<span class="sig-name descname"><span class="pre">voc_detection</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_detection" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_segmentation">
+<span class="sig-name descname"><span class="pre">voc_segmentation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_segmentation" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_instance_segmentation">
+<span class="sig-name descname"><span class="pre">voc_instance_segmentation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_instance_segmentation" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_layout">
+<span class="sig-name descname"><span class="pre">voc_layout</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_layout" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_action">
+<span class="sig-name descname"><span class="pre">voc_action</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_action" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.LabelmapType.source">
-<span class="sig-name descname"><span class="pre">source</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.source" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">source</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.source" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.VocExporter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.exporter.</span></span><span class="sig-name descname"><span class="pre">VocExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/exporter.html#VocExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.exporter.</span></span><span class="sig-name descname"><span class="pre">VocExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/exporter.html#VocExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.exporter.html#datumaro.components.exporter.Exporter" title="datumaro.components.exporter.Exporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exporter</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.VocExporter.DEFAULT_IMAGE_EXT">
@@ -691,6 +724,18 @@
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.exporter.</span></span><span class="sig-name descname"><span class="pre">VocSegmentationExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/exporter.html#VocSegmentationExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter" title="datumaro.plugins.data_formats.voc.exporter.VocExporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocExporter</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.VocInstanceSegmentationExporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.exporter.</span></span><span class="sig-name descname"><span class="pre">VocInstanceSegmentationExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/exporter.html#VocInstanceSegmentationExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.VocInstanceSegmentationExporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter" title="datumaro.plugins.data_formats.voc.exporter.VocExporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocExporter</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.VocLayoutExporter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.exporter.</span></span><span class="sig-name descname"><span class="pre">VocLayoutExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/exporter.html#VocLayoutExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.VocLayoutExporter" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter" title="datumaro.plugins.data_formats.voc.exporter.VocExporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocExporter</span></code></a></p>
@@ -699,12 +744,6 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.VocActionExporter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.exporter.</span></span><span class="sig-name descname"><span class="pre">VocActionExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/exporter.html#VocActionExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.VocActionExporter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter" title="datumaro.plugins.data_formats.voc.exporter.VocExporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocExporter</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.exporter.</span></span><span class="sig-name descname"><span class="pre">VocSegmentationExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/exporter.html#VocSegmentationExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter" title="datumaro.plugins.data_formats.voc.exporter.VocExporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocExporter</span></code></a></p>
 </dd></dl>
 
@@ -762,6 +801,60 @@
      <code class="docutils literal notranslate">
       <span class="pre">
        LabelmapType.voc
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_classification">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       LabelmapType.voc_classification
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_detection">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       LabelmapType.voc_detection
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_segmentation">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       LabelmapType.voc_segmentation
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_instance_segmentation">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       LabelmapType.voc_instance_segmentation
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_layout">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       LabelmapType.voc_layout
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.LabelmapType.voc_action">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       LabelmapType.voc_action
       </span>
      </code>
     </a>
@@ -942,6 +1035,24 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     VocSegmentationExporter
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.VocInstanceSegmentationExporter">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     VocInstanceSegmentationExporter
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.VocLayoutExporter">
    <code class="docutils literal notranslate">
     <span class="pre">
@@ -955,15 +1066,6 @@
    <code class="docutils literal notranslate">
     <span class="pre">
      VocActionExporter
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     VocSegmentationExporter
     </span>
    </code>
   </a>

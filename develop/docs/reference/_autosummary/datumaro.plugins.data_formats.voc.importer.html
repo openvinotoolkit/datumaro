@@ -569,10 +569,13 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocImporter" title="datumaro.plugins.data_formats.voc.importer.VocImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocLayoutImporter" title="datumaro.plugins.data_formats.voc.importer.VocLayoutImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocLayoutImporter</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocInstanceSegmentationImporter" title="datumaro.plugins.data_formats.voc.importer.VocInstanceSegmentationImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocInstanceSegmentationImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocSegmentationImporter" title="datumaro.plugins.data_formats.voc.importer.VocSegmentationImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocSegmentationImporter</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocLayoutImporter" title="datumaro.plugins.data_formats.voc.importer.VocLayoutImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocLayoutImporter</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocSegmentationImporter" title="datumaro.plugins.data_formats.voc.importer.VocSegmentationImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocSegmentationImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -580,47 +583,43 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.importer.VocImporter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.importer.</span></span><span class="sig-name descname"><span class="pre">VocImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/importer.html#VocImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.importer.VocImporter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Importer</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.importer.VocImporter.detect">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionContext" title="datumaro.components.format_detection.FormatDetectionContext"><span class="pre">FormatDetectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/importer.html#VocImporter.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.importer.VocImporter.detect" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.importer.VocImporter.find_sources">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/importer.html#VocImporter.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.importer.VocImporter.find_sources" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocImporter</span></code></p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.importer.VocClassificationImporter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.importer.</span></span><span class="sig-name descname"><span class="pre">VocClassificationImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/importer.html#VocClassificationImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.importer.VocClassificationImporter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocImporter" title="datumaro.plugins.data_formats.voc.importer.VocImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocImporter</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocImporter</span></code></p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.importer.VocDetectionImporter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.importer.</span></span><span class="sig-name descname"><span class="pre">VocDetectionImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/importer.html#VocDetectionImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.importer.VocDetectionImporter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocImporter" title="datumaro.plugins.data_formats.voc.importer.VocImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocImporter</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocImporter</span></code></p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.importer.VocSegmentationImporter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.importer.</span></span><span class="sig-name descname"><span class="pre">VocSegmentationImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/importer.html#VocSegmentationImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.importer.VocSegmentationImporter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocImporter" title="datumaro.plugins.data_formats.voc.importer.VocImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocImporter</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocImporter</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.importer.VocInstanceSegmentationImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.importer.</span></span><span class="sig-name descname"><span class="pre">VocInstanceSegmentationImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/importer.html#VocInstanceSegmentationImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.importer.VocInstanceSegmentationImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocImporter</span></code></p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.importer.VocLayoutImporter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.importer.</span></span><span class="sig-name descname"><span class="pre">VocLayoutImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/importer.html#VocLayoutImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.importer.VocLayoutImporter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocImporter" title="datumaro.plugins.data_formats.voc.importer.VocImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocImporter</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocImporter</span></code></p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.importer.VocActionImporter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.importer.</span></span><span class="sig-name descname"><span class="pre">VocActionImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/importer.html#VocActionImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.importer.VocActionImporter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.importer.VocImporter" title="datumaro.plugins.data_formats.voc.importer.VocImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocImporter</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_VocImporter</span></code></p>
 </dd></dl>
 
 </section>
@@ -671,26 +670,6 @@
     </span>
    </code>
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.importer.VocImporter.detect">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       VocImporter.detect()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.importer.VocImporter.find_sources">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       VocImporter.find_sources()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.importer.VocClassificationImporter">
@@ -715,6 +694,15 @@
    <code class="docutils literal notranslate">
     <span class="pre">
      VocSegmentationImporter
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.importer.VocInstanceSegmentationImporter">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     VocInstanceSegmentationImporter
     </span>
    </code>
   </a>

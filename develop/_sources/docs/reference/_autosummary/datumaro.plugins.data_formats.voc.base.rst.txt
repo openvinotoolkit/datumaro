@@ -18,8 +18,10 @@ datumaro.plugins.data\_formats.voc.base
    .. autosummary::
    
       VocActionBase
+      VocBase
       VocClassificationBase
       VocDetectionBase
+      VocInstanceSegmentationBase
       VocLayoutBase
       VocSegmentationBase
    

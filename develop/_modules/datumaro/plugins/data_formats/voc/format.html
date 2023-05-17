@@ -303,11 +303,13 @@
 
 
 <div class="viewcode-block" id="VocTask"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocTask">[docs]</a><span class="k">class</span> <span class="nc">VocTask</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">classification</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
-    <span class="n">detection</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
-    <span class="n">segmentation</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
-    <span class="n">action_classification</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
-    <span class="n">person_layout</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+    <span class="n">voc</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_classification</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_detection</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_segmentation</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_instance_segmentation</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_action</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_layout</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="VocLabel"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocLabel">[docs]</a><span class="k">class</span> <span class="nc">VocLabel</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -395,11 +397,13 @@
     <span class="n">LABELMAP_FILE</span> <span class="o">=</span> <span class="s2">&quot;labelmap.txt&quot;</span>
 
     <span class="n">TASK_DIR</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">VocTask</span><span class="o">.</span><span class="n">classification</span><span class="p">:</span> <span class="s2">&quot;Main&quot;</span><span class="p">,</span>
-        <span class="n">VocTask</span><span class="o">.</span><span class="n">detection</span><span class="p">:</span> <span class="s2">&quot;Main&quot;</span><span class="p">,</span>
-        <span class="n">VocTask</span><span class="o">.</span><span class="n">segmentation</span><span class="p">:</span> <span class="s2">&quot;Segmentation&quot;</span><span class="p">,</span>
-        <span class="n">VocTask</span><span class="o">.</span><span class="n">action_classification</span><span class="p">:</span> <span class="s2">&quot;Action&quot;</span><span class="p">,</span>
-        <span class="n">VocTask</span><span class="o">.</span><span class="n">person_layout</span><span class="p">:</span> <span class="s2">&quot;Layout&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">:</span> <span class="s2">&quot;Main&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_classification</span><span class="p">:</span> <span class="s2">&quot;Main&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_detection</span><span class="p">:</span> <span class="s2">&quot;Main&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_segmentation</span><span class="p">:</span> <span class="s2">&quot;Segmentation&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_instance_segmentation</span><span class="p">:</span> <span class="s2">&quot;Segmentation&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_action</span><span class="p">:</span> <span class="s2">&quot;Action&quot;</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">:</span> <span class="s2">&quot;Layout&quot;</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
@@ -410,11 +414,47 @@
 <span class="c1"># TODO: refactor, make type annotations conform with actual usage</span>
 
 
-<div class="viewcode-block" id="make_voc_label_map"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.make_voc_label_map">[docs]</a><span class="k">def</span> <span class="nf">make_voc_label_map</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">LabelMapConfig</span><span class="p">:</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">VocLabel</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">l</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-    <span class="n">label_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">VocColormap</span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">value</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[]])</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">)</span>
-    <span class="n">label_map</span><span class="p">[</span><span class="n">VocLabel</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">VocBodyPart</span><span class="p">]</span>
-    <span class="n">label_map</span><span class="p">[</span><span class="n">VocLabel</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">VocAction</span><span class="p">]</span>
+<div class="viewcode-block" id="make_voc_label_map"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.make_voc_label_map">[docs]</a><span class="k">def</span> <span class="nf">make_voc_label_map</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">VocTask</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabelMapConfig</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">task</span> <span class="o">==</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_action</span><span class="p">:</span>
+        <span class="n">label_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">VocLabel</span><span class="o">.</span><span class="n">background</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="n">VocColormap</span><span class="p">[</span><span class="n">VocLabel</span><span class="o">.</span><span class="n">background</span><span class="o">.</span><span class="n">value</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[]],</span>
+                <span class="n">VocLabel</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">VocColormap</span><span class="p">[</span><span class="n">VocLabel</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">value</span><span class="p">],</span>
+                    <span class="p">[],</span>
+                    <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">VocAction</span><span class="p">],</span>
+                <span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">task</span> <span class="o">==</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">:</span>
+        <span class="n">label_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">VocLabel</span><span class="o">.</span><span class="n">background</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="n">VocColormap</span><span class="p">[</span><span class="n">VocLabel</span><span class="o">.</span><span class="n">background</span><span class="o">.</span><span class="n">value</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[]],</span>
+                <span class="n">VocLabel</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">VocColormap</span><span class="p">[</span><span class="n">VocLabel</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">value</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">VocBodyPart</span><span class="p">],</span>
+                    <span class="p">[],</span>
+                <span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">task</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_classification</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_detection</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_segmentation</span><span class="p">,</span>
+        <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_instance_segmentation</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">VocLabel</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">l</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">label_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">VocColormap</span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">value</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[]])</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">VocLabel</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">l</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">label_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">VocColormap</span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">value</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[]])</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span>
+        <span class="p">)</span>
+        <span class="n">label_map</span><span class="p">[</span><span class="n">VocLabel</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">VocBodyPart</span><span class="p">]</span>
+        <span class="n">label_map</span><span class="p">[</span><span class="n">VocLabel</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">VocAction</span><span class="p">]</span>
+
     <span class="k">return</span> <span class="n">label_map</span></div>
 
 
@@ -556,9 +596,11 @@
     <span class="n">dump_json_file</span><span class="p">(</span><span class="n">get_meta_file</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">dataset_meta</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="make_voc_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.make_voc_categories">[docs]</a><span class="k">def</span> <span class="nf">make_voc_categories</span><span class="p">(</span><span class="n">label_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LabelMapConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoriesInfo</span><span class="p">:</span>
+<div class="viewcode-block" id="make_voc_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.make_voc_categories">[docs]</a><span class="k">def</span> <span class="nf">make_voc_categories</span><span class="p">(</span>
+    <span class="n">label_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LabelMapConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">VocTask</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoriesInfo</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">label_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">label_map</span> <span class="o">=</span> <span class="n">make_voc_label_map</span><span class="p">()</span>
+        <span class="n">label_map</span> <span class="o">=</span> <span class="n">make_voc_label_map</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
     <span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -567,9 +609,17 @@
 
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="n">desc</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">values</span><span class="p">()))):</span>
-        <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="p">):</span>
+            <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+
     <span class="n">categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">label_categories</span>
+
+    <span class="k">if</span> <span class="n">task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_segmentation</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_instance_segmentation</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">categories</span>
 
     <span class="n">has_colors</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">label_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">has_colors</span><span class="p">:</span>  <span class="c1"># generate new colors</span>

@@ -21,6 +21,7 @@ datumaro.plugins.data\_formats.voc.importer
       VocClassificationImporter
       VocDetectionImporter
       VocImporter
+      VocInstanceSegmentationImporter
       VocLayoutImporter
       VocSegmentationImporter
    

@@ -304,7 +304,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">ItemStatus</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">InvalidAnnotationError</span><span class="p">,</span> <span class="n">MediaTypeError</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetExportError</span><span class="p">,</span> <span class="n">InvalidAnnotationError</span><span class="p">,</span> <span class="n">MediaTypeError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.exporter</span> <span class="kn">import</span> <span class="n">Exporter</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">find</span><span class="p">,</span> <span class="n">str_to_bool</span>
@@ -351,6 +351,12 @@
 
 <div class="viewcode-block" id="LabelmapType"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.LabelmapType">[docs]</a><span class="k">class</span> <span class="nc">LabelmapType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">voc</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_classification</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_detection</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_segmentation</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_instance_segmentation</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_layout</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">voc_action</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">source</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
 
@@ -368,7 +374,7 @@
     <span class="n">BUILTIN_ATTRS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;difficult&quot;</span><span class="p">,</span> <span class="s2">&quot;pose&quot;</span><span class="p">,</span> <span class="s2">&quot;truncated&quot;</span><span class="p">,</span> <span class="s2">&quot;occluded&quot;</span><span class="p">}</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_split_tasks_string</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_split_task_string</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">VocTask</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
 
     <span class="nd">@staticmethod</span>
@@ -411,10 +417,11 @@
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Write subset lists even if they are empty &quot;</span> <span class="s2">&quot;(default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;--tasks&quot;</span><span class="p">,</span>
-            <span class="nb">type</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_split_tasks_string</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;VOC task filter, comma-separated list of {</span><span class="si">%s</span><span class="s2">} &quot;</span>
-            <span class="s2">&quot;(default: all)&quot;</span> <span class="o">%</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">VocTask</span><span class="p">),</span>
+            <span class="s2">&quot;--task&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_split_task_string</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;VOC task filter, one of list {</span><span class="si">%s</span><span class="s2">} &quot;</span>
+            <span class="s2">&quot;(default: voc)&quot;</span> <span class="o">%</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">VocTask</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">parser</span></div>
@@ -423,7 +430,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">extractor</span><span class="p">,</span>
         <span class="n">save_dir</span><span class="p">,</span>
-        <span class="n">tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">apply_colormap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">label_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">allow_attributes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -432,14 +439,13 @@
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">extractor</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="n">tasks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="p">(</span><span class="n">VocTask</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">set</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">tasks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">VocTask</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">VocTask</span><span class="p">):</span>
-            <span class="n">tasks</span> <span class="o">=</span> <span class="p">{</span><span class="n">tasks</span><span class="p">}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">tasks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">t</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">VocTask</span> <span class="k">else</span> <span class="n">VocTask</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">=</span> <span class="n">tasks</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span> <span class="k">if</span> <span class="n">task</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">task</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">VocTask</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">DatasetExportError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The task must be an instance of </span><span class="si">{</span><span class="n">VocTask</span><span class="si">}</span><span class="s2"> but </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2"> is given.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">=</span> <span class="n">task</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_apply_colormap</span> <span class="o">=</span> <span class="n">apply_colormap</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_allow_attributes</span> <span class="o">=</span> <span class="n">allow_attributes</span>
@@ -463,10 +469,10 @@
 <div class="viewcode-block" id="VocExporter.make_dirs"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocExporter.make_dirs">[docs]</a>    <span class="k">def</span> <span class="nf">make_dirs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">save_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span>
         <span class="n">subsets_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">SUBSETS_DIR</span><span class="p">)</span>
-        <span class="n">cls_subsets_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subsets_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">TASK_DIR</span><span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">classification</span><span class="p">])</span>
-        <span class="n">action_subsets_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subsets_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">TASK_DIR</span><span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">action_classification</span><span class="p">])</span>
-        <span class="n">layout_subsets_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subsets_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">TASK_DIR</span><span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">person_layout</span><span class="p">])</span>
-        <span class="n">segm_subsets_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subsets_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">TASK_DIR</span><span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">segmentation</span><span class="p">])</span>
+        <span class="n">cls_subsets_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subsets_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">TASK_DIR</span><span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc_classification</span><span class="p">])</span>
+        <span class="n">action_subsets_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subsets_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">TASK_DIR</span><span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc_action</span><span class="p">])</span>
+        <span class="n">layout_subsets_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subsets_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">TASK_DIR</span><span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">])</span>
+        <span class="n">segm_subsets_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subsets_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">TASK_DIR</span><span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc_segmentation</span><span class="p">])</span>
         <span class="n">ann_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">)</span>
         <span class="n">img_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)</span>
         <span class="n">segm_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">SEGMENTATION_DIR</span><span class="p">)</span>
@@ -515,20 +521,26 @@
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="o">.</span><span class="n">error_policy</span><span class="o">.</span><span class="n">report_item_error</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">item_id</span><span class="o">=</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">))</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">&amp;</span> <span class="p">{</span>
-                <span class="n">VocTask</span><span class="o">.</span><span class="n">classification</span><span class="p">,</span>
-                <span class="n">VocTask</span><span class="o">.</span><span class="n">detection</span><span class="p">,</span>
-                <span class="n">VocTask</span><span class="o">.</span><span class="n">action_classification</span><span class="p">,</span>
-                <span class="n">VocTask</span><span class="o">.</span><span class="n">person_layout</span><span class="p">,</span>
-            <span class="p">}:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_classification</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_detection</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_action</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_instance_segmentation</span><span class="p">,</span>
+            <span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">save_clsdet_lists</span><span class="p">(</span><span class="n">subset_name</span><span class="p">,</span> <span class="n">lists</span><span class="o">.</span><span class="n">clsdet_list</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">&amp;</span> <span class="p">{</span><span class="n">VocTask</span><span class="o">.</span><span class="n">classification</span><span class="p">}:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_classification</span><span class="p">]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">save_class_lists</span><span class="p">(</span><span class="n">subset_name</span><span class="p">,</span> <span class="n">lists</span><span class="o">.</span><span class="n">class_lists</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">&amp;</span> <span class="p">{</span><span class="n">VocTask</span><span class="o">.</span><span class="n">action_classification</span><span class="p">}:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_action</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">save_action_lists</span><span class="p">(</span><span class="n">subset_name</span><span class="p">,</span> <span class="n">lists</span><span class="o">.</span><span class="n">action_list</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">&amp;</span> <span class="p">{</span><span class="n">VocTask</span><span class="o">.</span><span class="n">person_layout</span><span class="p">}:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">save_layout_lists</span><span class="p">(</span><span class="n">subset_name</span><span class="p">,</span> <span class="n">lists</span><span class="o">.</span><span class="n">layout_list</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">&amp;</span> <span class="p">{</span><span class="n">VocTask</span><span class="o">.</span><span class="n">segmentation</span><span class="p">}:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_segmentation</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_instance_segmentation</span><span class="p">,</span>
+            <span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">save_segm_lists</span><span class="p">(</span><span class="n">subset_name</span><span class="p">,</span> <span class="n">lists</span><span class="o">.</span><span class="n">segm_list</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_export_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lists</span><span class="p">:</span> <span class="n">_SubsetLists</span><span class="p">):</span>
@@ -543,7 +555,13 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">Mask</span><span class="p">):</span>
                 <span class="n">masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">&amp;</span> <span class="p">{</span><span class="n">VocTask</span><span class="o">.</span><span class="n">detection</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">person_layout</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">action_classification</span><span class="p">}:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span>
+            <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_detection</span><span class="p">,</span>
+            <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_instance_segmentation</span><span class="p">,</span>
+            <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">,</span>
+            <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_action</span><span class="p">,</span>
+        <span class="p">]:</span>
             <span class="n">root_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;annotation&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
                 <span class="n">folder</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">[:</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)]</span>
@@ -577,10 +595,10 @@
             <span class="n">layout_bboxes</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">bbox</span> <span class="ow">in</span> <span class="n">bboxes</span><span class="p">:</span>
                 <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span><span class="n">bbox</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_part</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
-                    <span class="n">layout_bboxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_label</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_label</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
                     <span class="n">main_bboxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_part</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
+                    <span class="n">layout_bboxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">new_obj_id</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">main_bboxes</span><span class="p">):</span>
                 <span class="n">attr</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">attributes</span>
@@ -607,14 +625,16 @@
                 <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">_write_xml_bbox</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">obj_elem</span><span class="p">)</span>
 
-                <span class="k">for</span> <span class="n">part_bbox</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span>
-                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">obj</span><span class="o">.</span><span class="n">group</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">group</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="n">layout_bboxes</span>
-                <span class="p">):</span>
-                    <span class="n">part_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">obj_elem</span><span class="p">,</span> <span class="s2">&quot;part&quot;</span><span class="p">)</span>
-                    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">part_elem</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span><span class="n">part_bbox</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
-                    <span class="n">_write_xml_bbox</span><span class="p">(</span><span class="n">part_bbox</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(),</span> <span class="n">part_elem</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">part_bbox</span> <span class="ow">in</span> <span class="n">layout_bboxes</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">part_bbox</span><span class="o">.</span><span class="n">group</span> <span class="o">!=</span> <span class="n">obj</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
+                            <span class="k">continue</span>
 
-                    <span class="n">objects_with_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_obj_id</span><span class="p">)</span>
+                        <span class="n">part_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">obj_elem</span><span class="p">,</span> <span class="s2">&quot;part&quot;</span><span class="p">)</span>
+                        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">part_elem</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span><span class="n">part_bbox</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+                        <span class="n">_write_xml_bbox</span><span class="p">(</span><span class="n">part_bbox</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(),</span> <span class="n">part_elem</span><span class="p">)</span>
+
+                        <span class="n">objects_with_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_obj_id</span><span class="p">)</span>
 
                 <span class="n">label_actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_actions</span><span class="p">(</span><span class="n">obj_label</span><span class="p">)</span>
                 <span class="n">actions_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;actions&quot;</span><span class="p">)</span>
@@ -628,6 +648,7 @@
                         <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">actions_elem</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">present</span>
 
                     <span class="n">objects_with_actions</span><span class="p">[</span><span class="n">new_obj_id</span><span class="p">][</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">present</span>
+
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">actions_elem</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">obj_elem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actions_elem</span><span class="p">)</span>
 
@@ -645,11 +666,6 @@
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attrs_elem</span><span class="p">):</span>
                         <span class="n">obj_elem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attrs_elem</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">&amp;</span> <span class="p">{</span>
-                <span class="n">VocTask</span><span class="o">.</span><span class="n">detection</span><span class="p">,</span>
-                <span class="n">VocTask</span><span class="o">.</span><span class="n">person_layout</span><span class="p">,</span>
-                <span class="n">VocTask</span><span class="o">.</span><span class="n">action_classification</span><span class="p">,</span>
-            <span class="p">}:</span>
                 <span class="n">ann_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ann_dir</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="s2">&quot;.xml&quot;</span><span class="p">)</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">ann_path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ann_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -657,10 +673,10 @@
 
             <span class="n">lists</span><span class="o">.</span><span class="n">clsdet_list</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
-            <span class="k">if</span> <span class="n">objects_with_parts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">]</span> <span class="ow">and</span> <span class="n">objects_with_parts</span><span class="p">:</span>
                 <span class="n">lists</span><span class="o">.</span><span class="n">layout_list</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">objects_with_parts</span>
 
-            <span class="k">if</span> <span class="n">objects_with_actions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_action</span><span class="p">]</span> <span class="ow">and</span> <span class="n">objects_with_actions</span><span class="p">:</span>
                 <span class="n">lists</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">objects_with_actions</span>
 
         <span class="k">for</span> <span class="n">label_ann</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
@@ -673,7 +689,10 @@
 
             <span class="n">lists</span><span class="o">.</span><span class="n">clsdet_list</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">masks</span> <span class="ow">and</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">segmentation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_segmentation</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_instance_segmentation</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="n">masks</span>
+        <span class="p">):</span>
             <span class="n">compiled_mask</span> <span class="o">=</span> <span class="n">CompiledMask</span><span class="o">.</span><span class="n">from_instance_masks</span><span class="p">(</span>
                 <span class="n">masks</span><span class="p">,</span> <span class="n">instance_labels</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_label_id_mapping</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">]</span>
             <span class="p">)</span>
@@ -801,6 +820,7 @@
 
         <span class="n">ann_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cls_subsets_dir</span><span class="p">,</span> <span class="n">subset_name</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">True</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">clsdet_list</span><span class="p">}</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_patch</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">ann_file</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_filtered_lines</span><span class="p">(</span><span class="n">ann_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_patch</span><span class="p">,</span> <span class="n">subset_name</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
 
@@ -871,9 +891,11 @@
             <span class="n">write_label_map</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_map</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_load_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_map_source</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">label_map_source</span> <span class="o">==</span> <span class="n">LabelmapType</span><span class="o">.</span><span class="n">voc</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-            <span class="c1"># use the default VOC colormap</span>
-            <span class="n">label_map</span> <span class="o">=</span> <span class="n">make_voc_label_map</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">label_map_source</span> <span class="ow">in</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">LabelmapType</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="n">label_map_source</span> <span class="o">!=</span> <span class="n">LabelmapType</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">):</span>
+            <span class="n">label_map</span> <span class="o">=</span> <span class="n">make_voc_label_map</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_task</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="p">(</span>
             <span class="n">label_map_source</span> <span class="o">==</span> <span class="n">LabelmapType</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">name</span>
@@ -921,13 +943,21 @@
                 <span class="n">label_map</span><span class="p">[</span><span class="n">bg_label</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">color</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]]</span>
             <span class="n">label_map</span><span class="o">.</span><span class="n">move_to_end</span><span class="p">(</span><span class="n">bg_label</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="n">make_voc_categories</span><span class="p">(</span><span class="n">label_map</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="n">make_voc_categories</span><span class="p">(</span><span class="n">label_map</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_task</span><span class="p">)</span>
 
         <span class="c1"># Update colors with assigned values</span>
-        <span class="n">colormap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">colormap</span>
-        <span class="k">for</span> <span class="n">label_id</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">colormap</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">label_desc</span> <span class="o">=</span> <span class="n">label_map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-            <span class="n">label_desc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="k">if</span> <span class="n">label_map_source</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="n">LabelmapType</span><span class="o">.</span><span class="n">voc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">LabelmapType</span><span class="o">.</span><span class="n">voc_segmentation</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">LabelmapType</span><span class="o">.</span><span class="n">voc_instance_segmentation</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="n">colormap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">colormap</span>
+            <span class="k">for</span> <span class="n">label_id</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">colormap</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">label_id</span><span class="p">:</span>
+                    <span class="n">label_desc</span> <span class="o">=</span> <span class="n">label_map</span><span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+                    <span class="p">]</span>
+                    <span class="n">label_desc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_label_map</span> <span class="o">=</span> <span class="n">label_map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_label_id_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_label_id_map</span><span class="p">()</span>
@@ -957,7 +987,7 @@
         <span class="p">)</span>
 
         <span class="n">void_labels</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">src_label</span> <span class="k">for</span> <span class="n">src_id</span><span class="p">,</span> <span class="n">src_label</span> <span class="ow">in</span> <span class="n">src_labels</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">src_label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst_labels</span>
+            <span class="n">src_label</span> <span class="k">for</span> <span class="n">src_label</span> <span class="ow">in</span> <span class="n">src_labels</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">src_label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst_labels</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="n">void_labels</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -1020,11 +1050,13 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">to_remove</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="k">if</span> <span class="n">conv</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">&amp;</span> <span class="p">{</span>
-                <span class="n">VocTask</span><span class="o">.</span><span class="n">detection</span><span class="p">,</span>
-                <span class="n">VocTask</span><span class="o">.</span><span class="n">action_classification</span><span class="p">,</span>
-                <span class="n">VocTask</span><span class="o">.</span><span class="n">person_layout</span><span class="p">,</span>
-            <span class="p">}:</span>
+            <span class="k">if</span> <span class="n">conv</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_detection</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_instance_segmentation</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_action</span><span class="p">,</span>
+                <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">,</span>
+            <span class="p">]:</span>
                 <span class="n">ann_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">conv</span><span class="o">.</span><span class="n">_ann_dir</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="s2">&quot;.xml&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">ann_path</span><span class="p">):</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ann_path</span><span class="p">)</span>
@@ -1045,31 +1077,37 @@
 
 <div class="viewcode-block" id="VocClassificationExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocClassificationExporter">[docs]</a><span class="k">class</span> <span class="nc">VocClassificationExporter</span><span class="p">(</span><span class="n">VocExporter</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">classification</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_classification</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VocDetectionExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocDetectionExporter">[docs]</a><span class="k">class</span> <span class="nc">VocDetectionExporter</span><span class="p">(</span><span class="n">VocExporter</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">detection</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="VocLayoutExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocLayoutExporter">[docs]</a><span class="k">class</span> <span class="nc">VocLayoutExporter</span><span class="p">(</span><span class="n">VocExporter</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">person_layout</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="VocActionExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocActionExporter">[docs]</a><span class="k">class</span> <span class="nc">VocActionExporter</span><span class="p">(</span><span class="n">VocExporter</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">action_classification</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_detection</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VocSegmentationExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocSegmentationExporter">[docs]</a><span class="k">class</span> <span class="nc">VocSegmentationExporter</span><span class="p">(</span><span class="n">VocExporter</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">segmentation</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_segmentation</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VocInstanceSegmentationExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocInstanceSegmentationExporter">[docs]</a><span class="k">class</span> <span class="nc">VocInstanceSegmentationExporter</span><span class="p">(</span><span class="n">VocExporter</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_instance_segmentation</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VocLayoutExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocLayoutExporter">[docs]</a><span class="k">class</span> <span class="nc">VocLayoutExporter</span><span class="p">(</span><span class="n">VocExporter</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VocActionExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocActionExporter">[docs]</a><span class="k">class</span> <span class="nc">VocActionExporter</span><span class="p">(</span><span class="n">VocExporter</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_action</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 </pre></div>
 
