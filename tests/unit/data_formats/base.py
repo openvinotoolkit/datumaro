@@ -20,9 +20,15 @@ class TestDataFormatBase:
     EXPORTER: Exporter
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect(self, fxt_dataset_dir: str):
+    def test_can_detect(self, fxt_dataset_dir: str, importer: Optional[Importer] = None):
+        if importer is None:
+            importer = getattr(self, "IMPORTER", None)
+
+        if importer is None:
+            pytest.skip(reason="importer is None.")
+
         detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(fxt_dataset_dir)
-        assert [self.IMPORTER.NAME] == detected_formats
+        assert [importer.NAME] == detected_formats
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(
@@ -31,9 +37,17 @@ class TestDataFormatBase:
         fxt_expected_dataset: Dataset,
         fxt_import_kwargs: Dict[str, Any],
         request: pytest.FixtureRequest,
+        importer: Optional[Importer] = None,
     ):
+        if importer is None:
+            importer = getattr(self, "IMPORTER", None)
+
+        if importer is None:
+            pytest.skip(reason="importer is None.")
+
         helper_tc = request.getfixturevalue("helper_tc")
-        dataset = Dataset.import_from(fxt_dataset_dir, self.IMPORTER.NAME, **fxt_import_kwargs)
+        dataset = Dataset.import_from(fxt_dataset_dir, importer.NAME, **fxt_import_kwargs)
+
         compare_datasets(helper_tc, fxt_expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -61,4 +75,5 @@ class TestDataFormatBase:
             fxt_expected_dataset, save_dir=test_dir, save_media=True, **fxt_export_kwargs
         )
         dataset = Dataset.import_from(test_dir, importer.NAME, **fxt_import_kwargs)
+
         compare_datasets(helper_tc, fxt_expected_dataset, dataset, require_media=True)

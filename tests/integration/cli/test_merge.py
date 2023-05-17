@@ -181,8 +181,8 @@ class IntersectMergeTest(TestCase):
                             3,
                             4,
                             label=2,
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "score": 0.5,
                                 "occluded": False,
@@ -196,8 +196,8 @@ class IntersectMergeTest(TestCase):
                             2,
                             3,
                             label=3,
-                            id=2,
-                            group=2,
+                            id=1,
+                            group=1,
                             attributes={
                                 "score": 0.5,
                                 "occluded": False,
@@ -294,8 +294,8 @@ class IntersectMergeTest(TestCase):
                             3,
                             4,
                             label=2,
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "score": 0.5,
                                 "occluded": False,
@@ -309,8 +309,8 @@ class IntersectMergeTest(TestCase):
                             2,
                             3,
                             label=3,
-                            id=2,
-                            group=2,
+                            id=1,
+                            group=1,
                             attributes={
                                 "score": 0.5,
                                 "occluded": False,
