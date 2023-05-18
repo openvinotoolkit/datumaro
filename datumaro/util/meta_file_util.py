@@ -6,6 +6,8 @@ import os
 import os.path as osp
 from collections import OrderedDict
 
+import numpy as np
+
 from datumaro.components.annotation import AnnotationType, HashKey
 from datumaro.util import dump_json_file, find, parse_json_file
 
@@ -31,8 +33,6 @@ def get_meta_file(path):
 
 def get_hashkey_file(path):
     hashkey_folder_path = osp.join(path, "hash_key_meta")
-    if not osp.exists(hashkey_folder_path):
-        os.makedirs(hashkey_folder_path)
     return osp.join(hashkey_folder_path, DATASET_HASHKEY_FILE)
 
 
@@ -109,6 +109,9 @@ def save_hashkey_file(path, item_list):
 
     if osp.isdir(path):
         meta_file = get_hashkey_file(path)
+    hashkey_folder_path = osp.join(path, "hash_key_meta")
+    if not osp.exists(hashkey_folder_path):
+        os.makedirs(hashkey_folder_path)
 
     hashkey_dict = parse_hashkey_file(path)
     if not hashkey_dict:
@@ -126,3 +129,18 @@ def save_hashkey_file(path, item_list):
     dataset_hashkey["hashkey"] = hashkey_dict
 
     dump_json_file(meta_file, dataset_hashkey, indent=True)
+
+
+def load_hash_key(path, dataset):
+    if not os.path.isdir(path) or not has_hashkey_file(path):
+        return dataset
+
+    hashkey_folder_path = osp.join(path, "hash_key_meta")
+    if not osp.exists(hashkey_folder_path):
+        os.makedirs(hashkey_folder_path)
+
+    hashkey_dict = parse_hashkey_file(path)
+    for item in dataset:
+        hash_key = hashkey_dict[item.subset + "/" + item.id]
+        item.annotations.append(HashKey(hash_key=np.asarray(hash_key, dtype=np.uint8)))
+    return dataset

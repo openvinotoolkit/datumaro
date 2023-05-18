@@ -1,3 +1,4 @@
+import os
 import os.path as osp
 from functools import partial
 from unittest import TestCase
@@ -10,11 +11,18 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.mots import MotsImporter, MotsPngExporter
+from datumaro.util import dump_json_file
+from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir, check_save_and_load, compare_datasets
+from tests.utils.test_utils import (
+    TestDir,
+    check_save_and_load,
+    compare_datasets,
+    compare_hashkey_meta,
+)
 
 DUMMY_DATASET_DIR = get_test_asset_path("mots_dataset")
 
@@ -229,13 +237,8 @@ class MotsPngExporterTest(TestCase):
 
 
 class MotsImporterTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect(self):
-        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertEqual([MotsImporter.NAME], detected_formats)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
+    @property
+    def test_dataset(self):
         target = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -267,6 +270,33 @@ class MotsImporterTest(TestCase):
             ],
             categories=["a", "b", "c", "d"],
         )
+        return target
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect(self):
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertEqual([MotsImporter.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import(self):
         parsed = Dataset.import_from(DUMMY_DATASET_DIR, "mots")
-        compare_datasets(self, expected=target, actual=parsed)
+        compare_datasets(self, expected=self.test_dataset, actual=parsed)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_load_hash_key(self):
+        hashkey_meta = {
+            "hashkey": {
+                "val/3": np.zeros((1, 64), dtype=np.uint8).tolist(),
+                "train/1": np.ones((1, 64), dtype=np.uint8).tolist(),
+                "train/2": np.ones((1, 64), dtype=np.uint8).tolist(),
+            }
+        }
+        with TestDir() as test_dir:
+            MotsPngExporter.convert(self.test_dataset, test_dir, save_media=True)
+
+            meta_file = get_hashkey_file(test_dir)
+            os.makedirs(osp.join(test_dir, "hash_key_meta"))
+            dump_json_file(meta_file, hashkey_meta, indent=True)
+
+            imported_dataset = Dataset.import_from(test_dir, "mots")
+            compare_hashkey_meta(self, hashkey_meta, imported_dataset)

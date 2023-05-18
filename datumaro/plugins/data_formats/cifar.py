@@ -203,7 +203,8 @@ class CifarImporter(Importer):
                     # Subset files have no extension in the format, and
                     # should not be the meta file.
                     file_filter=lambda p: not osp.splitext(osp.basename(p))[1]
-                    and osp.basename(p) != meta_file_name,
+                    and osp.basename(p) != meta_file_name
+                    and osp.basename(p) != "hash_key_meta",
                 )
 
             return sources

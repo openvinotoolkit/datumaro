@@ -1,3 +1,4 @@
+import os
 import os.path as osp
 from unittest import TestCase
 
@@ -9,11 +10,13 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.vgg_face2 import VggFace2Exporter, VggFace2Importer
+from datumaro.util import dump_json_file
+from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir, compare_datasets
+from tests.utils.test_utils import TestDir, compare_datasets, compare_hashkey_meta
 
 
 class VggFace2FormatTest(TestCase):
@@ -284,14 +287,9 @@ DUMMY_DATASET_DIR = get_test_asset_path("vgg_face2_dataset")
 
 
 class VggFace2ImporterTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect(self):
-        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertEqual([VggFace2Importer.NAME], detected_formats)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
-        expected_dataset = Dataset.from_iterable(
+    @property
+    def test_dataset(self):
+        dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id="n000001/0001_01",
@@ -338,10 +336,18 @@ class VggFace2ImporterTest(TestCase):
                 ),
             },
         )
+        return dataset
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect(self):
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertEqual([VggFace2Importer.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import(self):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "vgg_face2")
 
-        compare_datasets(self, expected_dataset, dataset)
+        compare_datasets(self, self.test_dataset, dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_specific_subset(self):
@@ -368,3 +374,23 @@ class VggFace2ImporterTest(TestCase):
         dataset = Dataset.import_from(specific_subset, "vgg_face2")
 
         compare_datasets(self, expected_dataset, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_load_hash_key(self):
+        hashkey_meta = {
+            "hashkey": {
+                "train/n000001/0001_01": np.ones((1, 64), dtype=np.uint8).tolist(),
+                "train/n000002/0001_01": np.ones((1, 64), dtype=np.uint8).tolist(),
+                "train/n000002/0002_01": np.ones((1, 64), dtype=np.uint8).tolist(),
+                "test/n000003/0003_01": np.zeros((1, 64), dtype=np.uint8).tolist(),
+            }
+        }
+        with TestDir() as test_dir:
+            VggFace2Exporter.convert(self.test_dataset, test_dir, save_media=True)
+
+            meta_file = get_hashkey_file(test_dir)
+            os.makedirs(osp.join(test_dir, "hash_key_meta"))
+            dump_json_file(meta_file, hashkey_meta, indent=True)
+
+            imported_dataset = Dataset.import_from(test_dir, "vgg_face2")
+            compare_hashkey_meta(self, hashkey_meta, imported_dataset)

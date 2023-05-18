@@ -19,7 +19,7 @@ from typing import Any, Collection, List, Optional, Union
 import pytest
 from typing_extensions import Literal
 
-from datumaro.components.annotation import AnnotationType
+from datumaro.components.annotation import AnnotationType, HashKey
 from datumaro.components.dataset import Dataset, IDataset
 from datumaro.components.media import Image, MultiframeImage, PointCloud
 from datumaro.util import filter_dict, find
@@ -409,6 +409,14 @@ def mock_tfds_data(example=None, subsets=("train",)):
 
         with unittest.mock.patch("tensorflow_datasets.core.DatasetBuilder.__init__", new_init):
             yield
+
+
+def compare_hashkey_meta(test, hashkey_meta, dataset):
+    hashkey_dict = hashkey_meta["hashkey"]
+    for item in dataset:
+        for annot in item.annotations:
+            if isinstance(annot, HashKey):
+                test.assertEqual(hashkey_dict[item.subset + "/" + item.id], annot.hash_key.tolist())
 
 
 class TestCaseHelper:

@@ -17,11 +17,13 @@ from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.cifar import CifarExporter, CifarImporter
+from datumaro.util import dump_json_file
+from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir, compare_datasets
+from tests.utils.test_utils import TestDir, compare_datasets, compare_hashkey_meta
 
 DUMMY_10_DATASET_DIR = get_test_asset_path("cifar10_dataset")
 DUMMY_100_DATASET_DIR = get_test_asset_path("cifar100_dataset")
@@ -421,3 +423,35 @@ class CifarImporterTest(TestCase):
     def test_can_detect_100(self):
         detected_formats = Environment().detect_dataset(DUMMY_100_DATASET_DIR)
         self.assertEqual(detected_formats, [CifarImporter.NAME])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_load_hash_key(self):
+        hashkey_meta = {
+            "hashkey": {
+                "train/image_3": np.zeros((1, 64), dtype=np.uint8).tolist(),
+                "test/image_2": np.ones((1, 64), dtype=np.uint8).tolist(),
+            }
+        }
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="image_2",
+                    subset="test",
+                    media=Image.from_numpy(data=np.ones((32, 32, 3))),
+                    annotations=[Label(0)],
+                ),
+                DatasetItem(
+                    id="image_3", subset="train", media=Image.from_numpy(data=np.ones((32, 32, 3)))
+                ),
+            ],
+            categories=["label_0", "label_1"],
+        )
+        with TestDir() as test_dir:
+            CifarExporter.convert(source_dataset, test_dir, save_media=True)
+
+            meta_file = get_hashkey_file(test_dir)
+            os.makedirs(osp.join(test_dir, "hash_key_meta"))
+            dump_json_file(meta_file, hashkey_meta, indent=True)
+
+            imported_dataset = Dataset.import_from(test_dir, "cifar")
+            compare_hashkey_meta(self, hashkey_meta, imported_dataset)

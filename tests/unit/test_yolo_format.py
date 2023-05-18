@@ -19,12 +19,19 @@ from datumaro.components.errors import (
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.yolo.base import YoloStrictBase
 from datumaro.plugins.data_formats.yolo.exporter import YoloExporter
+from datumaro.util import dump_json_file
 from datumaro.util.image import save_image
+from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir, compare_datasets, compare_datasets_strict
+from tests.utils.test_utils import (
+    TestDir,
+    compare_datasets,
+    compare_datasets_strict,
+    compare_hashkey_meta,
+)
 
 
 class YoloExportertTest(TestCase):
@@ -359,6 +366,60 @@ class YoloImporterTest(TestCase):
         parsed = pickle.loads(pickle.dumps(source))  # nosec
 
         compare_datasets_strict(self, source, parsed)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_load_hash_key(self):
+        hashkey_meta = {
+            "hashkey": {
+                "train/1": np.ones((1, 64), dtype=np.uint8).tolist(),
+                "train/2": np.ones((1, 64), dtype=np.uint8).tolist(),
+                "valid/3": np.ones((1, 64), dtype=np.uint8).tolist(),
+            }
+        }
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
+                    annotations=[
+                        Bbox(0, 2, 4, 2, label=2),
+                        Bbox(0, 1, 2, 3, label=4),
+                    ],
+                ),
+                DatasetItem(
+                    id=2,
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
+                    annotations=[
+                        Bbox(0, 2, 4, 2, label=2),
+                        Bbox(3, 3, 2, 3, label=4),
+                        Bbox(2, 1, 2, 3, label=4),
+                    ],
+                ),
+                DatasetItem(
+                    id=3,
+                    subset="valid",
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
+                    annotations=[
+                        Bbox(0, 1, 5, 2, label=2),
+                        Bbox(0, 2, 3, 2, label=5),
+                        Bbox(0, 2, 4, 2, label=6),
+                        Bbox(0, 7, 3, 2, label=7),
+                    ],
+                ),
+            ],
+            categories=["label_" + str(i) for i in range(10)],
+        )
+        with TestDir() as test_dir:
+            YoloExporter.convert(source_dataset, test_dir, save_media=True)
+
+            meta_file = get_hashkey_file(test_dir)
+            os.makedirs(osp.join(test_dir, "hash_key_meta"))
+            dump_json_file(meta_file, hashkey_meta, indent=True)
+
+            imported_dataset = Dataset.import_from(test_dir, "yolo")
+            compare_hashkey_meta(self, hashkey_meta, imported_dataset)
 
 
 class YoloStrictBaseTest(TestCase):

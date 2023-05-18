@@ -16,6 +16,7 @@ from datumaro.components.annotation import (
     Bbox,
     Caption,
     Ellipse,
+    HashKey,
     Label,
     LabelCategories,
     Mask,
@@ -50,6 +51,7 @@ from datumaro.plugins.data_formats.coco.exporter import (
 from datumaro.plugins.data_formats.coco.format import CocoPath
 from datumaro.plugins.data_formats.coco.importer import CocoImporter
 from datumaro.util import dump_json_file, parse_json_file
+from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
@@ -59,6 +61,7 @@ from tests.utils.test_utils import (
     check_save_and_load,
     compare_datasets,
     compare_datasets_strict,
+    compare_hashkey_meta,
 )
 
 DUMMY_DATASET_DIR = get_test_asset_path("coco_dataset")
@@ -1070,6 +1073,82 @@ class CocoImporterTest(TestCase):
                 osp.join(dataset_dir, "images"), osp.join(dataset_dir, "imgs")
             )
         )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_load_hash_key(self):
+        hashkey_meta = {
+            "hashkey": {
+                "train/a": np.zeros((1, 64), dtype=np.uint8).tolist(),
+                "val/b": np.ones((1, 64), dtype=np.uint8).tolist(),
+            }
+        }
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="a",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                    attributes={"id": 5},
+                    annotations=[
+                        Bbox(2, 2, 3, 1, label=1, group=1, id=1, attributes={"is_crowd": False})
+                    ],
+                ),
+                DatasetItem(
+                    id="b",
+                    subset="val",
+                    media=Image.from_numpy(data=np.ones((10, 5, 3))),
+                    attributes={"id": 40},
+                    annotations=[
+                        Polygon(
+                            [0, 0, 1, 0, 1, 2, 0, 2],
+                            label=0,
+                            id=1,
+                            group=1,
+                            attributes={"is_crowd": False, "x": 1, "y": "hello"},
+                        ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            1.0,
+                            2.0,
+                            id=1,
+                            attributes={"x": 1, "y": "hello", "is_crowd": False},
+                            group=1,
+                            label=0,
+                            z_order=0,
+                        ),
+                        Mask(
+                            np.array([[1, 1, 0, 0, 0]] * 10),
+                            label=1,
+                            id=2,
+                            group=2,
+                            attributes={"is_crowd": True},
+                        ),
+                        Bbox(
+                            0.0,
+                            0.0,
+                            1.0,
+                            9.0,
+                            id=2,
+                            attributes={"is_crowd": True},
+                            group=2,
+                            label=1,
+                            z_order=0,
+                        ),
+                    ],
+                ),
+            ],
+            categories=["a", "b", "c"],
+        )
+        with TestDir() as test_dir:
+            CocoExporter.convert(source_dataset, test_dir, save_media=True)
+
+            meta_file = get_hashkey_file(test_dir)
+            os.makedirs(osp.join(test_dir, "hash_key_meta"))
+            dump_json_file(meta_file, hashkey_meta, indent=True)
+
+            imported_dataset = Dataset.import_from(test_dir, "coco")
+            compare_hashkey_meta(self, hashkey_meta, imported_dataset)
 
 
 class CocoExtractorTests(TestCase):

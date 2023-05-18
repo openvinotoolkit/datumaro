@@ -51,6 +51,7 @@ from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
+from datumaro.util.meta_file_util import load_hash_key
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
@@ -1281,6 +1282,7 @@ class Dataset(IDataset):
         dataset._source_path = path
         dataset._format = format
 
+        dataset = load_hash_key(path, dataset)
         return dataset
 
     @staticmethod
