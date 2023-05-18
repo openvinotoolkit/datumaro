@@ -117,7 +117,14 @@ class LabelCategories(Categories):
     @classmethod
     def from_iterable(
         cls,
-        iterable: Iterable[Union[str, Tuple[str], Tuple[str, str], Tuple[str, str, List[str]],]],
+        iterable: Iterable[
+            Union[
+                str,
+                Tuple[str],
+                Tuple[str, str],
+                Tuple[str, str, List[str]],
+            ]
+        ],
     ) -> LabelCategories:
         """
         Creates a LabelCategories from iterable.
@@ -152,7 +159,10 @@ class LabelCategories(Categories):
         self._indices = indices
 
     def add(
-        self, name: str, parent: Optional[str] = None, attributes: Optional[Set[str]] = None,
+        self,
+        name: str,
+        parent: Optional[str] = None,
+        attributes: Optional[Set[str]] = None,
     ) -> int:
         assert name
         assert name not in self._indices, name
@@ -163,7 +173,10 @@ class LabelCategories(Categories):
         return index
 
     def remove(
-        self, name: str, parent: Optional[str] = None, attributes: Optional[Set[str]] = None,
+        self,
+        name: str,
+        parent: Optional[str] = None,
+        attributes: Optional[Set[str]] = None,
     ) -> int:
         assert name in self._indices
 
@@ -175,13 +188,22 @@ class LabelCategories(Categories):
             new_items.append(item)
 
         self.items = new_items
-        del self._indices[name]
+
+        indices = {}
+        for index, item in enumerate(self.items):
+            indices[item.name] = index
+        self._indices = indices
 
         index = len(self.items)
 
         return index
 
-    def add_label_group(self, name: str, labels: List[str], group_type: str,) -> int:
+    def add_label_group(
+        self,
+        name: str,
+        labels: List[str],
+        group_type: str,
+    ) -> int:
         assert name
 
         index = len(self.label_groups)
@@ -768,7 +790,11 @@ class PointsCategories(Categories):
 
     @classmethod
     def from_iterable(
-        cls, iterable: Union[Tuple[int, List[str]], Tuple[int, List[str], Set[Tuple[int, int]]],],
+        cls,
+        iterable: Union[
+            Tuple[int, List[str]],
+            Tuple[int, List[str], Set[Tuple[int, int]]],
+        ],
     ) -> PointsCategories:
         """
         Create PointsCategories from an iterable.

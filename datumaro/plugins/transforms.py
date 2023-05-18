@@ -1031,7 +1031,10 @@ class ResizeTransform(ItemTransform):
             if isinstance(ann, Bbox):
                 resized_annotations.append(
                     ann.wrap(
-                        x=ann.x * xscale, y=ann.y * yscale, w=ann.w * xscale, h=ann.h * yscale,
+                        x=ann.x * xscale,
+                        y=ann.y * yscale,
+                        w=ann.w * xscale,
+                        h=ann.h * yscale,
                     )
                 )
             elif isinstance(ann, (Polygon, Points, PolyLine)):
@@ -1118,9 +1121,11 @@ class RemoveAnnotations(ItemTransform):
     @staticmethod
     def _parse_id(s):
         full_id = s.split(":")
-        if len(full_id) != 2:
+        if len(full_id) != 2 or len(full_id) != 3:
             raise argparse.ArgumentTypeError(
-                None, message="Invalid id format of '%s'. " "Expected a 'name:subset' pair." % s
+                None,
+                message="Invalid id format of '%s'. "
+                "Expected 'name:subset:ann_id' or 'name:subset' pair." % s,
             )
         return full_id
 
@@ -1133,8 +1138,8 @@ class RemoveAnnotations(ItemTransform):
             type=cls._parse_id,
             action="append",
             help="Image id to clean from annotations. "
-            "Id is 'name:subset' pair. If not specified, removes "
-            "all annotations (repeatable)",
+            "Id is 'name:subset:(optional)ann_id' pair. If ann_id is not specified, "
+            "removes all annotations (repeatable) in the item 'name:subset'",
         )
         return parser
 
@@ -1249,7 +1254,9 @@ class RemoveAttributes(ItemTransform):
 
 class Corrector(Transform):
     def __init__(
-        self, extractor: IDataset, reports: Dict,
+        self,
+        extractor: IDataset,
+        reports: Dict,
     ):
         super().__init__(extractor)
         self._reports = reports["validation_reports"]
@@ -1267,12 +1274,11 @@ class Corrector(Transform):
 
     def _analyze_reports(self, report):
         for rep in report:
-            print(rep)
-            if rep["anomaly_type"] == "LabelDefinedButNotFound":
-                remove_label_name = self._parse_label_cat(rep["description"])
-                label_cat = self._extractor.categories()[AnnotationType.label]
-                if remove_label_name in [labels.name for labels in label_cat.items]:
-                    label_cat.remove(remove_label_name)
+            # if rep["anomaly_type"] == "LabelDefinedButNotFound":
+            #     remove_label_name = self._parse_label_cat(rep["description"])
+            #     label_cat = self._extractor.categories()[AnnotationType.label]
+            #     if remove_label_name in [labels.name for labels in label_cat.items]:
+            #         label_cat.remove(remove_label_name)
 
             if rep["anomaly_type"] in [
                 "MissingAnnotation",
