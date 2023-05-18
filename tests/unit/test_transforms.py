@@ -960,21 +960,39 @@ class TransformsTest(TestCase):
     def test_can_remove_annotations_in_dataset(self):
         expected = Dataset.from_iterable(
             [
-                DatasetItem(id="1", subset="test"),
-                DatasetItem(id="2", subset="test"),
+                DatasetItem(id="1", subset="train"),
+                DatasetItem(id="1", subset="test", annotations=[Label(1, id=1)]),
             ],
             categories=["a", "b"],
         )
 
         dataset = Dataset.from_iterable(
             [
-                DatasetItem(id="1", subset="test", annotations=[Label(0)]),
-                DatasetItem(id="2", subset="test", annotations=[Label(1)]),
+                DatasetItem(
+                    id="1",
+                    subset="train",
+                    annotations=[
+                        Label(0, id=0),
+                        Label(0, id=1),
+                        Label(1, id=2),
+                    ],
+                ),
+                DatasetItem(
+                    id="1",
+                    subset="test",
+                    annotations=[
+                        Label(0, id=0),
+                        Label(1, id=1),
+                        Label(1, id=2),
+                    ],
+                ),
             ],
             categories=["a", "b"],
         )
 
-        actual = transforms.RemoveAnnotations(dataset)
+        actual = transforms.RemoveAnnotations(
+            dataset, ids=[("1", "train"), ("1", "test", 0), ("1", "test", 2)]
+        )
 
         compare_datasets(self, expected, actual)
 

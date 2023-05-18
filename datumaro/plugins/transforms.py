@@ -1121,9 +1121,11 @@ class RemoveAnnotations(ItemTransform):
     @staticmethod
     def _parse_id(s):
         full_id = s.split(":")
-        if len(full_id) != 2:
+        if len(full_id) != 2 or len(full_id) != 3:
             raise argparse.ArgumentTypeError(
-                None, message="Invalid id format of '%s'. " "Expected a 'name:subset' pair." % s
+                None,
+                message="Invalid id format of '%s'. "
+                "Expected 'name:subset:ann_id' or 'name:subset' pair." % s,
             )
         return full_id
 
@@ -1136,18 +1138,37 @@ class RemoveAnnotations(ItemTransform):
             type=cls._parse_id,
             action="append",
             help="Image id to clean from annotations. "
-            "Id is 'name:subset' pair. If not specified, removes "
-            "all annotations (repeatable)",
+            "Id is 'name:subset:(optional)ann_id' pair. If ann_id is not specified, "
+            "removes all annotations (repeatable) in the item 'name:subset'",
         )
         return parser
 
-    def __init__(self, extractor: IDataset, *, ids: Optional[Iterable[Tuple[str, str]]] = None):
+    def __init__(self, extractor: IDataset, *, ids: Iterable[Tuple[str, str, Optional[int]]]):
         super().__init__(extractor)
-        self._ids = set(tuple(v) for v in (ids or []))
+
+        self._ids = {}
+        for v in ids:
+            key = tuple(v[:2])
+            val = v[2] if len(v) == 3 else None
+            if key in self._ids:
+                if val and self._ids[key]:
+                    self._ids[key].append(val)
+                else:
+                    self._ids[key] = None
+            else:
+                self._ids[key] = None if val is None else [val]
 
     def transform_item(self, item: DatasetItem):
-        if not self._ids or (item.id, item.subset) in self._ids:
-            return item.wrap(annotations=[])
+        if not self._ids:
+            return item
+
+        for item_id, ann_ids in self._ids.items():
+            if (item.id, item.subset) == item_id:
+                updated_anns = (
+                    [ann for ann in item.annotations if ann.id not in ann_ids] if ann_ids else []
+                )
+                return item.wrap(annotations=updated_anns)
+
         return item
 
 
