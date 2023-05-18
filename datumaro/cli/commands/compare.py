@@ -7,9 +7,9 @@ import logging as log
 import os
 import os.path as osp
 from enum import Enum, auto
-from datumaro.components.dataset import Dataset
+
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.components.operations import DistanceComparator, ExactComparator
+from datumaro.plugins.comparator import DistanceComparator, ExactComparator
 from datumaro.util import dump_json_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
@@ -200,10 +200,6 @@ def compare_command(args):
     except ProjectNotFoundError:
         if args.project_dir:
             raise
-
-    src_dataset = Dataset.import_from(args.first_target)
-    tgt_dataset = Dataset.import_from(args.second_target)
-    breakpoint()
 
     try:
         if not args.second_target:
