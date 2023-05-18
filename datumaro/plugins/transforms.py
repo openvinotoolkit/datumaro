@@ -35,28 +35,6 @@ from datumaro.components.annotation import (
     PolyLine,
     RleMask,
 )
-from datumaro.components.errors import (
-    AttributeDefinedButNotFound,
-    FarFromAttrMean,
-    FarFromLabelMean,
-    FewSamplesInAttribute,
-    FewSamplesInLabel,
-    ImbalancedAttribute,
-    ImbalancedDistInAttribute,
-    ImbalancedDistInLabel,
-    ImbalancedLabels,
-    InvalidValue,
-    LabelDefinedButNotFound,
-    MissingAnnotation,
-    MissingAttribute,
-    MissingLabelCategories,
-    MultiLabelAnnotations,
-    NegativeLength,
-    OnlyOneAttributeValue,
-    OnlyOneLabel,
-    UndefinedAttribute,
-    UndefinedLabel,
-)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.errors import DatumaroError
