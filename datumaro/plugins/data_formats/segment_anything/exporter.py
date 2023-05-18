@@ -23,7 +23,7 @@ def replace(json_data, key, value_new):
         json_data[key] = value_new
         return
     if value_origin != value_new:
-        raise DatumaroError(f"The value for '{key}' is not same for item {item.id}")
+        raise DatumaroError(f"The value for '{key}' is not same for item {value_new}")
 
 
 class SegmentAnythingExporter(Exporter):
@@ -46,8 +46,7 @@ class SegmentAnythingExporter(Exporter):
         subsets = self._extractor.subsets()
         pbars = self._ctx.progress_reporter.split(len(subsets))
 
-        _image_ids = {}
-        _image_id_max = 0
+        _image_ids = set()
 
         image_id = 0
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
@@ -57,13 +56,10 @@ class SegmentAnythingExporter(Exporter):
                     # make sure file_name is flat
                     file_name = self._make_image_filename(item).replace("/", "__")
                     if "id" in item.attributes:
-                        try:
-                            image_id = int(item.attributes["id"])
-                            while image_id in _image_ids:
-                                image_id += 1
-                        except ValueError as e:
-                            image_id = _image_id_max + 1
-                        _image_id_max = max(_image_id_max, image_id)
+                        image_id = int(item.attributes.get("id", image_id))
+                        while image_id in _image_ids:
+                            image_id += 1
+                        _image_ids.add(image_id)
 
                     height, width = item.media.size
                     json_data = {
@@ -110,12 +106,12 @@ class SegmentAnythingExporter(Exporter):
                             replace(
                                 annotation_data,
                                 "predicted_iou",
-                                annotation.attributes.get("predicted_iou", 0.),
+                                annotation.attributes.get("predicted_iou", 0.0),
                             )
                             replace(
                                 annotation_data,
                                 "stability_score",
-                                annotation.attributes.get("stability_score", 0.),
+                                annotation.attributes.get("stability_score", 0.0),
                             )
                             replace(
                                 annotation_data,
@@ -130,7 +126,10 @@ class SegmentAnythingExporter(Exporter):
 
                         if annotation_data["segmentation"] is NOTSET:
                             continue
-                        if annotation_data["bbox"] is NOTSET and annotation["segmentation"] is not NOTSET:
+                        if (
+                            annotation_data["bbox"] is NOTSET
+                            and annotation["segmentation"] is not NOTSET
+                        ):
                             annotation_data["bbox"] = (
                                 annotation_data["segmentation"].get_bbox().tolist()
                             )
@@ -140,7 +139,8 @@ class SegmentAnythingExporter(Exporter):
                         continue
 
                     dump_json_file(
-                        os.path.join(self._save_dir, osp.splitext(file_name)[0] + ".json"), json_data
+                        os.path.join(self._save_dir, osp.splitext(file_name)[0] + ".json"),
+                        json_data,
                     )
 
                     if self._save_media:

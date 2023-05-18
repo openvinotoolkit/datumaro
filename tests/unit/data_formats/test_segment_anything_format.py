@@ -13,14 +13,16 @@ from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
-from datumaro.plugins.data_formats.segment_anything import SegmentAnythingImporter, SegmentAnythingExporter
+from datumaro.plugins.data_formats.segment_anything import (
+    SegmentAnythingExporter,
+    SegmentAnythingImporter,
+)
 
 from ...requirements import Requirements, mark_requirement
 from .base import TestDataFormatBase
 
 from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import compare_datasets
-
 
 DATASET_DIR = get_test_asset_path("segment_anything_dataset")
 

@@ -12,7 +12,7 @@ from datumaro.errors import DatasetImportError
 
 
 class SegmentAnythingImporter(Importer):
-    _N_TEST_JSON = 10
+    _N_JSON_TO_TEST = 10
 
     @classmethod
     def detect(
@@ -44,7 +44,7 @@ class SegmentAnythingImporter(Importer):
                     )
                 ):
                     raise DatasetImportError
-            if ctr > cls._N_TEST_JSON:
+            if ctr > cls._N_JSON_TO_TEST:
                 break
 
     @classmethod

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from .base import SegmentAnythingBase
-from .importer import SegmentAnythingImporter
 from .exporter import SegmentAnythingExporter
+from .importer import SegmentAnythingImporter
 
 __all__ = ["SegmentAnythingBase", "SegmentAnythingImporter", "SegmentAnythingExporter"]
