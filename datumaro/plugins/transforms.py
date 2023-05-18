@@ -1053,10 +1053,7 @@ class ResizeTransform(ItemTransform):
             if isinstance(ann, Bbox):
                 resized_annotations.append(
                     ann.wrap(
-                        x=ann.x * xscale,
-                        y=ann.y * yscale,
-                        w=ann.w * xscale,
-                        h=ann.h * yscale,
+                        x=ann.x * xscale, y=ann.y * yscale, w=ann.w * xscale, h=ann.h * yscale,
                     )
                 )
             elif isinstance(ann, (Polygon, Points, PolyLine)):
@@ -1163,13 +1160,32 @@ class RemoveAnnotations(ItemTransform):
         )
         return parser
 
-    def __init__(self, extractor: IDataset, *, ids: Optional[Iterable[Tuple[str, str]]] = None):
+    def __init__(self, extractor: IDataset, *, ids: Iterable[Tuple[str, str, Optional[int]]]):
         super().__init__(extractor)
-        self._ids = set(tuple(v) for v in (ids or []))
+
+        self._ids = {}
+        for v in ids:
+            key = tuple(v[:2])
+            val = v[2] if len(v) == 3 else None
+            if key in self._ids:
+                if val and self._ids[key]:
+                    self._ids[key].append(val)
+                else:
+                    self._ids[key] = None
+            else:
+                self._ids[key] = [val] if val else None
 
     def transform_item(self, item: DatasetItem):
-        if not self._ids or (item.id, item.subset) in self._ids:
-            return item.wrap(annotations=[])
+        if not self._ids:
+            return item
+
+        for item_id, ann_ids in self._ids.items():
+            if (item.id, item.subset) == item_id:
+                updated_anns = (
+                    [ann for ann in item.annotations if ann.id not in ann_ids] if ann_ids else []
+                )
+                return item.wrap(annotations=updated_anns)
+
         return item
 
 
@@ -1254,96 +1270,54 @@ class RemoveAttributes(ItemTransform):
 
 
 class Corrector(Transform):
-    """
-    Allows to remove item and annotation attributes in a dataset.|n
-    |n
-    Can be useful to clean the dataset from broken or unnecessary attributes.|n
-    |n
-    Examples:|n
-        - Remove the `is_crowd` attribute from dataset|n
-
-        .. code-block::
-
-        |s|s%(prog)s --attr 'is_crowd'|n
-        |n
-        - Remove the `occluded` attribute from annotations of|n
-        |s|sthe `2010_001705` item in the `train` subset|n
-
-        .. code-block::
-
-        |s|s%(prog)s --id '2010_001705:train' --attr 'occluded'
-    """
-
-    @staticmethod
-    def _parse_id(s):
-        full_id = s.split(":")
-        if len(full_id) != 2:
-            raise argparse.ArgumentTypeError(
-                None, message="Invalid id format of '%s'. " "Expected a 'name:subset' pair." % s
-            )
-        return full_id
-
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument(
-            "--id",
-            dest="ids",
-            type=cls._parse_id,
-            action="append",
-            help="Image id to clean from annotations. "
-            "Id is 'name:subset' pair. If not specified, "
-            "affects all images and annotations (repeatable)",
-        )
-        parser.add_argument(
-            "-a",
-            "--attr",
-            action="append",
-            dest="attributes",
-            help="Attribute name to be removed. If not specified, "
-            "removes all attributes (repeatable)",
-        )
-        return parser
-
     def __init__(
-        self,
-        extractor: IDataset,
-        reports: Dict,
+        self, extractor: IDataset, reports: Dict,
     ):
         super().__init__(extractor)
-        self._reports = reports
+        self._reports = reports["validation_reports"]
+
+        self._remove_items = []
+        self._remove_anns = []
+
+        self._analyze_reports(report=self._reports)
 
     def _parse_ann_ids(self, desc: str):
         return [int(s) for s in str.split(desc, "'") if s.isdigit()][0]
 
-    def _analyze_reports(self):
-        error_report = {}
-        warning_report = {}
-        for report in self._reports["validation_reports"]:
-            type = report["severity"]
-            id = report["item_id"]
-            subset = report["subset"]
-            ann_id = self._parse_ann_ids(report["description"])
-            if report["severity"] == "error":
-                error_report[type] = (id, subset, ann_id)
-            if report["severity"] == "warning":
-                warning_report[type] = (id, subset, ann_id)
-        print("The number of errors per error type: ", error_report)
-        print("The number of warnings per warning type: ", warning_report)
+    def _parse_label_cat(self, desc: str):
+        return [s for s in str.split(desc, "'")][1]
 
-        return error_report, warning_report
+    def _analyze_reports(self, report):
+        for rep in report:
+            print(rep)
+            if rep["anomaly_type"] == "LabelDefinedButNotFound":
+                remove_label_name = self._parse_label_cat(rep["description"])
+                label_cat = self._extractor.categories()[AnnotationType.label]
+                if remove_label_name in [labels.name for labels in label_cat.items]:
+                    label_cat.remove(remove_label_name)
 
-    def transform_item(self, item: DatasetItem):
-        if not self._ids or (item.id, item.subset) in self._ids:
-            filtered_annotations = []
-            for ann in item.annotations:
-                filtered_annotations.append(ann.wrap(attributes=self._filter_attrs(ann.attributes)))
+            if rep["anomaly_type"] in [
+                "MissingAnnotation",
+                "MultiLabelAnnotations",
+                "UndefinedLabel",
+            ]:
+                self._remove_items.append((rep["item_id"], rep["subset"]))
 
-            return item.wrap(
-                attributes=self._filter_attrs(item.attributes), annotations=filtered_annotations
-            )
-        return item
+            if rep["anomaly_type"] in ["NegativeLength", "InvalidValue", "FarFromLabelMean"]:
+                ann_id = None or self._parse_ann_ids(rep["description"])
+                self._remove_anns.append((rep["item_id"], rep["subset"], ann_id))
+
+    def _find_removable_anns_in_item(self, target: tuple[str, str]):
+        return [tup[2] for tup in self._remove_anns if tup[:2] == target]
 
     def __iter__(self):
-        for i, item in enumerate(self._extractor):
-            yield self.wrap_item(item, subset=self._find_split(i))
+        for item in self._extractor:
+            if (item.id, item.subset) in self._remove_items:
+                continue
+            else:
+                ann_ids = self._find_removable_anns_in_item(target=(item.id, item.subset))
+                if ann_ids:
+                    updated_anns = [ann for ann in item.annotations if ann.id not in ann_ids]
+                    yield item.wrap(annotations=updated_anns)
+                else:
+                    yield item
