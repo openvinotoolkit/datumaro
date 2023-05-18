@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 from enum import Enum, auto
-
+from datumaro.components.dataset import Dataset
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.operations import DistanceComparator, ExactComparator
 from datumaro.util import dump_json_file
@@ -127,7 +127,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         dest="project_dir",
         help="Directory of the current project (default: current dir)",
     )
-    parser.set_defaults(command=diff_command)
+    parser.set_defaults(command=compare_command)
 
     distance_parser = parser.add_argument_group("Distance comparison options")
     distance_parser.add_argument(
@@ -169,7 +169,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_sensitive_args():
     return {
-        diff_command: [
+        compare_command: [
             "first_target",
             "second_target",
             "dst_dir",
@@ -179,7 +179,7 @@ def get_sensitive_args():
 
 
 @scoped
-def diff_command(args):
+def compare_command(args):
     dst_dir = args.dst_dir
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
@@ -200,6 +200,10 @@ def diff_command(args):
     except ProjectNotFoundError:
         if args.project_dir:
             raise
+
+    src_dataset = Dataset.import_from(args.first_target)
+    tgt_dataset = Dataset.import_from(args.second_target)
+    breakpoint()
 
     try:
         if not args.second_target:

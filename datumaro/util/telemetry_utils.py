@@ -59,7 +59,7 @@ def _get_action_name(command):
         return "convert_result"
     elif command is commands.require_project.modification.create.create_command:
         return "create_result"
-    elif command is commands.diff.diff_command:
+    elif command is commands.compare.compare_command:
         return "diff_result"
     elif command is commands.explain.explain_command:
         return "explain_result"
