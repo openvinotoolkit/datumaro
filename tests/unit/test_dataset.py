@@ -2179,10 +2179,10 @@ class DatasetTransformTest:
         )
 
         with eager_mode(mode, dataset), caplog.at_level(logging.ERROR):
-            # Call an invalid transform by giving wrong argument name
+            # Call a malformed transform by giving wrong argument name
             dataset.transform("random_split", wrong_argument_name=[("train", 0.67), ("val", 0.33)])
 
-            # The previous invalid transform should be not stacked,
+            # The previous malformed transform should be not stacked,
             # so that the following valid transform should successfully be executed.
             try:
                 dataset = dataset.transform("random_split", splits=[("train", 0.67), ("val", 0.33)])

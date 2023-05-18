@@ -260,6 +260,7 @@ class DatasetStorage(IDataset):
         #   b. Transforms affect whole dataset
         #
         # The patch is always applied on top of the source / transforms stack.
+
         class _StackedTransform(Transform):
             def __init__(self, source, transforms):
                 super().__init__(source)
