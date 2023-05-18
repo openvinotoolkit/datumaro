@@ -2,10 +2,19 @@
 #
 # SPDX-License-Identifier: MIT
 
+import numpy as np
 import pytest
 
 from datumaro import Dataset, DatasetItem, HLOps
-from datumaro.components.annotation import Bbox, Ellipse, Label, Polygon
+from datumaro.components.annotation import (
+    AnnotationType,
+    Bbox,
+    Ellipse,
+    Label,
+    LabelCategories,
+    Polygon,
+)
+from datumaro.components.media import Image
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.test_utils import TestCaseHelper, TestDir

@@ -1,3 +1,8 @@
+# Copyright (C) 2019-2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
+import logging
 import os
 import os.path as osp
 import pickle  # nosec import_pickle
@@ -2153,6 +2158,41 @@ class DatasetFilterTest(TestCase):
         )
 
         compare_datasets(self, expected, filtered)
+
+
+class DatasetTransformTest:
+    @pytest.mark.parametrize("mode", [True, False])
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_stack_transform(self, mode: bool, caplog: pytest.LogCaptureFixture):
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    f"item_{i}",
+                    media=Image.from_numpy(np.ones([10, 10, 3], dtype=np.uint8)),
+                    annotations=[Label(label=i % 2)],
+                )
+                for i in range(10)
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(["cat", "dog"]),
+            },
+        )
+
+        with eager_mode(mode, dataset), caplog.at_level(logging.ERROR):
+            # Call an invalid transform by giving wrong argument name
+            dataset.transform("random_split", wrong_argument_name=[("train", 0.67), ("val", 0.33)])
+
+            # The previous invalid transform should be not stacked,
+            # so that the following valid transform should successfully be executed.
+            try:
+                dataset = dataset.transform("random_split", splits=[("train", 0.67), ("val", 0.33)])
+                for _ in dataset:
+                    continue
+            except Exception:
+                raise pytest.fail("It should be successfully be executed.")
+
+            for record in caplog.get_records("call"):
+                assert "Automatically drop" in record.getMessage()
 
 
 @pytest.fixture

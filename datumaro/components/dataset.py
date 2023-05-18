@@ -260,15 +260,19 @@ class DatasetStorage(IDataset):
         #   b. Transforms affect whole dataset
         #
         # The patch is always applied on top of the source / transforms stack.
-
         class _StackedTransform(Transform):
             def __init__(self, source, transforms):
                 super().__init__(source)
 
                 self.is_local = True
                 self.transforms: List[Transform] = []
-                for transform in transforms:
-                    source = transform[0](source, *transform[1], **transform[2])
+                self.malformed_transform_indices: Dict[int, Exception] = {}
+                for idx, transform in enumerate(transforms):
+                    try:
+                        source = transform[0](source, *transform[1], **transform[2])
+                    except Exception as e:
+                        self.malformed_transform_indices[idx] = e
+
                     self.transforms.append(source)
 
                     if self.is_local and not isinstance(source, ItemTransform):
@@ -340,6 +344,8 @@ class DatasetStorage(IDataset):
                 raise MediaTypeError(
                     "Transforms are not allowed to change media " "type of dataset items"
                 )
+
+            self._drop_malformed_transforms(transform.malformed_transform_indices)
 
         i = -1
         for i, item in enumerate(source):
@@ -625,6 +631,21 @@ class DatasetStorage(IDataset):
         else:
             for item in source:
                 self.put(item)
+
+    def _drop_malformed_transforms(self, malformed_transform_indices: Dict[int, Exception]) -> None:
+        safe_transforms = []
+        for idx, transform in enumerate(self._transforms):
+            if idx in malformed_transform_indices:
+                log.error(
+                    f"Automatically drop {transform} from the transform stack because an error is raised. "
+                    "Therefore, the dataset will not be transformed by this transformation since it is droped.",
+                    exc_info=malformed_transform_indices[idx],
+                )
+                continue
+
+            safe_transforms += [transform]
+
+        self._transforms = safe_transforms
 
 
 class Dataset(IDataset):
