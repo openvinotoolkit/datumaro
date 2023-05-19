@@ -1164,6 +1164,7 @@ class ValidationCorrectionTest:
             "invalid_val",
             "neg_len",
             "far_from_mean",
+            "far_from_mean_attr",
             "cls",
             "det",
         ],
