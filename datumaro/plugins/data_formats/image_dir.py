@@ -68,3 +68,6 @@ class ImageDirExporter(Exporter):
                 self._save_image(item)
             else:
                 log.debug("Item '%s' has no image info", item.id)
+            self._check_hash_key_existence(item)
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)

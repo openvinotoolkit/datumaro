@@ -468,11 +468,3 @@ class DatumaroExporter(Exporter):
             related_images_path = osp.join(save_dir, cls.PATH_CLS.IMAGES_DIR, item.subset, item.id)
             if osp.isdir(related_images_path):
                 shutil.rmtree(related_images_path)
-
-    def _check_hash_key_existence(self, item):
-        if self._save_hashkey_meta:
-            return
-        for annotation in item.annotations:
-            if isinstance(annotation, HashKey):
-                self._save_hashkey_meta = True
-                return

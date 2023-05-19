@@ -244,6 +244,7 @@ class WiderFaceExporter(Exporter):
                     ):
                         wider_annotation += "%s" % label_categories[bbox.label].name
                     wider_annotation += "\n"
+                self._check_hash_key_existence(item)
 
             annotation_path = osp.join(
                 save_dir, WiderFacePath.ANNOTATIONS_DIR, "wider_face_" + subset_name + "_bbx_gt.txt"
@@ -251,3 +252,6 @@ class WiderFaceExporter(Exporter):
             os.makedirs(osp.dirname(annotation_path), exist_ok=True)
             with open(annotation_path, "w", encoding="utf-8") as f:
                 f.write(wider_annotation)
+
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)

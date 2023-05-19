@@ -268,7 +268,9 @@ class VggFace2Exporter(Exporter):
                 item_parts = item.id.split("/")
                 if item.media and self._save_media:
                     labels = set(
-                        p.label for p in item.annotations if getattr(p, "label") is not None
+                        p.label
+                        for p in item.annotations
+                        if (p.type != AnnotationType.hash_key and getattr(p, "label") is not None)
                     )
                     if labels:
                         for label in labels:
@@ -347,6 +349,7 @@ class VggFace2Exporter(Exporter):
                     landmarks_table.append(
                         {"NAME_ID": _get_name_id(item_parts, VggFace2Path.IMAGES_DIR_NO_LABEL)}
                     )
+                self._check_hash_key_existence(item)
 
             landmarks_path = osp.join(
                 save_dir,
@@ -384,3 +387,5 @@ class VggFace2Exporter(Exporter):
                     writer = csv.DictWriter(file, fieldnames=columns)
                     writer.writeheader()
                     writer.writerows(bboxes_table)
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)

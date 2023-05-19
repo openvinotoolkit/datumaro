@@ -119,6 +119,9 @@ class ImageZipExporter(Exporter):
                     self._archive_image(zf, item)
                 else:
                     log.debug("Item '%s' has no image info", item.id)
+                self._check_hash_key_existence(item)
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
     def _archive_image(self, zipfile, item):
         image_name = self._make_image_filename(item)

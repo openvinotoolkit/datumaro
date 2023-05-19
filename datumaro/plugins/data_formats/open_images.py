@@ -714,8 +714,13 @@ class OpenImagesExporter(Exporter):
     def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
+        for subset in self._extractor.subsets().values():
+            for item in subset:
+                self._check_hash_key_existence(item)
 
         self._save(_AnnotationWriter(self._save_dir))
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **options):

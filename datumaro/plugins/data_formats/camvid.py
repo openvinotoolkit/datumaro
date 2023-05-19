@@ -350,8 +350,13 @@ class CamvidExporter(Exporter):
                 else:
                     segm_list[item.id] = (image_path, "")
 
+                self._check_hash_key_existence(item)
+
             self.save_segm_lists(subset_name, segm_list)
         self.save_label_map()
+
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
     def save_segm(self, path, mask, colormap=None):
         if self._apply_colormap:

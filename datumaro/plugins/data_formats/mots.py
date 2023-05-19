@@ -178,9 +178,12 @@ class MotsPngExporter(Exporter):
                         log.debug("Item '%s' has no image", item.id)
 
                 self._save_annotations(item, anno_dir)
+                self._check_hash_key_existence(item)
 
             with open(osp.join(anno_dir, MotsPath.LABELS_FILE), "w", encoding="utf-8") as f:
                 f.write("\n".join(l.name for l in subset.categories()[AnnotationType.label].items))
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
     def _save_annotations(self, item, anno_dir):
         masks = [a for a in item.annotations if a.type == AnnotationType.mask]

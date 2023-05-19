@@ -38,12 +38,15 @@ class IcdarWordRecognitionExporter(Exporter):
                         continue
                     annotation += '"%s"' % ann.caption
                 annotation += "\n"
+                self._check_hash_key_existence(item)
 
             if len(annotation):
                 anno_file = osp.join(self._save_dir, subset_name, "gt.txt")
                 os.makedirs(osp.dirname(anno_file), exist_ok=True)
                 with open(anno_file, "w", encoding="utf-8") as f:
                     f.write(annotation)
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
 
 class IcdarTextLocalizationExporter(Exporter):
@@ -79,6 +82,9 @@ class IcdarTextLocalizationExporter(Exporter):
                 os.makedirs(osp.dirname(anno_file), exist_ok=True)
                 with open(anno_file, "w", encoding="utf-8") as f:
                     f.write(annotation)
+                self._check_hash_key_existence(item)
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
 
 class IcdarTextSegmentationExporter(Exporter):
@@ -91,6 +97,9 @@ class IcdarTextSegmentationExporter(Exporter):
         for subset_name, subset in self._extractor.subsets().items():
             for item in subset:
                 self._save_item(subset_name, subset, item)
+                self._check_hash_key_existence(item)
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
     def _save_item(self, subset_name, subset, item):
         if self._save_media and item.media:

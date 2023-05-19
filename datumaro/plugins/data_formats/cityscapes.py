@@ -432,7 +432,10 @@ class CityscapesExporter(Exporter):
                     apply_colormap=False,
                     dtype=np.int32,
                 )
+                self._check_hash_key_existence(item)
         self.save_label_map()
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
     def save_label_map(self):
         if self._save_dataset_meta:

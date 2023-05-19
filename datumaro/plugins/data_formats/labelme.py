@@ -377,6 +377,10 @@ class LabelMeExporter(Exporter):
 
             for item in subset:
                 self._save_item(item, subset_dir)
+                self._check_hash_key_existence(item)
+
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
     def _get_label(self, label_id):
         if label_id is None:

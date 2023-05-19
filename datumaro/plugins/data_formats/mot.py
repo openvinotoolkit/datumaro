@@ -294,6 +294,7 @@ class MotSeqGtExporter(Exporter):
                         self._save_image(item, subdir=image_dir, name="%06d" % frame_id)
                     else:
                         log.debug("Item '%s' has no image", item.id)
+                self._check_hash_key_existence(item)
 
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
@@ -301,3 +302,6 @@ class MotSeqGtExporter(Exporter):
             labels_file = osp.join(anno_dir, MotPath.LABELS_FILE)
             with open(labels_file, "w", encoding="utf-8") as f:
                 f.write("\n".join(l.name for l in extractor.categories()[AnnotationType.label]))
+
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
