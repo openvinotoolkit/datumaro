@@ -1093,65 +1093,56 @@ def fxt_refined_det_dataset():
 
 class ValidationCorrectionTest:
     @pytest.mark.parametrize(
-        "fxt_original_dataset, fxt_validator, fxt_val_args, fxt_refined_dataset",
+        "fxt_original_dataset, fxt_validator, fxt_refined_dataset",
         [
             (
                 "fxt_original_missing_cat_dataset",
                 ClassificationValidator,
-                {},
                 "fxt_refined_missing_cat_dataset",
             ),
             (
                 "fxt_original_missing_label_dataset",
                 ClassificationValidator,
-                {},
                 "fxt_refined_missing_label_dataset",
             ),
             (
                 "fxt_original_missing_attr_dataset",
                 ClassificationValidator,
-                {},
                 "fxt_refined_missing_attr_dataset",
             ),
             (
                 "fxt_original_multi_label_dataset",
                 ClassificationValidator,
-                {},
                 "fxt_refined_multi_label_dataset",
             ),
             (
                 "fxt_original_undefined_label_dataset",
                 ClassificationValidator,
-                {},
                 "fxt_refined_undefined_label_dataset",
             ),
             (
                 "fxt_original_undefined_attr_dataset",
                 ClassificationValidator,
-                {},
                 "fxt_refined_undefined_attr_dataset",
             ),
             (
                 "fxt_original_invalid_val_dataset",
                 DetectionValidator,
-                {},
                 "fxt_refined_invalid_val_dataset",
             ),
-            ("fxt_original_neg_len_dataset", DetectionValidator, {}, "fxt_refined_neg_len_dataset"),
+            ("fxt_original_neg_len_dataset", DetectionValidator, "fxt_refined_neg_len_dataset"),
             (
                 "fxt_original_far_from_mean_dataset",
                 DetectionValidator,
-                {},
                 "fxt_refined_far_from_mean_dataset",
             ),
             (
                 "fxt_original_far_from_mean_attr_dataset",
                 DetectionValidator,
-                {},
                 "fxt_refined_far_from_mean_attr_dataset",
             ),
-            ("fxt_original_cls_dataset", ClassificationValidator, {}, "fxt_refined_cls_dataset"),
-            ("fxt_original_det_dataset", DetectionValidator, {}, "fxt_refined_det_dataset"),
+            ("fxt_original_cls_dataset", ClassificationValidator, "fxt_refined_cls_dataset"),
+            ("fxt_original_det_dataset", DetectionValidator, "fxt_refined_det_dataset"),
         ],
         indirect=["fxt_original_dataset", "fxt_refined_dataset"],
         ids=[
@@ -1173,11 +1164,10 @@ class ValidationCorrectionTest:
         self,
         fxt_original_dataset: Dataset,
         fxt_validator: Validator,
-        fxt_val_args: Dict,
         fxt_refined_dataset: Dataset,
         request: pytest.FixtureRequest,
     ):
-        validator = fxt_validator(**fxt_val_args)
+        validator = fxt_validator()
         reports = validator.validate(fxt_original_dataset)
 
         refined = transforms.Correct(fxt_original_dataset, reports=reports)

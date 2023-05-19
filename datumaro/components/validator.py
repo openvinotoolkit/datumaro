@@ -10,6 +10,7 @@ from datumaro.components.dataset import IDataset
 
 
 class Severity(Enum):
+    info = auto()
     warning = auto()
     error = auto()
 
@@ -51,6 +52,7 @@ class Validator(CliPlugin):
         summary = {
             "errors": sum(map(lambda r: r["severity"] == "error", reports)),
             "warnings": sum(map(lambda r: r["severity"] == "warning", reports)),
+            "infos": sum(map(lambda r: r["severity"] == "info", reports)),
         }
 
         validation_results["validation_reports"] = reports

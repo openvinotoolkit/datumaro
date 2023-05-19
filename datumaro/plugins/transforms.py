@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import logging as log
 import os.path as osp
 import random
@@ -41,7 +40,7 @@ from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, D
 from datumaro.components.errors import DatumaroError
 from datumaro.components.media import Image
 from datumaro.components.transformer import ItemTransform, Transform
-from datumaro.util import NOTSET, filter_dict, parse_str_enum_value, take_by
+from datumaro.util import NOTSET, filter_dict, parse_json_file, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
 
 
@@ -1234,10 +1233,9 @@ class RemoveAttributes(ItemTransform):
 
 class Correct(Transform, CliPlugin):
     """
-    Changes the content of infos.
-    A user can add meta-data of dataset such as author, comments, or related papers.
-    Infos values are not affect on the dataset structure.
-    We thus can add any meta-data freely.
+    Correct the dataset from a validation report.
+    A user can should feed into validation_reports.json from validator to correct the dataset.
+    This helps to refine the dataset by rejecting undefined labels, missing annotations, and outliers.
     """
 
     @classmethod
@@ -1260,12 +1258,7 @@ class Correct(Transform, CliPlugin):
         super().__init__(extractor)
 
         if isinstance(reports, str):
-            try:
-                # Try to load the argument as a JSON file
-                with open(reports) as file:
-                    reports = json.load(file)
-            except FileNotFoundError:
-                raise Exception("Invalid validation reports with json format")
+            reports = parse_json_file(reports)
 
         self._reports = reports["validation_reports"]
 
