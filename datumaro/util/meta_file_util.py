@@ -13,7 +13,7 @@ from datumaro.util import dump_json_file, find, parse_json_file
 
 DATASET_META_FILE = "dataset_meta.json"
 DATASET_HASHKEY_FILE = "hash_keys.json"
-
+DATASET_HASHKEY_FOLDER = "hash_key_meta"
 
 def is_meta_file(path):
     return osp.splitext(osp.basename(path))[1] == ".json"
@@ -32,7 +32,7 @@ def get_meta_file(path):
 
 
 def get_hashkey_file(path):
-    hashkey_folder_path = osp.join(path, "hash_key_meta")
+    hashkey_folder_path = osp.join(path, DATASET_HASHKEY_FOLDER)
     return osp.join(hashkey_folder_path, DATASET_HASHKEY_FILE)
 
 
@@ -109,7 +109,7 @@ def save_hashkey_file(path, item_list):
 
     if osp.isdir(path):
         meta_file = get_hashkey_file(path)
-    hashkey_folder_path = osp.join(path, "hash_key_meta")
+    hashkey_folder_path = osp.join(path, DATASET_HASHKEY_FOLDER)
     if not osp.exists(hashkey_folder_path):
         os.makedirs(hashkey_folder_path)
 
@@ -134,10 +134,6 @@ def save_hashkey_file(path, item_list):
 def load_hash_key(path, dataset):
     if not os.path.isdir(path) or not has_hashkey_file(path):
         return dataset
-
-    hashkey_folder_path = osp.join(path, "hash_key_meta")
-    if not osp.exists(hashkey_folder_path):
-        os.makedirs(hashkey_folder_path)
 
     hashkey_dict = parse_hashkey_file(path)
     for item in dataset:
