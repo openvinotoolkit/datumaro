@@ -38,6 +38,7 @@ Formats
    nyu_depth_v2
    open_images
    pascal_voc
+   segment_anything
    sly_pointcloud
    synthia
    vgg_face2
