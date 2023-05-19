@@ -71,7 +71,7 @@ class SegmentAnythingExporter(Exporter):
 
                     annotations_grouped = defaultdict(list)
                     for annotation in item.annotations:
-                        annotations_grouped[annotation.id].append(annotation)
+                        annotations_grouped[annotation.group].append(annotation)
 
                     for id, annotations in annotations_grouped.items():
                         annotation_data = {
