@@ -38,6 +38,8 @@ def _get_bbox(ann: Union[Sequence, SpatialAnnotation]) -> BboxCoords:
         return ann.get_bbox()
     elif hasattr(ann, "__len__") and len(ann) == 4:
         return ann
+    elif hasattr(ann, "__len__") and len(ann) == 0:
+        return [0, 0, 0, 0]
     else:
         raise ValueError("The value of type '%s' can't be treated as a " "bounding box" % type(ann))
 

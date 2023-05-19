@@ -97,29 +97,17 @@ class SegmentAnythingExporter(Exporter):
             "segmentation": rles,
             "bbox": bbox,
             "area": area,
-            "predicted_iou": 0.0,
-            "stability_score": 0.0,
-            "crop_box": [],
-            "point_coords": [],
+            "predicted_iou": max(ann.attributes.get("predicted_iou", 0.0) for ann in anns),
+            "stability_score": max(ann.attributes.get("stability_score", 0.0) for ann in anns),
+            "crop_box": anno_tools.max_bbox([ann.attributes.get("crop_box", []) for ann in anns]),
+            "point_coords": list(
+                set(
+                    tuple(point_coord)
+                    for ann in anns
+                    for point_coord in ann.attributes.get("point_coords", [[]])
+                )
+            ),
         }
-        for ann in anns:
-            annotation_data["predicted_iou"] = max(
-                annotation_data["predicted_iou"], ann.attributes.get("predicted_iou", 0.0)
-            )
-            annotation_data["stability_score"] = max(
-                annotation_data["stability_score"], ann.attributes.get("stability_score", 0.0)
-            )
-            crop_box = ann.attributes.get("crop_box", [])
-            if crop_box:
-                crop_box = [crop_box]
-                if annotation_data["crop_box"]:
-                    crop_box.append(annotation_data["crop_box"])
-                annotation_data["crop_box"] = anno_tools.max_bbox(crop_box)
-            point_coords = ann.attributes.get("point_coords", [[]])
-            if len(point_coords[0]) > 0:
-                for point_coord in point_coords:
-                    if point_coord not in annotation_data["point_coords"]:
-                        annotation_data["point_coords"].append(point_coord)
         return annotation_data
 
     def apply(self):
@@ -145,8 +133,7 @@ class SegmentAnythingExporter(Exporter):
 
                     if not item.media or not item.media.size:
                         log.warning(
-                            "Item '%s': skipping writing instances since no image info available"
-                            % item.id
+                            f"Item '{item.id}': skipping writing instances since no image info available"
                         )
                         continue
 
@@ -166,8 +153,7 @@ class SegmentAnythingExporter(Exporter):
                     annotations = [i for i in annotations if i is not None]
                     if not annotations:
                         log.warning(
-                            "Item '%s': skipping writing instances since no annotation available"
-                            % item.id
+                            f"Item '{item.id}': skipping writing instances since no annotation available"
                         )
                         continue
                     json_data["annotations"] = annotations
