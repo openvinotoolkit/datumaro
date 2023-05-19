@@ -281,6 +281,7 @@ class CifarExporter(Exporter):
                             or image.shape[1] != CifarPath.IMAGE_SIZE
                         ):
                             image_sizes[len(data) - 1] = (image.shape[0], image.shape[1])
+                self._check_hash_key_existence(item)
 
             annotation_dict = {}
 
@@ -325,6 +326,9 @@ class CifarExporter(Exporter):
 
             with open(annotation_file, "wb") as labels_file:
                 pickle.dump(annotation_dict, labels_file)
+
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):

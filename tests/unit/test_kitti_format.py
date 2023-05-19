@@ -1,4 +1,3 @@
-import os
 import os.path as osp
 from collections import OrderedDict
 from functools import partial
@@ -25,18 +24,12 @@ from datumaro.plugins.data_formats.kitti.importer import (
     KittiImporter,
     KittiSegmentationImporter,
 )
-from datumaro.util import dump_json_file
-from datumaro.util.meta_file_util import get_hashkey_file, parse_meta_file
+from datumaro.util.meta_file_util import parse_meta_file
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import (
-    TestDir,
-    check_save_and_load,
-    compare_datasets,
-    compare_hashkey_meta,
-)
+from tests.utils.test_utils import TestDir, check_save_and_load, compare_datasets
 
 DUMMY_DATASET_DIR = get_test_asset_path("kitti_dataset")
 
@@ -236,72 +229,6 @@ class KittiImportTest(TestCase):
                     self.assertIn(
                         detected_format, {"kitti", "kitti_segmentation", "kitti_detection"}
                     )
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key(self):
-        hashkey_meta = {
-            "hashkey": {
-                "test/1_2": np.zeros((1, 64), dtype=np.uint8).tolist(),
-                "val/3": np.zeros((1, 64), dtype=np.uint8).tolist(),
-            }
-        }
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="1_2",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((1, 5, 3))),
-                    annotations=[
-                        Mask(
-                            image=np.array([[0, 0, 0, 1, 0]]),
-                            label=3,
-                            id=0,
-                            attributes={"is_crowd": True},
-                        ),
-                        Mask(
-                            image=np.array([[0, 1, 1, 0, 0]]),
-                            label=24,
-                            id=1,
-                            attributes={"is_crowd": False},
-                        ),
-                        Mask(
-                            image=np.array([[1, 0, 0, 0, 1]]),
-                            label=15,
-                            id=0,
-                            attributes={"is_crowd": True},
-                        ),
-                    ],
-                ),
-                DatasetItem(
-                    id="3",
-                    subset="val",
-                    media=Image.from_numpy(data=np.ones((1, 5, 3))),
-                    annotations=[
-                        Mask(
-                            image=np.array([[1, 1, 0, 1, 1]]),
-                            label=3,
-                            id=0,
-                            attributes={"is_crowd": True},
-                        ),
-                        Mask(
-                            image=np.array([[0, 0, 1, 0, 0]]),
-                            label=5,
-                            id=0,
-                            attributes={"is_crowd": True},
-                        ),
-                    ],
-                ),
-            ]
-        )
-        with TestDir() as test_dir:
-            KittiExporter.convert(source_dataset, test_dir, save_media=True)
-
-            meta_file = get_hashkey_file(test_dir)
-            os.makedirs(osp.join(test_dir, "hash_key_meta"))
-            dump_json_file(meta_file, hashkey_meta, indent=True)
-
-            imported_dataset = Dataset.import_from(test_dir, "kitti")
-            compare_hashkey_meta(self, hashkey_meta, imported_dataset)
 
 
 class TestExtractorBase(DatasetBase):

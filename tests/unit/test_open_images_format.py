@@ -15,12 +15,10 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.open_images import OpenImagesExporter, OpenImagesImporter
-from datumaro.util import dump_json_file
-from datumaro.util.meta_file_util import get_hashkey_file
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir, compare_datasets, compare_hashkey_meta
+from tests.utils.test_utils import TestDir, compare_datasets
 
 
 class OpenImagesFormatTest(TestCase):
@@ -318,9 +316,9 @@ DUMMY_DATASET_DIR_V5 = get_test_asset_path("open_images_dataset", "v5")
 
 
 class OpenImagesImporterTest(TestCase):
-    @property
-    def test_dataset_v6(self):
-        dataset = Dataset.from_iterable(
+    @mark_requirement(Requirements.DATUM_274)
+    def test_can_import_v6(self):
+        expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id="a",
@@ -393,11 +391,14 @@ class OpenImagesImporterTest(TestCase):
                 ),
             },
         )
-        return dataset
 
-    @property
-    def test_dataset_v5(self):
-        dataset = Dataset.from_iterable(
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR_V6, "open_images")
+
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
+
+    @mark_requirement(Requirements.DATUM_274)
+    def test_can_import_v5(self):
+        expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id="aa", subset="train", media=Image.from_numpy(data=np.zeros((8, 6, 3)))
@@ -411,19 +412,10 @@ class OpenImagesImporterTest(TestCase):
                 "/m/1",
             ],
         )
-        return dataset
 
-    @mark_requirement(Requirements.DATUM_274)
-    def test_can_import_v6(self):
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR_V6, "open_images")
-
-        compare_datasets(self, self.test_dataset_v6, dataset, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_274)
-    def test_can_import_v5(self):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_V5, "open_images")
 
-        compare_datasets(self, self.test_dataset_v5, dataset, require_media=True)
+        compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_import_without_image_ids_file(self):
@@ -506,41 +498,3 @@ class OpenImagesImporterTest(TestCase):
         self.assertEqual([OpenImagesImporter.NAME], detected_formats)
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR_V5)
         self.assertEqual([OpenImagesImporter.NAME], detected_formats)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key_v6(self):
-        hashkey_meta = {
-            "hashkey": {
-                "train/a": np.ones((1, 64), dtype=np.uint8).tolist(),
-                "train/b": np.ones((1, 64), dtype=np.uint8).tolist(),
-                "validation/d": np.zeros((1, 64), dtype=np.uint8).tolist(),
-                "test/c": np.zeros((1, 64), dtype=np.uint8).tolist(),
-            }
-        }
-        with TestDir() as test_dir:
-            OpenImagesExporter.convert(self.test_dataset_v6, test_dir, save_media=True)
-
-            meta_file = get_hashkey_file(test_dir)
-            os.makedirs(osp.join(test_dir, "hash_key_meta"))
-            dump_json_file(meta_file, hashkey_meta, indent=True)
-
-            imported_dataset = Dataset.import_from(test_dir, "open_images")
-            compare_hashkey_meta(self, hashkey_meta, imported_dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key_v5(self):
-        hashkey_meta = {
-            "hashkey": {
-                "train/aa": np.ones((1, 64), dtype=np.uint8).tolist(),
-                "test/cc": np.zeros((1, 64), dtype=np.uint8).tolist(),
-            }
-        }
-        with TestDir() as test_dir:
-            OpenImagesExporter.convert(self.test_dataset_v5, test_dir, save_media=True)
-
-            meta_file = get_hashkey_file(test_dir)
-            os.makedirs(osp.join(test_dir, "hash_key_meta"))
-            dump_json_file(meta_file, hashkey_meta, indent=True)
-
-            imported_dataset = Dataset.import_from(test_dir, "open_images")
-            compare_hashkey_meta(self, hashkey_meta, imported_dataset)

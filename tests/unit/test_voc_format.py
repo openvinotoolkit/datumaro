@@ -39,10 +39,8 @@ from datumaro.plugins.data_formats.voc.exporter import (
     VocSegmentationExporter,
 )
 from datumaro.plugins.data_formats.voc.importer import VocImporter
-from datumaro.util import dump_json_file
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import load_mask
-from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
@@ -52,7 +50,6 @@ from tests.utils.test_utils import (
     check_save_and_load,
     compare_datasets,
     compare_datasets_strict,
-    compare_hashkey_meta,
 )
 
 
@@ -557,154 +554,6 @@ class VocImportTest(TestCase):
                 parsed = pickle.loads(pickle.dumps(source))  # nosec
 
                 compare_datasets_strict(self, source, parsed)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key_layout_dataset(self):
-        hashkey_meta = {
-            "hashkey": {
-                "train/2007_000001": np.ones((1, 64), dtype=np.uint8).tolist(),
-                "test/2007_000002": np.zeros((1, 64), dtype=np.uint8).tolist(),
-            }
-        }
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="2007_000001",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                    annotations=[
-                        Bbox(
-                            4.0,
-                            5.0,
-                            2.0,
-                            2.0,
-                            label=1,
-                            id=0,
-                            group=0,
-                            attributes={
-                                "difficult": False,
-                                "truncated": False,
-                                "occluded": False,
-                            },
-                        ),
-                        Bbox(5.5, 6.0, 2.0, 2.0, label=2, group=0),
-                    ],
-                ),
-                DatasetItem(
-                    id="2007_000002",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                ),
-            ],
-            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_layout),
-        )
-        with TestDir() as test_dir:
-            VocLayoutExporter.convert(source_dataset, test_dir, save_media=True)
-
-            meta_file = get_hashkey_file(test_dir)
-            os.makedirs(osp.join(test_dir, "hash_key_meta"))
-            dump_json_file(meta_file, hashkey_meta, indent=True)
-
-            imported_dataset = Dataset.import_from(test_dir, "voc_layout")
-            compare_hashkey_meta(self, hashkey_meta, imported_dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key_detection_dataset(self):
-        hashkey_meta = {
-            "hashkey": {
-                "train/2007_000001": np.ones((1, 64), dtype=np.uint8).tolist(),
-                "test/2007_000002": np.zeros((1, 64), dtype=np.uint8).tolist(),
-            }
-        }
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="2007_000001",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                    annotations=[
-                        Bbox(
-                            1.0,
-                            2.0,
-                            2.0,
-                            2.0,
-                            label=8,
-                            id=0,
-                            group=0,
-                            attributes={
-                                "difficult": False,
-                                "truncated": True,
-                                "occluded": False,
-                                "pose": "Unspecified",
-                            },
-                        ),
-                        Bbox(
-                            4.0,
-                            5.0,
-                            2.0,
-                            2.0,
-                            label=15,
-                            id=1,
-                            group=1,
-                            attributes={
-                                "difficult": False,
-                                "truncated": False,
-                                "occluded": False,
-                            },
-                        ),
-                    ],
-                ),
-                DatasetItem(
-                    id="2007_000002",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                ),
-            ],
-            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
-        )
-        with TestDir() as test_dir:
-            VocDetectionExporter.convert(source_dataset, test_dir, save_media=True)
-
-            meta_file = get_hashkey_file(test_dir)
-            os.makedirs(osp.join(test_dir, "hash_key_meta"))
-            dump_json_file(meta_file, hashkey_meta, indent=True)
-
-            imported_dataset = Dataset.import_from(test_dir, "voc_detection")
-            compare_hashkey_meta(self, hashkey_meta, imported_dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key_segmentation_dataset(self):
-        hashkey_meta = {
-            "hashkey": {
-                "train/2007_000001": np.ones((1, 64), dtype=np.uint8).tolist(),
-                "test/2007_000002": np.zeros((1, 64), dtype=np.uint8).tolist(),
-            }
-        }
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="2007_000001",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                    annotations=[Mask(image=np.ones([10, 20]), label=2, group=1)],
-                ),
-                DatasetItem(
-                    id="2007_000002",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                ),
-            ],
-            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation),
-        )
-        with TestDir() as test_dir:
-            VocSegmentationExporter.convert(source_dataset, test_dir, save_media=True)
-
-            meta_file = get_hashkey_file(test_dir)
-            os.makedirs(osp.join(test_dir, "hash_key_meta"))
-            dump_json_file(meta_file, hashkey_meta, indent=True)
-
-            imported_dataset = Dataset.import_from(test_dir, "voc_segmentation")
-            compare_hashkey_meta(self, hashkey_meta, imported_dataset)
 
 
 class VocExtractorTest(TestCase):

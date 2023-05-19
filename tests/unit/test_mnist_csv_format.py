@@ -1,4 +1,3 @@
-import os
 import os.path as osp
 from unittest import TestCase
 
@@ -10,13 +9,11 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.mnist_csv import MnistCsvExporter, MnistCsvImporter
-from datumaro.util import dump_json_file
-from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir, compare_datasets, compare_hashkey_meta
+from tests.utils.test_utils import TestDir, compare_datasets
 
 
 class MnistCsvFormatTest(TestCase):
@@ -270,42 +267,3 @@ class MnistCsvImporterTest(TestCase):
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
         self.assertEqual([MnistCsvImporter.NAME], detected_formats)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key(self):
-        hashkey_meta = {
-            "hashkey": {
-                "test/0": np.zeros((1, 64), dtype=np.uint8).tolist(),
-                "train/1": np.ones((1, 64), dtype=np.uint8).tolist(),
-            }
-        }
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=0,
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((28, 28))),
-                    annotations=[Label(0)],
-                ),
-                DatasetItem(
-                    id=1,
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((28, 28))),
-                    annotations=[Label(7)],
-                ),
-            ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    str(label) for label in range(10)
-                ),
-            },
-        )
-        with TestDir() as test_dir:
-            MnistCsvExporter.convert(source_dataset, test_dir, save_media=True)
-
-            meta_file = get_hashkey_file(test_dir)
-            os.makedirs(osp.join(test_dir, "hash_key_meta"))
-            dump_json_file(meta_file, hashkey_meta, indent=True)
-
-            imported_dataset = Dataset.import_from(test_dir, "mnist_csv")
-            compare_hashkey_meta(self, hashkey_meta, imported_dataset)

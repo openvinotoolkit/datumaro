@@ -11,18 +11,11 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.labelme import LabelMeExporter, LabelMeImporter
-from datumaro.util import dump_json_file
-from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import (
-    TestDir,
-    check_save_and_load,
-    compare_datasets,
-    compare_hashkey_meta,
-)
+from tests.utils.test_utils import TestDir, check_save_and_load, compare_datasets
 
 
 class LabelMeExporterTest(TestCase):
@@ -451,57 +444,3 @@ class LabelMeImporterTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, "label_me")
 
             compare_datasets(self, source_dataset, parsed_dataset, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key(self):
-        hashkey_meta = {
-            "hashkey": {
-                "train/dir1/1": np.zeros((1, 64), dtype=np.uint8).tolist(),
-                "val/3": np.zeros((1, 64), dtype=np.uint8).tolist(),
-            }
-        }
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="dir1/1",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((16, 16, 3))),
-                    annotations=[
-                        Bbox(0, 4, 4, 8, label=2, group=2),
-                        Polygon(
-                            [0, 4, 4, 4, 5, 6],
-                            label=3,
-                            attributes={
-                                "occluded": True,
-                                "a1": "qwe",
-                                "a2": True,
-                                "a3": 123,
-                                "a4": "42",  # must be escaped and recognized as string
-                                "escaped": 'a,b. = \\= \\\\ " \\" \\, \\',
-                            },
-                        ),
-                        Mask(
-                            np.array([[0, 1], [1, 0], [1, 1]]),
-                            group=2,
-                            attributes={"username": "test"},
-                        ),
-                        Bbox(1, 2, 3, 4, group=3),
-                        Mask(
-                            np.array([[0, 0], [0, 0], [1, 1]]),
-                            group=3,
-                            attributes={"occluded": True},
-                        ),
-                    ],
-                ),
-            ],
-            categories=["label_" + str(label) for label in range(10)],
-        )
-        with TestDir() as test_dir:
-            LabelMeExporter.convert(source_dataset, test_dir, save_media=True)
-
-            meta_file = get_hashkey_file(test_dir)
-            os.makedirs(osp.join(test_dir, "hash_key_meta"))
-            dump_json_file(meta_file, hashkey_meta, indent=True)
-
-            imported_dataset = Dataset.import_from(test_dir, "label_me")
-            compare_hashkey_meta(self, hashkey_meta, imported_dataset)

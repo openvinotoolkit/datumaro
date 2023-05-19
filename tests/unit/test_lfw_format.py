@@ -11,13 +11,11 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.lfw import LfwExporter, LfwImporter
-from datumaro.util import dump_json_file
-from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir, compare_datasets, compare_hashkey_meta
+from tests.utils.test_utils import TestDir, compare_datasets
 
 
 class LfwFormatTest(TestCase):
@@ -418,39 +416,3 @@ class LfwImporterTest(TestCase):
             dataset = Dataset.import_from(DUMMY_DATASET_DIR, "lfw")
 
             compare_datasets(self, expected_dataset, dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key(self):
-        hashkey_meta = {
-            "hashkey": {
-                "test/name0_0001": np.zeros((1, 64), dtype=np.uint8).tolist(),
-                "test/name1_0001": np.zeros((1, 64), dtype=np.uint8).tolist(),
-                "test/name1_0002": np.zeros((1, 64), dtype=np.uint8).tolist(),
-            }
-        }
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="name0_0001",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((2, 5, 3))),
-                    annotations=[
-                        Label(
-                            0,
-                            attributes={"negative_pairs": ["name1/name1_0001", "name1/name1_0002"]},
-                        ),
-                        Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0], label=0),
-                    ],
-                )
-            ],
-            categories=["name0", "name1"],
-        )
-        with TestDir() as test_dir:
-            LfwExporter.convert(source_dataset, test_dir, save_media=True)
-
-            meta_file = get_hashkey_file(test_dir)
-            os.makedirs(osp.join(test_dir, "hash_key_meta"))
-            dump_json_file(meta_file, hashkey_meta, indent=True)
-
-            imported_dataset = Dataset.import_from(test_dir, "lfw")
-            compare_hashkey_meta(self, hashkey_meta, imported_dataset)

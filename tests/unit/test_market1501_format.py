@@ -1,4 +1,3 @@
-import os
 from unittest import TestCase
 
 import numpy as np
@@ -8,13 +7,11 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.market1501 import Market1501Exporter, Market1501Importer
-from datumaro.util import dump_json_file
-from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir, compare_datasets, compare_hashkey_meta
+from tests.utils.test_utils import TestDir, compare_datasets
 
 
 class Market1501FormatTest(TestCase):
@@ -269,65 +266,3 @@ class Market1501ImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "market1501")
 
         compare_datasets(self, expected_dataset, dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key(self):
-        hashkey_meta = {
-            "hashkey": {
-                "query/0001_c2s3_000111_00": np.zeros((1, 64), dtype=np.uint8).tolist(),
-                "test/0001_c1s1_001051_00": np.zeros((1, 64), dtype=np.uint8).tolist(),
-                "train/0002_c1s3_000151_00": np.ones((1, 64), dtype=np.uint8).tolist(),
-            }
-        }
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="0001_c2s3_000111_00",
-                    subset="query",
-                    media=Image.from_numpy(data=np.ones((2, 5, 3))),
-                    attributes={
-                        "camera_id": 1,
-                        "person_id": "0001",
-                        "track_id": 3,
-                        "frame_id": 111,
-                        "bbox_id": 0,
-                        "query": True,
-                    },
-                ),
-                DatasetItem(
-                    id="0001_c1s1_001051_00",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((2, 5, 3))),
-                    attributes={
-                        "camera_id": 0,
-                        "person_id": "0001",
-                        "track_id": 1,
-                        "frame_id": 1051,
-                        "bbox_id": 0,
-                        "query": False,
-                    },
-                ),
-                DatasetItem(
-                    id="0002_c1s3_000151_00",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((2, 5, 3))),
-                    attributes={
-                        "camera_id": 0,
-                        "person_id": "0002",
-                        "track_id": 3,
-                        "frame_id": 151,
-                        "bbox_id": 0,
-                        "query": False,
-                    },
-                ),
-            ]
-        )
-        with TestDir() as test_dir:
-            Market1501Exporter.convert(source_dataset, test_dir, save_media=True)
-
-            meta_file = get_hashkey_file(test_dir)
-            os.makedirs(os.path.join(test_dir, "hash_key_meta"))
-            dump_json_file(meta_file, hashkey_meta, indent=True)
-
-            imported_dataset = Dataset.import_from(test_dir, "market1501")
-            compare_hashkey_meta(self, hashkey_meta, imported_dataset)

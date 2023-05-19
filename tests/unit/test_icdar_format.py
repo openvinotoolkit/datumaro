@@ -1,4 +1,3 @@
-import os
 import os.path as osp
 from functools import partial
 from unittest import TestCase
@@ -20,18 +19,11 @@ from datumaro.plugins.data_formats.icdar.exporter import (
     IcdarTextSegmentationExporter,
     IcdarWordRecognitionExporter,
 )
-from datumaro.util import dump_json_file
-from datumaro.util.meta_file_util import get_hashkey_file
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import (
-    TestDir,
-    check_save_and_load,
-    compare_datasets,
-    compare_hashkey_meta,
-)
+from tests.utils.test_utils import TestDir, check_save_and_load, compare_datasets
 
 DUMMY_DATASET_DIR = get_test_asset_path("icdar_dataset")
 
@@ -166,40 +158,6 @@ class IcdarImporterTest(TestCase):
         )
 
         compare_datasets(self, expected_dataset, dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_hash_key(self):
-        for format, exporter in [
-            ("icdar_text_localization", IcdarTextLocalizationExporter),
-            ("icdar_word_recognition", IcdarWordRecognitionExporter),
-            ("icdar_text_segmentation", IcdarTextSegmentationExporter),
-        ]:
-            hashkey_meta = {
-                "hashkey": {
-                    "train/a/b/1": np.zeros((1, 64), dtype=np.uint8).tolist(),
-                }
-            }
-            source_dataset = Dataset.from_iterable(
-                [
-                    DatasetItem(
-                        id="a/b/1",
-                        subset="train",
-                        media=Image.from_numpy(data=np.ones((10, 10, 3))),
-                        annotations=[
-                            Caption("caption 0"),
-                        ],
-                    )
-                ]
-            )
-            with TestDir() as test_dir:
-                exporter.convert(source_dataset, test_dir, save_media=True)
-
-                meta_file = get_hashkey_file(test_dir)
-                os.makedirs(osp.join(test_dir, "hash_key_meta"))
-                dump_json_file(meta_file, hashkey_meta, indent=True)
-
-                imported_dataset = Dataset.import_from(test_dir, format)
-                compare_hashkey_meta(self, hashkey_meta, imported_dataset)
 
 
 class IcdarConverterTest(TestCase):
