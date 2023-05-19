@@ -20,7 +20,6 @@ from .base import TestDataFormatBase
 from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import compare_datasets
 
-
 DATASET_DIR = get_test_asset_path("segment_anything_dataset")
 
 
