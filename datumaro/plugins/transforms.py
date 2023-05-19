@@ -9,7 +9,7 @@ import logging as log
 import os.path as osp
 import random
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 from copy import deepcopy
 from enum import Enum, auto
 from itertools import chain
@@ -1229,3 +1229,107 @@ class RemoveAttributes(ItemTransform):
                 attributes=self._filter_attrs(item.attributes), annotations=filtered_annotations
             )
         return item
+
+
+class Corrector(Transform):
+    def __init__(
+        self,
+        extractor: IDataset,
+        reports: Dict,
+    ):
+        super().__init__(extractor)
+        self._reports = reports["validation_reports"]
+
+        self._remove_items = []
+        self._remove_anns = []
+        self._add_attrs = []
+
+        self._analyze_reports(report=self._reports)
+
+    def _parse_ann_ids(self, desc: str):
+        return [int(s) for s in str.split(desc, "'") if s.isdigit()][0]
+
+    def _analyze_reports(self, report):
+        for rep in report:
+            if rep["anomaly_type"] == "MissingLabelCategories":
+                label_categories = LabelCategories()
+                for item in self._extractor:
+                    for ann in item.annotations:
+                        attrs = set()
+                        for attr in ann.attributes:
+                            attrs.add(attr)
+                        label_id = label_categories.find(str(ann.label))[0]
+                        if label_id is None:
+                            label_categories.add(name=str(ann.label), attributes=attrs)
+                        else:
+                            label_categories[label_id].attributes.add(attrs)
+                self._extractor.categories()[AnnotationType.label] = label_categories
+
+            if rep["anomaly_type"] == "UndefinedLabel":
+                label_categories = self._extractor.categories().get(AnnotationType.label)
+                desc = [s for s in str.split(rep["description"], "'")]
+                add_label_name = desc[1]
+                label_id = label_categories.find(add_label_name)[0]
+                if label_id is None:
+                    label_categories.add(name=add_label_name)
+
+            if rep["anomaly_type"] == "UndefinedAttribute":
+                label_categories = self._extractor.categories().get(AnnotationType.label)
+                desc = [s for s in str.split(rep["description"], "'")]
+                attr_name, label_name = desc[1], desc[3]
+                label_id = label_categories.find(label_name)[0]
+                if label_id is not None:
+                    label_categories[label_id].attributes.add(attr_name)
+
+            # [TODO] Correct LabeleDefinedButNotFound: removing a label, reindexing, remapping others
+            # if rep["anomaly_type"] == "LabelDefinedButNotFound":
+            #     remove_label_name = self._parse_label_cat(rep["description"])
+            #     label_cat = self._extractor.categories()[AnnotationType.label]
+            #     if remove_label_name in [labels.name for labels in label_cat.items]:
+            #         label_cat.remove(remove_label_name)
+
+            if rep["anomaly_type"] in ["MissingAnnotation", "MultiLabelAnnotations"]:
+                self._remove_items.append((rep["item_id"], rep["subset"]))
+
+            if rep["anomaly_type"] in [
+                "NegativeLength",
+                "InvalidValue",
+                "FarFromLabelMean",
+                "FarFromAttrMean",
+            ]:
+                ann_id = None or self._parse_ann_ids(rep["description"])
+                self._remove_anns.append((rep["item_id"], rep["subset"], ann_id))
+
+            if rep["anomaly_type"] == "MissingAttribute":
+                desc = [s for s in str.split(rep["description"], "'")]
+                attr_name, label_name = desc[1], desc[3]
+                label_id = self._extractor.categories()[AnnotationType.label].find(label_name)[0]
+                self._add_attrs.append((rep["item_id"], rep["subset"], label_id, attr_name))
+
+    def _find_removing_anns_in_item(self, target: tuple[str, str]):
+        return [tup[2] for tup in self._remove_anns if tup[:2] == target]
+
+    def _find_adding_attrs_in_item(self, target: tuple[str, str]):
+        return [tup[2:] for tup in self._add_attrs if tup[:2] == target]
+
+    def __iter__(self):
+        for item in self._extractor:
+            if (item.id, item.subset) in self._remove_items:
+                continue
+
+            ann_ids = self._find_removing_anns_in_item(target=(item.id, item.subset))
+            if ann_ids:
+                updated_anns = [ann for ann in item.annotations if ann.id not in ann_ids]
+                yield item.wrap(annotations=updated_anns)
+            else:
+                updated_attrs = defaultdict()
+                for label_id, attr_name in self._find_adding_attrs_in_item(
+                    target=(item.id, item.subset)
+                ):
+                    updated_attrs.update({label_id: attr_name})
+                updated_anns = []
+                for ann in item.annotations:
+                    if ann.label in updated_attrs:
+                        ann.attributes.update({updated_attrs[ann.label]: ""})
+                    updated_anns.append(ann)
+                yield item.wrap(annotations=updated_anns)
