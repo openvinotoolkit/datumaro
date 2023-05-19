@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/987>)
 - Fix `person_layout` categories and `action_classification` attributes in imported Pascal-VOC dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/997>)
+- Drop a malformed transform from StackedTransform automatically
+  (<https://github.com/openvinotoolkit/datumaro/pull/1001>)
 
 ## 04/05/2023 - Release 1.2.1
 ### Bug fixes
