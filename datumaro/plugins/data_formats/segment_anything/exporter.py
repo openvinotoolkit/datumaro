@@ -46,18 +46,17 @@ class SegmentAnythingExporter(Exporter):
         subsets = self._extractor.subsets()
         pbars = self._ctx.progress_reporter.split(len(subsets))
 
-        _image_ids = set()
-
-        image_id = 1
+        max_image_id = 1
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             for item in pbar.iter(subset, desc=f"Exporting {subset_name}"):
                 try:
                     # make sure file_name is flat
                     file_name = self._make_image_filename(item).replace("/", "__")
-                    image_id = int(item.attributes.get("id", image_id))
-                    while image_id in _image_ids:
-                        image_id += 1
-                    _image_ids.add(image_id)
+                    try:
+                        image_id = int(item.attributes.get("id", max_image_id))
+                    except ValueError:
+                        image_id = max_image_id
+                    max_image_id += 1
 
                     height, width = item.media.size
                     json_data = {
