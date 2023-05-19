@@ -1180,7 +1180,7 @@ class ValidationCorrectionTest:
         validator = fxt_validator(**fxt_val_args)
         reports = validator.validate(fxt_original_dataset)
 
-        refined = transforms.Corrector(fxt_original_dataset, reports=reports)
+        refined = transforms.Correct(fxt_original_dataset, reports=reports)
 
         helper_tc = request.getfixturevalue("helper_tc")
         compare_datasets(helper_tc, refined, fxt_refined_dataset)
