@@ -30,6 +30,7 @@ class CifarPath:
     TRAIN_FILE_PREFIX = "data_batch_"
     USELESS_FILE = "file.txt~"
     IMAGE_SIZE = 32
+    HASHKEY_FOLDER = "hash_key_meta"
 
 
 Cifar10Label = [
@@ -204,7 +205,7 @@ class CifarImporter(Importer):
                     # should not be the meta file.
                     file_filter=lambda p: not osp.splitext(osp.basename(p))[1]
                     and osp.basename(p) != meta_file_name
-                    and osp.basename(p) != "hash_key_meta",
+                    and osp.basename(p) != CifarPath.HASHKEY_FOLDER,
                 )
 
             return sources
