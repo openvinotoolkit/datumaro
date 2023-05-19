@@ -64,18 +64,19 @@ class SegmentAnythingBase(SubsetBase):
             desc=f"Parsing data in {osp.basename(self._path)}",
         ):
             image_id = None
+            annotations = []
+            item_kwargs = {
+                "id": None,
+                "subset": self._subset,
+                "media": None,
+                "annotations": [],
+                "attributes": {},
+            }
+
             try:
                 contents = parse_json_file(annotation_file)
                 image_info = contents["image"]
                 annotations = contents["annotations"]
-
-                item_kwargs = {
-                    "id": None,
-                    "subset": self._subset,
-                    "media": None,
-                    "annotations": [],
-                    "attributes": {},
-                }
 
                 image_id = parse_field(image_info, "image_id", int)
                 item_kwargs["attributes"]["id"] = image_id

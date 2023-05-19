@@ -48,18 +48,16 @@ class SegmentAnythingExporter(Exporter):
 
         _image_ids = set()
 
-        image_id = 0
+        image_id = 1
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             for item in pbar.iter(subset, desc=f"Exporting {subset_name}"):
-                image_id += 1
                 try:
                     # make sure file_name is flat
                     file_name = self._make_image_filename(item).replace("/", "__")
-                    if "id" in item.attributes:
-                        image_id = int(item.attributes.get("id", image_id))
-                        while image_id in _image_ids:
-                            image_id += 1
-                        _image_ids.add(image_id)
+                    image_id = int(item.attributes.get("id", image_id))
+                    while image_id in _image_ids:
+                        image_id += 1
+                    _image_ids.add(image_id)
 
                     height, width = item.media.size
                     json_data = {
@@ -128,7 +126,7 @@ class SegmentAnythingExporter(Exporter):
                             continue
                         if (
                             annotation_data["bbox"] is NOTSET
-                            and annotation["segmentation"] is not NOTSET
+                            and annotation_data["segmentation"] is not NOTSET
                         ):
                             annotation_data["bbox"] = (
                                 annotation_data["segmentation"].get_bbox().tolist()
