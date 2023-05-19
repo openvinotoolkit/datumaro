@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging as log
 import os.path as osp
 import random
@@ -1231,13 +1232,41 @@ class RemoveAttributes(ItemTransform):
         return item
 
 
-class Corrector(Transform):
+class Correct(Transform, CliPlugin):
+    """
+    Changes the content of infos.
+    A user can add meta-data of dataset such as author, comments, or related papers.
+    Infos values are not affect on the dataset structure.
+    We thus can add any meta-data freely.
+    """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "-r",
+            "--reports",
+            type=str,
+            default="validation_reports.json",
+            help="A validation report from a 'validate' CLI",
+        )
+        return parser
+
     def __init__(
         self,
         extractor: IDataset,
-        reports: Dict,
+        reports: Union[str, Dict],
     ):
         super().__init__(extractor)
+
+        if isinstance(reports, str):
+            try:
+                # Try to load the argument as a JSON file
+                with open(reports) as file:
+                    reports = json.load(file)
+            except FileNotFoundError:
+                raise Exception("Invalid validation reports with json format")
+
         self._reports = reports["validation_reports"]
 
         self._remove_items = []
@@ -1322,14 +1351,19 @@ class Corrector(Transform):
                 updated_anns = [ann for ann in item.annotations if ann.id not in ann_ids]
                 yield item.wrap(annotations=updated_anns)
             else:
-                updated_attrs = defaultdict()
+                updated_attrs = defaultdict(list)
                 for label_id, attr_name in self._find_adding_attrs_in_item(
                     target=(item.id, item.subset)
                 ):
-                    updated_attrs.update({label_id: attr_name})
+                    if label_id in updated_attrs:
+                        updated_attrs[label_id].append(attr_name)
+                    else:
+                        updated_attrs.update({label_id: [attr_name]})
                 updated_anns = []
                 for ann in item.annotations:
                     if ann.label in updated_attrs:
-                        ann.attributes.update({updated_attrs[ann.label]: ""})
+                        ann.attributes.update(
+                            {attr_name: "" for attr_name in updated_attrs[ann.label]}
+                        )
                     updated_anns.append(ann)
                 yield item.wrap(annotations=updated_anns)

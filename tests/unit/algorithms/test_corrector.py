@@ -389,7 +389,7 @@ def fxt_refined_undefined_attr_dataset():
                 id="undefined_attribute_0",
                 subset="train",
                 annotations=[
-                    Label(id=0, label=1, attributes={"z": 0}),
+                    Label(id=0, label=1, attributes={"x": "", "y": "", "z": 0}),
                 ],
             ),
             DatasetItem(
