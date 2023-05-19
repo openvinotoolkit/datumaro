@@ -9,7 +9,7 @@ import logging as log
 import os.path as osp
 import random
 import re
-from collections import Counter
+from collections import defaultdict, Counter
 from copy import deepcopy
 from enum import Enum, auto
 from itertools import chain
