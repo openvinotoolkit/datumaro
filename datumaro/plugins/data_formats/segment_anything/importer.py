@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
-import json
 import os
 from typing import Dict, List, Optional
 
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.errors import DatasetImportError
+from datumaro.util import parse_json
 
 
 class SegmentAnythingImporter(Importer):
@@ -24,9 +24,9 @@ class SegmentAnythingImporter(Importer):
         for file in context.require_files_iter("*.json"):
             ctr += 1
             with context.probe_text_file(
-                file, "Annotation format is not Segmentat-Anything format"
+                file, "Annotation format is not Segmentat-Anything format", is_binary_file=True
             ) as f:
-                anno = json.load(f)
+                anno = parse_json(f.read())
                 if (
                     set(anno.keys()) != {"annotations", "image"}
                     or (
