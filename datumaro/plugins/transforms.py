@@ -1121,6 +1121,8 @@ class RemoveAnnotations(ItemTransform):
     @staticmethod
     def _parse_id(s):
         full_id = s.split(":")
+        if len(full_id) == 3:
+            full_id[-1] = int(full_id[-1])
         if len(full_id) != 2 or len(full_id) != 3:
             raise argparse.ArgumentTypeError(
                 None,
