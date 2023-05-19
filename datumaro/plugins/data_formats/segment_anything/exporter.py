@@ -70,7 +70,7 @@ class SegmentAnythingExporter(Exporter):
                         "annotations": [],
                     }
 
-                    annotations_grouped = defaultdict(lambda: [])
+                    annotations_grouped = defaultdict(list)
                     for annotation in item.annotations:
                         annotations_grouped[annotation.id].append(annotation)
 
