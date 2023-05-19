@@ -1146,17 +1146,14 @@ class RemoveAnnotations(ItemTransform):
     def __init__(self, extractor: IDataset, *, ids: Iterable[Tuple[str, str, Optional[int]]]):
         super().__init__(extractor)
 
-        self._ids = {}
+        self._ids = defaultdict(list)
         for v in ids:
             key = tuple(v[:2])
             val = v[2] if len(v) == 3 else None
-            if key in self._ids:
-                if val and self._ids[key]:
-                    self._ids[key].append(val)
-                else:
-                    self._ids[key] = None
+            if val is not None:
+                self._ids[key].append(val)
             else:
-                self._ids[key] = None if val is None else [val]
+                self._ids[key] = []
 
     def transform_item(self, item: DatasetItem):
         if not self._ids:
