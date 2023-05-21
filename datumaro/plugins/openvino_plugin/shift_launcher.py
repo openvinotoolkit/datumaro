@@ -7,7 +7,7 @@ from datumaro.components.media import Image
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
 
 
-class ShiftAnalyzerLauncher(OpenvinoLauncher):
+class ShiftLauncher(OpenvinoLauncher):
     def __init__(
         self,
         description=None,
