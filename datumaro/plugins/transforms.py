@@ -1262,6 +1262,8 @@ class Correct(Transform, CliPlugin):
 
         self._reports = reports["validation_reports"]
 
+        self._categories = self._extractor.categories()
+
         self._remove_items = set()
         self._remove_anns = defaultdict(list)
         self._add_attrs = defaultdict(list)
@@ -1269,7 +1271,7 @@ class Correct(Transform, CliPlugin):
         self._analyze_reports(report=self._reports)
 
     def categories(self):
-        return self._extractor.categories()
+        return self._categories
 
     def _parse_ann_ids(self, desc: str):
         return [int(s) for s in str.split(desc, "'") if s.isdigit()][0]
@@ -1287,10 +1289,10 @@ class Correct(Transform, CliPlugin):
                     for ann in item.annotations:
                         attrs = {attr for attr in ann.attributes}
                         label_categories[ann.label].attributes.update(attrs)
-                self._extractor.categories()[AnnotationType.label] = label_categories
+                self._categories[AnnotationType.label] = label_categories
 
             if rep["anomaly_type"] == "UndefinedLabel":
-                label_categories = self._extractor.categories().get(AnnotationType.label)
+                label_categories = self._categories[AnnotationType.label]
                 desc = [s for s in rep["description"].split("'")]
                 add_label_name = desc[1]
                 label_id, _ = label_categories.find(add_label_name)
@@ -1298,7 +1300,7 @@ class Correct(Transform, CliPlugin):
                     label_categories.add(name=add_label_name)
 
             if rep["anomaly_type"] == "UndefinedAttribute":
-                label_categories = self._extractor.categories().get(AnnotationType.label)
+                label_categories = self._categories[AnnotationType.label]
                 desc = [s for s in rep["description"].split("'")]
                 attr_name, label_name = desc[1], desc[3]
                 label_id = label_categories.find(label_name)[0]
