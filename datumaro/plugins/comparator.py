@@ -5,21 +5,20 @@
 from unittest import TestCase
 
 from attr import attrib, attrs
-
-from datumaro.components.annotation import AnnotationType
-from datumaro.components.operations import match_items_by_id, match_items_by_image_hash
-from datumaro.util import filter_dict, find
-from datumaro.util.attrs_util import default_if_none
-from datumaro.components.dataset import Dataset
-from datumaro.components.annotation import AnnotationType, LabelCategories
-from datumaro.components.operations import (
-    compute_image_statistics,
-    compute_ann_statistics,
-    match_classes,
-)
-from datumaro.plugins.shift_analyzer import ShiftAnalyzer
 from texttable import Texttable
 
+from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.dataset import Dataset
+from datumaro.components.operations import (
+    compute_ann_statistics,
+    compute_image_statistics,
+    match_classes,
+    match_items_by_id,
+    match_items_by_image_hash,
+)
+from datumaro.plugins.shift_analyzer import ShiftAnalyzer
+from datumaro.util import filter_dict, find
+from datumaro.util.attrs_util import default_if_none
 
 
 @attrs
@@ -140,14 +139,13 @@ class Comparator:
     def _analyze_dataset(dataset):
         label_cat = dataset.categories().get(AnnotationType.label, LabelCategories())
         labels = set(c.name for c in label_cat)
-        
+
         dataset_format = dataset.format
         dataset_classes = labels
         image_stats = compute_image_statistics(dataset)
         ann_stats = compute_ann_statistics(dataset)
 
         return dataset_format, dataset_classes, image_stats, ann_stats
-
 
     @staticmethod
     def generate_high_level_comparison_table(src_info, tgt_info):
@@ -162,16 +160,43 @@ class Comparator:
             ["Field", "Source", "Target"],
             ["Format", src_dataset_format, tgt_dataset_format],
             ["Number of classes", len(src_dataset_classes), len(tgt_dataset_classes)],
-            ["Intersect classes", ", ".join(sorted(list(src_dataset_classes.intersection(tgt_dataset_classes)))), 
-                                  ",".join(sorted(list(src_dataset_classes.intersection(tgt_dataset_classes))))],
-            ["Classes", ", ".join(sorted(src_dataset_classes)), ", ".join(sorted(tgt_dataset_classes))],
-            ["Images count", src_image_stats['dataset']['images count'], tgt_image_stats['dataset']['images count']],
-            ["Unique images count", src_image_stats['dataset']['unique images count'], tgt_image_stats['dataset']['unique images count']],
-            ["Repeated images count", src_image_stats['dataset']['repeated images count'], tgt_image_stats['dataset']['repeated images count']],
-            ["Annotations count", src_ann_stats['annotations count'], tgt_ann_stats['annotations count']],
-            ["Unannotated images count", src_ann_stats['unannotated images count'], tgt_ann_stats['unannotated images count']],
+            [
+                "Intersect classes",
+                ", ".join(sorted(list(src_dataset_classes.intersection(tgt_dataset_classes)))),
+                ",".join(sorted(list(src_dataset_classes.intersection(tgt_dataset_classes)))),
+            ],
+            [
+                "Classes",
+                ", ".join(sorted(src_dataset_classes)),
+                ", ".join(sorted(tgt_dataset_classes)),
+            ],
+            [
+                "Images count",
+                src_image_stats["dataset"]["images count"],
+                tgt_image_stats["dataset"]["images count"],
+            ],
+            [
+                "Unique images count",
+                src_image_stats["dataset"]["unique images count"],
+                tgt_image_stats["dataset"]["unique images count"],
+            ],
+            [
+                "Repeated images count",
+                src_image_stats["dataset"]["repeated images count"],
+                tgt_image_stats["dataset"]["repeated images count"],
+            ],
+            [
+                "Annotations count",
+                src_ann_stats["annotations count"],
+                tgt_ann_stats["annotations count"],
+            ],
+            [
+                "Unannotated images count",
+                src_ann_stats["unannotated images count"],
+                tgt_ann_stats["unannotated images count"],
+            ],
         ]
-        
+
         data_dict = {row[0]: row[1:] for row in rows[1:]}
         table.add_rows(rows)
         return table.draw(), data_dict
@@ -191,26 +216,58 @@ class Comparator:
         ]
 
         # sort by subset names
-        subset_names = sorted(set(src_image_stats['subsets'].keys()).union(tgt_image_stats['subsets'].keys()))
+        subset_names = sorted(
+            set(src_image_stats["subsets"].keys()).union(tgt_image_stats["subsets"].keys())
+        )
 
         for subset_name in subset_names:
-            src_subset_data = src_image_stats['subsets'].get(subset_name, {})
-            tgt_subset_data = tgt_image_stats['subsets'].get(subset_name, {})
-            mean_str_src = ", ".join(f"{val:6.2f}" for val in src_subset_data.get('image mean', [])) if 'image mean' in src_subset_data else ""
-            std_str_src = ", ".join(f"{val:6.2f}" for val in src_subset_data.get('image std', [])) if 'image std' in src_subset_data else ""
-            mean_str_tgt = ", ".join(f"{val:6.2f}" for val in tgt_subset_data.get('image mean', [])) if 'image mean' in tgt_subset_data else ""
-            std_str_tgt = ", ".join(f"{val:6.2f}" for val in tgt_subset_data.get('image std', [])) if 'image std' in tgt_subset_data else ""
+            src_subset_data = src_image_stats["subsets"].get(subset_name, {})
+            tgt_subset_data = tgt_image_stats["subsets"].get(subset_name, {})
+            mean_str_src = (
+                ", ".join(f"{val:6.2f}" for val in src_subset_data.get("image mean", []))
+                if "image mean" in src_subset_data
+                else ""
+            )
+            std_str_src = (
+                ", ".join(f"{val:6.2f}" for val in src_subset_data.get("image std", []))
+                if "image std" in src_subset_data
+                else ""
+            )
+            mean_str_tgt = (
+                ", ".join(f"{val:6.2f}" for val in tgt_subset_data.get("image mean", []))
+                if "image mean" in tgt_subset_data
+                else ""
+            )
+            std_str_tgt = (
+                ", ".join(f"{val:6.2f}" for val in tgt_subset_data.get("image std", []))
+                if "image std" in tgt_subset_data
+                else ""
+            )
             rows.append([f"{subset_name} - Image Mean", mean_str_src, mean_str_tgt])
             rows.append([f"{subset_name} - Image Std", std_str_src, std_str_tgt])
 
-        label_names = sorted(set(src_ann_stats['annotations']['labels']['distribution'].keys()).union(tgt_ann_stats['annotations']['labels']['distribution'].keys()))
+        label_names = sorted(
+            set(src_ann_stats["annotations"]["labels"]["distribution"].keys()).union(
+                tgt_ann_stats["annotations"]["labels"]["distribution"].keys()
+            )
+        )
 
         for label_name in label_names:
-            count_dist_src = src_ann_stats['annotations']['labels']['distribution'].get(label_name, [0, 0.0])
-            count_dist_tgt = tgt_ann_stats['annotations']['labels']['distribution'].get(label_name, [0, 0.0])
+            count_dist_src = src_ann_stats["annotations"]["labels"]["distribution"].get(
+                label_name, [0, 0.0]
+            )
+            count_dist_tgt = tgt_ann_stats["annotations"]["labels"]["distribution"].get(
+                label_name, [0, 0.0]
+            )
             count_src, dist_src = count_dist_src if count_dist_src[0] != 0 else ["", ""]
             count_tgt, dist_tgt = count_dist_tgt if count_dist_tgt[0] != 0 else ["", ""]
-            rows.append([f"Label - {label_name}", f"imgs: {count_src}, percent: {dist_src:.4f}" if count_src != "" else "", f"imgs: {count_tgt}, percent: {dist_tgt:.4f}" if count_tgt != "" else ""])
+            rows.append(
+                [
+                    f"Label - {label_name}",
+                    f"imgs: {count_src}, percent: {dist_src:.4f}" if count_src != "" else "",
+                    f"imgs: {count_tgt}, percent: {dist_tgt:.4f}" if count_tgt != "" else "",
+                ]
+            )
 
         table.add_rows(rows)
         data_dict = {row[0]: row[1:] for row in rows[1:]}
@@ -221,7 +278,7 @@ class Comparator:
         shift = ShiftAnalyzer()
         cov_shift = shift.compute_covariate_shift([src_dataset, tgt_dataset])
         label_shift = shift.compute_label_shift([src_dataset, tgt_dataset])
-        
+
         table = Texttable()
         table.set_cols_align(["l", "l"])
         table.set_cols_valign(["m", "m"])
@@ -237,18 +294,19 @@ class Comparator:
         return table.draw(), data_dict
 
     def compare_datasets(self, src, tgt):
-
         src_info = self._analyze_dataset(src)
         tgt_info = self._analyze_dataset(tgt)
 
-        high_level_table, high_level_dict = self.generate_high_level_comparison_table(src_info, tgt_info)
-        mid_level_table, mid_level_dict = self.generate_mid_level_comparison_table(src_info, tgt_info)
+        high_level_table, high_level_dict = self.generate_high_level_comparison_table(
+            src_info, tgt_info
+        )
+        mid_level_table, mid_level_dict = self.generate_mid_level_comparison_table(
+            src_info, tgt_info
+        )
         low_level_table, low_level_dict = self.generate_low_level_comparison_table(src, tgt)
-        
+
         comparison_dict = dict(
-                      high_level=high_level_dict,
-                      mid_level=mid_level_dict,
-                      low_level=low_level_dict
-                      )
+            high_level=high_level_dict, mid_level=mid_level_dict, low_level=low_level_dict
+        )
 
         return high_level_table, mid_level_table, low_level_table, comparison_dict
