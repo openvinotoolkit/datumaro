@@ -16,6 +16,8 @@ Supported media types:
 Supported annotation types:
 - `Bbox`
 - `Mask`
+- `Polygon`
+- `Ellipse`
 
 Supported annotation attributes:
 
