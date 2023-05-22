@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add VocInstanceSegmentationImporter and VocInstanceSegmentationExporter
   (<https://github.com/openvinotoolkit/datumaro/pull/997>)
 - Add Segment Anything data format support
-  (<https://github.com/openvinotoolkit/datumaro/pull/1005>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1005>, <https://github.com/openvinotoolkit/datumaro/pull/1009>)
 - Add Correct transformation
   (<https://github.com/openvinotoolkit/datumaro/pull/1006>)
 
