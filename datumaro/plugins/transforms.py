@@ -351,7 +351,7 @@ class Reindex(Transform, CliPlugin):
             yield self.wrap_item(item, id=i + self._start)
 
 
-class AnnotationReindex(ItemTransform, CliPlugin):
+class ReindexAnnotations(ItemTransform, CliPlugin):
     """
     Replaces dataset items' annotations with sequential indices.
     """

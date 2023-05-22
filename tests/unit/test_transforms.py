@@ -1084,7 +1084,7 @@ class RemoveAttributesTest(TestCase):
         compare_datasets(self, expected, actual)
 
 
-class AnnotationReindexTest:
+class ReindexAnnotationsTest:
     @pytest.fixture
     def fxt_dataset(self, n_labels=3, n_anns=5, n_items=7) -> Dataset:
         return Dataset.from_iterable(
@@ -1112,7 +1112,7 @@ class AnnotationReindexTest:
         )
 
         fxt_dataset.transform(
-            "annotation_reindex",
+            "reindex_annotations",
             start=start,
             reindex_each_item=reindex_each_item,
         )
