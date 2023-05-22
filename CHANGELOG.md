@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/996>)
 - Add VocInstanceSegmentationImporter and VocInstanceSegmentationExporter
   (<https://github.com/openvinotoolkit/datumaro/pull/997>)
-- Add Corrector transformation
+- Add Segment Anything data format support
+  (<https://github.com/openvinotoolkit/datumaro/pull/1005>)
+- Add Correct transformation
   (<https://github.com/openvinotoolkit/datumaro/pull/1006>)
 
 ### Enhancements
@@ -27,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/981>)
 - Add MOT and MOTS data format docs
   (<https://github.com/openvinotoolkit/datumaro/pull/999>)
+- Improve RemoveAnnotations to remove specific annotations with ids
+  (<https://github.com/openvinotoolkit/datumaro/pull/1004>)
 
 ### Bug fixes
 - Fix Mapillary Vistas data format
