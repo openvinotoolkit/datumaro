@@ -752,7 +752,6 @@ class CocoExporter(Exporter):
                             self._report_annotation_error(e, item_id=(item.id, item.subset))
                 except Exception as e:
                     self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
-                self._check_hash_key_existence(item)
 
             for task, task_conv in task_converters.items():
                 ann_file = osp.join(self._ann_dir, "%s_%s.json" % (task.name, subset_name))
@@ -767,8 +766,6 @@ class CocoExporter(Exporter):
                     continue
 
                 task_conv.write(ann_file)
-        if self._save_hashkey_meta:
-            self._save_hashkey_file(self._save_dir)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):

@@ -175,7 +175,6 @@ class MnistExporter(Exporter):
                         ):
                             image_sizes[len(labels) - 1] = [image.shape[0], image.shape[1]]
                         images = np.append(images, image.reshape(-1).astype(np.uint8))
-                self._check_hash_key_existence(item)
 
             if subset_name == "test":
                 labels_file = osp.join(self._save_dir, MnistPath.TEST_LABELS_FILE)
@@ -217,8 +216,6 @@ class MnistExporter(Exporter):
                     f.write(np.array(meta, dtype="<U32").tobytes())
 
         self.save_labels()
-        if self._save_hashkey_meta:
-            self._save_hashkey_file(self._save_dir)
 
     def save_annotations(self, path, data):
         with gzip.open(path, "wb") as f:

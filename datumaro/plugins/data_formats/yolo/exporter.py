@@ -97,7 +97,6 @@ class YoloExporter(Exporter):
 
                 except Exception as e:
                     self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
-                self._check_hash_key_existence(item)
 
             subset_list_name = f"{subset_name}.txt"
             subset_list_path = osp.join(save_dir, subset_list_name)
@@ -121,8 +120,6 @@ class YoloExporter(Exporter):
 
             f.write("names = %s\n" % osp.join(self._prefix, "obj.names"))
             f.write("backup = backup/\n")
-        if self._save_hashkey_meta:
-            self._save_hashkey_file(self._save_dir)
 
     def _export_media(self, item: DatasetItem, subset_img_dir: str) -> str:
         try:

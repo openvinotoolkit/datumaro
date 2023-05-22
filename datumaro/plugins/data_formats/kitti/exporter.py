@@ -126,7 +126,6 @@ class KittiExporter(Exporter):
             for item in subset:
                 if self._save_media:
                     self._save_image(item, subdir=osp.join(subset_name, KittiPath.IMAGES_DIR))
-                self._check_hash_key_existence(item)
 
                 masks = [a for a in item.annotations if a.type == AnnotationType.mask]
                 if masks and KittiTask.segmentation in self._tasks:
@@ -195,8 +194,6 @@ class KittiExporter(Exporter):
 
         if KittiTask.segmentation in self._tasks:
             self.save_label_map()
-        if self._save_hashkey_meta:
-            self._save_hashkey_file(self._save_dir)
 
     def get_label(self, label_id):
         return self._extractor.categories()[AnnotationType.label].items[label_id].name

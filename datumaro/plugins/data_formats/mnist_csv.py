@@ -157,7 +157,6 @@ class MnistCsvExporter(Exporter):
 
                 if item.id != str(len(data) - 1):
                     item_ids[len(data) - 1] = item.id
-                self._check_hash_key_existence(item)
 
             anno_file = osp.join(self._save_dir, "mnist_%s.csv" % subset_name)
             self.save_in_csv(anno_file, data)
@@ -188,8 +187,6 @@ class MnistCsvExporter(Exporter):
                 self.save_in_csv(metafile, meta)
 
         self.save_labels()
-        if self._save_hashkey_meta:
-            self._save_hashkey_file(self._save_dir)
 
     def save_in_csv(self, path, data):
         with open(path, "w", encoding="utf-8") as f:

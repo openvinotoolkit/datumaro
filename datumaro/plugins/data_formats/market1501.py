@@ -167,13 +167,9 @@ class Market1501Exporter(Exporter):
                     attrs = attrs.groups()
                     used_frames.setdefault(attrs[0:2], []).append(int(attrs[3]))
                 annotation += "%s\n" % image_path
-                self._check_hash_key_existence(item)
 
             annotation_file = osp.join(
                 self._save_dir, Market1501Path.LIST_PREFIX + subset_name + ".txt"
             )
             with open(annotation_file, "w", encoding="utf-8") as f:
                 f.write(annotation)
-
-        if self._save_hashkey_meta:
-            self._save_hashkey_file(self._save_dir)
