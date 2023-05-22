@@ -2,15 +2,14 @@
 
 ## Format specification
 
-SA-1B format specification is available [here](https://github.com/facebookresearch/segment-anything#dataset)
+SA-1B format specification is available [here](https://github.com/facebookresearch/segment-anything#dataset).
 
-The SA-1B is an dataset consisting of 1 billion segmentation masks model generated.
+The SA-1B is a dataset consisting of 1 billion segmentation masks model generated.
 The model is known as [SAM](https://ai.facebook.com/research/publications/segment-anything/) from FAIR and
-it can produce reliable and accurate segmentation masks given user prompt,
-such as point, box, natual sentence.
+it can produce reliable and accurate segmentation masks given user prompts,
+such as points, boxes, or natural sentences.
 
 Supported media types:
-
 - `Image`
 
 Supported annotation types:
@@ -20,27 +19,26 @@ Supported annotation types:
 - `Ellipse`
 
 Supported annotation attributes:
-
 - `predicted_iou`
 - `stability_score`
 - `crop_box`
 - `point_coords`
 
-## Import Segment Anything dataset
+## Import SA-1B dataset
 
 The SA-1B dataset is available [here](https://ai.facebook.com/datasets/segment-anything-downloads/)
 
-A Datumaro project with a segment anything source can be created in the following way:
+A Datumaro project with a SA-1B source can be created in the following way:
 
 ```console
 datum project create
 datum project import --format segment_anything <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory. Run
+It is possible to specify the project name and the project directory. Run
 `datum project create --help` for more information.
 
-An Segment Anything dataset directory should have the following structure:
+An SA-1B dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
 
@@ -54,14 +52,14 @@ An Segment Anything dataset directory should have the following structure:
 ```
 
 If your dataset is not following the above directory structure,
-it cannot detect and import your dataset as the Segment Anything format properly.
+it cannot detect and import your dataset as the SA-1B format properly.
 
 To make sure that the selected dataset has been added to the project, you can
 run `datum project pinfo`, which will display the project information.
 
 ## Export to other formats
 
-It can convert Datumaro dataset into any other format [Datumaro supports](/docs/data-formats/supported_formats/).
+It can convert the dataset into any other formats [Datumaro supports](/docs/data-formats/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the specified task.
 
@@ -91,9 +89,9 @@ dataset = dm.Dataset.import_from('<path/to/dataset>', 'segment_anything')
 dataset.export('save_dir', 'coco', save_media=True)
 ```
 
-## Export to Segment Anything
+## Export to SA-1B
 
-**Please note that exporting to Segment Anything format would drop label information in annotations due to the nature of the format.**
+**Please note that exporting to SA-1B format would drop label information in annotations due to the nature of the format.**
 
 There are several ways to convert a dataset to Segement Anything format:
 

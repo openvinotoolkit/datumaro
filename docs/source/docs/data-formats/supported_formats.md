@@ -130,7 +130,7 @@ List of supported formats:
   - [Format specification](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/voc_dataset)
   - [Format documentation](../explanation/formats/pascal_voc)
-- Segment Anything (a.k.a SA-1B) (`segmentation`)
+- Segment Anything (a.k.a SA-1B) (`detection`, `segmentation`)
   - [Format specification](https://github.com/facebookresearch/segment-anything#dataset)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/segment_anything_dataset)
   - [Format documentation](../explanation/formats/segment_anything)
