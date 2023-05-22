@@ -19,7 +19,11 @@ from datumaro.components.operations import (
 from datumaro.plugins.shift_analyzer import ShiftAnalyzer
 from datumaro.util import filter_dict, find
 from datumaro.util.attrs_util import default_if_none
-
+import os.path as osp
+from datumaro.cli.util.project import generate_next_file_name
+import logging as log
+from datumaro.util import dump_json_file
+import os
 
 @attrs
 class Comparator:
@@ -309,4 +313,30 @@ class Comparator:
             high_level=high_level_dict, mid_level=mid_level_dict, low_level=low_level_dict
         )
 
+        print(f"High-level comparison:\n{high_level_table}\n")
+        print(f"Mid-level comparison:\n{mid_level_table}\n")
+        print(f"Low-level comparison:\n{low_level_table}\n")
+
         return high_level_table, mid_level_table, low_level_table, comparison_dict
+
+    @staticmethod
+    def save_compare_report(high_level_table, mid_level_table, low_level_table, comparison_dict, path: str) -> None:
+
+        os.makedirs(path, exist_ok=True)
+        json_output_file = osp.join(
+            path, generate_next_file_name("compare", ext=".json", basedir=path)
+        )
+        txt_output_file = osp.join(
+            path, generate_next_file_name("compare", ext=".txt", basedir=path)
+        )
+
+        log.info("Saving compare json to '%s'" % json_output_file)
+        log.info("Saving compare table to '%s'" % txt_output_file)
+
+        dump_json_file(json_output_file, comparison_dict, indent=True)
+        with open(txt_output_file, "w") as f:
+            f.write(f"High-level Comparison:\n{high_level_table}\n")
+            f.write(f"Mid-level Comparison:\n{mid_level_table}\n")
+            f.write(f"Low-level Comparison:\n{low_level_table}\n")
+
+        

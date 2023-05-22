@@ -230,23 +230,11 @@ def compare_command(args):
             comparison_dict,
         ) = comparator.compare_datasets(first_dataset, second_dataset)
 
-        json_output_file = osp.join(
-            dst_dir, generate_next_file_name("compare", ext=".json", basedir=dst_dir)
-        )
-        txt_output_file = osp.join(
-            dst_dir, generate_next_file_name("compare", ext=".txt", basedir=dst_dir)
-        )
+        if args.dst_dir:
+            comparator.save_compare_report(high_level_table,
+                                           mid_level_table, 
+                                           low_level_table, 
+                                           comparison_dict, 
+                                           args.dst_dir)
 
-        log.info("Saving compare json to '%s'" % json_output_file)
-        log.info("Saving compare table to '%s'" % txt_output_file)
-
-        dump_json_file(json_output_file, comparison_dict, indent=True)
-        with open(txt_output_file, "w") as f:
-            f.write(f"High-level Comparison:\n{high_level_table}\n")
-            f.write(f"Mid-level Comparison:\n{mid_level_table}\n")
-            f.write(f"Low-level Comparison:\n{low_level_table}\n")
-
-        print(f"High-level Comparison:\n{high_level_table}\n")
-        print(f"Mid-level Comparison:\n{mid_level_table}\n")
-        print(f"Low-level Comparison:\n{low_level_table}\n")
     return 0

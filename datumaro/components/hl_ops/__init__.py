@@ -17,6 +17,7 @@ from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.merge import DEFAULT_MERGE_POLICY, get_merger
 from datumaro.components.transformer import Transform
 from datumaro.components.validator import TaskType, Validator
+from datumaro.plugins.comparator import Comparator
 from datumaro.util import parse_str_enum_value
 from datumaro.util.scope import on_error_do, scoped
 
@@ -26,34 +27,35 @@ __all__ = ["HLOps"]
 class HLOps:
     """High-level dataset operations for Python API."""
 
-    # @staticmethod
-    # def compare(
-    #     src_dataset: IDataset,
-    #     tgt_dataset: IDataset,
-    #     level: str = "high",
-    #     *,
-    #     env: Optional[Environment] = None,
-    #     **kwargs,
-    # ) -> IDataset:
-    #     """
-    #     Applies some function to dataset items.
+    @staticmethod
+    def compare(
+        src_dataset: IDataset,
+        tgt_dataset: IDataset,
+        report_path: Optional[str] = None,
+        **kwargs
+    ) -> IDataset:
+        """
+        Applies some function to dataset items.
 
-    #     Results are computed lazily, if the transform supports this.
+        Results are computed lazily, if the transform supports this.
 
-    #     Args:
-    #         dataset: The dataset to be transformed
-    #         method: The transformation to be applied to the dataset.
-    #             If a string is passed, it is treated as a plugin name,
-    #             which is searched for in the environment
-    #             set by the 'env' argument
-    #         env: A plugin collection. If not set, the built-in plugins are used
-    #         **kwargs: Parameters for the transformation
+        Args:
+            dataset: The dataset to be transformed
+            method: The transformation to be applied to the dataset.
+                If a string is passed, it is treated as a plugin name,
+                which is searched for in the environment
+                set by the 'env' argument
+            env: A plugin collection. If not set, the built-in plugins are used
+            **kwargs: Parameters for the transformation
 
-    #     Returns: a wrapper around the input dataset
-    #     """
+        Returns: a wrapper around the input dataset
+        """
 
-    #     comparator = Comparator()
-    #     return comparator.compare_datasets(src_dataset, tgt_dataset, level=level)
+        comparator = Comparator()
+        h_table, m_table, l_table, result_dict = comparator.compare_datasets(src_dataset, tgt_dataset)
+        if report_path:
+            comparator.save_compare_report(h_table, m_table, l_table, result_dict, report_path)
+        return 0
 
     @staticmethod
     def transform(
