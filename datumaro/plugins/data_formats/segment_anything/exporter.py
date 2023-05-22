@@ -12,21 +12,11 @@ from typing import List, Union
 from pycocotools import mask as mask_utils
 
 from datumaro.components.annotation import AnnotationType, Ellipse, Polygon
-from datumaro.components.errors import DatumaroError, MediaTypeError
+from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
-from datumaro.util import NOTSET
 from datumaro.util import annotation_util as anno_tools
 from datumaro.util import dump_json_file, mask_tools
-
-
-def replace(json_data, key, value_new):
-    value_origin = json_data[key]
-    if value_origin is NOTSET:
-        json_data[key] = value_new
-        return
-    if value_origin != value_new:
-        raise DatumaroError(f"The value for '{key}' is not same for item {value_new}")
 
 
 class SegmentAnythingExporter(Exporter):
