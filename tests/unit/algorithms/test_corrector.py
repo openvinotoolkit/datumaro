@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Dict
+from copy import deepcopy
 
 import numpy as np
 import pytest
@@ -10,6 +10,7 @@ import pytest
 import datumaro.plugins.transforms as transforms
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
 from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.validator import Validator
 from datumaro.plugins.validators import ClassificationValidator, DetectionValidator
 
@@ -56,33 +57,15 @@ def fxt_original_missing_cat_dataset():
 
 
 @pytest.fixture
-def fxt_refined_missing_cat_dataset():
-    return Dataset.from_iterable(
+def fxt_refined_missing_cat_dataset(fxt_original_missing_cat_dataset):
+    refined = deepcopy(fxt_original_missing_cat_dataset)
+    refined.categories()[AnnotationType.label] = LabelCategories.from_iterable(
         [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=0, attributes={"x": 0}),
-                ],
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Label(id=0, label=1, attributes={"y": 1}),
-                ],
-            ),
-        ],
-        categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                [
-                    ("0", "", ["x"]),
-                    ("1", "", ["y"]),
-                ]
-            ),
-        },
+            ("0", "", ["x"]),
+            ("1", "", ["y"]),
+        ]
     )
+    return refined
 
 
 @pytest.fixture
@@ -113,26 +96,10 @@ def fxt_original_missing_label_dataset():
 
 
 @pytest.fixture
-def fxt_refined_missing_label_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=0),
-                ],
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Label(id=0, label=1),
-                ],
-            ),
-        ],
-        categories=["a", "b"],
-    )
+def fxt_refined_missing_label_dataset(fxt_original_missing_label_dataset: Dataset):
+    refined = deepcopy(fxt_original_missing_label_dataset)
+    refined.remove("missing_label_0", "train")
+    return refined
 
 
 @pytest.fixture
@@ -180,47 +147,29 @@ def fxt_original_missing_attr_dataset():
 
 
 @pytest.fixture
-def fxt_refined_missing_attr_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=0, attributes={"x": 0, "y": 1}),
-                ],
-            ),
-            DatasetItem(
-                id="missing_attr_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=0, attributes={"x": 0, "y": ""}),
-                ],
-            ),
-            DatasetItem(
-                id="missing_attr_1",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=1, attributes={"x": "", "y": 0}),
-                ],
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Label(id=0, label=1, attributes={"x": 0, "y": 1}),
-                ],
-            ),
-        ],
-        categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                [
-                    ("a", "", ["x", "y"]),
-                    ("b", "", ["x", "y"]),
-                ]
-            ),
-        },
+def fxt_refined_missing_attr_dataset(fxt_original_missing_attr_dataset: Dataset):
+    refined = deepcopy(fxt_original_missing_attr_dataset)
+    refined.put(
+        DatasetItem(
+            id="missing_attr_0",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Label(id=0, label=0, attributes={"x": 0, "y": ""}),
+            ],
+        )
     )
+    refined.put(
+        DatasetItem(
+            id="missing_attr_1",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Label(id=0, label=1, attributes={"x": "", "y": 0}),
+            ],
+        )
+    )
+    return refined
 
 
 @pytest.fixture
@@ -255,26 +204,10 @@ def fxt_original_multi_label_dataset():
 
 
 @pytest.fixture
-def fxt_refined_multi_label_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=0),
-                ],
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Label(id=0, label=1),
-                ],
-            ),
-        ],
-        categories=["a", "b"],
-    )
+def fxt_refined_multi_label_dataset(fxt_original_multi_label_dataset: Dataset):
+    refined = deepcopy(fxt_original_multi_label_dataset)
+    refined.remove("multi_label_0", "train")
+    return refined
 
 
 @pytest.fixture
@@ -308,33 +241,10 @@ def fxt_original_undefined_label_dataset():
 
 
 @pytest.fixture
-def fxt_refined_undefined_label_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=0),
-                ],
-            ),
-            DatasetItem(
-                id="undefined_label_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=100),
-                ],
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Label(id=0, label=1),
-                ],
-            ),
-        ],
-        categories=["a", "b", "100"],
-    )
+def fxt_refined_undefined_label_dataset(fxt_original_undefined_label_dataset):
+    refined = deepcopy(fxt_original_undefined_label_dataset)
+    refined.categories()[AnnotationType.label] = LabelCategories.from_iterable(["a", "b", "100"])
+    return refined
 
 
 @pytest.fixture
@@ -375,40 +285,35 @@ def fxt_original_undefined_attr_dataset():
 
 
 @pytest.fixture
-def fxt_refined_undefined_attr_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=0, attributes={"x": 1}),
-                ],
-            ),
-            DatasetItem(
-                id="undefined_attribute_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=1, attributes={"x": "", "y": "", "z": 0}),
-                ],
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Label(id=0, label=1, attributes={"x": 0, "y": 2}),
-                ],
-            ),
-        ],
-        categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                [
-                    ("a", "", ["x"]),
-                    ("b", "", ["x", "y", "z"]),
-                ]
-            ),
-        },
+def fxt_refined_undefined_attr_dataset(fxt_original_undefined_attr_dataset):
+    refined = deepcopy(fxt_original_undefined_attr_dataset)
+    refined.put(
+        DatasetItem(
+            id="undefined_attribute_0",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Label(id=0, label=1, attributes={"x": "", "y": "", "z": 0}),
+            ],
+        )
     )
+    refined.put(
+        DatasetItem(
+            id="normal_test_0",
+            subset="test",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Label(id=0, label=1, attributes={"x": 0, "y": 2, "z": ""}),
+            ],
+        )
+    )
+    refined.categories()[AnnotationType.label] = LabelCategories.from_iterable(
+        [
+            ("a", "", ["x"]),
+            ("b", "", ["x", "y", "z"]),
+        ]
+    )
+    return refined
 
 
 @pytest.fixture
@@ -444,32 +349,16 @@ def fxt_original_neg_len_dataset():
 
 
 @pytest.fixture
-def fxt_refined_neg_len_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=0),
-                    Bbox(0, 0, 100, 100, id=2, label=1),
-                ],
-            ),
-            DatasetItem(
-                id="negative_len_0",
-                subset="train",
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=0),
-                    Bbox(0, 0, 100, 100, id=2, label=1),
-                ],
-            ),
-        ],
-        categories=["a", "b"],
+def fxt_refined_neg_len_dataset(fxt_original_neg_len_dataset):
+    refined = deepcopy(fxt_original_neg_len_dataset)
+    refined.put(
+        DatasetItem(
+            id="negative_len_0",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+        )
     )
+    return refined
 
 
 @pytest.fixture
@@ -506,32 +395,16 @@ def fxt_original_invalid_val_dataset():
 
 
 @pytest.fixture
-def fxt_refined_invalid_val_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=0),
-                    Bbox(0, 0, 100, 100, id=2, label=1),
-                ],
-            ),
-            DatasetItem(
-                id="invalid_val_0",
-                subset="train",
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=0),
-                    Bbox(0, 0, 100, 100, id=2, label=1),
-                ],
-            ),
-        ],
-        categories=["a", "b"],
+def fxt_refined_invalid_val_dataset(fxt_original_invalid_val_dataset):
+    refined = deepcopy(fxt_original_invalid_val_dataset)
+    refined.put(
+        DatasetItem(
+            id="invalid_val_0",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+        )
     )
+    return refined
 
 
 @pytest.fixture
@@ -577,43 +450,29 @@ def fxt_original_far_from_mean_dataset():
 
 
 @pytest.fixture
-def fxt_refined_far_from_mean_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=0),
-                    Bbox(0, 0, 100, 100, id=2, label=1),
-                ]
-                * 100,
-            ),
-            DatasetItem(
-                id="far_from_mean_0",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=2, label=0),
-                ],
-            ),
-            DatasetItem(
-                id="far_from_mean_1",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=1),
-                ],
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=0),
-                    Bbox(0, 0, 100, 100, id=2, label=1),
-                ],
-            ),
-        ],
-        categories=["a", "b"],
+def fxt_refined_far_from_mean_dataset(fxt_original_far_from_mean_dataset):
+    refined = deepcopy(fxt_original_far_from_mean_dataset)
+    refined.put(
+        DatasetItem(
+            id="far_from_mean_0",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Bbox(0, 0, 100, 100, id=2, label=0),
+            ],
+        )
     )
+    refined.put(
+        DatasetItem(
+            id="far_from_mean_1",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Bbox(0, 0, 100, 100, id=1, label=1),
+            ],
+        )
+    )
+    return refined
 
 
 @pytest.fixture
@@ -730,92 +589,45 @@ def fxt_original_far_from_mean_attr_dataset():
 
 
 @pytest.fixture
-def fxt_refined_far_from_mean_attr_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Bbox(
-                        0, 0, 100, 100, label=0, attributes={"truncated": False, "occluded": False}
-                    ),
-                    Bbox(
-                        0, 0, 100, 100, label=0, attributes={"truncated": False, "occluded": True}
-                    ),
-                    Bbox(
-                        0, 0, 100, 100, label=1, attributes={"truncated": False, "occluded": False}
-                    ),
-                    Bbox(
-                        0, 0, 100, 100, label=1, attributes={"truncated": False, "occluded": True}
-                    ),
-                ]
-                * 100,
-            ),
-            DatasetItem(
-                id="far_from_mean_0",
-                subset="train",
-                annotations=[
-                    Bbox(
-                        0,
-                        0,
-                        100,
-                        100,
-                        id=1,
-                        label=0,
-                        attributes={"truncated": False, "occluded": False},
-                    ),
-                ],
-            ),
-            DatasetItem(
-                id="far_from_mean_1",
-                subset="train",
-                annotations=[
-                    Bbox(
-                        0,
-                        0,
-                        100,
-                        100,
-                        id=3,
-                        label=1,
-                        attributes={"truncated": False, "occluded": False},
-                    ),
-                ],
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Bbox(
-                        0,
-                        0,
-                        100,
-                        100,
-                        id=1,
-                        label=0,
-                        attributes={"truncated": False, "occluded": False},
-                    ),
-                    Bbox(
-                        0,
-                        0,
-                        100,
-                        100,
-                        id=2,
-                        label=1,
-                        attributes={"truncated": False, "occluded": False},
-                    ),
-                ],
-            ),
-        ],
-        categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                [
-                    ("a", "", ["truncated", "occluded"]),
-                    ("b", "", ["truncated", "occluded"]),
-                ]
-            ),
-        },
+def fxt_refined_far_from_mean_attr_dataset(fxt_original_far_from_mean_attr_dataset):
+    refined = deepcopy(fxt_original_far_from_mean_attr_dataset)
+    refined.put(
+        DatasetItem(
+            id="far_from_mean_0",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Bbox(
+                    0,
+                    0,
+                    100,
+                    100,
+                    id=1,
+                    label=0,
+                    attributes={"truncated": False, "occluded": False},
+                ),
+            ],
+        )
     )
+    refined.put(
+        DatasetItem(
+            id="far_from_mean_1",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Bbox(
+                    0,
+                    0,
+                    100,
+                    100,
+                    id=3,
+                    label=1,
+                    attributes={"truncated": False, "occluded": False},
+                ),
+            ],
+        )
+    )
+    return refined
 
 
 @pytest.fixture
@@ -893,65 +705,14 @@ def fxt_original_cls_dataset():
 
 
 @pytest.fixture
-def fxt_refined_cls_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=0),
-                ],
-            ),
-            DatasetItem(
-                id="normal_train_1",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=0),
-                ],
-            ),
-            DatasetItem(
-                id="normal_train_2",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=1),
-                ],
-            ),
-            DatasetItem(
-                id="normal_train_3",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=1),
-                ],
-            ),
-            DatasetItem(
-                id="undefined_label_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=100),
-                ],
-            ),
-            DatasetItem(
-                id="few_sample_0",
-                subset="train",
-                annotations=[
-                    Label(id=0, label=3),
-                ],
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Label(id=0, label=0),
-                ],
-            ),
-        ],
-        categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                ["label_" + str(label) for label in range(4)] + ["100"]
-            ),
-        },
+def fxt_refined_cls_dataset(fxt_original_cls_dataset):
+    refined = deepcopy(fxt_original_cls_dataset)
+    refined.remove("missing_label_0", "train")
+    refined.remove("multi_label_0", "train")
+    refined.categories()[AnnotationType.label] = LabelCategories.from_iterable(
+        ["label_" + str(label) for label in range(4)] + ["100"]
     )
+    return refined
 
 
 @pytest.fixture
@@ -1027,68 +788,43 @@ def fxt_original_det_dataset():
 
 
 @pytest.fixture
-def fxt_refined_det_dataset():
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="normal_train_0",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=1),
-                ],
-            ),
-            DatasetItem(
-                id="normal_train_1",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=1),
-                    Bbox(50, 50, 100, 100, id=2, label=2),
-                ],
-            ),
-            DatasetItem(
-                id="undefined_label_0",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=0),
-                    Bbox(0, 0, 100, 100, id=2, label=100),
-                ],
-            ),
-            DatasetItem(
-                id="negative_len_0",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=2, label=1),
-                ],
-            ),
-            DatasetItem(
-                id="negative_len_1",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=0),
-                ],
-            ),
-            DatasetItem(
-                id="invalid_0",
-                subset="train",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=0),
-                ],
-            ),
-            DatasetItem(
-                id="normal_test_0",
-                subset="test",
-                annotations=[
-                    Bbox(0, 0, 100, 100, id=1, label=1),
-                    Bbox(0, 0, 100, 100, id=2, label=2),
-                ],
-            ),
-        ],
-        categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                ["label_" + str(label) for label in range(4)] + ["100"]
-            ),
-        },
+def fxt_refined_det_dataset(fxt_original_det_dataset):
+    refined = deepcopy(fxt_original_det_dataset)
+    refined.put(
+        DatasetItem(
+            id="negative_len_0",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Bbox(0, 0, 100, 100, id=2, label=1),
+            ],
+        )
     )
+    refined.put(
+        DatasetItem(
+            id="negative_len_1",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Bbox(0, 0, 100, 100, id=1, label=0),
+            ],
+        )
+    )
+    refined.put(
+        DatasetItem(
+            id="invalid_0",
+            subset="train",
+            media=Image.from_numpy(data=np.ones((3, 2, 3))),
+            annotations=[
+                Bbox(0, 0, 100, 100, id=1, label=0),
+            ],
+        )
+    )
+    refined.remove("missing_label_0", "train")
+    refined.categories()[AnnotationType.label] = LabelCategories.from_iterable(
+        ["label_" + str(label) for label in range(4)] + ["100"]
+    )
+    return refined
 
 
 class ValidationCorrectionTest:

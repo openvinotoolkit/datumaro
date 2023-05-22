@@ -1348,9 +1348,10 @@ class Correct(Transform, CliPlugin):
 
                 updated_anns = []
                 for ann in item.annotations:
+                    new_ann = ann.wrap(attributes=deepcopy(ann.attributes))
                     if ann.label in updated_attrs:
-                        ann.attributes.update(
+                        new_ann.attributes.update(
                             {attr_name: "" for attr_name in updated_attrs[ann.label]}
                         )
-                    updated_anns.append(ann)
+                    updated_anns.append(new_ann)
                 yield item.wrap(annotations=updated_anns)
