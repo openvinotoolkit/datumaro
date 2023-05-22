@@ -419,7 +419,7 @@ class _TaskValidator(Validator, CliPlugin):
 
         if len(labels_found) == 1:
             validation_reports += self._generate_validation_report(
-                OnlyOneLabel, Severity.warning, labels_found[0]
+                OnlyOneLabel, Severity.info, labels_found[0]
             )
 
         return validation_reports
@@ -431,7 +431,7 @@ class _TaskValidator(Validator, CliPlugin):
         if len(values) == 1:
             details = (label_name, attr_name, values[0])
             validation_reports += self._generate_validation_report(
-                OnlyOneAttributeValue, Severity.warning, *details
+                OnlyOneAttributeValue, Severity.info, *details
             )
 
         return validation_reports
@@ -449,7 +449,7 @@ class _TaskValidator(Validator, CliPlugin):
 
         for label_name, count in labels_with_few_samples:
             validation_reports += self._generate_validation_report(
-                FewSamplesInLabel, Severity.warning, label_name, count
+                FewSamplesInLabel, Severity.info, label_name, count
             )
 
         return validation_reports
@@ -467,7 +467,7 @@ class _TaskValidator(Validator, CliPlugin):
         for attr_value, count in attr_values_with_few_samples:
             details = (label_name, attr_name, attr_value, count)
             validation_reports += self._generate_validation_report(
-                FewSamplesInAttribute, Severity.warning, *details
+                FewSamplesInAttribute, Severity.info, *details
             )
 
         return validation_reports
@@ -486,9 +486,7 @@ class _TaskValidator(Validator, CliPlugin):
         count_min = np.min(count_by_defined_labels)
         balance = count_max / count_min if count_min > 0 else float("inf")
         if balance >= thr:
-            validation_reports += self._generate_validation_report(
-                ImbalancedLabels, Severity.warning
-            )
+            validation_reports += self._generate_validation_report(ImbalancedLabels, Severity.info)
 
         return validation_reports
 
@@ -505,7 +503,7 @@ class _TaskValidator(Validator, CliPlugin):
         balance = count_max / count_min if count_min > 0 else float("inf")
         if balance >= thr:
             validation_reports += self._generate_validation_report(
-                ImbalancedAttribute, Severity.warning, label_name, attr_name
+                ImbalancedAttribute, Severity.info, label_name, attr_name
             )
 
         return validation_reports
@@ -915,7 +913,7 @@ class DetectionValidator(_TaskValidator):
                 if ratio >= thr:
                     details = (label_name, f"{self.str_ann_type} {prop}")
                     validation_reports += self._generate_validation_report(
-                        ImbalancedDistInLabel, Severity.warning, *details
+                        ImbalancedDistInLabel, Severity.info, *details
                     )
 
         return validation_reports
@@ -939,7 +937,7 @@ class DetectionValidator(_TaskValidator):
                     if ratio >= thr:
                         details = (label_name, attr_name, attr_value, f"{self.str_ann_type} {prop}")
                         validation_reports += self._generate_validation_report(
-                            ImbalancedDistInAttribute, Severity.warning, *details
+                            ImbalancedDistInAttribute, Severity.info, *details
                         )
 
         return validation_reports
