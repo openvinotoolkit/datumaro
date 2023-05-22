@@ -5,6 +5,7 @@ import random
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 import datumaro.plugins.transforms as transforms
 import datumaro.util.mask_tools as mask_tools
@@ -1081,3 +1082,41 @@ class RemoveAttributesTest(TestCase):
         actual = transforms.RemoveAttributes(self.source, ids=[("1", "val")], attributes=["x"])
 
         compare_datasets(self, expected, actual)
+
+
+class ReindexAnnotationsTest:
+    @pytest.fixture
+    def fxt_dataset(self, n_labels=3, n_anns=5, n_items=7) -> Dataset:
+        return Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=f"item_{item_idx}",
+                    annotations=[
+                        Label(label=random.randint(0, n_labels - 1)) for _ in range(n_anns)
+                    ],
+                )
+                for item_idx in range(n_items)
+            ],
+            LabelCategories.from_iterable([f"label_{label_id}" for label_id in range(n_labels)]),
+        )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize("reindex_each_item", [True, False])
+    def test_annotation_reindex(self, fxt_dataset: Dataset, reindex_each_item: bool):
+        start = random.randint(0, 10)
+        n_anns = sum([len(item.annotations) for item in fxt_dataset])
+
+        # n_anns != n_unique_ids
+        assert n_anns != len(
+            {(item.id, ann.id) for item in fxt_dataset for ann in item.annotations}
+        )
+
+        fxt_dataset.transform(
+            "reindex_annotations",
+            start=start,
+            reindex_each_item=reindex_each_item,
+        )
+        # n_anns == n_unique_ids
+        assert n_anns == len(
+            {(item.id, ann.id) for item in fxt_dataset for ann in item.annotations}
+        )
