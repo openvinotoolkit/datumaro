@@ -40,7 +40,7 @@ from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, D
 from datumaro.components.errors import DatumaroError
 from datumaro.components.media import Image
 from datumaro.components.transformer import ItemTransform, Transform
-from datumaro.util import NOTSET, filter_dict, parse_str_enum_value, take_by
+from datumaro.util import NOTSET, filter_dict, parse_json_file, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
 
 
@@ -1249,3 +1249,129 @@ class RemoveAttributes(ItemTransform):
                 attributes=self._filter_attrs(item.attributes), annotations=filtered_annotations
             )
         return item
+
+
+class Correct(Transform, CliPlugin):
+    """
+    Correct the dataset from a validation report.
+    A user can should feed into validation_reports.json from validator to correct the dataset.
+    This helps to refine the dataset by rejecting undefined labels, missing annotations, and outliers.
+    """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "-r",
+            "--reports",
+            type=str,
+            default="validation_reports.json",
+            help="A validation report from a 'validate' CLI",
+        )
+        return parser
+
+    def __init__(
+        self,
+        extractor: IDataset,
+        reports: Union[str, Dict],
+    ):
+        super().__init__(extractor)
+
+        if isinstance(reports, str):
+            reports = parse_json_file(reports)
+
+        self._reports = reports["validation_reports"]
+
+        self._categories = self._extractor.categories()
+
+        self._remove_items = set()
+        self._remove_anns = defaultdict(list)
+        self._add_attrs = defaultdict(list)
+
+        self._analyze_reports(report=self._reports)
+
+    def categories(self):
+        return self._categories
+
+    def _parse_ann_ids(self, desc: str):
+        return [int(s) for s in str.split(desc, "'") if s.isdigit()][0]
+
+    def _analyze_reports(self, report):
+        for rep in report:
+            if rep["anomaly_type"] == "MissingLabelCategories":
+                unique_labels = sorted(
+                    list({ann.label for item in self._extractor for ann in item.annotations})
+                )
+                label_categories = LabelCategories().from_iterable(
+                    [str(label) for label in unique_labels]
+                )
+                for item in self._extractor:
+                    for ann in item.annotations:
+                        attrs = {attr for attr in ann.attributes}
+                        label_categories[ann.label].attributes.update(attrs)
+                self._categories[AnnotationType.label] = label_categories
+
+            if rep["anomaly_type"] == "UndefinedLabel":
+                label_categories = self._categories[AnnotationType.label]
+                desc = [s for s in rep["description"].split("'")]
+                add_label_name = desc[1]
+                label_id, _ = label_categories.find(add_label_name)
+                if label_id is None:
+                    label_categories.add(name=add_label_name)
+
+            if rep["anomaly_type"] == "UndefinedAttribute":
+                label_categories = self._categories[AnnotationType.label]
+                desc = [s for s in rep["description"].split("'")]
+                attr_name, label_name = desc[1], desc[3]
+                label_id = label_categories.find(label_name)[0]
+                if label_id is not None:
+                    label_categories[label_id].attributes.add(attr_name)
+
+            # [TODO] Correct LabeleDefinedButNotFound: removing a label, reindexing, remapping others
+            # if rep["anomaly_type"] == "LabelDefinedButNotFound":
+            #     remove_label_name = self._parse_label_cat(rep["description"])
+            #     label_cat = self._extractor.categories()[AnnotationType.label]
+            #     if remove_label_name in [labels.name for labels in label_cat.items]:
+            #         label_cat.remove(remove_label_name)
+
+            if rep["anomaly_type"] in ["MissingAnnotation", "MultiLabelAnnotations"]:
+                self._remove_items.add((rep["item_id"], rep["subset"]))
+
+            if rep["anomaly_type"] in [
+                "NegativeLength",
+                "InvalidValue",
+                "FarFromLabelMean",
+                "FarFromAttrMean",
+            ]:
+                ann_id = None or self._parse_ann_ids(rep["description"])
+                self._remove_anns[(rep["item_id"], rep["subset"])].append(ann_id)
+
+            if rep["anomaly_type"] == "MissingAttribute":
+                desc = [s for s in str.split(rep["description"], "'")]
+                attr_name, label_name = desc[1], desc[3]
+                label_id = self._extractor.categories()[AnnotationType.label].find(label_name)[0]
+                self._add_attrs[(rep["item_id"], rep["subset"])].append((label_id, attr_name))
+
+    def __iter__(self):
+        for item in self._extractor:
+            if (item.id, item.subset) in self._remove_items:
+                continue
+
+            ann_ids = self._remove_anns.get((item.id, item.subset), None)
+            if ann_ids:
+                updated_anns = [ann for ann in item.annotations if ann.id not in ann_ids]
+                yield item.wrap(annotations=updated_anns)
+            else:
+                updated_attrs = defaultdict(list)
+                for label_id, attr_name in self._add_attrs.get((item.id, item.subset), []):
+                    updated_attrs[label_id].append(attr_name)
+
+                updated_anns = []
+                for ann in item.annotations:
+                    new_ann = ann.wrap(attributes=deepcopy(ann.attributes))
+                    if ann.label in updated_attrs:
+                        new_ann.attributes.update(
+                            {attr_name: "" for attr_name in updated_attrs[ann.label]}
+                        )
+                    updated_anns.append(new_ann)
+                yield item.wrap(annotations=updated_anns)

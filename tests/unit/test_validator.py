@@ -882,7 +882,7 @@ class TestValidateAnnotations(_TestValidatorBase):
 
         with self.subTest("Test of summary", i=2):
             actual_summary = actual_results["summary"]
-            expected_summary = {"errors": 10, "warnings": 6}
+            expected_summary = {"errors": 10, "infos": 4, "warnings": 2}
 
             self.assertEqual(actual_summary, expected_summary)
 
@@ -934,7 +934,7 @@ class TestValidateAnnotations(_TestValidatorBase):
 
         with self.subTest("Test of summary", i=2):
             actual_summary = actual_results["summary"]
-            expected_summary = {"errors": 6, "warnings": 39}
+            expected_summary = {"errors": 6, "infos": 38, "warnings": 1}
 
             self.assertEqual(actual_summary, expected_summary)
 
@@ -987,7 +987,7 @@ class TestValidateAnnotations(_TestValidatorBase):
 
         with self.subTest("Test of summary", i=2):
             actual_summary = actual_results["summary"]
-            expected_summary = {"errors": 7, "warnings": 18}
+            expected_summary = {"errors": 7, "infos": 17, "warnings": 1}
 
             self.assertEqual(actual_summary, expected_summary)
 

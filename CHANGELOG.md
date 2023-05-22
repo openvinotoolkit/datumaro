@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/997>)
 - Add Segment Anything data format support
   (<https://github.com/openvinotoolkit/datumaro/pull/1005>)
+- Add Correct transformation
+  (<https://github.com/openvinotoolkit/datumaro/pull/1006>)
 
 ### Enhancements
 - Use autosummary for fully-automatic Python module docs generation
