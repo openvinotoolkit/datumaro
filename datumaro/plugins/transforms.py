@@ -378,7 +378,7 @@ class ReindexAnnotations(ItemTransform, CliPlugin):
         self._cur_idx = start
         self._reindex_each_item = reindex_each_item
 
-    def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
+    def transform_item(self, item: DatasetItem) -> DatasetItem:
         annotations = [
             ann.wrap(id=idx) for idx, ann in enumerate(item.annotations, start=self._cur_idx)
         ]
