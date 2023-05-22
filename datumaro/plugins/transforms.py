@@ -1268,21 +1268,25 @@ class Correct(Transform, CliPlugin):
 
         self._analyze_reports(report=self._reports)
 
+    def categories(self):
+        return self._extractor.categories()
+
     def _parse_ann_ids(self, desc: str):
         return [int(s) for s in str.split(desc, "'") if s.isdigit()][0]
 
     def _analyze_reports(self, report):
         for rep in report:
             if rep["anomaly_type"] == "MissingLabelCategories":
-                label_categories = LabelCategories()
+                unique_labels = sorted(
+                    list({ann.label for item in self._extractor for ann in item.annotations})
+                )
+                label_categories = LabelCategories().from_iterable(
+                    [str(label) for label in unique_labels]
+                )
                 for item in self._extractor:
                     for ann in item.annotations:
                         attrs = {attr for attr in ann.attributes}
-                        label_id = label_categories.find(str(ann.label))[0]
-                        if label_id is None:
-                            label_categories.add(name=str(ann.label), attributes=attrs)
-                        else:
-                            label_categories[label_id].attributes.add(attrs)
+                        label_categories[ann.label].attributes.update(attrs)
                 self._extractor.categories()[AnnotationType.label] = label_categories
 
             if rep["anomaly_type"] == "UndefinedLabel":
