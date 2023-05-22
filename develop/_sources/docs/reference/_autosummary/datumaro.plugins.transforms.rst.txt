@@ -20,6 +20,7 @@ datumaro.plugins.transforms
       AnnsToLabels
       BboxValuesDecrement
       BoxesToMasks
+      Correct
       CropCoveredSegments
       IdFromImageName
       MapSubsets

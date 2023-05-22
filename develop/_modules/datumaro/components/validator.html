@@ -289,6 +289,7 @@
 
 
 <div class="viewcode-block" id="Severity"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.validator.html#datumaro.components.hl_ops.Severity">[docs]</a><span class="k">class</span> <span class="nc">Severity</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">warning</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">error</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
@@ -330,6 +331,7 @@
         <span class="n">summary</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;errors&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;severity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="n">reports</span><span class="p">)),</span>
             <span class="s2">&quot;warnings&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;severity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;warning&quot;</span><span class="p">,</span> <span class="n">reports</span><span class="p">)),</span>
+            <span class="s2">&quot;infos&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;severity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="n">reports</span><span class="p">)),</span>
         <span class="p">}</span>
 
         <span class="n">validation_results</span><span class="p">[</span><span class="s2">&quot;validation_reports&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reports</span>
