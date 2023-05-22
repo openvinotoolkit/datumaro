@@ -1,5 +1,3 @@
-from unittest import TestCase
-
 import numpy as np
 import pytest
 
@@ -64,15 +62,6 @@ def fxt_dataset_dir_with_hash_key(test_dir, fxt_data_format):
 
 
 class HashKeyTest:
-    def compare_hashkey_meta(self, hashkey_meta, dataset):
-        test = TestCase()
-        for item in dataset:
-            for annot in item.annotations:
-                if isinstance(annot, HashKey):
-                    test.assertEqual(
-                        hashkey_meta[item.subset + "/" + item.id], annot.hash_key.tolist()
-                    )
-
     @pytest.mark.parametrize(
         "fxt_data_format",
         [
@@ -109,4 +98,4 @@ class HashKeyTest:
         dataset_dir, hashkey_meta = fxt_dataset_dir_with_hash_key
         helper_tc.assertTrue(has_hashkey_file(dataset_dir))
         dataset = Dataset.import_from(dataset_dir, fxt_data_format)
-        self.compare_hashkey_meta(hashkey_meta, dataset)
+        helper_tc.compare_hashkey_meta(hashkey_meta, dataset)
