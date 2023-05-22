@@ -317,6 +317,8 @@
         <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
     <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s2">&quot;__len__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ann</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s2">&quot;__len__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The value of type &#39;</span><span class="si">%s</span><span class="s2">&#39; can&#39;t be treated as a &quot;</span> <span class="s2">&quot;bounding box&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">ann</span><span class="p">))</span>
 

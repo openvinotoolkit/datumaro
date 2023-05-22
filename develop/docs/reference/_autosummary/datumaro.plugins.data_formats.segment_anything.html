@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats.sly_pointcloud &#8212; Datumaro 1.2.1 documentation</title>
+    <title>datumaro.plugins.data_formats.segment_anything &#8212; Datumaro 1.2.1 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.sly_pointcloud';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.segment_anything';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.sly_pointcloud.base" href="datumaro.plugins.data_formats.sly_pointcloud.base.html" />
-    <link rel="prev" title="datumaro.plugins.data_formats.segment_anything.importer" href="datumaro.plugins.data_formats.segment_anything.importer.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.segment_anything.base" href="datumaro.plugins.data_formats.segment_anything.base.html" />
+    <link rel="prev" title="datumaro.plugins.data_formats.open_images" href="datumaro.plugins.data_formats.open_images.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -554,18 +554,71 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.data_formats.sly_pointcloud">
-<span id="datumaro-plugins-data-formats-sly-pointcloud"></span><h1>datumaro.plugins.data_formats.sly_pointcloud<a class="headerlink" href="#module-datumaro.plugins.data_formats.sly_pointcloud" title="Permalink to this heading">#</a></h1>
+  <section id="module-datumaro.plugins.data_formats.segment_anything">
+<span id="datumaro-plugins-data-formats-segment-anything"></span><h1>datumaro.plugins.data_formats.segment_anything<a class="headerlink" href="#module-datumaro.plugins.data_formats.segment_anything" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.segment_anything.SegmentAnythingBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.segment_anything.</span></span><span class="sig-name descname"><span class="pre">SegmentAnythingBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.ImportContext" title="datumaro.components.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/segment_anything/base.html#SegmentAnythingBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubsetBase</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.segment_anything.</span></span><span class="sig-name descname"><span class="pre">SegmentAnythingImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/segment_anything/importer.html#SegmentAnythingImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Importer</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter.detect">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionContext" title="datumaro.components.format_detection.FormatDetectionContext"><span class="pre">FormatDetectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionConfidence" title="datumaro.components.format_detection.FormatDetectionConfidence"><span class="pre">FormatDetectionConfidence</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/segment_anything/importer.html#SegmentAnythingImporter.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter.detect" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter.find_sources">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/segment_anything/importer.html#SegmentAnythingImporter.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter.find_sources" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.segment_anything.</span></span><span class="sig-name descname"><span class="pre">SegmentAnythingExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/segment_anything/exporter.html#SegmentAnythingExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.exporter.html#datumaro.components.exporter.Exporter" title="datumaro.components.exporter.Exporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exporter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.DEFAULT_IMAGE_EXT">
+<span class="sig-name descname"><span class="pre">DEFAULT_IMAGE_EXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.jpg'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.DEFAULT_IMAGE_EXT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.find_instance_anns">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_instance_anns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotations</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/segment_anything/exporter.html#SegmentAnythingExporter.find_instance_anns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.find_instance_anns" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.find_instances">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_instances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotations</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/segment_anything/exporter.html#SegmentAnythingExporter.find_instances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.find_instances" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.get_annotation_info">
+<span class="sig-name descname"><span class="pre">get_annotation_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_height</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/segment_anything/exporter.html#SegmentAnythingExporter.get_annotation_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.get_annotation_info" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/segment_anything/exporter.html#SegmentAnythingExporter.apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.apply" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <p class="rubric">Modules</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.sly_pointcloud.base.html#module-datumaro.plugins.data_formats.sly_pointcloud.base" title="datumaro.plugins.data_formats.sly_pointcloud.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.sly_pointcloud.base</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.segment_anything.base.html#module-datumaro.plugins.data_formats.segment_anything.base" title="datumaro.plugins.data_formats.segment_anything.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.segment_anything.base</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.sly_pointcloud.exporter.html#module-datumaro.plugins.data_formats.sly_pointcloud.exporter" title="datumaro.plugins.data_formats.sly_pointcloud.exporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.sly_pointcloud.exporter</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.segment_anything.exporter.html#module-datumaro.plugins.data_formats.segment_anything.exporter" title="datumaro.plugins.data_formats.segment_anything.exporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.segment_anything.exporter</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.sly_pointcloud.format.html#module-datumaro.plugins.data_formats.sly_pointcloud.format" title="datumaro.plugins.data_formats.sly_pointcloud.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.sly_pointcloud.format</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.segment_anything.importer.html#module-datumaro.plugins.data_formats.segment_anything.importer" title="datumaro.plugins.data_formats.segment_anything.importer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.segment_anything.importer</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -580,17 +633,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.segment_anything.importer.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.open_images.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.data_formats.segment_anything.importer</p>
+          <p class="prev-next-title">datumaro.plugins.data_formats.open_images</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.sly_pointcloud.base.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.segment_anything.base.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.data_formats.sly_pointcloud.base</p>
+      <p class="prev-next-title">datumaro.plugins.data_formats.segment_anything.base</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -605,6 +658,112 @@
               
 <div class="toc-item">
   
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingBase">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     SegmentAnythingBase
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     SegmentAnythingImporter
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter.detect">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SegmentAnythingImporter.detect()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter.find_sources">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SegmentAnythingImporter.find_sources()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     SegmentAnythingExporter
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.DEFAULT_IMAGE_EXT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SegmentAnythingExporter.DEFAULT_IMAGE_EXT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.find_instance_anns">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SegmentAnythingExporter.find_instance_anns()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.find_instances">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SegmentAnythingExporter.find_instances()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.get_annotation_info">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SegmentAnythingExporter.get_annotation_info()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.segment_anything.SegmentAnythingExporter.apply">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SegmentAnythingExporter.apply()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
 <div id="searchbox"></div>
 </div>
 
@@ -615,7 +774,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.sly_pointcloud.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.segment_anything.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>

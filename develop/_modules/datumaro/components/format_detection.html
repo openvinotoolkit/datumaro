@@ -544,6 +544,20 @@
 
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_require_files_iter</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">exclude_fnames</span><span class="o">=</span><span class="n">exclude_fnames</span><span class="p">))</span></div>
 
+<div class="viewcode-block" id="FormatDetectionContext.require_files_iter"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionContext.require_files_iter">[docs]</a>    <span class="k">def</span> <span class="nf">require_files_iter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">exclude_fnames</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Same as `require_files`, but returns a generator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_requirement</span><span class="p">(</span><span class="s2">&quot;require_files_iter&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_files_iter</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">exclude_fnames</span><span class="o">=</span><span class="n">exclude_fnames</span><span class="p">)</span></div>
+
     <span class="k">def</span> <span class="nf">_require_files_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
