@@ -460,7 +460,7 @@ class KittiRawExporter(Exporter):
 
         return index
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and self._extractor.media_type() is not PointCloud:
             raise MediaTypeError("Media type is not a point cloud")
 
@@ -483,7 +483,7 @@ class KittiRawExporter(Exporter):
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
         conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
-        conv.apply()
+        conv._apply_impl()
 
         pcd_dir = osp.abspath(osp.join(save_dir, KittiRawPath.PCD_DIR))
         for (item_id, subset), status in patch.updated_items.items():

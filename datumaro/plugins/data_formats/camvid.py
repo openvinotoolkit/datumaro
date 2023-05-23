@@ -322,7 +322,7 @@ class CamvidExporter(Exporter):
             label_map = LabelmapType.source.name
         self._load_categories(label_map)
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
@@ -469,7 +469,7 @@ class CamvidExporter(Exporter):
         for subset in patch.updated_subsets:
             conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
             conv._patch = patch
-            conv.apply()
+            conv._apply_impl()
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
         for (item_id, subset), status in patch.updated_items.items():

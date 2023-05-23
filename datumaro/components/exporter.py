@@ -130,7 +130,7 @@ class Exporter(CliPlugin):
     @classmethod
     def convert(cls, extractor, save_dir, **options):
         converter = cls(extractor, save_dir, **options)
-        return converter.apply()
+        return converter._apply_impl()
 
     @classmethod
     @scoped
@@ -162,6 +162,10 @@ class Exporter(CliPlugin):
         return retval
 
     def apply(self):
+        """Execute the data-format conversion"""
+        return self._apply_impl()
+
+    def _apply_impl(self):
         raise NotImplementedError("Should be implemented in a subclass")
 
     def __init__(

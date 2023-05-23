@@ -551,7 +551,7 @@ class CvatExporter(Exporter):
                 return None
         return (item_hw[1], item_hw[0])
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
@@ -572,7 +572,7 @@ class CvatExporter(Exporter):
         for subset in patch.updated_subsets:
             conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
             conv._patch = patch
-            conv.apply()
+            conv._apply_impl()
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
         # Find images that needs to be removed

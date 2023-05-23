@@ -18,7 +18,7 @@ from .format import IcdarPath
 class IcdarWordRecognitionExporter(Exporter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
@@ -49,7 +49,7 @@ class IcdarWordRecognitionExporter(Exporter):
 class IcdarTextLocalizationExporter(Exporter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
@@ -84,7 +84,7 @@ class IcdarTextLocalizationExporter(Exporter):
 class IcdarTextSegmentationExporter(Exporter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 

@@ -179,7 +179,7 @@ class VocExporter(Exporter):
 
         self._patch = None
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
@@ -739,7 +739,7 @@ class VocExporter(Exporter):
     def patch(cls, dataset, patch, save_dir, **kwargs):
         conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
         conv._patch = patch
-        conv.apply()
+        conv._apply_impl()
 
         for filename in os.listdir(conv._cls_subsets_dir):
             if "_" not in filename or not filename.endswith(".txt"):

@@ -315,9 +315,9 @@ class DatumaroBinaryExporter(DatumaroExporter):
             max_blob_size=self._max_blob_size,
         )
 
-    def apply(self, *args, **kwargs):
+    def _apply_impl(self, *args, **kwargs):
         if self._num_workers == 0:
-            return super().apply()
+            return super()._apply_impl()
 
         with Pool(processes=self._num_workers) as pool:
-            return super().apply(pool)
+            return super()._apply_impl(pool)

@@ -1611,7 +1611,7 @@ class DatasetTest(TestCase):
         class CustomExporter(Exporter):
             DEFAULT_IMAGE_EXT = ".jpg"
 
-            def apply(self):
+            def _apply_impl(self):
                 assert osp.isdir(self._save_dir)
 
                 for item in self._extractor:
@@ -1885,7 +1885,7 @@ class DatasetTest(TestCase):
         class TestExporter(Exporter):
             DEFAULT_IMAGE_EXT = ".jpg"
 
-            def apply(self):
+            def _apply_impl(self):
                 list(self._ctx.progress_reporter.iter([None] * 5, desc="loading images"))
 
         class TestProgressReporter(ProgressReporter):
@@ -1913,7 +1913,7 @@ class DatasetTest(TestCase):
         class TestExporter(Exporter):
             DEFAULT_IMAGE_EXT = ".jpg"
 
-            def apply(self):
+            def _apply_impl(self):
                 class TestError(Exception):
                     pass
 

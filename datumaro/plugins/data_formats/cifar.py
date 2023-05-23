@@ -218,7 +218,7 @@ class CifarImporter(Importer):
 class CifarExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".png"
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
@@ -330,7 +330,7 @@ class CifarExporter(Exporter):
         for subset in patch.updated_subsets:
             conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
             conv._patch = patch
-            conv.apply()
+            conv._apply_impl()
 
         for subset, status in patch.updated_subsets.items():
             if status != ItemStatus.removed:

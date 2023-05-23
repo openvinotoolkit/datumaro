@@ -52,7 +52,7 @@ class YoloExporter(Exporter):
 
         self._prefix = "data" if add_path_prefix else ""
 
-    def apply(self):
+    def _apply_impl(self):
         extractor = self._extractor
         save_dir = self._save_dir
 
@@ -166,7 +166,7 @@ class YoloExporter(Exporter):
     def patch(cls, dataset, patch, save_dir, **kwargs):
         conv = cls(dataset, save_dir=save_dir, **kwargs)
         conv._patch = patch
-        conv.apply()
+        conv._apply_impl()
 
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
@@ -223,7 +223,7 @@ class YoloUltralyticsExporter(YoloExporter):
                     "but YoloUltralytics requires both of them."
                 )
 
-    def apply(self):
+    def _apply_impl(self):
         extractor = self._extractor
         save_dir = self._save_dir
 
@@ -282,7 +282,7 @@ class YoloUltralyticsExporter(YoloExporter):
     def patch(cls, dataset, patch, save_dir, **kwargs):
         conv = cls(dataset, save_dir=save_dir, **kwargs)
         conv._patch = patch
-        conv.apply()
+        conv._apply_impl()
 
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:

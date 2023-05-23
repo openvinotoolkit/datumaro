@@ -392,7 +392,7 @@ class DatumaroExporter(Exporter):
             export_context=export_context,
         )
 
-    def apply(self, pool: Optional[Pool] = None, *args, **kwargs):
+    def _apply_impl(self, pool: Optional[Pool] = None, *args, **kwargs):
         os.makedirs(self._save_dir, exist_ok=True)
 
         images_dir = osp.join(self._save_dir, self.PATH_CLS.IMAGES_DIR)
@@ -441,7 +441,7 @@ class DatumaroExporter(Exporter):
         for subset in patch.updated_subsets:
             conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
             conv._patch = patch
-            conv.apply()
+            conv._apply_impl()
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
         for (item_id, subset), status in patch.updated_items.items():

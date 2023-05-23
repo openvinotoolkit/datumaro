@@ -159,7 +159,7 @@ class ImagenetExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
     USE_SUBSET_DIRS = False
 
-    def apply(self):
+    def _apply_impl(self):
         def _get_name(item: DatasetItem) -> str:
             id_parts = item.id.split(ImagenetPath.SEP_TOKEN)
 
