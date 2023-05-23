@@ -15,24 +15,13 @@ from datumaro.components.algorithms.noisy_label_detection import (
 from tests.utils.assets import get_test_asset_path
 
 
-@pytest.fixture()
-def fxt_loss_dyns_dataset() -> Dataset:
-    subdir = osp.join("algorithms", "noisy_label_detection")
-    dirpath = get_test_asset_path(subdir)
-    return Dataset.import_from(dirpath, format="datumaro")
-
-
-@pytest.fixture()
-def fxt_analyzer(fxt_loss_dyns_dataset: Dataset) -> LossDynamicsAnalyzer:
-    return LossDynamicsAnalyzer(fxt_loss_dyns_dataset)
-
-
-class LossDynamicsAnalyzerTest:
+class LossDynamicsAnalyzerTestBase:
     def test_ema_dataframe(
         self, fxt_loss_dyns_dataset: Dataset, fxt_analyzer: LossDynamicsAnalyzer
     ):
-        # Check all dataset items are included
-        assert len(fxt_loss_dyns_dataset) == len(fxt_analyzer.ema_dataframe)
+        # Check all annotations are included
+        n_anns = sum(len(item.annotations) for item in fxt_loss_dyns_dataset)
+        assert n_anns == len(fxt_analyzer.ema_dataframe)
 
     def test_get_top_k_cands(self, fxt_analyzer: LossDynamicsAnalyzer):
         top_k = 5
@@ -55,6 +44,33 @@ class LossDynamicsAnalyzerTest:
         assert (
             len(fig.axes) == n_labels
         )  # mode="label_mean" should have multiple subplots sized of n_labels
+
+
+class LossDynamicsAnalyzerForClassificationTest(LossDynamicsAnalyzerTestBase):
+    @pytest.fixture()
+    def fxt_loss_dyns_dataset(self) -> Dataset:
+        subdir = osp.join("algorithms", "noisy_label_detection_cls")
+        dirpath = get_test_asset_path(subdir)
+        return Dataset.import_from(dirpath, format="datumaro")
+
+    @pytest.fixture()
+    def fxt_analyzer(self, fxt_loss_dyns_dataset: Dataset) -> LossDynamicsAnalyzer:
+        return LossDynamicsAnalyzer(fxt_loss_dyns_dataset)
+
+
+class LossDynamicsAnalyzerForDetectionTest(LossDynamicsAnalyzerTestBase):
+    @pytest.fixture()
+    def fxt_loss_dyns_dataset(self) -> Dataset:
+        subdir = osp.join("algorithms", "noisy_label_detection_det")
+        dirpath = get_test_asset_path(subdir)
+        return Dataset.import_from(dirpath, format="datumaro")
+
+    @pytest.fixture(params=["cls", "bbox", "centerness"])
+    def fxt_analyzer(
+        self, fxt_loss_dyns_dataset: Dataset, request: pytest.FixtureRequest
+    ) -> LossDynamicsAnalyzer:
+        tracking_loss_type = request.param
+        return LossDynamicsAnalyzer(fxt_loss_dyns_dataset, tracking_loss_type=tracking_loss_type)
 
 
 class NoisyLabelCandidateTest:
