@@ -9,7 +9,8 @@ Here we provide E2E examples from Datumaro to model trainers.
    :hidden:
 
    notebooks/08_e2e_example_yolo_ultralytics_trainer
-   notebooks/10_noisy_label_detection
+   notebooks/10_noisy_label_detection_cls
+   notebooks/13_noisy_label_detection_det
 
 .. grid:: 1 2 2 2
    :gutter: 2
@@ -23,7 +24,14 @@ Here we provide E2E examples from Datumaro to model trainers.
 
    .. grid-item-card::
 
-      .. button-ref:: notebooks/10_noisy_label_detection
+      .. button-ref:: notebooks/10_noisy_label_detection_cls
+         :color: primary
+         :outline:
+         :expand:
+
+   .. grid-item-card::
+
+      .. button-ref:: notebooks/13_noisy_label_detection_det
          :color: primary
          :outline:
          :expand:
