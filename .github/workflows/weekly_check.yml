@@ -1,22 +1,42 @@
-name: Weekly Stability Test
+name: PR Test
 on:
-  workflow_dispatch: # run on request (no need for PR)
-  schedule:
-    # every 7PM on Sunday
-    - cron: "0 19 * * 0"
+  push:
+    branches:
+      - 'master'
+      - 'develop'
+      - 'releases/*'
+  pull_request:
+    types: [edited, ready_for_review, opened, synchronize, reopened]
+
+# This is what will cancel the workflow concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 defaults:
   run:
     shell: bash
-
 jobs:
-  weekly_stability_test:
+  pr_test:
+    if: |
+      github.event.pull_request.draft == false &&
+      !startsWith(github.event.pull_request.title, '[WIP]') &&
+      !startsWith(github.event.pull_request.title, '[Dependent]')
     strategy:
       fail-fast: false
       matrix:
         os: ['macos-11', 'ubuntu-20.04', 'windows-2019']
         python-version: ['3.8']
-    name: stability test (${{ matrix.os }}, Python ${{ matrix.python-version }})
+        include:
+          - python-version: "3.8"
+            tox-env-py: "38"
+          - os: "macos-11"
+            tox-env-os: "darwin"
+          - os: "ubuntu-20.04"
+            tox-env-os: "lin"
+          - os: "windows-2019"
+            tox-env-os: "win"
+    name: pr test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -26,20 +46,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          python -m pip install -r tests/requirements.txt
-          python -m pip install -e '.[default,tf]'
-      - name: Stability testing
+          python -m pip install tox
+      - name: Unit testing
         run: |
-          python -m pytest --html=stability_test_report.html --minutes 5
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
+          tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/unit --cov
+      - name: Integration testing
+        run: |
+          tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/integration
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          name: test-results
-          path: report/stability_test_report.html
-  call-notify-to-teams:
-    needs: [weekly_stability_test]
-    if: |
-      always() &&
-      contains(needs.*.result, 'failure')
-    uses: ./.github/workflows/notify_teams.yml
-    secrets: inherit
+          flags: ${{ matrix.os }}_Python-${{ matrix.python-version }}

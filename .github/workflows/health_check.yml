@@ -11,11 +11,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  coverage_tests_on_python:
+  check_integrity:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        include:
+          - python-version: "3.7"
+            tox-env-py: "37"
+          - python-version: "3.8"
+            tox-env-py: "38"
+          - python-version: "3.9"
+            tox-env-py: "39"
+          - python-version: "3.10"
+            tox-env-py: "310"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,13 +33,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          python -m pip install -r tests/requirements.txt
-          python -m pip install -e '.[default,tf]'
+          python -m pip install tox
       - name: Code instrumentation
         run: |
-          python -m pytest -v --cov --cov-report xml:coverage.xml
-          datum -h
-      - name: Sending coverage results
-        if: matrix.python-version == '3.7'
-        run: |
-          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml -t ${{ secrets.CODACY_PROJECT_TOKEN }}
+          tox -e tests-py${{ matrix.tox-env-py }}-lin}
+  call-notify-to-teams:
+    needs: [check_integrity]
+    if: |
+      always() &&
+      contains(needs.*.result, 'failure')
+    uses: ./.github/workflows/notify_teams.yml
+    secrets: inherit

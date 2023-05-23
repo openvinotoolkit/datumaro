@@ -27,6 +27,15 @@ jobs:
       matrix:
         os: ['macos-11', 'ubuntu-20.04', 'windows-2019']
         python-version: ['3.8']
+        include:
+          - python-version: "3.8"
+            tox-env-py: "38"
+          - os: "macos-11"
+            tox-env-os: "darwin"
+          - os: "ubuntu-20.04"
+            tox-env-os: "lin"
+          - os: "windows-2019"
+            tox-env-os: "win"
     name: pr test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -37,15 +46,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          python -m pip install -r tests/requirements.txt
-          python -m pip install -e '.[default,tf]'
+          python -m pip install tox
       - name: Unit testing
         run: |
-          python -m pytest -v tests/unit/ --cov
-          datum -h
+          tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/unit --cov
       - name: Integration testing
         run: |
-          python -m pytest -v tests/integration/
+          tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/integration
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
