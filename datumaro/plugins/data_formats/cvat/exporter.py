@@ -572,7 +572,7 @@ class CvatExporter(Exporter):
         for subset in patch.updated_subsets:
             conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
             conv._patch = patch
-            conv._apply_impl()
+            conv.apply()
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
         # Find images that needs to be removed

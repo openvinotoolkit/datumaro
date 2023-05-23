@@ -739,7 +739,7 @@ class VocExporter(Exporter):
     def patch(cls, dataset, patch, save_dir, **kwargs):
         conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
         conv._patch = patch
-        conv._apply_impl()
+        conv.apply()
 
         for filename in os.listdir(conv._cls_subsets_dir):
             if "_" not in filename or not filename.endswith(".txt"):

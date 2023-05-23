@@ -330,7 +330,7 @@ class CifarExporter(Exporter):
         for subset in patch.updated_subsets:
             conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
             conv._patch = patch
-            conv._apply_impl()
+            conv.apply()
 
         for subset, status in patch.updated_subsets.items():
             if status != ItemStatus.removed:

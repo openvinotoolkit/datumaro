@@ -413,7 +413,7 @@ class SuperviselyPointCloudExporter(Exporter):
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
         conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
-        conv._apply_impl()
+        conv.apply()
 
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:

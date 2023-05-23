@@ -166,7 +166,7 @@ class YoloExporter(Exporter):
     def patch(cls, dataset, patch, save_dir, **kwargs):
         conv = cls(dataset, save_dir=save_dir, **kwargs)
         conv._patch = patch
-        conv._apply_impl()
+        conv.apply()
 
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
@@ -282,7 +282,7 @@ class YoloUltralyticsExporter(YoloExporter):
     def patch(cls, dataset, patch, save_dir, **kwargs):
         conv = cls(dataset, save_dir=save_dir, **kwargs)
         conv._patch = patch
-        conv._apply_impl()
+        conv.apply()
 
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:

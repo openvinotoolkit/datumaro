@@ -483,7 +483,7 @@ class KittiRawExporter(Exporter):
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
         conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
-        conv._apply_impl()
+        conv.apply()
 
         pcd_dir = osp.abspath(osp.join(save_dir, KittiRawPath.PCD_DIR))
         for (item_id, subset), status in patch.updated_items.items():
