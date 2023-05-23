@@ -130,7 +130,7 @@ class Exporter(CliPlugin):
     @classmethod
     def convert(cls, extractor, save_dir, **options):
         converter = cls(extractor, save_dir, **options)
-        return converter._apply_impl()
+        return converter.apply()
 
     @classmethod
     @scoped
