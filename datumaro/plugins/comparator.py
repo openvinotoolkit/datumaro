@@ -109,13 +109,13 @@ class Comparator:
         table = self._create_text_table(["l", "l", "l"], ["m", "m", "m"])
 
         rows = [
-            ["Field", "Source", "Target"],
+            ["Field", "First", "Second"],
             ["Format", first_format, second_format],
             ["Number of classes", len(first_labels), len(second_labels)],
             [
-                "Intersect classes",
+                "Common classes",
                 ", ".join(sorted(list(first_labels.intersection(second_labels)))),
-                ", ".join(sorted(list(first_labels.intersection(second_labels)))),
+                ", ".join(sorted(list(second_labels.intersection(first_labels)))),
             ],
             ["Classes", ", ".join(sorted(first_labels)), ", ".join(sorted(second_labels))],
             [
@@ -165,13 +165,14 @@ class Comparator:
         table = self._create_text_table(["l", "l", "l"], ["m", "m", "m"])
 
         rows = [
-            ["Field", "Source", "Target"],
+            ["Field", "First", "Second"],
         ]
 
-        # sort by subset names
-        subset_names = sorted(
-            set(first_image_stats["subsets"].keys()).union(second_image_stats["subsets"].keys())
-        )
+        first_subsets = sorted(list(first_image_stats["subsets"].keys()))
+        second_subsets = sorted(list(second_image_stats["subsets"].keys()))
+
+        subset_names = first_subsets.copy()
+        subset_names.extend(item for item in second_subsets if item not in first_subsets)
 
         for subset_name in subset_names:
             first_subset_data = first_image_stats["subsets"].get(subset_name, {})
@@ -199,11 +200,13 @@ class Comparator:
             rows.append([f"{subset_name} - Image Mean", mean_str_first, mean_str_second])
             rows.append([f"{subset_name} - Image Std", std_str_first, std_str_second])
 
-        label_names = sorted(
-            set(first_ann_stats["annotations"]["labels"]["distribution"].keys()).union(
-                second_ann_stats["annotations"]["labels"]["distribution"].keys()
-            )
+        first_labels = sorted(list(first_ann_stats["annotations"]["labels"]["distribution"].keys()))
+        second_labels = sorted(
+            list(second_ann_stats["annotations"]["labels"]["distribution"].keys())
         )
+
+        label_names = first_labels.copy()
+        label_names.extend(item for item in second_labels if item not in first_labels)
 
         for label_name in label_names:
             count_dist_first = first_ann_stats["annotations"]["labels"]["distribution"].get(
