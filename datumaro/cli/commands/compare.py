@@ -3,14 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
-import logging as log
 import os
 import os.path as osp
 from enum import Enum, auto
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.plugins.comparator import Comparator
-from datumaro.util import dump_json_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
@@ -231,10 +229,8 @@ def compare_command(args):
         ) = comparator.compare_datasets(first_dataset, second_dataset)
 
         if args.dst_dir:
-            comparator.save_compare_report(high_level_table,
-                                           mid_level_table, 
-                                           low_level_table, 
-                                           comparison_dict, 
-                                           args.dst_dir)
+            comparator.save_compare_report(
+                high_level_table, mid_level_table, low_level_table, comparison_dict, args.dst_dir
+            )
 
     return 0

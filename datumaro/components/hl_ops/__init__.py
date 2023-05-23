@@ -29,32 +29,37 @@ class HLOps:
 
     @staticmethod
     def compare(
-        src_dataset: IDataset,
-        tgt_dataset: IDataset,
-        report_path: Optional[str] = None,
-        **kwargs
+        first_dataset: IDataset,
+        second_dataset: IDataset,
+        report_dir: Optional[str] = None,
+        **kwargs,
     ) -> IDataset:
         """
-        Applies some function to dataset items.
-
-        Results are computed lazily, if the transform supports this.
+        Compare two datasets and optionally save a comparison report.
 
         Args:
-            dataset: The dataset to be transformed
-            method: The transformation to be applied to the dataset.
-                If a string is passed, it is treated as a plugin name,
-                which is searched for in the environment
-                set by the 'env' argument
-            env: A plugin collection. If not set, the built-in plugins are used
-            **kwargs: Parameters for the transformation
+            first_dataset (IDataset): The first dataset to compare.
+            second_dataset (IDataset): The second dataset to compare.
+            report_dir (Optional[str], optional): Directory path to save the comparison report. Defaults to None.
+            **kwargs: Additional keyword arguments that can be passed to the method.
 
-        Returns: a wrapper around the input dataset
+        Returns:
+            IDataset: The result of the comparison. In this case, it always returns 0.
+
+        Raises:
+            None
+
+        Example:
+            comparator = Comparator()
+            result = comparator.compare(first_dataset, second_dataset, report_dir="./comparison_report")
+            print(result)
         """
-
         comparator = Comparator()
-        h_table, m_table, l_table, result_dict = comparator.compare_datasets(src_dataset, tgt_dataset)
-        if report_path:
-            comparator.save_compare_report(h_table, m_table, l_table, result_dict, report_path)
+        h_table, m_table, l_table, result_dict = comparator.compare_datasets(
+            first_dataset, second_dataset
+        )
+        if report_dir:
+            comparator.save_compare_report(h_table, m_table, l_table, result_dict, report_dir)
         return 0
 
     @staticmethod

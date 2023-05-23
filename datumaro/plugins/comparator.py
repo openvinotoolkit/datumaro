@@ -2,143 +2,22 @@
 #
 # SPDX-License-Identifier: MIT
 
-from unittest import TestCase
+import logging as log
+import os
+import os.path as osp
 
-from attr import attrib, attrs
+from attr import attrs
 from texttable import Texttable
 
-from datumaro.components.annotation import AnnotationType, LabelCategories
-from datumaro.components.dataset import Dataset
-from datumaro.components.operations import (
-    compute_ann_statistics,
-    compute_image_statistics,
-    match_classes,
-    match_items_by_id,
-    match_items_by_image_hash,
-)
-from datumaro.plugins.shift_analyzer import ShiftAnalyzer
-from datumaro.util import filter_dict, find
-from datumaro.util.attrs_util import default_if_none
-import os.path as osp
 from datumaro.cli.util.project import generate_next_file_name
-import logging as log
+from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.operations import compute_ann_statistics, compute_image_statistics
+from datumaro.plugins.shift_analyzer import ShiftAnalyzer
 from datumaro.util import dump_json_file
-import os
+
 
 @attrs
 class Comparator:
-    # match_images: bool = attrib(kw_only=True, default=False)
-    # ignored_fields = attrib(kw_only=True, factory=set, validator=default_if_none(set))
-    # ignored_attrs = attrib(kw_only=True, factory=set, validator=default_if_none(set))
-    # ignored_item_attrs = attrib(kw_only=True, factory=set, validator=default_if_none(set))
-
-    # _test: TestCase = attrib(init=False)
-    # errors: list = attrib(init=False)
-
-    # def __attrs_post_init__(self):
-    #     self._test = TestCase()
-    #     self._test.maxDiff = None
-
-    # def _match_items(self, src, tgt):
-    #     if self.match_images:
-    #         return match_items_by_image_hash(src, tgt)
-    #     else:
-    #         return match_items_by_id(src, tgt)
-
-    # def _compare_categories(self, src, tgt):
-    #     test = self._test
-    #     errors = self.errors
-
-    #     try:
-    #         test.assertEqual(sorted(src, key=lambda t: t.value), sorted(tgt, key=lambda t: t.value))
-    #     except AssertionError as e:
-    #         errors.append({"type": "categories", "message": str(e)})
-
-    #     if AnnotationType.label in src:
-    #         try:
-    #             test.assertEqual(
-    #                 src[AnnotationType.label].items,
-    #                 tgt[AnnotationType.label].items,
-    #             )
-    #         except AssertionError as e:
-    #             errors.append({"type": "labels", "message": str(e)})
-    #     if AnnotationType.mask in src:
-    #         try:
-    #             test.assertEqual(
-    #                 src[AnnotationType.mask].colormap,
-    #                 tgt[AnnotationType.mask].colormap,
-    #             )
-    #         except AssertionError as e:
-    #             errors.append({"type": "colormap", "message": str(e)})
-    #     if AnnotationType.points in src:
-    #         try:
-    #             test.assertEqual(
-    #                 src[AnnotationType.points].items,
-    #                 tgt[AnnotationType.points].items,
-    #             )
-    #         except AssertionError as e:
-    #             errors.append({"type": "points", "message": str(e)})
-
-    # def _compare_annotations(self, src, tgt):
-    #     ignored_fields = self.ignored_fields
-    #     ignored_attrs = self.ignored_attrs
-
-    #     a_fields = {k: None for k in src.as_dict() if k in ignored_fields}
-    #     b_fields = {k: None for k in tgt.as_dict() if k in ignored_fields}
-    #     if "attributes" not in ignored_fields:
-    #         a_fields["attributes"] = filter_dict(src.attributes, ignored_attrs)
-    #         b_fields["attributes"] = filter_dict(tgt.attributes, ignored_attrs)
-
-    #     result = src.wrap(**a_fields) == tgt.wrap(**b_fields)
-
-    #     return result
-
-    # def _compare_items(self, item_a, item_b):
-    #     test = self._test
-
-    #     a_id = (item_a.id, item_a.subset)
-    #     b_id = (item_b.id, item_b.subset)
-
-    #     matched = []
-    #     unmatched = []
-    #     errors = []
-
-    #     try:
-    #         test.assertEqual(
-    #             filter_dict(item_a.attributes, self.ignored_item_attrs),
-    #             filter_dict(item_b.attributes, self.ignored_item_attrs),
-    #         )
-    #     except AssertionError as e:
-    #         errors.append({"type": "item_attr", "a_item": a_id, "b_item": b_id, "message": str(e)})
-
-    #     b_annotations = item_b.annotations[:]
-    #     for ann_a in item_a.annotations:
-    #         ann_b_candidates = [x for x in item_b.annotations if x.type == ann_a.type]
-
-    #         ann_b = find(
-    #             enumerate(self._compare_annotations(ann_a, x) for x in ann_b_candidates),
-    #             lambda x: x[1],
-    #         )
-    #         if ann_b is None:
-    #             unmatched.append(
-    #                 {
-    #                     "item": a_id,
-    #                     "source": "src",
-    #                     "ann": str(ann_a),
-    #                 }
-    #             )
-    #             continue
-    #         else:
-    #             ann_b = ann_b_candidates[ann_b[0]]
-
-    #         b_annotations.remove(ann_b)  # avoid repeats
-    #         matched.append({"a_item": a_id, "b_item": b_id, "src": str(ann_a), "tgt": str(ann_b)})
-
-    #     for ann_b in b_annotations:
-    #         unmatched.append({"item": b_id, "source": "tgt", "ann": str(ann_b)})
-
-    #     return matched, unmatched, errors
-
     @staticmethod
     def _analyze_dataset(dataset):
         label_cat = dataset.categories().get(AnnotationType.label, LabelCategories())
@@ -320,23 +199,22 @@ class Comparator:
         return high_level_table, mid_level_table, low_level_table, comparison_dict
 
     @staticmethod
-    def save_compare_report(high_level_table, mid_level_table, low_level_table, comparison_dict, path: str) -> None:
-
-        os.makedirs(path, exist_ok=True)
+    def save_compare_report(
+        high_level_table, mid_level_table, low_level_table, comparison_dict, report_dir: str
+    ) -> None:
+        os.makedirs(report_dir, exist_ok=True)
         json_output_file = osp.join(
-            path, generate_next_file_name("compare", ext=".json", basedir=path)
+            report_dir, generate_next_file_name("compare", ext=".json", basedir=report_dir)
         )
         txt_output_file = osp.join(
-            path, generate_next_file_name("compare", ext=".txt", basedir=path)
+            report_dir, generate_next_file_name("compare", ext=".txt", basedir=report_dir)
         )
 
-        log.info("Saving compare json to '%s'" % json_output_file)
-        log.info("Saving compare table to '%s'" % txt_output_file)
+        log.info(f"Saving compare json to {json_output_file}")
+        log.info(f"Saving compare table to {txt_output_file}")
 
         dump_json_file(json_output_file, comparison_dict, indent=True)
         with open(txt_output_file, "w") as f:
             f.write(f"High-level Comparison:\n{high_level_table}\n")
             f.write(f"Mid-level Comparison:\n{mid_level_table}\n")
             f.write(f"Low-level Comparison:\n{low_level_table}\n")
-
-        
