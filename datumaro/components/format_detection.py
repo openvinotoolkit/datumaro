@@ -265,6 +265,20 @@ class FormatDetectionContext:
 
         return sorted(self._require_files_iter(pattern, exclude_fnames=exclude_fnames))
 
+    def require_files_iter(
+        self,
+        pattern: str,
+        *,
+        exclude_fnames: Union[str, Collection[str]] = (),
+    ) -> Iterator[str]:
+        """
+        Same as `require_files`, but returns a generator.
+        """
+
+        self._start_requirement("require_files_iter")
+
+        return self._require_files_iter(pattern, exclude_fnames=exclude_fnames)
+
     def _require_files_iter(
         self,
         pattern: str,

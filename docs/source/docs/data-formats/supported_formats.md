@@ -95,9 +95,11 @@ List of supported formats:
 - MOT sequences
   - [Format specification](https://arxiv.org/pdf/1906.04567.pdf)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mot_dataset)
+  - [Format documentation](../explanation/formats/mot)
 - MOTS (png)
   - [Format specification](https://www.vision.rwth-aachen.de/page/mots)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mots_dataset)
+  - [Format documentation](../explanation/formats/mots)
 - MPII Human Pose Dataset (`detection`, `pose estimation`) (import-only)
   - [Format specification](http://human-pose.mpi-inf.mpg.de)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mpii_dataset)
@@ -111,6 +113,10 @@ List of supported formats:
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/coco_dataset)
   - `labels` are our extension - like `instances` with only `category_id`
   - [Format documentation](../explanation/formats/coco)
+- Roboflow COCO (import-only)
+  - [Format specification](https://roboflow.com/formats/coco-json)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/coco_dataset/coco_roboflow)
+  - [Format documentation](../explanation/formats/coco#coco-from-roboflow)
 - NYU Depth Dataset V2 (`depth estimation`) (import-only)
   - [Format specification](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/nyu_depth_v2_dataset)

@@ -96,9 +96,9 @@ class VocIntegrationScenarios(TestCase):
                             8.0,
                             5.0,
                             attributes={"truncated": False, "occluded": False, "difficult": False},
-                            id=1,
+                            id=0,
                             label=2,
-                            group=1,
+                            group=0,
                         )
                     ],
                 ),
@@ -112,21 +112,21 @@ class VocIntegrationScenarios(TestCase):
                             4.0,
                             4.0,
                             attributes={"truncated": False, "occluded": False, "difficult": False},
-                            id=1,
+                            id=0,
                             label=3,
-                            group=1,
+                            group=0,
                         )
                     ],
                 ),
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
         )
 
         dataset_path = osp.join(DUMMY_DATASETS_DIR, "voc_dataset2")
 
         with TestDir() as test_dir:
             run(self, "project", "create", "-o", test_dir)
-            run(self, "project", "import", "-p", test_dir, "-f", "voc", dataset_path)
+            run(self, "project", "import", "-p", test_dir, "-f", "voc_detection", dataset_path)
 
             run(
                 self,
@@ -163,15 +163,15 @@ class VocIntegrationScenarios(TestCase):
                 "-p",
                 test_dir,
                 "-f",
-                "voc",
+                "voc_detection",
                 "-o",
                 export_path,
                 "--",
                 "--label-map",
-                "voc",
+                "voc_detection",
             )
 
-            parsed_dataset = Dataset.import_from(export_path, format="voc")
+            parsed_dataset = Dataset.import_from(export_path, format="voc_detection")
             compare_datasets(self, expected_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -193,9 +193,9 @@ class VocIntegrationScenarios(TestCase):
                             4.0,
                             2.0,
                             attributes={"difficult": False, "truncated": False, "occluded": False},
-                            id=1,
+                            id=0,
                             label=3,
-                            group=1,
+                            group=0,
                         ),
                         Bbox(
                             3.0,
@@ -203,9 +203,9 @@ class VocIntegrationScenarios(TestCase):
                             2.0,
                             3.0,
                             attributes={"difficult": False, "truncated": False, "occluded": False},
-                            id=2,
+                            id=1,
                             label=5,
-                            group=2,
+                            group=1,
                         ),
                     ],
                 )
@@ -276,9 +276,9 @@ class VocIntegrationScenarios(TestCase):
                                 "visibility": "1.0",
                                 "ignored": "False",
                             },
-                            id=1,
+                            id=0,
                             label=3,
-                            group=1,
+                            group=0,
                         )
                     ],
                 )
@@ -350,7 +350,7 @@ class VocIntegrationScenarios(TestCase):
                 self,
                 "convert",
                 "-if",
-                "voc",
+                "voc_classification",
                 "-i",
                 voc_dir,
                 "-f",
@@ -365,65 +365,8 @@ class VocIntegrationScenarios(TestCase):
             compare_datasets(self, expected_dataset, target_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_voc_dataset(self):
+    def test_can_save_and_load_voc_instance_segmentation_dataset(self):
         source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="2007_000001",
-                    subset="train",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                    annotations=[Label(i) for i in range(22) if i % 2 == 1]
-                    + [
-                        Bbox(
-                            4.0,
-                            5.0,
-                            2.0,
-                            2.0,
-                            label=15,
-                            id=1,
-                            group=1,
-                            attributes={
-                                "difficult": False,
-                                "truncated": False,
-                                "occluded": False,
-                                **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
-                            },
-                        ),
-                        Bbox(
-                            1.0,
-                            2.0,
-                            2.0,
-                            2.0,
-                            label=8,
-                            id=2,
-                            group=2,
-                            attributes={
-                                "difficult": False,
-                                "truncated": True,
-                                "occluded": False,
-                                "pose": "Unspecified",
-                            },
-                        ),
-                        Bbox(5.5, 6.0, 2.0, 2.0, label=22, id=0, group=1),
-                        Mask(image=np.ones([10, 20]), label=2, group=1),
-                    ],
-                ),
-                DatasetItem(
-                    id="2007_000002",
-                    subset="test",
-                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
-                ),
-            ],
-            categories=VOC.make_voc_categories(),
-        )
-
-        voc_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
-        with TestDir() as test_dir:
-            self._test_can_save_and_load(test_dir, voc_dir, source_dataset, "voc", label_map="voc")
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_voc_layout_dataset(self):
-        expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id="2007_000001",
@@ -442,10 +385,24 @@ class VocIntegrationScenarios(TestCase):
                                 "difficult": False,
                                 "truncated": False,
                                 "occluded": False,
-                                **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
                             },
                         ),
-                        Bbox(5.5, 6.0, 2.0, 2.0, label=22, id=0, group=1),
+                        Bbox(
+                            1.0,
+                            2.0,
+                            2.0,
+                            2.0,
+                            label=8,
+                            id=0,
+                            group=0,
+                            attributes={
+                                "difficult": False,
+                                "truncated": True,
+                                "occluded": False,
+                                "pose": "Unspecified",
+                            },
+                        ),
+                        Mask(image=np.ones([10, 20]), label=2, group=1),
                     ],
                 ),
                 DatasetItem(
@@ -454,27 +411,59 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_instance_segmentation),
+        )
+
+        voc_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
+        with TestDir() as test_dir:
+            self._test_can_save_and_load(
+                test_dir,
+                voc_dir,
+                source_dataset,
+                "voc_instance_segmentation",
+                label_map="voc_instance_segmentation",
+            )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_voc_layout_dataset(self):
+        expected_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="2007_000001",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
+                    annotations=[
+                        Bbox(
+                            4.0,
+                            5.0,
+                            2.0,
+                            2.0,
+                            label=1,
+                            id=0,
+                            group=0,
+                            attributes={
+                                "difficult": False,
+                                "truncated": False,
+                                "occluded": False,
+                            },
+                        ),
+                        Bbox(5.5, 6.0, 2.0, 2.0, label=2, id=0, group=0),
+                    ],
+                ),
+                DatasetItem(
+                    id="2007_000002",
+                    subset="test",
+                    media=Image.from_numpy(data=np.ones((10, 20, 3))),
+                ),
+            ],
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_layout),
         )
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
-        rpath = osp.join("ImageSets", "Layout", "train.txt")
-        matrix = [
-            ("voc_layout", "", ""),
-            ("voc_layout", "train", rpath),
-            ("voc", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
-
-                with TestDir() as test_dir:
-                    self._test_can_save_and_load(
-                        test_dir, dataset_dir, expected, format, result_path=path, label_map="voc"
-                    )
+        with TestDir() as test_dir:
+            self._test_can_save_and_load(
+                test_dir, dataset_dir, expected_dataset, "voc_layout", label_map="voc_layout"
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_classification_dataset(self):
@@ -492,7 +481,7 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_classification),
         )
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
@@ -510,7 +499,12 @@ class VocIntegrationScenarios(TestCase):
 
                 with TestDir() as test_dir:
                     self._test_can_save_and_load(
-                        test_dir, dataset_dir, expected, format, result_path=path, label_map="voc"
+                        test_dir,
+                        dataset_dir,
+                        expected,
+                        format,
+                        result_path=path,
+                        label_map="voc_classification",
                     )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -528,13 +522,12 @@ class VocIntegrationScenarios(TestCase):
                             2.0,
                             2.0,
                             label=15,
-                            id=2,
-                            group=2,
+                            id=1,
+                            group=1,
                             attributes={
                                 "difficult": False,
                                 "truncated": False,
                                 "occluded": False,
-                                **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
                             },
                         ),
                         Bbox(
@@ -543,8 +536,8 @@ class VocIntegrationScenarios(TestCase):
                             2.0,
                             2.0,
                             label=8,
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "difficult": False,
                                 "truncated": True,
@@ -560,7 +553,7 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
         )
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
@@ -578,7 +571,12 @@ class VocIntegrationScenarios(TestCase):
 
                 with TestDir() as test_dir:
                     self._test_can_save_and_load(
-                        test_dir, dataset_dir, expected, format, result_path=path, label_map="voc"
+                        test_dir,
+                        dataset_dir,
+                        expected,
+                        format,
+                        result_path=path,
+                        label_map="voc_detection",
                     )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -597,7 +595,7 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation),
         )
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
@@ -605,7 +603,6 @@ class VocIntegrationScenarios(TestCase):
         matrix = [
             ("voc_segmentation", "", ""),
             ("voc_segmentation", "train", rpath),
-            ("voc", "train", rpath),
         ]
         for format, subset, path in matrix:
             with self.subTest(format=format, subset=subset, path=path):
@@ -616,7 +613,12 @@ class VocIntegrationScenarios(TestCase):
 
                 with TestDir() as test_dir:
                     self._test_can_save_and_load(
-                        test_dir, dataset_dir, expected, format, result_path=path, label_map="voc"
+                        test_dir,
+                        dataset_dir,
+                        expected,
+                        format,
+                        result_path=path,
+                        label_map="voc_segmentation",
                     )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -633,9 +635,9 @@ class VocIntegrationScenarios(TestCase):
                             5.0,
                             2.0,
                             2.0,
-                            label=15,
-                            id=1,
-                            group=1,
+                            label=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "difficult": False,
                                 "truncated": False,
@@ -651,7 +653,7 @@ class VocIntegrationScenarios(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_action),
         )
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, "voc_dataset1")
@@ -659,7 +661,6 @@ class VocIntegrationScenarios(TestCase):
         matrix = [
             ("voc_action", "", ""),
             ("voc_action", "train", rpath),
-            ("voc", "train", rpath),
         ]
         for format, subset, path in matrix:
             with self.subTest(format=format, subset=subset, path=path):
@@ -670,7 +671,12 @@ class VocIntegrationScenarios(TestCase):
 
                 with TestDir() as test_dir:
                     self._test_can_save_and_load(
-                        test_dir, dataset_dir, expected, format, result_path=path, label_map="voc"
+                        test_dir,
+                        dataset_dir,
+                        expected,
+                        format,
+                        result_path=path,
+                        label_map="voc_action",
                     )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -694,8 +700,8 @@ class VocIntegrationScenarios(TestCase):
                                 "difficult": False,
                                 "occluded": False,
                             },
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                         ),
                     ],
                 ),

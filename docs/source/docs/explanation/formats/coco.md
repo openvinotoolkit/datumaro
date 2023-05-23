@@ -93,6 +93,7 @@ A COCO dataset directory should have the following structure:
 
 For the panoptic task, a dataset directory should have the following structure:
 
+<a id="dir-structure"></a>
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
@@ -273,3 +274,40 @@ dataset.export('./dataset', format='coco_panoptic')
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_coco_format.py)
+
+## COCO from Roboflow
+
+The datasets available for download from [Roboflow](https://roboflow.com/) have the exact same JSON format with MS COCO.
+However, it has a different directory structure than [MS COCO](#dir-structure):
+
+<!--lint disable fenced-code-flag-->
+```
+└─ Dataset/
+    ├── dataset_meta.json # a list of custom labels (optional)
+    ├── train
+    │   ├── <image_name1.ext>
+    │   ├── ...
+    │   └── _annotations.coco.json
+    └── val
+        ├── <image_name1.ext>
+        ├── ...
+        └── _annotations.coco.json
+```
+
+As you can see, in the root directory there are subdirectories representing a subset (e.g. `train`), which contain the JSON annotations file `_annotations.coco.json`.
+Datumaro supports importing this COCO format dataset available from Roboflow by using `coco_roboflow` data format directive.
+
+### Import using CLI
+
+``` bash
+datum project create
+datum project import --format coco_roboflow <path/to/dataset>
+```
+
+### Import using Python API
+
+```python
+import datumaro as dm
+
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'coco_roboflow')
+```

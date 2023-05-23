@@ -10,13 +10,15 @@ from datumaro.components.importer import Importer
 from .format import VocPath, VocTask
 
 
-class VocImporter(Importer):
+class _VocImporter(Importer):
     _TASKS = {
-        VocTask.classification: ("voc_classification", "Main"),
-        VocTask.detection: ("voc_detection", "Main"),
-        VocTask.segmentation: ("voc_segmentation", "Segmentation"),
-        VocTask.person_layout: ("voc_layout", "Layout"),
-        VocTask.action_classification: ("voc_action", "Action"),
+        VocTask.voc: ("voc", "Main"),
+        VocTask.voc_classification: ("voc_classification", "Main"),
+        VocTask.voc_detection: ("voc_detection", "Main"),
+        VocTask.voc_segmentation: ("voc_segmentation", "Segmentation"),
+        VocTask.voc_instance_segmentation: ("voc_instance_segmentation", "Segmentation"),
+        VocTask.voc_layout: ("voc_layout", "Layout"),
+        VocTask.voc_action: ("voc_action", "Action"),
     }
 
     @classmethod
@@ -25,8 +27,6 @@ class VocImporter(Importer):
         # `voc_detection`, etc. To remove the ambiguity (and thus make it
         # possible to use autodetection with the VOC datasets), disable
         # autodetection for the single-task formats.
-        if len(cls._TASKS) == 1:
-            context.raise_unsupported()
 
         with context.require_any():
             task_dirs = {task_dir for _, task_dir in cls._TASKS.values()}
@@ -64,26 +64,36 @@ class VocImporter(Importer):
         return subsets
 
 
-class VocClassificationImporter(VocImporter):
-    _TASK = VocTask.classification
-    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+class VocImporter(_VocImporter):
+    _TASK = VocTask.voc
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
-class VocDetectionImporter(VocImporter):
-    _TASK = VocTask.detection
-    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+class VocClassificationImporter(_VocImporter):
+    _TASK = VocTask.voc_classification
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
-class VocSegmentationImporter(VocImporter):
-    _TASK = VocTask.segmentation
-    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+class VocDetectionImporter(_VocImporter):
+    _TASK = VocTask.voc_detection
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
-class VocLayoutImporter(VocImporter):
-    _TASK = VocTask.person_layout
-    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+class VocSegmentationImporter(_VocImporter):
+    _TASK = VocTask.voc_segmentation
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
 
 
-class VocActionImporter(VocImporter):
-    _TASK = VocTask.action_classification
-    _TASKS = {_TASK: VocImporter._TASKS[_TASK]}
+class VocInstanceSegmentationImporter(_VocImporter):
+    _TASK = VocTask.voc_instance_segmentation
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
+
+
+class VocLayoutImporter(_VocImporter):
+    _TASK = VocTask.voc_layout
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}
+
+
+class VocActionImporter(_VocImporter):
+    _TASK = VocTask.voc_action
+    _TASKS = {_TASK: _VocImporter._TASKS[_TASK]}

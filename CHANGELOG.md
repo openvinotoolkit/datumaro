@@ -6,13 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+
+## 22/05/2023 - Release 1.3.0rc1
 ### New features
 - Add CocoRoboflowImporter
-  (<https://github.com/openvinotoolkit/datumaro/pull/976>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/976>, <https://github.com/openvinotoolkit/datumaro/pull/1000>)
 - Add SynthiaSfImporter and SynthiaAlImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/987>)
 - Add intermediate skill docs for filter
   (<https://github.com/openvinotoolkit/datumaro/pull/996>)
+- Add VocInstanceSegmentationImporter and VocInstanceSegmentationExporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/997>)
+- Add Segment Anything data format support
+  (<https://github.com/openvinotoolkit/datumaro/pull/1005>)
+- Add Correct transformation
+  (<https://github.com/openvinotoolkit/datumaro/pull/1006>)
 
 ### Enhancements
 - Use autosummary for fully-automatic Python module docs generation
@@ -21,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/992>)
 - Save and load hashkey for explorer
   (<https://github.com/openvinotoolkit/datumaro/pull/981>)
+- Add MOT and MOTS data format docs
+  (<https://github.com/openvinotoolkit/datumaro/pull/999>)
+- Improve RemoveAnnotations to remove specific annotations with ids
+  (<https://github.com/openvinotoolkit/datumaro/pull/1004>)
 
 ### Bug fixes
 - Fix Mapillary Vistas data format
@@ -29,6 +41,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/978>)
 - Fix Synthia-Rand data format
   (<https://github.com/openvinotoolkit/datumaro/pull/987>)
+- Fix `person_layout` categories and `action_classification` attributes in imported Pascal-VOC dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/997>)
+- Drop a malformed transform from StackedTransform automatically
+  (<https://github.com/openvinotoolkit/datumaro/pull/1001>)
 
 ## 04/05/2023 - Release 1.2.1
 ### Bug fixes

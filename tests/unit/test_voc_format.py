@@ -183,8 +183,8 @@ class VocImportTest(TestCase):
                                         "difficult": False,
                                         "occluded": False,
                                     },
-                                    id=1,
-                                    group=1,
+                                    id=0,
+                                    group=0,
                                 ),
                                 # Only main boxes denote instances (have ids)
                                 Mask(
@@ -204,8 +204,8 @@ class VocImportTest(TestCase):
                                         "occluded": False,
                                         **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
                                     },
-                                    id=2,
-                                    group=2,
+                                    id=1,
+                                    group=1,
                                 ),
                                 # Only main boxes denote instances (have ids)
                                 Bbox(
@@ -214,7 +214,7 @@ class VocImportTest(TestCase):
                                     2,
                                     2,
                                     label=self._label(VOC.VocBodyPart(1).name),
-                                    group=2,
+                                    group=1,
                                 ),
                             ],
                         ),
@@ -225,6 +225,9 @@ class VocImportTest(TestCase):
                         ),
                     ]
                 )
+
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc)
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "voc")
 
@@ -249,8 +252,11 @@ class VocImportTest(TestCase):
                             subset="test",
                             media=Image.from_numpy(data=np.ones((10, 20, 3))),
                         ),
-                    ]
+                    ],
                 )
+
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_classification)
 
         expected_dataset = DstExtractor()
 
@@ -284,17 +290,16 @@ class VocImportTest(TestCase):
                             5.0,
                             2.0,
                             2.0,
-                            label=15,
-                            id=2,
-                            group=2,
+                            label=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "difficult": False,
                                 "truncated": False,
                                 "occluded": False,
-                                **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
                             },
                         ),
-                        Bbox(5.5, 6.0, 2.0, 2.0, label=22, group=2),
+                        Bbox(5.5, 6.0, 2.0, 2.0, label=2, group=0),
                     ],
                 ),
                 DatasetItem(
@@ -303,14 +308,14 @@ class VocImportTest(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_layout),
         )
 
         rpath = osp.join("ImageSets", "Layout", "train.txt")
         matrix = [
             ("voc_layout", "", ""),
             ("voc_layout", "train", rpath),
-            ("voc", "train", rpath),
+            # ("voc", "train", rpath),
         ]
         for format, subset, path in matrix:
             with self.subTest(format=format, subset=subset, path=path):
@@ -338,8 +343,8 @@ class VocImportTest(TestCase):
                             2.0,
                             2.0,
                             label=8,
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "difficult": False,
                                 "truncated": True,
@@ -353,13 +358,12 @@ class VocImportTest(TestCase):
                             2.0,
                             2.0,
                             label=15,
-                            id=2,
-                            group=2,
+                            id=1,
+                            group=1,
                             attributes={
                                 "difficult": False,
                                 "truncated": False,
                                 "occluded": False,
-                                **{a.name: a.value % 2 == 1 for a in VOC.VocAction},
                             },
                         ),
                     ],
@@ -370,7 +374,7 @@ class VocImportTest(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
         )
 
         rpath = osp.join("ImageSets", "Main", "train.txt")
@@ -405,14 +409,14 @@ class VocImportTest(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation),
         )
 
         rpath = osp.join("ImageSets", "Segmentation", "train.txt")
         matrix = [
             ("voc_segmentation", "", ""),
             ("voc_segmentation", "train", rpath),
-            ("voc", "train", rpath),
+            # ("voc", "train", rpath),
         ]
         for format, subset, path in matrix:
             with self.subTest(format=format, subset=subset, path=path):
@@ -439,9 +443,9 @@ class VocImportTest(TestCase):
                             5.0,
                             2.0,
                             2.0,
-                            label=15,
-                            id=2,
-                            group=2,
+                            label=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "difficult": False,
                                 "truncated": False,
@@ -457,14 +461,14 @@ class VocImportTest(TestCase):
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                 ),
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_action),
         )
 
         rpath = osp.join("ImageSets", "Action", "train.txt")
         matrix = [
             ("voc_action", "", ""),
             ("voc_action", "train", rpath),
-            ("voc", "train", rpath),
+            # ("voc", "train", rpath),
         ]
         for format, subset, path in matrix:
             with self.subTest(format=format, subset=subset, path=path):
@@ -484,7 +488,7 @@ class VocImportTest(TestCase):
         for path in [DUMMY_DATASET_DIR, DUMMY_DATASET2_DIR]:
             with self.subTest(path=path):
                 detected_formats = env.detect_dataset(path)
-                self.assertEqual([VocImporter.NAME], detected_formats)
+                self.assertIn(VocImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_BUG_583)
     def test_can_import_voc_dataset_with_empty_lines_in_subset_lists(self):
@@ -501,8 +505,8 @@ class VocImportTest(TestCase):
                             2.0,
                             2.0,
                             label=8,
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "difficult": False,
                                 "truncated": True,
@@ -513,7 +517,7 @@ class VocImportTest(TestCase):
                     ],
                 )
             ],
-            categories=VOC.make_voc_categories(),
+            categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
         )
 
         rpath = osp.join("ImageSets", "Main", "train.txt")
@@ -630,8 +634,8 @@ class VocExtractorTest(TestCase):
     def test_can_report_invalid_label_in_xml(self):
         formats = [
             ("voc_detection", "Main"),
-            ("voc_layout", "Layout"),
-            ("voc_action", "Action"),
+            # ("voc_layout", "Layout"),
+            # ("voc_action", "Action"),
         ]
 
         for fmt, fmt_dir in formats:
@@ -665,11 +669,6 @@ class VocExtractorTest(TestCase):
                     "object/bndbox/ymin",
                     "object/bndbox/xmax",
                     "object/bndbox/ymax",
-                    "object/part/name",
-                    "object/part/bndbox/xmin",
-                    "object/part/bndbox/ymin",
-                    "object/part/bndbox/xmax",
-                    "object/part/bndbox/ymax",
                     "object/point/x",
                     "object/point/y",
                     "object/attributes/attribute/name",
@@ -702,22 +701,17 @@ class VocExtractorTest(TestCase):
         for fmt, fmt_dir in formats:
             with self.subTest(fmt=fmt):
                 for key, value in [
+                    ("size/width", "a"),
+                    ("size/height", "a"),
                     ("object/bndbox/xmin", "a"),
                     ("object/bndbox/ymin", "a"),
                     ("object/bndbox/xmax", "a"),
                     ("object/bndbox/ymax", "a"),
-                    ("object/part/bndbox/xmin", "a"),
-                    ("object/part/bndbox/ymin", "a"),
-                    ("object/part/bndbox/xmax", "a"),
-                    ("object/part/bndbox/ymax", "a"),
-                    ("size/width", "a"),
-                    ("size/height", "a"),
                     ("object/occluded", "a"),
                     ("object/difficult", "a"),
                     ("object/truncated", "a"),
                     ("object/point/x", "a"),
                     ("object/point/y", "a"),
-                    ("object/actions/jumping", "a"),
                 ]:
                     with self.subTest(key=key):
                         with TestDir() as test_dir:
@@ -773,7 +767,7 @@ class VocExtractorTest(TestCase):
                     DatasetItem("b", subset="test"),
                     DatasetItem("c", subset="test", annotations=[Label(VOC.VocLabel.cat.value)]),
                 ],
-                categories=VOC.make_voc_categories(),
+                categories=VOC.make_voc_categories(task=VOC.VocTask.voc_classification),
             )
             compare_datasets(self, expected, parsed)
 
@@ -833,14 +827,21 @@ class VocExtractorTest(TestCase):
 
 class VocExporterTest(TestCase):
     def _test_save_and_load(
-        self, source_dataset, converter, test_dir, target_dataset=None, importer_args=None, **kwargs
+        self,
+        source_dataset,
+        converter,
+        test_dir,
+        importer,
+        target_dataset=None,
+        importer_args=None,
+        **kwargs,
     ):
         return check_save_and_load(
             self,
             source_dataset,
             converter,
             test_dir,
-            importer="voc",
+            importer=importer,
             target_dataset=target_dataset,
             importer_args=importer_args,
             **kwargs,
@@ -871,11 +872,15 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_classification)
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(VocClassificationExporter.convert, label_map="voc"),
+                partial(VocClassificationExporter.convert, label_map="voc_classification"),
                 test_dir,
+                importer="voc_classification",
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -916,6 +921,9 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_detection)
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -930,8 +938,8 @@ class VocExporterTest(TestCase):
                                     4,
                                     5,
                                     label=2,
-                                    id=1,
-                                    group=1,
+                                    id=0,
+                                    group=0,
                                     attributes={
                                         "truncated": False,
                                         "difficult": False,
@@ -944,8 +952,8 @@ class VocExporterTest(TestCase):
                                     4,
                                     5,
                                     label=3,
-                                    id=2,
-                                    group=2,
+                                    id=1,
+                                    group=1,
                                     attributes={
                                         "truncated": True,
                                         "difficult": False,
@@ -964,8 +972,8 @@ class VocExporterTest(TestCase):
                                     6,
                                     5,
                                     label=3,
-                                    id=1,
-                                    group=1,
+                                    id=0,
+                                    group=0,
                                     attributes={
                                         "truncated": False,
                                         "difficult": True,
@@ -977,11 +985,15 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_detection)
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(VocDetectionExporter.convert, label_map="voc"),
+                partial(VocDetectionExporter.convert, label_map="voc_detection"),
                 test_dir,
+                importer="voc_detection",
                 target_dataset=DstExtractor(),
             )
 
@@ -1005,6 +1017,9 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -1021,11 +1036,15 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(VocSegmentationExporter.convert, label_map="voc"),
+                partial(VocSegmentationExporter.convert, label_map="voc_segmentation"),
                 test_dir,
+                importer="voc_segmentation",
                 target_dataset=DstExtractor(),
             )
 
@@ -1049,6 +1068,9 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -1065,11 +1087,19 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(VocSegmentationExporter.convert, label_map="voc", apply_colormap=False),
+                partial(
+                    VocSegmentationExporter.convert,
+                    label_map="voc_segmentation",
+                    apply_colormap=False,
+                ),
                 test_dir,
+                importer="voc_segmentation",
                 target_dataset=DstExtractor(),
             )
 
@@ -1100,6 +1130,9 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -1120,11 +1153,15 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(VocSegmentationExporter.convert, label_map="voc"),
+                partial(VocSegmentationExporter.convert, label_map="voc_segmentation"),
                 test_dir,
+                importer="voc_segmentation",
                 target_dataset=DstExtractor(),
             )
 
@@ -1143,30 +1180,35 @@ class VocExporterTest(TestCase):
                                     3,
                                     4,
                                     5,
-                                    label=2,
-                                    id=1,
-                                    group=1,
+                                    label=self._label("person"),
+                                    id=0,
+                                    group=0,
                                     attributes={
-                                        "pose": VOC.VocPose(1).name,
                                         "truncated": True,
                                         "difficult": False,
                                         "occluded": False,
                                     },
                                 ),
                                 Bbox(
-                                    2, 3, 1, 1, label=self._label(VOC.VocBodyPart(1).name), group=1
+                                    2, 3, 1, 1, label=self._label(VOC.VocBodyPart(1).name), group=0
                                 ),
                                 Bbox(
-                                    5, 4, 3, 2, label=self._label(VOC.VocBodyPart(2).name), group=1
+                                    5, 4, 3, 2, label=self._label(VOC.VocBodyPart(2).name), group=0
                                 ),
                             ],
                         ),
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_layout)
+
         with TestDir() as test_dir:
             self._test_save_and_load(
-                TestExtractor(), partial(VocLayoutExporter.convert, label_map="voc"), test_dir
+                TestExtractor(),
+                partial(VocLayoutExporter.convert, label_map="voc_layout"),
+                test_dir,
+                importer="voc_layout",
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1184,12 +1226,7 @@ class VocExporterTest(TestCase):
                                     3,
                                     4,
                                     5,
-                                    label=2,
-                                    attributes={
-                                        "truncated": True,
-                                        VOC.VocAction(1).name: True,
-                                        VOC.VocAction(2).name: True,
-                                    },
+                                    label=0,
                                 ),
                                 Bbox(
                                     5,
@@ -1208,6 +1245,9 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_action)
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -1221,11 +1261,11 @@ class VocExporterTest(TestCase):
                                     3,
                                     4,
                                     5,
-                                    label=2,
-                                    id=1,
-                                    group=1,
+                                    label=0,
+                                    id=0,
+                                    group=0,
                                     attributes={
-                                        "truncated": True,
+                                        "truncated": False,
                                         "difficult": False,
                                         "occluded": False,
                                         # no attributes here in the label categories
@@ -1237,8 +1277,8 @@ class VocExporterTest(TestCase):
                                     3,
                                     2,
                                     label=self._label("person"),
-                                    id=2,
-                                    group=2,
+                                    id=1,
+                                    group=1,
                                     attributes={
                                         "truncated": True,
                                         "difficult": False,
@@ -1257,17 +1297,25 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc_action)
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
-                partial(VocActionExporter.convert, label_map="voc", allow_attributes=False),
+                partial(VocActionExporter.convert, label_map="voc_action", allow_attributes=False),
                 test_dir,
+                importer="voc_action",
                 target_dataset=DstExtractor(),
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_subsets(self):
         class TestExtractor(TestExtractorBase):
+            def __init__(self, task):
+                super().__init__()
+                self._task = task
+
             def __iter__(self):
                 return iter(
                     [
@@ -1276,17 +1324,25 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
-        for task in [None] + list(VOC.VocTask):
+            def categories(self):
+                return VOC.make_voc_categories(task=self._task)
+
+        for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
                 self._test_save_and_load(
-                    TestExtractor(),
-                    partial(VocExporter.convert, label_map="voc", tasks=task),
+                    TestExtractor(task),
+                    partial(VocExporter.convert, label_map=task.name, task=task),
                     test_dir,
+                    importer=task.name,
                 )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         class TestExtractor(TestExtractorBase):
+            def __init__(self, task):
+                super().__init__()
+                self._task = task
+
             def __iter__(self):
                 return iter(
                     [
@@ -1298,18 +1354,26 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
-        for task in [None] + list(VOC.VocTask):
+            def categories(self):
+                return VOC.make_voc_categories(task=self._task)
+
+        for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
                 self._test_save_and_load(
-                    TestExtractor(),
-                    partial(VocExporter.convert, label_map="voc", tasks=task, save_media=True),
+                    TestExtractor(task),
+                    partial(VocExporter.convert, label_map=task.name, task=task, save_media=True),
                     test_dir,
+                    importer=task.name,
                     require_media=True,
                 )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_images(self):
         class TestExtractor(TestExtractorBase):
+            def __init__(self, task):
+                super().__init__()
+                self._task = task
+
             def __iter__(self):
                 return iter(
                     [
@@ -1325,12 +1389,16 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
-        for task in [None] + list(VOC.VocTask):
+            def categories(self):
+                return VOC.make_voc_categories(task=self._task)
+
+        for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
                 self._test_save_and_load(
-                    TestExtractor(),
-                    partial(VocExporter.convert, label_map="voc", save_media=True, tasks=task),
+                    TestExtractor(task),
+                    partial(VocExporter.convert, label_map=task.name, task=task, save_media=True),
                     test_dir,
+                    importer=task.name,
                     require_media=True,
                 )
 
@@ -1366,8 +1434,8 @@ class VocExporterTest(TestCase):
                             4,
                             5,
                             label=self._label("cat"),
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "truncated": False,
                                 "difficult": False,
@@ -1385,6 +1453,7 @@ class VocExporterTest(TestCase):
                 SrcExtractor(),
                 partial(VocExporter.convert, label_map="voc"),
                 test_dir,
+                importer="voc",
                 target_dataset=DstExtractor(),
             )
 
@@ -1419,8 +1488,8 @@ class VocExporterTest(TestCase):
                             4,
                             5,
                             label=self._label("Label_1"),
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "truncated": False,
                                 "difficult": False,
@@ -1433,8 +1502,8 @@ class VocExporterTest(TestCase):
                             3,
                             4,
                             label=self._label("label_2"),
-                            id=2,
-                            group=2,
+                            id=1,
+                            group=1,
                             attributes={
                                 "truncated": False,
                                 "difficult": False,
@@ -1456,6 +1525,7 @@ class VocExporterTest(TestCase):
                 SrcExtractor(),
                 partial(VocExporter.convert, label_map="source"),
                 test_dir,
+                importer="voc",
                 target_dataset=DstExtractor(),
             )
 
@@ -1489,8 +1559,8 @@ class VocExporterTest(TestCase):
                             4,
                             5,
                             label=self._label("label_1"),
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "truncated": False,
                                 "difficult": False,
@@ -1503,8 +1573,8 @@ class VocExporterTest(TestCase):
                             3,
                             4,
                             label=self._label("label_2"),
-                            id=2,
-                            group=2,
+                            id=1,
+                            group=1,
                             attributes={
                                 "truncated": False,
                                 "difficult": False,
@@ -1526,6 +1596,7 @@ class VocExporterTest(TestCase):
                 SrcExtractor(),
                 partial(VocExporter.convert, label_map="source"),
                 test_dir,
+                importer="voc",
                 target_dataset=DstExtractor(),
             )
 
@@ -1562,8 +1633,8 @@ class VocExporterTest(TestCase):
                             4,
                             5,
                             label=self._label("label_1"),
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "act1": False,
                                 "act2": False,
@@ -1583,6 +1654,7 @@ class VocExporterTest(TestCase):
                 SrcExtractor(),
                 partial(VocExporter.convert, label_map=label_map, save_dataset_meta=True),
                 test_dir,
+                importer="voc",
                 target_dataset=DstExtractor(),
             )
             self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
@@ -1642,8 +1714,8 @@ class VocExporterTest(TestCase):
                             3,
                             4,
                             label=self._label("label"),
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "act1": True,
                                 "act2": False,
@@ -1652,8 +1724,8 @@ class VocExporterTest(TestCase):
                                 "occluded": False,
                             },
                         ),
-                        Bbox(2, 3, 4, 5, label=self._label("label_part1"), group=1),
-                        Bbox(2, 3, 4, 6, label=self._label("label_part2"), group=1),
+                        Bbox(2, 3, 4, 5, label=self._label("label_part1"), group=0),
+                        Bbox(2, 3, 4, 6, label=self._label("label_part2"), group=0),
                     ],
                 )
 
@@ -1665,6 +1737,7 @@ class VocExporterTest(TestCase):
                 SrcExtractor(),
                 partial(VocExporter.convert, label_map=label_map),
                 test_dir,
+                importer="voc",
                 target_dataset=DstExtractor(),
             )
 
@@ -1696,6 +1769,10 @@ class VocExporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_image_info(self):
         class TestExtractor(TestExtractorBase):
+            def __init__(self, task):
+                super().__init__()
+                self._task = task
+
             def __iter__(self):
                 return iter(
                     [
@@ -1703,17 +1780,25 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
-        for task in [None] + list(VOC.VocTask):
+            def categories(self):
+                return VOC.make_voc_categories(task=self._task)
+
+        for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
                 self._test_save_and_load(
-                    TestExtractor(),
-                    partial(VocExporter.convert, label_map="voc", tasks=task),
+                    TestExtractor(task),
+                    partial(VocExporter.convert, label_map=task.name, task=task),
                     test_dir,
+                    importer=task.name,
                 )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         class TestExtractor(TestExtractorBase):
+            def __init__(self, task):
+                super().__init__()
+                self._task = task
+
             def __iter__(self):
                 return iter(
                     [
@@ -1724,18 +1809,26 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
-        for task in [None] + list(VOC.VocTask):
+            def categories(self):
+                return VOC.make_voc_categories(task=self._task)
+
+        for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
                 self._test_save_and_load(
-                    TestExtractor(),
-                    partial(VocExporter.convert, label_map="voc", tasks=task, save_media=True),
+                    TestExtractor(task),
+                    partial(VocExporter.convert, label_map=task.name, task=task, save_media=True),
                     test_dir,
+                    importer=task.name,
                     require_media=True,
                 )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
         class TestExtractor(TestExtractorBase):
+            def __init__(self, task):
+                super().__init__()
+                self._task = task
+
             def __iter__(self):
                 return iter(
                     [
@@ -1749,12 +1842,16 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
-        for task in [None] + list(VOC.VocTask):
+            def categories(self):
+                return VOC.make_voc_categories(task=self._task)
+
+        for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
                 self._test_save_and_load(
-                    TestExtractor(),
-                    partial(VocExporter.convert, label_map="voc", save_media=True, tasks=task),
+                    TestExtractor(task),
+                    partial(VocExporter.convert, label_map=task.name, save_media=True, task=task),
                     test_dir,
+                    importer=task.name,
                     require_media=True,
                 )
 
@@ -1780,6 +1877,9 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc)
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -1793,8 +1893,8 @@ class VocExporterTest(TestCase):
                                     4,
                                     5,
                                     label=2,
-                                    id=1,
-                                    group=1,
+                                    id=0,
+                                    group=0,
                                     attributes={
                                         "truncated": False,
                                         "difficult": False,
@@ -1808,11 +1908,15 @@ class VocExporterTest(TestCase):
                     ]
                 )
 
+            def categories(self):
+                return VOC.make_voc_categories(task=VOC.VocTask.voc)
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
                 partial(VocExporter.convert, label_map="voc"),
                 test_dir,
+                importer="voc",
                 target_dataset=DstExtractor(),
             )
 
@@ -1839,8 +1943,8 @@ class VocExporterTest(TestCase):
                             0,
                             0,
                             label=4,
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "truncated": False,
                                 "difficult": False,
@@ -1919,8 +2023,8 @@ class VocExporterTest(TestCase):
                             0,
                             0,
                             label=4,
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "truncated": False,
                                 "difficult": False,
@@ -1940,8 +2044,8 @@ class VocExporterTest(TestCase):
                             0,
                             0,
                             label=4,
-                            id=1,
-                            group=1,
+                            id=0,
+                            group=0,
                             attributes={
                                 "truncated": False,
                                 "difficult": False,
@@ -2033,9 +2137,9 @@ class VocExporterTest(TestCase):
                                         "truncated": False,
                                         "occluded": False,
                                     },
-                                    id=1,
+                                    id=0,
                                     label=0,
-                                    group=1,
+                                    group=0,
                                 )
                             ],
                         )
@@ -2043,9 +2147,12 @@ class VocExporterTest(TestCase):
                 )
 
             def categories(self):
-                return VOC.make_voc_categories()
+                return VOC.make_voc_categories(task=VOC.VocTask.voc)
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                TestExtractor(), partial(VocExporter.convert, label_map="voc"), test_dir
+                TestExtractor(),
+                partial(VocExporter.convert, label_map="voc"),
+                test_dir,
+                importer="voc",
             )

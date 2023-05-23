@@ -45,11 +45,11 @@ _inverse_inst_colormap = invert_colormap(VocInstColormap)
 T = TypeVar("T")
 
 
-class _VocBase(SubsetBase):
+class VocBase(SubsetBase):
     def __init__(
         self,
         path: str,
-        task: VocTask,
+        task: Optional[VocTask] = VocTask.voc,
         *,
         subset: Optional[str] = None,
         ctx: Optional[ImportContext] = None,
@@ -68,19 +68,20 @@ class _VocBase(SubsetBase):
 
         self._categories = self._load_categories(self._dataset_dir)
 
-        label_color = lambda label_idx: self._categories[AnnotationType.mask].colormap.get(
-            label_idx, None
-        )
-        log.debug(
-            "Loaded labels: %s",
-            ", ".join(
-                "'%s' %s" % (l.name, ("(%s, %s, %s)" % c) if c else "")
-                for i, l, c in (
-                    (i, l, label_color(i))
-                    for i, l in enumerate(self._categories[AnnotationType.label].items)
-                )
-            ),
-        )
+        if self._task in [VocTask.voc, VocTask.voc_segmentation, VocTask.voc_instance_segmentation]:
+            label_color = lambda label_idx: self._categories[AnnotationType.mask].colormap.get(
+                label_idx, None
+            )
+            log.debug(
+                "Loaded labels: %s",
+                ", ".join(
+                    "'%s' %s" % (l.name, ("(%s, %s, %s)" % c) if c else "")
+                    for i, l, c in (
+                        (i, l, label_color(i))
+                        for i, l in enumerate(self._categories[AnnotationType.label].items)
+                    )
+                ),
+            )
         self._items = {item: None for item in self._load_subset_list(path)}
 
     def _get_label_id(self, label: str) -> int:
@@ -98,7 +99,7 @@ class _VocBase(SubsetBase):
             if osp.isfile(label_map_path):
                 label_map = parse_label_map(label_map_path)
 
-        return make_voc_categories(label_map)
+        return make_voc_categories(label_map, self._task)
 
     def _load_subset_list(self, subset_path):
         subset_list = []
@@ -108,7 +109,7 @@ class _VocBase(SubsetBase):
                 if not line or line[0] == "#":
                     continue
 
-                if self._task == VocTask.person_layout:
+                if self._task == VocTask.voc_layout:
                     objects = line.split('"')
                     if 1 < len(objects):
                         if len(objects) == 3:
@@ -125,70 +126,6 @@ class _VocBase(SubsetBase):
                 subset_list.append(line)
             return subset_list
 
-
-class VocClassificationBase(_VocBase):
-    def __init__(self, path, **kwargs):
-        super().__init__(path, VocTask.classification, **kwargs)
-
-    def __iter__(self):
-        annotations = self._load_annotations()
-
-        image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
-        if osp.isdir(image_dir):
-            images = {
-                osp.splitext(osp.relpath(p, image_dir))[0].replace("\\", "/"): p
-                for p in find_images(image_dir, recursive=True)
-            }
-        else:
-            images = {}
-
-        for item_id in self._ctx.progress_reporter.iter(
-            self._items, desc=f"Parsing labels in '{self._subset}'"
-        ):
-            log.debug("Reading item '%s'", item_id)
-            image = images.get(item_id)
-            if image:
-                image = Image.from_file(path=image)
-            yield DatasetItem(
-                id=item_id, subset=self._subset, media=image, annotations=annotations.get(item_id)
-            )
-
-    def _load_annotations(self):
-        annotations = {}
-        task_dir = osp.dirname(self._path)
-        for label_id, label in enumerate(self._categories[AnnotationType.label]):
-            ann_file = osp.join(task_dir, f"{label.name}_{self._subset}.txt")
-            if not osp.isfile(ann_file):
-                continue
-
-            with open(ann_file, encoding="utf-8") as f:
-                for i, line in enumerate(f):
-                    line = line.strip()
-                    if not line or line[0] == "#":
-                        continue
-
-                    parts = line.rsplit(maxsplit=1)
-                    if len(parts) != 2:
-                        raise InvalidAnnotationError(
-                            f"{osp.basename(ann_file)}:{i+1}: "
-                            "invalid number of fields in line, expected 2"
-                        )
-
-                    item, present = parts
-                    if present not in ["-1", "0", "1"]:
-                        # Both -1 and 0 are used in the original VOC, they mean the same
-                        raise InvalidAnnotationError(
-                            f"{osp.basename(ann_file)}:{i+1}: "
-                            f"unexpected class existence value '{present}', expected -1, 0 or 1"
-                        )
-
-                    if present == "1":
-                        annotations.setdefault(item, []).append(Label(label_id))
-
-        return annotations
-
-
-class _VocXmlBase(_VocBase):
     def __iter__(self):
         image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
         if osp.isdir(image_dir):
@@ -198,6 +135,10 @@ class _VocXmlBase(_VocBase):
             }
         else:
             images = {}
+
+        annotations = (
+            self._parse_labels() if self._task in [VocTask.voc, VocTask.voc_classification] else {}
+        )
 
         anno_dir = osp.join(self._dataset_dir, VocPath.ANNOTATIONS_DIR)
 
@@ -208,11 +149,14 @@ class _VocXmlBase(_VocBase):
             size = None
 
             try:
-                anns = []
+                anns = annotations.get(item_id, [])
                 image = None
 
                 ann_file = osp.join(anno_dir, item_id + ".xml")
-                if osp.isfile(ann_file):
+                if osp.isfile(ann_file) and self._task not in [
+                    VocTask.voc_classification,
+                    VocTask.voc_segmentation,
+                ]:
                     root_elem = ElementTree.parse(ann_file).getroot()
                     if root_elem.tag != "annotation":
                         raise MissingFieldError("annotation")
@@ -226,7 +170,14 @@ class _VocXmlBase(_VocBase):
                     if filename_elem is not None:
                         image = osp.join(image_dir, filename_elem.text)
 
-                    anns = self._parse_annotations(root_elem, item_id=(item_id, self._subset))
+                    anns += self._parse_annotations(root_elem, item_id=(item_id, self._subset))
+
+                if self._task in [
+                    VocTask.voc,
+                    VocTask.voc_segmentation,
+                    VocTask.voc_instance_segmentation,
+                ]:
+                    anns += self._parse_masks(item_id)
 
                 if image is None:
                     image = images.pop(item_id, None)
@@ -271,76 +222,30 @@ class _VocXmlBase(_VocBase):
             raise InvalidFieldError(xpath)
         return elem.text == "1"
 
-    def _parse_annotations(self, root_elem, *, item_id: Tuple[str, str]) -> List[Annotation]:
-        item_annotations = []
+    def _parse_attribute(self, object_elem):
+        attributes = {}
 
-        for obj_id, object_elem in enumerate(root_elem.iterfind("object")):
-            try:
-                obj_id += 1
-                attributes = {}
-                group = obj_id
+        for key in ["difficult", "truncated", "occluded"]:
+            attributes[key] = self._parse_bool_field(object_elem, key, default=False)
 
-                obj_label_id = self._get_label_id(self._parse_field(object_elem, "name"))
+        pose_elem = object_elem.find("pose")
+        if pose_elem is not None:
+            attributes["pose"] = pose_elem.text
 
-                obj_bbox = self._parse_bbox(object_elem)
+        point_elem = object_elem.find("point")
+        if point_elem is not None:
+            point_x = self._parse_field(point_elem, "x", float)
+            point_y = self._parse_field(point_elem, "y", float)
+            attributes["point"] = (point_x, point_y)
 
-                for key in ["difficult", "truncated", "occluded"]:
-                    attributes[key] = self._parse_bool_field(object_elem, key, default=False)
-
-                pose_elem = object_elem.find("pose")
-                if pose_elem is not None:
-                    attributes["pose"] = pose_elem.text
-
-                point_elem = object_elem.find("point")
-                if point_elem is not None:
-                    point_x = self._parse_field(point_elem, "x", float)
-                    point_y = self._parse_field(point_elem, "y", float)
-                    attributes["point"] = (point_x, point_y)
-
-                actions_elem = object_elem.find("actions")
-                actions = {
-                    a: False
-                    for a in self._categories[AnnotationType.label].items[obj_label_id].attributes
-                }
-                if actions_elem is not None:
-                    for action_elem in actions_elem:
-                        actions[action_elem.tag] = self._parse_bool_field(
-                            actions_elem, action_elem.tag
-                        )
-                for action, present in actions.items():
-                    attributes[action] = present
-
-                has_parts = False
-                for part_elem in object_elem.findall("part"):
-                    part_label_id = self._get_label_id(self._parse_field(part_elem, "name"))
-                    part_bbox = self._parse_bbox(part_elem)
-
-                    if self._task is not VocTask.person_layout:
-                        break
-                    has_parts = True
-                    item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
-
-                attributes_elem = object_elem.find("attributes")
-                if attributes_elem is not None:
-                    for attr_elem in attributes_elem.iter("attribute"):
-                        attributes[self._parse_field(attr_elem, "name")] = self._parse_field(
-                            attr_elem, "value"
-                        )
-
-                if self._task is VocTask.person_layout and not has_parts:
-                    continue
-                if self._task is VocTask.action_classification and not actions:
-                    continue
-
-                item_annotations.append(
-                    Bbox(
-                        *obj_bbox, label=obj_label_id, attributes=attributes, id=obj_id, group=group
-                    )
+        attributes_elem = object_elem.find("attributes")
+        if attributes_elem is not None:
+            for attr_elem in attributes_elem.iter("attribute"):
+                attributes[self._parse_field(attr_elem, "name")] = self._parse_field(
+                    attr_elem, "value"
                 )
-            except Exception as e:
-                self._ctx.error_policy.report_annotation_error(e, item_id=item_id)
 
-        return item_annotations
+        return attributes
 
     @classmethod
     def _parse_bbox(cls, object_elem):
@@ -354,60 +259,65 @@ class _VocXmlBase(_VocBase):
         ymax = cls._parse_field(bbox_elem, "ymax", float)
         return [xmin, ymin, xmax - xmin, ymax - ymin]
 
+    def _parse_annotations(self, root_elem, *, item_id: Tuple[str, str]) -> List[Annotation]:
+        item_annotations = []
 
-class VocDetectionBase(_VocXmlBase):
-    def __init__(self, path, **kwargs):
-        super().__init__(path, task=VocTask.detection, **kwargs)
-
-
-class VocLayoutBase(_VocXmlBase):
-    def __init__(self, path, **kwargs):
-        super().__init__(path, task=VocTask.person_layout, **kwargs)
-
-
-class VocActionBase(_VocXmlBase):
-    def __init__(self, path, **kwargs):
-        super().__init__(path, task=VocTask.action_classification, **kwargs)
-
-
-class VocSegmentationBase(_VocBase):
-    def __init__(self, path, **kwargs):
-        super().__init__(path, task=VocTask.segmentation, **kwargs)
-
-    def __iter__(self):
-        image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
-        if osp.isdir(image_dir):
-            images = {
-                osp.splitext(osp.relpath(p, image_dir))[0].replace("\\", "/"): p
-                for p in find_images(image_dir, recursive=True)
-            }
-        else:
-            images = {}
-
-        for item_id in self._ctx.progress_reporter.iter(
-            self._items, desc=f"Parsing segmentation in '{self._subset}'"
-        ):
-            log.debug("Reading item '%s'", item_id)
-
-            image = images.get(item_id)
-            if image:
-                image = Image.from_file(path=image)
-
+        obj_id = 0
+        for object_elem in root_elem.iterfind("object"):
             try:
-                yield DatasetItem(
-                    id=item_id,
-                    subset=self._subset,
-                    media=image,
-                    annotations=self._load_annotations(item_id),
+                label_name = self._parse_field(object_elem, "name")
+
+                # person_layout and action_classification are only available for background and person
+                if self._task in [VocTask.voc_layout, VocTask.voc_action] and (
+                    label_name not in ["person", "background"]
+                ):
+                    continue
+
+                obj_label_id = self._get_label_id(label_name)
+                obj_bbox = self._parse_bbox(object_elem)
+                attributes = self._parse_attribute(object_elem)
+
+                group = obj_id
+
+                if self._task in [VocTask.voc, VocTask.voc_layout]:
+                    for part_elem in object_elem.findall("part"):
+                        part_label_id = self._get_label_id(self._parse_field(part_elem, "name"))
+                        part_bbox = self._parse_bbox(part_elem)
+
+                        item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
+
+                if self._task in [VocTask.voc, VocTask.voc_action]:
+                    actions_elem = object_elem.find("actions")
+                    actions = {
+                        a: False
+                        for a in self._categories[AnnotationType.label]
+                        .items[obj_label_id]
+                        .attributes
+                    }
+                    if actions_elem is not None:
+                        for action_elem in actions_elem:
+                            actions[action_elem.tag] = self._parse_bool_field(
+                                actions_elem, action_elem.tag
+                            )
+                    for action, present in actions.items():
+                        attributes[action] = present
+
+                item_annotations.append(
+                    Bbox(
+                        *obj_bbox, label=obj_label_id, attributes=attributes, id=obj_id, group=group
+                    )
                 )
+                obj_id += 1
             except Exception as e:
-                self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
+                self._ctx.error_policy.report_annotation_error(e, item_id=item_id)
+
+        return item_annotations
 
     @staticmethod
     def _lazy_extract_mask(mask, c):
         return lambda: mask == c
 
-    def _load_annotations(self, item_id):
+    def _parse_masks(self, item_id):
         item_annotations = []
 
         class_mask = None
@@ -457,3 +367,67 @@ class VocSegmentationBase(_VocBase):
                 item_annotations.append(Mask(image=image, label=label_id))
 
         return item_annotations
+
+    def _parse_labels(self):
+        annotations = {}
+        task_dir = osp.dirname(self._path)
+        for label_id, label in enumerate(self._categories[AnnotationType.label]):
+            ann_file = osp.join(task_dir, f"{label.name}_{self._subset}.txt")
+            if not osp.isfile(ann_file):
+                continue
+
+            with open(ann_file, encoding="utf-8") as f:
+                for i, line in enumerate(f):
+                    line = line.strip()
+                    if not line or line[0] == "#":
+                        continue
+
+                    parts = line.rsplit(maxsplit=1)
+                    if len(parts) != 2:
+                        raise InvalidAnnotationError(
+                            f"{osp.basename(ann_file)}:{i+1}: "
+                            "invalid number of fields in line, expected 2"
+                        )
+
+                    item, present = parts
+                    if present not in ["-1", "0", "1"]:
+                        # Both -1 and 0 are used in the original VOC, they mean the same
+                        raise InvalidAnnotationError(
+                            f"{osp.basename(ann_file)}:{i+1}: "
+                            f"unexpected class existence value '{present}', expected -1, 0 or 1"
+                        )
+
+                    if present == "1":
+                        annotations.setdefault(item, []).append(Label(label_id))
+
+        return annotations
+
+
+class VocClassificationBase(VocBase):
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.voc_classification, **kwargs)
+
+
+class VocDetectionBase(VocBase):
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.voc_detection, **kwargs)
+
+
+class VocSegmentationBase(VocBase):
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.voc_segmentation, **kwargs)
+
+
+class VocInstanceSegmentationBase(VocBase):
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.voc_instance_segmentation, **kwargs)
+
+
+class VocLayoutBase(VocBase):
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.voc_layout, **kwargs)
+
+
+class VocActionBase(VocBase):
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.voc_action, **kwargs)
