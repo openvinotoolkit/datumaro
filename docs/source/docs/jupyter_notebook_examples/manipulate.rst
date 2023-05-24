@@ -2,9 +2,7 @@ Manipulate
 ##########
 
 When importing multiple datasets, Datumaro helps to manipulate and merge them into a single
-dataset. Since the manipulations such as reidentification, label redefinition, or filtration are
-mostly the topic of transformation, we here describe how to merge two heterogeneous datasets
-through `IntersectMerge`.
+dataset. We here describe how to merge two heterogeneous datasets through `IntersectMerge`.
 
 .. toctree::
    :maxdepth: 1

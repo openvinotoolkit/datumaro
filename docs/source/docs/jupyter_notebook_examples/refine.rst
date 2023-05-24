@@ -2,10 +2,13 @@ Refine
 ######
 
 We here provide the examples of dataset validation, correction and query-based filtration.
+
 Datumaro's validator detects 22 anomalies such as missing or undefined label, far-from-mean outliers
 and generates the validation report by categorizing anomalies into `info`, `warning`, and `error`.
 Datumaro further offers the correction functionality from this validation report.
-Correct API automatically refines `error`s and `warning`s.
+
+Correct API automatically refines `errors` and `warnings`.
+
 Especially, filter API allows you to filter a dataset to satisfy some conditions.
 Here, XML `XPath <https://devhints.io/xpath>`_ is used as a query format.
 

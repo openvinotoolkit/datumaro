@@ -1,6 +1,9 @@
 Explore
 #######
 
+Here we provide examples of dataset visualizer and explorer to find most similar data from a given
+image or text query.
+
 .. toctree::
    :maxdepth: 1
    :hidden:

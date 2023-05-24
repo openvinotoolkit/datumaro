@@ -1,8 +1,6 @@
-
 Dataset I/O
 ###########
 
-Datumaro provides the dataset import and export functionalities.
 We here give examples for importing and exporting some popular public datasets.
 Finally, we show an example of how data can be protected by encrypting it.
 
