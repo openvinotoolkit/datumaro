@@ -62,7 +62,9 @@ Docs
   :hidden:
   :caption: Explanation
 
+  explanation/concept
   explanation/architecture
+  explanation/project
   explanation/plugins/index
 
 .. toctree::
