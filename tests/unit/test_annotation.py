@@ -33,12 +33,21 @@ class EllipseTest:
 
 class HashKeyTest:
     @pytest.fixture
-    def fxt_hashkeys(self):
+    def fxt_hashkeys_same(self):
         hash_key = np.random.randint(0, 256, size=(1, 64), dtype=np.uint8)
         hashkey1 = HashKey(hash_key=hash_key)
         hashkey2 = HashKey(hash_key=hash_key)
         return hashkey1, hashkey2
 
-    def test_compare_hashkey(self, fxt_hashkeys: List[HashKey]):
-        hashkey1, hashkey2 = fxt_hashkeys
-        assert hashkey1 == hashkey2
+    @pytest.fixture
+    def fxt_hashkeys_diff(self):
+        hashkey1 = HashKey(hash_key=np.random.randint(0, 256, size=(1, 64), dtype=np.uint8))
+        hashkey2 = HashKey(hash_key=np.random.randint(0, 256, size=(1, 64), dtype=np.uint8))
+        return hashkey1, hashkey2
+
+    @pytest.mark.parametrize(
+        "fxt_hashkeys,expected", [("fxt_hashkeys_same", True), ("fxt_hashkeys_diff", False)]
+    )
+    def test_compare_hashkey(self, fxt_hashkeys, expected, request):
+        hashkey1, hashkey2 = request.getfixturevalue(fxt_hashkeys)
+        assert (expected, hashkey1 == hashkey2)
