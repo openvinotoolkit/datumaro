@@ -131,7 +131,7 @@ class Exporter(CliPlugin):
     @classmethod
     def convert(cls, extractor, save_dir, **options):
         converter = cls(extractor, save_dir, **options)
-        return converter._apply()
+        return converter.apply()
 
     @classmethod
     @scoped
@@ -162,13 +162,10 @@ class Exporter(CliPlugin):
 
         return retval
 
-    def _apply(self):
-        if self._save_hashkey_meta:
-            self._save_hashkey_file(self._save_dir)
-        self.apply()
-
     def apply(self):
         """Execute the data-format conversion"""
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
         return self._apply_impl()
 
     def _apply_impl(self):
