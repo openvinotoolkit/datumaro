@@ -33,7 +33,12 @@ Docs
   :caption: Hands-on Examples
   :glob:
 
-  jupyter_notebook_examples/*
+  jupyter_notebook_examples/dataset_IO
+  jupyter_notebook_examples/manipulate
+  jupyter_notebook_examples/explore
+  jupyter_notebook_examples/refine
+  jupyter_notebook_examples/transform
+  jupyter_notebook_examples/e2e_example
 
 .. toctree::
   :maxdepth: 1
