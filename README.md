@@ -19,7 +19,7 @@ CVAT annotations                             ---> Publication, statistics etc.
 - [Level Up](https://openvinotoolkit.github.io/datumaro/latest/docs/level-up/basic_skills)
 - [Features](#features)
 - [User manual](https://openvinotoolkit.github.io/datumaro/latest/docs/user-manual/how_to_use_datumaro)
-- [Developer manual](https://openvinotoolkit.github.io/datumaro/latest/docs/reference/datumaro/datumaro)
+- [Developer manual](https://openvinotoolkit.github.io/datumaro/latest/docs/reference/datumaro_module)
 - [Contributing](#contributing)
 
 ## Features
@@ -31,7 +31,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [Cityscapes](https://www.cityscapes-dataset.com/)
   - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`,
     `captions`, `labels`, `panoptic`, `stuff`)
-  - [CVAT](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
+  - [CVAT](https://opencv.github.io/cvat/docs/manual/advanced/xml_format/)
   - [ImageNet](http://image-net.org/)
   - [Kitti](http://www.cvlibs.net/datasets/kitti/index.php) (`segmentation`, `detection`,
     `3D raw` / `velodyne points`)

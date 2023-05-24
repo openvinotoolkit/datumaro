@@ -2,8 +2,8 @@
 
 ## Related sections
 
-- [Design document](/docs/design/)
-- [Developer manual](/api/api/developer_manual.html)
+- [Design document](https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/architecture)
+- [Developer manual](https://openvinotoolkit.github.io/datumaro/latest/docs/reference/datumaro_module)
 
 ## Installation
 
@@ -66,8 +66,7 @@ The project uses Black for code formatting and isort for sorting import statemen
 You can find corresponding configurations in `pyproject.toml` in the repository root.
 No trailing whitespaces, at most 100 characters per line.
 
-Datumaro includes a Git pre-commit hook, `dev/pre-commit.py` that can help you
-follow the style requirements. See the comment at the top of that file for more information.
+Datumaro includes a Git pre-commit hook, `.pre-commit-config.yaml` that can help you follow the style requirements. To install, make sure isort and black are installed on your system, then run `pre-commit run`.
 
 ## Environment
 
@@ -77,10 +76,10 @@ The recommended editor is VS Code with the Python language plugin.
 ## Testing
 
 It is expected that all Datumaro functionality is covered and checked by
-unit tests. Tests are placed in the `tests/` directory. Additional
+unit tests. Tests are placed in the `tests/unit/` directory. Additional
 pre-generated files for tests can be stored in the `tests/assets/` directory.
 CLI tests are separated from the core tests, they are stored in the
-`tests/cli/` directory.
+`tests/integration/cli/` directory.
 
 Currently, we use [`pytest`](https://docs.pytest.org/) for testing.
 
