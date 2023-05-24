@@ -61,8 +61,7 @@ class LossDynamicsAnalyzer:
             raise DatasetError(
                 f"task={task} is not allowed. The allowed task names are {self.allowed_task_names}."
             )
-
-        if task == "OTX-Det" and tracking_loss_type is None:
+        elif task == "OTX-Det" and tracking_loss_type is None:
             raise DatasetError(
                 'If task="OTX-Det", tracking_loss_type should not be None. '
                 f"The allowed tracking loss types are {self.allowed_tracking_loss_types}."
