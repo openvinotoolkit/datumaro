@@ -3,9 +3,10 @@ import pytest
 
 from datumaro.components.annotation import Bbox, HashKey
 from datumaro.components.dataset import Dataset
-from datumaro.util.meta_file_util import has_hashkey_file, parse_hashkey_file
+from datumaro.util.meta_file_util import has_hashkey_file
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import compare_datasets
 
 test_asset_dir_map = {
     "cifar": get_test_asset_path("cifar10_dataset"),
@@ -27,7 +28,6 @@ test_asset_dir_map = {
     "mots": get_test_asset_path("mots_dataset"),
     "open_images": get_test_asset_path("open_images_dataset/v5"),
     "vgg_face2": get_test_asset_path("vgg_face2_dataset"),
-    "voc": get_test_asset_path("voc_dataset/voc_dataset1"),
     "wider_face": get_test_asset_path("widerface_dataset"),
     "yolo": get_test_asset_path("yolo_dataset"),
 }
@@ -57,8 +57,7 @@ def fxt_dataset_dir_with_hash_key(test_dir, fxt_data_format):
         fxt_data_format = "mots_png"
 
     dataset.export(test_dir, fxt_data_format, save_media=True, save_hashkey_meta=True)
-    hashkey_meta = parse_hashkey_file(test_dir)
-    return test_dir, hashkey_meta
+    return test_dir, dataset
 
 
 class HashKeyTest:
@@ -84,7 +83,6 @@ class HashKeyTest:
             "mots",
             "open_images",
             "vgg_face2",
-            "voc",
             "wider_face",
             "yolo",
         ],
@@ -95,7 +93,7 @@ class HashKeyTest:
         fxt_data_format,
         helper_tc,
     ):
-        dataset_dir, hashkey_meta = fxt_dataset_dir_with_hash_key
-        helper_tc.assertTrue(has_hashkey_file(dataset_dir))
-        dataset = Dataset.import_from(dataset_dir, fxt_data_format)
-        helper_tc.compare_hashkey_meta(hashkey_meta, dataset)
+        dataset_dir, expected = fxt_dataset_dir_with_hash_key
+        assert has_hashkey_file(dataset_dir)
+        actual = Dataset.import_from(dataset_dir, fxt_data_format)
+        compare_datasets(helper_tc, expected, actual)

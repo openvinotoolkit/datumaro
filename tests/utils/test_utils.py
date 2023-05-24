@@ -19,7 +19,7 @@ from typing import Any, Collection, List, Optional, Union
 import pytest
 from typing_extensions import Literal
 
-from datumaro.components.annotation import AnnotationType, HashKey
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset, IDataset
 from datumaro.components.media import Image, MultiframeImage, PointCloud
 from datumaro.util import filter_dict, find
@@ -433,11 +433,3 @@ class TestCaseHelper:
 
     def fail(self, msg):
         pytest.fail(reason=msg)
-
-    def compare_hashkey_meta(test, hashkey_meta, dataset):
-        for item in dataset:
-            for annot in item.annotations:
-                if isinstance(annot, HashKey):
-                    test.assertEqual(
-                        hashkey_meta[item.subset + "/" + item.id], annot.hash_key.tolist()
-                    )
