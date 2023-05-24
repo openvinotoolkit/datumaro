@@ -270,7 +270,7 @@ class VggFace2Exporter(Exporter):
                     labels = set(
                         p.label
                         for p in item.annotations
-                        if (p.type != AnnotationType.hash_key and getattr(p, "label") is not None)
+                        if getattr(p, "label", None) is not None)
                     )
                     if labels:
                         for label in labels:
