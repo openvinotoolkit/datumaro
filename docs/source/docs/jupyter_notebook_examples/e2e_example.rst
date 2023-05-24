@@ -1,6 +1,5 @@
-===============================
 From Datumaro to Model Training
-===============================
+###############################
 
 Here we provide E2E examples from Datumaro to model trainers.
 

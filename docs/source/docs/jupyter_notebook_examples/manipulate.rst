@@ -1,8 +1,5 @@
-
-Dataset Handler
-###############
-
-Datumaro provides the dataset import and export functionalities.
+Manipulate
+##########
 
 When importing multiple datasets, Datumaro helps to manipulate and merge them into a single
 dataset. Since the manipulations such as reidentification, label redefinition, or filtration are
@@ -15,7 +12,6 @@ through `IntersectMerge`.
 
    notebooks/01_merge_multiple_datasets_for_classification
    notebooks/02_merge_heterogeneous_datasets_for_detection
-   notebooks/09_encrypt_dataset
 
 .. grid:: 1 2 2 2
    :gutter: 2
@@ -30,13 +26,6 @@ through `IntersectMerge`.
    .. grid-item-card::
 
       .. button-ref:: notebooks/02_merge_heterogeneous_datasets_for_detection
-         :color: primary
-         :outline:
-         :expand:
-
-   .. grid-item-card::
-
-      .. button-ref:: notebooks/09_encrypt_dataset
          :color: primary
          :outline:
          :expand:
