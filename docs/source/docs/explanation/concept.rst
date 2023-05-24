@@ -5,7 +5,7 @@ Basic concepts
 --------------
 
 - Dataset - A collection of dataset items, which consist of media and associated annotations.
-- Dataset item - A basic single element of the dataset. Also known as a `sample`, `entry`.
+- Dataset item - A basic single element of the dataset. Also known as `sample`, `entry`.
   In different datasets, it can be an image, a video frame, a whole video, a 3d point cloud, etc.
   Typically, it has corresponding annotations.
 - Datumaro project - A combination of multiple datasets, plugins, models, and metadata.
@@ -17,7 +17,7 @@ Project versioning concepts
 - Data source - A link to a dataset or a copy of a dataset inside a project.
   Basically, it's a URL + dataset format name.
 - Project revision - A commit or a reference from Git (branch, tag,
-  HEAD~3, etc.). A revision is referenced by a data hash. The `HEAD`
+  HEAD~3, etc.). A revision is referenced by data hash. The `HEAD`
   revision is the currently selected revision of the project.
 - Revision tree - A project build tree and plugins at a specified revision.
 - Working tree - The revision tree in the working directory of a project.
