@@ -41,6 +41,7 @@ class HashKeyTest:
 
     @pytest.fixture
     def fxt_hashkeys_diff(self):
+        np.random.seed(3003)
         hashkey1 = HashKey(hash_key=np.random.randint(0, 256, size=(1, 64), dtype=np.uint8))
         hashkey2 = HashKey(hash_key=np.random.randint(0, 256, size=(1, 64), dtype=np.uint8))
         return hashkey1, hashkey2
