@@ -16,7 +16,7 @@ Project versioning concepts
 
 - Data source - A link to a dataset or a copy of a dataset inside a project.
   Basically, it's a URL + dataset format name.
-- Project Revision - A commit or a reference from Git (branch, tag,
+- Project revision - A commit or a reference from Git (branch, tag,
   HEAD~3, etc.). A revision is referenced by a data hash. The `HEAD`
   revision is the currently selected revision of the project.
 - Revision tree - A project build tree and plugins at a specified revision.
