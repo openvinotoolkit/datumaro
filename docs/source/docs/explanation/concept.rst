@@ -1,17 +1,15 @@
-
-Glossary
+Concepts
 ########
 
 Basic concepts
 --------------
 
-- Dataset - A collection of dataset items, which consist of media and
-  associated annotations.
-- Dataset item - A basic single element of the dataset. Also known as
-  "sample", "entry". In different datasets it can be an image, a video
-  frame, a whole video, a 3d point cloud etc. Typically, has corresponding
-  annotations.
+- Dataset - A collection of dataset items, which consist of media and associated annotations.
+- Dataset item - A basic single element of the dataset. Also known as `sample`, `entry`.
+  In different datasets it can be an image, a video frame, a whole video, a 3d point cloud etc.
+  Typically, has corresponding annotations.
 - Datumaro project - A combination of multiple datasets, plugins, models and metadata.
+
 
 Project versioning concepts
 ---------------------------
@@ -28,6 +26,7 @@ Project versioning concepts
 - Object - The data of a revision tree or a data source revision.
   An object is referenced by the data hash.
 
+
 Dataset path concepts
 ---------------------
 
@@ -39,7 +38,7 @@ Dataset path concepts
     `<dataset path>:<format>`
     - `format` is optional. If not specified, will try to detect automatically
 
-  - **rev**ision path - a path to a data source revision in a project.
+  - ``rev``ision path - a path to a data source revision in a project.
     The syntax is:
     `<project path>@<revision>:<target name>`, any part can be omitted.
     - Default project is the current project (`-p`/`--project` CLI arg.)
@@ -53,7 +52,7 @@ Dataset path concepts
     :ref:`joining <dataset_merging>` all the project data
     sources. Otherwise, if the path refers to a data source revision, the
     corresponding stage from the revision build tree will be used.
-    ```
+
 
 Dataset building concepts
 -------------------------
@@ -70,9 +69,9 @@ Dataset building concepts
   to the last stages of data sources.
 - Pipeline - A subgraph of a stage, which includes all the ancestors.
 
-Other
------
+Others
+------
 
 - Transform - A transformation operation over dataset elements. Examples
-  are image renaming, image flipping, image and subset renaming,
-  label remapping etc. Corresponds to the [`transform` command](../command-reference/context_free/transform).
+  are image renaming, image flipping, image and subset renaming, label remapping etc.
+  Corresponds to the `transform <../command-reference/context_free/transform>`_.
