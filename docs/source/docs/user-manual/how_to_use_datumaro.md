@@ -243,7 +243,7 @@ Incomplete datasets can be used to prepare images and annotations
 independently of each other, or to analyze or modify just the lightweight
 annotations without the need to download the whole dataset.
 
-Check [supported formats](../data-formats/supported_formats) for more info
+Check [supported formats](../data-formats/formats/index.rst) for more info
 about format specifications, supported import and export options and other
 details. The list of formats can be extended by custom plugins,
 check [extending tips](../user-manual/extending) for information on this
