@@ -29,7 +29,7 @@ to use Datumaro from the command-line:
 
   - Check project config with `project info <../command-reference/context/projects.md#print-project-info>`_.
 
-Basically, a project is a combination of datasets, models and environment.
+Basically, a project is a combination of datasets, models, and environment.
 
 A project can contain an arbitrary number of datasets (see :ref:`Datasets and Data Sources`).
 A project acts as a manager for them and allows to manipulate them
@@ -179,7 +179,7 @@ topic.
 Use cases
 ---------
 
-Let's consider few examples describing what Datumaro does for you behind the
+Let's consider a few examples describing what Datumaro does for you behind the
 scene.
 
 The first example explains how working trees, working directories and the
