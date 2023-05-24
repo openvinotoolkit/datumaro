@@ -40,6 +40,11 @@ exclude_lines = [
     'if __name__ == .__main__.:',
 ]
 
+[tool.pytest.ini_options]
+markers = [
+    "v1_3_0: marks tests for release/1.3.0",
+]
+
 # don't fail on the code that can be found
 ignore_errors = true
 
