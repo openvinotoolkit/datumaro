@@ -23,7 +23,7 @@ Docs
   :hidden:
   :caption: Data Formats
 
-  data-formats/supported_formats
+  data-formats/formats/index
   data-formats/media_formats
   data-formats/datumaro_format
 
@@ -58,7 +58,6 @@ Docs
   :caption: Explanation
 
   explanation/architecture
-  explanation/formats/index
   explanation/plugins/index
 
 .. toctree::
