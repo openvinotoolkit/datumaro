@@ -5,23 +5,23 @@ Basic concepts
 --------------
 
 - Dataset - A collection of dataset items, which consist of media and associated annotations.
-- Dataset item - A basic single element of the dataset. Also known as `sample`, `entry`.
-  In different datasets it can be an image, a video frame, a whole video, a 3d point cloud etc.
-  Typically, has corresponding annotations.
-- Datumaro project - A combination of multiple datasets, plugins, models and metadata.
+- Dataset item - A basic single element of the dataset. Also known as a `sample`, `entry`.
+  In different datasets, it can be an image, a video frame, a whole video, a 3d point cloud, etc.
+  Typically, it has corresponding annotations.
+- Datumaro project - A combination of multiple datasets, plugins, models, and metadata.
 
 
 Project versioning concepts
 ---------------------------
 
 - Data source - A link to a dataset or a copy of a dataset inside a project.
-  Basically, a URL + dataset format name.
-- Project revision - A commit or a reference from Git (branch, tag,
-  HEAD~3 etc.). A revision is referenced by data hash. The `HEAD`
+  Basically, it's a URL + dataset format name.
+- Project Revision - A commit or a reference from Git (branch, tag,
+  HEAD~3, etc.). A revision is referenced by a data hash. The `HEAD`
   revision is the currently selected revision of the project.
 - Revision tree - A project build tree and plugins at a specified revision.
 - Working tree - The revision tree in the working directory of a project.
-- data source revision - a state of a data source at a specific stage.
+- Data source revision - A state of a data source at a specific stage.
   A revision is referenced by the data hash.
 - Object - The data of a revision tree or a data source revision.
   An object is referenced by the data hash.
@@ -34,11 +34,11 @@ Dataset path concepts
   supposed to specify paths to files, directories or data source revisions
   in a uniform way in the CLI.
 
-  - dataset path - a path to a dataset in the following format:
+  - Dataset path - A path to a dataset in the following format:
     `<dataset path>:<format>`
-    - `format` is optional. If not specified, will try to detect automatically
+    - `format` is optional. If not specified, it will try to detect automatically
 
-  - ``rev``ision path - a path to a data source revision in a project.
+  - Revision path - A path to a data source revision in a project.
     The syntax is:
     `<project path>@<revision>:<target name>`, any part can be omitted.
     - Default project is the current project (`-p`/`--project` CLI arg.)
@@ -47,7 +47,7 @@ Dataset path concepts
     - Default revision is the working tree of the project
     - Default build target is `project`
 
-  - If a path refers to :code:`project` (i.e. target name is not set, or
+  - If a path refers to :code:`project` (i.e., target name is not set, or
     this target is exactly specified), the target dataset is the result of
     :ref:`joining <dataset_merging>` all the project data
     sources. Otherwise, if the path refers to a data source revision, the
@@ -69,9 +69,10 @@ Dataset building concepts
   to the last stages of data sources.
 - Pipeline - A subgraph of a stage, which includes all the ancestors.
 
+
 Others
 ------
 
 - Transform - A transformation operation over dataset elements. Examples
-  are image renaming, image flipping, image and subset renaming, label remapping etc.
+  are image renaming, image flipping, image and subset renaming, label remapping, etc.
   Corresponds to the `transform <../command-reference/context_free/transform>`_.
