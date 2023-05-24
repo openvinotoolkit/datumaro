@@ -1,4 +1,4 @@
-Filter
+Refine
 ######
 
 This API allows you to filter a dataset to satisfy some conditions.
@@ -50,10 +50,26 @@ datasets are updated in-place by default.
    :maxdepth: 1
    :hidden:
 
+   notebooks/11_validate
+   notebooks/12_correct_dataset
    notebooks/04_filter
 
 .. grid:: 1 2 2 2
    :gutter: 2
+
+   .. grid-item-card::
+
+      .. button-ref:: notebooks/11_validate
+         :color: primary
+         :outline:
+         :expand:
+
+   .. grid-item-card::
+
+      .. button-ref:: notebooks/12_correct_dataset
+         :color: primary
+         :outline:
+         :expand:
 
    .. grid-item-card::
 
