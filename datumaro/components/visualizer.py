@@ -208,7 +208,42 @@ class Visualizer:
     def vis_gallery(
         self,
         ids: List[str],
-        subsets: Union[str, List[str]] = None,
+        ann_ids: List[int],
+        subsets: Union[str, List[str]],
+        *,
+        grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
+    ):
+        """Visualize several :class:`DatasetItem` as a gallery.
+
+        If `ann_ids` is given, only draw one annotation matching `ann_id` per item.
+        For example, if `ids = ["item_0", "item_1"]` and `ann_ids = [2, 3]`, The item with
+        `item.id` = "item_0" will only draw the annotation with `ann.id` = 2 and will not draw the others.
+
+        Parameters
+        ----------
+        ids
+            A list of :class:`DatasetItem`'s ID to visualize
+        ann_ids
+            A list of :class:`Annotation`'s ID to visualize
+        subsets
+            A list of :class:`DatasetItem`'s subset name to visualize.
+            If a string is given, it is automatically expanded into
+            a list up to the length of `ids`.
+        grid_size
+            Grid size of the gallery plot. If `None`, we automatically infer its size.
+
+        Return
+        ------
+            :class:`Figure` include visualization plots.
+        """
+        ...
+
+    @overload
+    def vis_gallery(
+        self,
+        ids: List[str],
+        subsets: Union[str, List[str]],
+        *,
         grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
     ):
         """Visualize several :class:`DatasetItem` as a gallery
@@ -234,6 +269,7 @@ class Visualizer:
     def vis_gallery(
         self,
         items: List[DatasetItem],
+        *,
         grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
     ):
         """Visualize several :class:`DatasetItem` as a gallery
@@ -256,29 +292,23 @@ class Visualizer:
     ) -> Figure:
         """Visualize several :class:`DatasetItem` as a gallery"""
         if len(inputs) == 1:
-            ids, subsets = None, None
             (items,) = inputs
-
+            ids = [item.id for item in items]
+            subsets = [item.subset for item in items]
+            ann_ids = [None for _ in items]
         elif len(inputs) == 2:
             ids, subsets = inputs
             items = None
-            if isinstance(subsets, str):
-                subsets = [subsets] * len(ids)  # expand it to have len(ids)
+            ann_ids = [None for _ in ids]
+        elif len(inputs) == 3:
+            ids, ann_ids, subsets = inputs
 
-        def _parse_inputs(
-            ids: Optional[List[str]],
-            subsets: Optional[List[str]],
-            items: Optional[List[DatasetItem]],
-        ) -> Tuple[List[str], List[str]]:
-            if ids is not None and subsets is not None:
-                return ids, subsets
-            elif items is not None:
-                return [item.id for item in items], [item.subset for item in items]
-            raise ValueError(
-                f"ids={ids}, subsets={subsets}, and items={items} is an invalid input."
-            )
+        if isinstance(subsets, str):
+            subsets = [subsets] * len(ids)  # expand it to have len(ids)
 
-        ids, subsets = _parse_inputs(ids, subsets, items)
+        assert (
+            len(ids) == len(ann_ids) == len(subsets)
+        ), "ids, ann_ids, subset should have the same length"
 
         nrows, ncols = _infer_grid_size(len(ids), grid_size)
         fig, axs = plt.subplots(nrows, ncols, figsize=self.figsize)
@@ -287,16 +317,18 @@ class Visualizer:
             subsets
         ), "If subset is a list, it should have the same length as ids."
 
-        for item_id, subset, ax in zip(ids, subsets, axs.flatten()):
-            self.vis_one_sample(item_id, subset, ax=ax)
+        for item_id, subset, ann_id, ax in zip(ids, subsets, ann_ids, axs.flatten()):
+            self.vis_one_sample(item_id, subset, ann_id=ann_id, ax=ax)
 
         return fig
 
     @overload
     def vis_one_sample(
         self,
-        item_id: str = None,
-        subset: str = None,
+        item_id: str,
+        subset: str,
+        *,
+        ann_id: Optional[int] = None,
         ax: Optional[Axes] = None,
     ) -> Figure:
         """Visualize one :class:`DatasetItem`
@@ -307,6 +339,8 @@ class Visualizer:
             ID of :class:`DatasetItem` to visualize
         subset
             Subset name of :class:`DatasetItem` to visualize
+        ann_id
+            If not `None`, only draw an annotation which has `id=ann_id`.
         ax
             If not `None`, draw on `ax` instead of creating a new one
 
@@ -319,7 +353,9 @@ class Visualizer:
     @overload
     def vis_one_sample(
         self,
-        item: DatasetItem = None,
+        item: DatasetItem,
+        *,
+        ann_id: Optional[int] = None,
         ax: Optional[Axes] = None,
     ) -> Figure:
         """Visualize one :class:`DatasetItem`
@@ -328,6 +364,8 @@ class Visualizer:
         ----------
         item
             :class:`DatasetItem` to visualize
+        ann_id
+            If not `None`, only draw an annotation which has `id=ann_id`.
         ax
             If not `None`, draw on `ax` instead of creating a new one
 
@@ -340,6 +378,7 @@ class Visualizer:
     def vis_one_sample(
         self,
         *inputs,
+        ann_id: Optional[int] = None,
         ax: Optional[Axes] = None,
     ) -> Figure:
         """Visualize one dataset item"""
@@ -415,7 +454,9 @@ class Visualizer:
                 msg = f"{ignore_type} in self.ignored_types. Skip it."
                 warnings.warn(msg)
                 continue
-            self._draw(ann, label_categories, fig, ax, context[ann.type])
+
+            if ann_id is None or ann_id == ann.id:
+                self._draw(ann, label_categories, fig, ax, context[ann.type])
 
         return fig
 

@@ -4,7 +4,7 @@
 
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Dict, List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -44,9 +44,12 @@ class LossDynamicsAnalyzer:
     International Conference on Learning Representations. 2021.
     """
 
-    allowed_task_names = {"OTX-MultiClassCls"}
+    allowed_task_names = {"OTX-MultiClassCls", "OTX-Det"}
+    allowed_tracking_loss_types = {"cls", "bbox", "centerness", "bbox_refine"}
 
-    def __init__(self, dataset: IDataset, alpha: float = 0.001) -> None:
+    def __init__(
+        self, dataset: IDataset, alpha: float = 0.001, tracking_loss_type: Optional[str] = None
+    ) -> None:
         purpose = dataset.infos().get("purpose")
         if purpose != "noisy_label_detection":
             raise DatasetError(
@@ -54,18 +57,32 @@ class LossDynamicsAnalyzer:
             )
 
         task = dataset.infos().get("task")
-        if task != "OTX-MultiClassCls":
+        if task not in self.allowed_task_names:
             raise DatasetError(
-                f"{task} is not allowed. The allowed task names are {self.allowed_task_names}."
+                f"task={task} is not allowed. The allowed task names are {self.allowed_task_names}."
+            )
+        elif task == "OTX-Det" and tracking_loss_type is None:
+            raise DatasetError(
+                'If task="OTX-Det", tracking_loss_type should not be None. '
+                f"The allowed tracking loss types are {self.allowed_tracking_loss_types}."
+            )
+        elif (
+            tracking_loss_type is not None
+            and tracking_loss_type not in self.allowed_tracking_loss_types
+        ):
+            raise DatasetError(
+                f"tracking_loss_type={tracking_loss_type} "
+                f"but the allowed tracking loss types are {self.allowed_tracking_loss_types}."
             )
 
         self._dataset = dataset
         self._alpha = alpha
-        self._df = self._parse_to_dataframe(dataset, alpha)
+        self._df = self._parse_to_dataframe(dataset, alpha, tracking_loss_type)
         self._mean_loss_dyns = self._df.mean(0)
         self._mean_loss_dyns_per_label = {
             label_id: df_sub.mean(0) for label_id, df_sub in self._df.groupby("ann_label")
         }
+        self._tracking_loss_type = tracking_loss_type
 
     @property
     def alpha(self) -> float:
@@ -92,14 +109,19 @@ class LossDynamicsAnalyzer:
         return self._df
 
     @staticmethod
-    def _parse_to_dataframe(dataset: IDataset, ema_alpha: float = 0.001) -> pd.DataFrame:
+    def _parse_to_dataframe(
+        dataset: IDataset, ema_alpha: float = 0.001, tracking_loss_type: Optional[str] = None
+    ) -> pd.DataFrame:
         """Parse loss dynamics statistics from Datumaro dataset to Pandas DataFrame."""
+        key = (
+            "loss_dynamics" if tracking_loss_type is None else f"loss_dynamics_{tracking_loss_type}"
+        )
         ema_loss_dyns_list = []
         for item in dataset:
             for ann in item.annotations:
                 # The first value should be start from zero
                 loss_dyns = pd.Series(
-                    [0.0] + ann.attributes.get("loss_dynamics"),
+                    [0.0] + ann.attributes.get(key),
                     index=[-1] + ann.attributes.get("iters"),
                     name=(item.id, item.subset, ann.id, ann.label),
                 )
@@ -170,13 +192,11 @@ class LossDynamicsAnalyzer:
             plt.plot(mean_series, color=mean_plot_color, linestyle=mean_plot_style, label="mean")
 
             cands = cands_by_label_id[label_id]
-            ids = [cand.id for cand in cands]
-            target = self._df.query(f"item_id == {ids}")
-
-            for (item_id, subset_id, ann_id, label), row in target.iterrows():
+            for cand in cands:
+                row = self._df.loc[(cand.id, cand.subset, cand.ann_id, cand.label_id)]
                 plt.plot(
                     row.dropna().iloc[1:],
-                    label=f"id={item_id}, subset={subset_id}, ann_id={ann_id}, label_id={label}",
+                    label=f"id={cand.id}, subset={cand.subset}, ann_id={cand.ann_id}, label_id={cand.label_id}",
                     **kwargs,
                 )
 

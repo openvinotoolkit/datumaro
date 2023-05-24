@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/999>)
 - Improve RemoveAnnotations to remove specific annotations with ids
   (<https://github.com/openvinotoolkit/datumaro/pull/1004>)
+- Add Jupyter notebook example of noisy label detection for detection tasks
+  (<https://github.com/openvinotoolkit/datumaro/pull/1011>)
 
 ### Bug fixes
 - Fix Mapillary Vistas data format
