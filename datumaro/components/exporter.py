@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -162,6 +162,10 @@ class Exporter(CliPlugin):
         return retval
 
     def apply(self):
+        """Execute the data-format conversion"""
+        return self._apply_impl()
+
+    def _apply_impl(self):
         raise NotImplementedError("Should be implemented in a subclass")
 
     def __init__(

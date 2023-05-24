@@ -460,7 +460,7 @@ class KittiRawExporter(Exporter):
 
         return index
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and self._extractor.media_type() is not PointCloud:
             raise MediaTypeError("Media type is not a point cloud")
 

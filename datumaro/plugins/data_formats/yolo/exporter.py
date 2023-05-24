@@ -52,7 +52,7 @@ class YoloExporter(Exporter):
 
         self._prefix = "data" if add_path_prefix else ""
 
-    def apply(self):
+    def _apply_impl(self):
         extractor = self._extractor
         save_dir = self._save_dir
 
@@ -223,7 +223,7 @@ class YoloUltralyticsExporter(YoloExporter):
                     "but YoloUltralytics requires both of them."
                 )
 
-    def apply(self):
+    def _apply_impl(self):
         extractor = self._extractor
         save_dir = self._save_dir
 

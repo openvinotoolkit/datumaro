@@ -713,7 +713,7 @@ class CocoExporter(Exporter):
             self._image_ids[item.id] = image_id
         return image_id
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 

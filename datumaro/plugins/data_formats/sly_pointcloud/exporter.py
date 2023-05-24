@@ -398,7 +398,7 @@ class SuperviselyPointCloudExporter(Exporter):
         self._reindex = reindex
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and self._extractor.media_type() is not PointCloud:
             raise MediaTypeError("Media type is not an image")
 

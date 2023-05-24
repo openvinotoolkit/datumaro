@@ -392,7 +392,7 @@ class DatumaroExporter(Exporter):
             export_context=export_context,
         )
 
-    def apply(self, pool: Optional[Pool] = None, *args, **kwargs):
+    def _apply_impl(self, pool: Optional[Pool] = None, *args, **kwargs):
         os.makedirs(self._save_dir, exist_ok=True)
 
         images_dir = osp.join(self._save_dir, self.PATH_CLS.IMAGES_DIR)

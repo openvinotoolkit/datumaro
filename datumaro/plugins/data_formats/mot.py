@@ -241,7 +241,7 @@ class MotSeqImporter(Importer):
 class MotSeqGtExporter(Exporter):
     DEFAULT_IMAGE_EXT = MotPath.IMAGE_EXT
 
-    def apply(self):
+    def _apply_impl(self):
         extractor = self._extractor
 
         if extractor.media_type() and not issubclass(extractor.media_type(), Image):

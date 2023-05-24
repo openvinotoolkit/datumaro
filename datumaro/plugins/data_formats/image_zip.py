@@ -102,7 +102,7 @@ class ImageZipExporter(Exporter):
         self._archive_name = name
         self._compression = compression.value
 
-    def apply(self):
+    def _apply_impl(self):
         os.makedirs(self._save_dir, exist_ok=True)
 
         archive_path = osp.join(self._save_dir, self._archive_name)

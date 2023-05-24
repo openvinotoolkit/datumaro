@@ -380,7 +380,7 @@ class CityscapesExporter(Exporter):
             label_map = LabelmapType.source.name
         self._load_categories(label_map)
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
