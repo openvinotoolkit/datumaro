@@ -202,7 +202,8 @@ class CifarImporter(Importer):
                     "cifar",
                     # Subset files have no extension in the format, and
                     # should not be the meta file.
-                    file_filter=lambda p: not osp.splitext(osp.basename(p))[1]
+                    file_filter=lambda p: not osp.isdir(p)
+                    and not osp.splitext(osp.basename(p))[1]
                     and osp.basename(p) != meta_file_name,
                 )
 

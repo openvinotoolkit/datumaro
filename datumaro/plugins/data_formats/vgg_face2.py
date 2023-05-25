@@ -268,7 +268,7 @@ class VggFace2Exporter(Exporter):
                 item_parts = item.id.split("/")
                 if item.media and self._save_media:
                     labels = set(
-                        p.label for p in item.annotations if getattr(p, "label") is not None
+                        p.label for p in item.annotations if (getattr(p, "label", None) is not None)
                     )
                     if labels:
                         for label in labels:

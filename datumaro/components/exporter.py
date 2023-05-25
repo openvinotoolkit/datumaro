@@ -13,6 +13,7 @@ from typing import NoReturn, Optional, Tuple, TypeVar, Union
 import attr
 from attrs import define, field
 
+from datumaro.components.annotation import HashKey
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.dataset_base import DatasetItem, IDataset
@@ -163,6 +164,8 @@ class Exporter(CliPlugin):
 
     def apply(self):
         """Execute the data-format conversion"""
+        if self._save_hashkey_meta:
+            self._save_hashkey_file(self._save_dir)
         return self._apply_impl()
 
     def _apply_impl(self):
@@ -286,6 +289,14 @@ class Exporter(CliPlugin):
 
     def _save_hashkey_file(self, path):
         save_hashkey_file(path, self._extractor)
+
+    def _check_hash_key_existence(self, item):
+        if self._save_hashkey_meta:
+            return
+        for annotation in item.annotations:
+            if isinstance(annotation, HashKey):
+                self._save_hashkey_meta = True
+                return
 
 
 # TODO: Currently, ExportContextComponent is introduced only for Datumaro and DatumaroBinary format
