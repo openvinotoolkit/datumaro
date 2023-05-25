@@ -1,0 +1,29 @@
+datumaro.cli.util.diff
+======================
+
+.. automodule:: datumaro.cli.util.diff
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      DiffVisualizer
+   
+   
+
+   
+   
+   
+
+
+

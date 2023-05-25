@@ -1,0 +1,37 @@
+datumaro.cli.commands.diff
+==========================
+
+.. automodule:: datumaro.cli.commands.diff
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      build_parser
+      diff_command
+      get_sensitive_args
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ComparisonMethod
+   
+   
+
+   
+   
+   
+
+
+
