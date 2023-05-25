@@ -3,12 +3,14 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
+import logging as log
 import os
 import os.path as osp
 from enum import Enum, auto
 
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.plugins.comparator import Comparator
+from datumaro.plugins.comparator import Comparator, DistanceComparator, ExactComparator
+from datumaro.util import dump_json_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
@@ -232,5 +234,45 @@ def compare_command(args):
             comparator.save_compare_report(
                 high_level_table, mid_level_table, low_level_table, comparison_dict, args.dst_dir
             )
+
+        comparator = ExactComparator(
+            match_images=args.match_images,
+            ignored_fields=args.ignore_field,
+            ignored_attrs=args.ignore_attr,
+            ignored_item_attrs=args.ignore_item_attr,
+        )
+        matches, mismatches, a_extra, b_extra, errors = comparator.compare_datasets(
+            first_dataset, second_dataset
+        )
+
+        output = {
+            "mismatches": mismatches,
+            "a_extra_items": sorted(a_extra),
+            "b_extra_items": sorted(b_extra),
+            "errors": errors,
+        }
+        if args.all:
+            output["matches"] = matches
+
+        output_file = osp.join(
+            args.dst_dir, generate_next_file_name("diff", ext=".json", basedir=args.dst_dir)
+        )
+        log.info("Saving diff to '%s'" % output_file)
+        dump_json_file(output_file, output, indent=True)
+
+        print("Found:")
+        print("The first project has %s unmatched items" % len(a_extra))
+        print("The second project has %s unmatched items" % len(b_extra))
+        print("%s item conflicts" % len(errors))
+        print("%s matching annotations" % len(matches))
+        print("%s mismatching annotations" % len(mismatches))
+    elif args.method is ComparisonMethod.distance:
+        comparator = DistanceComparator(iou_threshold=args.iou_thresh)
+
+        with DiffVisualizer(
+            save_dir=dst_dir, comparator=comparator, output_format=args.format
+        ) as visualizer:
+            log.info("Saving diff to '%s'" % dst_dir)
+            visualizer.save(first_dataset, second_dataset)
 
     return 0
