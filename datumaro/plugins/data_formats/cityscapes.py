@@ -322,8 +322,7 @@ class CityscapesImporter(Importer):
         ]
 
         media_patterns = [
-            f"{CityscapesPath.IMGS_FINE_DIR}/{CityscapesPath.ORIGINAL_IMAGE_DIR}"
-            f"/**/*{CityscapesPath.ORIGINAL_IMAGE}.*",
+            f"{CityscapesPath.ORIGINAL_IMAGE_DIR}/**/*{CityscapesPath.ORIGINAL_IMAGE}.*",
         ]
 
         with context.require_any():
