@@ -4,7 +4,6 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.cli.util.diff import DiffVisualizer
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
@@ -20,8 +19,9 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.components.operations import DistanceComparator
 from datumaro.components.project import Dataset
+from datumaro.datumaro.cli.util.compare import DiffVisualizer
+from datumaro.plugins.comparator import DistanceComparator
 
 from ...requirements import Requirements, mark_requirement
 

@@ -49,7 +49,7 @@ class DiffVisualizer:
         os.makedirs(self._save_dir, exist_ok=True)
 
         if self._output_format is self.OutputFormat.tensorboard:
-            logdir = osp.join(self._save_dir, "logs", "diff")
+            logdir = osp.join(self._save_dir, "logs", "compare")
             self._file_writer = tb.SummaryWriter(logdir)
         elif self._output_format is self.OutputFormat.simple:
             self._label_diff_writer = None

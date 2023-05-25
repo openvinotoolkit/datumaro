@@ -55,7 +55,7 @@ Examples
       --weights model.bin --description model.xml \
       --interpretation-script parse_results.py
     datum model run --model -n mymodel --output-dir mymodel_inference/
-    datum diff mymodel_inference/ --format tensorboard --output-dir diff
+    datum compare mymodel_inference/ --format tensorboard --output-dir compare
 
 - Change colors in PASCAL VOC-like ``.png`` masks:
 

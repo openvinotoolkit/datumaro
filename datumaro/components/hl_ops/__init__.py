@@ -8,6 +8,8 @@ import os.path as osp
 import shutil
 from typing import Dict, Iterable, Optional, Type, Union
 
+from datumaro.cli.util.compare import DiffVisualizer
+from datumaro.cli.util.project import generate_next_file_name
 from datumaro.components.dataset import Dataset, DatasetItemStorageDatasetView, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetError
@@ -17,8 +19,8 @@ from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.merge import DEFAULT_MERGE_POLICY, get_merger
 from datumaro.components.transformer import Transform
 from datumaro.components.validator import TaskType, Validator
-from datumaro.plugins.comparator import Comparator
-from datumaro.util import parse_str_enum_value
+from datumaro.plugins.comparator import DistanceComparator, EqualityComparator, TableComparator
+from datumaro.util import dump_json_file, parse_str_enum_value
 from datumaro.util.scope import on_error_do, scoped
 
 __all__ = ["HLOps"]
@@ -32,6 +34,7 @@ class HLOps:
         first_dataset: IDataset,
         second_dataset: IDataset,
         report_dir: Optional[str] = None,
+        method: str = "table",
         **kwargs,
     ) -> IDataset:
         """
@@ -54,12 +57,56 @@ class HLOps:
             result = comparator.compare(first_dataset, second_dataset, report_dir="./comparison_report")
             print(result)
         """
-        comparator = Comparator()
-        h_table, m_table, l_table, result_dict = comparator.compare_datasets(
-            first_dataset, second_dataset
-        )
-        if report_dir:
-            comparator.save_compare_report(h_table, m_table, l_table, result_dict, report_dir)
+        if method == "table":
+            comparator = TableComparator()
+            h_table, m_table, l_table, result_dict = comparator.compare_datasets(
+                first_dataset, second_dataset
+            )
+            if report_dir:
+                comparator.save_compare_report(h_table, m_table, l_table, result_dict, report_dir)
+
+        elif method == "equality":
+            # TODO: support dynamic
+            comparator = EqualityComparator(
+                match_images=False,
+                ignored_fields=None,
+                ignored_attrs=None,
+                ignored_item_attrs=None,
+            )
+
+            matches, mismatches, a_extra, b_extra, errors = comparator.compare_datasets(
+                first_dataset, second_dataset
+            )
+
+            output = {
+                "mismatches": mismatches,
+                "a_extra_items": sorted(a_extra),
+                "b_extra_items": sorted(b_extra),
+                "errors": errors,
+            }
+
+            output_file = osp.join(
+                report_dir,
+                generate_next_file_name("equality_compare", ext=".json", basedir=report_dir),
+            )
+            dump_json_file(output_file, output, indent=True)
+
+            print("Found:")
+            print("The first project has %s unmatched items" % len(a_extra))
+            print("The second project has %s unmatched items" % len(b_extra))
+            print("%s item conflicts" % len(errors))
+            print("%s matching annotations" % len(matches))
+            print("%s mismatching annotations" % len(mismatches))
+
+        elif method == "distance":
+            comparator = DistanceComparator(iou_threshold=0.5)
+
+            with DiffVisualizer(
+                save_dir=report_dir, comparator=comparator, output_format="simple"
+            ) as visualizer:
+                # log.info("Saving compare to '%s'" % dst_dir)
+                visualizer.save(first_dataset, second_dataset)
+
         return 0
 
     @staticmethod

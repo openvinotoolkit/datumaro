@@ -10,7 +10,7 @@ digraph command_line {
 
         "convert";
         "detect";
-        "diff";
+        "compare";
         "dinfo";
         "download";
         "explain";
@@ -70,7 +70,7 @@ digraph command_line {
         "split_video";
     }
 
-    "datum" -> {"convert" "detect" "diff" "dinfo" "download" "explain" "filter" "generate" "merge" "patch" "search" "stats" "transform" "validate"};
+    "datum" -> {"convert" "detect" "compare" "dinfo" "download" "explain" "filter" "generate" "merge" "patch" "search" "stats" "transform" "validate"};
     "datum" -> {"model" "project" "source" "util"};
     "model" -> {"madd" "mremove" "run" "minfo"};
     "project" -> {"add" "create" "export" "import" "remove"};

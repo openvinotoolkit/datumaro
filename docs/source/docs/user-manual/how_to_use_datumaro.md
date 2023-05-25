@@ -97,7 +97,7 @@ In Datumaro, most command-line commands operate on projects, but there are
 also few commands operating on datasets directly. There are 2 basic ways
 to use Datumaro from the command-line:
 - Use the [`convert`](../command-reference/context_free/convert)
-, [`diff`](../command-reference/context_free/diff)
+, [`compare`](../command-reference/context_free/compare)
 , [`merge`](../command-reference/context_free/merge)
  commands directly on existing datasets
 
@@ -108,7 +108,7 @@ to use Datumaro from the command-line:
   - Create new revisions of the project with
     [`commit`](../command-reference/context/commit), navigate over
     them using [`checkout`](../command-reference/context/checkout),
-    compare with [`diff`](../command-reference/context_free/diff), compute
+    compare with [`compare`](../command-reference/context_free/compare), compute
     statistics with [`stats`](../command-reference/context_free/stats)
   - Export the resulting dataset with [`export`](../command-reference/context/export)
   - Check project config with [`project info`](../command-reference/context/projects.md#print-project-info)
@@ -321,7 +321,7 @@ Then, for some reasons, the project cache was cleaned from `source1` revisions.
 We also don't have anything in the project working directories - suppose,
 the user removed them to save disk space.
 
-Let's see what happens, if we call the `diff` command with 2 different
+Let's see what happens, if we call the `compare` command with 2 different
 revisions now.
 
 ![cache interaction diagram 2](../../../images/behavior_diag2.svg)
@@ -336,10 +336,10 @@ step-by-step:
   and won't find any.
 1. The project can be marked read-only, if we are not working with the
   "current" project (which is specified by the `-p/--project` command
-  parameter). In the example, the command is `datum diff rev1:... rev2:...`,
+  parameter). In the example, the command is `datum compare rev1:... rev2:...`,
   which means there is a project in the current directory, so the project
   we are working with is not read-only. If a command target was specified as
-  `datum diff <project>@<rev>:<source>`, the project would be loaded
+  `datum compare <project>@<rev>:<source>`, the project would be loaded
   as read-only. If a project is read-only, we can't do anything more to
   reproduce the dataset and can only exit with an error (3a). The reason for
   such behavior is that the dataset downloading can be quite expensive (in

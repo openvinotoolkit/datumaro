@@ -1,4 +1,4 @@
-# Diff
+# Compare
 
 ## Compare datasets
 
@@ -7,13 +7,14 @@ specified directory. The current project is considered to be
 "ground truth".
 
 Datasets can be compared using different methods:
+- `table` - Generate a compare table mainly based on dataset statistics
 - `equality` - Annotations are compared to be equal
 - `distance` - A distance metric is used
 
 This command has multiple forms:
 ```console
-1) datum diff <revpath>
-2) datum diff <revpath> <revpath>
+1) datum compare <revpath>
+2) datum compare <revpath> <revpath>
 ```
 
 1 - Compares the current project's main target (`project`)
@@ -25,7 +26,7 @@ This command has multiple forms:
 
 Usage:
 ```console
-datum diff [-h] [-o DST_DIR] [-m METHOD] [--overwrite] [-p PROJECT_DIR]
+datum compare [-h] [-o DST_DIR] [-m METHOD] [--overwrite] [-p PROJECT_DIR]
            [--iou-thresh IOU_THRESH] [-f FORMAT]
            [-iia IGNORE_ITEM_ATTR] [-ia IGNORE_ATTR] [-if IGNORE_FIELD]
            [--match-images] [--all]
@@ -62,28 +63,33 @@ Parameters:
 - Compare two projects by distance, match boxes if IoU > 0.7,
   save results to TensorBoard
   ```console
-  datum diff <path/to/other/project/> -m distance -f tensorboard --iou-thresh 0.7 -o diff/
+  datum compare <path/to/other/project/> -m distance -f tensorboard --iou-thresh 0.7 -o compare/
   ```
 
 - Compare two projects for equality, exclude annotation groups
   and the `is_crowd` attribute from comparison
   ```console
-  datum diff <path/to/other/project/> -if group -ia is_crowd
+  datum compare <path/to/other/project/> -m equality -if group -ia is_crowd
   ```
 
-- Compare two datasets for equality, specify formats
+- Compare two projects for table
   ```console
-  datum diff <path/to/dataset1/>:voc <path/to/dataset2/>:coco
+  datum compare <path/to/other/project/> -if group -ia is_crowd
   ```
 
-- Compare the current working tree and a dataset for equality
+- Compare two datasets for table, specify formats
   ```console
-  datum diff <path/to/dataset2/>:coco
+  datum compare <path/to/dataset1/>:voc <path/to/dataset2/>:coco
   ```
 
-- Compare a source from a previous revision and a dataset for equality
+- Compare the current working tree and a dataset for table
   ```console
-  datum diff HEAD~2:source-2 <path/to/dataset2/>:yolo
+  datum compare <path/to/dataset2/>:coco
+  ```
+
+- Compare a source from a previous revision and a dataset for table
+  ```console
+  datum compare HEAD~2:source-2 <path/to/dataset2/>:yolo
   ```
 
 - Compare a dataset with model inference
@@ -92,5 +98,5 @@ Parameters:
   datum project import <...>
   datum model add mymodel <...>
   datum transform <...> -o inference
-  datum diff inference -o diff
+  datum compare inference -o compare
   ```
