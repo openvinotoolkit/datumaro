@@ -43,14 +43,16 @@ class HLOps:
         Args:
             first_dataset (IDataset): The first dataset to compare.
             second_dataset (IDataset): The second dataset to compare.
-            report_dir (Optional[str], optional): Directory path to save the comparison report. Defaults to None.
-            **kwargs: Additional keyword arguments that can be passed to the method.
+            report_dir (Optional[str], optional): The directory path to save the comparison report. Defaults to None.
+            method (str, optional): The comparison method to use. Possible values are "table", "equality", "distance".
+                Defaults to "table".
+            **kwargs: Additional keyword arguments that can be passed to the comparison method.
 
         Returns:
-            IDataset: The result of the comparison. In this case, it always returns 0.
+            IDataset: The result of the comparison.
 
         Raises:
-            None
+            ValueError: If the method is "distance" and report_dir is not specified.
 
         Example:
             comparator = Comparator()

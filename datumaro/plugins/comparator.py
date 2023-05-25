@@ -6,7 +6,7 @@ import logging as log
 import os
 import os.path as osp
 from textwrap import wrap
-from typing import Any, Dict, List, Set, Tuple
+from typing import Dict, List, Set, Tuple
 from unittest import TestCase
 
 from attr import attrib, attrs
@@ -15,6 +15,7 @@ from tabulate import tabulate
 from datumaro.cli.util.project import generate_next_file_name
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.annotations.matcher import LineMatcher, PointsMatcher, match_segments
+from datumaro.components.dataset import Dataset
 from datumaro.components.operations import (
     compute_ann_statistics,
     compute_image_statistics,
@@ -348,15 +349,15 @@ class EqualityComparator:
 @attrs
 class TableComparator:
     """
-    Comparator is a class used for comparing datasets and generating comparison reports.
+    Class for comparing datasets and generating comparison report table.
     """
 
     @staticmethod
-    def _extract_labels(dataset: Any) -> Set[str]:
+    def _extract_labels(dataset: Dataset) -> Set[str]:
         """Extracts labels from the dataset.
 
         Args:
-            dataset: An instance of a dataset class.
+            dataset: An instance of a Dataset class.
 
         Returns:
             A set of labels present in the dataset.
@@ -365,11 +366,11 @@ class TableComparator:
         return set(c.name for c in label_cat)
 
     @staticmethod
-    def _compute_statistics(dataset: Any) -> Tuple[Dict, Dict]:
+    def _compute_statistics(dataset: Dataset) -> Tuple[Dict, Dict]:
         """Computes image and annotation statistics of the dataset.
 
         Args:
-            dataset: An instance of a dataset class.
+            dataset: An instance of a Dataset class.
 
         Returns:
             A tuple containing image statistics and annotation statistics.
@@ -378,14 +379,14 @@ class TableComparator:
         ann_stats = compute_ann_statistics(dataset)
         return image_stats, ann_stats
 
-    def _analyze_dataset(self, dataset: Any) -> Tuple[str, Set[str], Dict, Dict]:
+    def _analyze_dataset(self, dataset: Dataset) -> Tuple[str, Set[str], Dict, Dict]:
         """Analyzes the dataset to get labels, format, and statistics.
 
         Args:
-            dataset: An instance of a dataset class.
+            dataset: An instance of a Dataset class.
 
         Returns:
-            A tuple containing dataset format, set of label names, image statistics,
+            A tuple containing Dataset format, set of label names, image statistics,
             and annotation statistics.
         """
         dataset_format = dataset.format
@@ -575,7 +576,7 @@ class TableComparator:
         return table, data_dict
 
     def _create_low_level_comparison_table(
-        self, first_dataset: Any, second_dataset: Any
+        self, first_dataset: Dataset, second_dataset: Dataset
     ) -> Tuple[str, Dict]:
         """Generates a low-level comparison table.
 
@@ -603,7 +604,7 @@ class TableComparator:
 
         return table, data_dict
 
-    def compare_datasets(self, first: Any, second: Any) -> Tuple[str, str, str, Dict]:
+    def compare_datasets(self, first: Dataset, second: Dataset) -> Tuple[str, str, str, Dict]:
         """Compares two datasets and generates comparison reports.
 
         Args:
