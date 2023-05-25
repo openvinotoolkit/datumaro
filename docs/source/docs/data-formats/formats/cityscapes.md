@@ -32,14 +32,12 @@ Cityscapes dataset directory should have the following structure:
 └─ Dataset/
     ├── dataset_meta.json # a list of non-Cityscapes labels (optional)
     ├── label_colors.txt # a list of non-Cityscapes labels in other format (optional)
-    ├── imgsFine/
-    │   ├── leftImg8bit
-    │   │   ├── <split: train,val, ...>
-    │   │   |   ├── {city1}
-    │   │   │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_leftImg8bit.png
-    │   │   │   │   └── ...
-    │   │   |   ├── {city2}
+    ├── leftImg8bit/
+    │   ├── <split: train,val, ...>
+    │   │   ├── {city1}
+    │   │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_leftImg8bit.png
     │   │   │   └── ...
+    │   │   ├── {city2}
     │   │   └── ...
     └── gtFine/
         ├── <split: train,val, ...>
