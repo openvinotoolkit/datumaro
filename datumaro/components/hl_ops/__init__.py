@@ -66,45 +66,18 @@ class HLOps:
                 comparator.save_compare_report(h_table, m_table, l_table, result_dict, report_dir)
 
         elif method == "equality":
-            # TODO: support dynamic
-            comparator = EqualityComparator(
-                match_images=False,
-                ignored_fields=None,
-                ignored_attrs=None,
-                ignored_item_attrs=None,
-            )
-
-            matches, mismatches, a_extra, b_extra, errors = comparator.compare_datasets(
-                first_dataset, second_dataset
-            )
-
-            output = {
-                "mismatches": mismatches,
-                "a_extra_items": sorted(a_extra),
-                "b_extra_items": sorted(b_extra),
-                "errors": errors,
-            }
-
-            output_file = osp.join(
-                report_dir,
-                generate_next_file_name("equality_compare", ext=".json", basedir=report_dir),
-            )
-            dump_json_file(output_file, output, indent=True)
-
-            print("Found:")
-            print("The first project has %s unmatched items" % len(a_extra))
-            print("The second project has %s unmatched items" % len(b_extra))
-            print("%s item conflicts" % len(errors))
-            print("%s matching annotations" % len(matches))
-            print("%s mismatching annotations" % len(mismatches))
+            comparator = EqualityComparator(**kwargs)
+            output = comparator.compare_datasets(first_dataset, second_dataset)
+            if report_dir:
+                comparator.save_compare_report(output, report_dir)
 
         elif method == "distance":
-            comparator = DistanceComparator(iou_threshold=0.5)
-
+            comparator = DistanceComparator(**kwargs)
             with DiffVisualizer(
-                save_dir=report_dir, comparator=comparator, output_format="simple"
+                save_dir=report_dir,
+                comparator=comparator,
+                output_format=kwargs.get("output_format", "simple"),
             ) as visualizer:
-                # log.info("Saving compare to '%s'" % dst_dir)
                 visualizer.save(first_dataset, second_dataset)
 
         return 0
