@@ -100,7 +100,7 @@ CITYSCAPES_LABEL_MAP = OrderedDict(
 
 class CityscapesPath:
     GT_FINE_DIR = "gtFine"
-    IMGS_FINE_DIR = "imgsFine"
+    IMGS_FINE_DIR = ""
     ORIGINAL_IMAGE_DIR = "leftImg8bit"
     ORIGINAL_IMAGE = "_" + ORIGINAL_IMAGE_DIR
     INSTANCES_IMAGE = "_instanceIds.png"
@@ -205,7 +205,7 @@ class CityscapesBase(SubsetBase):
             self._path = osp.dirname(osp.dirname(osp.dirname(path)))
             images_dir = path
             annotations_dir = osp.join(self._path, CityscapesPath.GT_FINE_DIR, subset)
-
+        
         self._images_dir = images_dir
         self._gt_anns_dir = annotations_dir
 
