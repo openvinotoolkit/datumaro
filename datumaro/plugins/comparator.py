@@ -1,14 +1,11 @@
-# Copyright (C) 2023 Intel Corporation
-#
-# SPDX-License-Identifier: MIT
-
 import logging as log
 import os
 import os.path as osp
-from typing import Dict, List, Tuple
+from textwrap import wrap
+from typing import Any, Dict, List, Set, Tuple
 
 from attr import attrs
-from texttable import Texttable
+from tabulate import tabulate
 
 from datumaro.cli.util.project import generate_next_file_name
 from datumaro.components.annotation import AnnotationType, LabelCategories
@@ -20,44 +17,45 @@ from datumaro.util import dump_json_file
 @attrs
 class Comparator:
     """
-    Class for comparing datasets and generating comparison reports.
+    Comparator is a class used for comparing datasets and generating comparison reports.
     """
 
     @staticmethod
-    def _extract_labels(dataset) -> set:
-        """Extract labels from the dataset.
+    def _extract_labels(dataset: Any) -> Set[str]:
+        """Extracts labels from the dataset.
 
         Args:
-            dataset: The dataset to extract labels from.
+            dataset: An instance of a dataset class.
 
         Returns:
-            A set of label names.
+            A set of labels present in the dataset.
         """
         label_cat = dataset.categories().get(AnnotationType.label, LabelCategories())
         return set(c.name for c in label_cat)
 
     @staticmethod
-    def _compute_statistics(dataset) -> Tuple[Dict, Dict]:
-        """Compute image and annotation statistics.
+    def _compute_statistics(dataset: Any) -> Tuple[Dict, Dict]:
+        """Computes image and annotation statistics of the dataset.
 
         Args:
-            dataset: The dataset to compute statistics for.
+            dataset: An instance of a dataset class.
 
         Returns:
-            Tuple of image statistics and annotation statistics.
+            A tuple containing image statistics and annotation statistics.
         """
         image_stats = compute_image_statistics(dataset)
         ann_stats = compute_ann_statistics(dataset)
         return image_stats, ann_stats
 
-    def _analyze_dataset(self, dataset) -> Tuple[str, set, Dict, Dict]:
-        """Analyze the dataset to get labels, format, statistics.
+    def _analyze_dataset(self, dataset: Any) -> Tuple[str, Set[str], Dict, Dict]:
+        """Analyzes the dataset to get labels, format, and statistics.
 
         Args:
-            dataset: The dataset to analyze.
+            dataset: An instance of a dataset class.
 
         Returns:
-            Tuple of dataset format, label names, image statistics, annotation statistics.
+            A tuple containing dataset format, set of label names, image statistics,
+            and annotation statistics.
         """
         dataset_format = dataset.format
         dataset_labels = self._extract_labels(dataset)
@@ -65,53 +63,64 @@ class Comparator:
         return dataset_format, dataset_labels, image_stats, ann_stats
 
     @staticmethod
-    def _create_text_table(columns_align: List[str], columns_valign: List[str]) -> Texttable:
-        """Create a text table with the given alignments.
+    def _create_table(headers: List[str], rows: List[List[str]]) -> str:
+        """Creates a table with the given headers and rows using the tabulate module.
 
         Args:
-            columns_align: List of alignment values for each column.
-            columns_valign: List of vertical alignment values for each column.
+            headers: A list containing table headers.
+            rows: A list containing table rows.
 
         Returns:
-            A Texttable object.
+            A string representation of the table.
         """
-        table = Texttable()
-        table.set_cols_align(columns_align)
-        table.set_cols_valign(columns_valign)
-        return table
+
+        def wrapfunc(item):
+            """Wrap a item consisted of text, returning a list of wrapped lines."""
+            max_len = 35
+            return "\n".join(wrap(item, max_len))
+
+        wrapped_rows = []
+        for row in rows:
+            new_row = [wrapfunc(item) for item in row]
+            wrapped_rows.append(new_row)
+
+        return tabulate(wrapped_rows, headers, tablefmt="grid")
 
     @staticmethod
-    def _create_rows_and_dict(rows: List[List]) -> Tuple[List[List], Dict]:
-        """Create rows for the text table and a dictionary of data.
+    def _create_dict(rows: List[List[str]]) -> Dict[str, List[str]]:
+        """Creates a dictionary from the rows of the table.
 
         Args:
-            rows: List of row data.
+            rows: A list containing table rows.
 
         Returns:
-            Tuple of rows and data dictionary.
+            A dictionary where the key is the first element of a row and the value is
+            the rest of the row.
         """
         data_dict = {row[0]: row[1:] for row in rows[1:]}
-        return rows, data_dict
+        return data_dict
 
-    def _create_high_level_comparison_table(self, first_info, second_info) -> Tuple[str, Dict]:
-        """Generate a high-level comparison table.
+    def _create_high_level_comparison_table(
+        self, first_info: Tuple, second_info: Tuple
+    ) -> Tuple[str, Dict]:
+        """Generates a high-level comparison table.
 
         Args:
-            first_info: Tuple of first dataset information.
-            second_info: Tuple of second dataset information.
+            first_info: A tuple containing information about the first dataset.
+            second_info: A tuple containing information about the second dataset.
 
         Returns:
-            Tuple of the table as a string and a data dictionary.
+            A tuple containing the table as a string and a dictionary representing the data
+            of the table.
         """
         first_format, first_labels, first_image_stats, first_ann_stats = first_info
         second_format, second_labels, second_image_stats, second_ann_stats = second_info
 
-        table = self._create_text_table(["l", "l", "l"], ["m", "m", "m"])
+        headers = ["Field", "First", "Second"]
 
         rows = [
-            ["Field", "First", "Second"],
             ["Format", first_format, second_format],
-            ["Number of classes", len(first_labels), len(second_labels)],
+            ["Number of classes", str(len(first_labels)), str(len(second_labels))],
             [
                 "Common classes",
                 ", ".join(sorted(list(first_labels.intersection(second_labels)))),
@@ -120,53 +129,55 @@ class Comparator:
             ["Classes", ", ".join(sorted(first_labels)), ", ".join(sorted(second_labels))],
             [
                 "Images count",
-                first_image_stats["dataset"]["images count"],
-                second_image_stats["dataset"]["images count"],
+                str(first_image_stats["dataset"]["images count"]),
+                str(second_image_stats["dataset"]["images count"]),
             ],
             [
                 "Unique images count",
-                first_image_stats["dataset"]["unique images count"],
-                second_image_stats["dataset"]["unique images count"],
+                str(first_image_stats["dataset"]["unique images count"]),
+                str(second_image_stats["dataset"]["unique images count"]),
             ],
             [
                 "Repeated images count",
-                first_image_stats["dataset"]["repeated images count"],
-                second_image_stats["dataset"]["repeated images count"],
+                str(first_image_stats["dataset"]["repeated images count"]),
+                str(second_image_stats["dataset"]["repeated images count"]),
             ],
             [
                 "Annotations count",
-                first_ann_stats["annotations count"],
-                second_ann_stats["annotations count"],
+                str(first_ann_stats["annotations count"]),
+                str(second_ann_stats["annotations count"]),
             ],
             [
                 "Unannotated images count",
-                first_ann_stats["unannotated images count"],
-                second_ann_stats["unannotated images count"],
+                str(first_ann_stats["unannotated images count"]),
+                str(second_ann_stats["unannotated images count"]),
             ],
         ]
 
-        rows, data_dict = self._create_rows_and_dict(rows)
-        table.add_rows(rows)
-        return table.draw(), data_dict
+        table = self._create_table(headers, rows)
+        data_dict = self._create_dict(rows)
 
-    def _create_mid_level_comparison_table(self, first_info, second_info) -> Tuple[str, Dict]:
-        """Generate a mid-level comparison table.
+        return table, data_dict
+
+    def _create_mid_level_comparison_table(
+        self, first_info: Tuple, second_info: Tuple
+    ) -> Tuple[str, Dict]:
+        """Generates a mid-level comparison table.
 
         Args:
-            first_info: Tuple of first dataset information.
-            second_info: Tuple of second dataset information.
+            first_info: A tuple containing information about the first dataset.
+            second_info: A tuple containing information about the second dataset.
 
         Returns:
-            Tuple of the table as a string and a data dictionary.
+            A tuple containing the table as a string and a dictionary representing the data
+            of the table.
         """
         _, _, first_image_stats, first_ann_stats = first_info
         _, _, second_image_stats, second_ann_stats = second_info
 
-        table = self._create_text_table(["l", "l", "l"], ["m", "m", "m"])
+        headers = ["Field", "First", "Second"]
 
-        rows = [
-            ["Field", "First", "Second"],
-        ]
+        rows = []
 
         first_subsets = sorted(list(first_image_stats["subsets"].keys()))
         second_subsets = sorted(list(second_image_stats["subsets"].keys()))
@@ -227,46 +238,50 @@ class Comparator:
                 ]
             )
 
-        rows, data_dict = self._create_rows_and_dict(rows)
-        table.add_rows(rows)
+        table = self._create_table(headers, rows)
+        data_dict = self._create_dict(rows)
 
-        return table.draw(), data_dict
+        return table, data_dict
 
-    def _create_low_level_comparison_table(self, first_dataset, second_dataset) -> Tuple[str, Dict]:
-        """Generate a low-level comparison table.
+    def _create_low_level_comparison_table(
+        self, first_dataset: Any, second_dataset: Any
+    ) -> Tuple[str, Dict]:
+        """Generates a low-level comparison table.
 
         Args:
-            first_dataset: First dataset to compare.
-            second_dataset: Second dataset to compare.
+            first_dataset: The first dataset to compare.
+            second_dataset: The second dataset to compare.
 
         Returns:
-            Tuple of the table as a string and a data dictionary.
+            A tuple containing the table as a string and a dictionary representing the data
+            of the table.
         """
         shift_analyzer = ShiftAnalyzer()
         cov_shift = shift_analyzer.compute_covariate_shift([first_dataset, second_dataset])
         label_shift = shift_analyzer.compute_label_shift([first_dataset, second_dataset])
 
-        table = self._create_text_table(["l", "l"], ["m", "m"])
+        headers = ["Field", "Value"]
 
         rows = [
-            ["Field", "Value"],
-            ["Covariate shift", cov_shift],
-            ["Label shift", label_shift],
+            ["Covariate shift", str(cov_shift)],
+            ["Label shift", str(label_shift)],
         ]
 
-        rows, data_dict = self._create_rows_and_dict(rows)
-        table.add_rows(rows)
-        return table.draw(), data_dict
+        table = self._create_table(headers, rows)
+        data_dict = self._create_dict(rows)
 
-    def compare_datasets(self, first, second) -> Tuple[str, str, str, Dict]:
-        """Compare two datasets and generate comparison reports.
+        return table, data_dict
+
+    def compare_datasets(self, first: Any, second: Any) -> Tuple[str, str, str, Dict]:
+        """Compares two datasets and generates comparison reports.
 
         Args:
-            first: First dataset to compare.
-            second: Second dataset to compare.
+            first: The first dataset to compare.
+            second: The second dataset to compare.
 
         Returns:
-            Tuple of high-level table, mid-level table, low-level table, comparison dictionary.
+            A tuple containing high-level table, mid-level table, low-level table, and a
+            dictionary representation of the comparison.
         """
         first_info = self._analyze_dataset(first)
         second_info = self._analyze_dataset(second)
@@ -291,16 +306,20 @@ class Comparator:
 
     @staticmethod
     def save_compare_report(
-        high_level_table, mid_level_table, low_level_table, comparison_dict, report_dir: str
+        high_level_table: str,
+        mid_level_table: str,
+        low_level_table: str,
+        comparison_dict: Dict,
+        report_dir: str,
     ) -> None:
-        """Save the comparison report to JSON and text files.
+        """Saves the comparison report to JSON and text files.
 
         Args:
             high_level_table: High-level comparison table as a string.
             mid_level_table: Mid-level comparison table as a string.
             low_level_table: Low-level comparison table as a string.
-            comparison_dict: Comparison dictionary.
-            report_dir: Directory to save the report files.
+            comparison_dict: A dictionary containing the comparison data.
+            report_dir: A string representing the directory to save the report files.
         """
         os.makedirs(report_dir, exist_ok=True)
         json_output_file = osp.join(
