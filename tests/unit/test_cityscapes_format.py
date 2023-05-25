@@ -692,14 +692,14 @@ class CityscapesExporterTest(TestCase):
                 {"2_gtFine_color.png", "2_gtFine_instanceIds.png", "2_gtFine_labelIds.png"},
                 set(os.listdir(osp.join(path, "gtFine", "b"))),
             )
-            self.assertEqual({"a", "b"}, set(os.listdir(osp.join(path, "imgsFine", "leftImg8bit"))))
+            self.assertEqual({"a", "b"}, set(os.listdir(osp.join(path, "leftImg8bit"))))
             self.assertEqual(
                 {"1_leftImg8bit.png", "2_leftImg8bit.png"},
-                set(os.listdir(osp.join(path, "imgsFine", "leftImg8bit", "a"))),
+                set(os.listdir(osp.join(path, "leftImg8bit", "a"))),
             )
             self.assertEqual(
                 {"2_leftImg8bit.png"},
-                set(os.listdir(osp.join(path, "imgsFine", "leftImg8bit", "b"))),
+                set(os.listdir(osp.join(path, "leftImg8bit", "b"))),
             )
             compare_datasets(
                 self,
