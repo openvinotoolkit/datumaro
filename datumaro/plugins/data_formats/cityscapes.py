@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import glob
 import logging as log
 import os
@@ -209,6 +210,10 @@ class CityscapesBase(SubsetBase):
         self._images_dir = images_dir
         self._gt_anns_dir = annotations_dir
 
+        for path in [self._images_dir, self._gt_anns_dir]:
+            if not osp.isdir(path):
+                raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
+
         super().__init__(subset=subset, ctx=ctx)
 
         self._items = list(self._load_items().values())
@@ -311,14 +316,23 @@ class CityscapesBase(SubsetBase):
 class CityscapesImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        patterns = [
+        annotation_patterns = [
             f"{CityscapesPath.GT_FINE_DIR}/**/*{CityscapesPath.GT_INSTANCE_MASK_SUFFIX}",
             f"{CityscapesPath.GT_FINE_DIR}/**/*{CityscapesPath.LABEL_TRAIN_IDS_SUFFIX}",
+        ]
+
+        media_patterns = [
             f"{CityscapesPath.IMGS_FINE_DIR}/{CityscapesPath.ORIGINAL_IMAGE_DIR}"
             f"/**/*{CityscapesPath.ORIGINAL_IMAGE}.*",
         ]
+
         with context.require_any():
-            for pattern in patterns:
+            for pattern in annotation_patterns:
+                with context.alternative():
+                    context.require_file(pattern)
+
+        with context.require_any():
+            for pattern in media_patterns:
                 with context.alternative():
                     context.require_file(pattern)
 
