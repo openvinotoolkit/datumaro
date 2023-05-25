@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import logging as log
 import os
 import os.path as osp
@@ -104,7 +108,7 @@ class DistanceComparator:
 
 
 @attrs
-class ExactComparator:
+class EqualityComparator:
     match_images: bool = attrib(kw_only=True, default=False)
     ignored_fields = attrib(kw_only=True, factory=set, validator=default_if_none(set))
     ignored_attrs = attrib(kw_only=True, factory=set, validator=default_if_none(set))
@@ -293,7 +297,7 @@ class ExactComparator:
 
 
 @attrs
-class Comparator:
+class TableComparator:
     """
     Comparator is a class used for comparing datasets and generating comparison reports.
     """
@@ -601,10 +605,10 @@ class Comparator:
         """
         os.makedirs(report_dir, exist_ok=True)
         json_output_file = osp.join(
-            report_dir, generate_next_file_name("compare", ext=".json", basedir=report_dir)
+            report_dir, generate_next_file_name("table_compare", ext=".json", basedir=report_dir)
         )
         txt_output_file = osp.join(
-            report_dir, generate_next_file_name("compare", ext=".txt", basedir=report_dir)
+            report_dir, generate_next_file_name("table_compare", ext=".txt", basedir=report_dir)
         )
 
         log.info(f"Saving compare json to {json_output_file}")

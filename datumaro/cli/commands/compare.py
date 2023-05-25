@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -9,7 +9,7 @@ import os.path as osp
 from enum import Enum, auto
 
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.plugins.comparator import Comparator, DistanceComparator, ExactComparator
+from datumaro.plugins.comparator import DistanceComparator, EqualityComparator, TableComparator
 from datumaro.util import dump_json_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
@@ -21,6 +21,7 @@ from ..util.project import generate_next_file_name, load_project, parse_full_rev
 
 
 class ComparisonMethod(Enum):
+    table = auto()
     equality = auto()
     distance = auto()
 
@@ -115,7 +116,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "-m",
         "--method",
         type=_parse_comparison_method,
-        default=ComparisonMethod.equality.name,
+        default=ComparisonMethod.table.name,
         help="Comparison method, one of {} (default: %(default)s)".format(comp_methods),
     )
     parser.add_argument(
@@ -218,11 +219,8 @@ def compare_command(args):
     except Exception as e:
         raise CliException(str(e))
 
-    if args.method is ComparisonMethod.equality:
-        if args.ignore_field:
-            args.ignore_field = eq_default_if
-
-        comparator = Comparator()
+    if args.method is ComparisonMethod.table:
+        comparator = TableComparator()
         (
             high_level_table,
             mid_level_table,
@@ -235,7 +233,11 @@ def compare_command(args):
                 high_level_table, mid_level_table, low_level_table, comparison_dict, args.dst_dir
             )
 
-        comparator = ExactComparator(
+    if args.method is ComparisonMethod.equality:
+        if args.ignore_field:
+            args.ignore_field = eq_default_if
+
+        comparator = EqualityComparator(
             match_images=args.match_images,
             ignored_fields=args.ignore_field,
             ignored_attrs=args.ignore_attr,
@@ -255,9 +257,10 @@ def compare_command(args):
             output["matches"] = matches
 
         output_file = osp.join(
-            args.dst_dir, generate_next_file_name("diff", ext=".json", basedir=args.dst_dir)
+            args.dst_dir,
+            generate_next_file_name("equality_compare", ext=".json", basedir=args.dst_dir),
         )
-        log.info("Saving diff to '%s'" % output_file)
+        log.info("Saving compare to '%s'" % output_file)
         dump_json_file(output_file, output, indent=True)
 
         print("Found:")
@@ -266,13 +269,14 @@ def compare_command(args):
         print("%s item conflicts" % len(errors))
         print("%s matching annotations" % len(matches))
         print("%s mismatching annotations" % len(mismatches))
+
     elif args.method is ComparisonMethod.distance:
         comparator = DistanceComparator(iou_threshold=args.iou_thresh)
 
         with DiffVisualizer(
             save_dir=dst_dir, comparator=comparator, output_format=args.format
         ) as visualizer:
-            log.info("Saving diff to '%s'" % dst_dir)
+            log.info("Saving compare to '%s'" % dst_dir)
             visualizer.save(first_dataset, second_dataset)
 
     return 0
