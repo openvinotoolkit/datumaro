@@ -113,6 +113,7 @@ class EqualityComparator:
     ignored_fields = attrib(kw_only=True, factory=set, validator=default_if_none(set))
     ignored_attrs = attrib(kw_only=True, factory=set, validator=default_if_none(set))
     ignored_item_attrs = attrib(kw_only=True, factory=set, validator=default_if_none(set))
+    all = attrib(kw_only=True, default=False)
 
     _test: TestCase = attrib(init=False)
     errors: list = attrib(init=False)
@@ -221,6 +222,15 @@ class EqualityComparator:
 
         return matched, unmatched, errors
 
+    @staticmethod
+    def _print_output(output: dict):
+        print("Found:")
+        print("The first project has %s unmatched items" % len(output.get("a_extra_items", [])))
+        print("The second project has %s unmatched items" % len(output.get("b_extra_items", [])))
+        print("%s item conflicts" % len(output.get("errors", [])))
+        print("%s matching annotations" % len(output.get("matches", [])))
+        print("%s mismatching annotations" % len(output.get("mismatches", [])))
+
     def compare_datasets(self, a, b):
         self.errors = []
         errors = self.errors
@@ -233,7 +243,17 @@ class EqualityComparator:
         matches, a_unmatched, b_unmatched = self._match_items(a, b)
 
         if a.categories().get(AnnotationType.label) != b.categories().get(AnnotationType.label):
-            return matched, unmatched, a_unmatched, b_unmatched, errors
+            output = {
+                "mismatches": unmatched,
+                "a_extra_items": sorted(a_unmatched),
+                "b_extra_items": sorted(b_unmatched),
+                "errors": errors,
+            }
+            if self.all:
+                output["matches"] = matches
+
+            self._print_output(output)
+            return output
 
         _dist = lambda s: len(s[1]) + len(s[2])
         for a_ids, b_ids in matches:
@@ -293,7 +313,36 @@ class EqualityComparator:
             a_unmatched |= set(a_id for a_id, m in a_matches.items() if not m)
             b_unmatched |= set(b_id for b_id, m in b_matches.items() if not m)
 
-        return matched, unmatched, a_unmatched, b_unmatched, errors
+        output = {
+            "mismatches": unmatched,
+            "a_extra_items": sorted(a_unmatched),
+            "b_extra_items": sorted(b_unmatched),
+            "errors": errors,
+        }
+        if self.all:
+            output["matches"] = matches
+        self._print_output(output)
+        return output
+
+    @staticmethod
+    def save_compare_report(
+        output: Dict,
+        report_dir: str,
+    ) -> None:
+        """Saves the comparison report to JSON and text files.
+
+        Args:
+            output: A dictionary containing the comparison data.
+            report_dir: A string representing the directory to save the report files.
+        """
+        os.makedirs(report_dir, exist_ok=True)
+        output_file = osp.join(
+            report_dir,
+            generate_next_file_name("equality_compare", ext=".json", basedir=report_dir),
+        )
+
+        log.info(f"Saving compare json to {output_file}")
+        dump_json_file(output_file, output, indent=True)
 
 
 @attrs
