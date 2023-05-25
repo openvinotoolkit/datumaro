@@ -401,11 +401,20 @@ class CityscapesExporter(Exporter):
         os.makedirs(self._save_dir, exist_ok=True)
 
         for subset_name, subset in self._extractor.subsets().items():
+            media_dir = osp.join(
+                self._save_dir,
+                CityscapesPath.IMGS_FINE_DIR,
+                CityscapesPath.ORIGINAL_IMAGE_DIR,
+                subset_name,
+            )
+            os.makedirs(media_dir, exist_ok=True)
+
+            mask_dir = osp.join(self._save_dir, CityscapesPath.GT_FINE_DIR, subset_name)
+            os.makedirs(mask_dir, exist_ok=True)
+
             for item in subset:
                 image_path = osp.join(
-                    CityscapesPath.IMGS_FINE_DIR,
-                    CityscapesPath.ORIGINAL_IMAGE_DIR,
-                    subset_name,
+                    media_dir,
                     item.id + CityscapesPath.ORIGINAL_IMAGE + self._find_image_ext(item),
                 )
                 if self._save_media:
@@ -428,7 +437,6 @@ class CityscapesExporter(Exporter):
                     instance_labels=[self._label_id_mapping(m.label) for m in masks],
                 )
 
-                mask_dir = osp.join(self._save_dir, CityscapesPath.GT_FINE_DIR, subset_name)
                 mask_name = item.id + "_" + CityscapesPath.GT_FINE_DIR
 
                 color_mask_path = osp.join(mask_dir, mask_name + CityscapesPath.COLOR_IMAGE)
