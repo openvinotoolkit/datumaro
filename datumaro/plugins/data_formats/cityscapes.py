@@ -205,7 +205,7 @@ class CityscapesBase(SubsetBase):
             self._path = osp.dirname(osp.dirname(osp.dirname(path)))
             images_dir = path
             annotations_dir = osp.join(self._path, CityscapesPath.GT_FINE_DIR, subset)
-        
+
         self._images_dir = images_dir
         self._gt_anns_dir = annotations_dir
 
