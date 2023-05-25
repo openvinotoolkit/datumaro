@@ -72,11 +72,16 @@ class HLOps:
                 comparator.save_compare_report(output, report_dir)
 
         elif method == "distance":
+            if not report_dir:
+                raise ValueError(
+                    "Please specify report_dir to save comparision result for DistanceComparator."
+                )
+            output_format = kwargs.pop("output_format", "simple")
             comparator = DistanceComparator(**kwargs)
             with DiffVisualizer(
                 save_dir=report_dir,
                 comparator=comparator,
-                output_format=kwargs.get("output_format", "simple"),
+                output_format=output_format,
             ) as visualizer:
                 visualizer.save(first_dataset, second_dataset)
 
