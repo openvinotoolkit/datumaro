@@ -272,8 +272,7 @@ class ExactComparatorTest(TestCase):
         matched = output["matches"]
         unmatched = output["mismatches"]
         errors = output["errors"]
-
-        self.assertEqual(1, len(matched), matched)  # TODO: resolve
+        self.assertEqual(6, len(matched), matched)
         self.assertEqual(2, len(unmatched), unmatched)
         self.assertEqual(0, len(errors), errors)
 
@@ -375,7 +374,7 @@ class ExactComparatorTest(TestCase):
         a_unmatched = output["a_extra_items"]
         b_unmatched = output["b_extra_items"]
         errors = output["errors"]
-        self.assertEqual(2, len(matched_ann), matched_ann)  # TODO: resolve
+        self.assertEqual(3, len(matched_ann), matched_ann)
         self.assertEqual(5, len(unmatched_ann), unmatched_ann)
         self.assertEqual(1, len(a_unmatched), a_unmatched)
         self.assertEqual(1, len(b_unmatched), b_unmatched)

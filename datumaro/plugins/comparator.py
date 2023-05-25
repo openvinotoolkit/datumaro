@@ -251,7 +251,7 @@ class EqualityComparator:
                 "errors": errors,
             }
             if self.all:
-                output["matches"] = matches
+                output["matches"] = matched
 
             self._print_output(output)
             return output
@@ -321,7 +321,7 @@ class EqualityComparator:
             "errors": errors,
         }
         if self.all:
-            output["matches"] = matches
+            output["matches"] = matched
         self._print_output(output)
         return output
 
