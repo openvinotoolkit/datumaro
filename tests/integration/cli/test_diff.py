@@ -4,6 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 
+from datumaro.cli.util.compare import DiffVisualizer
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
@@ -20,7 +21,6 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
-from datumaro.datumaro.cli.util.compare import DiffVisualizer
 from datumaro.plugins.comparator import DistanceComparator
 
 from ...requirements import Requirements, mark_requirement
@@ -29,7 +29,7 @@ from tests.utils.test_utils import TestDir
 from tests.utils.test_utils import run_datum as run
 
 
-class DiffTest(TestCase):
+class CompareTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compare_projects(self):  # just a smoke test
         label_categories1 = LabelCategories.from_iterable(["x", "a", "b", "y"])
@@ -220,7 +220,7 @@ class DiffTest(TestCase):
             result_dir = osp.join(test_dir, "cmp_result")
             run(
                 self,
-                "diff",
+                "compare",
                 dataset1_url + ":coco",
                 dataset2_url + ":voc",
                 "-m",
@@ -272,7 +272,7 @@ class DiffTest(TestCase):
             result_dir = osp.join(test_dir, "cmp_result")
             run(
                 self,
-                "diff",
+                "compare",
                 dataset1_url + ":coco",
                 dataset2_url + ":voc",
                 "-m",
@@ -281,4 +281,4 @@ class DiffTest(TestCase):
                 result_dir,
             )
 
-            self.assertEqual({"diff.json"}, set(os.listdir(result_dir)))
+            self.assertEqual({"equality_compare.json"}, set(os.listdir(result_dir)))
