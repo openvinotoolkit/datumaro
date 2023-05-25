@@ -4,6 +4,12 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.3.1 (2023.05)
+----------------
+
+Bug fixes
+^^^^^^^^^
+- Fix `Cityscapes` format mis-detection problem
 
 v1.3.0 (2023.05)
 ----------------

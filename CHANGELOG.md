@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+## 26/05/2023 - Release 1.3.1
+### Bug fixes
+- Fix Cityscapes format mis-detection
+  (<https://github.com/openvinotoolkit/datumaro/pull/1029>)
+
 ## 25/05/2023 - Release 1.3.0
 ### New features
 - Add CocoRoboflowImporter
