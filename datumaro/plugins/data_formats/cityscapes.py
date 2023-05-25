@@ -101,7 +101,7 @@ CITYSCAPES_LABEL_MAP = OrderedDict(
 
 class CityscapesPath:
     GT_FINE_DIR = "gtFine"
-    IMGS_FINE_DIR = "imgsFine"
+    IMGS_FINE_DIR = ""
     ORIGINAL_IMAGE_DIR = "leftImg8bit"
     ORIGINAL_IMAGE = "_" + ORIGINAL_IMAGE_DIR
     INSTANCES_IMAGE = "_instanceIds.png"
