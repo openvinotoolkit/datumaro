@@ -1,0 +1,31 @@
+datumaro.plugins.openvino\_plugin.samples.ssd\_face\_detection\_interp
+======================================================================
+
+.. automodule:: datumaro.plugins.openvino_plugin.samples.ssd_face_detection_interp
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      get_categories
+      normalize
+      process_outputs
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
