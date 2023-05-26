@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.market1501 &#8212; Datumaro 1.3.0rc1 documentation</title>
+    <title>datumaro.plugins.data_formats.market1501 &#8212; Datumaro 1.3.1 documentation</title>
   
   
   
@@ -410,7 +410,7 @@
             <span class="n">dirname</span> <span class="o">=</span> <span class="n">Market1501Path</span><span class="o">.</span><span class="n">QUERY_DIR</span>
         <span class="k">return</span> <span class="n">dirname</span>
 
-<div class="viewcode-block" id="Market1501Exporter.apply"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.market1501.html#datumaro.plugins.data_formats.market1501.Market1501Exporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_apply_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 
@@ -451,7 +451,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="n">Market1501Path</span><span class="o">.</span><span class="n">LIST_PREFIX</span> <span class="o">+</span> <span class="n">subset_name</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span>
             <span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">annotation_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span></div></div>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span></div>
 </pre></div>
 
             </article>

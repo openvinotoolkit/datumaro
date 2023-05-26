@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.sly_pointcloud.exporter &#8212; Datumaro 1.3.0rc1 documentation</title>
+    <title>datumaro.plugins.data_formats.sly_pointcloud.exporter &#8212; Datumaro 1.3.1 documentation</title>
   
   
   
@@ -677,7 +677,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_reindex</span> <span class="o">=</span> <span class="n">reindex</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_allow_undeclared_attrs</span> <span class="o">=</span> <span class="n">allow_undeclared_attrs</span>
 
-<div class="viewcode-block" id="SuperviselyPointCloudExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.sly_pointcloud.exporter.html#datumaro.plugins.data_formats.sly_pointcloud.exporter.SuperviselyPointCloudExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_apply_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">PointCloud</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 
@@ -687,7 +687,7 @@
                 <span class="s2">&quot;subset. Subset information will be ignored on export.&quot;</span>
             <span class="p">)</span>
 
-        <span class="n">_SuperviselyPointCloudDumper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">dump</span><span class="p">()</span></div>
+        <span class="n">_SuperviselyPointCloudDumper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">dump</span><span class="p">()</span>
 
 <div class="viewcode-block" id="SuperviselyPointCloudExporter.patch"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.sly_pointcloud.exporter.html#datumaro.plugins.data_formats.sly_pointcloud.exporter.SuperviselyPointCloudExporter.patch">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">patch</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">patch</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

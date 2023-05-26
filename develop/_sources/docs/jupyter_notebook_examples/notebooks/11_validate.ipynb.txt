@@ -5,7 +5,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Validate datasets\n",
+    "# Validate Dataset To Detect Anomalies\n",
     "\n",
     "[![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)](https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/11_validate.ipynb)\n",
     "\n",

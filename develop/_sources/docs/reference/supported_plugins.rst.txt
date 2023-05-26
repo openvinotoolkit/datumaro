@@ -1,6 +1,5 @@
 Supported Plugins
 #################
-.. _supported_formats:
 
 List of plugins available through the CLI
 

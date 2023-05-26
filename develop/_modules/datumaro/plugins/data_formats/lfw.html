@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.lfw &#8212; Datumaro 1.3.0rc1 documentation</title>
+    <title>datumaro.plugins.data_formats.lfw &#8212; Datumaro 1.3.1 documentation</title>
   
   
   
@@ -518,7 +518,7 @@
 <div class="viewcode-block" id="LfwExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwExporter">[docs]</a><span class="k">class</span> <span class="nc">LfwExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">LfwPath</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
 
-<div class="viewcode-block" id="LfwExporter.apply"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_apply_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 
@@ -632,7 +632,7 @@
             <span class="k">if</span> <span class="n">labels</span><span class="p">:</span>
                 <span class="n">people_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">annotations_dir</span><span class="p">,</span> <span class="n">LfwPath</span><span class="o">.</span><span class="n">PEOPLE_FILE</span><span class="p">)</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">people_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="n">label</span><span class="p">])</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">])</span></div></div>
+                    <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="n">label</span><span class="p">])</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">])</span></div>
 </pre></div>
 
             </article>

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.voc.exporter &#8212; Datumaro 1.3.0rc1 documentation</title>
+    <title>datumaro.plugins.data_formats.voc.exporter &#8212; Datumaro 1.3.1 documentation</title>
   
   
   
@@ -458,13 +458,13 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_patch</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="VocExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_apply_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">make_dirs</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save_subsets</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_label_map</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_label_map</span><span class="p">()</span>
 
 <div class="viewcode-block" id="VocExporter.make_dirs"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocExporter.make_dirs">[docs]</a>    <span class="k">def</span> <span class="nf">make_dirs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">save_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span>

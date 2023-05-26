@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer &#8212; Datumaro 1.3.0rc1 documentation</title>
+    <title>datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer &#8212; Datumaro 1.3.1 documentation</title>
   
   
   
@@ -283,7 +283,7 @@
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -323,9 +323,12 @@
 <span class="sd">    International Conference on Learning Representations. 2021.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">allowed_task_names</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;OTX-MultiClassCls&quot;</span><span class="p">}</span>
+    <span class="n">allowed_task_names</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;OTX-MultiClassCls&quot;</span><span class="p">,</span> <span class="s2">&quot;OTX-Det&quot;</span><span class="p">}</span>
+    <span class="n">allowed_tracking_loss_types</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cls&quot;</span><span class="p">,</span> <span class="s2">&quot;bbox&quot;</span><span class="p">,</span> <span class="s2">&quot;centerness&quot;</span><span class="p">,</span> <span class="s2">&quot;bbox_refine&quot;</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span> <span class="n">tracking_loss_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">purpose</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">infos</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;purpose&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">purpose</span> <span class="o">!=</span> <span class="s2">&quot;noisy_label_detection&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DatasetError</span><span class="p">(</span>
@@ -333,18 +336,32 @@
             <span class="p">)</span>
 
         <span class="n">task</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">infos</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;task&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">task</span> <span class="o">!=</span> <span class="s2">&quot;OTX-MultiClassCls&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_task_names</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DatasetError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2"> is not allowed. The allowed task names are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">allowed_task_names</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;task=</span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2"> is not allowed. The allowed task names are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">allowed_task_names</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">task</span> <span class="o">==</span> <span class="s2">&quot;OTX-Det&quot;</span> <span class="ow">and</span> <span class="n">tracking_loss_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DatasetError</span><span class="p">(</span>
+                <span class="s1">&#39;If task=&quot;OTX-Det&quot;, tracking_loss_type should not be None. &#39;</span>
+                <span class="sa">f</span><span class="s2">&quot;The allowed tracking loss types are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">allowed_tracking_loss_types</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">tracking_loss_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">tracking_loss_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_tracking_loss_types</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">DatasetError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;tracking_loss_type=</span><span class="si">{</span><span class="n">tracking_loss_type</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but the allowed tracking loss types are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">allowed_tracking_loss_types</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">dataset</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span> <span class="o">=</span> <span class="n">alpha</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_to_dataframe</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_to_dataframe</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">tracking_loss_type</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mean_loss_dyns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mean_loss_dyns_per_label</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">label_id</span><span class="p">:</span> <span class="n">df_sub</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">label_id</span><span class="p">,</span> <span class="n">df_sub</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;ann_label&quot;</span><span class="p">)</span>
         <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_loss_type</span> <span class="o">=</span> <span class="n">tracking_loss_type</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -371,14 +388,19 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_parse_to_dataframe</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">ema_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_parse_to_dataframe</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">ema_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span> <span class="n">tracking_loss_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse loss dynamics statistics from Datumaro dataset to Pandas DataFrame.&quot;&quot;&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;loss_dynamics&quot;</span> <span class="k">if</span> <span class="n">tracking_loss_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;loss_dynamics_</span><span class="si">{</span><span class="n">tracking_loss_type</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
         <span class="n">ema_loss_dyns_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
                 <span class="c1"># The first value should be start from zero</span>
                 <span class="n">loss_dyns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
-                    <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;loss_dynamics&quot;</span><span class="p">),</span>
+                    <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">),</span>
                     <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iters&quot;</span><span class="p">),</span>
                     <span class="n">name</span><span class="o">=</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">label</span><span class="p">),</span>
                 <span class="p">)</span>
@@ -449,13 +471,11 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mean_series</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">mean_plot_color</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">mean_plot_style</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">)</span>
 
             <span class="n">cands</span> <span class="o">=</span> <span class="n">cands_by_label_id</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span>
-            <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">cand</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">cand</span> <span class="ow">in</span> <span class="n">cands</span><span class="p">]</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;item_id == </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="n">subset_id</span><span class="p">,</span> <span class="n">ann_id</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">target</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">cand</span> <span class="ow">in</span> <span class="n">cands</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">cand</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">cand</span><span class="o">.</span><span class="n">subset</span><span class="p">,</span> <span class="n">cand</span><span class="o">.</span><span class="n">ann_id</span><span class="p">,</span> <span class="n">cand</span><span class="o">.</span><span class="n">label_id</span><span class="p">)]</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                     <span class="n">row</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
-                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;id=</span><span class="si">{</span><span class="n">item_id</span><span class="si">}</span><span class="s2">, subset=</span><span class="si">{</span><span class="n">subset_id</span><span class="si">}</span><span class="s2">, ann_id=</span><span class="si">{</span><span class="n">ann_id</span><span class="si">}</span><span class="s2">, label_id=</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;id=</span><span class="si">{</span><span class="n">cand</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, subset=</span><span class="si">{</span><span class="n">cand</span><span class="o">.</span><span class="n">subset</span><span class="si">}</span><span class="s2">, ann_id=</span><span class="si">{</span><span class="n">cand</span><span class="o">.</span><span class="n">ann_id</span><span class="si">}</span><span class="s2">, label_id=</span><span class="si">{</span><span class="n">cand</span><span class="o">.</span><span class="n">label_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
                 <span class="p">)</span>
 

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.icdar.exporter &#8212; Datumaro 1.3.0rc1 documentation</title>
+    <title>datumaro.plugins.data_formats.icdar.exporter &#8212; Datumaro 1.3.1 documentation</title>
   
   
   
@@ -297,7 +297,7 @@
 <div class="viewcode-block" id="IcdarWordRecognitionExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.icdar.exporter.html#datumaro.plugins.data_formats.icdar.exporter.IcdarWordRecognitionExporter">[docs]</a><span class="k">class</span> <span class="nc">IcdarWordRecognitionExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">IcdarPath</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
 
-<div class="viewcode-block" id="IcdarWordRecognitionExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.icdar.exporter.html#datumaro.plugins.data_formats.icdar.exporter.IcdarWordRecognitionExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_apply_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 
@@ -322,13 +322,13 @@
                 <span class="n">anno_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">,</span> <span class="n">subset_name</span><span class="p">,</span> <span class="s2">&quot;gt.txt&quot;</span><span class="p">)</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">anno_file</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">anno_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span></div></div>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="IcdarTextLocalizationExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.icdar.exporter.html#datumaro.plugins.data_formats.icdar.exporter.IcdarTextLocalizationExporter">[docs]</a><span class="k">class</span> <span class="nc">IcdarTextLocalizationExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">IcdarPath</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
 
-<div class="viewcode-block" id="IcdarTextLocalizationExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.icdar.exporter.html#datumaro.plugins.data_formats.icdar.exporter.IcdarTextLocalizationExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_apply_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 
@@ -357,19 +357,19 @@
                 <span class="p">)</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">anno_file</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">anno_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span></div></div>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="IcdarTextSegmentationExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.icdar.exporter.html#datumaro.plugins.data_formats.icdar.exporter.IcdarTextSegmentationExporter">[docs]</a><span class="k">class</span> <span class="nc">IcdarTextSegmentationExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">IcdarPath</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
 
-<div class="viewcode-block" id="IcdarTextSegmentationExporter.apply"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.icdar.exporter.html#datumaro.plugins.data_formats.icdar.exporter.IcdarTextSegmentationExporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_apply_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Media type is not an image&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">subset_name</span><span class="p">,</span> <span class="n">subset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">subsets</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_save_item</span><span class="p">(</span><span class="n">subset_name</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_save_item</span><span class="p">(</span><span class="n">subset_name</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_save_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset_name</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_media</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">:</span>
