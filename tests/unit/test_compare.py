@@ -385,69 +385,69 @@ class ExactComparatorTest(TestCase):
         self.assertEqual(1, len(errors), errors)
 
 
-# class TableComparatorTest(unittest.TestCase):
-#     def test_compare_datasets(self):
-#         # Import datatset
-#         first_dataset = Dataset.import_from(get_test_asset_path("mnist_dataset"))
-#         second_dataset = Dataset.import_from(get_test_asset_path("cifar10_dataset"))
+class TableComparatorTest(unittest.TestCase):
+    def test_compare_datasets(self):
+        # Import datatset
+        first_dataset = Dataset.import_from(get_test_asset_path("mnist_dataset"))
+        second_dataset = Dataset.import_from(get_test_asset_path("cifar10_dataset"))
 
-#         # Create instance of TableComparator
-#         table_comparator = TableComparator()
+        # Create instance of TableComparator
+        table_comparator = TableComparator()
 
-#         # Call the compare_datasets method
-#         (
-#             high_level_table,
-#             mid_level_table,
-#             low_level_table,
-#             comparison_dict,
-#         ) = table_comparator.compare_datasets(first_dataset, second_dataset)
+        # Call the compare_datasets method
+        (
+            high_level_table,
+            mid_level_table,
+            low_level_table,
+            comparison_dict,
+        ) = table_comparator.compare_datasets(first_dataset, second_dataset)
 
-#         # Assert that the return values are not empty
-#         self.assertIsNotNone(high_level_table)
-#         self.assertIsNotNone(mid_level_table)
-#         self.assertIsNotNone(low_level_table)
-#         self.assertIsNotNone(comparison_dict)
+        # Assert that the return values are not empty
+        self.assertIsNotNone(high_level_table)
+        self.assertIsNotNone(mid_level_table)
+        self.assertIsNotNone(low_level_table)
+        self.assertIsNotNone(comparison_dict)
 
-#     # Mocking is used to replace parts of the system that are being tested with mock objects.
-#     @patch("os.makedirs")
-#     @patch("datumaro.plugins.comparator.generate_next_file_name")
-#     @patch("builtins.open", new_callable=mock_open)
-#     @patch("datumaro.plugins.comparator.dump_json_file")
-#     def test_save_compare_report(
-#         self, mock_dump_json_file, mock_file, mock_generate_next_file_name, mock_makedirs
-#     ):
-#         # Define mock variables
-#         mock_high_level_table = "High-level table"
-#         mock_mid_level_table = "Mid-level table"
-#         mock_low_level_table = "Low-level table"
-#         mock_comparison_dict = {"comparison": "data"}
-#         mock_report_dir = "/mock/dir"
-#         mock_json_output_file = "/mock/dir/table_compare_1.json"
-#         mock_txt_output_file = "/mock/dir/table_compare_1.txt"
+    # Mocking is used to replace parts of the system that are being tested with mock objects.
+    @patch("os.makedirs")
+    @patch("datumaro.plugins.comparator.generate_next_file_name")
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("datumaro.plugins.comparator.dump_json_file")
+    def test_save_compare_report(
+        self, mock_dump_json_file, mock_file, mock_generate_next_file_name, mock_makedirs
+    ):
+        # Define mock variables
+        mock_high_level_table = "High-level table"
+        mock_mid_level_table = "Mid-level table"
+        mock_low_level_table = "Low-level table"
+        mock_comparison_dict = {"comparison": "data"}
+        mock_report_dir = "/mock/dir"
+        mock_json_output_file = "/mock/dir/table_compare_1.json"
+        mock_txt_output_file = "/mock/dir/table_compare_1.txt"
 
-#         mock_generate_next_file_name.side_effect = [mock_json_output_file, mock_txt_output_file]
+        mock_generate_next_file_name.side_effect = [mock_json_output_file, mock_txt_output_file]
 
-#         TableComparator.save_compare_report(
-#             mock_high_level_table,
-#             mock_mid_level_table,
-#             mock_low_level_table,
-#             mock_comparison_dict,
-#             mock_report_dir,
-#         )
+        TableComparator.save_compare_report(
+            mock_high_level_table,
+            mock_mid_level_table,
+            mock_low_level_table,
+            mock_comparison_dict,
+            mock_report_dir,
+        )
 
-#         # Check that the os.makedirs function is called once with the correct arguments.
-#         mock_makedirs.assert_called_once_with(mock_report_dir, exist_ok=True)
+        # Check that the os.makedirs function is called once with the correct arguments.
+        mock_makedirs.assert_called_once_with(mock_report_dir, exist_ok=True)
 
-#         # Check that the dump_json_file function is called with the correct arguments.
-#         calls = [call(mock_json_output_file, mock_comparison_dict, indent=True)]
-#         mock_dump_json_file.assert_has_calls(calls)
+        # Check that the dump_json_file function is called with the correct arguments.
+        calls = [call(mock_json_output_file, mock_comparison_dict, indent=True)]
+        mock_dump_json_file.assert_has_calls(calls)
 
-#         # Check that the open and write function is called with the correct arguments.
-#         mock_file.assert_any_call(mock_txt_output_file, "w")
-#         mock_file().write.assert_has_calls(
-#             [
-#                 call(f"High-level Comparison:\n{mock_high_level_table}\n\n"),
-#                 call(f"Mid-level Comparison:\n{mock_mid_level_table}\n\n"),
-#                 call(f"Low-level Comparison:\n{mock_low_level_table}\n\n"),
-#             ]
-#         )
+        # Check that the open and write function is called with the correct arguments.
+        mock_file.assert_any_call(mock_txt_output_file, "w")
+        mock_file().write.assert_has_calls(
+            [
+                call(f"High-level Comparison:\n{mock_high_level_table}\n\n"),
+                call(f"Mid-level Comparison:\n{mock_mid_level_table}\n\n"),
+                call(f"Low-level Comparison:\n{mock_low_level_table}\n\n"),
+            ]
+        )
