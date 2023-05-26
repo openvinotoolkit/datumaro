@@ -140,7 +140,7 @@ class MnistImporter(Importer):
 class MnistExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".png"
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 

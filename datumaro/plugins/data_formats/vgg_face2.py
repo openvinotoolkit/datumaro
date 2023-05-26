@@ -233,7 +233,7 @@ class VggFace2Importer(Importer):
 class VggFace2Exporter(Exporter):
     DEFAULT_IMAGE_EXT = VggFace2Path.IMAGE_EXT
 
-    def apply(self):
+    def _apply_impl(self):
         def _get_name_id(item_parts, label_name):
             if 1 < len(item_parts) and item_parts[0] == label_name:
                 return "/".join([label_name, *item_parts[1:]])
@@ -268,7 +268,7 @@ class VggFace2Exporter(Exporter):
                 item_parts = item.id.split("/")
                 if item.media and self._save_media:
                     labels = set(
-                        p.label for p in item.annotations if getattr(p, "label") is not None
+                        p.label for p in item.annotations if (getattr(p, "label", None) is not None)
                     )
                     if labels:
                         for label in labels:

@@ -70,7 +70,7 @@ class TfDetectionApiExporter(Exporter):
 
         self._save_masks = save_masks
 
-    def apply(self):
+    def _apply_impl(self):
         os.makedirs(self._save_dir, exist_ok=True)
 
         label_categories = self._extractor.categories().get(AnnotationType.label, LabelCategories())

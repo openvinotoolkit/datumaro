@@ -60,7 +60,7 @@ class ImageDirBase(SubsetBase):
 class ImageDirExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
 
-    def apply(self):
+    def _apply_impl(self):
         os.makedirs(self._save_dir, exist_ok=True)
 
         for item in self._extractor:

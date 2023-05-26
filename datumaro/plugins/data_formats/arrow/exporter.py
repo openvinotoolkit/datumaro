@@ -302,7 +302,7 @@ class ArrowExporter(Exporter):
             ctx=ctx,
         )
 
-    def apply(self, *args, **kwargs):
+    def _apply_impl(self, *args, **kwargs):
         if self._num_workers == 0:
             return self._apply()
 

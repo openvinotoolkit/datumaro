@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
-## 22/05/2023 - Release 1.3.0rc1
+## 26/05/2023 - Release 1.3.1
+### Bug fixes
+- Fix Cityscapes format mis-detection
+  (<https://github.com/openvinotoolkit/datumaro/pull/1029>)
+
+## 25/05/2023 - Release 1.3.0
 ### New features
 - Add CocoRoboflowImporter
   (<https://github.com/openvinotoolkit/datumaro/pull/976>, <https://github.com/openvinotoolkit/datumaro/pull/1000>)
@@ -18,9 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add VocInstanceSegmentationImporter and VocInstanceSegmentationExporter
   (<https://github.com/openvinotoolkit/datumaro/pull/997>)
 - Add Segment Anything data format support
-  (<https://github.com/openvinotoolkit/datumaro/pull/1005>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1005>, <https://github.com/openvinotoolkit/datumaro/pull/1009>)
 - Add Correct transformation
   (<https://github.com/openvinotoolkit/datumaro/pull/1006>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1008>)
+- Add notebook examples for importing/exporting detection and segmentation data
+  (<https://github.com/openvinotoolkit/datumaro/pull/1020>, <https://github.com/openvinotoolkit/datumaro/pull/1023>)
 - Update CLI from diff to compare, add TableComparator
   (<https://github.com/openvinotoolkit/datumaro/pull/1012>)
 
@@ -31,10 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/992>)
 - Save and load hashkey for explorer
   (<https://github.com/openvinotoolkit/datumaro/pull/981>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1003>)
 - Add MOT and MOTS data format docs
   (<https://github.com/openvinotoolkit/datumaro/pull/999>)
 - Improve RemoveAnnotations to remove specific annotations with ids
   (<https://github.com/openvinotoolkit/datumaro/pull/1004>)
+- Add Jupyter notebook example of noisy label detection for detection tasks
+  (<https://github.com/openvinotoolkit/datumaro/pull/1011>)
 
 ### Bug fixes
 - Fix Mapillary Vistas data format
@@ -47,6 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/997>)
 - Drop a malformed transform from StackedTransform automatically
   (<https://github.com/openvinotoolkit/datumaro/pull/1001>)
+- Fix `Cityscapes` to drop `ImgsFine` directory
+  (<https://github.com/openvinotoolkit/datumaro/pull/1023>)
 
 ## 04/05/2023 - Release 1.2.1
 ### Bug fixes

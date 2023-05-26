@@ -119,7 +119,7 @@ def explore_command(args):
     explorer = Explorer(*source_datasets)
     for dataset in source_datasets:
         dst_dir = dataset.data_path
-        dataset.save(dst_dir, save_media=True)
+        dataset.save(dst_dir, save_media=True, save_hashkey_meta=True)
 
     if args.stage:
         project.working_tree.config.update(build_tree.config)
