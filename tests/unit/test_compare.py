@@ -419,6 +419,11 @@ class TableComparatorTest(unittest.TestCase):
     @patch("datumaro.plugins.comparator.generate_next_file_name")
     @patch("builtins.open", new_callable=mock_open)
     @patch("datumaro.plugins.comparator.dump_json_file")
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/5086331272/jobs/9140703588",
+    )
     def test_save_compare_report(
         self, mock_dump_json_file, mock_file, mock_generate_next_file_name, mock_makedirs
     ):
