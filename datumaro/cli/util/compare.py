@@ -26,7 +26,7 @@ from datumaro.util import parse_str_enum_value
 from datumaro.util.image import save_image
 
 
-class DiffVisualizer:
+class DistanceCompareVisualizer:
     class OutputFormat(Enum):
         simple = auto()
         tensorboard = auto()

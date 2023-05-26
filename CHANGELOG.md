@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1005>)
 - Add Correct transformation
   (<https://github.com/openvinotoolkit/datumaro/pull/1006>)
+- Update CLI from diff to compare, add TableComparator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1012>)
 
 ### Enhancements
 - Use autosummary for fully-automatic Python module docs generation

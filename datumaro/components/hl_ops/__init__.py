@@ -8,7 +8,7 @@ import os.path as osp
 import shutil
 from typing import Dict, Iterable, Optional, Type, Union
 
-from datumaro.cli.util.compare import DiffVisualizer
+from datumaro.cli.util.compare import DistanceCompareVisualizer
 from datumaro.cli.util.project import generate_next_file_name
 from datumaro.components.dataset import Dataset, DatasetItemStorageDatasetView, IDataset
 from datumaro.components.environment import Environment
@@ -80,7 +80,7 @@ class HLOps:
                 )
             output_format = kwargs.pop("output_format", "simple")
             comparator = DistanceComparator(**kwargs)
-            with DiffVisualizer(
+            with DistanceCompareVisualizer(
                 save_dir=report_dir,
                 comparator=comparator,
                 output_format=output_format,

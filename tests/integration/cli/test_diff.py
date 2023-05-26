@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.cli.util.compare import DiffVisualizer
+from datumaro.cli.util.compare import DistanceCompareVisualizer
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
@@ -171,7 +171,7 @@ class CompareTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            with DiffVisualizer(
+            with DistanceCompareVisualizer(
                 save_dir=test_dir,
                 comparator=DistanceComparator(iou_threshold=0.8),
             ) as visualizer:

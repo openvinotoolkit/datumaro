@@ -14,7 +14,7 @@ from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..util import MultilineFormatter
-from ..util.compare import DiffVisualizer
+from ..util.compare import DistanceCompareVisualizer
 from ..util.errors import CliException
 from ..util.project import generate_next_file_name, load_project, parse_full_revpath
 
@@ -54,6 +54,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         project's working tree is used.|n
         |n
         Annotations can be matched 2 ways:|n
+        - by comparision table|n
         - by equality checking|n
         - by distance computation|n
         |n
@@ -64,7 +65,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         - Compare two projects for equality, exclude annotation groups |n
         |s|s|s|sand the 'is_crowd' attribute from comparison:|n
-        |s|s%(prog)s other/project/ -if group -ia is_crowd|n
+        |s|s%(prog)s other/project/ -if group -ia is_crowd -m equality|n
         |n
         - Compare two datasets, specify formats:|n
         |s|s%(prog)s path/to/dataset1:voc path/to/dataset2:coco|n
@@ -78,12 +79,12 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter,
     )
 
-    formats = ", ".join(f.name for f in DiffVisualizer.OutputFormat)
+    formats = ", ".join(f.name for f in DistanceCompareVisualizer.OutputFormat)
     comp_methods = ", ".join(m.name for m in ComparisonMethod)
 
     def _parse_output_format(s):
         try:
-            return DiffVisualizer.OutputFormat[s.lower()]
+            return DistanceCompareVisualizer.OutputFormat[s.lower()]
         except KeyError:
             raise argparse.ArgumentError(
                 "format",
@@ -140,7 +141,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "-f",
         "--format",
         type=_parse_output_format,
-        default=DiffVisualizer.DEFAULT_FORMAT.name,
+        default=DistanceCompareVisualizer.DEFAULT_FORMAT.name,
         help="Output format, one of {} (default: %(default)s)".format(formats),
     )
 
@@ -248,7 +249,7 @@ def compare_command(args):
 
     elif args.method is ComparisonMethod.distance:
         comparator = DistanceComparator(iou_threshold=args.iou_thresh)
-        with DiffVisualizer(
+        with DistanceCompareVisualizer(
             save_dir=dst_dir, comparator=comparator, output_format=args.format
         ) as visualizer:
             log.info("Saving compare to '%s'" % dst_dir)
