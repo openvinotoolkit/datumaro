@@ -60,7 +60,7 @@ class MvtecExporter(Exporter):
             tasks = set(parse_str_enum_value(t, MvtecTask) for t in tasks)
         self._tasks = tasks
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 

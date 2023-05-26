@@ -33,6 +33,9 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
             query = '/path/to/image/file'
             topk = 20
             topk_result = explorer.explore_topk(query, topk)
+            dataset.export(dir, save_hashkey_meta=True)
+
+        Through set ``save_hashkey_meta = True``, we could save ``hash_key`` of items, which is base of explorer. This allows we to re-explore this dataset without redundant hash calculations.
 
     .. tab-item:: CLI
 

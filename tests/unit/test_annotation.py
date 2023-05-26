@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import shapely.geometry as sg
 
-from datumaro.components.annotation import Ellipse
+from datumaro.components.annotation import Ellipse, HashKey
 
 
 class EllipseTest:
@@ -29,3 +29,26 @@ class EllipseTest:
             analytical_area = ellipse.get_area()
             numerical_area = sg.Polygon(ellipse.get_points(num_points=360 * 10)).area
             assert np.abs(analytical_area - numerical_area) < 1e-6
+
+
+class HashKeyTest:
+    @pytest.fixture
+    def fxt_hashkeys_same(self):
+        hash_key = np.random.randint(0, 256, size=(1, 64), dtype=np.uint8)
+        hashkey1 = HashKey(hash_key=hash_key)
+        hashkey2 = HashKey(hash_key=hash_key)
+        return hashkey1, hashkey2
+
+    @pytest.fixture
+    def fxt_hashkeys_diff(self):
+        np.random.seed(3003)
+        hashkey1 = HashKey(hash_key=np.random.randint(0, 256, size=(1, 64), dtype=np.uint8))
+        hashkey2 = HashKey(hash_key=np.random.randint(0, 256, size=(1, 64), dtype=np.uint8))
+        return hashkey1, hashkey2
+
+    @pytest.mark.parametrize(
+        "fxt_hashkeys,expected", [("fxt_hashkeys_same", True), ("fxt_hashkeys_diff", False)]
+    )
+    def test_compare_hashkey(self, fxt_hashkeys, expected, request):
+        hashkey1, hashkey2 = request.getfixturevalue(fxt_hashkeys)
+        assert (expected, hashkey1 == hashkey2)

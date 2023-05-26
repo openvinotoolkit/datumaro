@@ -153,7 +153,7 @@ class MotsImporter(Importer):
 class MotsPngExporter(Exporter):
     DEFAULT_IMAGE_EXT = MotsPath.IMAGE_EXT
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 

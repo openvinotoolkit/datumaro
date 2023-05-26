@@ -15,7 +15,7 @@ Introduction
 - a dataset storage
 - a tool to debug datasets
 
-  - A network can be used to generate informative data subsets (e.g. with false-positives) to be analyzed further
+  - A network can be used to generate informative data subsets (e.g., with false-positives) to be analyzed further
 
 Key Features
 ------------
@@ -43,7 +43,7 @@ Datumaro supports the following features:
     (`bboxes`, `masks`)
   - `YOLO <https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data>`_ (`bboxes`)
 
-  Other formats and documentation for them can be found `here <https://openvinotoolkit.github.io/datumaro/latest/docs/data-formats/supported_formats>`_.
+  Other formats and documentation for them can be found `here <https://openvinotoolkit.github.io/datumaro/latest/docs/data-formats/formats/index.html>`_.
 - Dataset building
 
   - Merging multiple datasets into one

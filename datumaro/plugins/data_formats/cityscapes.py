@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import errno
 import glob
 import logging as log
 import os
@@ -100,7 +101,7 @@ CITYSCAPES_LABEL_MAP = OrderedDict(
 
 class CityscapesPath:
     GT_FINE_DIR = "gtFine"
-    IMGS_FINE_DIR = "imgsFine"
+    IMGS_FINE_DIR = ""
     ORIGINAL_IMAGE_DIR = "leftImg8bit"
     ORIGINAL_IMAGE = "_" + ORIGINAL_IMAGE_DIR
     INSTANCES_IMAGE = "_instanceIds.png"
@@ -209,6 +210,10 @@ class CityscapesBase(SubsetBase):
         self._images_dir = images_dir
         self._gt_anns_dir = annotations_dir
 
+        for path in [self._images_dir, self._gt_anns_dir]:
+            if not osp.isdir(path):
+                raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
+
         super().__init__(subset=subset, ctx=ctx)
 
         self._items = list(self._load_items().values())
@@ -311,14 +316,22 @@ class CityscapesBase(SubsetBase):
 class CityscapesImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        patterns = [
+        annotation_patterns = [
             f"{CityscapesPath.GT_FINE_DIR}/**/*{CityscapesPath.GT_INSTANCE_MASK_SUFFIX}",
             f"{CityscapesPath.GT_FINE_DIR}/**/*{CityscapesPath.LABEL_TRAIN_IDS_SUFFIX}",
-            f"{CityscapesPath.IMGS_FINE_DIR}/{CityscapesPath.ORIGINAL_IMAGE_DIR}"
-            f"/**/*{CityscapesPath.ORIGINAL_IMAGE}.*",
         ]
+
+        media_patterns = [
+            f"{CityscapesPath.ORIGINAL_IMAGE_DIR}/**/*{CityscapesPath.ORIGINAL_IMAGE}.*",
+        ]
+
         with context.require_any():
-            for pattern in patterns:
+            for pattern in annotation_patterns:
+                with context.alternative():
+                    context.require_file(pattern)
+
+        with context.require_any():
+            for pattern in media_patterns:
                 with context.alternative():
                     context.require_file(pattern)
 
@@ -380,18 +393,27 @@ class CityscapesExporter(Exporter):
             label_map = LabelmapType.source.name
         self._load_categories(label_map)
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 
         os.makedirs(self._save_dir, exist_ok=True)
 
         for subset_name, subset in self._extractor.subsets().items():
+            media_dir = osp.join(
+                self._save_dir,
+                CityscapesPath.IMGS_FINE_DIR,
+                CityscapesPath.ORIGINAL_IMAGE_DIR,
+                subset_name,
+            )
+            os.makedirs(media_dir, exist_ok=True)
+
+            mask_dir = osp.join(self._save_dir, CityscapesPath.GT_FINE_DIR, subset_name)
+            os.makedirs(mask_dir, exist_ok=True)
+
             for item in subset:
                 image_path = osp.join(
-                    CityscapesPath.IMGS_FINE_DIR,
-                    CityscapesPath.ORIGINAL_IMAGE_DIR,
-                    subset_name,
+                    media_dir,
                     item.id + CityscapesPath.ORIGINAL_IMAGE + self._find_image_ext(item),
                 )
                 if self._save_media:
@@ -414,7 +436,6 @@ class CityscapesExporter(Exporter):
                     instance_labels=[self._label_id_mapping(m.label) for m in masks],
                 )
 
-                mask_dir = osp.join(self._save_dir, CityscapesPath.GT_FINE_DIR, subset_name)
                 mask_name = item.id + "_" + CityscapesPath.GT_FINE_DIR
 
                 color_mask_path = osp.join(mask_dir, mask_name + CityscapesPath.COLOR_IMAGE)

@@ -202,7 +202,8 @@ class CifarImporter(Importer):
                     "cifar",
                     # Subset files have no extension in the format, and
                     # should not be the meta file.
-                    file_filter=lambda p: not osp.splitext(osp.basename(p))[1]
+                    file_filter=lambda p: not osp.isdir(p)
+                    and not osp.splitext(osp.basename(p))[1]
                     and osp.basename(p) != meta_file_name,
                 )
 
@@ -218,7 +219,7 @@ class CifarImporter(Importer):
 class CifarExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".png"
 
-    def apply(self):
+    def _apply_impl(self):
         if self._extractor.media_type() and not issubclass(self._extractor.media_type(), Image):
             raise MediaTypeError("Media type is not an image")
 

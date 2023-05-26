@@ -4,6 +4,45 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.3.1 (2023.05)
+----------------
+
+Bug fixes
+^^^^^^^^^
+- Fix `Cityscapes` format mis-detection problem
+
+v1.3.0 (2023.05)
+----------------
+
+New features
+^^^^^^^^^^^^
+- Add `CocoRoboflowImporter`
+- Add `SynthiaSfImporter` and `SynthiaAlImporter`
+- Add intermediate skill document for filter
+- Add `VocInstanceSegmentationImporter` and `VocInstanceSegmentationExporter`
+- Add `Segment Anything` data format support
+- Add `Correct` transformation
+- Add `ReindexAnnotations` transform
+
+Enhancements
+^^^^^^^^^^^^
+- Use autosummary for fully-automatic Python module docs generation
+- Enrich stack trace for better user experience when importing
+- Save and load `hashkey` for explorer
+- Add `MOT` and `MOTS` data format documents
+- Improve `RemoveAnnotations` to remove specific annotations with ids
+- Add Jupyter notebook example of noisy label detection for detection tasks
+- Add Juypter notebook examples for importing/exporting detection and segmentation data
+
+Bug fixes
+^^^^^^^^^
+- Fix `Mapillary Vistas` data format
+- Fix `bytes` property returning None if function is given to data
+- Fix `Synthia-Rand` data format
+- Fix `person_layout` categories and `action_classification` attributes in imported Pascal-VOC dataset
+- Drop a malformed transform from `StackedTransform` automatically
+- Fix `Cityscapes` to drop `ImgsFine` directory
+
 v1.2.1 (2023.05)
 ----------------
 

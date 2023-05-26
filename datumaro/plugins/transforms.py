@@ -341,7 +341,7 @@ class Reindex(Transform, CliPlugin):
         parser.add_argument("-s", "--start", type=int, default=1, help="Start value for item ids")
         return parser
 
-    def __init__(self, extractor, start=1):
+    def __init__(self, extractor, start: int = 1):
         super().__init__(extractor)
         self._length = "parent"
         self._start = start
@@ -349,6 +349,43 @@ class Reindex(Transform, CliPlugin):
     def __iter__(self):
         for i, item in enumerate(self._extractor):
             yield self.wrap_item(item, id=i + self._start)
+
+
+class ReindexAnnotations(ItemTransform, CliPlugin):
+    """
+    Replaces dataset items' annotations with sequential indices.
+    """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument("-s", "--start", type=int, default=1, help="Start value for item ids")
+        parser.add_argument(
+            "-r",
+            "--reindex-each-item",
+            action="store_true",
+            help="If true, reindex for each item every timeReindex for each item. For example, "
+            "item_1 will have ann(id=1), ann(id=2), ..., ann(id=5) and item_2 will have ann_1(id=1), ..., "
+            "if reindex_each_item=true and start=1, otherwise, item_2 will have ann_1(id=6), ..., "
+            "because item_1 has ann_5(id=5).",
+        )
+        return parser
+
+    def __init__(self, extractor, start: int = 1, reindex_each_item: bool = False):
+        super().__init__(extractor)
+        self._length = "parent"
+        self._start = start
+        self._cur_idx = start
+        self._reindex_each_item = reindex_each_item
+
+    def transform_item(self, item: DatasetItem) -> DatasetItem:
+        annotations = [
+            ann.wrap(id=idx) for idx, ann in enumerate(item.annotations, start=self._cur_idx)
+        ]
+
+        self._cur_idx = self._start if self._reindex_each_item else self._cur_idx + len(annotations)
+
+        return item.wrap(annotations=annotations)
 
 
 class Sort(Transform, CliPlugin):
