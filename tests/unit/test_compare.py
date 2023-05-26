@@ -1,5 +1,6 @@
+import platform
 import unittest
-from unittest import TestCase
+from unittest import TestCase, skipIf
 from unittest.mock import call, mock_open, patch
 
 import numpy as np
@@ -386,6 +387,11 @@ class ExactComparatorTest(TestCase):
 
 
 class TableComparatorTest(unittest.TestCase):
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/5086331272/jobs/9140703588",
+    )
     def test_compare_datasets(self):
         # Import datatset
         first_dataset = Dataset.import_from(get_test_asset_path("mnist_dataset"))
