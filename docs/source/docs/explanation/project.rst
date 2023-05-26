@@ -8,24 +8,24 @@ In Datumaro, most command-line commands operate on projects, but there are
 also few commands operating on datasets directly. There are 2 basic ways
 to use Datumaro from the command-line:
 
-- Use the `convert <../command-reference/context_free/convert>`_,
-  `compare <../command-reference/context_free/compare>`_, `merge <../command-reference/context_free/merge>`_
+- Use the `convert <../command-reference/context_free/convert.md>`_,
+  `compare <../command-reference/context_free/compare.md>`_, `merge <../command-reference/context_free/merge.md>`_
   commands directly on existing datasets.
 
 - Create a Datumaro project and operate on it:
 
-  - Create an empty project with `create <../command-reference/context/create>`_.
+  - Create an empty project with `create <../command-reference/context/create.md>`_.
 
   - Import existing datasets with `import <../command-reference/context/sources.md#import-dataset>`_.
 
-  - Modify the project with `transform <../command-reference/context_free/transform>`_ and `filter <../command-reference/context_free/filter>`_.
+  - Modify the project with `transform <../command-reference/context_free/transform.md>`_ and `filter <../command-reference/context_free/filter.md>`_.
 
-  - Create new revisions of the project with `commit <../command-reference/context/commit>`_,
-    navigate over them using `checkout <../command-reference/context/checkout>`_, compare with
-    `compare <../command-reference/context_free/compare>`_, compute statistics with
-    `stats <../command-reference/context_free/stats>`_.
+  - Create new revisions of the project with `commit <../command-reference/context/commit.md>`_,
+    navigate over them using `checkout <../command-reference/context/checkout.md>`_, compare with
+    `compare <../command-reference/context_free/compare.md>`_, compute statistics with
+    `stats <../command-reference/context_free/stats.md>`_.
 
-  - Export the resulting dataset with `export <../command-reference/context/export>`_.
+  - Export the resulting dataset with `export <../command-reference/context/export.md>`_.
 
   - Check project config with `project info <../command-reference/context/projects.md#print-project-info>`_.
 
@@ -35,7 +35,7 @@ A project can contain an arbitrary number of datasets (see :ref:`Datasets and Da
 A project acts as a manager for them and allows to manipulate them
 separately or as a whole, in which case it combines dataset items
 from all the sources into one composite dataset. You can manage separate
-datasets in a project by commands in the `datum source <../command-reference/context/sources>`_
+datasets in a project by commands in the `datum source <../command-reference/context/sources.md>`_
 command line context.
 
 Note that **modifying operations** (``transform``, ``filter``, ``patch``)
@@ -173,7 +173,7 @@ annotations without the need to download the whole dataset.
 Check `supported formats <../data-formats/formats/index.rst>`_ for more info
 about format specifications, supported import and export options and other
 details. The list of formats can be extended by custom plugins,
-check `extending tips <../user-manual/extending>`_ for information on this
+check `extending tips <../user-manual/extending.md>`_ for information on this
 topic.
 
 Use cases
