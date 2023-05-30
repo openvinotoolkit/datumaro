@@ -5,7 +5,7 @@
 import argparse
 import logging as log
 
-from datumaro.components.environment import Environment
+from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.validator import TaskType
 from datumaro.util import dump_json_file
@@ -113,7 +113,7 @@ def validate_command(args):
     if project is not None:
         env = project.env
     else:
-        env = Environment()
+        env = DEFAULT_ENVIRONMENT
 
     try:
         validator_type = env.validators[args.task]

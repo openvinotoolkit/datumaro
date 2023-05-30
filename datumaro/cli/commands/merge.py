@@ -8,7 +8,7 @@ import os
 import os.path as osp
 
 from datumaro.components.dataset import DEFAULT_FORMAT
-from datumaro.components.environment import Environment
+from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.hl_ops import HLOps
 from datumaro.components.merge.intersect_merge import IntersectMerge
@@ -232,7 +232,7 @@ def merge_command(args):
     if project is not None:
         env = project.env
     else:
-        env = Environment()
+        env = DEFAULT_ENVIRONMENT
 
     try:
         exporter = env.exporters[args.format]

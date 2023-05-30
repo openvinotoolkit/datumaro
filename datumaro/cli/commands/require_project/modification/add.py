@@ -6,7 +6,7 @@
 import argparse
 import logging as log
 
-from datumaro.components.environment import Environment
+from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
@@ -21,7 +21,7 @@ __all__ = [
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    env = Environment()
+    env = DEFAULT_ENVIRONMENT
     builtins = sorted(set(env.extractors) | set(env.importers))
 
     parser = parser_ctor(
@@ -125,7 +125,7 @@ def add_command(args):
     if project is not None:
         env = project.env
     else:
-        env = Environment()
+        env = DEFAULT_ENVIRONMENT
 
     fmt = args.format
     if fmt in env.importers:
