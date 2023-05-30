@@ -5,7 +5,7 @@
 - [Design document](https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/architecture)
 - [Developer manual](https://openvinotoolkit.github.io/datumaro/latest/docs/reference/datumaro_module)
 
-## Installation
+## Installation for developer
 
 ### Prerequisites
 
@@ -23,20 +23,21 @@ python -m virtualenv venv
 . venv/bin/activate
 ```
 
-Then install all dependencies:
-
+Install Datumaro with optional dependencies:
 ``` bash
-pip install -r requirements.txt
+cd /path/to/the/cloned/repo/
+pip install -e .[default, tf]
 ```
 
-Install Datumaro:
+Then install test dependencies:
+
 ``` bash
-pip install -e /path/to/the/cloned/repo/
+pip install -r tests/requirements.txt
 ```
 
 **Optional dependencies**
 
-These components are only required for plugins and not installed by default:
+Developer should install the following optional components for running our tests:
 
 - OpenVINO
 - Accuracy Checker
