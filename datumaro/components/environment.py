@@ -6,11 +6,13 @@ import glob
 import importlib
 import logging as log
 import os.path as osp
+from contextlib import contextmanager
 from functools import partial
 from inspect import isclass
 from typing import (
     Callable,
     Dict,
+    Generator,
     Generic,
     Iterable,
     Iterator,
@@ -18,6 +20,7 @@ from typing import (
     Optional,
     Sequence,
     Set,
+    Tuple,
     Type,
     TypeVar,
 )
@@ -29,6 +32,7 @@ from datumaro.components.format_detection import (
     RejectionReason,
     detect_dataset_format,
 )
+from datumaro.components.lazy_plugin import PLUGIN_TYPES, LazyPlugin
 from datumaro.util.os_util import import_foreign_module, split_path
 
 T = TypeVar("T")
@@ -36,27 +40,31 @@ T = TypeVar("T")
 
 class Registry(Generic[T]):
     def __init__(self):
-        self.items: Dict[str, T] = {}
+        self._items: Dict[str, T] = {}
 
     def register(self, name: str, value: T) -> T:
-        self.items[name] = value
+        self._items[name] = value
         return value
 
     def unregister(self, name: str) -> Optional[T]:
-        return self.items.pop(name, None)
+        return self._items.pop(name, None)
 
     def get(self, key: str):
         """Returns a class or a factory function"""
-        return self.items[key]
+        return self._items[key]
 
     def __getitem__(self, key: str) -> T:
         return self.get(key)
 
     def __contains__(self, key) -> bool:
-        return key in self.items
+        return key in self._items
 
     def __iter__(self) -> Iterator[str]:
-        return iter(self.items)
+        return iter(self._items)
+
+    def items(self) -> Generator[Tuple[str, T], None, None]:
+        for key in self:
+            yield key, self.get(key)
 
 
 class PluginRegistry(Registry[Type[CliPlugin]]):
@@ -65,6 +73,13 @@ class PluginRegistry(Registry[Type[CliPlugin]]):
     ):  # pylint: disable=redefined-builtin
         super().__init__()
         self._filter = filter
+
+    def get(self, key: str) -> PLUGIN_TYPES:
+        """Returns a class or a factory function"""
+        item = self._items[key]
+        if issubclass(item, LazyPlugin):
+            return item.get_plugin_cls()
+        return item
 
     def batch_register(self, values: Iterable[CliPlugin]):
         for v in values:
@@ -88,7 +103,7 @@ class Environment:
     def _check_type(t, *, accept, skip):
         return issubclass(t, accept) and t not in skip
 
-    def __init__(self):
+    def __init__(self, use_lazy_import: bool = True):
         from datumaro.components.dataset_base import DatasetBase, SubsetBase
         from datumaro.components.exporter import Exporter
         from datumaro.components.generator import DatasetGenerator
@@ -98,7 +113,9 @@ class Environment:
         from datumaro.components.validator import Validator
 
         _filter = self._make_filter
-        self._extractors = PluginRegistry(_filter(DatasetBase, skip=SubsetBase))
+        self._extractors = PluginRegistry(
+            _filter(DatasetBase, skip=(SubsetBase, Transform, ItemTransform))
+        )
         self._importers = PluginRegistry(_filter(Importer))
         self._launchers = PluginRegistry(_filter(Launcher))
         self._exporters = PluginRegistry(_filter(Exporter))
@@ -106,6 +123,7 @@ class Environment:
         self._transforms = PluginRegistry(_filter(Transform, skip=ItemTransform))
         self._validators = PluginRegistry(_filter(Validator))
         self._builtins_initialized = False
+        self._use_lazy_import = use_lazy_import
 
     def _get_plugin_registry(self, name):
         if not self._builtins_initialized:
@@ -210,6 +228,16 @@ class Environment:
 
     @classmethod
     def _load_builtin_plugins(cls):
+        """Load builtin plugins which will be imported lazily using plugin spec files"""
+        if cls._builtin_plugins is None:
+            from datumaro.plugins.specs import LAZY_PLUGINS
+
+            cls._builtin_plugins = LAZY_PLUGINS
+        return cls._builtin_plugins
+
+    @classmethod
+    def _load_builtin_plugins_from_importlib(cls):
+        """Load builtin plugins from importlib, not lazy import from plugin spec files"""
         if cls._builtin_plugins is None:
             import datumaro.plugins
 
@@ -229,7 +257,11 @@ class Environment:
         self.register_plugins(plugins)
 
     def _register_builtin_plugins(self):
-        self.register_plugins(self._load_builtin_plugins())
+        self.register_plugins(
+            self._load_builtin_plugins()
+            if self._use_lazy_import
+            else self._load_builtin_plugins_from_importlib()
+        )
 
     def register_plugins(self, plugins):
         self.extractors.batch_register(plugins)
@@ -274,7 +306,7 @@ class Environment:
             detected_formats = detect_dataset_format(
                 (
                     (format_name, importer.detect)
-                    for format_name, importer in self.importers.items.items()
+                    for format_name, importer in self.importers.items()
                 ),
                 path,
                 rejection_callback=rejection_callback,
@@ -321,6 +353,12 @@ class Environment:
             _register(env.validators)
 
         return merged
+
+    @classmethod
+    @contextmanager
+    def release_builtin_plugins(cls):
+        cls._builtin_plugins = None
+        yield
 
 
 DEFAULT_ENVIRONMENT = Environment()
