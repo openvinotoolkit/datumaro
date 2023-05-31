@@ -5,7 +5,6 @@
 # pylint: disable=exec-used
 
 import logging as log
-import os
 import os.path as osp
 import shutil
 import urllib
@@ -17,6 +16,7 @@ from tqdm import tqdm
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.launcher import Launcher
+from datumaro.util.definitions import DATUMARO_CACHE_DIR
 from datumaro.util.samples import get_samples_path
 
 
@@ -110,9 +110,7 @@ class OpenvinoLauncher(Launcher):
         device=None,
     ):
         if model_name:
-            model_dir = os.path.join(os.path.expanduser("~"), ".cache", "datumaro")
-            if not osp.exists(model_dir):
-                os.makedirs(model_dir)
+            model_dir = DATUMARO_CACHE_DIR
 
             # Please visit open-model-zoo repository for OpenVINO public models if you are interested in
             # https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/index.md
