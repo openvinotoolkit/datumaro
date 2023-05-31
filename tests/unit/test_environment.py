@@ -2,11 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 
+import builtins
 import sys
 
 import pytest
 
 from datumaro.components.environment import Environment
+
+real_import = builtins.__import__
 
 
 class EnvironmentTest:
@@ -34,26 +37,34 @@ class EnvironmentTest:
         assert sorted(fxt_lazy_import.validators) == sorted(fxt_no_lazy_import.validators)
 
     @pytest.fixture
-    def fxt_tf_failure(self, monkeypatch):
-        # Simulate `openvino.tools` and `tensorflow` import failure
-        monkeypatch.setitem(sys.modules, "openvino.tools", None)
-        monkeypatch.setitem(sys.modules, "tensorflow", None)
+    def fxt_tf_import_error(self, monkeypatch):
+        # Simulate `tensorflow` import failure
 
+        def monkey_import_notfound(name, globals=None, locals=None, fromlist=(), level=0):
+            if name in ("tensorflow",):
+                raise ModuleNotFoundError(f"Mocked module not found {name}")
+            return real_import(name, globals=globals, locals=locals, fromlist=fromlist, level=level)
+
+        monkeypatch.delitem(sys.modules, "tensorflow", raising=False)
+        monkeypatch.setattr(builtins, "__import__", monkey_import_notfound)
+
+    @pytest.fixture
+    def fxt_tf_failure_env(self, fxt_tf_import_error):
         with Environment.release_builtin_plugins():
             env = Environment(use_lazy_import=True)
             _ = env.importers
             yield env
 
-    def test_extra_deps_req(self, fxt_tf_failure: Environment):
+    def test_extra_deps_req(self, fxt_tf_failure_env: Environment):
         """Plugins affected by the import failure: `ac` and `tf_detection_api`."""
         loaded_plugin_names = set(
-            sorted(fxt_tf_failure.extractors)
-            + sorted(fxt_tf_failure.importers)
-            + sorted(fxt_tf_failure.launchers)
-            + sorted(fxt_tf_failure.exporters)
-            + sorted(fxt_tf_failure.generators)
-            + sorted(fxt_tf_failure.transforms)
-            + sorted(fxt_tf_failure.validators)
+            sorted(fxt_tf_failure_env.extractors)
+            + sorted(fxt_tf_failure_env.importers)
+            + sorted(fxt_tf_failure_env.launchers)
+            + sorted(fxt_tf_failure_env.exporters)
+            + sorted(fxt_tf_failure_env.generators)
+            + sorted(fxt_tf_failure_env.transforms)
+            + sorted(fxt_tf_failure_env.validators)
         )
 
         assert "ac" not in loaded_plugin_names
