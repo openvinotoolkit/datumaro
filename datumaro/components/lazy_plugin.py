@@ -4,9 +4,10 @@
 
 from abc import ABC, abstractclassmethod
 from importlib import import_module
-from typing import Type, Union, get_args
+from typing import List, Optional, Sequence, Type, Union, get_args
 
 from datumaro.components.dataset_base import DatasetBase
+from datumaro.components.errors import DatumaroError
 from datumaro.components.exporter import Exporter
 from datumaro.components.generator import DatasetGenerator
 from datumaro.components.importer import Importer
@@ -27,6 +28,7 @@ _PLUGIN_TYPES = Union[
 ]
 PLUGIN_TYPES = Type[_PLUGIN_TYPES]
 STR_TO_PLUGIN_TYPES = {t.__name__: t for t in get_args(_PLUGIN_TYPES)}
+_EXTRA_DEPS_ATTR_NAME = "__extra_deps__"
 
 
 class LazyPlugin(ABC):
@@ -41,7 +43,14 @@ def get_lazy_plugin(
     import_path: str,
     plugin_name: str,
     plugin_type: str,
-) -> LazyPlugin:
+    extra_deps: List[str] = [],
+) -> Optional[LazyPlugin]:
+    try:
+        for extra_dep in extra_deps:
+            import_module(extra_dep)
+    except ImportError:
+        return None
+
     plugin_type_cls = STR_TO_PLUGIN_TYPES[plugin_type]
 
     class LazyPluginImpl(LazyPlugin, plugin_type_cls):
@@ -57,3 +66,30 @@ def get_lazy_plugin(
             return plugin_cls
 
     return LazyPluginImpl
+
+
+def extra_deps(*extra_dep_names: Sequence[str]):
+    """Decorator to assign extra deps for the plugin class.
+
+    There exist some plugins that cannot be executable with the default installation setup.
+    For example, `AcLauncher` plugin needs `tensorflow` and `openvino.tools` extra dependencies.
+    In this case, you have to add this decorator to that plugin class definition as follows.
+
+    @extra_deps("tensorflow", "openvino.tools")
+    class AcLauncher(Launcher, CliPlugin):
+    ...
+    """
+
+    def inner(plugin_cls: object):
+        if hasattr(plugin_cls, _EXTRA_DEPS_ATTR_NAME):
+            raise DatumaroError(f"It already has {_EXTRA_DEPS_ATTR_NAME} attribute!")
+
+        setattr(plugin_cls, _EXTRA_DEPS_ATTR_NAME, list(extra_dep_names))
+        return plugin_cls
+
+    return inner
+
+
+def get_extra_deps(plugin_cls: object) -> List[str]:
+    """Get extra deps of the given plugin class. If not exists, return an empty list."""
+    return getattr(plugin_cls, _EXTRA_DEPS_ATTR_NAME, [])

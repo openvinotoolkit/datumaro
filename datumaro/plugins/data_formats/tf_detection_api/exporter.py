@@ -13,6 +13,7 @@ from collections import OrderedDict
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.errors import DatasetExportError
 from datumaro.components.exporter import Exporter
+from datumaro.components.lazy_plugin import extra_deps
 from datumaro.components.media import ByteImage, Image, ImageFromBytes
 from datumaro.util.annotation_util import find_group_leader, find_instances, max_bbox
 from datumaro.util.image import encode_image
@@ -52,6 +53,7 @@ def float_list_feature(value):
     return tf.train.Feature(float_list=tf.train.FloatList(value=value))
 
 
+@extra_deps("tensorflow")
 class TfDetectionApiExporter(Exporter):
     DEFAULT_IMAGE_EXT = DetectionApiPath.DEFAULT_IMAGE_EXT
 

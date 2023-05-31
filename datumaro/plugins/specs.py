@@ -4,7 +4,7 @@
 
 from pathlib import Path
 
-from datumaro.components.lazy_plugin import get_lazy_plugin
+from datumaro.components.lazy_plugin import get_extra_deps, get_lazy_plugin
 from datumaro.util import parse_json_file
 
 _SOURCE_PATH = Path(__file__).resolve()
@@ -12,8 +12,14 @@ _SOURCE_DIR = _SOURCE_PATH.parent
 _SPECS_JSON_PATH = _SOURCE_DIR / "specs.json"
 
 LAZY_PLUGINS = [
-    get_lazy_plugin(spec["import_path"], spec["plugin_name"], spec["plugin_type"])
-    for spec in parse_json_file(str(_SPECS_JSON_PATH))
+    plugin
+    for plugin in [
+        get_lazy_plugin(
+            spec["import_path"], spec["plugin_name"], spec["plugin_type"], spec["extra_deps"]
+        )
+        for spec in parse_json_file(str(_SPECS_JSON_PATH))
+    ]
+    if plugin is not None
 ]
 
 if __name__ == "__main__":
@@ -35,6 +41,7 @@ if __name__ == "__main__":
                     "import_path": f"{mod}.{class_name}",
                     "plugin_name": plugin_name,
                     "plugin_type": plugin_type,
+                    "extra_deps": get_extra_deps(plugin),
                 }
             ]
 

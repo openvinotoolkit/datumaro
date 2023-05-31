@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+import sys
+
 import pytest
 
 from datumaro.components.environment import Environment
@@ -30,3 +32,28 @@ class EnvironmentTest:
         assert sorted(fxt_lazy_import.generators) == sorted(fxt_no_lazy_import.generators)
         assert sorted(fxt_lazy_import.transforms) == sorted(fxt_no_lazy_import.transforms)
         assert sorted(fxt_lazy_import.validators) == sorted(fxt_no_lazy_import.validators)
+
+    @pytest.fixture
+    def fxt_tf_failure(self, monkeypatch):
+        # Simulate `tensorflow` import failure
+        monkeypatch.setitem(sys.modules, "tensorflow", None)
+
+        with Environment.release_builtin_plugins():
+            env = Environment(use_lazy_import=True)
+            _ = env.importers
+            yield env
+
+    def test_extra_deps_req(self, fxt_tf_failure: Environment):
+        """Plugins affected by tensorflow import failure: `ac` and `tf_detection_api`."""
+        loaded_plugin_names = set(
+            sorted(fxt_tf_failure.extractors)
+            + sorted(fxt_tf_failure.importers)
+            + sorted(fxt_tf_failure.launchers)
+            + sorted(fxt_tf_failure.exporters)
+            + sorted(fxt_tf_failure.generators)
+            + sorted(fxt_tf_failure.transforms)
+            + sorted(fxt_tf_failure.validators)
+        )
+
+        assert "ac" not in loaded_plugin_names
+        assert "tf_detection_api" not in loaded_plugin_names
