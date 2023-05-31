@@ -2,30 +2,30 @@
 #
 # SPDX-License-Identifier: MIT
 
-import builtins
-import sys
-
 import pytest
 
+import datumaro.components.lazy_plugin
 from datumaro.components.environment import Environment
 
-real_import = builtins.__import__
+real_import_module = datumaro.components.lazy_plugin.import_module
 
 
 class EnvironmentTest:
     @pytest.fixture
     def fxt_lazy_import(self):
-        with Environment.release_builtin_plugins():
-            env = Environment(use_lazy_import=True)
-            _ = env.importers
-            yield env
+        Environment.release_builtin_plugins()
+        env = Environment(use_lazy_import=True)
+        _ = env.importers
+        yield env
+        Environment.release_builtin_plugins()
 
     @pytest.fixture
     def fxt_no_lazy_import(self):
-        with Environment.release_builtin_plugins():
-            env = Environment(use_lazy_import=False)
-            _ = env.importers
-            yield env
+        Environment.release_builtin_plugins()
+        env = Environment(use_lazy_import=False)
+        _ = env.importers
+        yield env
+        Environment.release_builtin_plugins()
 
     def test_equivalance(self, fxt_lazy_import: Environment, fxt_no_lazy_import: Environment):
         assert sorted(fxt_lazy_import.extractors) == sorted(fxt_no_lazy_import.extractors)
@@ -37,34 +37,33 @@ class EnvironmentTest:
         assert sorted(fxt_lazy_import.validators) == sorted(fxt_no_lazy_import.validators)
 
     @pytest.fixture
-    def fxt_tf_import_error(self, monkeypatch):
-        # Simulate `tensorflow` import failure
+    def fxt_tf_failure_env(self, monkeypatch):
+        def _patch(name, package=None):
+            if name == "tensorflow":
+                raise ImportError()
+            return real_import_module(name, package)
 
-        def monkey_import_notfound(name, globals=None, locals=None, fromlist=(), level=0):
-            if name in ("tensorflow",):
-                raise ModuleNotFoundError(f"Mocked module not found {name}")
-            return real_import(name, globals=globals, locals=locals, fromlist=fromlist, level=level)
+        monkeypatch.setattr(datumaro.components.lazy_plugin, "import_module", _patch)
 
-        monkeypatch.delitem(sys.modules, "tensorflow", raising=False)
-        monkeypatch.setattr(builtins, "__import__", monkey_import_notfound)
+        Environment.release_builtin_plugins()
+        env = Environment(use_lazy_import=True)
+        _ = env.importers
+        yield env
+        Environment.release_builtin_plugins()
 
-    @pytest.fixture
-    def fxt_tf_failure_env(self, fxt_tf_import_error):
-        with Environment.release_builtin_plugins():
-            env = Environment(use_lazy_import=True)
-            _ = env.importers
-            yield env
-
-    def test_extra_deps_req(self, fxt_tf_failure_env: Environment):
+    def test_extra_deps_req(self, fxt_tf_failure_env):
         """Plugins affected by the import failure: `ac` and `tf_detection_api`."""
+
+        env = fxt_tf_failure_env
+
         loaded_plugin_names = set(
-            sorted(fxt_tf_failure_env.extractors)
-            + sorted(fxt_tf_failure_env.importers)
-            + sorted(fxt_tf_failure_env.launchers)
-            + sorted(fxt_tf_failure_env.exporters)
-            + sorted(fxt_tf_failure_env.generators)
-            + sorted(fxt_tf_failure_env.transforms)
-            + sorted(fxt_tf_failure_env.validators)
+            sorted(env.extractors)
+            + sorted(env.importers)
+            + sorted(env.launchers)
+            + sorted(env.exporters)
+            + sorted(env.generators)
+            + sorted(env.transforms)
+            + sorted(env.validators)
         )
 
         assert "ac" not in loaded_plugin_names

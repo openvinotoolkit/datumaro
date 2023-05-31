@@ -6,7 +6,6 @@ import glob
 import importlib
 import logging as log
 import os.path as osp
-from contextlib import contextmanager
 from functools import partial
 from inspect import isclass
 from typing import (
@@ -230,9 +229,9 @@ class Environment:
     def _load_builtin_plugins(cls):
         """Load builtin plugins which will be imported lazily using plugin spec files"""
         if cls._builtin_plugins is None:
-            from datumaro.plugins.specs import LAZY_PLUGINS
+            from datumaro.plugins.specs import get_lazy_plugins
 
-            cls._builtin_plugins = LAZY_PLUGINS
+            cls._builtin_plugins = get_lazy_plugins()
         return cls._builtin_plugins
 
     @classmethod
@@ -355,10 +354,8 @@ class Environment:
         return merged
 
     @classmethod
-    @contextmanager
     def release_builtin_plugins(cls):
         cls._builtin_plugins = None
-        yield
 
 
 DEFAULT_ENVIRONMENT = Environment()

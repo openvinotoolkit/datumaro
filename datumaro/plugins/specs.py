@@ -11,16 +11,19 @@ _SOURCE_PATH = Path(__file__).resolve()
 _SOURCE_DIR = _SOURCE_PATH.parent
 _SPECS_JSON_PATH = _SOURCE_DIR / "specs.json"
 
-LAZY_PLUGINS = [
-    plugin
-    for plugin in [
-        get_lazy_plugin(
-            spec["import_path"], spec["plugin_name"], spec["plugin_type"], spec["extra_deps"]
-        )
-        for spec in parse_json_file(str(_SPECS_JSON_PATH))
+
+def get_lazy_plugins():
+    return [
+        plugin
+        for plugin in [
+            get_lazy_plugin(
+                spec["import_path"], spec["plugin_name"], spec["plugin_type"], spec["extra_deps"]
+            )
+            for spec in parse_json_file(str(_SPECS_JSON_PATH))
+        ]
+        if plugin is not None
     ]
-    if plugin is not None
-]
+
 
 if __name__ == "__main__":
     from datumaro.components.environment import Environment
