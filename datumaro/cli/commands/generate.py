@@ -10,6 +10,7 @@ from shutil import rmtree
 
 from datumaro.cli.util.errors import CliException
 from datumaro.plugins.synthetic_data import FractalImageGenerator
+from datumaro.util.definitions import DATUMARO_CACHE_DIR
 
 from ..util import MultilineFormatter
 
@@ -56,8 +57,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     )
     parser.add_argument(
         "--model-dir",
+        type=str,
+        default=DATUMARO_CACHE_DIR,
         help="Path to load the colorization model from. "
-        "If no model is found, the model will be downloaded (default: current dir)",
+        "If no model is found, the model will be downloaded (default: %(default)s)",
     )
     parser.add_argument(
         "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
