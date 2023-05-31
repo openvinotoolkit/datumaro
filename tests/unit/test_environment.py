@@ -35,7 +35,8 @@ class EnvironmentTest:
 
     @pytest.fixture
     def fxt_tf_failure(self, monkeypatch):
-        # Simulate `tensorflow` import failure
+        # Simulate `openvino.tools` and `tensorflow` import failure
+        monkeypatch.setitem(sys.modules, "openvino.tools", None)
         monkeypatch.setitem(sys.modules, "tensorflow", None)
 
         with Environment.release_builtin_plugins():
@@ -44,7 +45,7 @@ class EnvironmentTest:
             yield env
 
     def test_extra_deps_req(self, fxt_tf_failure: Environment):
-        """Plugins affected by tensorflow import failure: `ac` and `tf_detection_api`."""
+        """Plugins affected by the import failure: `ac` and `tf_detection_api`."""
         loaded_plugin_names = set(
             sorted(fxt_tf_failure.extractors)
             + sorted(fxt_tf_failure.importers)
