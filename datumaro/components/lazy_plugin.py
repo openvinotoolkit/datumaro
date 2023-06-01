@@ -4,7 +4,7 @@
 
 from abc import ABC, abstractclassmethod
 from importlib import import_module
-from typing import List, Optional, Sequence, Type, Union, get_args
+from typing import List, Optional, Sequence, Type, Union
 
 from datumaro.components.dataset_base import DatasetBase
 from datumaro.components.errors import DatumaroError
@@ -27,7 +27,18 @@ _PLUGIN_TYPES = Union[
     DatasetBase,
 ]
 PLUGIN_TYPES = Type[_PLUGIN_TYPES]
-STR_TO_PLUGIN_TYPES = {t.__name__: t for t in get_args(_PLUGIN_TYPES)}
+STR_TO_PLUGIN_TYPES = {
+    t.__name__: t
+    for t in [
+        Transform,
+        Exporter,
+        DatasetGenerator,
+        Importer,
+        Launcher,
+        Validator,
+        DatasetBase,
+    ]
+}
 _EXTRA_DEPS_ATTR_NAME = "__extra_deps__"
 
 
