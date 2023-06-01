@@ -453,6 +453,7 @@
 <li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.components.hl_ops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.importer.html">datumaro.components.importer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.launcher.html">datumaro.components.launcher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.lazy_plugin.html">datumaro.components.lazy_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.media.html">datumaro.components.media</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.media_manager.html">datumaro.components.media_manager</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.merge.html">datumaro.components.merge</a></li>
@@ -475,6 +476,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.shift_analyzer.html">datumaro.plugins.shift_analyzer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.synthetic_data.html">datumaro.plugins.synthetic_data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.tiling.html">datumaro.plugins.tiling</a></li>
@@ -1172,7 +1174,7 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.components.hl_ops.Environment">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.hl_ops.</span></span><span class="sig-name descname"><span class="pre">Environment</span></span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.hl_ops.Environment" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.hl_ops.</span></span><span class="sig-name descname"><span class="pre">Environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_lazy_import</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.hl_ops.Environment" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.components.hl_ops.Environment.extractors">
@@ -1257,6 +1259,11 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.hl_ops.Environment.merge">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">envs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.11)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.Environment" title="datumaro.components.environment.Environment"><span class="pre">Environment</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.Environment" title="datumaro.components.environment.Environment"><span class="pre">Environment</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.hl_ops.Environment.merge" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.hl_ops.Environment.release_builtin_plugins">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">release_builtin_plugins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.release_builtin_plugins"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.hl_ops.Environment.release_builtin_plugins" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2424,6 +2431,15 @@ such as registering error and exit callbacks and context managers.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        Environment.merge()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.hl_ops.Environment.release_builtin_plugins">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Environment.release_builtin_plugins()
       </span>
      </code>
     </a>

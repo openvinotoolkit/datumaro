@@ -287,11 +287,13 @@
 
 <span class="kn">from</span> <span class="nn">datumaro.components.cli_plugin</span> <span class="kn">import</span> <span class="n">CliPlugin</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.launcher</span> <span class="kn">import</span> <span class="n">Launcher</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.lazy_plugin</span> <span class="kn">import</span> <span class="n">extra_deps</span>
 
 <span class="kn">from</span> <span class="nn">.details.ac</span> <span class="kn">import</span> <span class="n">GenericAcLauncher</span> <span class="k">as</span> <span class="n">_GenericAcLauncher</span>
 
 
-<div class="viewcode-block" id="AcLauncher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher">[docs]</a><span class="k">class</span> <span class="nc">AcLauncher</span><span class="p">(</span><span class="n">Launcher</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="AcLauncher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.accuracy_checker_plugin.ac_launcher.html#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher">[docs]</a><span class="nd">@extra_deps</span><span class="p">(</span><span class="s2">&quot;openvino.tools&quot;</span><span class="p">,</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">AcLauncher</span><span class="p">(</span><span class="n">Launcher</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generic model launcher with Accuracy Checker backend.</span>
 <span class="sd">    &quot;&quot;&quot;</span>

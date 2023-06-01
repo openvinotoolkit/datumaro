@@ -327,7 +327,6 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.merge</span> <span class="kn">import</span> <span class="n">DEFAULT_MERGE_POLICY</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.progress_reporting</span> <span class="kn">import</span> <span class="n">NullProgressReporter</span><span class="p">,</span> <span class="n">ProgressReporter</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.transformer</span> <span class="kn">import</span> <span class="n">ItemTransform</span><span class="p">,</span> <span class="n">Transform</span>
-<span class="kn">from</span> <span class="nn">datumaro.plugins.transforms</span> <span class="kn">import</span> <span class="n">ProjectLabels</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">is_method_redefined</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.log_utils</span> <span class="kn">import</span> <span class="n">logging_disabled</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">load_hash_key</span>
@@ -905,6 +904,8 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">item_id</span><span class="p">))</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">):</span>
+            <span class="kn">from</span> <span class="nn">datumaro.plugins.transforms</span> <span class="kn">import</span> <span class="n">ProjectLabels</span>
+
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ProjectLabels</span><span class="p">(</span>
                 <span class="n">source</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">())</span>
             <span class="p">):</span>

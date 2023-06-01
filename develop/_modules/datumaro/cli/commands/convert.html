@@ -287,7 +287,7 @@
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.project</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.environment</span> <span class="kn">import</span> <span class="n">DEFAULT_ENVIRONMENT</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="n">make_file_name</span>
 
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">MultilineFormatter</span>
@@ -296,8 +296,10 @@
 
 
 <div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.convert.html#datumaro.cli.commands.convert.build_parser">[docs]</a><span class="k">def</span> <span class="nf">build_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
-    <span class="n">builtin_readers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">importers</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">extractors</span><span class="p">))</span>
-    <span class="n">builtin_writers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">exporters</span><span class="p">)</span>
+    <span class="n">builtin_readers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="nb">set</span><span class="p">(</span><span class="n">DEFAULT_ENVIRONMENT</span><span class="o">.</span><span class="n">importers</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">DEFAULT_ENVIRONMENT</span><span class="o">.</span><span class="n">extractors</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">builtin_writers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">DEFAULT_ENVIRONMENT</span><span class="o">.</span><span class="n">exporters</span><span class="p">)</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_ctor</span><span class="p">(</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Convert an existing dataset to another format&quot;</span><span class="p">,</span>
@@ -377,7 +379,7 @@
 
 
 <div class="viewcode-block" id="convert_command"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.convert.html#datumaro.cli.commands.convert.convert_command">[docs]</a><span class="k">def</span> <span class="nf">convert_command</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">()</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">DEFAULT_ENVIRONMENT</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">exporter</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">exporters</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">output_format</span><span class="p">]</span>

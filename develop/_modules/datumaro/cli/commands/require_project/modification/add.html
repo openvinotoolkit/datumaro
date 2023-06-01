@@ -285,7 +285,7 @@
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
 
-<span class="kn">from</span> <span class="nn">datumaro.components.environment</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.environment</span> <span class="kn">import</span> <span class="n">DEFAULT_ENVIRONMENT</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">ProjectNotFoundError</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.scope</span> <span class="kn">import</span> <span class="n">on_error_do</span><span class="p">,</span> <span class="n">scope_add</span><span class="p">,</span> <span class="n">scoped</span>
 
@@ -300,7 +300,7 @@
 
 
 <div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.cli.commands.require_project.modification.add.html#datumaro.cli.commands.require_project.modification.add.build_parser">[docs]</a><span class="k">def</span> <span class="nf">build_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">()</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">DEFAULT_ENVIRONMENT</span>
     <span class="n">builtins</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">extractors</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">importers</span><span class="p">))</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_ctor</span><span class="p">(</span>
@@ -404,7 +404,7 @@
     <span class="k">if</span> <span class="n">project</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">env</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">()</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">DEFAULT_ENVIRONMENT</span>
 
     <span class="n">fmt</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span>
     <span class="k">if</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">importers</span><span class="p">:</span>

@@ -287,7 +287,7 @@
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">DEFAULT_FORMAT</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.environment</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.environment</span> <span class="kn">import</span> <span class="n">DEFAULT_ENVIRONMENT</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">ProjectNotFoundError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.hl_ops</span> <span class="kn">import</span> <span class="n">HLOps</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.merge.intersect_merge</span> <span class="kn">import</span> <span class="n">IntersectMerge</span>
@@ -511,7 +511,7 @@
     <span class="k">if</span> <span class="n">project</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">env</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">()</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">DEFAULT_ENVIRONMENT</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">exporter</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">exporters</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>

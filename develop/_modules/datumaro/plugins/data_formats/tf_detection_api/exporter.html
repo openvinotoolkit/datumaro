@@ -292,6 +292,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetExportError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.exporter</span> <span class="kn">import</span> <span class="n">Exporter</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.lazy_plugin</span> <span class="kn">import</span> <span class="n">extra_deps</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">ByteImage</span><span class="p">,</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageFromBytes</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">find_group_leader</span><span class="p">,</span> <span class="n">find_instances</span><span class="p">,</span> <span class="n">max_bbox</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">encode_image</span>
@@ -331,7 +332,8 @@
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">float_list</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">FloatList</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="TfDetectionApiExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter">[docs]</a><span class="k">class</span> <span class="nc">TfDetectionApiExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<div class="viewcode-block" id="TfDetectionApiExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter">[docs]</a><span class="nd">@extra_deps</span><span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TfDetectionApiExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">DetectionApiPath</span><span class="o">.</span><span class="n">DEFAULT_IMAGE_EXT</span>
 
 <div class="viewcode-block" id="TfDetectionApiExporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tf_detection_api.exporter.html#datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>

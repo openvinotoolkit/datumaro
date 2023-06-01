@@ -49,6 +49,7 @@ datumaro.components
    datumaro.components.hl_ops
    datumaro.components.importer
    datumaro.components.launcher
+   datumaro.components.lazy_plugin
    datumaro.components.media
    datumaro.components.media_manager
    datumaro.components.merge

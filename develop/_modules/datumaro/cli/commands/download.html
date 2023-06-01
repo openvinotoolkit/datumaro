@@ -289,12 +289,12 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
 
+<span class="kn">from</span> <span class="nn">datumaro.components.environment</span> <span class="kn">import</span> <span class="n">DEFAULT_ENVIRONMENT</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.extractor_tfds</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AVAILABLE_TFDS_DATASETS</span><span class="p">,</span>
     <span class="n">TFDS_EXTRACTOR_AVAILABLE</span><span class="p">,</span>
     <span class="n">TfdsDatasetRemoteMetadata</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.project</span> <span class="kn">import</span> <span class="n">Environment</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">dump_json</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="n">make_file_name</span>
 
@@ -327,7 +327,7 @@
 
 
 <div class="viewcode-block" id="build_get_subparser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.download.html#datumaro.cli.commands.download.build_get_subparser">[docs]</a><span class="k">def</span> <span class="nf">build_get_subparser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">_SubParsersAction</span><span class="p">):</span>
-    <span class="n">builtin_writers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">exporters</span><span class="p">)</span>
+    <span class="n">builtin_writers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">DEFAULT_ENVIRONMENT</span><span class="o">.</span><span class="n">exporters</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">TFDS_EXTRACTOR_AVAILABLE</span><span class="p">:</span>
         <span class="n">available_datasets</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tfds:</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">AVAILABLE_TFDS_DATASETS</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -416,7 +416,7 @@
 
 
 <div class="viewcode-block" id="download_command"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.download.html#datumaro.cli.commands.download.download_command">[docs]</a><span class="k">def</span> <span class="nf">download_command</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">()</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">DEFAULT_ENVIRONMENT</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dataset_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tfds:&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">TFDS_EXTRACTOR_AVAILABLE</span><span class="p">:</span>

@@ -453,6 +453,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.hl_ops.html">datumaro.components.hl_ops</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.importer.html">datumaro.components.importer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.launcher.html">datumaro.components.launcher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.lazy_plugin.html">datumaro.components.lazy_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.media.html">datumaro.components.media</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.media_manager.html">datumaro.components.media_manager</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.merge.html">datumaro.components.merge</a></li>
@@ -475,6 +476,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.shift_analyzer.html">datumaro.plugins.shift_analyzer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.synthetic_data.html">datumaro.plugins.synthetic_data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.tiling.html">datumaro.plugins.tiling</a></li>
@@ -592,97 +594,6 @@
 <dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.CliException">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.require_project.modification.export.</span></span><span class="sig-name descname"><span class="pre">CliException</span></span><a class="reference internal" href="../../../_modules/datumaro/cli/util/errors.html#CliException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.CliException" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.errors.html#datumaro.components.errors.DatumaroError" title="datumaro.components.errors.DatumaroError"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatumaroError</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.require_project.modification.export.</span></span><span class="sig-name descname"><span class="pre">Environment</span></span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.extractors">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extractors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.extractors" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.importers">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">importers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.importers" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.launchers">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">launchers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.launchers" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.exporters">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exporters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.exporters" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.generators">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.generators" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.transforms">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.transforms" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.validators">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.validators" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.load_plugins">
-<span class="sig-name descname"><span class="pre">load_plugins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plugins_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.load_plugins"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.load_plugins" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.register_plugins">
-<span class="sig-name descname"><span class="pre">register_plugins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plugins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.register_plugins"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.register_plugins" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.make_extractor">
-<span class="sig-name descname"><span class="pre">make_extractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.make_extractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.make_extractor" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.make_importer">
-<span class="sig-name descname"><span class="pre">make_importer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.make_importer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.make_importer" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.make_launcher">
-<span class="sig-name descname"><span class="pre">make_launcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.make_launcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.make_launcher" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.make_exporter">
-<span class="sig-name descname"><span class="pre">make_exporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.make_exporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.make_exporter" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.make_transform">
-<span class="sig-name descname"><span class="pre">make_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.make_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.make_transform" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.is_format_known">
-<span class="sig-name descname"><span class="pre">is_format_known</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.is_format_known"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.is_format_known" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.detect_dataset">
-<span class="sig-name descname"><span class="pre">detect_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rejection_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.RejectionReason" title="datumaro.components.format_detection.RejectionReason"><span class="pre">RejectionReason</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.detect_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.detect_dataset" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.cli.commands.require_project.modification.export.Environment.merge">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">envs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.11)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.Environment" title="datumaro.components.environment.Environment"><span class="pre">Environment</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.Environment" title="datumaro.components.environment.Environment"><span class="pre">Environment</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.require_project.modification.export.Environment.merge" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -954,170 +865,6 @@ such as registering error and exit callbacks and context managers.</p>
     </span>
    </code>
   </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Environment
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.extractors">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.extractors
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.importers">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.importers
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.launchers">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.launchers
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.exporters">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.exporters
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.generators">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.generators
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.transforms">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.transforms
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.validators">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.validators
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.load_plugins">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.load_plugins()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.register_plugins">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.register_plugins()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.make_extractor">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.make_extractor()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.make_importer">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.make_importer()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.make_launcher">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.make_launcher()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.make_exporter">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.make_exporter()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.make_transform">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.make_transform()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.is_format_known">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.is_format_known()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.detect_dataset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.detect_dataset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.Environment.merge">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.merge()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.cli.commands.require_project.modification.export.FilterModes">

@@ -34,6 +34,7 @@ datumaro.plugins
    datumaro.plugins.openvino_plugin
    datumaro.plugins.sampler
    datumaro.plugins.shift_analyzer
+   datumaro.plugins.specs
    datumaro.plugins.splitter
    datumaro.plugins.synthetic_data
    datumaro.plugins.tiling
