@@ -283,7 +283,7 @@
 
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractclassmethod</span>
 <span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">get_args</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetBase</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span>
@@ -306,7 +306,18 @@
     <span class="n">DatasetBase</span><span class="p">,</span>
 <span class="p">]</span>
 <span class="n">PLUGIN_TYPES</span> <span class="o">=</span> <span class="n">Type</span><span class="p">[</span><span class="n">_PLUGIN_TYPES</span><span class="p">]</span>
-<span class="n">STR_TO_PLUGIN_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">get_args</span><span class="p">(</span><span class="n">_PLUGIN_TYPES</span><span class="p">)}</span>
+<span class="n">STR_TO_PLUGIN_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">t</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">t</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="n">Transform</span><span class="p">,</span>
+        <span class="n">Exporter</span><span class="p">,</span>
+        <span class="n">DatasetGenerator</span><span class="p">,</span>
+        <span class="n">Importer</span><span class="p">,</span>
+        <span class="n">Launcher</span><span class="p">,</span>
+        <span class="n">Validator</span><span class="p">,</span>
+        <span class="n">DatasetBase</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">}</span>
 <span class="n">_EXTRA_DEPS_ATTR_NAME</span> <span class="o">=</span> <span class="s2">&quot;__extra_deps__&quot;</span>
 
 
