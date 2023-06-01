@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.environment import Environment
+from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import ProjectBuildTargets
 from datumaro.util import str_to_bool
@@ -19,7 +19,7 @@ from ..util.project import load_project, parse_full_revpath
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().transforms)
+    builtins = sorted(DEFAULT_ENVIRONMENT.transforms)
 
     parser = parser_ctor(
         help="Transform project",
@@ -166,7 +166,7 @@ def transform_command(args):
     if project is not None:
         env = project.env
     else:
-        env = Environment()
+        env = DEFAULT_ENVIRONMENT
 
     try:
         transform = env.transforms[args.transform]

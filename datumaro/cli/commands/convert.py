@@ -8,7 +8,7 @@ import os
 import os.path as osp
 
 from datumaro.components.dataset import Dataset
-from datumaro.components.project import Environment
+from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.util.os_util import make_file_name
 
 from ..util import MultilineFormatter
@@ -17,8 +17,10 @@ from ..util.project import FilterModes, generate_next_file_name
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    builtin_readers = sorted(set(Environment().importers) | set(Environment().extractors))
-    builtin_writers = sorted(Environment().exporters)
+    builtin_readers = sorted(
+        set(DEFAULT_ENVIRONMENT.importers) | set(DEFAULT_ENVIRONMENT.extractors)
+    )
+    builtin_writers = sorted(DEFAULT_ENVIRONMENT.exporters)
 
     parser = parser_ctor(
         help="Convert an existing dataset to another format",
@@ -98,7 +100,7 @@ def get_sensitive_args():
 
 
 def convert_command(args):
-    env = Environment()
+    env = DEFAULT_ENVIRONMENT
 
     try:
         exporter = env.exporters[args.output_format]

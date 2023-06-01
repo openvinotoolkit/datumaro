@@ -12,6 +12,7 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Mask
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import ImportContext, Importer
+from datumaro.components.lazy_plugin import extra_deps
 from datumaro.components.media import Image
 from datumaro.util.image import decode_image, lazy_image
 from datumaro.util.tf_util import import_tf as _import_tf
@@ -25,6 +26,7 @@ def clamp(value, _min, _max):
     return max(min(_max, value), _min)
 
 
+@extra_deps("tensorflow")
 class TfDetectionApiBase(SubsetBase):
     def __init__(
         self,
@@ -185,6 +187,7 @@ class TfDetectionApiBase(SubsetBase):
         return dataset_items, dataset_labels
 
 
+@extra_deps("tensorflow")
 class TfDetectionApiImporter(Importer):
     @classmethod
     def find_sources(cls, path):

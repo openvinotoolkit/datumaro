@@ -227,8 +227,8 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         env = Environment()
-        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
-        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+        env.importers._items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors._items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
 
         dataset = Dataset.from_iterable(
             [
@@ -247,8 +247,8 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_with_nested_folder(self):
         env = Environment()
-        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
-        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+        env.importers._items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors._items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
 
         dataset = Dataset.from_iterable(
             [
@@ -295,8 +295,8 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_and_import(self):
         env = Environment()
-        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
-        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+        env.importers._items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors._items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
 
         source_dataset = Dataset.from_iterable(
             [
@@ -317,10 +317,10 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_no_dataset_found(self):
         env = Environment()
-        env.importers.items = {
+        env.importers._items = {
             DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT],
         }
-        env.extractors.items = {
+        env.extractors._items = {
             DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT],
         }
 
@@ -330,11 +330,11 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_multiple_formats_match(self):
         env = Environment()
-        env.importers.items = {
+        env.importers._items = {
             "a": env.importers[DEFAULT_FORMAT],
             "b": env.importers[DEFAULT_FORMAT],
         }
-        env.extractors.items = {
+        env.extractors._items = {
             "a": env.extractors[DEFAULT_FORMAT],
             "b": env.extractors[DEFAULT_FORMAT],
         }
@@ -355,8 +355,8 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_no_matching_formats(self):
         env = Environment()
-        env.importers.items = {}
-        env.extractors.items = {}
+        env.importers._items = {}
+        env.extractors._items = {}
 
         source_dataset = Dataset.from_iterable(
             [
@@ -374,8 +374,8 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_unknown_format_requested(self):
         env = Environment()
-        env.importers.items = {}
-        env.extractors.items = {}
+        env.importers._items = {}
+        env.extractors._items = {}
 
         source_dataset = Dataset.from_iterable(
             [
@@ -393,7 +393,7 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_by_string_format_name(self):
         env = Environment()
-        env.exporters.items = {"qq": env.exporters[DEFAULT_FORMAT]}
+        env.exporters._items = {"qq": env.exporters[DEFAULT_FORMAT]}
 
         dataset = Dataset.from_iterable(
             [
@@ -1623,7 +1623,7 @@ class DatasetTest(TestCase):
                         self._save_image(item, name=name)
 
         env = Environment()
-        env.exporters.items = {"test": CustomExporter}
+        env.exporters._items = {"test": CustomExporter}
 
         with TestDir() as path:
             dataset = Dataset.from_iterable(
@@ -1759,8 +1759,8 @@ class DatasetTest(TestCase):
                 yield DatasetItem("1")
 
         env = Environment()
-        env.importers.items.clear()
-        env.extractors.items["test"] = TestExtractor
+        env.importers._items.clear()
+        env.extractors._items["test"] = TestExtractor
 
         dataset = Dataset.import_from("", "test", env=env, progress_reporter=NullProgressReporter())
 
@@ -1776,8 +1776,8 @@ class DatasetTest(TestCase):
                 yield DatasetItem("1")
 
         env = Environment()
-        env.importers.items.clear()
-        env.extractors.items["test"] = TestExtractor
+        env.importers._items.clear()
+        env.extractors._items["test"] = TestExtractor
 
         dataset = Dataset.import_from("", "test", env=env, error_policy=FailingImportErrorPolicy())
 
@@ -1805,8 +1805,8 @@ class DatasetTest(TestCase):
         progress_reporter.finish = mock.MagicMock()
 
         env = Environment()
-        env.importers.items.clear()
-        env.extractors.items["test"] = TestExtractor
+        env.importers._items.clear()
+        env.extractors._items["test"] = TestExtractor
 
         Dataset.import_from("", "test", env=env, progress_reporter=progress_reporter)
 
@@ -1843,8 +1843,8 @@ class DatasetTest(TestCase):
         )
 
         env = Environment()
-        env.importers.items.clear()
-        env.extractors.items["test"] = TestExtractor
+        env.importers._items.clear()
+        env.extractors._items["test"] = TestExtractor
 
         Dataset.import_from("", "test", env=env, progress_reporter=progress_reporter)
 
@@ -1865,8 +1865,8 @@ class DatasetTest(TestCase):
                 yield from []
 
         env = Environment()
-        env.importers.items.clear()
-        env.extractors.items["test"] = TestExtractor
+        env.importers._items.clear()
+        env.extractors._items["test"] = TestExtractor
 
         class TestErrorPolicy(ImportErrorPolicy):
             pass
