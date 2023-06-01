@@ -284,7 +284,6 @@
 <span class="c1"># pylint: disable=exec-used</span>
 
 <span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">urllib</span>
@@ -296,6 +295,7 @@
 
 <span class="kn">from</span> <span class="nn">datumaro.components.cli_plugin</span> <span class="kn">import</span> <span class="n">CliPlugin</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.launcher</span> <span class="kn">import</span> <span class="n">Launcher</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.definitions</span> <span class="kn">import</span> <span class="n">DATUMARO_CACHE_DIR</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.samples</span> <span class="kn">import</span> <span class="n">get_samples_path</span>
 
 
@@ -389,9 +389,7 @@
         <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">model_name</span><span class="p">:</span>
-            <span class="n">model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="s2">&quot;.cache&quot;</span><span class="p">,</span> <span class="s2">&quot;datumaro&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_dir</span><span class="p">):</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+            <span class="n">model_dir</span> <span class="o">=</span> <span class="n">DATUMARO_CACHE_DIR</span>
 
             <span class="c1"># Please visit open-model-zoo repository for OpenVINO public models if you are interested in</span>
             <span class="c1"># https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/index.md</span>

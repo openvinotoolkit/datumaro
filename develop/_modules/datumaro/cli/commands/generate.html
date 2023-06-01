@@ -289,6 +289,7 @@
 
 <span class="kn">from</span> <span class="nn">datumaro.cli.util.errors</span> <span class="kn">import</span> <span class="n">CliException</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.synthetic_data</span> <span class="kn">import</span> <span class="n">FractalImageGenerator</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.definitions</span> <span class="kn">import</span> <span class="n">DATUMARO_CACHE_DIR</span>
 
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">MultilineFormatter</span>
 
@@ -335,8 +336,10 @@
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--model-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">DATUMARO_CACHE_DIR</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to load the colorization model from. &quot;</span>
-        <span class="s2">&quot;If no model is found, the model will be downloaded (default: current dir)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;If no model is found, the model will be downloaded (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite existing files in the save directory&quot;</span>
