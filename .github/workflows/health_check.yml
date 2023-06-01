@@ -36,7 +36,7 @@ jobs:
           python -m pip install tox
       - name: Code instrumentation
         run: |
-          tox -e tests-py${{ matrix.tox-env-py }}-lin}
+          tox -e tests-py${{ matrix.tox-env-py }}-lin
   call-notify-to-teams:
     needs: [check_integrity]
     if: |

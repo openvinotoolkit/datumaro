@@ -12,9 +12,6 @@ from distutils.util import strtobool
 import setuptools
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
-# Snyk scan integration
-here = None
-
 
 def find_version(project_dir=None):
     if not project_dir:
@@ -60,22 +57,23 @@ with open("README.md", "r") as fh:
 ext_modules = [
     Pybind11Extension(
         "datumaro._capi",
-        ["datumaro/capi/pybind.cpp"],
-        define_macros=[("VERSION_INFO", find_version(here))],
+        ["src/datumaro/capi/pybind.cpp"],
+        define_macros=[("VERSION_INFO", find_version("./src"))],
         extra_compile_args=["-O3"],
     ),
 ]
 
 setuptools.setup(
     name="datumaro",
-    version=find_version(here),
+    version=find_version("./src"),
     author="Intel",
     author_email="emily.chun@intel.com",
     description="Dataset Management Framework (Datumaro)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/openvinotoolkit/datumaro",
-    packages=setuptools.find_packages(include=["datumaro*"]),
+    package_dir={"": "src"},
+    packages=setuptools.find_packages(where="src", include=["datumaro*"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -98,6 +96,9 @@ setuptools.setup(
         ],
     },
     cmdclass={"build_ext": build_ext},
-    package_data={"datumaro.plugins.synthetic_data": ["background_colors.txt"]},
+    package_data={
+        "datumaro.plugins.synthetic_data": ["background_colors.txt"],
+        "datumaro.plugins.openvino_plugin.samples": ["coco.class", "imagenet.class"],
+    },
     include_package_data=True,
 )

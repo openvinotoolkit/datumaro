@@ -73,7 +73,7 @@ site/**/nb_htmls/*.html
 site/static/api
 
 # C extension
-datumaro/*.so
+src/**/*.so
 
 # Secrets
 .secrets

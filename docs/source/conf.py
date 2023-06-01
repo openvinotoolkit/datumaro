@@ -20,7 +20,7 @@ import sys
 
 sys.setrecursionlimit(1500)
 
-sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath("../../src"))
 
 from datumaro.version import __version__
 
