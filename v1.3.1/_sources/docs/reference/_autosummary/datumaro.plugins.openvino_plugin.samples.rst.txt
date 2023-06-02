@@ -1,0 +1,39 @@
+datumaro.plugins.openvino\_plugin.samples
+=========================================
+
+.. automodule:: datumaro.plugins.openvino_plugin.samples
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   datumaro.plugins.openvino_plugin.samples.clip_text_ViT-B_32_interp
+   datumaro.plugins.openvino_plugin.samples.clip_visual_ViT-B_32_interp
+   datumaro.plugins.openvino_plugin.samples.googlenet-v4-tf_interp
+   datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp
+   datumaro.plugins.openvino_plugin.samples.ssd_face_detection_interp
+   datumaro.plugins.openvino_plugin.samples.ssd_mobilenet_coco_detection_interp
+   datumaro.plugins.openvino_plugin.samples.ssd_person_detection_interp
+   datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp
+   datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp
+

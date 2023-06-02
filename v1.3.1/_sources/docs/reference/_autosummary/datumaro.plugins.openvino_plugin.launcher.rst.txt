@@ -1,0 +1,30 @@
+datumaro.plugins.openvino\_plugin.launcher
+==========================================
+
+.. automodule:: datumaro.plugins.openvino_plugin.launcher
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      InterpreterScript
+      OpenvinoLauncher
+   
+   
+
+   
+   
+   
+
+
+
