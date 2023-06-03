@@ -12,6 +12,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError, MediaTypeError
 from datumaro.components.media import MediaElement
 from datumaro.plugins.explorer import ExplorerLauncher
+from datumaro.util.hashkey_util import select_uninferenced_dataset, calculate_hamming
 
 
 def calculate_hamming(B1, B2):
