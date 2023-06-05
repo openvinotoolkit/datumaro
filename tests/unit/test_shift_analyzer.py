@@ -9,7 +9,7 @@ from datumaro.components.annotation import Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.shift_analyzer import ShiftAnalyzer
+from datumaro.components.shift_analyzer import ShiftAnalyzer
 
 from ..requirements import Requirements, mark_requirement
 

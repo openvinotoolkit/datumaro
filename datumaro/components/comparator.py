@@ -22,7 +22,7 @@ from datumaro.components.operations import (
     match_items_by_id,
     match_items_by_image_hash,
 )
-from datumaro.plugins.shift_analyzer import ShiftAnalyzer
+from datumaro.components.shift_analyzer import ShiftAnalyzer
 from datumaro.util import dump_json_file, filter_dict, find
 from datumaro.util.annotation_util import find_instances, max_bbox
 from datumaro.util.attrs_util import default_if_none

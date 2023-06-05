@@ -9,7 +9,7 @@ from datumaro.components.annotation import Bbox, Caption, Label, Mask, Points
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
-from datumaro.plugins.comparator import DistanceComparator, EqualityComparator, TableComparator
+from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 
 from ..requirements import Requirements, mark_requirement
 
@@ -416,9 +416,9 @@ class TableComparatorTest(unittest.TestCase):
 
     # Mocking is used to replace parts of the system that are being tested with mock objects.
     @patch("os.makedirs")
-    @patch("datumaro.plugins.comparator.generate_next_file_name")
+    @patch("datumaro.components.comparator.generate_next_file_name")
     @patch("builtins.open", new_callable=mock_open)
-    @patch("datumaro.plugins.comparator.dump_json_file")
+    @patch("datumaro.components.comparator.dump_json_file")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "

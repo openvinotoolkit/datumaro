@@ -21,7 +21,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
-from datumaro.plugins.comparator import DistanceComparator
+from datumaro.components.comparator import DistanceComparator
 
 from ...requirements import Requirements, mark_requirement
 

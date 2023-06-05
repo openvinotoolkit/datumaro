@@ -9,7 +9,7 @@ import os.path as osp
 from enum import Enum, auto
 
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.plugins.comparator import DistanceComparator, EqualityComparator, TableComparator
+from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
@@ -53,7 +53,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         useful for dataset paths in targets. When not specified, the current
         project's working tree is used.|n
         |n
-        Annotations can be matched 2 ways:|n
+        Annotations can be matched 3 ways:|n
         - by comparision table|n
         - by equality checking|n
         - by distance computation|n

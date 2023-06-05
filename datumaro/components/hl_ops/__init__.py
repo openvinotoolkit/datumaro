@@ -19,7 +19,7 @@ from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.merge import DEFAULT_MERGE_POLICY, get_merger
 from datumaro.components.transformer import Transform
 from datumaro.components.validator import TaskType, Validator
-from datumaro.plugins.comparator import DistanceComparator, EqualityComparator, TableComparator
+from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 from datumaro.util import dump_json_file, parse_str_enum_value
 from datumaro.util.scope import on_error_do, scoped
 
