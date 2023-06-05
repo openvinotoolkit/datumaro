@@ -16,6 +16,7 @@ import numpy as np
 import requests
 
 from datumaro.components.generator import DatasetGenerator
+from datumaro.util.definitions import DATUMARO_CACHE_DIR
 from datumaro.util.image import save_image
 from datumaro.util.scope import on_error_do, on_exit_do, scope_add, scoped
 
@@ -34,13 +35,17 @@ class FractalImageGenerator(DatasetGenerator):
     _COLORS_FILE = "background_colors.txt"
 
     def __init__(
-        self, output_dir: str, count: int, shape: Tuple[int, int], model_path: Optional[str] = None
+        self,
+        output_dir: str,
+        count: int,
+        shape: Tuple[int, int],
+        model_path: str = DATUMARO_CACHE_DIR,
     ) -> None:
         assert 0 < count, "Image count cannot be lesser than 1"
         self._count = count
 
         self._output_dir = output_dir
-        self._model_dir = model_path if model_path else os.getcwd()
+        self._model_dir = model_path
 
         self._cpu_count = min(os.cpu_count(), self._count)
 

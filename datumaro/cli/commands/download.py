@@ -10,12 +10,12 @@ import os.path as osp
 import sys
 from typing import Dict
 
+from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.extractor_tfds import (
     AVAILABLE_TFDS_DATASETS,
     TFDS_EXTRACTOR_AVAILABLE,
     TfdsDatasetRemoteMetadata,
 )
-from datumaro.components.project import Environment
 from datumaro.util import dump_json
 from datumaro.util.os_util import make_file_name
 
@@ -48,7 +48,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 
 def build_get_subparser(subparsers: argparse._SubParsersAction):
-    builtin_writers = sorted(Environment().exporters)
+    builtin_writers = sorted(DEFAULT_ENVIRONMENT.exporters)
     if TFDS_EXTRACTOR_AVAILABLE:
         available_datasets = ", ".join(f"tfds:{name}" for name in AVAILABLE_TFDS_DATASETS)
     else:
@@ -137,7 +137,7 @@ def get_sensitive_args():
 
 
 def download_command(args):
-    env = Environment()
+    env = DEFAULT_ENVIRONMENT
 
     if args.dataset_id.startswith("tfds:"):
         if TFDS_EXTRACTOR_AVAILABLE:

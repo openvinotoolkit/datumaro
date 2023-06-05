@@ -48,7 +48,6 @@ from datumaro.components.media import Image, MediaElement
 from datumaro.components.merge import DEFAULT_MERGE_POLICY
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.components.transformer import ItemTransform, Transform
-from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
 from datumaro.util.meta_file_util import load_hash_key
@@ -626,6 +625,8 @@ class DatasetStorage(IDataset):
                 else:
                     self.put(source.data.get(*item_id))
         elif isinstance(source, IDataset):
+            from datumaro.plugins.transforms import ProjectLabels
+
             for item in ProjectLabels(
                 source, self.categories().get(AnnotationType.label, LabelCategories())
             ):

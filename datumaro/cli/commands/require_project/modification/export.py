@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.environment import Environment
+from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import ProjectBuildTargets
 from datumaro.util.os_util import make_file_name
@@ -24,7 +24,7 @@ __all__ = [
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().exporters)
+    builtins = sorted(DEFAULT_ENVIRONMENT.exporters)
 
     parser = parser_ctor(
         help="Export project",
@@ -143,7 +143,7 @@ def export_command(args):
     if project is not None:
         env = project.env
     else:
-        env = Environment()
+        env = DEFAULT_ENVIRONMENT
 
     try:
         exporter = env.exporters[args.format]

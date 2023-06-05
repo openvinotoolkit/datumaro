@@ -6,7 +6,7 @@ import argparse
 
 from datumaro.cli.util import MultilineFormatter
 from datumaro.cli.util.project import load_project
-from datumaro.components.environment import Environment
+from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.format_detection import RejectionReason
 from datumaro.util import dump_json_file
@@ -77,7 +77,7 @@ def detect_format_command(args):
     if project is not None:
         env = project.env
     else:
-        env = Environment()
+        env = DEFAULT_ENVIRONMENT
 
     report = {"rejected_formats": {}}
 
