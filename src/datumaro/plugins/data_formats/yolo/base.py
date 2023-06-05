@@ -306,13 +306,15 @@ class YoloLooseBase(SubsetBase):
     ) -> None:
         super().__init__(subset=subset, ctx=ctx)
 
-        if not osp.isdir(config_path):
-            raise DatasetImportError(f"{config_path} should be a directory.")
+        print(config_path)
+
+        # if not osp.isdir(config_path):
+        #     raise DatasetImportError(f"{config_path} should be a directory.")
 
         rootpath = config_path
         self._path = rootpath
 
-        self._image_info = YoloStrictBase.parse_image_info(rootpath, image_info)
+        # self._image_info = YoloStrictBase.parse_image_info(rootpath, image_info)
 
         # Init label categories
         label_categories = self._load_categories(osp.join(rootpath, self.META_FILE))
@@ -369,5 +371,7 @@ class YoloUltralyticsBase(YoloLooseBase):
             loaded = yaml.safe_load(fp.read())
             for label_name in loaded["names"].values():
                 label_categories.add(label_name)
+
+        print(label_categories)
 
         return label_categories

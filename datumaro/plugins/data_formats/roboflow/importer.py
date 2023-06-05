@@ -74,7 +74,7 @@ class RoboflowVocImporter(Importer):
         return True
 
     @classmethod
-    def find_sources(cls, path: str) -> List[Dict[str, Any]]:
+    def _get_sources(cls, path: str) -> Dict[Any, List[Any]]:
         def _filter_ann_file(fpath: str):
             try:
                 with open(fpath, "r") as fp:
@@ -95,6 +95,12 @@ class RoboflowVocImporter(Importer):
         if len(sources) == 0:
             return []
 
+        return sources
+
+    @classmethod
+    def find_sources(cls, path: str) -> List[Dict[str, Any]]:
+        sources = cls._get_sources(path)
+
         subsets = defaultdict(list)
         for source in sources:
             subset_name = osp.dirname(source["url"]).split("/")[-1]
@@ -106,10 +112,9 @@ class RoboflowVocImporter(Importer):
                 "format": cls.FORMAT,
                 "options": {
                     "subset": subset,
-                    # "urls": urls,
                 },
             }
-            for subset, urls in subsets.items()
+            for subset, _ in subsets.items()
         ]
 
         return sources
@@ -119,14 +124,6 @@ class RoboflowYoloImporter(RoboflowVocImporter):
     FORMAT = "roboflow_yolo"
     FORMAT_EXT = ".txt"
     ANN_DIR_NAME = "labels/"
-
-    # @classmethod
-    # def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-    #     with context.require_any():
-    #         with context.alternative():
-    #             cls._check_ann_file(context.require_file("**/labels/*" + cls.FORMAT_EXT), context)
-
-    #     return FormatDetectionConfidence.MEDIUM
 
     @classmethod
     def _check_ann_file_impl(cls, fp: TextIOWrapper) -> bool:
@@ -147,46 +144,28 @@ class RoboflowYoloImporter(RoboflowVocImporter):
 
         raise DatasetImportError("Empty file is not allowed.")
 
-    # @classmethod
-    # def find_sources(cls, path: str) -> List[Dict[str, Any]]:
-    #     def _filter_ann_file(fpath: str):
-    #         try:
-    #             with open(fpath, "r") as fp:
-    #                 return cls._check_ann_file_impl(fp)
-    #         except DatasetImportError:
-    #             return False
+    @classmethod
+    def find_sources(cls, path: str) -> List[Dict[str, Any]]:
+        sources = cls._get_sources(path)
 
-    #     sources = cls._find_sources_recursive(
-    #         path,
-    #         ext=".txt",
-    #         extractor_name="",
-    #         dirname="labels",
-    #         file_filter=_filter_ann_file,
-    #         filename="**/*",
-    #         max_depth=1,
-    #         recursive=True,
-    #     )
-    #     if len(sources) == 0:
-    #         return []
+        subsets = defaultdict(list)
+        for source in sources:
+            subset_name = osp.dirname(source["url"]).split("/")[-2]
+            subsets[subset_name].append(source["url"])
 
-    #     subsets = defaultdict(list)
-    #     for source in sources:
-    #         subset_name = osp.dirname(source["url"]).split("/")[-1]
-    #         subsets[subset_name].append(source["url"])
+        sources = [
+            {
+                "url": osp.join(path, subset),
+                "format": cls.FORMAT,
+                "options": {
+                    "subset": subset,
+                    "urls": urls,
+                },
+            }
+            for subset, urls in subsets.items()
+        ]
 
-    #     sources = [
-    #         {
-    #             "url": osp.join(path, subset),
-    #             "format": "roboflow_yolo",
-    #             "options": {
-    #                 "subset": subset,
-    #                 "urls": urls,
-    #             },
-    #         }
-    #         for subset, urls in subsets.items()
-    #     ]
-
-    #     return sources
+        return sources
 
 
 # class RoboflowYoloObbImporter(Importer):
