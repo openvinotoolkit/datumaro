@@ -6,10 +6,10 @@ from unittest.mock import call, mock_open, patch
 import numpy as np
 
 from datumaro.components.annotation import Bbox, Caption, Label, Mask, Points
+from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
-from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 
 from ..requirements import Requirements, mark_requirement
 

@@ -8,8 +8,8 @@ import os
 import os.path as osp
 from enum import Enum, auto
 
-from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
+from datumaro.components.errors import ProjectNotFoundError
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 

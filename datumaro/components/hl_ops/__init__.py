@@ -10,6 +10,7 @@ from typing import Dict, Iterable, Optional, Type, Union
 
 from datumaro.cli.util.compare import DistanceCompareVisualizer
 from datumaro.cli.util.project import generate_next_file_name
+from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 from datumaro.components.dataset import Dataset, DatasetItemStorageDatasetView, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetError
@@ -19,7 +20,6 @@ from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.merge import DEFAULT_MERGE_POLICY, get_merger
 from datumaro.components.transformer import Transform
 from datumaro.components.validator import TaskType, Validator
-from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 from datumaro.util import dump_json_file, parse_str_enum_value
 from datumaro.util.scope import on_error_do, scoped
 
