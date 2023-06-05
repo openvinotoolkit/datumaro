@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### New features
+
 ### Enhancements
 - Enhance import performance for built-in plugins
   (<https://github.com/openvinotoolkit/datumaro/pull/1031>)
+- Migrate OpenVINO v2023.0.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1036>)
+
 ### Bug fixes
 
 ## 26/05/2023 - Release 1.3.1
