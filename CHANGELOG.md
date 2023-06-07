@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1008>)
 - Add notebook examples for importing/exporting detection and segmentation data
   (<https://github.com/openvinotoolkit/datumaro/pull/1020>, <https://github.com/openvinotoolkit/datumaro/pull/1023>)
+- Update CLI from diff to compare, add TableComparator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1012>)
 
 ### Enhancements
 - Use autosummary for fully-automatic Python module docs generation

@@ -13,7 +13,7 @@ from scipy import linalg
 from scipy.stats import anderson_ksamp
 
 from datumaro.components.dataset import IDataset
-from datumaro.plugins.shift_analyzer import ShiftAnalyzerLauncher
+from datumaro.plugins.openvino_plugin.shift_launcher import ShiftLauncher
 from datumaro.util import take_by
 
 
@@ -115,7 +115,7 @@ class ShiftAnalyzer:
         topk:
             Number of images.
         """
-        self._model = ShiftAnalyzerLauncher(
+        self._model = ShiftLauncher(
             model_name="googlenet-v4-tf",
             output_layers="InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape",
         )

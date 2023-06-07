@@ -5,9 +5,9 @@
 # pylint: disable=redefined-builtin
 
 from . import (
+    compare,
     convert,
     detect_format,
-    diff,
     download,
     explain,
     explore,
@@ -32,7 +32,7 @@ def get_non_project_commands():
     return [
         ("convert", convert, "Convert dataset between formats"),
         ("detect", detect_format, "Detect the format of a dataset"),
-        ("diff", diff, "Compare datasets"),
+        ("compare", compare, "Compare datasets"),
         ("dinfo", info, "Print dataset info"),
         ("download", download, "Download a publicly available dataset"),
         ("explain", explain, "Run Explainable AI algorithm for model"),

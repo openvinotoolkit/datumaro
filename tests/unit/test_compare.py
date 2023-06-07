@@ -1,14 +1,19 @@
-from unittest import TestCase
+import platform
+import unittest
+from unittest import TestCase, skipIf
+from unittest.mock import call, mock_open, patch
 
 import numpy as np
 
 from datumaro.components.annotation import Bbox, Caption, Label, Mask, Points
+from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.media import Image
-from datumaro.components.operations import DistanceComparator, ExactComparator
 from datumaro.components.project import Dataset
 
 from ..requirements import Requirements, mark_requirement
+
+from tests.utils.assets import get_test_asset_path
 
 
 class DistanceComparatorTest(TestCase):
@@ -161,8 +166,9 @@ class ExactComparatorTest(TestCase):
         a = Dataset.from_iterable([], categories=["a", "b", "c"])
         b = Dataset.from_iterable([], categories=["b", "c"])
 
-        comp = ExactComparator()
-        _, _, _, _, errors = comp.compare_datasets(a, b)
+        comp = EqualityComparator()
+        output = comp.compare_datasets(a, b)
+        errors = output["errors"]
 
         self.assertEqual(1, len(errors), errors)
 
@@ -184,11 +190,15 @@ class ExactComparatorTest(TestCase):
             categories=["a", "b", "c"],
         )
 
-        comp = ExactComparator()
-        _, _, a_extra_items, b_extra_items, errors = comp.compare_datasets(a, b)
+        comp = EqualityComparator()
+        output = comp.compare_datasets(a, b)
 
-        self.assertEqual({("1", "train")}, a_extra_items)
-        self.assertEqual({("3", DEFAULT_SUBSET_NAME)}, b_extra_items)
+        a_extra_items = output["a_extra_items"]
+        b_extra_items = output["b_extra_items"]
+        errors = output["errors"]
+
+        self.assertEqual([("1", "train")], a_extra_items)
+        self.assertEqual([("3", DEFAULT_SUBSET_NAME)], b_extra_items)
         self.assertEqual(1, len(errors), errors)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -261,9 +271,12 @@ class ExactComparatorTest(TestCase):
             categories=["a", "b", "c", "d"],
         )
 
-        comp = ExactComparator()
-        matched, unmatched, _, _, errors = comp.compare_datasets(a, b)
+        comp = EqualityComparator(all=True)
+        output = comp.compare_datasets(a, b)
 
+        matched = output["matches"]
+        unmatched = output["mismatches"]
+        errors = output["errors"]
         self.assertEqual(6, len(matched), matched)
         self.assertEqual(2, len(unmatched), unmatched)
         self.assertEqual(0, len(errors), errors)
@@ -358,11 +371,94 @@ class ExactComparatorTest(TestCase):
             categories=["a", "b", "c", "d"],
         )
 
-        comp = ExactComparator(match_images=True)
-        matched_ann, unmatched_ann, a_unmatched, b_unmatched, errors = comp.compare_datasets(a, b)
+        comp = EqualityComparator(match_images=True, all=True)
+        output = comp.compare_datasets(a, b)
 
+        matched_ann = output["matches"]
+        unmatched_ann = output["mismatches"]
+        a_unmatched = output["a_extra_items"]
+        b_unmatched = output["b_extra_items"]
+        errors = output["errors"]
         self.assertEqual(3, len(matched_ann), matched_ann)
         self.assertEqual(5, len(unmatched_ann), unmatched_ann)
         self.assertEqual(1, len(a_unmatched), a_unmatched)
         self.assertEqual(1, len(b_unmatched), b_unmatched)
         self.assertEqual(1, len(errors), errors)
+
+
+class TableComparatorTest(unittest.TestCase):
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/5086331272/jobs/9140703588",
+    )
+    def test_compare_datasets(self):
+        # Import datatset
+        first_dataset = Dataset.import_from(get_test_asset_path("mnist_dataset"))
+        second_dataset = Dataset.import_from(get_test_asset_path("cifar10_dataset"))
+
+        # Create instance of TableComparator
+        table_comparator = TableComparator()
+
+        # Call the compare_datasets method
+        (
+            high_level_table,
+            mid_level_table,
+            low_level_table,
+            comparison_dict,
+        ) = table_comparator.compare_datasets(first_dataset, second_dataset)
+
+        # Assert that the return values are not empty
+        self.assertIsNotNone(high_level_table)
+        self.assertIsNotNone(mid_level_table)
+        self.assertIsNotNone(low_level_table)
+        self.assertIsNotNone(comparison_dict)
+
+    # Mocking is used to replace parts of the system that are being tested with mock objects.
+    @patch("os.makedirs")
+    @patch("datumaro.components.comparator.generate_next_file_name")
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("datumaro.components.comparator.dump_json_file")
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/5086331272/jobs/9140703588",
+    )
+    def test_save_compare_report(
+        self, mock_dump_json_file, mock_file, mock_generate_next_file_name, mock_makedirs
+    ):
+        # Define mock variables
+        mock_high_level_table = "High-level table"
+        mock_mid_level_table = "Mid-level table"
+        mock_low_level_table = "Low-level table"
+        mock_comparison_dict = {"comparison": "data"}
+        mock_report_dir = "/mock/dir"
+        mock_json_output_file = "/mock/dir/table_compare_1.json"
+        mock_txt_output_file = "/mock/dir/table_compare_1.txt"
+
+        mock_generate_next_file_name.side_effect = [mock_json_output_file, mock_txt_output_file]
+
+        TableComparator.save_compare_report(
+            mock_high_level_table,
+            mock_mid_level_table,
+            mock_low_level_table,
+            mock_comparison_dict,
+            mock_report_dir,
+        )
+
+        # Check that the os.makedirs function is called once with the correct arguments.
+        mock_makedirs.assert_called_once_with(mock_report_dir, exist_ok=True)
+
+        # Check that the dump_json_file function is called with the correct arguments.
+        calls = [call(mock_json_output_file, mock_comparison_dict, indent=True)]
+        mock_dump_json_file.assert_has_calls(calls)
+
+        # Check that the open and write function is called with the correct arguments.
+        mock_file.assert_any_call(mock_txt_output_file, "w")
+        mock_file().write.assert_has_calls(
+            [
+                call(f"High-level Comparison:\n{mock_high_level_table}\n\n"),
+                call(f"Mid-level Comparison:\n{mock_mid_level_table}\n\n"),
+                call(f"Low-level Comparison:\n{mock_low_level_table}\n\n"),
+            ]
+        )

@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -8,19 +8,19 @@ import os
 import os.path as osp
 from enum import Enum, auto
 
+from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.components.operations import DistanceComparator, ExactComparator
-from datumaro.util import dump_json_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..util import MultilineFormatter
-from ..util.diff import DiffVisualizer
+from ..util.compare import DistanceCompareVisualizer
 from ..util.errors import CliException
 from ..util.project import generate_next_file_name, load_project, parse_full_revpath
 
 
 class ComparisonMethod(Enum):
+    table = auto()
     equality = auto()
     distance = auto()
 
@@ -53,7 +53,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         useful for dataset paths in targets. When not specified, the current
         project's working tree is used.|n
         |n
-        Annotations can be matched 2 ways:|n
+        Annotations can be matched 3 ways:|n
+        - by comparision table|n
         - by equality checking|n
         - by distance computation|n
         |n
@@ -64,7 +65,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         - Compare two projects for equality, exclude annotation groups |n
         |s|s|s|sand the 'is_crowd' attribute from comparison:|n
-        |s|s%(prog)s other/project/ -if group -ia is_crowd|n
+        |s|s%(prog)s other/project/ -if group -ia is_crowd -m equality|n
         |n
         - Compare two datasets, specify formats:|n
         |s|s%(prog)s path/to/dataset1:voc path/to/dataset2:coco|n
@@ -78,12 +79,12 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter,
     )
 
-    formats = ", ".join(f.name for f in DiffVisualizer.OutputFormat)
+    formats = ", ".join(f.name for f in DistanceCompareVisualizer.OutputFormat)
     comp_methods = ", ".join(m.name for m in ComparisonMethod)
 
     def _parse_output_format(s):
         try:
-            return DiffVisualizer.OutputFormat[s.lower()]
+            return DistanceCompareVisualizer.OutputFormat[s.lower()]
         except KeyError:
             raise argparse.ArgumentError(
                 "format",
@@ -115,7 +116,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "-m",
         "--method",
         type=_parse_comparison_method,
-        default=ComparisonMethod.equality.name,
+        default=ComparisonMethod.table.name,
         help="Comparison method, one of {} (default: %(default)s)".format(comp_methods),
     )
     parser.add_argument(
@@ -127,7 +128,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         dest="project_dir",
         help="Directory of the current project (default: current dir)",
     )
-    parser.set_defaults(command=diff_command)
+    parser.set_defaults(command=compare_command)
 
     distance_parser = parser.add_argument_group("Distance comparison options")
     distance_parser.add_argument(
@@ -140,7 +141,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "-f",
         "--format",
         type=_parse_output_format,
-        default=DiffVisualizer.DEFAULT_FORMAT.name,
+        default=DistanceCompareVisualizer.DEFAULT_FORMAT.name,
         help="Output format, one of {} (default: %(default)s)".format(formats),
     )
 
@@ -169,7 +170,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_sensitive_args():
     return {
-        diff_command: [
+        compare_command: [
             "first_target",
             "second_target",
             "dst_dir",
@@ -179,7 +180,7 @@ def get_sensitive_args():
 
 
 @scoped
-def diff_command(args):
+def compare_command(args):
     dst_dir = args.dst_dir
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
@@ -187,7 +188,7 @@ def diff_command(args):
                 "Directory '%s' already exists " "(pass --overwrite to overwrite)" % dst_dir
             )
     else:
-        dst_dir = generate_next_file_name("diff")
+        dst_dir = generate_next_file_name("compare")
     dst_dir = osp.abspath(dst_dir)
 
     if not osp.exists(dst_dir):
@@ -218,47 +219,40 @@ def diff_command(args):
     except Exception as e:
         raise CliException(str(e))
 
-    if args.method is ComparisonMethod.equality:
+    if args.method is ComparisonMethod.table:
+        comparator = TableComparator()
+        (
+            high_level_table,
+            mid_level_table,
+            low_level_table,
+            comparison_dict,
+        ) = comparator.compare_datasets(first_dataset, second_dataset)
+        if args.dst_dir:
+            comparator.save_compare_report(
+                high_level_table, mid_level_table, low_level_table, comparison_dict, args.dst_dir
+            )
+
+    elif args.method is ComparisonMethod.equality:
         if args.ignore_field:
             args.ignore_field = eq_default_if
-        comparator = ExactComparator(
+
+        comparator = EqualityComparator(
             match_images=args.match_images,
             ignored_fields=args.ignore_field,
             ignored_attrs=args.ignore_attr,
             ignored_item_attrs=args.ignore_item_attr,
+            all=args.all,
         )
-        matches, mismatches, a_extra, b_extra, errors = comparator.compare_datasets(
-            first_dataset, second_dataset
-        )
+        output = comparator.compare_datasets(first_dataset, second_dataset)
+        if args.dst_dir:
+            comparator.save_compare_report(output, args.dst_dir)
 
-        output = {
-            "mismatches": mismatches,
-            "a_extra_items": sorted(a_extra),
-            "b_extra_items": sorted(b_extra),
-            "errors": errors,
-        }
-        if args.all:
-            output["matches"] = matches
-
-        output_file = osp.join(
-            dst_dir, generate_next_file_name("diff", ext=".json", basedir=dst_dir)
-        )
-        log.info("Saving diff to '%s'" % output_file)
-        dump_json_file(output_file, output, indent=True)
-
-        print("Found:")
-        print("The first project has %s unmatched items" % len(a_extra))
-        print("The second project has %s unmatched items" % len(b_extra))
-        print("%s item conflicts" % len(errors))
-        print("%s matching annotations" % len(matches))
-        print("%s mismatching annotations" % len(mismatches))
     elif args.method is ComparisonMethod.distance:
         comparator = DistanceComparator(iou_threshold=args.iou_thresh)
-
-        with DiffVisualizer(
+        with DistanceCompareVisualizer(
             save_dir=dst_dir, comparator=comparator, output_format=args.format
         ) as visualizer:
-            log.info("Saving diff to '%s'" % dst_dir)
+            log.info("Saving compare to '%s'" % dst_dir)
             visualizer.save(first_dataset, second_dataset)
 
     return 0

@@ -8,6 +8,9 @@ import os.path as osp
 import shutil
 from typing import Dict, Iterable, Optional, Type, Union
 
+from datumaro.cli.util.compare import DistanceCompareVisualizer
+from datumaro.cli.util.project import generate_next_file_name
+from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 from datumaro.components.dataset import Dataset, DatasetItemStorageDatasetView, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetError
@@ -17,7 +20,7 @@ from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.merge import DEFAULT_MERGE_POLICY, get_merger
 from datumaro.components.transformer import Transform
 from datumaro.components.validator import TaskType, Validator
-from datumaro.util import parse_str_enum_value
+from datumaro.util import dump_json_file, parse_str_enum_value
 from datumaro.util.scope import on_error_do, scoped
 
 __all__ = ["HLOps"]
@@ -25,6 +28,66 @@ __all__ = ["HLOps"]
 
 class HLOps:
     """High-level dataset operations for Python API."""
+
+    @staticmethod
+    def compare(
+        first_dataset: IDataset,
+        second_dataset: IDataset,
+        report_dir: Optional[str] = None,
+        method: str = "table",
+        **kwargs,
+    ) -> IDataset:
+        """
+        Compare two datasets and optionally save a comparison report.
+
+        Args:
+            first_dataset (IDataset): The first dataset to compare.
+            second_dataset (IDataset): The second dataset to compare.
+            report_dir (Optional[str], optional): The directory path to save the comparison report. Defaults to None.
+            method (str, optional): The comparison method to use. Possible values are "table", "equality", "distance".
+                Defaults to "table".
+            **kwargs: Additional keyword arguments that can be passed to the comparison method.
+
+        Returns:
+            IDataset: The result of the comparison.
+
+        Raises:
+            ValueError: If the method is "distance" and report_dir is not specified.
+
+        Example:
+            comparator = Comparator()
+            result = comparator.compare(first_dataset, second_dataset, report_dir="./comparison_report")
+            print(result)
+        """
+        if method == "table":
+            comparator = TableComparator()
+            h_table, m_table, l_table, result_dict = comparator.compare_datasets(
+                first_dataset, second_dataset
+            )
+            if report_dir:
+                comparator.save_compare_report(h_table, m_table, l_table, result_dict, report_dir)
+
+        elif method == "equality":
+            comparator = EqualityComparator(**kwargs)
+            output = comparator.compare_datasets(first_dataset, second_dataset)
+            if report_dir:
+                comparator.save_compare_report(output, report_dir)
+
+        elif method == "distance":
+            if not report_dir:
+                raise ValueError(
+                    "Please specify report_dir to save comparision result for DistanceComparator."
+                )
+            output_format = kwargs.pop("output_format", "simple")
+            comparator = DistanceComparator(**kwargs)
+            with DistanceCompareVisualizer(
+                save_dir=report_dir,
+                comparator=comparator,
+                output_format=output_format,
+            ) as visualizer:
+                visualizer.save(first_dataset, second_dataset)
+
+        return 0
 
     @staticmethod
     def transform(
