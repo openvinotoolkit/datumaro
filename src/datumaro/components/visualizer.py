@@ -202,7 +202,8 @@ class Visualizer:
                 f"n_samples={n_samples} should be less than the dataset size ({len(self.dataset)})."
             )
 
-        return random.choices(self._items, k=n_samples)
+        # Disable B311: random - used for general random sampling not for security/crypto
+        return random.choices(self._items, k=n_samples)  # nosec B311
 
     @overload
     def vis_gallery(

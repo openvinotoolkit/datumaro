@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-import pickle  # nosec import_pickle
+import pickle  # nosec B403
 
 import numpy.core.multiarray
 

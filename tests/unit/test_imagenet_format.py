@@ -1,4 +1,4 @@
-import pickle  # nosec import_pickle
+import pickle  # nosec B403
 from copy import deepcopy
 from unittest import TestCase
 
