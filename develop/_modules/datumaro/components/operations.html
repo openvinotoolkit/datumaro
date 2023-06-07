@@ -286,20 +286,14 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
 
 <span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">attr</span> <span class="kn">import</span> <span class="n">attrib</span><span class="p">,</span> <span class="n">attrs</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.annotations.matcher</span> <span class="kn">import</span> <span class="n">LineMatcher</span><span class="p">,</span> <span class="n">PointsMatcher</span><span class="p">,</span> <span class="n">match_segments</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">CategoriesInfo</span><span class="p">,</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">IDataset</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">filter_dict</span><span class="p">,</span> <span class="n">find</span>
-<span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">find_instances</span><span class="p">,</span> <span class="n">max_bbox</span>
-<span class="kn">from</span> <span class="nn">datumaro.util.attrs_util</span> <span class="kn">import</span> <span class="n">default_if_none</span>
 
 
 <div class="viewcode-block" id="mean_std"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.mean_std">[docs]</a><span class="k">def</span> <span class="nf">mean_std</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
@@ -618,115 +612,6 @@
     <span class="k">return</span> <span class="n">stats</span></div>
 
 
-<div class="viewcode-block" id="DistanceComparator"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.DistanceComparator">[docs]</a><span class="nd">@attrs</span>
-<span class="k">class</span> <span class="nc">DistanceComparator</span><span class="p">:</span>
-    <span class="n">iou_threshold</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-
-<div class="viewcode-block" id="DistanceComparator.match_annotations"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.DistanceComparator.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_ann_type</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">AnnotationType</span><span class="p">}</span></div>
-
-    <span class="k">def</span> <span class="nf">_match_ann_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="c1"># pylint: disable=no-value-for-parameter</span>
-        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_labels</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_boxes</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polygon</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_polygons</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_masks</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_points</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polyline</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_lines</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-        <span class="c1"># pylint: enable=no-value-for-parameter</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unexpected annotation type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">t</span><span class="p">)</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_get_ann_type</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">t</span><span class="p">]</span>
-
-<div class="viewcode-block" id="DistanceComparator.match_labels"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.DistanceComparator.match_labels">[docs]</a>    <span class="k">def</span> <span class="nf">match_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">):</span>
-        <span class="n">a_labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ann_type</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">item_a</span><span class="p">))</span>
-        <span class="n">b_labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ann_type</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">item_b</span><span class="p">))</span>
-
-        <span class="n">matches</span> <span class="o">=</span> <span class="n">a_labels</span> <span class="o">&amp;</span> <span class="n">b_labels</span>
-        <span class="n">a_unmatched</span> <span class="o">=</span> <span class="n">a_labels</span> <span class="o">-</span> <span class="n">b_labels</span>
-        <span class="n">b_unmatched</span> <span class="o">=</span> <span class="n">b_labels</span> <span class="o">-</span> <span class="n">a_labels</span>
-        <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
-
-    <span class="k">def</span> <span class="nf">_match_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">):</span>
-        <span class="n">a_boxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ann_type</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">item_a</span><span class="p">)</span>
-        <span class="n">b_boxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ann_type</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">match_segments</span><span class="p">(</span><span class="n">a_boxes</span><span class="p">,</span> <span class="n">b_boxes</span><span class="p">,</span> <span class="n">dist_thresh</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iou_threshold</span><span class="p">)</span>
-
-<div class="viewcode-block" id="DistanceComparator.match_polygons"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.DistanceComparator.match_polygons">[docs]</a>    <span class="k">def</span> <span class="nf">match_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_segments</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">polygon</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="DistanceComparator.match_masks"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.DistanceComparator.match_masks">[docs]</a>    <span class="k">def</span> <span class="nf">match_masks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_segments</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="DistanceComparator.match_boxes"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.DistanceComparator.match_boxes">[docs]</a>    <span class="k">def</span> <span class="nf">match_boxes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_segments</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="DistanceComparator.match_points"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.DistanceComparator.match_points">[docs]</a>    <span class="k">def</span> <span class="nf">match_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">):</span>
-        <span class="n">a_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ann_type</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">item_a</span><span class="p">)</span>
-        <span class="n">b_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ann_type</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
-
-        <span class="n">instance_map</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="n">item_a</span><span class="o">.</span><span class="n">annotations</span><span class="p">,</span> <span class="n">item_b</span><span class="o">.</span><span class="n">annotations</span><span class="p">]:</span>
-            <span class="n">s_instances</span> <span class="o">=</span> <span class="n">find_instances</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">s_instances</span><span class="p">:</span>
-                <span class="n">inst_bbox</span> <span class="o">=</span> <span class="n">max_bbox</span><span class="p">(</span><span class="n">inst</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">inst</span><span class="p">:</span>
-                    <span class="n">instance_map</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">ann</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">inst</span><span class="p">,</span> <span class="n">inst_bbox</span><span class="p">]</span>
-        <span class="n">matcher</span> <span class="o">=</span> <span class="n">PointsMatcher</span><span class="p">(</span><span class="n">instance_map</span><span class="o">=</span><span class="n">instance_map</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">match_segments</span><span class="p">(</span>
-            <span class="n">a_points</span><span class="p">,</span> <span class="n">b_points</span><span class="p">,</span> <span class="n">dist_thresh</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iou_threshold</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">matcher</span><span class="o">.</span><span class="n">distance</span>
-        <span class="p">)</span></div>
-
-<div class="viewcode-block" id="DistanceComparator.match_lines"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.DistanceComparator.match_lines">[docs]</a>    <span class="k">def</span> <span class="nf">match_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">):</span>
-        <span class="n">a_lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ann_type</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">polyline</span><span class="p">,</span> <span class="n">item_a</span><span class="p">)</span>
-        <span class="n">b_lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ann_type</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">polyline</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
-
-        <span class="n">matcher</span> <span class="o">=</span> <span class="n">LineMatcher</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">match_segments</span><span class="p">(</span>
-            <span class="n">a_lines</span><span class="p">,</span> <span class="n">b_lines</span><span class="p">,</span> <span class="n">dist_thresh</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iou_threshold</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">matcher</span><span class="o">.</span><span class="n">distance</span>
-        <span class="p">)</span></div></div>
-
-
-<div class="viewcode-block" id="match_items_by_id"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_items_by_id">[docs]</a><span class="k">def</span> <span class="nf">match_items_by_id</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
-    <span class="n">a_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span>
-    <span class="n">b_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">b</span><span class="p">)</span>
-
-    <span class="n">matches</span> <span class="o">=</span> <span class="n">a_items</span> <span class="o">&amp;</span> <span class="n">b_items</span>
-    <span class="n">matches</span> <span class="o">=</span> <span class="p">[([</span><span class="n">m</span><span class="p">],</span> <span class="p">[</span><span class="n">m</span><span class="p">])</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">]</span>
-    <span class="n">a_unmatched</span> <span class="o">=</span> <span class="n">a_items</span> <span class="o">-</span> <span class="n">b_items</span>
-    <span class="n">b_unmatched</span> <span class="o">=</span> <span class="n">b_items</span> <span class="o">-</span> <span class="n">a_items</span>
-    <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
-
-
-<div class="viewcode-block" id="match_items_by_image_hash"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_items_by_image_hash">[docs]</a><span class="k">def</span> <span class="nf">match_items_by_image_hash</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
-    <span class="n">a_hash</span> <span class="o">=</span> <span class="n">find_unique_images</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-    <span class="n">b_hash</span> <span class="o">=</span> <span class="n">find_unique_images</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-
-    <span class="n">a_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">a_hash</span><span class="p">)</span>
-    <span class="n">b_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">b_hash</span><span class="p">)</span>
-
-    <span class="n">matches</span> <span class="o">=</span> <span class="n">a_items</span> <span class="o">&amp;</span> <span class="n">b_items</span>
-    <span class="n">a_unmatched</span> <span class="o">=</span> <span class="n">a_items</span> <span class="o">-</span> <span class="n">b_items</span>
-    <span class="n">b_unmatched</span> <span class="o">=</span> <span class="n">b_items</span> <span class="o">-</span> <span class="n">a_items</span>
-
-    <span class="n">matches</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a_hash</span><span class="p">[</span><span class="n">h</span><span class="p">],</span> <span class="n">b_hash</span><span class="p">[</span><span class="n">h</span><span class="p">])</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">]</span>
-    <span class="n">a_unmatched</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">a_unmatched</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">a_hash</span><span class="p">[</span><span class="n">h</span><span class="p">])</span>
-    <span class="n">b_unmatched</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">b_unmatched</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">b_hash</span><span class="p">[</span><span class="n">h</span><span class="p">])</span>
-
-    <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
-
-
 <span class="k">class</span> <span class="nc">_ItemMatcher</span><span class="p">:</span>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_default_item_hash</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">):</span>
@@ -779,193 +664,33 @@
     <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
 
 
-<div class="viewcode-block" id="ExactComparator"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.ExactComparator">[docs]</a><span class="nd">@attrs</span>
-<span class="k">class</span> <span class="nc">ExactComparator</span><span class="p">:</span>
-    <span class="n">match_images</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ignored_fields</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">set</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">set</span><span class="p">))</span>
-    <span class="n">ignored_attrs</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">set</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">set</span><span class="p">))</span>
-    <span class="n">ignored_item_attrs</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">set</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">set</span><span class="p">))</span>
+<div class="viewcode-block" id="match_items_by_id"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_items_by_id">[docs]</a><span class="k">def</span> <span class="nf">match_items_by_id</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+    <span class="n">a_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span>
+    <span class="n">b_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">b</span><span class="p">)</span>
 
-    <span class="n">_test</span><span class="p">:</span> <span class="n">TestCase</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">errors</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">a_items</span> <span class="o">&amp;</span> <span class="n">b_items</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="p">[([</span><span class="n">m</span><span class="p">],</span> <span class="p">[</span><span class="n">m</span><span class="p">])</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">]</span>
+    <span class="n">a_unmatched</span> <span class="o">=</span> <span class="n">a_items</span> <span class="o">-</span> <span class="n">b_items</span>
+    <span class="n">b_unmatched</span> <span class="o">=</span> <span class="n">b_items</span> <span class="o">-</span> <span class="n">a_items</span>
+    <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
 
-    <span class="k">def</span> <span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_test</span> <span class="o">=</span> <span class="n">TestCase</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_test</span><span class="o">.</span><span class="n">maxDiff</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_match_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_images</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">match_items_by_image_hash</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">match_items_by_id</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<div class="viewcode-block" id="match_items_by_image_hash"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_items_by_image_hash">[docs]</a><span class="k">def</span> <span class="nf">match_items_by_image_hash</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+    <span class="n">a_hash</span> <span class="o">=</span> <span class="n">find_unique_images</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">b_hash</span> <span class="o">=</span> <span class="n">find_unique_images</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_compare_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-        <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_test</span>
-        <span class="n">errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span>
+    <span class="n">a_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">a_hash</span><span class="p">)</span>
+    <span class="n">b_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">b_hash</span><span class="p">)</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
-        <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;categories&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)})</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">a_items</span> <span class="o">&amp;</span> <span class="n">b_items</span>
+    <span class="n">a_unmatched</span> <span class="o">=</span> <span class="n">a_items</span> <span class="o">-</span> <span class="n">b_items</span>
+    <span class="n">b_unmatched</span> <span class="o">=</span> <span class="n">b_items</span> <span class="o">-</span> <span class="n">a_items</span>
 
-        <span class="k">if</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-                    <span class="n">a</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">,</span>
-                    <span class="n">b</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)})</span>
-        <span class="k">if</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-                    <span class="n">a</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">colormap</span><span class="p">,</span>
-                    <span class="n">b</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">colormap</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;colormap&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)})</span>
-        <span class="k">if</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-                    <span class="n">a</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">,</span>
-                    <span class="n">b</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)})</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a_hash</span><span class="p">[</span><span class="n">h</span><span class="p">],</span> <span class="n">b_hash</span><span class="p">[</span><span class="n">h</span><span class="p">])</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">]</span>
+    <span class="n">a_unmatched</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">a_unmatched</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">a_hash</span><span class="p">[</span><span class="n">h</span><span class="p">])</span>
+    <span class="n">b_unmatched</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">b_unmatched</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">b_hash</span><span class="p">[</span><span class="n">h</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">_compare_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-        <span class="n">ignored_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignored_fields</span>
-        <span class="n">ignored_attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignored_attrs</span>
-
-        <span class="n">a_fields</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ignored_fields</span><span class="p">}</span>
-        <span class="n">b_fields</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ignored_fields</span><span class="p">}</span>
-        <span class="k">if</span> <span class="s2">&quot;attributes&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ignored_fields</span><span class="p">:</span>
-            <span class="n">a_fields</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_dict</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="n">ignored_attrs</span><span class="p">)</span>
-            <span class="n">b_fields</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_dict</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="n">ignored_attrs</span><span class="p">)</span>
-
-        <span class="n">result</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="o">**</span><span class="n">a_fields</span><span class="p">)</span> <span class="o">==</span> <span class="n">b</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="o">**</span><span class="n">b_fields</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">result</span>
-
-    <span class="k">def</span> <span class="nf">_compare_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">):</span>
-        <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_test</span>
-
-        <span class="n">a_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item_a</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span>
-        <span class="n">b_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item_b</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span>
-
-        <span class="n">matched</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">unmatched</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">test</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
-                <span class="n">filter_dict</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignored_item_attrs</span><span class="p">),</span>
-                <span class="n">filter_dict</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignored_item_attrs</span><span class="p">),</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;item_attr&quot;</span><span class="p">,</span> <span class="s2">&quot;a_item&quot;</span><span class="p">:</span> <span class="n">a_id</span><span class="p">,</span> <span class="s2">&quot;b_item&quot;</span><span class="p">:</span> <span class="n">b_id</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)})</span>
-
-        <span class="n">b_annotations</span> <span class="o">=</span> <span class="n">item_b</span><span class="o">.</span><span class="n">annotations</span><span class="p">[:]</span>
-        <span class="k">for</span> <span class="n">ann_a</span> <span class="ow">in</span> <span class="n">item_a</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
-            <span class="n">ann_b_candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">item_b</span><span class="o">.</span><span class="n">annotations</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">ann_a</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
-
-            <span class="n">ann_b</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span>
-                <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compare_annotations</span><span class="p">(</span><span class="n">ann_a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ann_b_candidates</span><span class="p">),</span>
-                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">ann_b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">unmatched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;item&quot;</span><span class="p">:</span> <span class="n">a_id</span><span class="p">,</span>
-                        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;ann&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ann_a</span><span class="p">),</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-                <span class="k">continue</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ann_b</span> <span class="o">=</span> <span class="n">ann_b_candidates</span><span class="p">[</span><span class="n">ann_b</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-
-            <span class="n">b_annotations</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ann_b</span><span class="p">)</span>  <span class="c1"># avoid repeats</span>
-            <span class="n">matched</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;a_item&quot;</span><span class="p">:</span> <span class="n">a_id</span><span class="p">,</span> <span class="s2">&quot;b_item&quot;</span><span class="p">:</span> <span class="n">b_id</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ann_a</span><span class="p">),</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ann_b</span><span class="p">)})</span>
-
-        <span class="k">for</span> <span class="n">ann_b</span> <span class="ow">in</span> <span class="n">b_annotations</span><span class="p">:</span>
-            <span class="n">unmatched</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;item&quot;</span><span class="p">:</span> <span class="n">b_id</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;ann&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ann_b</span><span class="p">)})</span>
-
-        <span class="k">return</span> <span class="n">matched</span><span class="p">,</span> <span class="n">unmatched</span><span class="p">,</span> <span class="n">errors</span>
-
-<div class="viewcode-block" id="ExactComparator.compare_datasets"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.ExactComparator.compare_datasets">[docs]</a>    <span class="k">def</span> <span class="nf">compare_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_compare_categories</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">categories</span><span class="p">(),</span> <span class="n">b</span><span class="o">.</span><span class="n">categories</span><span class="p">())</span>
-
-        <span class="n">matched</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">unmatched</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_items</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">matched</span><span class="p">,</span> <span class="n">unmatched</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span><span class="p">,</span> <span class="n">errors</span>
-
-        <span class="n">_dist</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">a_ids</span><span class="p">,</span> <span class="n">b_ids</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
-            <span class="c1"># build distance matrix</span>
-            <span class="n">match_status</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># (a_id, b_id): [matched, unmatched, errors]</span>
-            <span class="n">a_matches</span> <span class="o">=</span> <span class="p">{</span><span class="n">a_id</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">a_id</span> <span class="ow">in</span> <span class="n">a_ids</span><span class="p">}</span>
-            <span class="n">b_matches</span> <span class="o">=</span> <span class="p">{</span><span class="n">b_id</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">b_id</span> <span class="ow">in</span> <span class="n">b_ids</span><span class="p">}</span>
-
-            <span class="k">for</span> <span class="n">a_id</span> <span class="ow">in</span> <span class="n">a_ids</span><span class="p">:</span>
-                <span class="n">item_a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">a_id</span><span class="p">)</span>
-                <span class="n">candidates</span> <span class="o">=</span> <span class="p">{}</span>
-
-                <span class="k">for</span> <span class="n">b_id</span> <span class="ow">in</span> <span class="n">b_ids</span><span class="p">:</span>
-                    <span class="n">item_b</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">b_id</span><span class="p">)</span>
-
-                    <span class="n">i_m</span><span class="p">,</span> <span class="n">i_um</span><span class="p">,</span> <span class="n">i_err</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compare_items</span><span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
-                    <span class="n">candidates</span><span class="p">[</span><span class="n">b_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i_m</span><span class="p">,</span> <span class="n">i_um</span><span class="p">,</span> <span class="n">i_err</span><span class="p">]</span>
-
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_um</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">a_matches</span><span class="p">[</span><span class="n">a_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">b_id</span>
-                        <span class="n">b_matches</span><span class="p">[</span><span class="n">b_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">a_id</span>
-                        <span class="n">matched</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i_m</span><span class="p">)</span>
-                        <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i_err</span><span class="p">)</span>
-                        <span class="k">break</span>
-
-                <span class="n">match_status</span><span class="p">[</span><span class="n">a_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">candidates</span>
-
-            <span class="c1"># assign</span>
-            <span class="k">for</span> <span class="n">a_id</span> <span class="ow">in</span> <span class="n">a_ids</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">break</span>
-
-                <span class="c1"># find the closest, ignore already assigned</span>
-                <span class="n">matched_b</span> <span class="o">=</span> <span class="n">a_matches</span><span class="p">[</span><span class="n">a_id</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">matched_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="n">min_dist</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-                <span class="k">for</span> <span class="n">b_id</span> <span class="ow">in</span> <span class="n">b_ids</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">b_matches</span><span class="p">[</span><span class="n">b_id</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="k">continue</span>
-                    <span class="n">d</span> <span class="o">=</span> <span class="n">_dist</span><span class="p">(</span><span class="n">match_status</span><span class="p">[</span><span class="n">a_id</span><span class="p">][</span><span class="n">b_id</span><span class="p">])</span>
-                    <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">min_dist</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">min_dist</span><span class="p">:</span>
-                        <span class="k">continue</span>
-                    <span class="n">min_dist</span> <span class="o">=</span> <span class="n">d</span>
-                    <span class="n">matched_b</span> <span class="o">=</span> <span class="n">b_id</span>
-
-                <span class="k">if</span> <span class="n">matched_b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="n">a_matches</span><span class="p">[</span><span class="n">a_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">matched_b</span>
-                <span class="n">b_matches</span><span class="p">[</span><span class="n">matched_b</span><span class="p">]</span> <span class="o">=</span> <span class="n">a_id</span>
-
-                <span class="n">m</span> <span class="o">=</span> <span class="n">match_status</span><span class="p">[</span><span class="n">a_id</span><span class="p">][</span><span class="n">matched_b</span><span class="p">]</span>
-                <span class="n">matched</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">unmatched</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-
-            <span class="n">a_unmatched</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">a_id</span> <span class="k">for</span> <span class="n">a_id</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">a_matches</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">)</span>
-            <span class="n">b_unmatched</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">b_id</span> <span class="k">for</span> <span class="n">b_id</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">b_matches</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">matched</span><span class="p">,</span> <span class="n">unmatched</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span><span class="p">,</span> <span class="n">errors</span></div></div>
+    <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
 </pre></div>
 
             </article>

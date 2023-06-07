@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Diff &#8212; Datumaro 1.3.1 documentation</title>
+    <title>Compare &#8212; Datumaro 1.3.1 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/command-reference/context_free/diff';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/command-reference/context_free/compare';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Info" href="dinfo.html" />
-    <link rel="prev" title="Detect" href="detect.html" />
+    <link rel="next" title="Convert" href="convert.html" />
+    <link rel="prev" title="Context-free Commands" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -390,9 +390,9 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Context-free Commands</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Compare</a></li>
 <li class="toctree-l2"><a class="reference internal" href="convert.html">Convert</a></li>
 <li class="toctree-l2"><a class="reference internal" href="detect.html">Detect</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Diff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dinfo.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="download.html">Download</a></li>
 <li class="toctree-l2"><a class="reference internal" href="explain.html">Explain</a></li>
@@ -436,6 +436,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.annotation.html">datumaro.components.annotation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.annotations.html">datumaro.components.annotations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.cli_plugin.html">datumaro.components.cli_plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.comparator.html">datumaro.components.comparator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.config.html">datumaro.components.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.config_model.html">datumaro.components.config_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.crypter.html">datumaro.components.crypter</a></li>
@@ -475,7 +476,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.plugins.ndr.html">datumaro.plugins.ndr</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.plugins.shift_analyzer.html">datumaro.plugins.shift_analyzer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.plugins.synthetic_data.html">datumaro.plugins.synthetic_data</a></li>
@@ -564,8 +564,8 @@
             
             <article class="bd-article" role="main">
               
-  <section id="diff">
-<h1>Diff<a class="headerlink" href="#diff" title="Permalink to this heading">#</a></h1>
+  <section id="compare">
+<h1>Compare<a class="headerlink" href="#compare" title="Permalink to this heading">#</a></h1>
 <section id="compare-datasets">
 <h2>Compare datasets<a class="headerlink" href="#compare-datasets" title="Permalink to this heading">#</a></h2>
 <p>This command compares two datasets and saves the results in the
@@ -573,12 +573,13 @@ specified directory. The current project is considered to be
 “ground truth”.</p>
 <p>Datasets can be compared using different methods:</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">table</span></code> - Generate a compare table mainly based on dataset statistics</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">equality</span></code> - Annotations are compared to be equal</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">distance</span></code> - A distance metric is used</p></li>
 </ul>
 <p>This command has multiple forms:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1) datum diff &lt;revpath&gt;</span>
-<span class="go">2) datum diff &lt;revpath&gt; &lt;revpath&gt;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1) datum compare &lt;revpath&gt;</span>
+<span class="go">2) datum compare &lt;revpath&gt; &lt;revpath&gt;</span>
 </pre></div>
 </div>
 <p>1 - Compares the current project’s main target (<code class="docutils literal notranslate"><span class="pre">project</span></code>)
@@ -586,7 +587,7 @@ in the working tree with the specified dataset.</p>
 <p>2 - Compares two specified datasets.</p>
 <p>&lt;revpath&gt; - <a class="reference internal" href="../../user-manual/how_to_use_datumaro.html#dataset-path-concepts"><span class="std std-ref">a dataset path or a revision path</span></a>.</p>
 <p>Usage:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum diff [-h] [-o DST_DIR] [-m METHOD] [--overwrite] [-p PROJECT_DIR]</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare [-h] [-o DST_DIR] [-m METHOD] [--overwrite] [-p PROJECT_DIR]</span>
 <span class="go">           [--iou-thresh IOU_THRESH] [-f FORMAT]</span>
 <span class="go">           [-iia IGNORE_ITEM_ATTR] [-ia IGNORE_ATTR] [-if IGNORE_FIELD]</span>
 <span class="go">           [--match-images] [--all]</span>
@@ -628,28 +629,33 @@ printed.</p></li>
 <ul>
 <li><p>Compare two projects by distance, match boxes if IoU &gt; 0.7,
 save results to TensorBoard</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum diff &lt;path/to/other/project/&gt; -m distance -f tensorboard --iou-thresh 0.7 -o diff/</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/other/project/&gt; -m distance -f tensorboard --iou-thresh 0.7 -o compare/</span>
 </pre></div>
 </div>
 </li>
 <li><p>Compare two projects for equality, exclude annotation groups
 and the <code class="docutils literal notranslate"><span class="pre">is_crowd</span></code> attribute from comparison</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum diff &lt;path/to/other/project/&gt; -if group -ia is_crowd</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/other/project/&gt; -m equality -if group -ia is_crowd</span>
 </pre></div>
 </div>
 </li>
-<li><p>Compare two datasets for equality, specify formats</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum diff &lt;path/to/dataset1/&gt;:voc &lt;path/to/dataset2/&gt;:coco</span>
+<li><p>Compare two projects for table</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/other/project/&gt; -if group -ia is_crowd</span>
 </pre></div>
 </div>
 </li>
-<li><p>Compare the current working tree and a dataset for equality</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum diff &lt;path/to/dataset2/&gt;:coco</span>
+<li><p>Compare two datasets for table, specify formats</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/dataset1/&gt;:voc &lt;path/to/dataset2/&gt;:coco</span>
 </pre></div>
 </div>
 </li>
-<li><p>Compare a source from a previous revision and a dataset for equality</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum diff HEAD~2:source-2 &lt;path/to/dataset2/&gt;:yolo</span>
+<li><p>Compare the current working tree and a dataset for table</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/dataset2/&gt;:coco</span>
+</pre></div>
+</div>
+</li>
+<li><p>Compare a source from a previous revision and a dataset for table</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare HEAD~2:source-2 &lt;path/to/dataset2/&gt;:yolo</span>
 </pre></div>
 </div>
 </li>
@@ -658,7 +664,7 @@ and the <code class="docutils literal notranslate"><span class="pre">is_crowd</s
 <span class="go">datum project import &lt;...&gt;</span>
 <span class="go">datum model add mymodel &lt;...&gt;</span>
 <span class="go">datum transform &lt;...&gt; -o inference</span>
-<span class="go">datum diff inference -o diff</span>
+<span class="go">datum compare inference -o compare</span>
 </pre></div>
 </div>
 </li>
@@ -674,17 +680,17 @@ and the <code class="docutils literal notranslate"><span class="pre">is_crowd</s
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="detect.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="index.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">Detect</p>
+          <p class="prev-next-title">Context-free Commands</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="dinfo.html" title="next page">
+  <a class='right-next' id="next-link" href="convert.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">Info</p>
+      <p class="prev-next-title">Convert</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -726,7 +732,7 @@ and the <code class="docutils literal notranslate"><span class="pre">is_crowd</s
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/command-reference/context_free/diff.md.txt">
+    <a href="../../../_sources/docs/command-reference/context_free/compare.md.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>

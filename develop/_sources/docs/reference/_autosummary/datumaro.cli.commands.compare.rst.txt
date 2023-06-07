@@ -1,7 +1,7 @@
-datumaro.cli.commands.diff
-==========================
+datumaro.cli.commands.compare
+=============================
 
-.. automodule:: datumaro.cli.commands.diff
+.. automodule:: datumaro.cli.commands.compare
 
    
    
@@ -14,7 +14,7 @@ datumaro.cli.commands.diff
    .. autosummary::
    
       build_parser
-      diff_command
+      compare_command
       get_sensitive_args
    
    

@@ -44,7 +44,7 @@ datumaro.cli.util
    :toctree:
    :recursive:
 
-   datumaro.cli.util.diff
+   datumaro.cli.util.compare
    datumaro.cli.util.errors
    datumaro.cli.util.project
 

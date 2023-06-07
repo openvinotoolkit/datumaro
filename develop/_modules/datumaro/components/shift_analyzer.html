@@ -292,7 +292,7 @@
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">anderson_ksamp</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">IDataset</span>
-<span class="kn">from</span> <span class="nn">datumaro.plugins.shift_analyzer</span> <span class="kn">import</span> <span class="n">ShiftAnalyzerLauncher</span>
+<span class="kn">from</span> <span class="nn">datumaro.plugins.openvino_plugin.shift_launcher</span> <span class="kn">import</span> <span class="n">ShiftLauncher</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">take_by</span>
 
 
@@ -394,7 +394,7 @@
 <span class="sd">        topk:</span>
 <span class="sd">            Number of images.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">ShiftAnalyzerLauncher</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">ShiftLauncher</span><span class="p">(</span>
             <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;googlenet-v4-tf&quot;</span><span class="p">,</span>
             <span class="n">output_layers</span><span class="o">=</span><span class="s2">&quot;InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape&quot;</span><span class="p">,</span>
         <span class="p">)</span>

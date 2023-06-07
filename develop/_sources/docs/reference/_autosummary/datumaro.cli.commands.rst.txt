@@ -33,9 +33,9 @@ datumaro.cli.commands
    :toctree:
    :recursive:
 
+   datumaro.cli.commands.compare
    datumaro.cli.commands.convert
    datumaro.cli.commands.detect_format
-   datumaro.cli.commands.diff
    datumaro.cli.commands.download
    datumaro.cli.commands.explain
    datumaro.cli.commands.explore

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.cli.commands.diff &#8212; Datumaro 1.3.1 documentation</title>
+    <title>datumaro.cli.commands.compare &#8212; Datumaro 1.3.1 documentation</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="../../../../_static/copybutton.js"></script>
     <script src="../../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/cli/commands/diff';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/cli/commands/compare';</script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -276,8 +276,8 @@
             
             <article class="bd-article" role="main">
               
-  <h1>Source code for datumaro.cli.commands.diff</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2019-2022 Intel Corporation</span>
+  <h1>Source code for datumaro.cli.commands.compare</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2019-2023 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -287,19 +287,19 @@
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
 
+<span class="kn">from</span> <span class="nn">datumaro.components.comparator</span> <span class="kn">import</span> <span class="n">DistanceComparator</span><span class="p">,</span> <span class="n">EqualityComparator</span><span class="p">,</span> <span class="n">TableComparator</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">ProjectNotFoundError</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.operations</span> <span class="kn">import</span> <span class="n">DistanceComparator</span><span class="p">,</span> <span class="n">ExactComparator</span>
-<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">dump_json_file</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="n">rmtree</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.scope</span> <span class="kn">import</span> <span class="n">on_error_do</span><span class="p">,</span> <span class="n">scope_add</span><span class="p">,</span> <span class="n">scoped</span>
 
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">MultilineFormatter</span>
-<span class="kn">from</span> <span class="nn">..util.diff</span> <span class="kn">import</span> <span class="n">DiffVisualizer</span>
+<span class="kn">from</span> <span class="nn">..util.compare</span> <span class="kn">import</span> <span class="n">DistanceCompareVisualizer</span>
 <span class="kn">from</span> <span class="nn">..util.errors</span> <span class="kn">import</span> <span class="n">CliException</span>
 <span class="kn">from</span> <span class="nn">..util.project</span> <span class="kn">import</span> <span class="n">generate_next_file_name</span><span class="p">,</span> <span class="n">load_project</span><span class="p">,</span> <span class="n">parse_full_revpath</span>
 
 
-<div class="viewcode-block" id="ComparisonMethod"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.diff.html#datumaro.cli.commands.diff.ComparisonMethod">[docs]</a><span class="k">class</span> <span class="nc">ComparisonMethod</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="ComparisonMethod"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.compare.html#datumaro.cli.commands.compare.ComparisonMethod">[docs]</a><span class="k">class</span> <span class="nc">ComparisonMethod</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">equality</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">distance</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
@@ -307,7 +307,7 @@
 <span class="n">eq_default_if</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">]</span>  <span class="c1"># avoid https://bugs.python.org/issue16399</span>
 
 
-<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.diff.html#datumaro.cli.commands.diff.build_parser">[docs]</a><span class="k">def</span> <span class="nf">build_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.compare.html#datumaro.cli.commands.compare.build_parser">[docs]</a><span class="k">def</span> <span class="nf">build_parser</span><span class="p">(</span><span class="n">parser_ctor</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_ctor</span><span class="p">(</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compares two datasets&quot;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
@@ -332,7 +332,8 @@
 <span class="s2">        useful for dataset paths in targets. When not specified, the current</span>
 <span class="s2">        project&#39;s working tree is used.|n</span>
 <span class="s2">        |n</span>
-<span class="s2">        Annotations can be matched 2 ways:|n</span>
+<span class="s2">        Annotations can be matched 3 ways:|n</span>
+<span class="s2">        - by comparision table|n</span>
 <span class="s2">        - by equality checking|n</span>
 <span class="s2">        - by distance computation|n</span>
 <span class="s2">        |n</span>
@@ -343,7 +344,7 @@
 <span class="s2">        |n</span>
 <span class="s2">        - Compare two projects for equality, exclude annotation groups |n</span>
 <span class="s2">        |s|s|s|sand the &#39;is_crowd&#39; attribute from comparison:|n</span>
-<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> other/project/ -if group -ia is_crowd|n</span>
+<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> other/project/ -if group -ia is_crowd -m equality|n</span>
 <span class="s2">        |n</span>
 <span class="s2">        - Compare two datasets, specify formats:|n</span>
 <span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> path/to/dataset1:voc path/to/dataset2:coco|n</span>
@@ -357,12 +358,12 @@
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">MultilineFormatter</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">formats</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">DiffVisualizer</span><span class="o">.</span><span class="n">OutputFormat</span><span class="p">)</span>
+    <span class="n">formats</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">DistanceCompareVisualizer</span><span class="o">.</span><span class="n">OutputFormat</span><span class="p">)</span>
     <span class="n">comp_methods</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ComparisonMethod</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_parse_output_format</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">DiffVisualizer</span><span class="o">.</span><span class="n">OutputFormat</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+            <span class="k">return</span> <span class="n">DistanceCompareVisualizer</span><span class="o">.</span><span class="n">OutputFormat</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentError</span><span class="p">(</span>
                 <span class="s2">&quot;format&quot;</span><span class="p">,</span>
@@ -394,7 +395,7 @@
         <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--method&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">_parse_comparison_method</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">ComparisonMethod</span><span class="o">.</span><span class="n">equality</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">ComparisonMethod</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Comparison method, one of </span><span class="si">{}</span><span class="s2"> (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp_methods</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -406,7 +407,7 @@
         <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;project_dir&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory of the current project (default: current dir)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="n">diff_command</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="n">compare_command</span><span class="p">)</span>
 
     <span class="n">distance_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Distance comparison options&quot;</span><span class="p">)</span>
     <span class="n">distance_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -419,7 +420,7 @@
         <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--format&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">_parse_output_format</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">DiffVisualizer</span><span class="o">.</span><span class="n">DEFAULT_FORMAT</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">DistanceCompareVisualizer</span><span class="o">.</span><span class="n">DEFAULT_FORMAT</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output format, one of </span><span class="si">{}</span><span class="s2"> (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">formats</span><span class="p">),</span>
     <span class="p">)</span>
 
@@ -446,9 +447,9 @@
     <span class="k">return</span> <span class="n">parser</span></div>
 
 
-<div class="viewcode-block" id="get_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.diff.html#datumaro.cli.commands.diff.get_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_sensitive_args</span><span class="p">():</span>
+<div class="viewcode-block" id="get_sensitive_args"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.compare.html#datumaro.cli.commands.compare.get_sensitive_args">[docs]</a><span class="k">def</span> <span class="nf">get_sensitive_args</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="n">diff_command</span><span class="p">:</span> <span class="p">[</span>
+        <span class="n">compare_command</span><span class="p">:</span> <span class="p">[</span>
             <span class="s2">&quot;first_target&quot;</span><span class="p">,</span>
             <span class="s2">&quot;second_target&quot;</span><span class="p">,</span>
             <span class="s2">&quot;dst_dir&quot;</span><span class="p">,</span>
@@ -457,8 +458,8 @@
     <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="diff_command"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.diff.html#datumaro.cli.commands.diff.diff_command">[docs]</a><span class="nd">@scoped</span>
-<span class="k">def</span> <span class="nf">diff_command</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="compare_command"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.cli.commands.compare.html#datumaro.cli.commands.compare.compare_command">[docs]</a><span class="nd">@scoped</span>
+<span class="k">def</span> <span class="nf">compare_command</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">dst_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dst_dir</span>
     <span class="k">if</span> <span class="n">dst_dir</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">overwrite</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dst_dir</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dst_dir</span><span class="p">):</span>
@@ -466,7 +467,7 @@
                 <span class="s2">&quot;Directory &#39;</span><span class="si">%s</span><span class="s2">&#39; already exists &quot;</span> <span class="s2">&quot;(pass --overwrite to overwrite)&quot;</span> <span class="o">%</span> <span class="n">dst_dir</span>
             <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">dst_dir</span> <span class="o">=</span> <span class="n">generate_next_file_name</span><span class="p">(</span><span class="s2">&quot;diff&quot;</span><span class="p">)</span>
+        <span class="n">dst_dir</span> <span class="o">=</span> <span class="n">generate_next_file_name</span><span class="p">(</span><span class="s2">&quot;compare&quot;</span><span class="p">)</span>
     <span class="n">dst_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dst_dir</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dst_dir</span><span class="p">):</span>
@@ -497,47 +498,40 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">CliException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">method</span> <span class="ow">is</span> <span class="n">ComparisonMethod</span><span class="o">.</span><span class="n">equality</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">method</span> <span class="ow">is</span> <span class="n">ComparisonMethod</span><span class="o">.</span><span class="n">table</span><span class="p">:</span>
+        <span class="n">comparator</span> <span class="o">=</span> <span class="n">TableComparator</span><span class="p">()</span>
+        <span class="p">(</span>
+            <span class="n">high_level_table</span><span class="p">,</span>
+            <span class="n">mid_level_table</span><span class="p">,</span>
+            <span class="n">low_level_table</span><span class="p">,</span>
+            <span class="n">comparison_dict</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">comparator</span><span class="o">.</span><span class="n">compare_datasets</span><span class="p">(</span><span class="n">first_dataset</span><span class="p">,</span> <span class="n">second_dataset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dst_dir</span><span class="p">:</span>
+            <span class="n">comparator</span><span class="o">.</span><span class="n">save_compare_report</span><span class="p">(</span>
+                <span class="n">high_level_table</span><span class="p">,</span> <span class="n">mid_level_table</span><span class="p">,</span> <span class="n">low_level_table</span><span class="p">,</span> <span class="n">comparison_dict</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">dst_dir</span>
+            <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">method</span> <span class="ow">is</span> <span class="n">ComparisonMethod</span><span class="o">.</span><span class="n">equality</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ignore_field</span><span class="p">:</span>
             <span class="n">args</span><span class="o">.</span><span class="n">ignore_field</span> <span class="o">=</span> <span class="n">eq_default_if</span>
-        <span class="n">comparator</span> <span class="o">=</span> <span class="n">ExactComparator</span><span class="p">(</span>
+
+        <span class="n">comparator</span> <span class="o">=</span> <span class="n">EqualityComparator</span><span class="p">(</span>
             <span class="n">match_images</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">match_images</span><span class="p">,</span>
             <span class="n">ignored_fields</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ignore_field</span><span class="p">,</span>
             <span class="n">ignored_attrs</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ignore_attr</span><span class="p">,</span>
             <span class="n">ignored_item_attrs</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ignore_item_attr</span><span class="p">,</span>
+            <span class="nb">all</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">all</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">matches</span><span class="p">,</span> <span class="n">mismatches</span><span class="p">,</span> <span class="n">a_extra</span><span class="p">,</span> <span class="n">b_extra</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="n">comparator</span><span class="o">.</span><span class="n">compare_datasets</span><span class="p">(</span>
-            <span class="n">first_dataset</span><span class="p">,</span> <span class="n">second_dataset</span>
-        <span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">comparator</span><span class="o">.</span><span class="n">compare_datasets</span><span class="p">(</span><span class="n">first_dataset</span><span class="p">,</span> <span class="n">second_dataset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dst_dir</span><span class="p">:</span>
+            <span class="n">comparator</span><span class="o">.</span><span class="n">save_compare_report</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">dst_dir</span><span class="p">)</span>
 
-        <span class="n">output</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;mismatches&quot;</span><span class="p">:</span> <span class="n">mismatches</span><span class="p">,</span>
-            <span class="s2">&quot;a_extra_items&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">a_extra</span><span class="p">),</span>
-            <span class="s2">&quot;b_extra_items&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">b_extra</span><span class="p">),</span>
-            <span class="s2">&quot;errors&quot;</span><span class="p">:</span> <span class="n">errors</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
-            <span class="n">output</span><span class="p">[</span><span class="s2">&quot;matches&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">matches</span>
-
-        <span class="n">output_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">dst_dir</span><span class="p">,</span> <span class="n">generate_next_file_name</span><span class="p">(</span><span class="s2">&quot;diff&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;.json&quot;</span><span class="p">,</span> <span class="n">basedir</span><span class="o">=</span><span class="n">dst_dir</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving diff to &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">output_file</span><span class="p">)</span>
-        <span class="n">dump_json_file</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Found:&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The first project has </span><span class="si">%s</span><span class="s2"> unmatched items&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">a_extra</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The second project has </span><span class="si">%s</span><span class="s2"> unmatched items&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">b_extra</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> item conflicts&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> matching annotations&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> mismatching annotations&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">mismatches</span><span class="p">))</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">method</span> <span class="ow">is</span> <span class="n">ComparisonMethod</span><span class="o">.</span><span class="n">distance</span><span class="p">:</span>
         <span class="n">comparator</span> <span class="o">=</span> <span class="n">DistanceComparator</span><span class="p">(</span><span class="n">iou_threshold</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">iou_thresh</span><span class="p">)</span>
-
-        <span class="k">with</span> <span class="n">DiffVisualizer</span><span class="p">(</span>
+        <span class="k">with</span> <span class="n">DistanceCompareVisualizer</span><span class="p">(</span>
             <span class="n">save_dir</span><span class="o">=</span><span class="n">dst_dir</span><span class="p">,</span> <span class="n">comparator</span><span class="o">=</span><span class="n">comparator</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">format</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">visualizer</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving diff to &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">dst_dir</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving compare to &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">dst_dir</span><span class="p">)</span>
             <span class="n">visualizer</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">first_dataset</span><span class="p">,</span> <span class="n">second_dataset</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="mi">0</span></div>

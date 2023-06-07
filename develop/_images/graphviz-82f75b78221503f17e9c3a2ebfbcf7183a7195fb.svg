@@ -69,17 +69,17 @@
 <path fill="none" stroke="black" d="M34.8,-949.23C46.38,-1024.74 90,-1309 90,-1309 90,-1309 95.33,-1311.77 102.57,-1315.53"/>
 <polygon fill="black" stroke="black" points="101.26,-1318.79 111.75,-1320.29 104.49,-1312.58 101.26,-1318.79"/>
 </g>
-<!-- diff -->
+<!-- compare -->
 <g id="node4" class="node">
-<title>diff</title>
-<polygon fill="none" stroke="black" points="170,-1300 116,-1300 116,-1264 170,-1264 170,-1300"/>
-<text text-anchor="middle" x="143" y="-1278.3" font-family="Times,serif" font-size="14.00">diff</text>
+<title>compare</title>
+<polygon fill="none" stroke="black" points="182,-1300 104,-1300 104,-1264 182,-1264 182,-1300"/>
+<text text-anchor="middle" x="143" y="-1278.3" font-family="Times,serif" font-size="14.00">compare</text>
 </g>
-<!-- datum&#45;&gt;diff -->
+<!-- datum&#45;&gt;compare -->
 <g id="edge3" class="edge">
-<title>datum&#45;&gt;diff</title>
-<path fill="none" stroke="black" d="M35.28,-949.35C47.55,-1017.89 90,-1255 90,-1255 90,-1255 97.5,-1258.9 106.81,-1263.73"/>
-<polygon fill="black" stroke="black" points="105.21,-1266.84 115.7,-1268.34 108.43,-1260.63 105.21,-1266.84"/>
+<title>datum&#45;&gt;compare</title>
+<path fill="none" stroke="black" d="M35.28,-949.35C47.55,-1017.89 90,-1255 90,-1255 90,-1255 93.35,-1256.74 98.35,-1259.33"/>
+<polygon fill="black" stroke="black" points="96.83,-1262.49 107.32,-1263.99 100.05,-1256.28 96.83,-1262.49"/>
 </g>
 <!-- dinfo -->
 <g id="node5" class="node">

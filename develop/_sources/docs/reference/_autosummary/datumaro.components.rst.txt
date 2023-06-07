@@ -32,6 +32,7 @@ datumaro.components
    datumaro.components.annotation
    datumaro.components.annotations
    datumaro.components.cli_plugin
+   datumaro.components.comparator
    datumaro.components.config
    datumaro.components.config_model
    datumaro.components.crypter

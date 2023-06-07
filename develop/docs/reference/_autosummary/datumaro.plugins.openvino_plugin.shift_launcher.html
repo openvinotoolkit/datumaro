@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.shift_analyzer &#8212; Datumaro 1.3.1 documentation</title>
+    <title>datumaro.plugins.openvino_plugin.shift_launcher &#8212; Datumaro 1.3.1 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.shift_analyzer';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.openvino_plugin.shift_launcher';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.specs" href="datumaro.plugins.specs.html" />
-    <link rel="prev" title="datumaro.plugins.sampler.relevancy_sampler" href="datumaro.plugins.sampler.relevancy_sampler.html" />
+    <link rel="next" title="datumaro.plugins.sampler" href="datumaro.plugins.sampler.html" />
+    <link rel="prev" title="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp" href="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -390,9 +390,9 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../command-reference/overview.html">Overview</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../command-reference/context_free/index.html">Context-free Commands</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../command-reference/context_free/compare.html">Compare</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../command-reference/context_free/convert.html">Convert</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../command-reference/context_free/detect.html">Detect</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../command-reference/context_free/diff.html">Diff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../command-reference/context_free/dinfo.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../command-reference/context_free/download.html">Download</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../command-reference/context_free/explain.html">Explain</a></li>
@@ -436,6 +436,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.annotation.html">datumaro.components.annotation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.annotations.html">datumaro.components.annotations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.cli_plugin.html">datumaro.components.cli_plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.comparator.html">datumaro.components.comparator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config.html">datumaro.components.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config_model.html">datumaro.components.config_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.crypter.html">datumaro.components.crypter</a></li>
@@ -473,9 +474,8 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.data_formats.html">datumaro.plugins.data_formats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.explorer.html">datumaro.plugins.explorer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.ndr.html">datumaro.plugins.ndr</a></li>
-<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.plugins.shift_analyzer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.synthetic_data.html">datumaro.plugins.synthetic_data</a></li>
@@ -564,33 +564,33 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.shift_analyzer">
-<span id="datumaro-plugins-shift-analyzer"></span><h1>datumaro.plugins.shift_analyzer<a class="headerlink" href="#module-datumaro.plugins.shift_analyzer" title="Permalink to this heading">#</a></h1>
+  <section id="module-datumaro.plugins.openvino_plugin.shift_launcher">
+<span id="datumaro-plugins-openvino-plugin-shift-launcher"></span><h1>datumaro.plugins.openvino_plugin.shift_launcher<a class="headerlink" href="#module-datumaro.plugins.openvino_plugin.shift_launcher" title="Permalink to this heading">#</a></h1>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher" title="datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShiftAnalyzerLauncher</span></code></a>([description, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher" title="datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShiftLauncher</span></code></a>([description, weights, ...])</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.shift_analyzer.</span></span><span class="sig-name descname"><span class="pre">ShiftAnalyzerLauncher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpreter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/shift_analyzer.html#ShiftAnalyzerLauncher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.shift_launcher.</span></span><span class="sig-name descname"><span class="pre">ShiftLauncher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpreter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/shift_launcher.html#ShiftLauncher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.OpenvinoLauncher" title="datumaro.plugins.openvino_plugin.launcher.OpenvinoLauncher"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenvinoLauncher</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher.infer">
-<span class="sig-name descname"><span class="pre">infer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/shift_analyzer.html#ShiftAnalyzerLauncher.infer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher.infer" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.infer">
+<span class="sig-name descname"><span class="pre">infer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/shift_launcher.html#ShiftLauncher.infer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.infer" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher.launch">
-<span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/shift_analyzer.html#ShiftAnalyzerLauncher.launch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher.launch" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.launch">
+<span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/shift_launcher.html#ShiftLauncher.launch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.launch" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher.type_check">
-<span class="sig-name descname"><span class="pre">type_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/shift_analyzer.html#ShiftAnalyzerLauncher.type_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher.type_check" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.type_check">
+<span class="sig-name descname"><span class="pre">type_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/shift_launcher.html#ShiftLauncher.type_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.type_check" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -605,17 +605,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.sampler.relevancy_sampler.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.sampler.relevancy_sampler</p>
+          <p class="prev-next-title">datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.specs.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.sampler.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.specs</p>
+      <p class="prev-next-title">datumaro.plugins.sampler</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -636,37 +636,37 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher">
+  <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher">
    <code class="docutils literal notranslate">
     <span class="pre">
-     ShiftAnalyzerLauncher
+     ShiftLauncher
     </span>
    </code>
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher.infer">
+    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.infer">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ShiftAnalyzerLauncher.infer()
+       ShiftLauncher.infer()
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher.launch">
+    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.launch">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ShiftAnalyzerLauncher.launch()
+       ShiftLauncher.launch()
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.shift_analyzer.ShiftAnalyzerLauncher.type_check">
+    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.type_check">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ShiftAnalyzerLauncher.type_check()
+       ShiftLauncher.type_check()
       </span>
      </code>
     </a>
@@ -690,7 +690,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.shift_analyzer.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.openvino_plugin.shift_launcher.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
