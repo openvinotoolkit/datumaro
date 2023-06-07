@@ -6,10 +6,10 @@ Otherwise, you will be failed in this test (`tests/unit/test_environment.py`).
 You can enroll your plugin to `./datumaro/plugins/specs.json` with Python executable script as follows.
 
 ```console
-python datumaro/plugins/specs.py
+..datumaro$ python src/datumaro/plugins/specs.py
 ```
 
-> **_NOTE:_**  It is not recommended to mannually modify `./datumaro/plugins/specs.json` by hands. Please use the above Python executable script.
+> **_NOTE:_**  It is not recommended to mannually modify `./src/datumaro/plugins/specs.json` by hands. Please use the above Python executable script.
 
 ## (Additional) Specify extra dependencies to plugin class
 

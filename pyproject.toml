@@ -12,12 +12,12 @@ branch = true
 # relative_files = true # does not work?
 
 source = [
-    "datumaro/",
+    "src/",
 ]
 
 omit = [
-    "datumaro/__main__.py",
-    "datumaro/version.py",
+    "src/datumaro/__main__.py",
+    "src/datumaro/version.py",
     "tests/*",
 ]
 
@@ -38,6 +38,12 @@ exclude_lines = [
     # Don't complain if non-runnable code isn't run:
     'if 0:',
     'if __name__ == .__main__.:',
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "v1_3_0: marks tests for release 1.3.0",
+    "v1_4_0: marks tests for release 1.4.0",
 ]
 
 # don't fail on the code that can be found
@@ -92,7 +98,7 @@ exclude = [
 ]
 
 extend-exclude = [
-    "datumaro/plugins/openvino_plugin/samples"
+    "src/datumaro/plugins/openvino_plugin/samples"
 ]
 
 # Same as Black.
@@ -114,7 +120,7 @@ max-complexity = 10
 "__init__.py" = [
     "F401"      # unused-import
 ]
-"datumaro/plugins/data_formats/ava/ava_label_pb2.py" = [
+"src/datumaro/plugins/data_formats/ava/ava_label_pb2.py" = [
     "E501"      # line-too-long
 ]
 

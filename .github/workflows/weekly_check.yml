@@ -5,6 +5,11 @@ on:
     # every 7PM on Sunday
     - cron: "0 19 * * 0"
 
+# This is what will cancel the workflow concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: bash
@@ -16,6 +21,15 @@ jobs:
       matrix:
         os: ['macos-11', 'ubuntu-20.04', 'windows-2019']
         python-version: ['3.8']
+        include:
+          - python-version: "3.8"
+            tox-env-py: "38"
+          - os: "macos-11"
+            tox-env-os: "darwin"
+          - os: "ubuntu-20.04"
+            tox-env-os: "lin"
+          - os: "windows-2019"
+            tox-env-os: "win"
     name: stability test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -26,16 +40,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          python -m pip install -r tests/requirements.txt
-          python -m pip install -e '.[default,tf]'
+          python -m pip install tox
       - name: Stability testing
         run: |
-          python -m pytest --html=stability_test_report.html --minutes 5
+          tox -e stability-${{ matrix.tox-env-os }}
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
-          name: test-results
-          path: report/stability_test_report.html
+          name: results-stability-${{ matrix.tox-env-os }}
+          path: .tox/results-stability-${{ matrix.tox-env-os }}.xml
   call-notify-to-teams:
     needs: [weekly_stability_test]
     if: |
