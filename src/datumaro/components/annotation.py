@@ -111,7 +111,7 @@ class LabelCategories(Categories):
         group_type: str = field(default="exclusive", validator=default_if_none(str))
 
     items: List[str] = field(factory=list, validator=default_if_none(list))
-    label_groups: List[str] = field(factory=list, validator=default_if_none(list))
+    label_groups: List[LabelGroup] = field(factory=list, validator=default_if_none(list))
     _indices: Dict[str, int] = field(factory=dict, init=False, eq=False)
 
     @classmethod
