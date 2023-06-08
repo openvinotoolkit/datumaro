@@ -2,21 +2,36 @@
 #
 # SPDX-License-Identifier: MIT
 
+import csv
+import errno
 import os
 import os.path as osp
-from typing import List, Optional
+import re
+from typing import Dict, List, Optional, Union
 from xml.etree import ElementTree
 
-from datumaro.components.annotation import AnnotationType, LabelCategories
-from datumaro.components.dataset_base import DatasetItem, SubsetBase
+from datumaro.components.annotation import (
+    Annotation,
+    AnnotationType,
+    Bbox,
+    Label,
+    LabelCategories,
+    Polygon,
+)
+from datumaro.components.dataset import DatasetItem
+from datumaro.components.dataset_base import SubsetBase
+from datumaro.components.errors import InvalidAnnotationError, UndeclaredLabelError
 from datumaro.components.importer import ImportContext
-from datumaro.components.media import Image
+from datumaro.components.media import Image, ImageFromFile
 from datumaro.plugins.data_formats.coco.base import _CocoBase
 from datumaro.plugins.data_formats.coco.format import CocoImporterType, CocoTask
+from datumaro.plugins.data_formats.tf_detection_api.base import TfDetectionApiBase
+from datumaro.plugins.data_formats.tf_detection_api.format import TfrecordImporterType
 from datumaro.plugins.data_formats.voc.base import VocBase
 from datumaro.plugins.data_formats.voc.format import VocImporterType, VocTask
-from datumaro.plugins.data_formats.yolo.base import YoloStrictBase, YoloUltralyticsBase
-from datumaro.util.image import IMAGE_EXTENSIONS
+from datumaro.plugins.data_formats.yolo.base import YoloUltralyticsBase
+from datumaro.util import parse_json_file
+from datumaro.util.image import IMAGE_EXTENSIONS, ImageMeta
 from datumaro.util.os_util import find_files
 
 
@@ -85,44 +100,238 @@ class RoboflowVocBase(VocBase):
         return [os.path.splitext(file)[0] for file in os.listdir(path) if file.endswith(".xml")]
 
 
-class RoboflowYoloBase(YoloUltralyticsBase, SubsetBase):
+class RoboflowYoloBase(YoloUltralyticsBase):
     def __init__(
         self,
         config_path: str,
+        image_info: Union[None, str, ImageMeta] = None,
         urls: Optional[List[str]] = None,
-        *,
-        subset: Optional[str] = None,
-        ctx: Optional[ImportContext] = None,
+        **kwargs,
     ) -> None:
-        SubsetBase.__init__(self, subset=subset, ctx=ctx)
+        super().__init__(config_path, image_info, urls, **kwargs)
 
-        rootpath = osp.dirname(config_path)
+    def _get_rootpath(self, config_path: str) -> str:
+        return osp.dirname(config_path)
 
-        # Init label categories
-        label_categories = self._load_categories(osp.join(rootpath, self.META_FILE))
-        self._categories = {AnnotationType.label: label_categories}
-
-        # Parse dataset items
-        def _get_fname(fpath: str) -> str:
-            return osp.splitext(osp.basename(fpath))[0]
-
-        img_files = {
-            _get_fname(img_file): img_file
+    def _load_img_files(self, rootpath: str) -> Dict:
+        return {
+            self._get_fname(img_file): img_file
             for img_file in find_files(rootpath, IMAGE_EXTENSIONS, recursive=True, max_depth=2)
             if osp.split(osp.relpath(osp.dirname(img_file), rootpath))[0] == self._subset
         }
 
-        for url in urls:
-            try:
-                fname = _get_fname(url)
-                img = Image.from_file(path=img_files[fname])
-                anns = YoloStrictBase._parse_annotations(
-                    url,
-                    img,
-                    label_categories=label_categories,
+
+class RoboflowYoloObbBase(RoboflowYoloBase):
+    def __init__(
+        self,
+        config_path: str,
+        image_info: Union[None, str, ImageMeta] = None,
+        urls: Optional[List[str]] = None,
+        **kwargs,
+    ) -> None:
+        super().__init__(config_path, image_info, urls, **kwargs)
+
+    def _parse_annotations(
+        self,
+        anno_path: str,
+        image: ImageFromFile,
+        *,
+        label_categories: LabelCategories,
+    ) -> List[Annotation]:
+        lines = []
+        with open(anno_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    lines.append(line)
+
+        annotations = []
+        for line in lines:
+            parts = line.split()
+            if len(parts) != 10:
+                raise InvalidAnnotationError(
+                    f"Unexpected field count {len(parts)} in the bbox description. "
+                    "Expected 10 fields (x1, y1, x2, y2, x3, y3, x4, y4, label, 0)."
                 )
-                self._items.append(
-                    DatasetItem(id=fname, subset=self._subset, media=img, annotations=anns)
+            x1, y1, x2, y2, x3, y3, x4, y4, label_name = parts[:-1]
+
+            label_name = self._parse_field(label_name, str, "bbox label name")
+            label_id = label_categories.find(label_name)[0]
+
+            if label_id is None:
+                raise UndeclaredLabelError(str(label_id))
+
+            x1 = self._parse_field(x1, float, "x1")
+            y1 = self._parse_field(y1, float, "y1")
+            x2 = self._parse_field(x2, float, "x2")
+            y2 = self._parse_field(y2, float, "y2")
+            x3 = self._parse_field(x3, float, "x3")
+            y3 = self._parse_field(y3, float, "y3")
+            x4 = self._parse_field(x4, float, "x4")
+            y4 = self._parse_field(y4, float, "y4")
+            annotations.append(
+                Polygon(
+                    points=[x1, y1, x2, y2, x3, y3, x4, y4],
+                    label=label_id,
                 )
-            except Exception as e:
-                self._ctx.error_policy.report_item_error(e, item_id=(fname, self._subset))
+            )
+
+        return annotations
+
+
+class RoboflowCreateMlBase(SubsetBase):
+    """
+    Parses Roboflow CreateML annotations written in the following format:
+    https://cocodataset.org/#format-data
+    """
+
+    def __init__(
+        self,
+        path,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
+        if not osp.isfile(path):
+            raise FileNotFoundError(errno.ENOENT, "Can't find JSON file", path)
+        self._path = path
+
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+        super().__init__(subset=subset, ctx=ctx)
+
+        json_data = parse_json_file(path)
+        self._categories = self._load_categories(json_data)
+        self._items = self._load_items(json_data)
+
+    def _load_categories(self, json_data):
+        cats = set()
+        for anns in json_data:
+            for ann in anns["annotations"]:
+                cats.add(ann["label"])
+
+        label_categories = LabelCategories()
+        for cat in sorted(cats):
+            label_categories.add(cat)
+
+        categories = {AnnotationType.label: label_categories}
+
+        return categories
+
+    def _load_items(self, json_data):
+        items = {}
+        idx = 0
+        for anns in self._ctx.progress_reporter.iter(
+            json_data, desc=f"Parsing boxes in '{self._subset}'"
+        ):
+            annotations = []
+            for ann in anns["annotations"]:
+                label_id, _ = self._categories[AnnotationType.label].find(ann["label"])
+                if label_id is None:
+                    raise UndeclaredLabelError(ann["label"])
+
+                x = ann["coordinates"]["x"]
+                y = ann["coordinates"]["y"]
+                w = ann["coordinates"]["width"]
+                h = ann["coordinates"]["height"]
+                annotations.append(Bbox(x, y, w, h))
+
+            img_id = osp.splitext(anns["image"])[0]
+            items[img_id] = DatasetItem(
+                id=idx,
+                subset=self._subset,
+                media=Image.from_file(path=osp.join(osp.dirname(self._path), anns["image"])),
+                annotations=annotations,
+            )
+
+            idx += 1
+
+        return items.values()
+
+
+class RoboflowMulticlassBase(SubsetBase):
+    """
+    Parses Roboflow Multiclass annotations written in the following format:
+    https://cocodataset.org/#format-data
+    """
+
+    def __init__(
+        self,
+        path,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
+        if not osp.isfile(path):
+            raise FileNotFoundError(errno.ENOENT, "Can't find CSV file", path)
+        self._path = path
+
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+        super().__init__(subset=subset, ctx=ctx)
+
+        self._label_mapping = {}
+        self._categories = self._load_categories(path)
+        self._items = self._load_items(path)
+
+    def _load_categories(self, path):
+        with open(path, "r", encoding="utf-8") as f:
+            cats = csv.DictReader(f).fieldnames[1:]
+
+        label_categories = LabelCategories()
+        for idx, cat in enumerate(sorted(cats)):
+            label_categories.add(cat)
+            self._label_mapping[cat] = idx
+
+        categories = {AnnotationType.label: label_categories}
+
+        return categories
+
+    def _load_items(self, path):
+        items = []
+        with open(path, "r", encoding="utf-8") as f:
+            for idx, anns in enumerate(csv.DictReader(f)):
+                annotations = []
+                for key, val in anns.items():
+                    if key not in self._label_mapping:
+                        continue
+                    if int(val) == 1:
+                        annotations.append(Label(label=self._label_mapping[key]))
+
+                items.append(
+                    DatasetItem(
+                        id=idx,
+                        subset=self._subset,
+                        media=Image.from_file(
+                            path=osp.join(osp.dirname(self._path), anns["filename"])
+                        ),
+                        annotations=annotations,
+                    )
+                )
+
+        return items
+
+
+class RoboflowTfrecord(TfDetectionApiBase):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
+        print(subset)
+        super().__init__(
+            path=path, subset=subset, tfrecord_importer_type=TfrecordImporterType.roboflow, ctx=ctx
+        )
+
+    @staticmethod
+    def _parse_labelmap(text):
+        entry_pattern = r'name:\s*"([^"]+)"\s*,\s*id:\s*(\d+)'
+        entry_pattern = re.compile(entry_pattern)
+
+        matches = re.findall(entry_pattern, text)
+
+        labelmap = {name: int(id) for name, id in matches}
+
+        return labelmap

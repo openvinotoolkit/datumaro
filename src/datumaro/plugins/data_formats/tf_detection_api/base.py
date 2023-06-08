@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import os.path as osp
 import re
 from collections import OrderedDict
@@ -17,7 +18,7 @@ from datumaro.components.media import Image
 from datumaro.util.image import decode_image, lazy_image
 from datumaro.util.tf_util import import_tf as _import_tf
 
-from .format import DetectionApiPath
+from .format import DetectionApiPath, TfrecordImporterType
 
 tf = _import_tf()
 
@@ -32,6 +33,7 @@ class TfDetectionApiBase(SubsetBase):
         self,
         path: str,
         *,
+        tfrecord_importer_type: TfrecordImporterType = TfrecordImporterType.default,
         subset: Optional[str] = None,
         ctx: Optional[ImportContext] = None,
     ):
@@ -48,40 +50,7 @@ class TfDetectionApiBase(SubsetBase):
             subset = osp.splitext(osp.basename(path))[0]
         super().__init__(subset=subset, ctx=ctx)
 
-        items, labels = self._parse_tfrecord_file(path, self._subset, images_dir)
-        self._items = items
-        self._categories = self._load_categories(labels)
-
-    @staticmethod
-    def _load_categories(labels):
-        label_categories = LabelCategories().from_iterable(
-            e[0] for e in sorted(labels.items(), key=lambda item: item[1])
-        )
-        return {AnnotationType.label: label_categories}
-
-    @classmethod
-    def _parse_labelmap(cls, text):
-        id_pattern = r"(?:id\s*:\s*(?P<id>\d+))"
-        name_pattern = r"(?:name\s*:\s*[\'\"](?P<name>.*?)[\'\"])"
-        entry_pattern = r"(\{(?:[\s\n]*(?:%(id)s|%(name)s)[\s\n]*){2}\})+" % {
-            "id": id_pattern,
-            "name": name_pattern,
-        }
-        matches = re.finditer(entry_pattern, text)
-
-        labelmap = {}
-        for match in matches:
-            label_id = match.group("id")
-            label_name = match.group("name")
-            if label_id is not None and label_name is not None:
-                labelmap[label_name] = int(label_id)
-
-        return labelmap
-
-    @classmethod
-    def _parse_tfrecord_file(cls, filepath, subset, images_dir):
-        dataset = tf.data.TFRecordDataset(filepath)
-        features = {
+        self._features = {
             "image/filename": tf.io.FixedLenFeature([], tf.string),
             "image/source_id": tf.io.FixedLenFeature([], tf.string),
             "image/height": tf.io.FixedLenFeature([], tf.int64),
@@ -99,24 +68,66 @@ class TfDetectionApiBase(SubsetBase):
             "image/object/class/text": tf.io.VarLenFeature(tf.string),
             "image/object/mask": tf.io.VarLenFeature(tf.string),
         }
+        if tfrecord_importer_type == TfrecordImporterType.roboflow:
+            del self._features["image/source_id"]
+
+        items, labels = self._parse_tfrecord_file(path, self._subset, images_dir)
+        self._items = items
+        self._categories = self._load_categories(labels)
+
+    @staticmethod
+    def _load_categories(labels):
+        label_categories = LabelCategories().from_iterable(
+            e[0] for e in sorted(labels.items(), key=lambda item: item[1])
+        )
+        return {AnnotationType.label: label_categories}
+
+    @staticmethod
+    def _parse_labelmap(text):
+        id_pattern = r"(?:id\s*:\s*(?P<id>\d+))"
+        name_pattern = r"(?:name\s*:\s*[\'\"](?P<name>.*?)[\'\"])"
+        entry_pattern = r"(\{(?:[\s\n]*(?:%(id)s|%(name)s)[\s\n]*){2}\})+" % {
+            "id": id_pattern,
+            "name": name_pattern,
+        }
+        matches = re.finditer(entry_pattern, text)
+
+        labelmap = {}
+        for match in matches:
+            label_id = match.group("id")
+            label_name = match.group("name")
+            if label_id is not None and label_name is not None:
+                labelmap[label_name] = int(label_id)
+
+        return labelmap
+
+    def _parse_tfrecord_file(self, filepath, subset, images_dir):
+        dataset = tf.data.TFRecordDataset(filepath)
+
+        # labelmap_path = osp.join(osp.dirname(filepath), DetectionApiPath.LABELMAP_FILE)
+        files = os.listdir(osp.dirname(filepath))
+        for filename in files:
+            if DetectionApiPath.LABELMAP_FILE in filename:
+                labelmap_path = osp.join(osp.dirname(filepath), filename)
+                break
 
         dataset_labels = OrderedDict()
-        labelmap_path = osp.join(osp.dirname(filepath), DetectionApiPath.LABELMAP_FILE)
         if osp.exists(labelmap_path):
             with open(labelmap_path, "r", encoding="utf-8") as f:
                 labelmap_text = f.read()
             dataset_labels.update(
-                {label: id - 1 for label, id in cls._parse_labelmap(labelmap_text).items()}
+                {label: id - 1 for label, id in self._parse_labelmap(labelmap_text).items()}
             )
 
         dataset_items = []
 
         for record in dataset:
-            parsed_record = tf.io.parse_single_example(record, features)
-            frame_id = parsed_record["image/source_id"].numpy().decode("utf-8")
-            frame_filename = parsed_record["image/filename"].numpy().decode("utf-8")
-            frame_height = tf.cast(parsed_record["image/height"], tf.int64).numpy().item()
-            frame_width = tf.cast(parsed_record["image/width"], tf.int64).numpy().item()
+            parsed_record = tf.io.parse_single_example(record, self._features)
+            frame_id = parsed_record.get("image/source_id", None)
+            frame_id = frame_id.numpy().decode("utf-8") if frame_id else frame_id
+            frame_filename = parsed_record.get("image/filename", None).numpy().decode("utf-8")
+            frame_height = tf.cast(parsed_record.get("image/height", 0), tf.int64).numpy().item()
+            frame_width = tf.cast(parsed_record.get("image/width", 0), tf.int64).numpy().item()
             frame_image = parsed_record["image/encoded"].numpy()
             xmins = tf.sparse.to_dense(parsed_record["image/object/bbox/xmin"]).numpy()
             ymins = tf.sparse.to_dense(parsed_record["image/object/bbox/ymin"]).numpy()

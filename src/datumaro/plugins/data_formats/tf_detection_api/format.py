@@ -1,6 +1,8 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from enum import Enum, auto
 
 
 class DetectionApiPath:
@@ -11,3 +13,8 @@ class DetectionApiPath:
     IMAGE_EXT_FORMAT = {".jpg": "jpeg", ".jpeg": "jpeg", ".png": "png"}
 
     LABELMAP_FILE = "label_map.pbtxt"
+
+
+class TfrecordImporterType(Enum):
+    default = auto()
+    roboflow = auto()

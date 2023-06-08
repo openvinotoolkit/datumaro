@@ -12,26 +12,30 @@ from xml.etree import ElementTree
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
+from datumaro.components.lazy_plugin import extra_deps
 
 
 class RoboflowCocoImporter(Importer):
+    FORMAT = "roboflow_coco"
+    ANN_FILE_NAME = "_annotations.coco.json"
+
     @classmethod
     def detect(
         cls,
         context: FormatDetectionContext,
     ) -> FormatDetectionConfidence:
-        context.require_file("*/_annotations.coco.json")
+        context.require_file(osp.join("*", cls.ANN_FILE_NAME))
         return FormatDetectionConfidence.MEDIUM
 
     @classmethod
     def find_sources(cls, path):
-        subset_paths = glob(osp.join(path, "*", "_annotations.coco.json"), recursive=True)
+        subset_paths = glob(osp.join(path, "*", cls.ANN_FILE_NAME), recursive=True)
 
         sources = []
         for subset_path in subset_paths:
             subset_name = osp.basename(osp.dirname(subset_path))
             sources.append(
-                {"url": subset_path, "format": "roboflow_coco", "options": {"subset": subset_name}}
+                {"url": subset_path, "format": cls.FORMAT, "options": {"subset": subset_name}}
             )
 
         return sources
@@ -131,7 +135,7 @@ class RoboflowYoloImporter(RoboflowVocImporter):
             fields = line.rstrip("\n").split(" ")
             if len(fields) != 5:
                 raise DatasetImportError(
-                    f"Yolo format txt file should have 5 fields for each line, "
+                    f"Roboflow Yolo format txt file should have 5 fields for each line, "
                     f"but the read line has {len(fields)} fields: fields={fields}."
                 )
 
@@ -168,9 +172,63 @@ class RoboflowYoloImporter(RoboflowVocImporter):
         return sources
 
 
-# class RoboflowYoloObbImporter(Importer):
-#     raise NotImplementedError()
+class RoboflowYoloObbImporter(RoboflowYoloImporter):
+    FORMAT = "roboflow_yolo_obb"
+    FORMAT_EXT = ".txt"
+    ANN_DIR_NAME = "labelTxt/"
+
+    @classmethod
+    def _check_ann_file_impl(cls, fp: TextIOWrapper) -> bool:
+        for line in fp:
+            fields = line.rstrip("\n").split(" ")
+            if len(fields) != 10:
+                raise DatasetImportError(
+                    f"Roboflow Yolo OBB format txt file should have 10 fields for each line, "
+                    f"but the read line has {len(fields)} fields: fields={fields}."
+                )
+
+            # Check the first line only
+            return True
+
+        raise DatasetImportError("Empty file is not allowed.")
 
 
-# class RoboflowDarknetImporter(Importer):
-#     raise NotImplementedError()
+class RoboflowCreateMlImporter(RoboflowCocoImporter):
+    FORMAT = "roboflow_create_ml"
+    ANN_FILE_NAME = "_annotations.createml.json"
+
+
+class RoboflowMulticlass(RoboflowCocoImporter):
+    FORMAT = "roboflow_multiclass"
+    ANN_FILE_NAME = "_classes.csv"
+
+
+@extra_deps("tensorflow")
+class RoboflowTfrecord(Importer):
+    FORMAT = "roboflow_tfrecord"
+
+    @classmethod
+    def find_sources(cls, path):
+        sources = cls._find_sources_recursive(
+            path=path, ext=".tfrecord", extractor_name="roboflow_tfrecord", filename="cells"
+        )
+        if len(sources) == 0:
+            return []
+
+        subsets = defaultdict()
+        for source in sources:
+            subset_name = osp.dirname(source["url"]).split("/")[-1]
+            subsets[subset_name] = source["url"]
+
+        sources = [
+            {
+                "url": url,
+                "format": cls.FORMAT,
+                "options": {
+                    "subset": subset,
+                },
+            }
+            for subset, url in subsets.items()
+        ]
+
+        return sources

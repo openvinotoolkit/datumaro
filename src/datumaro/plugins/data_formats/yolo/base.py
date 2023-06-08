@@ -200,13 +200,13 @@ class YoloStrictBase(SubsetBase):
 
         return item
 
-    @staticmethod
-    def _parse_field(value: str, cls: Type[T], field_name: str) -> T:
+    @classmethod
+    def _parse_field(cls, value: str, type: Type[T], field_name: str) -> T:
         try:
-            return cls(value)
+            return type(value)
         except Exception as e:
             raise InvalidAnnotationError(
-                f"Can't parse {field_name} from '{value}'. Expected {cls}"
+                f"Can't parse {field_name} from '{value}'. Expected {type}"
             ) from e
 
     @classmethod
@@ -309,7 +309,7 @@ class YoloLooseBase(SubsetBase):
         if not osp.isdir(config_path):
             raise DatasetImportError(f"{config_path} should be a directory.")
 
-        rootpath = config_path
+        rootpath = self._get_rootpath(config_path)
 
         self._image_info = YoloStrictBase.parse_image_info(rootpath, image_info)
 
@@ -317,21 +317,13 @@ class YoloLooseBase(SubsetBase):
         label_categories = self._load_categories(osp.join(rootpath, self.META_FILE))
         self._categories = {AnnotationType.label: label_categories}
 
-        # Parse dataset items
-        def _get_fname(fpath: str) -> str:
-            return osp.splitext(osp.basename(fpath))[0]
-
-        img_files = {
-            _get_fname(img_file): img_file
-            for img_file in find_files(rootpath, IMAGE_EXTENSIONS, recursive=True, max_depth=2)
-            if extract_subset_name_from_parent(img_file, rootpath) == self._subset
-        }
+        img_files = self._load_img_files(rootpath)
 
         for url in urls:
             try:
-                fname = _get_fname(url)
+                fname = self._get_fname(url)
                 img = Image.from_file(path=img_files[fname])
-                anns = YoloStrictBase._parse_annotations(
+                anns = self._parse_annotations(
                     url,
                     img,
                     label_categories=label_categories,
@@ -342,8 +334,31 @@ class YoloLooseBase(SubsetBase):
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(fname, self._subset))
 
+    def _get_rootpath(self, config_path: str) -> str:
+        return config_path
+
     def _load_categories(self, names_path: str) -> LabelCategories:
         return YoloStrictBase._load_categories(names_path)
+
+    def _get_fname(self, fpath: str) -> str:
+        return osp.splitext(osp.basename(fpath))[0]
+
+    def _load_img_files(self, rootpath: str) -> Dict:
+        return {
+            self._get_fname(img_file): img_file
+            for img_file in find_files(rootpath, IMAGE_EXTENSIONS, recursive=True, max_depth=2)
+            if extract_subset_name_from_parent(img_file, rootpath) == self._subset
+        }
+
+    def _parse_annotations(
+        self, anno_path: str, image: ImageFromFile, label_categories: LabelCategories
+    ) -> List[Annotation]:
+        return YoloStrictBase._parse_annotations(
+            anno_path=anno_path, image=image, label_categories=label_categories
+        )
+
+    def _parse_field(self, value: str, type: Type[T], field_name: str) -> T:
+        return YoloStrictBase._parse_field(value=value, type=type, field_name=field_name)
 
 
 class YoloUltralyticsBase(YoloLooseBase):
@@ -367,12 +382,13 @@ class YoloUltralyticsBase(YoloLooseBase):
         with open(names_path, "r") as fp:
             loaded = yaml.safe_load(fp.read())
             if isinstance(loaded["names"], list):
-                for label_name in loaded["names"]:
-                    label_categories.add(label_name)
+                label_names = loaded["names"]
             elif isinstance(loaded["names"], dict):
-                for label_name in loaded["names"].values():
-                    label_categories.add(label_name)
+                label_names = list(loaded["names"].values())
             else:
                 raise DatasetImportError(f"Can't read dataset category file '{names_path}'")
+
+        for label_name in label_names:
+            label_categories.add(label_name)
 
         return label_categories
