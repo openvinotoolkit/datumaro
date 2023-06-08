@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1031>)
 - Migrate OpenVINO v2023.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1036>)
+- Change default dtype of load_image() to np.uint8
+  (<https://github.com/openvinotoolkit/datumaro/pull/1041>)
 
 ### Bug fixes
 
