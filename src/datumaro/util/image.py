@@ -60,9 +60,9 @@ def __getattr__(name: str):
     raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
-def load_image(path: str, dtype: DTypeLike = np.float32, crypter: Crypter = NULL_CRYPTER):
+def load_image(path: str, dtype: DTypeLike = np.uint8, crypter: Crypter = NULL_CRYPTER):
     """
-    Reads an image in the HWC Grayscale/BGR(A) float [0; 255] format.
+    Reads an image in the HWC Grayscale/BGR(A) [0; 255] format (default dtype is uint8).
     """
 
     if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
@@ -83,6 +83,7 @@ def load_image(path: str, dtype: DTypeLike = np.float32, crypter: Crypter = NULL
         image = Image.open(path)
         image = np.asarray(image, dtype=dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
+            image = np.array(image)  # Release read-only
             image[:, :, :3] = image[:, :, 2::-1]  # RGB to BGR
     else:
         raise NotImplementedError()
@@ -225,7 +226,7 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwa
         raise NotImplementedError()
 
 
-def decode_image(image_bytes: bytes, dtype: DTypeLike = np.float32) -> np.ndarray:
+def decode_image(image_bytes: bytes, dtype: DTypeLike = np.uint8) -> np.ndarray:
     if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
         import cv2
 
@@ -238,6 +239,7 @@ def decode_image(image_bytes: bytes, dtype: DTypeLike = np.float32) -> np.ndarra
         image = Image.open(BytesIO(image_bytes))
         image = np.asarray(image, dtype=dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
+            image = np.array(image)  # Release read-only
             image[:, :, :3] = image[:, :, 2::-1]  # RGB to BGR
     else:
         raise NotImplementedError()
