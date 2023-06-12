@@ -326,7 +326,6 @@ class RoboflowTfrecord(TfDetectionApiBase):
         subset: Optional[str] = None,
         ctx: Optional[ImportContext] = None,
     ):
-        print(subset)
         super().__init__(
             path=path, subset=subset, tfrecord_importer_type=TfrecordImporterType.roboflow, ctx=ctx
         )
