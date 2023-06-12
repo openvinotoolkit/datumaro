@@ -1,6 +1,11 @@
+# Copyright (C) 2022-2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from dataclasses import dataclass
 from unittest import TestCase, mock
 
+import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.figure import Figure
 
@@ -123,7 +128,13 @@ class VisualizerTestBase:
             _check(test_case.infer_grid_size, test_case.expected_grid_size)
 
 
-class LabelVisualizerTest(TestCase, VisualizerTestBase):
+class TestCaseClosePltFigure(TestCase):
+    def tearDown(self) -> None:
+        plt.close("all")
+        return super().tearDown()
+
+
+class LabelVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
         cls.subset = "train"
@@ -155,7 +166,7 @@ class LabelVisualizerTest(TestCase, VisualizerTestBase):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
-class PointsVisualizerTest(TestCase, VisualizerTestBase):
+class PointsVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
         cls.subset = "train"
@@ -166,7 +177,7 @@ class PointsVisualizerTest(TestCase, VisualizerTestBase):
                 media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     Points(
-                        np.random.random_integers(0, 6, size=10 * 2),
+                        np.random.randint(0, 6, size=10 * 2),
                         label=label_idx,
                         id=img_idx * img_idx + label_idx,
                         group=1,
@@ -189,7 +200,7 @@ class PointsVisualizerTest(TestCase, VisualizerTestBase):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
-class MaskVisualizerTest(TestCase, VisualizerTestBase):
+class MaskVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
         cls.subset = "train"
@@ -223,7 +234,7 @@ class MaskVisualizerTest(TestCase, VisualizerTestBase):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
-class PolygonVisualizerTest(TestCase, VisualizerTestBase):
+class PolygonVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
         cls.subset = "train"
@@ -234,7 +245,7 @@ class PolygonVisualizerTest(TestCase, VisualizerTestBase):
                 media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     Polygon(
-                        np.random.random_integers(0, 6, size=10 * 2),
+                        np.random.randint(0, 6, size=10 * 2),
                         label=label_idx,
                         id=img_idx * img_idx + label_idx,
                         group=1,
@@ -257,7 +268,7 @@ class PolygonVisualizerTest(TestCase, VisualizerTestBase):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
-class PolyLineVisualizerTest(TestCase, VisualizerTestBase):
+class PolyLineVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
         cls.subset = "train"
@@ -268,7 +279,7 @@ class PolyLineVisualizerTest(TestCase, VisualizerTestBase):
                 media=Image.from_numpy(data=np.ones((4, 6, 3))),
                 annotations=[
                     PolyLine(
-                        np.random.random_integers(0, 6, size=10 * 2),
+                        np.random.randint(0, 6, size=10 * 2),
                         label=label_idx,
                         id=img_idx * img_idx + label_idx,
                         group=1,
@@ -291,7 +302,7 @@ class PolyLineVisualizerTest(TestCase, VisualizerTestBase):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
-class BboxVisualizerTest(TestCase, VisualizerTestBase):
+class BboxVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
         cls.subset = "train"
@@ -328,7 +339,7 @@ class BboxVisualizerTest(TestCase, VisualizerTestBase):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
-class CaptionVisualizerTest(TestCase, VisualizerTestBase):
+class CaptionVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
         cls.subset = "train"
@@ -359,7 +370,7 @@ class CaptionVisualizerTest(TestCase, VisualizerTestBase):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
-class SuperResolutionVisualizerTest(TestCase, VisualizerTestBase):
+class SuperResolutionVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
         cls.subset = "train"
@@ -389,7 +400,7 @@ class SuperResolutionVisualizerTest(TestCase, VisualizerTestBase):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
-class DepthVisualizerTest(TestCase, VisualizerTestBase):
+class DepthVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
         cls.subset = "train"
@@ -419,7 +430,7 @@ class DepthVisualizerTest(TestCase, VisualizerTestBase):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
 
-class EllipseVisualizerTest(TestCase, VisualizerTestBase):
+class EllipseVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     @classmethod
     def setUpClass(cls):
         cls.subset = "train"

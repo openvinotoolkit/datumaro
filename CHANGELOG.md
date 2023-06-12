@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1036>)
 
 ### Bug fixes
+- Fix warnings in test_visualizer.py
+  (<https://github.com/openvinotoolkit/datumaro/pull/1039>)
 
 ## 26/05/2023 - Release 1.3.1
 ### Bug fixes
