@@ -12,13 +12,15 @@ import pytest
 from datumaro.components.annotation import Bbox, Label, Polygon
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.exporter import Exporter
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.roboflow.importer import (
     RoboflowCocoImporter,
+    RoboflowCreateMlImporter,
+    RoboflowMulticlassImporter,
     RoboflowVocImporter,
     RoboflowYoloImporter,
+    RoboflowYoloObbImporter,
 )
 
 from .base import TestDataFormatBase
@@ -29,7 +31,7 @@ DUMMY_DATASET_COCO_DIR = get_test_asset_path("roboflow_dataset", "coco")
 DUMMY_DATASET_VOC_DIR = get_test_asset_path("roboflow_dataset", "voc")
 DUMMY_DATASET_YOLO_DIR = get_test_asset_path("roboflow_dataset", "yolo")
 DUMMY_DATASET_YOLO_OBB_DIR = get_test_asset_path("roboflow_dataset", "yolo_obb")
-DUMMY_DATASET_YOLO_OBB_DIR = get_test_asset_path("roboflow_dataset", "createml")
+DUMMY_DATASET_CREATEML_DIR = get_test_asset_path("roboflow_dataset", "createml")
 DUMMY_DATASET_MULTICLASS_DIR = get_test_asset_path("roboflow_dataset", "multiclass")
 DUMMY_DATASET_TFRECORD_DIR = get_test_asset_path("roboflow_dataset", "tfrecord")
 
@@ -148,7 +150,101 @@ def fxt_yolo_dataset(fxt_voc_dataset):
     return yolo_dataset
 
 
-IDS = ["COCO", "VOC", "YOLO"]
+@pytest.fixture
+def fxt_yolo_obb_dataset():
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="train_001",
+                subset="train",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Polygon(
+                        points=[0, 0, 0, 2, 2, 2, 2, 0],
+                        label=0,
+                        group=0,
+                        id=0,
+                    )
+                ],
+            ),
+            DatasetItem(
+                id="train_002",
+                subset="train",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Polygon(
+                        points=[1, 1, 1, 5, 5, 5, 5, 1],
+                        label=1,
+                        group=0,
+                        id=0,
+                    )
+                ],
+            ),
+            DatasetItem(
+                id="val_001",
+                subset="val",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Polygon(
+                        points=[0, 0, 0, 1, 1, 1, 1, 0],
+                        label=0,
+                        group=0,
+                        id=0,
+                    ),
+                    Polygon(
+                        points=[1, 2, 1, 5, 10, 5, 10, 2],
+                        label=1,
+                        group=1,
+                        id=1,
+                    ),
+                ],
+            ),
+        ],
+        categories=["label_0", "label_1"],
+    )
+
+
+@pytest.fixture
+def fxt_createml_dataset(fxt_yolo_dataset):
+    createml_dataset = deepcopy(fxt_yolo_dataset)
+    return createml_dataset
+
+
+@pytest.fixture
+def fxt_multiclass_dataset():
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="train_001",
+                subset="train",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Label(label=0, group=0, id=0),
+                ],
+            ),
+            DatasetItem(
+                id="train_002",
+                subset="train",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Label(label=1, group=0, id=0),
+                ],
+            ),
+            DatasetItem(
+                id="val_001",
+                subset="val",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Label(label=0, group=0, id=0),
+                    Label(label=1, group=1, id=1),
+                ],
+            ),
+        ],
+        categories=["label_0", "label_1"],
+    )
+
+
+IDS = ["COCO", "VOC", "YOLO", "YOLO_OBB", "CREATE_ML", "MULTICLASS"]
 
 
 class RoboflowImporterTest(TestDataFormatBase):
@@ -158,6 +254,9 @@ class RoboflowImporterTest(TestDataFormatBase):
             (DUMMY_DATASET_COCO_DIR, RoboflowCocoImporter),
             (DUMMY_DATASET_VOC_DIR, RoboflowVocImporter),
             (DUMMY_DATASET_YOLO_DIR, RoboflowYoloImporter),
+            (DUMMY_DATASET_YOLO_OBB_DIR, RoboflowYoloObbImporter),
+            (DUMMY_DATASET_CREATEML_DIR, RoboflowCreateMlImporter),
+            (DUMMY_DATASET_MULTICLASS_DIR, RoboflowMulticlassImporter),
         ],
         ids=IDS,
     )
@@ -165,11 +264,14 @@ class RoboflowImporterTest(TestDataFormatBase):
         return super().test_can_detect(fxt_dataset_dir, importer)
 
     @pytest.mark.parametrize(
-        ["fxt_dataset_dir", "fxt_expected_dataset", "fxt_import_kwargs", "importer"],
+        ["fxt_dataset_dir", "fxt_expected_dataset", "importer"],
         [
-            (DUMMY_DATASET_COCO_DIR, "fxt_coco_dataset", {}, RoboflowCocoImporter),
-            (DUMMY_DATASET_VOC_DIR, "fxt_voc_dataset", {}, RoboflowVocImporter),
-            (DUMMY_DATASET_YOLO_DIR, "fxt_yolo_dataset", {}, RoboflowYoloImporter),
+            (DUMMY_DATASET_COCO_DIR, "fxt_coco_dataset", RoboflowCocoImporter),
+            (DUMMY_DATASET_VOC_DIR, "fxt_voc_dataset", RoboflowVocImporter),
+            (DUMMY_DATASET_YOLO_DIR, "fxt_yolo_dataset", RoboflowYoloImporter),
+            (DUMMY_DATASET_YOLO_OBB_DIR, "fxt_yolo_obb_dataset", RoboflowYoloObbImporter),
+            (DUMMY_DATASET_CREATEML_DIR, "fxt_createml_dataset", RoboflowCreateMlImporter),
+            (DUMMY_DATASET_MULTICLASS_DIR, "fxt_multiclass_dataset", RoboflowMulticlassImporter),
         ],
         indirect=["fxt_expected_dataset"],
         ids=IDS,
@@ -178,14 +280,13 @@ class RoboflowImporterTest(TestDataFormatBase):
         self,
         fxt_dataset_dir: str,
         fxt_expected_dataset: Dataset,
-        fxt_import_kwargs: Dict[str, Any],
         request: pytest.FixtureRequest,
         importer: Importer,
     ):
         return super().test_can_import(
-            fxt_dataset_dir,
-            fxt_expected_dataset,
-            fxt_import_kwargs,
-            request,
-            importer,
+            fxt_dataset_dir=fxt_dataset_dir,
+            fxt_expected_dataset=fxt_expected_dataset,
+            fxt_import_kwargs={},
+            request=request,
+            importer=importer,
         )

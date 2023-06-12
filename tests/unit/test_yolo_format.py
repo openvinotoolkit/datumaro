@@ -37,8 +37,8 @@ class YoloExportertTest(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
-                        Bbox(0, 2, 4, 2, label=2),
-                        Bbox(0, 1, 2, 3, label=4),
+                        Bbox(0, 2, 4, 2, label=2, id=0, group=0),
+                        Bbox(0, 1, 2, 3, label=4, id=1, group=1),
                     ],
                 ),
                 DatasetItem(
@@ -46,9 +46,9 @@ class YoloExportertTest(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((10, 10, 3))),
                     annotations=[
-                        Bbox(0, 2, 4, 2, label=2),
-                        Bbox(3, 3, 2, 3, label=4),
-                        Bbox(2, 1, 2, 3, label=4),
+                        Bbox(0, 2, 4, 2, label=2, id=0, group=0),
+                        Bbox(3, 3, 2, 3, label=4, id=1, group=1),
+                        Bbox(2, 1, 2, 3, label=4, id=2, group=2),
                     ],
                 ),
                 DatasetItem(
@@ -56,10 +56,10 @@ class YoloExportertTest(TestCase):
                     subset="valid",
                     media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
-                        Bbox(0, 1, 5, 2, label=2),
-                        Bbox(0, 2, 3, 2, label=5),
-                        Bbox(0, 2, 4, 2, label=6),
-                        Bbox(0, 7, 3, 2, label=7),
+                        Bbox(0, 1, 5, 2, label=2, id=0, group=0),
+                        Bbox(0, 2, 3, 2, label=5, id=1, group=1),
+                        Bbox(0, 2, 4, 2, label=6, id=2, group=2),
+                        Bbox(0, 7, 3, 2, label=7, id=3, group=3),
                     ],
                 ),
             ],
@@ -81,8 +81,8 @@ class YoloExportertTest(TestCase):
                     subset="train",
                     media=Image.from_file(path="1.jpg", size=(10, 15)),
                     annotations=[
-                        Bbox(0, 2, 4, 2, label=2),
-                        Bbox(3, 3, 2, 3, label=4),
+                        Bbox(0, 2, 4, 2, label=2, id=0, group=0),
+                        Bbox(3, 3, 2, 3, label=4, id=1, group=1),
                     ],
                 ),
             ],
@@ -108,8 +108,8 @@ class YoloExportertTest(TestCase):
                     subset="train",
                     media=Image.from_file(path="1.jpg", size=(10, 15)),
                     annotations=[
-                        Bbox(0, 2, 4, 2, label=2),
-                        Bbox(3, 3, 2, 3, label=4),
+                        Bbox(0, 2, 4, 2, label=2, id=0, group=0),
+                        Bbox(3, 3, 2, 3, label=4, id=1, group=1),
                     ],
                 ),
             ],
@@ -132,8 +132,8 @@ class YoloExportertTest(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
-                        Bbox(0, 2, 4, 2, label=2),
-                        Bbox(0, 1, 2, 3, label=4),
+                        Bbox(0, 2, 4, 2, label=2, id=0, group=0),
+                        Bbox(0, 1, 2, 3, label=4, id=1, group=1),
                     ],
                 ),
             ],
@@ -240,8 +240,8 @@ class YoloExportertTest(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
-                        Bbox(0, 2, 4, 2, label=2),
-                        Bbox(0, 1, 2, 3, label=4),
+                        Bbox(0, 2, 4, 2, label=2, id=0, group=0),
+                        Bbox(0, 1, 2, 3, label=4, id=1, group=1),
                     ],
                 ),
                 DatasetItem(
@@ -249,9 +249,9 @@ class YoloExportertTest(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((10, 10, 3))),
                     annotations=[
-                        Bbox(0, 2, 4, 2, label=2),
-                        Bbox(3, 3, 2, 3, label=4),
-                        Bbox(2, 1, 2, 3, label=4),
+                        Bbox(0, 2, 4, 2, label=2, id=0, group=0),
+                        Bbox(3, 3, 2, 3, label=4, id=1, group=1),
+                        Bbox(2, 1, 2, 3, label=4, id=2, group=2),
                     ],
                 ),
                 DatasetItem(
@@ -259,10 +259,10 @@ class YoloExportertTest(TestCase):
                     subset="valid",
                     media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
-                        Bbox(0, 1, 5, 2, label=2),
-                        Bbox(0, 2, 3, 2, label=5),
-                        Bbox(0, 2, 4, 2, label=6),
-                        Bbox(0, 7, 3, 2, label=7),
+                        Bbox(0, 1, 5, 2, label=2, id=0, group=0),
+                        Bbox(0, 2, 3, 2, label=5, id=1, group=1),
+                        Bbox(0, 2, 4, 2, label=6, id=2, group=2),
+                        Bbox(0, 7, 3, 2, label=7, id=3, group=3),
                     ],
                 ),
             ],
@@ -285,8 +285,8 @@ class YoloExportertTest(TestCase):
                     subset="anything",
                     media=Image.from_numpy(data=np.ones((8, 8, 3))),
                     annotations=[
-                        Bbox(0, 1, 5, 2, label=2),
-                        Bbox(0, 2, 3, 2, label=5),
+                        Bbox(0, 1, 5, 2, label=2, id=0, group=0),
+                        Bbox(0, 2, 3, 2, label=5, id=1, group=1),
                     ],
                 ),
             ],

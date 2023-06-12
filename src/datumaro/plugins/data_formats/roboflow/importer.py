@@ -198,7 +198,7 @@ class RoboflowCreateMlImporter(RoboflowCocoImporter):
     ANN_FILE_NAME = "_annotations.createml.json"
 
 
-class RoboflowMulticlass(RoboflowCocoImporter):
+class RoboflowMulticlassImporter(RoboflowCocoImporter):
     FORMAT = "roboflow_multiclass"
     ANN_FILE_NAME = "_classes.csv"
 

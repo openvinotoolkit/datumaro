@@ -146,7 +146,7 @@ class RoboflowYoloObbBase(RoboflowYoloBase):
                     lines.append(line)
 
         annotations = []
-        for line in lines:
+        for idx, line in enumerate(lines):
             parts = line.split()
             if len(parts) != 10:
                 raise InvalidAnnotationError(
@@ -173,6 +173,8 @@ class RoboflowYoloObbBase(RoboflowYoloBase):
                 Polygon(
                     points=[x1, y1, x2, y2, x3, y3, x4, y4],
                     label=label_id,
+                    id=idx,
+                    group=idx,
                 )
             )
 
@@ -220,12 +222,11 @@ class RoboflowCreateMlBase(SubsetBase):
 
     def _load_items(self, json_data):
         items = {}
-        idx = 0
         for anns in self._ctx.progress_reporter.iter(
             json_data, desc=f"Parsing boxes in '{self._subset}'"
         ):
             annotations = []
-            for ann in anns["annotations"]:
+            for ann_id, ann in enumerate(anns["annotations"]):
                 label_id, _ = self._categories[AnnotationType.label].find(ann["label"])
                 if label_id is None:
                     raise UndeclaredLabelError(ann["label"])
@@ -234,17 +235,15 @@ class RoboflowCreateMlBase(SubsetBase):
                 y = ann["coordinates"]["y"]
                 w = ann["coordinates"]["width"]
                 h = ann["coordinates"]["height"]
-                annotations.append(Bbox(x, y, w, h))
+                annotations.append(Bbox(x, y, w, h, label=label_id, id=ann_id, group=ann_id))
 
             img_id = osp.splitext(anns["image"])[0]
             items[img_id] = DatasetItem(
-                id=idx,
+                id=img_id,
                 subset=self._subset,
                 media=Image.from_file(path=osp.join(osp.dirname(self._path), anns["image"])),
                 annotations=annotations,
             )
-
-            idx += 1
 
         return items.values()
 
@@ -276,7 +275,8 @@ class RoboflowMulticlassBase(SubsetBase):
 
     def _load_categories(self, path):
         with open(path, "r", encoding="utf-8") as f:
-            cats = csv.DictReader(f).fieldnames[1:]
+            reader = csv.DictReader(f)
+            cats = [label.strip() for label in reader.fieldnames[1:]]
 
         label_categories = LabelCategories()
         for idx, cat in enumerate(sorted(cats)):
@@ -290,17 +290,23 @@ class RoboflowMulticlassBase(SubsetBase):
     def _load_items(self, path):
         items = []
         with open(path, "r", encoding="utf-8") as f:
-            for idx, anns in enumerate(csv.DictReader(f)):
+            for anns in csv.DictReader(f):
+                img_id = anns.get("filename", None)
+                img_id = osp.splitext(img_id)[0] if img_id else None
+                idx = 0
                 annotations = []
                 for key, val in anns.items():
-                    if key not in self._label_mapping:
+                    if key.strip() not in self._label_mapping:
                         continue
                     if int(val) == 1:
-                        annotations.append(Label(label=self._label_mapping[key]))
+                        annotations.append(
+                            Label(label=self._label_mapping[key.strip()], id=idx, group=idx)
+                        )
+                        idx += 1
 
                 items.append(
                     DatasetItem(
-                        id=idx,
+                        id=img_id,
                         subset=self._subset,
                         media=Image.from_file(
                             path=osp.join(osp.dirname(self._path), anns["filename"])

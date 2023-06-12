@@ -1,0 +1,30 @@
+[
+  {
+    "image": "train_001.jpg",
+    "annotations": [
+      {
+        "label": "label_0",
+        "coordinates": {
+          "x": 2.0,
+          "y": 1.0,
+          "width": 3.0,
+          "height": 1.0
+        }
+      }
+    ]
+  },
+  {
+    "image": "train_002.jpg",
+    "annotations": [
+      {
+        "label": "label_1",
+        "coordinates": {
+          "x": 0.0,
+          "y": 0.0,
+          "width": 2.0,
+          "height": 4.0
+        }
+      }
+    ]
+  }
+]
