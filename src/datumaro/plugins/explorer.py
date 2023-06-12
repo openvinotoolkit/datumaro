@@ -27,7 +27,6 @@ class ExplorerLauncher(OpenvinoLauncher):
 
         self._device = device or "cpu"
         self._output_blobs = next(iter(self._net.outputs))
-        self._input_blobs = next(iter(self._net.input_info))
         self._tokenizer = None
 
     def _tokenize(self, texts: str, context_length: int = 77, truncate: bool = True):
@@ -61,7 +60,7 @@ class ExplorerLauncher(OpenvinoLauncher):
             else:
                 prompt_text = f"a photo of a {inputs}"
             inputs = self._tokenize(prompt_text)
-            inputs = {self._input_blob: inputs}
+            inputs = {self._input_blob.get_any_name(): inputs}
         elif isinstance(inputs, np.ndarray):
             # when processing a query key, we expand HWC to NHWC
             if len(inputs.shape) == 3:
@@ -70,7 +69,7 @@ class ExplorerLauncher(OpenvinoLauncher):
         else:
             raise ValueError(f"inputs={inputs} is not allowed type.")
 
-        results = self._net.infer(inputs)
+        results = self._request.infer(inputs)
         hash_key = self._compute_hash(results[self._output_blobs])
         return hash_key
 

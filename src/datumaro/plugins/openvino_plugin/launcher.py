@@ -8,14 +8,16 @@ import logging as log
 import os.path as osp
 import shutil
 import urllib
+from typing import Dict, Optional
 
 import cv2
 import numpy as np
-from openvino.inference_engine import IECore
+from openvino.runtime import Core
 from tqdm import tqdm
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.launcher import Launcher
+from datumaro.errors import DatumaroError
 from datumaro.util.definitions import DATUMARO_CACHE_DIR
 from datumaro.util.samples import get_samples_path
 
@@ -98,16 +100,20 @@ class InterpreterScript:
 
 class OpenvinoLauncher(Launcher):
     cli_plugin = _OpenvinoImporter
+    ALLOWED_CHANNEL_FORMATS = {"NCHW", "NHWC"}
 
     def __init__(
         self,
-        description=None,
-        weights=None,
-        interpreter=None,
-        model_dir=None,
-        model_name=None,
+        description: Optional[str] = None,
+        weights: Optional[str] = None,
+        interpreter: Optional[str] = None,
+        model_dir: Optional[str] = None,
+        model_name: Optional[str] = None,
         output_layers=None,
-        device=None,
+        device: Optional[str] = None,
+        compile_model_config: Optional[Dict] = None,
+        channel_format: str = "NCHW",
+        to_rgb: bool = True,
     ):
         if model_name:
             model_dir = DATUMARO_CACHE_DIR
@@ -138,27 +144,36 @@ class OpenvinoLauncher(Launcher):
         if not osp.isfile(description):
             description = osp.join(model_dir, description)
         if not osp.isfile(description):
-            raise Exception('Failed to open model description file "%s"' % (description))
+            raise DatumaroError('Failed to open model description file "%s"' % (description))
 
         if not osp.isfile(weights):
             weights = osp.join(model_dir, weights)
         if not osp.isfile(weights):
-            raise Exception('Failed to open model weights file "%s"' % (weights))
+            raise DatumaroError('Failed to open model weights file "%s"' % (weights))
 
         if not osp.isfile(interpreter):
             interpreter = osp.join(model_dir, interpreter)
         if not osp.isfile(interpreter):
-            raise Exception('Failed to open model interpreter script file "%s"' % (interpreter))
+            raise DatumaroError('Failed to open model interpreter script file "%s"' % (interpreter))
 
         self._interpreter = InterpreterScript(interpreter)
 
         self._device = device or "CPU"
         self._output_blobs = output_layers
+        self._compile_model_config = compile_model_config
 
-        self._ie = IECore()
-        self._network = self._ie.read_network(description, weights)
+        self._core = Core()
+        self._network = self._core.read_model(description, weights)
         self._check_model_support(self._network, self._device)
         self._load_executable_net()
+
+        if channel_format not in self.ALLOWED_CHANNEL_FORMATS:
+            raise DatumaroError(
+                f"channel_format={channel_format} is not in "
+                f"ALLOWED_CHANNEL_FORMATS={self.ALLOWED_CHANNEL_FORMATS}."
+            )
+        self._channel_format = channel_format
+        self._to_rgb = to_rgb
 
     def _download_file(self, url: str, file_root: str):
         req = urllib.request.Request(url)
@@ -181,7 +196,7 @@ class OpenvinoLauncher(Launcher):
 
     def _check_model_support(self, net, device):
         not_supported_layers = set(
-            name for name, dev in self._ie.query_network(net, device).items() if not dev
+            name for name, dev in self._core.query_model(net, device).items() if not dev
         )
         if len(not_supported_layers) != 0:
             log.error(
@@ -190,30 +205,48 @@ class OpenvinoLauncher(Launcher):
             )
             raise NotImplementedError("Some layers are not supported on the device")
 
-    def _load_executable_net(self, batch_size=1):
+    def _load_executable_net(self, batch_size: int = 1):
         network = self._network
 
         if self._output_blobs:
-            network.add_outputs(self._output_blobs)
+            network.add_outputs([self._output_blobs])
 
-        iter_inputs = iter(network.input_info)
+        iter_inputs = iter(network.inputs)
         self._input_blob = next(iter_inputs)
 
-        # NOTE: handling for the inclusion of `image_info` in OpenVino2019
-        self._require_image_info = "image_info" in network.input_info
-        if self._input_blob == "image_info":
-            self._input_blob = next(iter_inputs)
+        is_dynamic_layout = False
+        try:
+            self._input_layout = self._input_blob.shape
+        except ValueError:
+            # In case of that the input has dynamic shape
+            self._input_layout = self._input_blob.partial_shape
+            is_dynamic_layout = True
 
-        self._input_layout = network.input_info[self._input_blob].input_data.shape
-        self._input_layout[0] = batch_size
-        network.reshape({self._input_blob: self._input_layout})
+        if is_dynamic_layout:
+            self._input_layout[0] = batch_size
+            network.reshape({self._input_blob: self._input_layout})
+        else:
+            model_batch_size = self._input_layout[0]
+            if batch_size != model_batch_size:
+                log.warning(
+                    "Input layout of the model is static, so that we cannot change "
+                    f"the model batch size ({model_batch_size}) to batch size ({batch_size})! "
+                    "Set the batch size to {model_batch_size}."
+                )
+                batch_size = model_batch_size
+
         self._batch_size = batch_size
 
-        self._net = self._ie.load_network(network=network, num_requests=1, device_name=self._device)
+        self._net = self._core.compile_model(
+            model=network,
+            device_name=self._device,
+            config=self._compile_model_config,
+        )
+        self._request = self._net.create_infer_request()
 
     def infer(self, inputs):
         inputs = self.process_inputs(inputs)
-        results = self._net.infer(inputs)
+        results = self._request.infer(inputs)
         if len(results) == 1:
             return next(iter(results.values()))
         else:
@@ -244,22 +277,27 @@ class OpenvinoLauncher(Launcher):
 
         assert inputs.shape[3] == 3, "Expected BGR input, got %s" % (inputs.shape,)
 
-        n, c, h, w = self._input_layout
+        if self._channel_format == "NCHW":
+            n, c, h, w = self._input_layout
+        elif self._channel_format == "NHWC":
+            n, h, w, c = self._input_layout
+        else:
+            raise DatumaroError(f"Invliad channel_format: {self._channel_format}.")
+
         if inputs.shape[1:3] != (h, w):
             resized_inputs = np.empty((n, h, w, c), dtype=inputs.dtype)
             for inp, resized_input in zip(inputs, resized_inputs):
                 cv2.resize(inp, (w, h), resized_input)
             inputs = resized_inputs
-        inputs = inputs.transpose((0, 3, 1, 2))  # NHWC to NCHW
+
+        if self._channel_format == "NCHW":
+            inputs = inputs.transpose((0, 3, 1, 2))  # NHWC to NCHW
+
+        if self._to_rgb:
+            inputs = inputs[:, :, :, ::-1]  # Convert from BGR to RGB
 
         inputs = self._interpreter.normalize(inputs)
 
-        inputs = {self._input_blob: inputs}
-        if self._require_image_info:
-            info = np.zeros([1, 3])
-            info[0, 0] = h
-            info[0, 1] = w
-            info[0, 2] = 1.0  # scale
-            inputs["image_info"] = info
+        inputs = {self._input_blob.get_any_name(): inputs}
 
         return inputs
