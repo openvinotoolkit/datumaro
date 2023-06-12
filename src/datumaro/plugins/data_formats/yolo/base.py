@@ -234,7 +234,7 @@ class YoloStrictBase(SubsetBase):
                 )
             image_height, image_width = image.size
 
-        for line in lines:
+        for idx, line in enumerate(lines):
             parts = line.split()
             if len(parts) != 5:
                 raise InvalidAnnotationError(
@@ -258,6 +258,8 @@ class YoloStrictBase(SubsetBase):
                     w * image_width,
                     h * image_height,
                     label=label_id,
+                    id=idx,
+                    group=idx,
                 )
             )
 

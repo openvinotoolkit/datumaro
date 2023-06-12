@@ -1,0 +1,5 @@
+train: ../train/images
+val: ../valid/images
+
+nc: 2
+names: ['label_0', 'label_1']
