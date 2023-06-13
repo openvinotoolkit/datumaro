@@ -26,8 +26,8 @@ class YoloIntegrationScenarios(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((10, 15, 3))),
                     annotations=[
-                        Bbox(3.0, 3.0, 2.0, 3.0, label=4),
-                        Bbox(0.0, 2.0, 4.0, 2.0, label=2),
+                        Bbox(0.0, 2.0, 4.0, 2.0, label=2, id=0, group=0),
+                        Bbox(3.0, 3.0, 2.0, 3.0, label=4, id=1, group=1),
                     ],
                 )
             ],
@@ -98,9 +98,9 @@ class YoloIntegrationScenarios(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((10, 20, 3))),
                     annotations=[
-                        Bbox(1.0, 2.0, 2.0, 2.0, label=8),
-                        Bbox(4.0, 5.0, 2.0, 2.0, label=15),
-                        Bbox(5.5, 6.0, 2.0, 2.0, label=22),
+                        Bbox(1.0, 2.0, 2.0, 2.0, label=8, id=0, group=0),
+                        Bbox(5.5, 6.0, 2.0, 2.0, label=22, id=1, group=1),
+                        Bbox(4.0, 5.0, 2.0, 2.0, label=15, id=2, group=2),
                     ],
                 ),
                 DatasetItem(
