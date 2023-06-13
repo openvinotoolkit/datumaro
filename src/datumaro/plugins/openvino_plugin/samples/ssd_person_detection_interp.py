@@ -1,14 +1,10 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-
+from datumaro.components.abstracts.model_interpreter import IModelInterpreter
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 
 conf_thresh = 0.02
-
-
-def normalize(inputs):
-    return inputs
 
 
 def _match_confs(confs, detections):
@@ -37,56 +33,62 @@ def _match_confs(confs, detections):
     return matches
 
 
-def process_outputs(inputs, outputs):
-    # inputs = model input; array or images; shape = (B, H, W, C)
-    # outputs = model output; shape = (1, 1, N, 7); N is the number of detected bounding boxes.
-    # det = [image_id, label(class id), conf, x_min, y_min, x_max, y_max]
-    # results = conversion result; [[ Annotation, ... ], ... ]
+class SsdPersonDetectionModelInterpreter(IModelInterpreter):
+    def normalize(self, inputs):
+        return inputs
 
-    results = []
-    for input_, detections in zip(inputs, outputs["detection_out"]):
-        input_height, input_width = input_.shape[:2]
+    def process_outputs(self, inputs, outputs):
+        # inputs = model input; array or images; shape = (B, H, W, C)
+        # outputs = model output; shape = (1, 1, N, 7); N is the number of detected bounding boxes.
+        # det = [image_id, label(class id), conf, x_min, y_min, x_max, y_max]
+        # results = conversion result; [[ Annotation, ... ], ... ]
 
-        confs = outputs["Softmax_189/Softmax_"]
-        detections = detections[0]
+        results = []
+        for input_, detections in zip(inputs, outputs["detection_out"]):
+            input_height, input_width = input_.shape[:2]
 
-        conf_ids = _match_confs(confs, detections)
+            confs = outputs["Softmax_189/Softmax_"]
+            detections = detections[0]
 
-        image_results = []
-        for i, det in enumerate(detections):
-            image_id = int(det[0])  # pylint: disable=unused-variable
-            label = int(det[1])
-            conf = float(det[2])
-            det_confs = confs[conf_ids[i]]
+            conf_ids = _match_confs(confs, detections)
 
-            if conf <= conf_thresh:
-                continue
+            image_results = []
+            for i, det in enumerate(detections):
+                image_id = int(det[0])  # pylint: disable=unused-variable
+                label = int(det[1])
+                conf = float(det[2])
+                det_confs = confs[conf_ids[i]]
 
-            x = max(int(det[3] * input_width), 0)
-            y = max(int(det[4] * input_height), 0)
-            w = min(int(det[5] * input_width - x), input_width)
-            h = min(int(det[6] * input_height - y), input_height)
+                if conf <= conf_thresh:
+                    continue
 
-            image_results.append(
-                Bbox(
-                    x,
-                    y,
-                    w,
-                    h,
-                    label=label,
-                    attributes={"score": conf, "scores": list(map(float, det_confs))},
+                x = max(int(det[3] * input_width), 0)
+                y = max(int(det[4] * input_height), 0)
+                w = min(int(det[5] * input_width - x), input_width)
+                h = min(int(det[6] * input_height - y), input_height)
+
+                image_results.append(
+                    Bbox(
+                        x,
+                        y,
+                        w,
+                        h,
+                        label=label,
+                        attributes={"score": conf, "scores": list(map(float, det_confs))},
+                    )
                 )
-            )
 
-            results.append(image_results)
+                results.append(image_results)
 
-    return results
+        return results
 
+    def get_categories(self):
+        # output categories - label map etc.
 
-def get_categories():
-    # output categories - label map etc.
+        label_categories = LabelCategories()
+        label_categories.add("person")
 
-    label_categories = LabelCategories()
-    label_categories.add("person")
+        return {AnnotationType.label: label_categories}
 
-    return {AnnotationType.label: label_categories}
+    def resize(self, inputs):
+        return inputs

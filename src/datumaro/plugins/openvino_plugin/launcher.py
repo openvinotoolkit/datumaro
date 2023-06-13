@@ -4,10 +4,12 @@
 
 # pylint: disable=exec-used
 
+import inspect
 import logging as log
 import os.path as osp
 import shutil
 import urllib
+from importlib.util import module_from_spec, spec_from_file_location
 from typing import Dict, Optional
 
 import cv2
@@ -15,6 +17,7 @@ import numpy as np
 from openvino.runtime import Core
 from tqdm import tqdm
 
+from datumaro.components.abstracts import IModelInterpreter
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.launcher import Launcher
 from datumaro.errors import DatumaroError
@@ -60,42 +63,6 @@ class _OpenvinoImporter(CliPlugin):
 
         shutil.copy(model["interpreter"], osp.join(model_dir, osp.basename(model["interpreter"])))
         model["interpreter"] = osp.basename(model["interpreter"])
-
-
-class InterpreterScript:
-    def __init__(self, path):
-        with open(path, "r", encoding="utf-8") as f:
-            script = f.read()
-
-        context = {}
-        exec(script, context, context)
-
-        normalize = context.get("normalize")
-        if not callable(normalize):
-            raise Exception("Can't find 'normalize' function in the interpreter script")
-        self.__dict__["normalize"] = normalize
-
-        process_outputs = context.get("process_outputs")
-        if not callable(process_outputs):
-            raise Exception("Can't find 'process_outputs' function in the interpreter script")
-        self.__dict__["process_outputs"] = process_outputs
-
-        get_categories = context.get("get_categories")
-        assert get_categories is None or callable(get_categories)
-        if get_categories:
-            self.__dict__["get_categories"] = get_categories
-
-    @staticmethod
-    def get_categories():
-        return None
-
-    @staticmethod
-    def process_outputs(inputs, outputs):
-        raise NotImplementedError("Function should be implemented in the interpreter script")
-
-    @staticmethod
-    def normalize(inputs):
-        raise NotImplementedError("Function should be implemented in the interpreter script")
 
 
 class OpenvinoLauncher(Launcher):
@@ -156,7 +123,7 @@ class OpenvinoLauncher(Launcher):
         if not osp.isfile(interpreter):
             raise DatumaroError('Failed to open model interpreter script file "%s"' % (interpreter))
 
-        self._interpreter = InterpreterScript(interpreter)
+        self._interpreter = self._load_interpreter(file_path=interpreter)
 
         self._device = device or "CPU"
         self._output_blobs = output_layers
@@ -174,6 +141,22 @@ class OpenvinoLauncher(Launcher):
             )
         self._channel_format = channel_format
         self._to_rgb = to_rgb
+
+    def _load_interpreter(self, file_path: str) -> IModelInterpreter:
+        fname, _ = osp.splitext(osp.basename(file_path))
+        spec = spec_from_file_location(fname, file_path)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        for name, obj in inspect.getmembers(module):
+            if (
+                inspect.isclass(obj)
+                and issubclass(obj, IModelInterpreter)
+                and obj is not IModelInterpreter
+            ):
+                log.info(f"Load {name} for model interpreter.")
+                return obj()
+
+        raise DatumaroError(f"{file_path} has no class derived from IModelInterpreter.")
 
     def _download_file(self, url: str, file_root: str):
         req = urllib.request.Request(url)
@@ -276,6 +259,9 @@ class OpenvinoLauncher(Launcher):
             inputs = np.repeat(inputs, 3, axis=3)
 
         assert inputs.shape[3] == 3, "Expected BGR input, got %s" % (inputs.shape,)
+
+        # Resize
+        inputs = self._interpreter.resize(inputs)
 
         if self._channel_format == "NCHW":
             n, c, h, w = self._input_layout
