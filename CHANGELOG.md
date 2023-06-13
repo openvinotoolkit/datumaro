@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 - Add OTX ATSS detector model interpreter & refactor interfaces
   (<https://github.com/openvinotoolkit/datumaro/pull/1047>)
+- Add Roboflow data format support (COCO JSON, Pascal VOC XML, YOLOv5-PyTorch, YOLOv7-PyTorch, YOLOv8, YOLOv5 Oriented Bounding Boxes, Multiclass CSV, TFRecord, CreateML JSON)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1044>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins
