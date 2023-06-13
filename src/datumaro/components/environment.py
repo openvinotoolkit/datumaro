@@ -92,15 +92,18 @@ class Environment:
     _builtin_plugins = None
 
     @classmethod
-    def _make_filter(cls, accept, skip=None):
+    def _make_filter(cls, accept, decline=None, skip=None):
         accept = (accept,) if isclass(accept) else tuple(accept)
         skip = {skip} if isclass(skip) else set(skip or [])
         skip = tuple(skip | set(accept))
-        return partial(cls._check_type, accept=accept, skip=skip)
+        return partial(cls._check_type, accept=accept, decline=decline, skip=skip)
 
     @staticmethod
-    def _check_type(t, *, accept, skip):
-        return issubclass(t, accept) and t not in skip
+    def _check_type(t, *, accept, decline, skip):
+        if not issubclass(t, accept) or t in skip or (decline and issubclass(t, decline)):
+            return False
+
+        return True
 
     def __init__(self, use_lazy_import: bool = True):
         from datumaro.components.dataset_base import DatasetBase, SubsetBase
@@ -113,7 +116,11 @@ class Environment:
 
         _filter = self._make_filter
         self._extractors = PluginRegistry(
-            _filter(DatasetBase, skip=(SubsetBase, Transform, ItemTransform))
+            _filter(
+                DatasetBase,
+                decline=Transform,
+                skip=(SubsetBase, Transform, ItemTransform),
+            )
         )
         self._importers = PluginRegistry(_filter(Importer))
         self._launchers = PluginRegistry(_filter(Launcher))
