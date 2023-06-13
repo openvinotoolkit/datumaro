@@ -5,7 +5,7 @@
 import pytest
 
 import datumaro.components.lazy_plugin
-from datumaro.components.environment import Environment
+from datumaro.components.environment import Environment, PluginRegistry
 
 real_import_module = datumaro.components.lazy_plugin.import_module
 
@@ -27,14 +27,24 @@ class EnvironmentTest:
         yield env
         Environment.release_builtin_plugins()
 
+    def _test_equivalance(self, lazy_registry: PluginRegistry, no_lazy_registry: PluginRegistry):
+        lazy_plugin_names = set(sorted(lazy_registry))
+        no_lazy_plugin_names = set(sorted(no_lazy_registry))
+
+        misregistered_names = lazy_plugin_names.difference(no_lazy_plugin_names)
+        unregistered_names = no_lazy_plugin_names.difference(lazy_plugin_names)
+        assert (
+            lazy_plugin_names == no_lazy_plugin_names
+        ), f"misregistered_names={misregistered_names}, unregistered_names={unregistered_names}"
+
     def test_equivalance(self, fxt_lazy_import: Environment, fxt_no_lazy_import: Environment):
-        assert sorted(fxt_lazy_import.extractors) == sorted(fxt_no_lazy_import.extractors)
-        assert sorted(fxt_lazy_import.importers) == sorted(fxt_no_lazy_import.importers)
-        assert sorted(fxt_lazy_import.launchers) == sorted(fxt_no_lazy_import.launchers)
-        assert sorted(fxt_lazy_import.exporters) == sorted(fxt_no_lazy_import.exporters)
-        assert sorted(fxt_lazy_import.generators) == sorted(fxt_no_lazy_import.generators)
-        assert sorted(fxt_lazy_import.transforms) == sorted(fxt_no_lazy_import.transforms)
-        assert sorted(fxt_lazy_import.validators) == sorted(fxt_no_lazy_import.validators)
+        self._test_equivalance(fxt_lazy_import.extractors, fxt_no_lazy_import.extractors)
+        self._test_equivalance(fxt_lazy_import.importers, fxt_no_lazy_import.importers)
+        self._test_equivalance(fxt_lazy_import.launchers, fxt_no_lazy_import.launchers)
+        self._test_equivalance(fxt_lazy_import.exporters, fxt_no_lazy_import.exporters)
+        self._test_equivalance(fxt_lazy_import.generators, fxt_no_lazy_import.generators)
+        self._test_equivalance(fxt_lazy_import.transforms, fxt_no_lazy_import.transforms)
+        self._test_equivalance(fxt_lazy_import.validators, fxt_no_lazy_import.validators)
 
     @pytest.fixture
     def fxt_tf_failure_env(self, monkeypatch):

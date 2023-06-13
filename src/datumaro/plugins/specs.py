@@ -56,4 +56,4 @@ if __name__ == "__main__":
     _enroll_to_plugin_specs(env.transforms, "Transform")
     _enroll_to_plugin_specs(env.validators, "Validator")
 
-    dump_json_file(_SPECS_JSON_PATH, plugin_specs, append_newline=True)
+    dump_json_file(_SPECS_JSON_PATH, plugin_specs, indent=True, append_newline=True)
