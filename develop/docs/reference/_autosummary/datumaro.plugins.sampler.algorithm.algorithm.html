@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.sampler &#8212; Datumaro 1.3.1 documentation</title>
+    <title>datumaro.plugins.sampler.algorithm.algorithm &#8212; Datumaro 1.3.1 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.sampler';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.sampler.algorithm.algorithm';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.sampler.algorithm" href="datumaro.plugins.sampler.algorithm.html" />
-    <link rel="prev" title="datumaro.plugins.openvino_plugin.shift_launcher" href="datumaro.plugins.openvino_plugin.shift_launcher.html" />
+    <link rel="next" title="datumaro.plugins.sampler.algorithm.entropy" href="datumaro.plugins.sampler.algorithm.entropy.html" />
+    <link rel="prev" title="datumaro.plugins.sampler.algorithm" href="datumaro.plugins.sampler.algorithm.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -475,7 +475,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.explorer.html">datumaro.plugins.explorer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.ndr.html">datumaro.plugins.ndr</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.plugins.sampler</a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.synthetic_data.html">datumaro.plugins.synthetic_data</a></li>
@@ -564,22 +564,78 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.sampler">
-<span id="datumaro-plugins-sampler"></span><h1>datumaro.plugins.sampler<a class="headerlink" href="#module-datumaro.plugins.sampler" title="Permalink to this heading">#</a></h1>
-<p class="rubric">Modules</p>
+  <section id="module-datumaro.plugins.sampler.algorithm.algorithm">
+<span id="datumaro-plugins-sampler-algorithm-algorithm"></span><h1>datumaro.plugins.sampler.algorithm.algorithm<a class="headerlink" href="#module-datumaro.plugins.sampler.algorithm.algorithm" title="Permalink to this heading">#</a></h1>
+<p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.sampler.algorithm.html#module-datumaro.plugins.sampler.algorithm" title="datumaro.plugins.sampler.algorithm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.sampler.algorithm</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.sampler.algorithm.algorithm.Algorithm" title="datumaro.plugins.sampler.algorithm.algorithm.Algorithm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Algorithm</span></code></a>(value)</p></td>
+<td><p>An enumeration.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.sampler.random_sampler.html#module-datumaro.plugins.sampler.random_sampler" title="datumaro.plugins.sampler.random_sampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.sampler.random_sampler</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.sampler.algorithm.algorithm.InferenceResultAnalyzer" title="datumaro.plugins.sampler.algorithm.algorithm.InferenceResultAnalyzer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InferenceResultAnalyzer</span></code></a>(dataset, inference)</p></td>
+<td><p>Basic interface for IRA (Inference Result Analyzer)</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.sampler.relevancy_sampler.html#module-datumaro.plugins.sampler.relevancy_sampler" title="datumaro.plugins.sampler.relevancy_sampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.sampler.relevancy_sampler</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod" title="datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SamplingMethod</span></code></a>(value)</p></td>
+<td><p>An enumeration.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.sampler.algorithm.algorithm.</span></span><span class="sig-name descname"><span class="pre">SamplingMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/sampler/algorithm/algorithm.html#SamplingMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.topk">
+<span class="sig-name descname"><span class="pre">topk</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.topk" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.lowk">
+<span class="sig-name descname"><span class="pre">lowk</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.lowk" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.randk">
+<span class="sig-name descname"><span class="pre">randk</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.randk" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.mixk">
+<span class="sig-name descname"><span class="pre">mixk</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.mixk" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.randtopk">
+<span class="sig-name descname"><span class="pre">randtopk</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.randtopk" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.sampler.algorithm.algorithm.Algorithm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.sampler.algorithm.algorithm.</span></span><span class="sig-name descname"><span class="pre">Algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/sampler/algorithm/algorithm.html#Algorithm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sampler.algorithm.algorithm.Algorithm" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sampler.algorithm.algorithm.Algorithm.entropy">
+<span class="sig-name descname"><span class="pre">entropy</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#datumaro.plugins.sampler.algorithm.algorithm.Algorithm.entropy" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.sampler.algorithm.algorithm.InferenceResultAnalyzer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.sampler.algorithm.algorithm.</span></span><span class="sig-name descname"><span class="pre">InferenceResultAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inference</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/sampler/algorithm/algorithm.html#InferenceResultAnalyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sampler.algorithm.algorithm.InferenceResultAnalyzer" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Basic interface for IRA (Inference Result Analyzer)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.sampler.algorithm.algorithm.InferenceResultAnalyzer.get_sample">
+<span class="sig-name descname"><span class="pre">get_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/sampler/algorithm/algorithm.html#InferenceResultAnalyzer.get_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sampler.algorithm.algorithm.InferenceResultAnalyzer.get_sample" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -590,17 +646,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.openvino_plugin.shift_launcher.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.sampler.algorithm.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.openvino_plugin.shift_launcher</p>
+          <p class="prev-next-title">datumaro.plugins.sampler.algorithm</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.sampler.algorithm.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.sampler.algorithm.entropy.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.sampler.algorithm</p>
+      <p class="prev-next-title">datumaro.plugins.sampler.algorithm.entropy</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -615,6 +671,114 @@
               
 <div class="toc-item">
   
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     SamplingMethod
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.topk">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SamplingMethod.topk
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.lowk">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SamplingMethod.lowk
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.randk">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SamplingMethod.randk
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.mixk">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SamplingMethod.mixk
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.randtopk">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SamplingMethod.randtopk
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.sampler.algorithm.algorithm.Algorithm">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     Algorithm
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sampler.algorithm.algorithm.Algorithm.entropy">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Algorithm.entropy
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.sampler.algorithm.algorithm.InferenceResultAnalyzer">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     InferenceResultAnalyzer
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sampler.algorithm.algorithm.InferenceResultAnalyzer.get_sample">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       InferenceResultAnalyzer.get_sample()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
 <div id="searchbox"></div>
 </div>
 
@@ -625,7 +789,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.sampler.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.sampler.algorithm.algorithm.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
