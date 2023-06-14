@@ -5,7 +5,7 @@
 import logging
 import os
 import os.path as osp
-import pickle  # nosec import_pickle
+import pickle  # nosec B403
 from unittest import TestCase, mock
 
 import numpy as np
