@@ -1,3 +1,4 @@
+from collections import Counter
 from functools import partial
 from unittest import TestCase
 
@@ -6,13 +7,14 @@ import numpy as np
 from datumaro.components.annotation import Caption, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.prune import Prune
 from datumaro.components.media import Image
+from datumaro.components.prune import Prune
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.test_utils import TestDir
+
 
 class PruneTest(TestCase):
     @property
@@ -47,42 +49,52 @@ class PruneTest(TestCase):
                     annotations=[Label(2, id=2), Caption("dog")],
                 ),
             ],
-            categories=['1', '2'],
+            categories=["1", "2"],
         )
         return dataset
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_random(self):
-        """
-        """
+        """ """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
             imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            prune = Prune(imported_dataset,'random')
+            prune = Prune(imported_dataset, "random")
 
             result = prune.get_pruned(0.5)
-            for item in result:
-                self.assertIn(item.id, ['2', '4'])
+            result_subsets = [item.subset for item in result[0]]
+            self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_clustered_random(self):
-        """
-        """
+        """ """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
             imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            prune = Prune(imported_dataset,'cluster_random')
+            prune = Prune(imported_dataset, "cluster_random")
 
             result = prune.get_pruned(0.5)
-            for item in result:
-                self.assertIn(item.id, ['1', '3'])
+            result_subsets = [item.subset for item in result[0]]
+            self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_prune_centroid(self):
+        """ """
+        with TestDir() as test_dir:
+            converter = partial(DatumaroExporter.convert, save_media=True)
+            converter(self.test_dataset, test_dir)
+            imported_dataset = Dataset.import_from(test_dir, "datumaro")
+            prune = Prune(imported_dataset, "centroid")
+
+            result = prune.get_pruned(0.5)
+            result_subsets = [item.subset for item in result[0]]
+            self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_query_clust(self):
-        """
-        """
+        """ """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
@@ -90,13 +102,12 @@ class PruneTest(TestCase):
             prune = Prune(imported_dataset, "query_clust")
 
             result = prune.get_pruned(0.5)
-            for item in result:
-                self.assertIn(item.id, ['1', '3'])
+            result_subsets = [item.subset for item in result[0]]
+            self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_entropy(self):
-        """
-        """
+        """ """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
@@ -104,5 +115,5 @@ class PruneTest(TestCase):
             prune = Prune(imported_dataset, "entropy")
 
             result = prune.get_pruned(0.5)
-            for item in result:
-                self.assertIn(item.id, ['1', '3'])
+            result_subsets = [item.subset for item in result[0]]
+            self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})

@@ -3,16 +3,17 @@
 # SPDX-License-Identifier: MIT
 
 
+import copy
+import logging as log
 import math
 import random
-from typing import List
-import copy
+from typing import List, Sequence
 
 import numpy as np
 from sklearn.cluster import KMeans
 
 from datumaro.components.annotation import HashKey, Label, LabelCategories
-from datumaro.components.dataset import IDataset
+from datumaro.components.dataset import Dataset
 from datumaro.plugins.explorer import ExplorerLauncher
 from datumaro.util.hashkey_util import (
     calculate_hamming,
@@ -71,7 +72,7 @@ def random_select(ratio, num_centers, database_keys, labels, item_list):
     for idx in random_list:
         removed_items.remove(idx)
     removed_items = (np.array(item_list)[removed_items]).tolist()
-    return removed_items
+    return removed_items, None
 
 
 def centroid(ratio, num_centers, database_keys, labels, item_list):
@@ -79,26 +80,28 @@ def centroid(ratio, num_centers, database_keys, labels, item_list):
     kmeans = KMeans(n_clusters=num_centers, random_state=0)
     clusters = kmeans.fit_predict(database_keys)
     cluster_centers = kmeans.cluster_centers_
-    cluster_ids, cluster_num_item_list = np.unique(clusters, return_counts=True)
+    cluster_ids = np.unique(clusters)
 
     removed_items = []
+    dist_dict = {}
     for cluster_id in cluster_ids:
         cluster_center = cluster_centers[cluster_id]
         cluster_items_idx = np.where(clusters == cluster_id)[0]
         num_selected_item = 1
         cluster_items = database_keys[cluster_items_idx,]
         dist = calculate_hamming(cluster_center, cluster_items)
+        for i, idx in enumerate(cluster_items_idx):
+            dist_dict[(item_list[idx].id, item_list[idx].subset, cluster_id)] = dist[i]
         ind = np.argsort(dist)
-        item_list = cluster_items_idx[ind]
-        for idx in item_list[num_selected_item:]:
+        item_idx_list = cluster_items_idx[ind]
+        for idx in item_idx_list[num_selected_item:]:
             removed_items.append(item_list[idx])
-        return removed_items
+    return removed_items, dist_dict
 
 
 def clustered_random(ratio, num_centers, database_keys, labels, item_list):
     kmeans = KMeans(n_clusters=num_centers, random_state=0)
     clusters = kmeans.fit_predict(database_keys)
-    cluster_centers = kmeans.cluster_centers_
     cluster_ids, cluster_num_item_list = np.unique(clusters, return_counts=True)
 
     norm_cluster_num_item_list = match_num_item_for_cluster(
@@ -114,11 +117,11 @@ def clustered_random(ratio, num_centers, database_keys, labels, item_list):
         random.shuffle(cluster_items_idx)
         for idx in cluster_items_idx[num_selected_item:]:
             removed_items.append(item_list[idx])
-    return removed_items
+    return removed_items, None
 
 
 def query_clust(ratio, num_centers, database_keys, labels, item_list):
-    center_dict = {i: [] for i in range(num_centers)}
+    center_dict = {i: [] for i in range(1, num_centers)}
     for item in item_list:
         for anno in item.annotations:
             if isinstance(anno, Label):
@@ -150,17 +153,16 @@ def query_clust(ratio, num_centers, database_keys, labels, item_list):
         cluster_items = database_keys[cluster_items_idx,]
         dist = calculate_hamming(cluster_center, cluster_items)
         ind = np.argsort(dist)
-        item_list = cluster_items_idx[ind]
-        for idx in item_list[num_selected_item:]:
+        item_idx_list = cluster_items_idx[ind]
+        for idx in item_idx_list[num_selected_item:]:
             removed_items.append(item_list[idx])
-    return removed_items
+    return removed_items, dist
 
 
 def entropy(ratio, num_centers, database_keys, labels, item_list):
     dataset_len = len(item_list)
     kmeans = KMeans(n_clusters=num_centers, random_state=0)
     clusters = kmeans.fit_predict(database_keys)
-    cluster_centers = kmeans.cluster_centers_
     cluster_ids, cluster_num_item_list = np.unique(clusters, return_counts=True)
 
     norm_cluster_num_item_list = match_num_item_for_cluster(
@@ -173,28 +175,33 @@ def entropy(ratio, num_centers, database_keys, labels, item_list):
         num_selected_item = norm_cluster_num_item_list[cluster_id]
 
         cluster_classes = np.array(labels)[cluster_items_idx]
-        _, inv, cnts = np.unique(cluster_classes, return_counts=True, return_inverse=True)
+        _, inv, cnts = np.unique(cluster_classes, return_inverse=True, return_counts=True)
         weights = 1 / cnts
         probs = weights[inv]
         probs = probs / probs.sum()
 
         choices = np.random.choice(range(len(inv)), size=num_selected_item, p=probs, replace=False)
-        selected_item_indexes += [cluster_items_idx[choices]]
+        selected_item_indexes += cluster_items_idx[choices].tolist()
     removed_items = list(range(dataset_len))
     for idx in selected_item_indexes:
         removed_items.remove(idx)
     removed_items = (np.array(item_list)[removed_items]).tolist()
-    return removed_items
+    return removed_items, None
 
 
 class Prune:
     def __init__(
         self,
-        dataset: IDataset,
-        cluster_method: str,
+        *dataset: Sequence[Dataset],
+        cluster_method: str = "random",
         hash_type: str = "img",
     ) -> None:
-        self._dataset = dataset
+        if isinstance(dataset, tuple):
+            try:
+                self._dataset = copy.deepcopy(dataset[0]._dataset)
+            except AttributeError:
+                self._dataset = dataset[0]
+
         self._cluster_method = cluster_method
         self._hash_type = hash_type
 
@@ -202,7 +209,7 @@ class Prune:
         self._text_model = None
         self._num_centers = None
 
-        database_keys = []
+        database_keys = None
         item_list = []
         labels = []
 
@@ -235,8 +242,13 @@ class Prune:
                             hash_key_txt = self.text_model.launch(inputs)[0][0].hash_key
                             hash_key = np.concatenate([hash_key, hash_key_txt])
                         hash_key = np.unpackbits(hash_key, axis=-1)
-
-                database_keys.append(hash_key)
+                        if database_keys is None:
+                            database_keys = hash_key.reshape(1, -1)
+                        else:
+                            database_keys = np.concatenate(
+                                (database_keys, hash_key.reshape(1, -1)), axis=0
+                            )
+                # database_keys.append(hash_key)
                 item_list.append(item)
 
         self._database_keys = database_keys
@@ -268,7 +280,11 @@ class Prune:
             if len(dataset_to_infer) > 0:
                 dataset_to_infer.run_model(self.model, append_annotation=True)
         for dataset, dataset_to_infer in zip(datasets, datasets_to_infer):
-            dataset.update(dataset_to_infer)
+            updated_items = []
+            for item in dataset_to_infer:
+                item_ = dataset.get(item.id, item.subset)
+                updated_items.append(item_.wrap(annotations=item.annotations))
+            dataset.update(updated_items)
         return datasets
 
     def get_pruned(self, ratio: float) -> None:
@@ -281,7 +297,8 @@ class Prune:
             "entropy": entropy,
         }
 
-        removed_items = method[self._cluster_method](
+        # dist : centroid, query_clust
+        removed_items, dist = method[self._cluster_method](
             ratio=self._ratio,
             num_centers=self._num_centers,
             labels=self._labels,
@@ -298,5 +315,6 @@ class Prune:
 
         for id_, subset in zip(removed_ids, removed_subsets):
             dataset_.remove(id_, subset)
-        return dataset_
 
+        log.info(f"Pruned dataset with {ratio} from {len(self._dataset)} to {len(dataset_)}")
+        return dataset_, dist
