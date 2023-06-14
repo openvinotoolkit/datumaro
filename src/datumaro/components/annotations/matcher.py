@@ -2,12 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 from attr import attrib, attrs
 
-from datumaro.components.abstracts import IMerger
+from datumaro.components.abstracts import IMergerContext
+from datumaro.components.abstracts.merger import IMatcherContext
 from datumaro.util.annotation_util import (
     OKS,
     approximate_line,
@@ -18,7 +19,8 @@ from datumaro.util.annotation_util import (
 )
 
 __all__ = [
-    "match_segments",
+    "match_segments_pair",
+    "match_segments_more_than_pair",
     "AnnotationMatcher",
     "LabelMatcher",
     "ShapeMatcher",
@@ -34,13 +36,15 @@ __all__ = [
 ]
 
 
-def match_segments(
+def match_segments_pair(
     a_segms,
     b_segms,
     distance=segment_iou,
     dist_thresh=1.0,
     label_matcher=lambda a, b: a.label == b.label,
 ):
+    """Match segments and return pairs of the two matched segments"""
+
     assert callable(distance), distance
     assert callable(label_matcher), label_matcher
 
@@ -95,9 +99,61 @@ def match_segments(
     return matches, mispred, a_unmatched, b_unmatched
 
 
+def match_segments_more_than_pair(
+    a_segms,
+    b_segms,
+    distance=segment_iou,
+    dist_thresh=1.0,
+    label_matcher=lambda a, b: a.label == b.label,
+):
+    """Match segments and return sets of the matched segments which can be more than two"""
+
+    assert callable(distance), distance
+    assert callable(label_matcher), label_matcher
+
+    # a_matches: indices of b_segms matched to a bboxes
+    # b_matches: indices of a_segms matched to b bboxes
+    a_matches = -np.ones(len(a_segms), dtype=int)
+    b_matches = -np.ones(len(b_segms), dtype=int)
+
+    distances = np.array([[distance(a, b) for b in b_segms] for a in a_segms])
+
+    # matches: boxes we succeeded to match completely
+    # mispred: boxes we succeeded to match, having label mismatch
+    matches = []
+    mispred = []
+
+    # It needs len(a_segms) > 0 and len(b_segms) > 0
+    if len(b_segms) > 0:
+        for a_idx, a_segm in enumerate(a_segms):
+            b_indices = np.argsort(
+                [not label_matcher(a_segm, b_segm) for b_segm in b_segms], kind="stable"
+            )  # prioritize those with same label, keep score order
+            for b_idx in b_indices:
+                d = distances[a_idx, b_idx]
+                if d < dist_thresh:
+                    continue
+
+                a_matches[a_idx] = b_idx
+                b_matches[b_idx] = a_idx
+
+                b_segm = b_segms[b_idx]
+
+                if label_matcher(a_segm, b_segm):
+                    matches.append((a_segm, b_segm))
+                else:
+                    mispred.append((a_segm, b_segm))
+
+    # *_umatched: boxes of (*) we failed to match
+    a_unmatched = [a_segms[i] for i, m in enumerate(a_matches) if m < 0]
+    b_unmatched = [b_segms[i] for i, m in enumerate(b_matches) if m < 0]
+
+    return matches, mispred, a_unmatched, b_unmatched
+
+
 @attrs(kw_only=True)
 class AnnotationMatcher:
-    _context: Optional[IMerger] = attrib(default=None)
+    _context: Optional[Union[IMatcherContext, IMergerContext]] = attrib(default=None)
 
     def match_annotations(self, sources):
         raise NotImplementedError()
@@ -106,8 +162,8 @@ class AnnotationMatcher:
 @attrs
 class LabelMatcher(AnnotationMatcher):
     def distance(self, a, b):
-        a_label = self._context._get_any_label_name(a, a.label)
-        b_label = self._context._get_any_label_name(b, b.label)
+        a_label = self._context.get_any_label_name(a, a.label)
+        b_label = self._context.get_any_label_name(b, b.label)
         return a_label == b_label
 
     def match_annotations(self, sources):
@@ -118,6 +174,7 @@ class LabelMatcher(AnnotationMatcher):
 class ShapeMatcher(AnnotationMatcher):
     pairwise_dist = attrib(converter=float, default=0.9)
     cluster_dist = attrib(converter=float, default=-1.0)
+    _match_segments = attrib(default=match_segments_pair)
 
     def match_annotations(self, sources):
         distance = self.distance
@@ -152,7 +209,7 @@ class ShapeMatcher(AnnotationMatcher):
         adjacent = {i: [] for i in id_segm}  # id(sgm) -> [id(adj_sgm1), ...]
         for a_idx, src_a in enumerate(sources):
             for src_b in sources[a_idx + 1 :]:
-                matches, _, _, _ = match_segments(
+                matches, _, _, _ = self._match_segments(
                     src_a,
                     src_b,
                     dist_thresh=pairwise_dist,
@@ -194,8 +251,8 @@ class ShapeMatcher(AnnotationMatcher):
         return segment_iou(a, b)
 
     def label_matcher(self, a, b):
-        a_label = self._context._get_any_label_name(a, a.label)
-        b_label = self._context._get_any_label_name(b, b.label)
+        a_label = self._context.get_any_label_name(a, a.label)
+        b_label = self._context.get_any_label_name(b, b.label)
         return a_label == b_label
 
 
