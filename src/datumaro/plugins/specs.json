@@ -1263,6 +1263,18 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.missing_annotation_detection.MissingAnnotationDetection",
+    "plugin_name": "missing_annotation_detection",
+    "plugin_type": "Transform",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.components.launcher.ModelTransform",
+    "plugin_name": "model",
+    "plugin_type": "Transform",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.transforms.AnnsToLabels",
     "plugin_name": "anns_to_labels",
     "plugin_type": "Transform",
