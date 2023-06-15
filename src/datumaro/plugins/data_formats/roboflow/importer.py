@@ -1,7 +1,8 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import os.path as osp
 from collections import defaultdict
 from glob import glob
@@ -107,7 +108,7 @@ class RoboflowVocImporter(Importer):
 
         subsets = defaultdict(list)
         for source in sources:
-            subset_name = osp.dirname(source["url"]).replace("\\", "/").split("/")[-1]
+            subset_name = osp.dirname(source["url"]).split(os.sep)[-1]
             subsets[subset_name].append(source["url"])
 
         sources = [
@@ -154,7 +155,7 @@ class RoboflowYoloImporter(RoboflowVocImporter):
 
         subsets = defaultdict(list)
         for source in sources:
-            subset_name = osp.dirname(source["url"]).split("/")[-2]
+            subset_name = osp.dirname(source["url"]).split(os.sep)[-2]
             subsets[subset_name].append(source["url"])
 
         sources = [
@@ -217,7 +218,7 @@ class RoboflowTfrecord(Importer):
 
         subsets = defaultdict()
         for source in sources:
-            subset_name = osp.dirname(source["url"]).split("/")[-1]
+            subset_name = osp.dirname(source["url"]).split(os.sep)[-1]
             subsets[subset_name] = source["url"]
 
         sources = [
