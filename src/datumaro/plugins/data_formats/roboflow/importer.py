@@ -107,7 +107,7 @@ class RoboflowVocImporter(Importer):
 
         subsets = defaultdict(list)
         for source in sources:
-            subset_name = osp.dirname(source["url"]).split("/")[-1]
+            subset_name = osp.dirname(source["url"]).replace("\\", "/").split("/")[-1]
             subsets[subset_name].append(source["url"])
 
         sources = [
