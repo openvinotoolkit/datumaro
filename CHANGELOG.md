@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### New features
+- Add MissingAnnotationDetection transform
+  (<https://github.com/openvinotoolkit/datumaro/pull/1047>, <https://github.com/openvinotoolkit/datumaro/pull/1049>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins
