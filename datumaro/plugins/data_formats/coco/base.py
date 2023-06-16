@@ -266,7 +266,8 @@ class _CocoBase(SubsetBase):
                 try:
                     img_id = self._parse_field(ann, "image_id", int)
                     if img_id not in img_infos:
-                        raise InvalidAnnotationError(f"Unknown image id '{img_id}'")
+                        log.warn(f"Unknown image id '{img_id}'")
+                        continue
 
                     self._load_annotations(
                         ann, img_infos[img_id], parsed_annotations=items[img_id].annotations
@@ -284,7 +285,8 @@ class _CocoBase(SubsetBase):
                 try:
                     img_id = self._parse_field(ann, "image_id", int)
                     if img_id not in img_infos:
-                        raise InvalidAnnotationError(f"Unknown image id '{img_id}'")
+                        log.warn(f"Unknown image id '{img_id}'")
+                        continue
 
                     self._load_panoptic_ann(ann, items[img_id].annotations)
                 except Exception as e:

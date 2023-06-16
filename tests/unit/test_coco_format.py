@@ -7,7 +7,7 @@ from copy import deepcopy
 from functools import partial
 from io import StringIO
 from itertools import product
-from unittest import TestCase
+from unittest import TestCase, skip
 
 import numpy as np
 
@@ -1267,6 +1267,10 @@ class CocoExtractorTests(TestCase):
             self.assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
             self.assertIn("at least 3 (x, y) pairs", str(capture.exception.__cause__))
 
+    @skip(
+        "CocoBase is changed to skip loading annotation "
+        "if there is no image id reference rather than raising an error."
+    )
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_invalid_image_id(self):
         with TestDir() as test_dir:
