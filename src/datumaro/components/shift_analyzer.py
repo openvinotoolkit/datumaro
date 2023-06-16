@@ -117,7 +117,7 @@ class ShiftAnalyzer:
         """
         self._model = ShiftLauncher(
             model_name="googlenet-v4-tf",
-            output_layers="InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape",
+            output_layers="InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape:0",
         )
 
     def compute_covariate_shift(self, sources: List[IDataset], method: Optional[str] = "fid"):

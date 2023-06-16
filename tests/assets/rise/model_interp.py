@@ -7,7 +7,7 @@ from datumaro.util.annotation_util import softmax
 
 
 def normalize(inputs):
-    pass
+    return inputs
 
 
 def process_outputs(inputs, outputs):

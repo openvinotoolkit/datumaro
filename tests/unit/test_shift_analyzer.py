@@ -69,8 +69,8 @@ def fxt_dataset_different():
     [
         ("fxt_dataset_ideal", "fid", 0),
         ("fxt_dataset_ideal", "emd", 0),
-        ("fxt_dataset_different", "fid", 0.1005),
-        ("fxt_dataset_different", "emd", 0.0031),
+        ("fxt_dataset_different", "fid", 0.0302),
+        ("fxt_dataset_different", "emd", 0.0017),
     ],
 )
 def test_covariate_shift(

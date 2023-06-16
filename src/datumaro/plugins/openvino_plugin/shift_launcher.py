@@ -19,16 +19,22 @@ class ShiftLauncher(OpenvinoLauncher):
         device=None,
     ):
         super().__init__(
-            description, weights, interpreter, model_dir, model_name, output_layers, device
+            description,
+            weights,
+            interpreter,
+            model_dir,
+            model_name,
+            output_layers,
+            device,
+            channel_format="NHWC",
         )
 
         self._device = device or "cpu"
         self._output_blobs = next(iter(self._net.outputs))
-        self._input_blobs = next(iter(self._net.input_info))
 
     def infer(self, inputs):
         inputs = self.process_inputs(inputs)
-        features = self._net.infer(inputs)
+        features = self._request.infer(inputs)
         return features[self._output_blobs]
 
     def launch(self, inputs):
