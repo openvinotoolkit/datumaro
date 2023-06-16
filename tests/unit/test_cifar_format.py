@@ -4,7 +4,7 @@
 
 import os
 import os.path as osp
-import pickle  # nosec import_pickle
+import pickle  # nosec B403
 import shutil
 from unittest import TestCase
 
