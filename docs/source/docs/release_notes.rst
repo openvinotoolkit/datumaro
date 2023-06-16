@@ -4,6 +4,18 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.3.2 (2023.06)
+----------------
+
+Enhancements
+^^^^^^^^^^^^
+- Let CocoBase continue even if an InvalidAnnotationError is raised
+
+Bug fixes
+^^^^^^^^^
+- Install dvc version to 2.x
+- Replace np.append() in Validator
+
 v1.3.1 (2023.05)
 ----------------
 
