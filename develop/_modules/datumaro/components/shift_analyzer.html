@@ -396,7 +396,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">ShiftLauncher</span><span class="p">(</span>
             <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;googlenet-v4-tf&quot;</span><span class="p">,</span>
-            <span class="n">output_layers</span><span class="o">=</span><span class="s2">&quot;InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape&quot;</span><span class="p">,</span>
+            <span class="n">output_layers</span><span class="o">=</span><span class="s2">&quot;InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape:0&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="ShiftAnalyzer.compute_covariate_shift"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.shift_analyzer.html#datumaro.components.shift_analyzer.ShiftAnalyzer.compute_covariate_shift">[docs]</a>    <span class="k">def</span> <span class="nf">compute_covariate_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">IDataset</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;fid&quot;</span><span class="p">):</span>

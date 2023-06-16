@@ -298,16 +298,22 @@
         <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">description</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">interpreter</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">output_layers</span><span class="p">,</span> <span class="n">device</span>
+            <span class="n">description</span><span class="p">,</span>
+            <span class="n">weights</span><span class="p">,</span>
+            <span class="n">interpreter</span><span class="p">,</span>
+            <span class="n">model_dir</span><span class="p">,</span>
+            <span class="n">model_name</span><span class="p">,</span>
+            <span class="n">output_layers</span><span class="p">,</span>
+            <span class="n">device</span><span class="p">,</span>
+            <span class="n">channel_format</span><span class="o">=</span><span class="s2">&quot;NHWC&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span> <span class="ow">or</span> <span class="s2">&quot;cpu&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_output_blobs</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">outputs</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_input_blobs</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">input_info</span><span class="p">))</span>
 
 <div class="viewcode-block" id="ShiftLauncher.infer"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.shift_launcher.html#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.infer">[docs]</a>    <span class="k">def</span> <span class="nf">infer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">features</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_blobs</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="ShiftLauncher.launch"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.shift_launcher.html#datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher.launch">[docs]</a>    <span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>

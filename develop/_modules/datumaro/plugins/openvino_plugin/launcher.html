@@ -287,14 +287,16 @@
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">openvino.inference_engine</span> <span class="kn">import</span> <span class="n">IECore</span>
+<span class="kn">from</span> <span class="nn">openvino.runtime</span> <span class="kn">import</span> <span class="n">Core</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.cli_plugin</span> <span class="kn">import</span> <span class="n">CliPlugin</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.launcher</span> <span class="kn">import</span> <span class="n">Launcher</span>
+<span class="kn">from</span> <span class="nn">datumaro.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.definitions</span> <span class="kn">import</span> <span class="n">DATUMARO_CACHE_DIR</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.samples</span> <span class="kn">import</span> <span class="n">get_samples_path</span>
 
@@ -377,16 +379,20 @@
 
 <div class="viewcode-block" id="OpenvinoLauncher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.OpenvinoLauncher">[docs]</a><span class="k">class</span> <span class="nc">OpenvinoLauncher</span><span class="p">(</span><span class="n">Launcher</span><span class="p">):</span>
     <span class="n">cli_plugin</span> <span class="o">=</span> <span class="n">_OpenvinoImporter</span>
+    <span class="n">ALLOWED_CHANNEL_FORMATS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;NCHW&quot;</span><span class="p">,</span> <span class="s2">&quot;NHWC&quot;</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">interpreter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">weights</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">interpreter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">output_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">compile_model_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">channel_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;NCHW&quot;</span><span class="p">,</span>
+        <span class="n">to_rgb</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">model_name</span><span class="p">:</span>
             <span class="n">model_dir</span> <span class="o">=</span> <span class="n">DATUMARO_CACHE_DIR</span>
@@ -417,27 +423,36 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">description</span><span class="p">):</span>
             <span class="n">description</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">description</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Failed to open model description file &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">description</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="s1">&#39;Failed to open model description file &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">description</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">weights</span><span class="p">):</span>
             <span class="n">weights</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">weights</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Failed to open model weights file &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">weights</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="s1">&#39;Failed to open model weights file &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">weights</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">interpreter</span><span class="p">):</span>
             <span class="n">interpreter</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">interpreter</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">interpreter</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Failed to open model interpreter script file &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">interpreter</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="s1">&#39;Failed to open model interpreter script file &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">interpreter</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_interpreter</span> <span class="o">=</span> <span class="n">InterpreterScript</span><span class="p">(</span><span class="n">interpreter</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span> <span class="ow">or</span> <span class="s2">&quot;CPU&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_output_blobs</span> <span class="o">=</span> <span class="n">output_layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compile_model_config</span> <span class="o">=</span> <span class="n">compile_model_config</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ie</span> <span class="o">=</span> <span class="n">IECore</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ie</span><span class="o">.</span><span class="n">read_network</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_core</span> <span class="o">=</span> <span class="n">Core</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_core</span><span class="o">.</span><span class="n">read_model</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_model_support</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_executable_net</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">channel_format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALLOWED_CHANNEL_FORMATS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;channel_format=</span><span class="si">{</span><span class="n">channel_format</span><span class="si">}</span><span class="s2"> is not in &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ALLOWED_CHANNEL_FORMATS=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ALLOWED_CHANNEL_FORMATS</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_channel_format</span> <span class="o">=</span> <span class="n">channel_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_to_rgb</span> <span class="o">=</span> <span class="n">to_rgb</span>
 
     <span class="k">def</span> <span class="nf">_download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
@@ -460,7 +475,7 @@
 
     <span class="k">def</span> <span class="nf">_check_model_support</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
         <span class="n">not_supported_layers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
-            <span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ie</span><span class="o">.</span><span class="n">query_network</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">dev</span>
+            <span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_core</span><span class="o">.</span><span class="n">query_model</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">dev</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">not_supported_layers</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
@@ -469,30 +484,48 @@
             <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Some layers are not supported on the device&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_load_executable_net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_load_executable_net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_blobs</span><span class="p">:</span>
-            <span class="n">network</span><span class="o">.</span><span class="n">add_outputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_blobs</span><span class="p">)</span>
+            <span class="n">network</span><span class="o">.</span><span class="n">add_outputs</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_blobs</span><span class="p">])</span>
 
-        <span class="n">iter_inputs</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">input_info</span><span class="p">)</span>
+        <span class="n">iter_inputs</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">iter_inputs</span><span class="p">)</span>
 
-        <span class="c1"># NOTE: handling for the inclusion of `image_info` in OpenVino2019</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_require_image_info</span> <span class="o">=</span> <span class="s2">&quot;image_info&quot;</span> <span class="ow">in</span> <span class="n">network</span><span class="o">.</span><span class="n">input_info</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span> <span class="o">==</span> <span class="s2">&quot;image_info&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">iter_inputs</span><span class="p">)</span>
+        <span class="n">is_dynamic_layout</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># In case of that the input has dynamic shape</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span><span class="o">.</span><span class="n">partial_shape</span>
+            <span class="n">is_dynamic_layout</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">input_info</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span><span class="p">]</span><span class="o">.</span><span class="n">input_data</span><span class="o">.</span><span class="n">shape</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_size</span>
-        <span class="n">network</span><span class="o">.</span><span class="n">reshape</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">is_dynamic_layout</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_size</span>
+            <span class="n">network</span><span class="o">.</span><span class="n">reshape</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model_batch_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">batch_size</span> <span class="o">!=</span> <span class="n">model_batch_size</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Input layout of the model is static, so that we cannot change &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;the model batch size (</span><span class="si">{</span><span class="n">model_batch_size</span><span class="si">}</span><span class="s2">) to batch size (</span><span class="si">{</span><span class="n">batch_size</span><span class="si">}</span><span class="s2">)! &quot;</span>
+                    <span class="s2">&quot;Set the batch size to </span><span class="si">{model_batch_size}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">batch_size</span> <span class="o">=</span> <span class="n">model_batch_size</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ie</span><span class="o">.</span><span class="n">load_network</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">num_requests</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">device_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_core</span><span class="o">.</span><span class="n">compile_model</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">network</span><span class="p">,</span>
+            <span class="n">device_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_compile_model_config</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">create_infer_request</span><span class="p">()</span>
 
 <div class="viewcode-block" id="OpenvinoLauncher.infer"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.OpenvinoLauncher.infer">[docs]</a>    <span class="k">def</span> <span class="nf">infer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -523,23 +556,28 @@
 
         <span class="k">assert</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Expected BGR input, got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">,)</span>
 
-        <span class="n">n</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel_format</span> <span class="o">==</span> <span class="s2">&quot;NCHW&quot;</span><span class="p">:</span>
+            <span class="n">n</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel_format</span> <span class="o">==</span> <span class="s2">&quot;NHWC&quot;</span><span class="p">:</span>
+            <span class="n">n</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invliad channel_format: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_channel_format</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
             <span class="n">resized_inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">inp</span><span class="p">,</span> <span class="n">resized_input</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">resized_inputs</span><span class="p">):</span>
                 <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span> <span class="n">resized_input</span><span class="p">)</span>
             <span class="n">inputs</span> <span class="o">=</span> <span class="n">resized_inputs</span>
-        <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>  <span class="c1"># NHWC to NCHW</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel_format</span> <span class="o">==</span> <span class="s2">&quot;NCHW&quot;</span><span class="p">:</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>  <span class="c1"># NHWC to NCHW</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_rgb</span><span class="p">:</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Convert from BGR to RGB</span>
 
         <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpreter</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
 
-        <span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span><span class="p">:</span> <span class="n">inputs</span><span class="p">}</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_image_info</span><span class="p">:</span>
-            <span class="n">info</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
-            <span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">h</span>
-            <span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span>
-            <span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># scale</span>
-            <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;image_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_blob</span><span class="o">.</span><span class="n">get_any_name</span><span class="p">():</span> <span class="n">inputs</span><span class="p">}</span>
 
         <span class="k">return</span> <span class="n">inputs</span></div></div>
 </pre></div>
