@@ -20,6 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix warnings in test_visualizer.py
   (<https://github.com/openvinotoolkit/datumaro/pull/1039>)
 
+## 26/05/2023 - Release 1.3.2
+### Enhancements
+- Let CocoBase continue even if an InvalidAnnotationError is raised
+  (<https://github.com/openvinotoolkit/datumaro/pull/1050>)
+
+### Bug fixes
+- Install dvc version to 2.x
+  (<https://github.com/openvinotoolkit/datumaro/pull/1048>)
+- Replace np.append() in Validator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1050>)
+
 ## 26/05/2023 - Release 1.3.1
 ### Bug fixes
 - Fix Cityscapes format mis-detection
