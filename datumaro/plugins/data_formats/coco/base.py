@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional, Tuple, Type, TypeVar, Union, overload
 
 import pycocotools.mask as mask_utils
 from attrs import define
+
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
@@ -33,11 +34,10 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
+from datumaro.util import NOTSET, parse_json_file, take_by
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
-
-from datumaro.util import NOTSET, parse_json_file, take_by
 
 from .format import CocoImporterType, CocoPath, CocoTask
 
