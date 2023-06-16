@@ -5,7 +5,6 @@
 from copy import deepcopy
 
 import numpy as np
-
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
@@ -31,6 +30,7 @@ from datumaro.components.errors import (
     UndefinedLabel,
 )
 from datumaro.components.validator import Severity, TaskType, Validator
+
 from datumaro.util import parse_str_enum_value
 
 
@@ -53,7 +53,7 @@ class _TaskValidator(Validator, CliPlugin):
             "bins": [],
             "counts": [],
         },
-        "distribution": np.array([]),
+        "distribution": [],
     }
 
     """
@@ -790,8 +790,7 @@ class DetectionValidator(_TaskValidator):
     def _update_prop_distributions(self, curr_stats, target_stats):
         for prop, val in curr_stats.items():
             prop_stats = target_stats[prop]
-            prop_dist = prop_stats["distribution"]
-            prop_stats["distribution"] = np.append(prop_dist, val)
+            prop_stats["distribution"].append(val)
 
     def _compute_prop_dist(self, label_categories, stats, update_stats_by_label):
         dist_by_label = stats["point_distribution_in_label"]
