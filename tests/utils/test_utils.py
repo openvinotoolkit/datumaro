@@ -433,9 +433,3 @@ class TestCaseHelper:
 
     def fail(self, msg):
         pytest.fail(reason=msg)
-
-    def assertIsNotNone(self, item: Any):
-        assert item is not None
-
-    def assertIsNone(self, item: Any):
-        assert item is None
