@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.util.image &#8212; Datumaro 1.3.1 documentation</title>
+    <title>datumaro.util.image &#8212; Datumaro 1.3.2 documentation</title>
   
   
   
@@ -425,8 +425,6 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../datumaro_module.html">Datumaro Module</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-14"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="datumaro.html">datumaro</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3 has-children"><a class="reference internal" href="datumaro.cli.html">datumaro.cli</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="datumaro.cli.commands.html">datumaro.cli.commands</a></li>
-<li class="toctree-l4"><a class="reference internal" href="datumaro.cli.contexts.html">datumaro.cli.contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.cli.util.html">datumaro.cli.util</a></li>
 </ul>
 </li>
@@ -447,7 +445,6 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.errors.html">datumaro.components.errors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.explorer.html">datumaro.components.explorer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.exporter.html">datumaro.components.exporter</a></li>
-<li class="toctree-l4"><a class="reference internal" href="datumaro.components.extractor_tfds.html">datumaro.components.extractor_tfds</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.filter.html">datumaro.components.filter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.format_detection.html">datumaro.components.format_detection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.generator.html">datumaro.components.generator</a></li>
@@ -500,7 +497,6 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.samples.html">datumaro.util.samples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.scope.html">datumaro.util.scope</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.telemetry_stub.html">datumaro.util.telemetry_stub</a></li>
-<li class="toctree-l4"><a class="reference internal" href="datumaro.util.telemetry_utils.html">datumaro.util.telemetry_utils</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.tf_util.html">datumaro.util.tf_util</a></li>
 </ul>
 </li>
@@ -637,7 +633,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.util.image.decode_image">
-<span class="sig-prename descclassname"><span class="pre">datumaro.util.image.</span></span><span class="sig-name descname"><span class="pre">decode_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">image_bytes:</span> <span class="pre">bytes,</span> <span class="pre">dtype:</span> <span class="pre">~typing.Union[~numpy.dtype[~typing.Any],</span> <span class="pre">None,</span> <span class="pre">~typing.Type[~typing.Any],</span> <span class="pre">~numpy._typing._dtype_like._SupportsDType[~numpy.dtype[~typing.Any]],</span> <span class="pre">str,</span> <span class="pre">~typing.Tuple[~typing.Any,</span> <span class="pre">int],</span> <span class="pre">~typing.Tuple[~typing.Any,</span> <span class="pre">~typing.Union[~typing.SupportsIndex,</span> <span class="pre">~typing.Sequence[~typing.SupportsIndex]]],</span> <span class="pre">~typing.List[~typing.Any],</span> <span class="pre">~numpy._typing._dtype_like._DTypeDict,</span> <span class="pre">~typing.Tuple[~typing.Any,</span> <span class="pre">~typing.Any]]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'numpy.uint8'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.24)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/util/image.html#decode_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.image.decode_image" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">datumaro.util.image.</span></span><span class="sig-name descname"><span class="pre">decode_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">image_bytes:</span> <span class="pre">bytes,</span> <span class="pre">dtype:</span> <span class="pre">~typing.Union[~numpy.dtype[~typing.Any],</span> <span class="pre">None,</span> <span class="pre">~typing.Type[~typing.Any],</span> <span class="pre">~numpy._typing._dtype_like._SupportsDType[~numpy.dtype[~typing.Any]],</span> <span class="pre">str,</span> <span class="pre">~typing.Tuple[~typing.Any,</span> <span class="pre">int],</span> <span class="pre">~typing.Tuple[~typing.Any,</span> <span class="pre">~typing.Union[~typing.SupportsIndex,</span> <span class="pre">~typing.Sequence[~typing.SupportsIndex]]],</span> <span class="pre">~typing.List[~typing.Any],</span> <span class="pre">~numpy._typing._dtype_like._DTypeDict,</span> <span class="pre">~typing.Tuple[~typing.Any,</span> <span class="pre">~typing.Any]]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'numpy.uint8'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/util/image.html#decode_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.image.decode_image" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">

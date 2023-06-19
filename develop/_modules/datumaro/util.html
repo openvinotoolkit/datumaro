@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.util &#8212; Datumaro 1.3.1 documentation</title>
+    <title>datumaro.util &#8212; Datumaro 1.3.2 documentation</title>
   
   
   
@@ -294,11 +294,11 @@
 <span class="n">str_to_bool</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">to_bool</span>
 
 
-<div class="viewcode-block" id="find"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.find">[docs]</a><span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">pred</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="find"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.find">[docs]</a><span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">pred</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">iterable</span> <span class="k">if</span> <span class="n">pred</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">default</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="cast"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.cast">[docs]</a><span class="k">def</span> <span class="nf">cast</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">type_conv</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="cast"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.cast">[docs]</a><span class="k">def</span> <span class="nf">cast</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">type_conv</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">default</span>
     <span class="k">try</span><span class="p">:</span>
@@ -307,7 +307,7 @@
         <span class="k">return</span> <span class="n">default</span></div>
 
 
-<div class="viewcode-block" id="to_snake_case"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.to_snake_case">[docs]</a><span class="k">def</span> <span class="nf">to_snake_case</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="to_snake_case"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.to_snake_case">[docs]</a><span class="k">def</span> <span class="nf">to_snake_case</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
@@ -325,12 +325,12 @@
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="pairs"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.pairs">[docs]</a><span class="k">def</span> <span class="nf">pairs</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+<div class="viewcode-block" id="pairs"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.pairs">[docs]</a><span class="k">def</span> <span class="nf">pairs</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
     <span class="n">a</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="take_by"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.take_by">[docs]</a><span class="k">def</span> <span class="nf">take_by</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+<div class="viewcode-block" id="take_by"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.take_by">[docs]</a><span class="k">def</span> <span class="nf">take_by</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns elements from the input iterable by batches of N items.</span>
 <span class="sd">    (&#39;abcdefg&#39;, 3) -&gt; [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;], [&#39;d&#39;, &#39;e&#39;, &#39;f&#39;], [&#39;g&#39;]</span>
@@ -345,11 +345,11 @@
         <span class="k">yield</span> <span class="n">batch</span></div>
 
 
-<div class="viewcode-block" id="filter_dict"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.filter_dict">[docs]</a><span class="k">def</span> <span class="nf">filter_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">exclude_keys</span><span class="p">):</span>
+<div class="viewcode-block" id="filter_dict"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.filter_dict">[docs]</a><span class="k">def</span> <span class="nf">filter_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">exclude_keys</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude_keys</span><span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="parse_str_enum_value"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.parse_str_enum_value">[docs]</a><span class="k">def</span> <span class="nf">parse_str_enum_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">enum_class</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">NOTSET</span><span class="p">,</span> <span class="n">unknown_member_error</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="parse_str_enum_value"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.parse_str_enum_value">[docs]</a><span class="k">def</span> <span class="nf">parse_str_enum_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">enum_class</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">NOTSET</span><span class="p">,</span> <span class="n">unknown_member_error</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">NOTSET</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">default</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -376,7 +376,7 @@
     <span class="k">return</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="escape"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.escape">[docs]</a><span class="k">def</span> <span class="nf">escape</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">escapes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="escape"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.escape">[docs]</a><span class="k">def</span> <span class="nf">escape</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">escapes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    &#39;escapes&#39; is an iterable of (pattern, substitute) pairs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -386,7 +386,7 @@
     <span class="k">return</span> <span class="n">s</span></div>
 
 
-<div class="viewcode-block" id="unescape"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.unescape">[docs]</a><span class="k">def</span> <span class="nf">unescape</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">escapes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="unescape"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.unescape">[docs]</a><span class="k">def</span> <span class="nf">unescape</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">escapes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    &#39;escapes&#39; is an iterable of (pattern, substitute) pairs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -396,14 +396,14 @@
     <span class="k">return</span> <span class="n">s</span></div>
 
 
-<div class="viewcode-block" id="is_method_redefined"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.is_method_redefined">[docs]</a><span class="k">def</span> <span class="nf">is_method_redefined</span><span class="p">(</span><span class="n">method_name</span><span class="p">,</span> <span class="n">base_class</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="is_method_redefined"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.is_method_redefined">[docs]</a><span class="k">def</span> <span class="nf">is_method_redefined</span><span class="p">(</span><span class="n">method_name</span><span class="p">,</span> <span class="n">base_class</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="n">target_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">isclass</span><span class="p">(</span><span class="n">target</span><span class="p">)</span> <span class="ow">and</span> <span class="n">target_method</span><span class="p">:</span>
         <span class="n">target_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">target_method</span><span class="p">,</span> <span class="s2">&quot;__func__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">base_class</span><span class="p">,</span> <span class="n">method_name</span><span class="p">)</span> <span class="o">!=</span> <span class="n">target_method</span></div>
 
 
-<div class="viewcode-block" id="optional_arg_decorator"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.optional_arg_decorator">[docs]</a><span class="k">def</span> <span class="nf">optional_arg_decorator</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+<div class="viewcode-block" id="optional_arg_decorator"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.optional_arg_decorator">[docs]</a><span class="k">def</span> <span class="nf">optional_arg_decorator</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrapped_decorator</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -419,7 +419,7 @@
     <span class="k">return</span> <span class="n">wrapped_decorator</span></div>
 
 
-<div class="viewcode-block" id="parse_json"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.parse_json">[docs]</a><span class="k">def</span> <span class="nf">parse_json</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]):</span>
+<div class="viewcode-block" id="parse_json"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.parse_json">[docs]</a><span class="k">def</span> <span class="nf">parse_json</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">orjson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">orjson</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -427,12 +427,12 @@
         <span class="k">raise</span> <span class="n">e</span></div>
 
 
-<div class="viewcode-block" id="parse_json_file"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.parse_json_file">[docs]</a><span class="k">def</span> <span class="nf">parse_json_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="parse_json_file"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.parse_json_file">[docs]</a><span class="k">def</span> <span class="nf">parse_json_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">parse_json</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="dump_json"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.dump_json">[docs]</a><span class="k">def</span> <span class="nf">dump_json</span><span class="p">(</span>
+<div class="viewcode-block" id="dump_json"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.dump_json">[docs]</a><span class="k">def</span> <span class="nf">dump_json</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">sort_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -453,7 +453,7 @@
     <span class="k">return</span> <span class="n">orjson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="dump_json_file"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.cli.commands.stats.dump_json_file">[docs]</a><span class="k">def</span> <span class="nf">dump_json_file</span><span class="p">(</span>
+<div class="viewcode-block" id="dump_json_file"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.util.html#datumaro.components.hl_ops.dump_json_file">[docs]</a><span class="k">def</span> <span class="nf">dump_json_file</span><span class="p">(</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>

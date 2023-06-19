@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.components.operations &#8212; Datumaro 1.3.1 documentation</title>
+    <title>datumaro.components.operations &#8212; Datumaro 1.3.2 documentation</title>
   
   
   
@@ -296,7 +296,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
 
 
-<div class="viewcode-block" id="mean_std"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.mean_std">[docs]</a><span class="k">def</span> <span class="nf">mean_std</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="mean_std"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.components.operations.mean_std">[docs]</a><span class="k">def</span> <span class="nf">mean_std</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
     <span class="n">counter</span> <span class="o">=</span> <span class="n">_MeanStdCounter</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
@@ -430,7 +430,7 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="compute_image_statistics"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.compute_image_statistics">[docs]</a><span class="k">def</span> <span class="nf">compute_image_statistics</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_image_statistics"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.components.operations.compute_image_statistics">[docs]</a><span class="k">def</span> <span class="nf">compute_image_statistics</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Image</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Your dataset&#39;s media_type is </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
@@ -503,7 +503,7 @@
     <span class="k">return</span> <span class="n">stats</span></div>
 
 
-<div class="viewcode-block" id="compute_ann_statistics"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.compute_ann_statistics">[docs]</a><span class="k">def</span> <span class="nf">compute_ann_statistics</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_ann_statistics"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.components.operations.compute_ann_statistics">[docs]</a><span class="k">def</span> <span class="nf">compute_ann_statistics</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
@@ -644,14 +644,14 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unique</span>
 
 
-<div class="viewcode-block" id="find_unique_images"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.find_unique_images">[docs]</a><span class="k">def</span> <span class="nf">find_unique_images</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">item_hash</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="find_unique_images"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.components.operations.find_unique_images">[docs]</a><span class="k">def</span> <span class="nf">find_unique_images</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">item_hash</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="n">matcher</span> <span class="o">=</span> <span class="n">_ItemMatcher</span><span class="p">(</span><span class="n">item_hash</span><span class="o">=</span><span class="n">item_hash</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
         <span class="n">matcher</span><span class="o">.</span><span class="n">process_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">matcher</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="match_classes"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_classes">[docs]</a><span class="k">def</span> <span class="nf">match_classes</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">):</span>
+<div class="viewcode-block" id="match_classes"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.components.operations.match_classes">[docs]</a><span class="k">def</span> <span class="nf">match_classes</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">):</span>
     <span class="n">a_label_cat</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">())</span>
     <span class="n">b_label_cat</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">())</span>
 
@@ -664,7 +664,7 @@
     <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
 
 
-<div class="viewcode-block" id="match_items_by_id"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_items_by_id">[docs]</a><span class="k">def</span> <span class="nf">match_items_by_id</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="match_items_by_id"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.components.operations.match_items_by_id">[docs]</a><span class="k">def</span> <span class="nf">match_items_by_id</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
     <span class="n">a_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span>
     <span class="n">b_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">b</span><span class="p">)</span>
 
@@ -675,7 +675,7 @@
     <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
 
 
-<div class="viewcode-block" id="match_items_by_image_hash"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_items_by_image_hash">[docs]</a><span class="k">def</span> <span class="nf">match_items_by_image_hash</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="match_items_by_image_hash"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.components.operations.match_items_by_image_hash">[docs]</a><span class="k">def</span> <span class="nf">match_items_by_image_hash</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
     <span class="n">a_hash</span> <span class="o">=</span> <span class="n">find_unique_images</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
     <span class="n">b_hash</span> <span class="o">=</span> <span class="n">find_unique_images</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
 
