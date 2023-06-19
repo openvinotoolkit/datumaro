@@ -70,28 +70,11 @@ class LabelMeBase(DatasetBase):
             }
 
         for xml_path in sorted(glob(osp.join(path, "**", "*.xml"), recursive=True)):
-            # item_path = osp.relpath(xml_path, dataset_root)
-            # path_parts = split_path(item_path)
-            # print(dataset_root, xml_path, item_path, path_parts)
-
-            # subset = ""
-            # if 1 < len(path_parts):
-            #     subset = path_parts[0]
-            #     item_path = osp.join(*path_parts[1:])  # pylint: disable=no-value-for-parameter
-            # print(subset, item_path)
-
             root = ElementTree.parse(xml_path)
 
             subset = root.find("folder").text or ""
             item_id = osp.splitext(root.find("filename").text)[0]
             image_path = osp.join(path, "Images", subset, root.find("filename").text)
-
-            # item_id = (
-            #     osp.join(root.find("folder").text or "", root.find("filename").text) or item_path
-            # )
-            # image_path = osp.join(osp.dirname(xml_path), osp.basename(item_id))
-            # item_id = osp.splitext(item_id)[0]
-            print(subset, item_id, image_path)
 
             image_size = None
             imagesize_elem = root.find("imagesize")
@@ -103,7 +86,6 @@ class LabelMeBase(DatasetBase):
                 )
 
             image = Image.from_file(path=image_path, size=image_size)
-            print(image)
 
             annotations = self._parse_annotations(root, path, subset, categories)
 
