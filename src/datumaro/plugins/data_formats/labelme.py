@@ -82,7 +82,7 @@ class LabelMeBase(DatasetBase):
                 width_elem = imagesize_elem.find("ncols").text
                 height_elem = imagesize_elem.find("nrows").text
                 image_size = (
-                    (int(width_elem), int(height_elem)) if width_elem and height_elem else None
+                    (int(height_elem), int(width_elem)) if height_elem and width_elem else None
                 )
 
             image = Image.from_file(path=image_path, size=image_size)
