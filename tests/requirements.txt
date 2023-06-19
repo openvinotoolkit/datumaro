@@ -6,3 +6,11 @@ pytest-cov>=4.0.0
 pytest-stress
 pytest-html
 coverage
+
+
+# testing tensorflow-dataset
+# `tensorflow-datasets[dev]` (not `tensorflow-datasets`) has a dependency on `jax`,
+# and `jax` has problem in installing it on Windows (Please see https://github.com/google/jax/issues/438)
+# Therefore, we allow to install `tensorflow-datasets[dev]` only for Linux. This dependency is required by
+# `tests\unit\test_extractor_tfds.py`.
+tensorflow-datasets[dev]; platform_system=='Linux'

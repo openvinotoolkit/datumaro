@@ -84,7 +84,6 @@ setuptools.setup(
     extras_require={
         "tf": ["tensorflow"],
         "tfds": ["tensorflow-datasets"],
-        "tfds-dev": ["tensorflow-datasets[dev]; platform_system='Linux'"],
         "tf-gpu": ["tensorflow-gpu"],
         "default": DEFAULT_REQUIREMENTS,
     },
