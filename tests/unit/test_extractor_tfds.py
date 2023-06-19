@@ -14,18 +14,11 @@ from datumaro.util.image import decode_image, encode_image
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.test_utils import compare_datasets, mock_tfds_data
 
-try:
-    if TFDS_EXTRACTOR_AVAILABLE:
-        import tensorflow_datasets as tfds
-        import tensorflow_datasets.testing
-
-        TFDS_DEV_AVAILABLE = True
-    else:
-        TFDS_DEV_AVAILABLE = False
-except ImportError:
-    TFDS_DEV_AVAILABLE = False
+if TFDS_EXTRACTOR_AVAILABLE:
+    import tensorflow_datasets as tfds
 
 
+@skipIf(not TFDS_EXTRACTOR_AVAILABLE, reason="TFDS is not installed")
 class TfdsDatasetsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_metadata(self):
@@ -69,7 +62,7 @@ class TfdsDatasetsTest(TestCase):
                 assert remote_meta.subsets[split_name].num_items == sum(split.shard_lengths)
 
 
-@skipIf(not TFDS_DEV_AVAILABLE, reason="TFDS is not installed")
+@skipIf(not TFDS_EXTRACTOR_AVAILABLE, reason="TFDS is not installed")
 class TfdsExtractorTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_data_access(self):
