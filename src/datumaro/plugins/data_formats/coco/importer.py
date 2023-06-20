@@ -186,29 +186,3 @@ class CocoPanopticImporter(CocoImporter):
 class CocoStuffImporter(CocoImporter):
     _TASK = CocoTask.stuff
     _TASKS = {_TASK: CocoImporter._TASKS[_TASK]}
-
-
-# class CocoRoboflowImporter(CocoImporter):
-#     # Currently, All Roboflow exported COCO format can be handled by our Coco instances task implements.
-#     _TASK = CocoTask.instances
-#     _IMPORTER_TYPE = CocoImporterType.roboflow
-
-#     @classmethod
-#     def detect(
-#         cls,
-#         context: FormatDetectionContext,
-#     ) -> FormatDetectionConfidence:
-#         context.require_file("*/_annotations.coco.json")
-#         return FormatDetectionConfidence.MEDIUM
-
-#     @classmethod
-#     def find_sources(cls, path):
-#         subset_paths = glob(osp.join(path, "*", "_annotations.coco.json"), recursive=True)
-
-#         subsets = {}
-#         for subset_path in subset_paths:
-#             subset_name = osp.basename(osp.dirname(subset_path))
-#             osp.basename(subset_path)
-#             subsets.setdefault(subset_name, {})[cls._TASK] = subset_path
-
-#         return subsets

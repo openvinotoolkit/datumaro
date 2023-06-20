@@ -201,12 +201,12 @@ class YoloStrictBase(SubsetBase):
         return item
 
     @classmethod
-    def _parse_field(cls, value: str, type: Type[T], field_name: str) -> T:
+    def _parse_field(cls, value: str, desired_type: Type[T], field_name: str) -> T:
         try:
-            return type(value)
+            return desired_type(value)
         except Exception as e:
             raise InvalidAnnotationError(
-                f"Can't parse {field_name} from '{value}'. Expected {type}"
+                f"Can't parse {field_name} from '{value}'. Expected {desired_type}"
             ) from e
 
     @classmethod
