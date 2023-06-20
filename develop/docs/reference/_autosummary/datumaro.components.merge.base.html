@@ -577,7 +577,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.components.merge.base.Merger">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.merge.base.</span></span><span class="sig-name descname"><span class="pre">Merger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/merge/base.html#Merger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.merge.base.Merger" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="datumaro.components.abstracts.merger.html#datumaro.components.abstracts.merger.IMerger" title="datumaro.components.abstracts.merger.IMerger"><code class="xref py py-class docutils literal notranslate"><span class="pre">IMerger</span></code></a>, <a class="reference internal" href="datumaro.components.cli_plugin.html#datumaro.components.cli_plugin.CliPlugin" title="datumaro.components.cli_plugin.CliPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">CliPlugin</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.abstracts.merger.html#datumaro.components.abstracts.merger.IMergerContext" title="datumaro.components.abstracts.merger.IMergerContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">IMergerContext</span></code></a>, <a class="reference internal" href="datumaro.components.cli_plugin.html#datumaro.components.cli_plugin.CliPlugin" title="datumaro.components.cli_plugin.CliPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">CliPlugin</span></code></a></p>
 <p>Merge multiple datasets into one dataset</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.merge.base.Merger.merge_infos">
@@ -598,6 +598,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.merge.base.Merger.save_merge_report">
 <span class="sig-name descname"><span class="pre">save_merge_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/merge/base.html#Merger.save_merge_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.merge.base.Merger.save_merge_report" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.merge.base.Merger.get_any_label_name">
+<span class="sig-name descname"><span class="pre">get_any_label_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ann</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/merge/base.html#Merger.get_any_label_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.merge.base.Merger.get_any_label_name" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -683,6 +688,15 @@
      <code class="docutils literal notranslate">
       <span class="pre">
        Merger.save_merge_report()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.merge.base.Merger.get_any_label_name">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Merger.get_any_label_name()
       </span>
      </code>
     </a>

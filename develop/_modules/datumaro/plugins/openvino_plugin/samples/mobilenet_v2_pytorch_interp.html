@@ -277,47 +277,50 @@
             <article class="bd-article" role="main">
               
   <h1>Source code for datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2021 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2023 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
+<span class="kn">from</span> <span class="nn">datumaro.components.abstracts</span> <span class="kn">import</span> <span class="n">IModelInterpreter</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">LabelCategories</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">softmax</span>
 
 
-<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">inputs</span></div>
+<div class="viewcode-block" id="MobilenetV2PytorchModelInterpreter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter">[docs]</a><span class="k">class</span> <span class="nc">MobilenetV2PytorchModelInterpreter</span><span class="p">(</span><span class="n">IModelInterpreter</span><span class="p">):</span>
+<div class="viewcode-block" id="MobilenetV2PytorchModelInterpreter.normalize"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">inputs</span></div>
 
+<div class="viewcode-block" id="MobilenetV2PytorchModelInterpreter.process_outputs"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.process_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">process_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="c1"># inputs = model input; array or images; shape = (B, H, W, C)</span>
+        <span class="c1"># outputs = model output; shape = (1, 1, N, 7); N is the number of detected bounding boxes.</span>
+        <span class="c1"># det = [image_id, label(class id), conf, x_min, y_min, x_max, y_max]</span>
+        <span class="c1"># results = conversion result; [[ Annotation, ... ], ... ]</span>
 
-<div class="viewcode-block" id="process_outputs"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.process_outputs">[docs]</a><span class="k">def</span> <span class="nf">process_outputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
-    <span class="c1"># inputs = model input; array or images; shape = (B, H, W, C)</span>
-    <span class="c1"># outputs = model output; shape = (1, 1, N, 7); N is the number of detected bounding boxes.</span>
-    <span class="c1"># det = [image_id, label(class id), conf, x_min, y_min, x_max, y_max]</span>
-    <span class="c1"># results = conversion result; [[ Annotation, ... ], ... ]</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">input_</span><span class="p">,</span> <span class="n">output</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-variable</span>
+            <span class="n">image_results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+            <span class="n">image_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">}))</span>
 
-    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">input_</span><span class="p">,</span> <span class="n">output</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-variable</span>
-        <span class="n">image_results</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
-        <span class="n">image_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">}))</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_results</span><span class="p">)</span>
 
-        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_results</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span></div>
 
-    <span class="k">return</span> <span class="n">results</span></div>
+<div class="viewcode-block" id="MobilenetV2PytorchModelInterpreter.get_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.get_categories">[docs]</a>    <span class="k">def</span> <span class="nf">get_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># output categories - label map etc.</span>
 
+        <span class="n">label_categories</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
 
-<div class="viewcode-block" id="get_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.get_categories">[docs]</a><span class="k">def</span> <span class="nf">get_categories</span><span class="p">():</span>
-    <span class="c1"># output categories - label map etc.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;samples/imagenet.class&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
 
-    <span class="n">label_categories</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">label_categories</span><span class="p">}</span></div>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;samples/imagenet.class&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
-            <span class="n">label</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">label_categories</span><span class="p">}</span></div>
+<div class="viewcode-block" id="MobilenetV2PytorchModelInterpreter.resize"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.resize">[docs]</a>    <span class="k">def</span> <span class="nf">resize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">inputs</span></div></div>
 </pre></div>
 
             </article>

@@ -28,4 +28,5 @@ datumaro.components.abstracts
    :recursive:
 
    datumaro.components.abstracts.merger
+   datumaro.components.abstracts.model_interpreter
 

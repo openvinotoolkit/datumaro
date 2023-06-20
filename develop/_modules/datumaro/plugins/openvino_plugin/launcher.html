@@ -283,10 +283,13 @@
 
 <span class="c1"># pylint: disable=exec-used</span>
 
+<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">from</span> <span class="nn">importlib.util</span> <span class="kn">import</span> <span class="n">module_from_spec</span><span class="p">,</span> <span class="n">spec_from_file_location</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">cv2</span>
@@ -294,6 +297,7 @@
 <span class="kn">from</span> <span class="nn">openvino.runtime</span> <span class="kn">import</span> <span class="n">Core</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
+<span class="kn">from</span> <span class="nn">datumaro.components.abstracts</span> <span class="kn">import</span> <span class="n">IModelInterpreter</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.cli_plugin</span> <span class="kn">import</span> <span class="n">CliPlugin</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.launcher</span> <span class="kn">import</span> <span class="n">Launcher</span>
 <span class="kn">from</span> <span class="nn">datumaro.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span>
@@ -341,40 +345,105 @@
         <span class="n">model</span><span class="p">[</span><span class="s2">&quot;interpreter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;interpreter&quot;</span><span class="p">])</span>
 
 
-<div class="viewcode-block" id="InterpreterScript"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.InterpreterScript">[docs]</a><span class="k">class</span> <span class="nc">InterpreterScript</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">script</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<div class="viewcode-block" id="OpenvinoModelInfo"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.OpenvinoModelInfo">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">OpenvinoModelInfo</span><span class="p">:</span>
+    <span class="n">interpreter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">model_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
-        <span class="n">context</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">exec</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+<div class="viewcode-block" id="OpenvinoModelInfo.validate"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.OpenvinoModelInfo.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate integrity of the member variables&quot;&quot;&quot;</span>
 
-        <span class="n">normalize</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;normalize&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">normalize</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can&#39;t find &#39;normalize&#39; function in the interpreter script&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;normalize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize</span>
+        <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to open model </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> file &quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
 
-        <span class="n">process_outputs</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;process_outputs&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">process_outputs</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can&#39;t find &#39;process_outputs&#39; function in the interpreter script&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;process_outputs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">process_outputs</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;model_dir&quot;</span><span class="p">:</span>
+                <span class="n">_validate</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div></div>
 
-        <span class="n">get_categories</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_categories&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">get_categories</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">get_categories</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">get_categories</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;get_categories&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_categories</span>
 
-<div class="viewcode-block" id="InterpreterScript.get_categories"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.InterpreterScript.get_categories">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_categories</span><span class="p">():</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="BuiltinOpenvinoModelInfo"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.BuiltinOpenvinoModelInfo">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">BuiltinOpenvinoModelInfo</span><span class="p">(</span><span class="n">OpenvinoModelInfo</span><span class="p">):</span>
+    <span class="n">downloadable_models</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;clip_text_ViT-B_32&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;clip_visual_ViT-B_32&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;googlenet-v4-tf&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
 
-<div class="viewcode-block" id="InterpreterScript.process_outputs"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.InterpreterScript.process_outputs">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">process_outputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Function should be implemented in the interpreter script&quot;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="BuiltinOpenvinoModelInfo.create_from_model_name"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.BuiltinOpenvinoModelInfo.create_from_model_name">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_from_model_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BuiltinOpenvinoModelInfo&quot;</span><span class="p">:</span>
+        <span class="n">openvino_plugin_samples_dir</span> <span class="o">=</span> <span class="n">get_samples_path</span><span class="p">()</span>
+        <span class="n">interpreter</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">openvino_plugin_samples_dir</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;_interp.py&quot;</span><span class="p">)</span>
+        <span class="n">interpreter</span> <span class="o">=</span> <span class="n">interpreter</span> <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">interpreter</span><span class="p">)</span> <span class="k">else</span> <span class="n">interpreter</span>
 
-<div class="viewcode-block" id="InterpreterScript.normalize"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.InterpreterScript.normalize">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Function should be implemented in the interpreter script&quot;</span><span class="p">)</span></div></div>
+        <span class="n">model_dir</span> <span class="o">=</span> <span class="n">DATUMARO_CACHE_DIR</span>
+
+        <span class="c1"># Please visit open-model-zoo repository for OpenVINO public models if you are interested in</span>
+        <span class="c1"># https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/index.md</span>
+        <span class="n">url_folder</span> <span class="o">=</span> <span class="s2">&quot;https://storage.openvinotoolkit.org/repositories/datumaro/models/&quot;</span>
+
+        <span class="n">description</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.xml&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">description</span><span class="p">):</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">url_folder</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.xml&quot;</span><span class="p">),</span> <span class="n">description</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">downloadable_models</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.bin&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">weights</span><span class="p">):</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">url_folder</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.bin&quot;</span><span class="p">),</span> <span class="n">weights</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">downloadable_models</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">interpreter</span><span class="o">=</span><span class="n">interpreter</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span>
+            <span class="n">model_dir</span><span class="o">=</span><span class="n">model_dir</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_download_file</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Downloading: &quot;</span><span class="si">{}</span><span class="s1">&quot; to </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_root</span><span class="p">))</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="k">as</span> <span class="n">source</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_root</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output</span><span class="p">:</span>  <span class="c1"># nosec B310</span>
+            <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span>
+                <span class="n">total</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Content-Length&quot;</span><span class="p">)),</span>
+                <span class="n">ncols</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+                <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;iB&quot;</span><span class="p">,</span>
+                <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">unit_divisor</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">loop</span><span class="p">:</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">buffer</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8192</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">buffer</span><span class="p">:</span>
+                        <span class="k">break</span>
+
+                    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+                    <span class="n">loop</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">file_root</span>
+
+<div class="viewcode-block" id="BuiltinOpenvinoModelInfo.override"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.BuiltinOpenvinoModelInfo.override">[docs]</a>    <span class="k">def</span> <span class="nf">override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">OpenvinoModelInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Override builtin model variables to other&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">other_item</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="n">self_item</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">other_item</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">self_item</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Override description with the builtin model </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">self_item</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">_apply</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="OpenvinoLauncher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.OpenvinoLauncher">[docs]</a><span class="k">class</span> <span class="nc">OpenvinoLauncher</span><span class="p">(</span><span class="n">Launcher</span><span class="p">):</span>
@@ -394,55 +463,30 @@
         <span class="n">channel_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;NCHW&quot;</span><span class="p">,</span>
         <span class="n">to_rgb</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="n">model_info</span> <span class="o">=</span> <span class="n">OpenvinoModelInfo</span><span class="p">(</span>
+            <span class="n">interpreter</span><span class="o">=</span><span class="n">interpreter</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span>
+            <span class="n">model_dir</span><span class="o">=</span><span class="n">model_dir</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">model_name</span><span class="p">:</span>
-            <span class="n">model_dir</span> <span class="o">=</span> <span class="n">DATUMARO_CACHE_DIR</span>
-
-            <span class="c1"># Please visit open-model-zoo repository for OpenVINO public models if you are interested in</span>
-            <span class="c1"># https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/index.md</span>
-            <span class="n">url_folder</span> <span class="o">=</span> <span class="s2">&quot;https://storage.openvinotoolkit.org/repositories/datumaro/models/&quot;</span>
-
-            <span class="n">description</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.xml&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">description</span><span class="p">):</span>
-                <span class="n">cached_description_url</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">url_folder</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.xml&quot;</span><span class="p">)</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Downloading: &quot;</span><span class="si">{}</span><span class="s1">&quot; to </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cached_description_url</span><span class="p">,</span> <span class="n">description</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">cached_description_url</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
-
-            <span class="n">weights</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.bin&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">weights</span><span class="p">):</span>
-                <span class="n">cached_weights_url</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">url_folder</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.bin&quot;</span><span class="p">)</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Downloading: &quot;</span><span class="si">{}</span><span class="s1">&quot; to </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cached_weights_url</span><span class="p">,</span> <span class="n">weights</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_download_file</span><span class="p">(</span><span class="n">cached_weights_url</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">interpreter</span><span class="p">:</span>
-                <span class="n">openvino_plugin_samples_dir</span> <span class="o">=</span> <span class="n">get_samples_path</span><span class="p">()</span>
-                <span class="n">interpreter</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">openvino_plugin_samples_dir</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;_interp.py&quot;</span><span class="p">)</span>
+            <span class="n">builtin_model_info</span> <span class="o">=</span> <span class="n">BuiltinOpenvinoModelInfo</span><span class="o">.</span><span class="n">create_from_model_name</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+            <span class="n">builtin_model_info</span><span class="o">.</span><span class="n">override</span><span class="p">(</span><span class="n">model_info</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">model_dir</span><span class="p">:</span>
             <span class="n">model_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">description</span><span class="p">):</span>
-            <span class="n">description</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">description</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="s1">&#39;Failed to open model description file &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">description</span><span class="p">))</span>
+        <span class="n">model_info</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="n">model_info</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">weights</span><span class="p">):</span>
-            <span class="n">weights</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">weights</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="s1">&#39;Failed to open model weights file &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">weights</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">interpreter</span><span class="p">):</span>
-            <span class="n">interpreter</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">interpreter</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">interpreter</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="s1">&#39;Failed to open model interpreter script file &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">interpreter</span><span class="p">))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_interpreter</span> <span class="o">=</span> <span class="n">InterpreterScript</span><span class="p">(</span><span class="n">interpreter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interpreter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_interpreter</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">model_info</span><span class="o">.</span><span class="n">interpreter</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span> <span class="ow">or</span> <span class="s2">&quot;CPU&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_output_blobs</span> <span class="o">=</span> <span class="n">output_layers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_compile_model_config</span> <span class="o">=</span> <span class="n">compile_model_config</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_core</span> <span class="o">=</span> <span class="n">Core</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_core</span><span class="o">.</span><span class="n">read_model</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_core</span><span class="o">.</span><span class="n">read_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">model_info</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_model_support</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_executable_net</span><span class="p">()</span>
 
@@ -454,24 +498,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_channel_format</span> <span class="o">=</span> <span class="n">channel_format</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_to_rgb</span> <span class="o">=</span> <span class="n">to_rgb</span>
 
-    <span class="k">def</span> <span class="nf">_download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="k">as</span> <span class="n">source</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_root</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output</span><span class="p">:</span>  <span class="c1"># nosec B310</span>
-            <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span>
-                <span class="n">total</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Content-Length&quot;</span><span class="p">)),</span>
-                <span class="n">ncols</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
-                <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;iB&quot;</span><span class="p">,</span>
-                <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">unit_divisor</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-            <span class="p">)</span> <span class="k">as</span> <span class="n">loop</span><span class="p">:</span>
-                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                    <span class="n">buffer</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8192</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">buffer</span><span class="p">:</span>
-                        <span class="k">break</span>
+    <span class="k">def</span> <span class="nf">_load_interpreter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IModelInterpreter</span><span class="p">:</span>
+        <span class="n">fname</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">IModelInterpreter</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">IModelInterpreter</span>
+            <span class="p">):</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Load </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> for model interpreter.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">obj</span><span class="p">()</span>
 
-                    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
-                    <span class="n">loop</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span>
-        <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> has no class derived from IModelInterpreter.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_model_support</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
         <span class="n">not_supported_layers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
@@ -555,6 +596,9 @@
             <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Expected BGR input, got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">,)</span>
+
+        <span class="c1"># Resize</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpreter</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel_format</span> <span class="o">==</span> <span class="s2">&quot;NCHW&quot;</span><span class="p">:</span>
             <span class="n">n</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_layout</span>

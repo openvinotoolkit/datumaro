@@ -566,34 +566,39 @@
               
   <section id="module-datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp">
 <span id="datumaro-plugins-openvino-plugin-samples-ssd-vehicle-detection-interp"></span><h1>datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp<a class="headerlink" href="#module-datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp" title="Permalink to this heading">#</a></h1>
-<p class="rubric">Functions</p>
+<p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.get_categories" title="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.get_categories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_categories</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.normalize" title="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>(inputs)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.process_outputs" title="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.process_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_outputs</span></code></a>(inputs, outputs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter" title="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SsdVehicleDetectionModelInterpreter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.normalize">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.</span></span><span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/ssd_vehicle_detection_interp.html#normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.normalize" title="Permalink to this definition">#</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.</span></span><span class="sig-name descname"><span class="pre">SsdVehicleDetectionModelInterpreter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/ssd_vehicle_detection_interp.html#SsdVehicleDetectionModelInterpreter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.abstracts.model_interpreter.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter" title="datumaro.components.abstracts.model_interpreter.IModelInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">IModelInterpreter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/ssd_vehicle_detection_interp.html#SsdVehicleDetectionModelInterpreter.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.normalize" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.process_outputs">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.</span></span><span class="sig-name descname"><span class="pre">process_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/ssd_vehicle_detection_interp.html#process_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.process_outputs" title="Permalink to this definition">#</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.process_outputs">
+<span class="sig-name descname"><span class="pre">process_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/ssd_vehicle_detection_interp.html#SsdVehicleDetectionModelInterpreter.process_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.process_outputs" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.get_categories">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.</span></span><span class="sig-name descname"><span class="pre">get_categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/ssd_vehicle_detection_interp.html#get_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.get_categories" title="Permalink to this definition">#</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.get_categories">
+<span class="sig-name descname"><span class="pre">get_categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/ssd_vehicle_detection_interp.html#SsdVehicleDetectionModelInterpreter.get_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.get_categories" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.resize">
+<span class="sig-name descname"><span class="pre">resize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/ssd_vehicle_detection_interp.html#SsdVehicleDetectionModelInterpreter.resize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.resize" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
 
 </section>
 
@@ -636,31 +641,51 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.normalize">
+  <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter">
    <code class="docutils literal notranslate">
     <span class="pre">
-     normalize()
+     SsdVehicleDetectionModelInterpreter
     </span>
    </code>
   </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.process_outputs">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     process_outputs()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.get_categories">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     get_categories()
-    </span>
-   </code>
-  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.normalize">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SsdVehicleDetectionModelInterpreter.normalize()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.process_outputs">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SsdVehicleDetectionModelInterpreter.process_outputs()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.get_categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SsdVehicleDetectionModelInterpreter.get_categories()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.ssd_vehicle_detection_interp.SsdVehicleDetectionModelInterpreter.resize">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SsdVehicleDetectionModelInterpreter.resize()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 

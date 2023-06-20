@@ -281,13 +281,10 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
+<span class="kn">from</span> <span class="nn">datumaro.components.abstracts.model_interpreter</span> <span class="kn">import</span> <span class="n">IModelInterpreter</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Bbox</span><span class="p">,</span> <span class="n">LabelCategories</span>
 
 <span class="n">conf_thresh</span> <span class="o">=</span> <span class="mf">0.02</span>
-
-
-<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.html#datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">inputs</span></div>
 
 
 <span class="k">def</span> <span class="nf">_match_confs</span><span class="p">(</span><span class="n">confs</span><span class="p">,</span> <span class="n">detections</span><span class="p">):</span>
@@ -316,61 +313,67 @@
     <span class="k">return</span> <span class="n">matches</span>
 
 
-<div class="viewcode-block" id="process_outputs"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.html#datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.process_outputs">[docs]</a><span class="k">def</span> <span class="nf">process_outputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
-    <span class="c1"># inputs = model input; array or images; shape = (B, H, W, C)</span>
-    <span class="c1"># outputs = model output; shape = (1, 1, N, 7); N is the number of detected bounding boxes.</span>
-    <span class="c1"># det = [image_id, label(class id), conf, x_min, y_min, x_max, y_max]</span>
-    <span class="c1"># results = conversion result; [[ Annotation, ... ], ... ]</span>
+<div class="viewcode-block" id="SsdPersonVehicleBikeDetectionModelInterpreter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.html#datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.SsdPersonVehicleBikeDetectionModelInterpreter">[docs]</a><span class="k">class</span> <span class="nc">SsdPersonVehicleBikeDetectionModelInterpreter</span><span class="p">(</span><span class="n">IModelInterpreter</span><span class="p">):</span>
+<div class="viewcode-block" id="SsdPersonVehicleBikeDetectionModelInterpreter.normalize"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.html#datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.SsdPersonVehicleBikeDetectionModelInterpreter.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">inputs</span></div>
 
-    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">input_</span><span class="p">,</span> <span class="n">detections</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;detection_out&quot;</span><span class="p">]):</span>
-        <span class="n">input_height</span><span class="p">,</span> <span class="n">input_width</span> <span class="o">=</span> <span class="n">input_</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+<div class="viewcode-block" id="SsdPersonVehicleBikeDetectionModelInterpreter.process_outputs"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.html#datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.SsdPersonVehicleBikeDetectionModelInterpreter.process_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">process_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="c1"># inputs = model input; array or images; shape = (B, H, W, C)</span>
+        <span class="c1"># outputs = model output; shape = (1, 1, N, 7); N is the number of detected bounding boxes.</span>
+        <span class="c1"># det = [image_id, label(class id), conf, x_min, y_min, x_max, y_max]</span>
+        <span class="c1"># results = conversion result; [[ Annotation, ... ], ... ]</span>
 
-        <span class="n">confs</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;Softmax_189/Softmax_&quot;</span><span class="p">]</span>
-        <span class="n">detections</span> <span class="o">=</span> <span class="n">detections</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">input_</span><span class="p">,</span> <span class="n">detections</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;detection_out&quot;</span><span class="p">]):</span>
+            <span class="n">input_height</span><span class="p">,</span> <span class="n">input_width</span> <span class="o">=</span> <span class="n">input_</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
 
-        <span class="n">conf_ids</span> <span class="o">=</span> <span class="n">_match_confs</span><span class="p">(</span><span class="n">confs</span><span class="p">,</span> <span class="n">detections</span><span class="p">)</span>
+            <span class="n">confs</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;Softmax_189/Softmax_&quot;</span><span class="p">]</span>
+            <span class="n">detections</span> <span class="o">=</span> <span class="n">detections</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">image_results</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">det</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">detections</span><span class="p">):</span>
-            <span class="n">image_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># pylint: disable=unused-variable</span>
-            <span class="n">label</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">conf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-            <span class="n">det_confs</span> <span class="o">=</span> <span class="n">confs</span><span class="p">[</span><span class="n">conf_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+            <span class="n">conf_ids</span> <span class="o">=</span> <span class="n">_match_confs</span><span class="p">(</span><span class="n">confs</span><span class="p">,</span> <span class="n">detections</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">conf</span> <span class="o">&lt;=</span> <span class="n">conf_thresh</span><span class="p">:</span>
-                <span class="k">continue</span>
+            <span class="n">image_results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">det</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">detections</span><span class="p">):</span>
+                <span class="n">image_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># pylint: disable=unused-variable</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">conf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">det_confs</span> <span class="o">=</span> <span class="n">confs</span><span class="p">[</span><span class="n">conf_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
 
-            <span class="n">x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">input_width</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">input_height</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="n">w</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">*</span> <span class="n">input_width</span> <span class="o">-</span> <span class="n">x</span><span class="p">),</span> <span class="n">input_width</span><span class="p">)</span>
-            <span class="n">h</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">*</span> <span class="n">input_height</span> <span class="o">-</span> <span class="n">y</span><span class="p">),</span> <span class="n">input_height</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">conf</span> <span class="o">&lt;=</span> <span class="n">conf_thresh</span><span class="p">:</span>
+                    <span class="k">continue</span>
 
-            <span class="n">image_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">Bbox</span><span class="p">(</span>
-                    <span class="n">x</span><span class="p">,</span>
-                    <span class="n">y</span><span class="p">,</span>
-                    <span class="n">w</span><span class="p">,</span>
-                    <span class="n">h</span><span class="p">,</span>
-                    <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
-                    <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">conf</span><span class="p">,</span> <span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">det_confs</span><span class="p">))},</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">input_width</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">input_height</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">*</span> <span class="n">input_width</span> <span class="o">-</span> <span class="n">x</span><span class="p">),</span> <span class="n">input_width</span><span class="p">)</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">det</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">*</span> <span class="n">input_height</span> <span class="o">-</span> <span class="n">y</span><span class="p">),</span> <span class="n">input_height</span><span class="p">)</span>
+
+                <span class="n">image_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Bbox</span><span class="p">(</span>
+                        <span class="n">x</span><span class="p">,</span>
+                        <span class="n">y</span><span class="p">,</span>
+                        <span class="n">w</span><span class="p">,</span>
+                        <span class="n">h</span><span class="p">,</span>
+                        <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                        <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">conf</span><span class="p">,</span> <span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">det_confs</span><span class="p">))},</span>
+                    <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="p">)</span>
 
-            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_results</span><span class="p">)</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_results</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">results</span></div>
+        <span class="k">return</span> <span class="n">results</span></div>
 
+<div class="viewcode-block" id="SsdPersonVehicleBikeDetectionModelInterpreter.get_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.html#datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.SsdPersonVehicleBikeDetectionModelInterpreter.get_categories">[docs]</a>    <span class="k">def</span> <span class="nf">get_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># output categories - label map etc.</span>
 
-<div class="viewcode-block" id="get_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.html#datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.get_categories">[docs]</a><span class="k">def</span> <span class="nf">get_categories</span><span class="p">():</span>
-    <span class="c1"># output categories - label map etc.</span>
+        <span class="n">label_categories</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
+        <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;vehicle&quot;</span><span class="p">)</span>
+        <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;person&quot;</span><span class="p">)</span>
+        <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;bike&quot;</span><span class="p">)</span>
 
-    <span class="n">label_categories</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
-    <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;vehicle&quot;</span><span class="p">)</span>
-    <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;person&quot;</span><span class="p">)</span>
-    <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;bike&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">label_categories</span><span class="p">}</span></div>
 
-    <span class="k">return</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">label_categories</span><span class="p">}</span></div>
+<div class="viewcode-block" id="SsdPersonVehicleBikeDetectionModelInterpreter.resize"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.html#datumaro.plugins.openvino_plugin.samples.ssd_person_vehicle_bike_detection_interp.SsdPersonVehicleBikeDetectionModelInterpreter.resize">[docs]</a>    <span class="k">def</span> <span class="nf">resize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">inputs</span></div></div>
 </pre></div>
 
             </article>

@@ -17,8 +17,9 @@ datumaro.plugins.openvino\_plugin.launcher
 
    .. autosummary::
    
-      InterpreterScript
+      BuiltinOpenvinoModelInfo
       OpenvinoLauncher
+      OpenvinoModelInfo
    
    
 

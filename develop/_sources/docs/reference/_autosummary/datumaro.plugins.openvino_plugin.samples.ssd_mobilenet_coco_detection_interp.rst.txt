@@ -9,17 +9,15 @@ datumaro.plugins.openvino\_plugin.samples.ssd\_mobilenet\_coco\_detection\_inter
 
    
    
-   .. rubric:: Functions
+   
+
+   
+   
+   .. rubric:: Classes
 
    .. autosummary::
    
-      get_categories
-      normalize
-      process_outputs
-   
-   
-
-   
+      SsdMobilenetCocoDetectionModelInterpreter
    
    
 

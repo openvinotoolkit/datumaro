@@ -17,7 +17,8 @@ datumaro.components.abstracts.merger
 
    .. autosummary::
    
-      IMerger
+      IMatcherContext
+      IMergerContext
    
    
 

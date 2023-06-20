@@ -285,7 +285,7 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span>
 
-<span class="kn">from</span> <span class="nn">datumaro.components.abstracts.merger</span> <span class="kn">import</span> <span class="n">IMerger</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.abstracts.merger</span> <span class="kn">import</span> <span class="n">IMergerContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.cli_plugin</span> <span class="kn">import</span> <span class="n">CliPlugin</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">IDataset</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_item_storage</span> <span class="kn">import</span> <span class="n">DatasetItemStorageDatasetView</span>
@@ -299,7 +299,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">dump_json_file</span>
 
 
-<div class="viewcode-block" id="Merger"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.merge.union_merge.html#datumaro.components.merge.base.Merger">[docs]</a><span class="k">class</span> <span class="nc">Merger</span><span class="p">(</span><span class="n">IMerger</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="Merger"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.merge.union_merge.html#datumaro.components.merge.base.Merger">[docs]</a><span class="k">class</span> <span class="nc">Merger</span><span class="p">(</span><span class="n">IMergerContext</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge multiple datasets into one dataset&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
@@ -382,7 +382,10 @@
 
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">dump_json_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+        <span class="n">dump_json_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Merger.get_any_label_name"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.merge.union_merge.html#datumaro.components.merge.base.Merger.get_any_label_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_any_label_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ann</span><span class="p">,</span> <span class="n">label_id</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 </pre></div>
 
             </article>

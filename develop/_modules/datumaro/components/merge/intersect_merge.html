@@ -891,13 +891,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_map</span><span class="p">[</span><span class="n">dataset_id</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">categories</span><span class="p">()[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">label_id</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_any_label_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ann</span><span class="p">,</span> <span class="n">label_id</span><span class="p">):</span>
+<div class="viewcode-block" id="IntersectMerge.get_any_label_name"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.components.merge.intersect_merge.IntersectMerge.get_any_label_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_any_label_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ann</span><span class="p">,</span> <span class="n">label_id</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">label_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_src_label_name</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">label_id</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_label_name</span><span class="p">(</span><span class="n">label_id</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_label_name</span><span class="p">(</span><span class="n">label_id</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_check_groups_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
