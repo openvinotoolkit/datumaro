@@ -5,7 +5,7 @@
 import errno
 import os
 import os.path as osp
-import pickle  # nosec import_pickle
+import pickle  # nosec B403
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional
 

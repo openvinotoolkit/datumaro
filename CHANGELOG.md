@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### New features
+- Add OTX ATSS detector model interpreter & refactor interfaces
+  (<https://github.com/openvinotoolkit/datumaro/pull/1047>)
 - Add MissingAnnotationDetection transform
-  (<https://github.com/openvinotoolkit/datumaro/pull/1047>, <https://github.com/openvinotoolkit/datumaro/pull/1049>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1049>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins
@@ -21,6 +23,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 - Fix warnings in test_visualizer.py
   (<https://github.com/openvinotoolkit/datumaro/pull/1039>)
+- Prevent installing protobuf>=4
+  (<https://github.com/openvinotoolkit/datumaro/pull/1054>)
+
+## 26/05/2023 - Release 1.3.2
+### Enhancements
+- Let CocoBase continue even if an InvalidAnnotationError is raised
+  (<https://github.com/openvinotoolkit/datumaro/pull/1050>)
+
+### Bug fixes
+- Install dvc version to 2.x
+  (<https://github.com/openvinotoolkit/datumaro/pull/1048>)
+- Replace np.append() in Validator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1050>)
 
 ## 26/05/2023 - Release 1.3.1
 ### Bug fixes
