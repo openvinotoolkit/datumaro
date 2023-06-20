@@ -16,9 +16,9 @@ from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetError
 from datumaro.components.exporter import Exporter
 from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
-from datumaro.components.launcher import Launcher, ModelTransform
+from datumaro.components.launcher import Launcher
 from datumaro.components.merge import DEFAULT_MERGE_POLICY, get_merger
-from datumaro.components.transformer import Transform
+from datumaro.components.transformer import ModelTransform, Transform
 from datumaro.components.validator import TaskType, Validator
 from datumaro.util import dump_json_file, parse_str_enum_value
 from datumaro.util.scope import on_error_do, scoped

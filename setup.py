@@ -82,7 +82,7 @@ setuptools.setup(
     python_requires=">=3.7",
     install_requires=CORE_REQUIREMENTS,
     extras_require={
-        "tf": ["tensorflow"],
+        "tf": ["tensorflow", "tensorflow-serving-api"],
         "tfds": ["tensorflow-datasets"],
         "tf-gpu": ["tensorflow-gpu"],
         "default": DEFAULT_REQUIREMENTS,
