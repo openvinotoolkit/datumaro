@@ -3,3 +3,4 @@
 # SPDX-License-Identifier: MIT
 
 from .merger import *
+from .model_interpreter import *

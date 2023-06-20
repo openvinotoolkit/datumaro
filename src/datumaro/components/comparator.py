@@ -14,7 +14,7 @@ from tabulate import tabulate
 
 from datumaro.cli.util.project import generate_next_file_name
 from datumaro.components.annotation import AnnotationType, LabelCategories
-from datumaro.components.annotations.matcher import LineMatcher, PointsMatcher, match_segments
+from datumaro.components.annotations.matcher import LineMatcher, PointsMatcher, match_segments_pair
 from datumaro.components.dataset import Dataset
 from datumaro.components.operations import (
     compute_ann_statistics,
@@ -69,7 +69,7 @@ class DistanceComparator:
     def _match_segments(self, t, item_a, item_b):
         a_boxes = self._get_ann_type(t, item_a)
         b_boxes = self._get_ann_type(t, item_b)
-        return match_segments(a_boxes, b_boxes, dist_thresh=self.iou_threshold)
+        return match_segments_pair(a_boxes, b_boxes, dist_thresh=self.iou_threshold)
 
     def match_polygons(self, item_a, item_b):
         return self._match_segments(AnnotationType.polygon, item_a, item_b)
@@ -93,7 +93,7 @@ class DistanceComparator:
                     instance_map[id(ann)] = [inst, inst_bbox]
         matcher = PointsMatcher(instance_map=instance_map)
 
-        return match_segments(
+        return match_segments_pair(
             a_points, b_points, dist_thresh=self.iou_threshold, distance=matcher.distance
         )
 
@@ -103,7 +103,7 @@ class DistanceComparator:
 
         matcher = LineMatcher()
 
-        return match_segments(
+        return match_segments_pair(
             a_lines, b_lines, dist_thresh=self.iou_threshold, distance=matcher.distance
         )
 

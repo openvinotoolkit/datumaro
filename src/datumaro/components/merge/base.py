@@ -6,7 +6,7 @@ import os
 from collections import OrderedDict
 from typing import Dict, Optional, Sequence, Type
 
-from datumaro.components.abstracts.merger import IMerger
+from datumaro.components.abstracts.merger import IMergerContext
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import IDataset
 from datumaro.components.dataset_item_storage import DatasetItemStorageDatasetView
@@ -20,7 +20,7 @@ from datumaro.components.media import MediaElement
 from datumaro.util import dump_json_file
 
 
-class Merger(IMerger, CliPlugin):
+class Merger(IMergerContext, CliPlugin):
     """Merge multiple datasets into one dataset"""
 
     def __init__(self, **options):
@@ -104,3 +104,6 @@ class Merger(IMerger, CliPlugin):
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
         dump_json_file(path, errors, indent=True)
+
+    def get_any_label_name(self, ann, label_id):
+        raise NotImplementedError
