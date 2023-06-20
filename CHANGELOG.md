@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### New features
+- Add OTX ATSS detector model interpreter & refactor interfaces
+  (<https://github.com/openvinotoolkit/datumaro/pull/1047>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins

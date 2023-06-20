@@ -4,10 +4,13 @@
 
 # pylint: disable=exec-used
 
+import inspect
 import logging as log
 import os.path as osp
 import shutil
 import urllib
+from dataclasses import dataclass, fields
+from importlib.util import module_from_spec, spec_from_file_location
 from typing import Dict, Optional
 
 import cv2
@@ -15,6 +18,7 @@ import numpy as np
 from openvino.runtime import Core
 from tqdm import tqdm
 
+from datumaro.components.abstracts import IModelInterpreter
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.launcher import Launcher
 from datumaro.errors import DatumaroError
@@ -62,40 +66,105 @@ class _OpenvinoImporter(CliPlugin):
         model["interpreter"] = osp.basename(model["interpreter"])
 
 
-class InterpreterScript:
-    def __init__(self, path):
-        with open(path, "r", encoding="utf-8") as f:
-            script = f.read()
+@dataclass
+class OpenvinoModelInfo:
+    interpreter: Optional[str]
+    description: Optional[str]
+    weights: Optional[str]
+    model_dir: Optional[str]
 
-        context = {}
-        exec(script, context, context)
+    def validate(self):
+        """Validate integrity of the member variables"""
 
-        normalize = context.get("normalize")
-        if not callable(normalize):
-            raise Exception("Can't find 'normalize' function in the interpreter script")
-        self.__dict__["normalize"] = normalize
+        def _validate(key: str):
+            path = getattr(self, key)
+            if not osp.isfile(path):
+                path = osp.join(self.model_dir, path)
+            if not osp.isfile(path):
+                raise DatumaroError(f'Failed to open model {key} file "{path}"')
+            setattr(self, key, path)
 
-        process_outputs = context.get("process_outputs")
-        if not callable(process_outputs):
-            raise Exception("Can't find 'process_outputs' function in the interpreter script")
-        self.__dict__["process_outputs"] = process_outputs
+        for field in fields(self):
+            if field.name != "model_dir":
+                _validate(field.name)
 
-        get_categories = context.get("get_categories")
-        assert get_categories is None or callable(get_categories)
-        if get_categories:
-            self.__dict__["get_categories"] = get_categories
+
+@dataclass
+class BuiltinOpenvinoModelInfo(OpenvinoModelInfo):
+    downloadable_models = {
+        "clip_text_ViT-B_32",
+        "clip_visual_ViT-B_32",
+        "googlenet-v4-tf",
+    }
+
+    @classmethod
+    def create_from_model_name(cls, model_name: str) -> "BuiltinOpenvinoModelInfo":
+        openvino_plugin_samples_dir = get_samples_path()
+        interpreter = osp.join(openvino_plugin_samples_dir, model_name + "_interp.py")
+        interpreter = interpreter if osp.exists(interpreter) else interpreter
+
+        model_dir = DATUMARO_CACHE_DIR
+
+        # Please visit open-model-zoo repository for OpenVINO public models if you are interested in
+        # https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/index.md
+        url_folder = "https://storage.openvinotoolkit.org/repositories/datumaro/models/"
+
+        description = osp.join(model_dir, model_name + ".xml")
+        if not osp.exists(description):
+            description = (
+                cls._download_file(osp.join(url_folder, model_name + ".xml"), description)
+                if model_name in cls.downloadable_models
+                else None
+            )
+
+        weights = osp.join(model_dir, model_name + ".bin")
+        if not osp.exists(weights):
+            weights = (
+                cls._download_file(osp.join(url_folder, model_name + ".bin"), weights)
+                if model_name in cls.downloadable_models
+                else None
+            )
+
+        return cls(
+            interpreter=interpreter,
+            description=description,
+            weights=weights,
+            model_dir=model_dir,
+        )
 
     @staticmethod
-    def get_categories():
-        return None
+    def _download_file(url: str, file_root: str) -> str:
+        log.info('Downloading: "{}" to {}\n'.format(url, file_root))
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as source, open(file_root, "wb") as output:  # nosec B310
+            with tqdm(
+                total=int(source.info().get("Content-Length")),
+                ncols=80,
+                unit="iB",
+                unit_scale=True,
+                unit_divisor=1024,
+            ) as loop:
+                while True:
+                    buffer = source.read(8192)
+                    if not buffer:
+                        break
 
-    @staticmethod
-    def process_outputs(inputs, outputs):
-        raise NotImplementedError("Function should be implemented in the interpreter script")
+                    output.write(buffer)
+                    loop.update(len(buffer))
+        return file_root
 
-    @staticmethod
-    def normalize(inputs):
-        raise NotImplementedError("Function should be implemented in the interpreter script")
+    def override(self, other: OpenvinoModelInfo) -> None:
+        """Override builtin model variables to other"""
+
+        def _apply(key: str) -> None:
+            other_item = getattr(other, key)
+            self_item = getattr(self, key)
+            if other_item is None and self_item:
+                log.info(f"Override description with the builtin model {key}: {self.description}.")
+                setattr(other, key, self_item)
+
+        for field in fields(self):
+            _apply(field.name)
 
 
 class OpenvinoLauncher(Launcher):
@@ -115,55 +184,30 @@ class OpenvinoLauncher(Launcher):
         channel_format: str = "NCHW",
         to_rgb: bool = True,
     ):
+        model_info = OpenvinoModelInfo(
+            interpreter=interpreter,
+            description=description,
+            weights=weights,
+            model_dir=model_dir,
+        )
         if model_name:
-            model_dir = DATUMARO_CACHE_DIR
-
-            # Please visit open-model-zoo repository for OpenVINO public models if you are interested in
-            # https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/index.md
-            url_folder = "https://storage.openvinotoolkit.org/repositories/datumaro/models/"
-
-            description = osp.join(model_dir, model_name + ".xml")
-            if not osp.exists(description):
-                cached_description_url = osp.join(url_folder, model_name + ".xml")
-                log.info('Downloading: "{}" to {}\n'.format(cached_description_url, description))
-                self._download_file(cached_description_url, description)
-
-            weights = osp.join(model_dir, model_name + ".bin")
-            if not osp.exists(weights):
-                cached_weights_url = osp.join(url_folder, model_name + ".bin")
-                log.info('Downloading: "{}" to {}\n'.format(cached_weights_url, weights))
-                self._download_file(cached_weights_url, weights)
-
-            if not interpreter:
-                openvino_plugin_samples_dir = get_samples_path()
-                interpreter = osp.join(openvino_plugin_samples_dir, model_name + "_interp.py")
+            builtin_model_info = BuiltinOpenvinoModelInfo.create_from_model_name(model_name)
+            builtin_model_info.override(model_info)
 
         if not model_dir:
             model_dir = ""
 
-        if not osp.isfile(description):
-            description = osp.join(model_dir, description)
-        if not osp.isfile(description):
-            raise DatumaroError('Failed to open model description file "%s"' % (description))
+        model_info.validate()
+        self.model_info = model_info
 
-        if not osp.isfile(weights):
-            weights = osp.join(model_dir, weights)
-        if not osp.isfile(weights):
-            raise DatumaroError('Failed to open model weights file "%s"' % (weights))
-
-        if not osp.isfile(interpreter):
-            interpreter = osp.join(model_dir, interpreter)
-        if not osp.isfile(interpreter):
-            raise DatumaroError('Failed to open model interpreter script file "%s"' % (interpreter))
-
-        self._interpreter = InterpreterScript(interpreter)
+        self._interpreter = self._load_interpreter(file_path=model_info.interpreter)
 
         self._device = device or "CPU"
         self._output_blobs = output_layers
         self._compile_model_config = compile_model_config
 
         self._core = Core()
-        self._network = self._core.read_model(description, weights)
+        self._network = self._core.read_model(model_info.description, model_info.weights)
         self._check_model_support(self._network, self._device)
         self._load_executable_net()
 
@@ -175,24 +219,21 @@ class OpenvinoLauncher(Launcher):
         self._channel_format = channel_format
         self._to_rgb = to_rgb
 
-    def _download_file(self, url: str, file_root: str):
-        req = urllib.request.Request(url)
-        with urllib.request.urlopen(req) as source, open(file_root, "wb") as output:  # nosec B310
-            with tqdm(
-                total=int(source.info().get("Content-Length")),
-                ncols=80,
-                unit="iB",
-                unit_scale=True,
-                unit_divisor=1024,
-            ) as loop:
-                while True:
-                    buffer = source.read(8192)
-                    if not buffer:
-                        break
+    def _load_interpreter(self, file_path: str) -> IModelInterpreter:
+        fname, _ = osp.splitext(osp.basename(file_path))
+        spec = spec_from_file_location(fname, file_path)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        for name, obj in inspect.getmembers(module):
+            if (
+                inspect.isclass(obj)
+                and issubclass(obj, IModelInterpreter)
+                and obj is not IModelInterpreter
+            ):
+                log.info(f"Load {name} for model interpreter.")
+                return obj()
 
-                    output.write(buffer)
-                    loop.update(len(buffer))
-        return 0
+        raise DatumaroError(f"{file_path} has no class derived from IModelInterpreter.")
 
     def _check_model_support(self, net, device):
         not_supported_layers = set(
@@ -276,6 +317,9 @@ class OpenvinoLauncher(Launcher):
             inputs = np.repeat(inputs, 3, axis=3)
 
         assert inputs.shape[3] == 3, "Expected BGR input, got %s" % (inputs.shape,)
+
+        # Resize
+        inputs = self._interpreter.resize(inputs)
 
         if self._channel_format == "NCHW":
             n, c, h, w = self._input_layout

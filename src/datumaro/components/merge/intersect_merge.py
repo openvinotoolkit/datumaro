@@ -612,7 +612,7 @@ class IntersectMerge(Merger):
             self._dataset_map[dataset_id][0].categories()[AnnotationType.label].items[label_id].name
         )
 
-    def _get_any_label_name(self, ann, label_id):
+    def get_any_label_name(self, ann, label_id):
         if label_id is None:
             return None
         try:
