@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 - Fix warnings in test_visualizer.py
   (<https://github.com/openvinotoolkit/datumaro/pull/1039>)
+- Prevent installing protobuf>=4
+  (<https://github.com/openvinotoolkit/datumaro/pull/1054>)
 
 ## 26/05/2023 - Release 1.3.2
 ### Enhancements
