@@ -366,9 +366,6 @@ class LabelMeExporter(Exporter):
             self._save_meta_file(self._save_dir)
 
         for subset_name, subset in self._extractor.subsets().items():
-            # subset_dir = osp.join(self._save_dir, subset_name)
-            # os.makedirs(subset_dir, exist_ok=True)
-
             for item in subset:
                 self._save_item(item, subset_name)
 
