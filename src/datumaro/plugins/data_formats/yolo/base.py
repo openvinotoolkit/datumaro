@@ -359,8 +359,10 @@ class YoloLooseBase(SubsetBase):
             anno_path=anno_path, image=image, label_categories=label_categories
         )
 
-    def _parse_field(self, value: str, type: Type[T], field_name: str) -> T:
-        return YoloStrictBase._parse_field(value=value, type=type, field_name=field_name)
+    def _parse_field(self, value: str, desired_type: Type[T], field_name: str) -> T:
+        return YoloStrictBase._parse_field(
+            value=value, desired_type=desired_type, field_name=field_name
+        )
 
 
 class YoloUltralyticsBase(YoloLooseBase):
