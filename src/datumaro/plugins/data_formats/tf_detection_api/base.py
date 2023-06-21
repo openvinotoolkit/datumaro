@@ -104,7 +104,6 @@ class TfDetectionApiBase(SubsetBase):
     def _parse_tfrecord_file(self, filepath, subset, images_dir):
         dataset = tf.data.TFRecordDataset(filepath)
 
-        # labelmap_path = osp.join(osp.dirname(filepath), DetectionApiPath.LABELMAP_FILE)
         files = os.listdir(osp.dirname(filepath))
         for filename in files:
             if DetectionApiPath.LABELMAP_FILE in filename:
