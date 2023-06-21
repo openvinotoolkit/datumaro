@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 - Fix warnings in test_visualizer.py
   (<https://github.com/openvinotoolkit/datumaro/pull/1039>)
+- Fix LabelMe data format
+  (<https://github.com/openvinotoolkit/datumaro/pull/1053>)
 - Prevent installing protobuf>=4
   (<https://github.com/openvinotoolkit/datumaro/pull/1054>)
 
