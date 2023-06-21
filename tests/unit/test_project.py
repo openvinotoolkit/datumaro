@@ -2,11 +2,12 @@ import os
 import os.path as osp
 import shutil
 import textwrap
+from typing import List, Sequence
 from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Label
+from datumaro.components.annotation import Annotation, Bbox, Label
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
@@ -88,9 +89,8 @@ class ProjectTest(TestCase):
     @scoped
     def test_can_run_inference(self):
         class TestLauncher(Launcher):
-            def launch(self, inputs):
-                for inp in inputs:
-                    yield [Label(inp[0, 0, 0])]
+            def launch(self, batch: Sequence[DatasetItem]) -> List[List[Annotation]]:
+                return [[Label(inp.media.data[0, 0, 0])] for inp in batch]
 
         expected = Dataset.from_iterable(
             [

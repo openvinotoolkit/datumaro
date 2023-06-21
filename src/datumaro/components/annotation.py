@@ -33,6 +33,7 @@ class AnnotationType(IntEnum):
     depth_annotation = 10
     ellipse = 11
     hash_key = 12
+    feature_vector = 13
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -215,7 +216,20 @@ class Label(Annotation):
 @attrs(slots=True, eq=False, order=False)
 class HashKey(Annotation):
     _type = AnnotationType.hash_key
-    hash_key: np.ndarray = field(factory=lambda: np.zeros((1, 64), dtype=np.uint8))
+    hash_key: np.ndarray = field(factory=lambda: np.zeros((64,), dtype=np.uint8))
+
+    def __eq__(self, other):
+        if not super().__eq__(other):
+            return False
+        if not isinstance(other, __class__):
+            return False
+        return np.array_equal(self.hash_key, other.hash_key)
+
+
+@attrs(eq=False, order=False)
+class FeatureVector(Annotation):
+    _type = AnnotationType.feature_vector
+    vector: np.ndarray = field()
 
     def __eq__(self, other):
         if not super().__eq__(other):

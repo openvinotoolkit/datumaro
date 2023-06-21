@@ -82,13 +82,9 @@ class ModelTransform(Transform):
 
     def __iter__(self) -> Generator[DatasetItem, None, None]:
         for batch in take_by(self._extractor, self._batch_size):
-            inputs = []
-            for item in batch:
-                if not self._launcher.type_check(item):
-                    continue
-                inputs.append(np.atleast_3d(item.media.data))
-            inputs = np.array(inputs)
-            inference = self._launcher.launch(inputs)
+            inference = self._launcher.launch(
+                [item for item in batch if self._launcher.type_check(item)]
+            )
 
             for item in self._yield_item(batch, inference):
                 yield item

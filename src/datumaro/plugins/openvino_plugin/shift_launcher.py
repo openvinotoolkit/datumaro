@@ -26,19 +26,18 @@ class ShiftLauncher(OpenvinoLauncher):
             model_name,
             output_layers,
             device,
-            channel_format="NHWC",
         )
 
         self._device = device or "cpu"
         self._output_blobs = next(iter(self._net.outputs))
 
-    def infer(self, inputs):
-        inputs = self.process_inputs(inputs)
-        features = self._request.infer(inputs)
-        return features[self._output_blobs]
+    # def infer(self, inputs):
+    #     inputs = self.process_inputs(inputs)
+    #     features = self._request.infer(inputs)
+    #     return features[self._output_blobs]
 
-    def launch(self, inputs):
-        return self.infer(inputs)
+    # def launch(self, inputs):
+    #     return self.infer(inputs)
 
     def type_check(self, item):
         if not isinstance(item.media, Image):

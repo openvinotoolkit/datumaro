@@ -1,4 +1,5 @@
 import platform
+from copy import deepcopy
 from functools import partial
 from unittest import TestCase, skipIf
 
@@ -108,8 +109,20 @@ class ExplorerTest(TestCase):
                 if i == 1:
                     query = item
             explorer = Explorer(imported_dataset)
-            result = explorer.explore_topk(query, topk=2)
-            self.assertEqual(query.subset, result[0].subset)
+            results = explorer.explore_topk(query, topk=2)
+
+            for item in results:
+                # There were two "train_img"s in "train" subset, and we queried "train_img"
+                self.assertEqual(query.subset, item.subset)
+
+            query_without_hash_key = deepcopy(item)
+            query_without_hash_key.annotations = []
+
+            results = explorer.explore_topk(query_without_hash_key, topk=2)
+
+            for item in results:
+                # There were two "train_img"s in "train" subset, and we queried "train_img"
+                self.assertEqual(query_without_hash_key.subset, item.subset)
 
     @skipIf(
         platform.system() == "Darwin",

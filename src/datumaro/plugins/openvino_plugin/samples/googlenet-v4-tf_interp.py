@@ -2,32 +2,39 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import List, Tuple
+
+import cv2
+import numpy as np
 
 from datumaro.components.abstracts import IModelInterpreter
-from datumaro.components.annotation import AnnotationType, Label, LabelCategories
-from datumaro.util.annotation_util import softmax
+from datumaro.components.abstracts.model_interpreter import ModelPred, PrepInfo
+from datumaro.components.annotation import (
+    Annotation,
+    AnnotationType,
+    FeatureVector,
+    LabelCategories,
+)
+from datumaro.components.errors import DatumaroError
 
 
 class GooglenetV4TfModelInterpreter(IModelInterpreter):
+    FEAT_KEY = "InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape:0"
+
+    def preprocess(self, img: np.ndarray) -> Tuple[np.ndarray, PrepInfo]:
+        img = cv2.resize(img, (299, 299))
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        return img, None
+
+    def postprocess(self, pred: ModelPred, info: PrepInfo) -> List[Annotation]:
+        feature_vector = pred.get(self.FEAT_KEY)
+        if feature_vector is None:
+            raise DatumaroError(f'"{self.FEAT_KEY}" key should exist in the model prediction.')
+
+        return [FeatureVector(feature_vector)]
+
     def normalize(self, inputs):
         return inputs
-
-    def process_outputs(self, inputs, outputs):
-        # inputs = model input; array or images; shape = (B, H, W, C)
-        # outputs = model output; shape = (1, 1, N, 7); N is the number of detected bounding boxes.
-        # det = [image_id, label(class id), conf, x_min, y_min, x_max, y_max]
-        # results = conversion result; [[ Annotation, ... ], ... ]
-
-        results = []
-        for input_, output in zip(inputs, outputs):  # pylint: disable=unused-variable
-            image_results = []
-            output = softmax(output).tolist()
-            label = output.index(max(output))
-            image_results.append(Label(label=label, attributes={"scores": output}))
-
-            results.append(image_results)
-
-        return results
 
     def get_categories(self):
         # output categories - label map etc.
@@ -40,6 +47,3 @@ class GooglenetV4TfModelInterpreter(IModelInterpreter):
                 label_categories.add(label)
 
         return {AnnotationType.label: label_categories}
-
-    def resize(self, inputs):
-        return inputs

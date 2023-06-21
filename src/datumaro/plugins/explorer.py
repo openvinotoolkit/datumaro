@@ -2,9 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import List, Sequence
+
 import numpy as np
 from tokenizers import Tokenizer
 
+from datumaro.components.annotation import Annotation, HashKey
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
@@ -53,30 +57,20 @@ class ExplorerLauncher(OpenvinoLauncher):
         hash_key = np.packbits(hash_key, axis=-1)
         return hash_key
 
-    def infer(self, inputs):
-        if isinstance(inputs, str):
-            if len(inputs.split()) > 1:
-                prompt_text = inputs
-            else:
-                prompt_text = f"a photo of a {inputs}"
-            inputs = self._tokenize(prompt_text)
-            inputs = {self._input_blob.get_any_name(): inputs}
-        elif isinstance(inputs, np.ndarray):
-            # when processing a query key, we expand HWC to NHWC
-            if len(inputs.shape) == 3:
-                inputs = np.expand_dims(inputs, axis=0)
-            inputs = self.process_inputs(inputs)
-        else:
-            raise ValueError(f"inputs={inputs} is not allowed type.")
+    def infer_text(self, text: str, use_prompt: bool = True) -> HashKey:
+        prompt_text = f"a photo of a {text}" if use_prompt else text
+        inputs = self._tokenize(prompt_text)
+        preds = self.infer(inputs)
+        anns = self.postprocess(preds[0], None)
+        return anns[0]
 
-        results = self._request.infer(inputs)
-        hash_key = self._compute_hash(results[self._output_blobs])
-        return hash_key
+    def infer_item(self, item: DatasetItem) -> HashKey:
+        anns = self.launch([item])[0]
+        return anns[0]
 
-    def launch(self, inputs):
-        hash_key = self.infer(inputs)
-        results = self.process_outputs(inputs, hash_key)
-        return results
+    def launch(self, batch: Sequence[DatasetItem]) -> List[List[Annotation]]:
+        outputs = super().launch(batch)
+        return outputs
 
     def type_check(self, item):
         if not isinstance(item.media, Image):

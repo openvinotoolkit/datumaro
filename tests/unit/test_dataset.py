@@ -5,13 +5,15 @@
 import logging
 import os
 import os.path as osp
-import pickle  # nosec B403
+import pickle
+from typing import List, Sequence  # nosec B403
 from unittest import TestCase, mock
 
 import numpy as np
 import pytest
 
 from datumaro.components.annotation import (
+    Annotation,
     AnnotationType,
     Bbox,
     Caption,
@@ -1507,12 +1509,14 @@ class DatasetTest(TestCase):
         calls = 0
 
         class TestLauncher(Launcher):
-            def launch(self, inputs):
+            def launch(self, batch: Sequence[DatasetItem]) -> List[List[Annotation]]:
                 nonlocal calls
                 calls += 1
 
-                for i, inp in enumerate(inputs):
-                    yield [Label(0, attributes={"idx": i, "data": inp.shape[0]})]
+                return [
+                    [Label(0, attributes={"idx": i, "data": inp.media.data.shape[0]})]
+                    for i, inp in enumerate(batch)
+                ]
 
         model = TestLauncher()
 
