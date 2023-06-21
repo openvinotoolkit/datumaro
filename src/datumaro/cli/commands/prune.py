@@ -6,12 +6,12 @@ import argparse
 import logging as log
 
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.components.prune import Prune
+from datumaro.cli.commands.prune import Prune
 from datumaro.util import str_to_bool
 from datumaro.util.scope import scope_add, scoped
 
-from ..util import MultilineFormatter
-from ..util.project import load_project, parse_full_revpath
+from ...util import MultilineFormatter
+from ...util import load_project, parse_full_revpath
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):

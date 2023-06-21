@@ -14,6 +14,7 @@ from sklearn.cluster import KMeans
 
 from datumaro.components.annotation import HashKey, Label, LabelCategories
 from datumaro.components.dataset import Dataset
+import datumaro.plugins.ndr as ndr
 from datumaro.plugins.explorer import ExplorerLauncher
 from datumaro.util.hashkey_util import (
     calculate_hamming,
@@ -62,7 +63,7 @@ def match_num_item_for_cluster(ratio, dataset_len, cluster_num_item_list):
     return norm_cluster_num_item_list
 
 
-def random_select(ratio, num_centers, database_keys, labels, item_list):
+def random_select(ratio, num_centers, database_keys, labels, item_list, source):
     random.seed(0)
     dataset_len = len(item_list)
 
@@ -75,7 +76,7 @@ def random_select(ratio, num_centers, database_keys, labels, item_list):
     return removed_items, None
 
 
-def centroid(ratio, num_centers, database_keys, labels, item_list):
+def centroid(ratio, num_centers, database_keys, labels, item_list, source):
     num_centers = math.ceil(len(item_list) * ratio)
     kmeans = KMeans(n_clusters=num_centers, random_state=0)
     clusters = kmeans.fit_predict(database_keys)
@@ -99,7 +100,7 @@ def centroid(ratio, num_centers, database_keys, labels, item_list):
     return removed_items, dist_dict
 
 
-def clustered_random(ratio, num_centers, database_keys, labels, item_list):
+def clustered_random(ratio, num_centers, database_keys, labels, item_list, source):
     kmeans = KMeans(n_clusters=num_centers, random_state=0)
     clusters = kmeans.fit_predict(database_keys)
     cluster_ids, cluster_num_item_list = np.unique(clusters, return_counts=True)
@@ -119,9 +120,20 @@ def clustered_random(ratio, num_centers, database_keys, labels, item_list):
             removed_items.append(item_list[idx])
     return removed_items, None
 
-
-def query_clust(ratio, num_centers, database_keys, labels, item_list):
+def center_dict(item_list, num_centers):
     center_dict = {i: [] for i in range(1, num_centers)}
+    for item in item_list:
+        for anno in item.annotations:
+            if isinstance(anno, Label):
+                label_ = anno.label
+                if not center_dict.get(label_):
+                    center_dict[label_] = item
+            if all(center_dict.values()):
+                break
+    return center_dict
+
+def query_clust(ratio, num_centers, database_keys, labels, item_list, source):
+    center_dict = center_dict(item_list, num_centers)
     for item in item_list:
         for anno in item.annotations:
             if isinstance(anno, Label):
@@ -159,7 +171,7 @@ def query_clust(ratio, num_centers, database_keys, labels, item_list):
     return removed_items, dist
 
 
-def entropy(ratio, num_centers, database_keys, labels, item_list):
+def entropy(ratio, num_centers, database_keys, labels, item_list, source):
     dataset_len = len(item_list)
     kmeans = KMeans(n_clusters=num_centers, random_state=0)
     clusters = kmeans.fit_predict(database_keys)
@@ -188,6 +200,13 @@ def entropy(ratio, num_centers, database_keys, labels, item_list):
     removed_items = (np.array(item_list)[removed_items]).tolist()
     return removed_items, None
 
+def ndr_select(ratio, num_centers, database_keys, labels, item_list, source):
+    dataset_len = len(item_list)
+    num_selected_item = math.ceil(dataset_len * ratio)
+
+    result = ndr.NDR(source, num_cut=num_selected_item)
+    return result, None
+
 
 class Prune:
     def __init__(
@@ -213,7 +232,7 @@ class Prune:
         item_list = []
         labels = []
 
-        if self._hash_type == "img_txt":
+        if self._hash_type == "txt":
             category_dict = self.prompting(dataset)
 
         if self._cluster_method == "random":
@@ -235,7 +254,7 @@ class Prune:
                         labels.append(annotation.label)
                     if isinstance(annotation, HashKey):
                         hash_key = annotation.hash_key[0]
-                        if self._hash_type == "img_txt":
+                        if self._hash_type == "txt":
                             inputs = category_dict.get(item.annotations[0].label)
                             if isinstance(inputs, List):
                                 inputs = (" ").join(inputs)
@@ -248,7 +267,6 @@ class Prune:
                             database_keys = np.concatenate(
                                 (database_keys, hash_key.reshape(1, -1)), axis=0
                             )
-                # database_keys.append(hash_key)
                 item_list.append(item)
 
         self._database_keys = database_keys
@@ -295,6 +313,7 @@ class Prune:
             "centroid": centroid,
             "query_clust": query_clust,
             "entropy": entropy,
+            "ndr": ndr_select,
         }
 
         # dist : centroid, query_clust
@@ -304,6 +323,7 @@ class Prune:
             labels=self._labels,
             database_keys=self._database_keys,
             item_list=self._item_list,
+            source=self._dataset,
         )
 
         dataset_ = copy.deepcopy(self._dataset)
