@@ -47,3 +47,6 @@ pyarrow
 
 # ava data format
 protobuf<4
+
+# Model inference launcher from the dedicated inference server
+ovmsclient
