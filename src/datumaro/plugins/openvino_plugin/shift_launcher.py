@@ -31,14 +31,6 @@ class ShiftLauncher(OpenvinoLauncher):
         self._device = device or "cpu"
         self._output_blobs = next(iter(self._net.outputs))
 
-    # def infer(self, inputs):
-    #     inputs = self.process_inputs(inputs)
-    #     features = self._request.infer(inputs)
-    #     return features[self._output_blobs]
-
-    # def launch(self, inputs):
-    #     return self.infer(inputs)
-
     def type_check(self, item):
         if not isinstance(item.media, Image):
             raise MediaTypeError(f"Media type should be Image, Current type={type(item.media)}")
