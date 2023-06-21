@@ -6,7 +6,7 @@ import inspect
 import logging as log
 import os.path as osp
 from importlib.util import module_from_spec, spec_from_file_location
-from typing import Any, List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 import numpy as np
 

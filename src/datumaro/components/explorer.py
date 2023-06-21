@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import List, Optional, Sequence, Union
+from typing import Optional, Sequence, Union
 
 import numpy as np
 
@@ -10,7 +10,7 @@ from datumaro.components.annotation import HashKey
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError, MediaTypeError
-from datumaro.components.media import Image, MediaElement
+from datumaro.components.media import MediaElement
 from datumaro.plugins.explorer import ExplorerLauncher
 
 
