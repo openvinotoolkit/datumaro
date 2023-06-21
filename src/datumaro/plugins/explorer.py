@@ -5,13 +5,13 @@
 from typing import List, Sequence
 
 import numpy as np
+from tokenizers import Tokenizer
 
 from datumaro.components.annotation import Annotation, HashKey
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
-from datumaro.util.hashkey_util import tokenize, compute_hash
 
 
 class ExplorerLauncher(OpenvinoLauncher):

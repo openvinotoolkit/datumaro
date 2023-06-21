@@ -1,6 +1,3 @@
-import numpy as np
-from tokenizers import Tokenizer
-
 from datumaro.components.annotation import HashKey
 from datumaro.components.dataset import Dataset
 from datumaro.components.media import MediaElement
@@ -153,31 +150,6 @@ format_templates = {
     "mnist": mnist_templates,
 }
 
-def tokenize(tokenizer, texts: str, context_length: int = 77, truncate: bool = True):
-    if not tokenizer:
-        checkpoint = "openai/clip-vit-base-patch32"
-        tokenizer = Tokenizer.from_pretrained(checkpoint)
-    tokens = tokenizer.encode(texts).ids
-    result = np.zeros((1, context_length))
-
-    if len(tokens) > context_length:
-        if truncate:
-            eot_token = tokens.ids[-1]
-            tokens = tokens[:context_length]
-            tokens[-1] = eot_token
-
-    for i, token in enumerate(tokens):
-        result[:, i] = token
-    return result, tokenizer
-
-
-def compute_hash(features):
-    features = np.sign(features)
-    hash_key = np.clip(features, 0, None)
-    hash_key = hash_key.astype(np.uint8)
-    hash_key = np.packbits(hash_key, axis=-1)
-    return hash_key
-
 
 def select_uninferenced_dataset(dataset):
     uninferenced_dataset = Dataset(media_type=MediaElement)
@@ -185,6 +157,7 @@ def select_uninferenced_dataset(dataset):
         if not any(isinstance(annotation, HashKey) for annotation in item.annotations):
             uninferenced_dataset.put(item)
     return uninferenced_dataset
+
 
 def calculate_hamming(B1, B2):
     """

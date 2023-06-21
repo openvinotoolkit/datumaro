@@ -12,9 +12,9 @@ from typing import List, Sequence
 import numpy as np
 from sklearn.cluster import KMeans
 
+import datumaro.plugins.ndr as ndr
 from datumaro.components.annotation import HashKey, Label, LabelCategories
 from datumaro.components.dataset import Dataset
-import datumaro.plugins.ndr as ndr
 from datumaro.plugins.explorer import ExplorerLauncher
 from datumaro.util.hashkey_util import (
     calculate_hamming,
@@ -120,7 +120,8 @@ def clustered_random(ratio, num_centers, database_keys, labels, item_list, sourc
             removed_items.append(item_list[idx])
     return removed_items, None
 
-def center_dict(item_list, num_centers):
+
+def query_clust(ratio, num_centers, database_keys, labels, item_list, source):
     center_dict = {i: [] for i in range(1, num_centers)}
     for item in item_list:
         for anno in item.annotations:
@@ -130,10 +131,7 @@ def center_dict(item_list, num_centers):
                     center_dict[label_] = item
             if all(center_dict.values()):
                 break
-    return center_dict
 
-def query_clust(ratio, num_centers, database_keys, labels, item_list, source):
-    center_dict = center_dict(item_list, num_centers)
     for item in item_list:
         for anno in item.annotations:
             if isinstance(anno, Label):
@@ -200,11 +198,18 @@ def entropy(ratio, num_centers, database_keys, labels, item_list, source):
     removed_items = (np.array(item_list)[removed_items]).tolist()
     return removed_items, None
 
-def ndr_select(ratio, num_centers, database_keys, labels, item_list, source):
-    dataset_len = len(item_list)
-    num_selected_item = math.ceil(dataset_len * ratio)
 
-    result = ndr.NDR(source, num_cut=num_selected_item)
+def ndr_select(ratio, num_centers, database_keys, labels, item_list, source):
+    subset_lists = list(source.subsets().keys())
+
+    result = copy.copy(item_list)
+    for subset_ in subset_lists:
+        subset_len = len(source.get_subset(subset_))
+        num_selected_subset_item = math.ceil(subset_len * ratio)
+        ndr_result = ndr.NDR(source, working_subset=subset_, num_cut=num_selected_subset_item)
+        for item in ndr_result.get_subset(subset_):
+            result.remove(item)
+
     return result, None
 
 
@@ -215,6 +220,7 @@ class Prune:
         cluster_method: str = "random",
         hash_type: str = "img",
     ) -> None:
+        """ """
         if isinstance(dataset, tuple):
             try:
                 self._dataset = copy.deepcopy(dataset[0]._dataset)
@@ -239,8 +245,8 @@ class Prune:
             for item in self._dataset:
                 item_list.append(item)
         else:
-            datasets_to_infer = select_uninferenced_dataset(dataset)
-            dataset = self.compute_hash_key([dataset], [datasets_to_infer])[0]
+            datasets_to_infer = select_uninferenced_dataset(self._dataset)
+            dataset = self.compute_hash_key([self._dataset], [datasets_to_infer])[0]
 
             # check number of category
             for category in dataset.categories().values():
@@ -306,7 +312,6 @@ class Prune:
         return datasets
 
     def get_pruned(self, ratio: float) -> None:
-        self._ratio = ratio
         method = {
             "random": random_select,
             "cluster_random": clustered_random,
@@ -318,7 +323,7 @@ class Prune:
 
         # dist : centroid, query_clust
         removed_items, dist = method[self._cluster_method](
-            ratio=self._ratio,
+            ratio=ratio,
             num_centers=self._num_centers,
             labels=self._labels,
             database_keys=self._database_keys,

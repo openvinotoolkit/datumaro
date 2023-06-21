@@ -120,8 +120,7 @@ class PruneTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_ndr(self):
-        """
-        """
+        """ """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
@@ -129,4 +128,5 @@ class PruneTest(TestCase):
             prune = Prune(imported_dataset, cluster_method="ndr")
 
             result = prune.get_pruned(0.5)
-            
+            result_subsets = [item.subset for item in result[0]]
+            self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
