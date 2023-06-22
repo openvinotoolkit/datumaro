@@ -1,0 +1,69 @@
+{
+  "info": {
+    "contributor": "",
+    "date_created": "",
+    "description": "",
+    "url": "",
+    "version": "",
+    "year": ""
+  },
+  "licenses": [
+    {
+      "id": 0,
+      "url": "",
+      "name": ""
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "label_0",
+      "supercategory": ""
+    },
+    {
+      "id": 2,
+      "name": "label_1",
+      "supercategory": ""
+    }
+  ],
+  "images": [
+    {
+      "id": 1,
+      "width": 10,
+      "height": 5,
+      "file_name": "val_001.jpg",
+      "license": 0,
+      "date_captured": 0
+    }
+  ],
+  "annotations": [
+    {
+      "id": 1,
+      "image_id": 1,
+      "category_id": 1,
+      "segmentation": [],
+      "area": 2.0,
+      "bbox": [
+        0.0,
+        0.0,
+        1.0,
+        2.0
+      ],
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "image_id": 1,
+      "category_id": 2,
+      "segmentation": [],
+      "area": 9.0,
+      "bbox": [
+        0.0,
+        0.0,
+        9.0,
+        1.0
+      ],
+      "iscrowd": 1
+    }
+  ]
+}

@@ -32,6 +32,7 @@ from datumaro.util.mask_tools import invert_colormap, lazy_mask
 from datumaro.util.meta_file_util import has_meta_file
 
 from .format import (
+    VocImporterType,
     VocInstColormap,
     VocPath,
     VocTask,
@@ -52,21 +53,31 @@ class VocBase(SubsetBase):
         task: Optional[VocTask] = VocTask.voc,
         *,
         subset: Optional[str] = None,
+        voc_importer_type: VocImporterType = VocImporterType.default,
         ctx: Optional[ImportContext] = None,
     ):
-        if not osp.isfile(path):
-            raise DatasetImportError(f"Can't find txt subset list file at '{path}'")
-        self._path = path
-        self._dataset_dir = osp.dirname(osp.dirname(osp.dirname(path)))
-
-        self._task = task
-
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
 
         super().__init__(subset=subset, ctx=ctx)
 
-        self._categories = self._load_categories(self._dataset_dir)
+        if voc_importer_type == VocImporterType.default:
+            dataset_dir = osp.dirname(osp.dirname(osp.dirname(path)))
+            self._image_dir = osp.join(dataset_dir, VocPath.IMAGES_DIR)
+            self._anno_dir = osp.join(dataset_dir, VocPath.ANNOTATIONS_DIR)
+            self._mask_dir = osp.join(dataset_dir, VocPath.SEGMENTATION_DIR)
+            self._inst_dir = osp.join(dataset_dir, VocPath.INSTANCES_DIR)
+        elif voc_importer_type == VocImporterType.roboflow:
+            dataset_dir = path
+            self._image_dir = dataset_dir
+            self._anno_dir = dataset_dir
+        else:
+            raise DatasetImportError(f"Not supported type: {voc_importer_type}")
+
+        self._path = path
+        self._task = task
+
+        self._categories = self._load_categories(dataset_dir)
 
         if self._task in [VocTask.voc, VocTask.voc_segmentation, VocTask.voc_instance_segmentation]:
             label_color = lambda label_idx: self._categories[AnnotationType.mask].colormap.get(
@@ -102,6 +113,9 @@ class VocBase(SubsetBase):
         return make_voc_categories(label_map, self._task)
 
     def _load_subset_list(self, subset_path):
+        if not osp.isfile(subset_path):
+            raise DatasetImportError(f"Can't find txt subset list file at '{subset_path}'")
+
         subset_list = []
         with open(subset_path, encoding="utf-8") as f:
             for i, line in enumerate(f):
@@ -127,11 +141,10 @@ class VocBase(SubsetBase):
             return subset_list
 
     def __iter__(self):
-        image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
-        if osp.isdir(image_dir):
+        if osp.isdir(self._image_dir):
             images = {
-                osp.splitext(osp.relpath(p, image_dir))[0].replace("\\", "/"): p
-                for p in find_images(image_dir, recursive=True)
+                osp.splitext(osp.relpath(p, self._image_dir))[0].replace("\\", "/"): p
+                for p in find_images(self._image_dir, recursive=True)
             }
         else:
             images = {}
@@ -139,8 +152,6 @@ class VocBase(SubsetBase):
         annotations = (
             self._parse_labels() if self._task in [VocTask.voc, VocTask.voc_classification] else {}
         )
-
-        anno_dir = osp.join(self._dataset_dir, VocPath.ANNOTATIONS_DIR)
 
         for item_id in self._ctx.progress_reporter.iter(
             self._items, desc=f"Parsing boxes in '{self._subset}'"
@@ -152,7 +163,7 @@ class VocBase(SubsetBase):
                 anns = annotations.get(item_id, [])
                 image = None
 
-                ann_file = osp.join(anno_dir, item_id + ".xml")
+                ann_file = osp.join(self._anno_dir, item_id + ".xml")
                 if osp.isfile(ann_file) and self._task not in [
                     VocTask.voc_classification,
                     VocTask.voc_segmentation,
@@ -168,7 +179,7 @@ class VocBase(SubsetBase):
 
                     filename_elem = root_elem.find("filename")
                     if filename_elem is not None:
-                        image = osp.join(image_dir, filename_elem.text)
+                        image = osp.join(self._image_dir, filename_elem.text)
 
                     anns += self._parse_annotations(root_elem, item_id=(item_id, self._subset))
 
@@ -321,15 +332,13 @@ class VocBase(SubsetBase):
         item_annotations = []
 
         class_mask = None
-        segm_path = osp.join(
-            self._dataset_dir, VocPath.SEGMENTATION_DIR, item_id + VocPath.SEGM_EXT
-        )
+        segm_path = osp.join(self._mask_dir, item_id + VocPath.SEGM_EXT)
         if osp.isfile(segm_path):
             inverse_cls_colormap = self._categories[AnnotationType.mask].inverse_colormap
             class_mask = lazy_mask(segm_path, inverse_cls_colormap)
 
         instances_mask = None
-        inst_path = osp.join(self._dataset_dir, VocPath.INSTANCES_DIR, item_id + VocPath.SEGM_EXT)
+        inst_path = osp.join(self._inst_dir, item_id + VocPath.SEGM_EXT)
         if osp.isfile(inst_path):
             instances_mask = lazy_mask(inst_path, _inverse_inst_colormap)
 

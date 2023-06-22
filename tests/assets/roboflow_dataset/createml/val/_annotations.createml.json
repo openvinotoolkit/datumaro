@@ -1,0 +1,25 @@
+[
+  {
+    "image": "val_001.jpg",
+    "annotations": [
+      {
+        "label": "label_0",
+        "coordinates": {
+          "x": 0.0,
+          "y": 0.0,
+          "width": 1.0,
+          "height": 2.0
+        }
+      },
+      {
+        "label": "label_1",
+        "coordinates": {
+          "x": 0.0,
+          "y": 0.0,
+          "width": 9.0,
+          "height": 1.0
+        }
+      }
+    ]
+  }
+]
