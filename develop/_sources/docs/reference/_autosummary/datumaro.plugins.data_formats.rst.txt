@@ -64,6 +64,7 @@ datumaro.plugins.data\_formats
    datumaro.plugins.data_formats.mvtec
    datumaro.plugins.data_formats.nyu_depth_v2
    datumaro.plugins.data_formats.open_images
+   datumaro.plugins.data_formats.roboflow
    datumaro.plugins.data_formats.segment_anything
    datumaro.plugins.data_formats.sly_pointcloud
    datumaro.plugins.data_formats.synthia

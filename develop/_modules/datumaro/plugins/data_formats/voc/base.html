@@ -311,6 +311,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span>
 
 <span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">VocImporterType</span><span class="p">,</span>
     <span class="n">VocInstColormap</span><span class="p">,</span>
     <span class="n">VocPath</span><span class="p">,</span>
     <span class="n">VocTask</span><span class="p">,</span>
@@ -331,21 +332,31 @@
         <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">VocTask</span><span class="p">]</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">voc_importer_type</span><span class="p">:</span> <span class="n">VocImporterType</span> <span class="o">=</span> <span class="n">VocImporterType</span><span class="o">.</span><span class="n">default</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ImportContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can&#39;t find txt subset list file at &#39;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">=</span> <span class="n">task</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="p">:</span>
             <span class="n">subset</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">voc_importer_type</span> <span class="o">==</span> <span class="n">VocImporterType</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
+            <span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_image_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_anno_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mask_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">SEGMENTATION_DIR</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inst_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">INSTANCES_DIR</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">voc_importer_type</span> <span class="o">==</span> <span class="n">VocImporterType</span><span class="o">.</span><span class="n">roboflow</span><span class="p">:</span>
+            <span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_image_dir</span> <span class="o">=</span> <span class="n">dataset_dir</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_anno_dir</span> <span class="o">=</span> <span class="n">dataset_dir</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not supported type: </span><span class="si">{</span><span class="n">voc_importer_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">=</span> <span class="n">task</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_segmentation</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_instance_segmentation</span><span class="p">]:</span>
             <span class="n">label_color</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">label_idx</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">colormap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -381,6 +392,9 @@
         <span class="k">return</span> <span class="n">make_voc_categories</span><span class="p">(</span><span class="n">label_map</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_subset_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">subset_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can&#39;t find txt subset list file at &#39;</span><span class="si">{</span><span class="n">subset_path</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
         <span class="n">subset_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">subset_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
@@ -406,11 +420,10 @@
             <span class="k">return</span> <span class="n">subset_list</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">image_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">image_dir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_dir</span><span class="p">):</span>
             <span class="n">images</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">image_dir</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">):</span> <span class="n">p</span>
-                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">find_images</span><span class="p">(</span><span class="n">image_dir</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_dir</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">):</span> <span class="n">p</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">find_images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_dir</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">images</span> <span class="o">=</span> <span class="p">{}</span>
@@ -418,8 +431,6 @@
         <span class="n">annotations</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parse_labels</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_classification</span><span class="p">]</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="p">)</span>
-
-        <span class="n">anno_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="o">.</span><span class="n">progress_reporter</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Parsing boxes in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
@@ -431,7 +442,7 @@
                 <span class="n">anns</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="p">[])</span>
                 <span class="n">image</span> <span class="o">=</span> <span class="kc">None</span>
 
-                <span class="n">ann_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">anno_dir</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="s2">&quot;.xml&quot;</span><span class="p">)</span>
+                <span class="n">ann_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_anno_dir</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="s2">&quot;.xml&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">ann_file</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
                     <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_classification</span><span class="p">,</span>
                     <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_segmentation</span><span class="p">,</span>
@@ -447,7 +458,7 @@
 
                     <span class="n">filename_elem</span> <span class="o">=</span> <span class="n">root_elem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">filename_elem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">image</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_dir</span><span class="p">,</span> <span class="n">filename_elem</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                        <span class="n">image</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_dir</span><span class="p">,</span> <span class="n">filename_elem</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 
                     <span class="n">anns</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_annotations</span><span class="p">(</span><span class="n">root_elem</span><span class="p">,</span> <span class="n">item_id</span><span class="o">=</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">))</span>
 
@@ -600,15 +611,13 @@
         <span class="n">item_annotations</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">class_mask</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">segm_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">SEGMENTATION_DIR</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">SEGM_EXT</span>
-        <span class="p">)</span>
+        <span class="n">segm_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mask_dir</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">SEGM_EXT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">segm_path</span><span class="p">):</span>
             <span class="n">inverse_cls_colormap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">inverse_colormap</span>
             <span class="n">class_mask</span> <span class="o">=</span> <span class="n">lazy_mask</span><span class="p">(</span><span class="n">segm_path</span><span class="p">,</span> <span class="n">inverse_cls_colormap</span><span class="p">)</span>
 
         <span class="n">instances_mask</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">inst_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">INSTANCES_DIR</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">SEGM_EXT</span><span class="p">)</span>
+        <span class="n">inst_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_inst_dir</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">SEGM_EXT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">inst_path</span><span class="p">):</span>
             <span class="n">instances_mask</span> <span class="o">=</span> <span class="n">lazy_mask</span><span class="p">(</span><span class="n">inst_path</span><span class="p">,</span> <span class="n">_inverse_inst_colormap</span><span class="p">)</span>
 

@@ -465,32 +465,6 @@
 <div class="viewcode-block" id="CocoStuffImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoStuffImporter">[docs]</a><span class="k">class</span> <span class="nc">CocoStuffImporter</span><span class="p">(</span><span class="n">CocoImporter</span><span class="p">):</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">stuff</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">CocoImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
-
-
-<div class="viewcode-block" id="CocoRoboflowImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoRoboflowImporter">[docs]</a><span class="k">class</span> <span class="nc">CocoRoboflowImporter</span><span class="p">(</span><span class="n">CocoImporter</span><span class="p">):</span>
-    <span class="c1"># Currently, All Roboflow exported COCO format can be handled by our Coco instances task implements.</span>
-    <span class="n">_TASK</span> <span class="o">=</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">instances</span>
-    <span class="n">_IMPORTER_TYPE</span> <span class="o">=</span> <span class="n">CocoImporterType</span><span class="o">.</span><span class="n">roboflow</span>
-
-<div class="viewcode-block" id="CocoRoboflowImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoRoboflowImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FormatDetectionConfidence</span><span class="p">:</span>
-        <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;*/_annotations.coco.json&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">MEDIUM</span></div>
-
-<div class="viewcode-block" id="CocoRoboflowImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoRoboflowImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="n">subset_paths</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;_annotations.coco.json&quot;</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="n">subsets</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">subset_path</span> <span class="ow">in</span> <span class="n">subset_paths</span><span class="p">:</span>
-            <span class="n">subset_name</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">subset_path</span><span class="p">))</span>
-            <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">subset_path</span><span class="p">)</span>
-            <span class="n">subsets</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">subset_name</span><span class="p">,</span> <span class="p">{})[</span><span class="bp">cls</span><span class="o">.</span><span class="n">_TASK</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset_path</span>
-
-        <span class="k">return</span> <span class="n">subsets</span></div></div>
 </pre></div>
 
             </article>

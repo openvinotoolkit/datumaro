@@ -277,9 +277,11 @@
             <article class="bd-article" role="main">
               
   <h1>Source code for datumaro.plugins.data_formats.tf_detection_api.format</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2019-2020 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2019-2023 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
 
 
 <div class="viewcode-block" id="DetectionApiPath"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tf_detection_api.format.html#datumaro.plugins.data_formats.tf_detection_api.format.DetectionApiPath">[docs]</a><span class="k">class</span> <span class="nc">DetectionApiPath</span><span class="p">:</span>
@@ -290,6 +292,11 @@
     <span class="n">IMAGE_EXT_FORMAT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.jpg&quot;</span><span class="p">:</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;.jpeg&quot;</span><span class="p">:</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;.png&quot;</span><span class="p">:</span> <span class="s2">&quot;png&quot;</span><span class="p">}</span>
 
     <span class="n">LABELMAP_FILE</span> <span class="o">=</span> <span class="s2">&quot;label_map.pbtxt&quot;</span></div>
+
+
+<div class="viewcode-block" id="TfrecordImporterType"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tf_detection_api.format.html#datumaro.plugins.data_formats.tf_detection_api.format.TfrecordImporterType">[docs]</a><span class="k">class</span> <span class="nc">TfrecordImporterType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">roboflow</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 </pre></div>
 
             </article>

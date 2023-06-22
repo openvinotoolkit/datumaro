@@ -18,6 +18,7 @@ datumaro.plugins.data\_formats.tf\_detection\_api.format
    .. autosummary::
    
       DetectionApiPath
+      TfrecordImporterType
    
    
 

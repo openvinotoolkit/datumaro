@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats.voc.base &#8212; Datumaro 1.3.2 documentation</title>
+    <title>datumaro.plugins.data_formats.roboflow.importer &#8212; Datumaro 1.3.2 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.voc.base';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.importer';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.voc.exporter" href="datumaro.plugins.data_formats.voc.exporter.html" />
-    <link rel="prev" title="datumaro.plugins.data_formats.voc" href="datumaro.plugins.data_formats.voc.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.segment_anything" href="datumaro.plugins.data_formats.segment_anything.html" />
+    <link rel="prev" title="datumaro.plugins.data_formats.roboflow.base" href="datumaro.plugins.data_formats.roboflow.base.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -564,74 +564,184 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.data_formats.voc.base">
-<span id="datumaro-plugins-data-formats-voc-base"></span><h1>datumaro.plugins.data_formats.voc.base<a class="headerlink" href="#module-datumaro.plugins.data_formats.voc.base" title="Permalink to this heading">#</a></h1>
+  <section id="module-datumaro.plugins.data_formats.roboflow.importer">
+<span id="datumaro-plugins-data-formats-roboflow-importer"></span><h1>datumaro.plugins.data_formats.roboflow.importer<a class="headerlink" href="#module-datumaro.plugins.data_formats.roboflow.importer" title="Permalink to this heading">#</a></h1>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocActionBase" title="datumaro.plugins.data_formats.voc.base.VocActionBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocActionBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowCocoImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocBase</span></code></a>(path[, task, subset, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowCreateMlImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocClassificationBase" title="datumaro.plugins.data_formats.voc.base.VocClassificationBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocClassificationBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowMulticlassImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocDetectionBase" title="datumaro.plugins.data_formats.voc.base.VocDetectionBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocDetectionBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowTfrecord</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase" title="datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocInstanceSegmentationBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowVocImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocLayoutBase" title="datumaro.plugins.data_formats.voc.base.VocLayoutBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocLayoutBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocSegmentationBase" title="datumaro.plugins.data_formats.voc.base.VocSegmentationBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocSegmentationBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloObbImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocTask" title="datumaro.plugins.data_formats.voc.format.VocTask"><span class="pre">VocTask</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">VocTask.voc</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voc_importer_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocImporterType" title="datumaro.plugins.data_formats.voc.format.VocImporterType"><span class="pre">VocImporterType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">VocImporterType.default</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.ImportContext" title="datumaro.components.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubsetBase</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.importer.</span></span><span class="sig-name descname"><span class="pre">RoboflowCocoImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowCocoImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Importer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'roboflow_coco'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.FORMAT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.ANN_FILE_NAME">
+<span class="sig-name descname"><span class="pre">ANN_FILE_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_annotations.coco.json'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.ANN_FILE_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.detect">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionContext" title="datumaro.components.format_detection.FormatDetectionContext"><span class="pre">FormatDetectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionConfidence" title="datumaro.components.format_detection.FormatDetectionConfidence"><span class="pre">FormatDetectionConfidence</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowCocoImporter.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.detect" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.find_sources">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowCocoImporter.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.find_sources" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocClassificationBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocClassificationBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocClassificationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocClassificationBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.importer.</span></span><span class="sig-name descname"><span class="pre">RoboflowVocImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowVocImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Importer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'roboflow_voc'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.FORMAT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.FORMAT_EXT">
+<span class="sig-name descname"><span class="pre">FORMAT_EXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.xml'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.FORMAT_EXT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.ANN_DIR_NAME">
+<span class="sig-name descname"><span class="pre">ANN_DIR_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.ANN_DIR_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.detect">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionContext" title="datumaro.components.format_detection.FormatDetectionContext"><span class="pre">FormatDetectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionConfidence" title="datumaro.components.format_detection.FormatDetectionConfidence"><span class="pre">FormatDetectionConfidence</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowVocImporter.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.detect" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.find_sources">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowVocImporter.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.find_sources" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocDetectionBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocDetectionBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocDetectionBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocDetectionBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.importer.</span></span><span class="sig-name descname"><span class="pre">RoboflowYoloImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowYoloImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">RoboflowVocImporter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'roboflow_yolo'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.FORMAT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.FORMAT_EXT">
+<span class="sig-name descname"><span class="pre">FORMAT_EXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.txt'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.FORMAT_EXT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.ANN_DIR_NAME">
+<span class="sig-name descname"><span class="pre">ANN_DIR_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'labels/'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.ANN_DIR_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.find_sources">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowYoloImporter.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.find_sources" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocSegmentationBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocSegmentationBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocSegmentationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocSegmentationBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.importer.</span></span><span class="sig-name descname"><span class="pre">RoboflowYoloObbImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowYoloObbImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">RoboflowYoloImporter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'roboflow_yolo_obb'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter.FORMAT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter.FORMAT_EXT">
+<span class="sig-name descname"><span class="pre">FORMAT_EXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.txt'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter.FORMAT_EXT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter.ANN_DIR_NAME">
+<span class="sig-name descname"><span class="pre">ANN_DIR_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'labelTxt/'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter.ANN_DIR_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocInstanceSegmentationBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocInstanceSegmentationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.importer.</span></span><span class="sig-name descname"><span class="pre">RoboflowCreateMlImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowCreateMlImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">RoboflowCocoImporter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'roboflow_create_ml'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter.FORMAT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter.ANN_FILE_NAME">
+<span class="sig-name descname"><span class="pre">ANN_FILE_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_annotations.createml.json'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter.ANN_FILE_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocLayoutBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocLayoutBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocLayoutBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocLayoutBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.importer.</span></span><span class="sig-name descname"><span class="pre">RoboflowMulticlassImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowMulticlassImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">RoboflowCocoImporter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'roboflow_multiclass'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter.FORMAT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter.ANN_FILE_NAME">
+<span class="sig-name descname"><span class="pre">ANN_FILE_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_classes.csv'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter.ANN_FILE_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocActionBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocActionBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocActionBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocActionBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.importer.</span></span><span class="sig-name descname"><span class="pre">RoboflowTfrecord</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowTfrecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Importer</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.FORMAT">
+<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'roboflow_tfrecord'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.FORMAT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.find_sources">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowTfrecord.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.find_sources" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -644,17 +754,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.voc.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.roboflow.base.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.data_formats.voc</p>
+          <p class="prev-next-title">datumaro.plugins.data_formats.roboflow.base</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.voc.exporter.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.segment_anything.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.data_formats.voc.exporter</p>
+      <p class="prev-next-title">datumaro.plugins.data_formats.segment_anything</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -675,67 +785,279 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocBase
+     RoboflowCocoImporter
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.FORMAT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowCocoImporter.FORMAT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.ANN_FILE_NAME">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowCocoImporter.ANN_FILE_NAME
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.detect">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowCocoImporter.detect()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.find_sources">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowCocoImporter.find_sources()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocClassificationBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocClassificationBase
+     RoboflowVocImporter
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.FORMAT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowVocImporter.FORMAT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.FORMAT_EXT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowVocImporter.FORMAT_EXT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.ANN_DIR_NAME">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowVocImporter.ANN_DIR_NAME
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.detect">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowVocImporter.detect()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.find_sources">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowVocImporter.find_sources()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocDetectionBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocDetectionBase
+     RoboflowYoloImporter
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.FORMAT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowYoloImporter.FORMAT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.FORMAT_EXT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowYoloImporter.FORMAT_EXT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.ANN_DIR_NAME">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowYoloImporter.ANN_DIR_NAME
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter.find_sources">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowYoloImporter.find_sources()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocSegmentationBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocSegmentationBase
+     RoboflowYoloObbImporter
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter.FORMAT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowYoloObbImporter.FORMAT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter.FORMAT_EXT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowYoloObbImporter.FORMAT_EXT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter.ANN_DIR_NAME">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowYoloObbImporter.ANN_DIR_NAME
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocInstanceSegmentationBase
+     RoboflowCreateMlImporter
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter.FORMAT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowCreateMlImporter.FORMAT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter.ANN_FILE_NAME">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowCreateMlImporter.ANN_FILE_NAME
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocLayoutBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocLayoutBase
+     RoboflowMulticlassImporter
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter.FORMAT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowMulticlassImporter.FORMAT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter.ANN_FILE_NAME">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowMulticlassImporter.ANN_FILE_NAME
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocActionBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocActionBase
+     RoboflowTfrecord
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.FORMAT">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowTfrecord.FORMAT
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.find_sources">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowTfrecord.find_sources()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 
@@ -754,7 +1076,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.voc.base.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.importer.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>

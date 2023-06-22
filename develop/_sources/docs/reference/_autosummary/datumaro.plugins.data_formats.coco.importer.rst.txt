@@ -24,7 +24,6 @@ datumaro.plugins.data\_formats.coco.importer
       CocoLabelsImporter
       CocoPanopticImporter
       CocoPersonKeypointsImporter
-      CocoRoboflowImporter
       CocoStuffImporter
    
    

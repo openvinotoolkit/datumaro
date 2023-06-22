@@ -37,6 +37,7 @@ datumaro.plugins.data\_formats.voc.format
    
       VocAction
       VocBodyPart
+      VocImporterType
       VocLabel
       VocPath
       VocPose

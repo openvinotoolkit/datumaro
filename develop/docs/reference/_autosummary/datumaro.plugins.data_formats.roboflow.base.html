@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats.voc.base &#8212; Datumaro 1.3.2 documentation</title>
+    <title>datumaro.plugins.data_formats.roboflow.base &#8212; Datumaro 1.3.2 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.voc.base';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.base';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.voc.exporter" href="datumaro.plugins.data_formats.voc.exporter.html" />
-    <link rel="prev" title="datumaro.plugins.data_formats.voc" href="datumaro.plugins.data_formats.voc.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.roboflow.importer" href="datumaro.plugins.data_formats.roboflow.importer.html" />
+    <link rel="prev" title="datumaro.plugins.data_formats.roboflow" href="datumaro.plugins.data_formats.roboflow.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -564,74 +564,80 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.data_formats.voc.base">
-<span id="datumaro-plugins-data-formats-voc-base"></span><h1>datumaro.plugins.data_formats.voc.base<a class="headerlink" href="#module-datumaro.plugins.data_formats.voc.base" title="Permalink to this heading">#</a></h1>
+  <section id="module-datumaro.plugins.data_formats.roboflow.base">
+<span id="datumaro-plugins-data-formats-roboflow-base"></span><h1>datumaro.plugins.data_formats.roboflow.base<a class="headerlink" href="#module-datumaro.plugins.data_formats.roboflow.base" title="Permalink to this heading">#</a></h1>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocActionBase" title="datumaro.plugins.data_formats.voc.base.VocActionBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocActionBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowCocoBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowCocoBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowCocoBase</span></code></a>(path, *[, subset, ctx])</p></td>
+<td><p>Parses Roboflow COCO annotations written in the following format: <a class="reference external" href="https://cocodataset.org/#format-data">https://cocodataset.org/#format-data</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowCreateMlBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowCreateMlBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowCreateMlBase</span></code></a>(path, *[, subset, ctx])</p></td>
+<td><p>Parses Roboflow CreateML annotations written in the following format: <a class="reference external" href="https://cocodataset.org/#format-data">https://cocodataset.org/#format-data</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowMulticlassBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowMulticlassBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowMulticlassBase</span></code></a>(path, *[, subset, ctx])</p></td>
+<td><p>Parses Roboflow Multiclass annotations written in the following format: <a class="reference external" href="https://cocodataset.org/#format-data">https://cocodataset.org/#format-data</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord" title="datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowTfrecord</span></code></a>(path, *[, subset, ctx])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocBase</span></code></a>(path[, task, subset, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowVocBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowVocBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowVocBase</span></code></a>(path, *[, subset, ctx])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocClassificationBase" title="datumaro.plugins.data_formats.voc.base.VocClassificationBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocClassificationBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloBase</span></code></a>(config_path[, image_info, urls])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocDetectionBase" title="datumaro.plugins.data_formats.voc.base.VocDetectionBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocDetectionBase</span></code></a>(path, **kwargs)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase" title="datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocInstanceSegmentationBase</span></code></a>(path, **kwargs)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocLayoutBase" title="datumaro.plugins.data_formats.voc.base.VocLayoutBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocLayoutBase</span></code></a>(path, **kwargs)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocSegmentationBase" title="datumaro.plugins.data_formats.voc.base.VocSegmentationBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VocSegmentationBase</span></code></a>(path, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloObbBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowYoloObbBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloObbBase</span></code></a>(config_path[, ...])</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocTask" title="datumaro.plugins.data_formats.voc.format.VocTask"><span class="pre">VocTask</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">VocTask.voc</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voc_importer_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocImporterType" title="datumaro.plugins.data_formats.voc.format.VocImporterType"><span class="pre">VocImporterType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">VocImporterType.default</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.ImportContext" title="datumaro.components.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base.RoboflowCocoBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.base.</span></span><span class="sig-name descname"><span class="pre">RoboflowCocoBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.ImportContext" title="datumaro.components.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base.html#RoboflowCocoBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowCocoBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_CocoBase</span></code></p>
+<p>Parses Roboflow COCO annotations written in the following format:
+<a class="reference external" href="https://cocodataset.org/#format-data">https://cocodataset.org/#format-data</a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base.RoboflowVocBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.base.</span></span><span class="sig-name descname"><span class="pre">RoboflowVocBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.ImportContext" title="datumaro.components.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base.html#RoboflowVocBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowVocBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.plugins.data_formats.voc.base.html#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.base.</span></span><span class="sig-name descname"><span class="pre">RoboflowYoloBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">urls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base.html#RoboflowYoloBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.plugins.data_formats.yolo.base.html#datumaro.plugins.data_formats.yolo.base.YoloUltralyticsBase" title="datumaro.plugins.data_formats.yolo.base.YoloUltralyticsBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">YoloUltralyticsBase</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base.RoboflowYoloObbBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.base.</span></span><span class="sig-name descname"><span class="pre">RoboflowYoloObbBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">urls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base.html#RoboflowYoloObbBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloObbBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RoboflowYoloBase</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base.RoboflowCreateMlBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.base.</span></span><span class="sig-name descname"><span class="pre">RoboflowCreateMlBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.ImportContext" title="datumaro.components.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base.html#RoboflowCreateMlBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowCreateMlBase" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubsetBase</span></code></a></p>
+<p>Parses Roboflow CreateML annotations written in the following format:
+<a class="reference external" href="https://cocodataset.org/#format-data">https://cocodataset.org/#format-data</a></p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocClassificationBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocClassificationBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocClassificationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocClassificationBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base.RoboflowMulticlassBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.base.</span></span><span class="sig-name descname"><span class="pre">RoboflowMulticlassBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.ImportContext" title="datumaro.components.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base.html#RoboflowMulticlassBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowMulticlassBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubsetBase</span></code></a></p>
+<p>Parses Roboflow Multiclass annotations written in the following format:
+<a class="reference external" href="https://cocodataset.org/#format-data">https://cocodataset.org/#format-data</a></p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocDetectionBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocDetectionBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocDetectionBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocDetectionBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocSegmentationBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocSegmentationBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocSegmentationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocSegmentationBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocInstanceSegmentationBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocInstanceSegmentationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocLayoutBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocLayoutBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocLayoutBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocLayoutBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.base.VocActionBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.voc.base.</span></span><span class="sig-name descname"><span class="pre">VocActionBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/base.html#VocActionBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.base.VocActionBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.voc.base.VocBase" title="datumaro.plugins.data_formats.voc.base.VocBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">VocBase</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.base.</span></span><span class="sig-name descname"><span class="pre">RoboflowTfrecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.ImportContext" title="datumaro.components.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base.html#RoboflowTfrecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.plugins.data_formats.tf_detection_api.base.html#datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase" title="datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TfDetectionApiBase</span></code></a></p>
 </dd></dl>
 
 </section>
@@ -644,17 +650,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.voc.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.roboflow.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.data_formats.voc</p>
+          <p class="prev-next-title">datumaro.plugins.data_formats.roboflow</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.voc.exporter.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.roboflow.importer.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.data_formats.voc.exporter</p>
+      <p class="prev-next-title">datumaro.plugins.data_formats.roboflow.importer</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -675,64 +681,64 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowCocoBase">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocBase
+     RoboflowCocoBase
     </span>
    </code>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocClassificationBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowVocBase">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocClassificationBase
+     RoboflowVocBase
     </span>
    </code>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocDetectionBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocDetectionBase
+     RoboflowYoloBase
     </span>
    </code>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocSegmentationBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloObbBase">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocSegmentationBase
+     RoboflowYoloObbBase
     </span>
    </code>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocInstanceSegmentationBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowCreateMlBase">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocInstanceSegmentationBase
+     RoboflowCreateMlBase
     </span>
    </code>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocLayoutBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowMulticlassBase">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocLayoutBase
+     RoboflowMulticlassBase
     </span>
    </code>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.base.VocActionBase">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord">
    <code class="docutils literal notranslate">
     <span class="pre">
-     VocActionBase
+     RoboflowTfrecord
     </span>
    </code>
   </a>
@@ -754,7 +760,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.voc.base.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.base.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
