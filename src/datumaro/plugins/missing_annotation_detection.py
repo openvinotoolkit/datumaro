@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Generator, List, Optional
+from typing import Generator, List, Optional, Set
 
 from datumaro.components.abstracts.merger import IMatcherContext
 from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories
@@ -68,7 +68,7 @@ class MissingAnnotationDetection(ModelTransform):
 
         label_categories: LabelCategories = self.categories()[AnnotationType.label]
 
-        class LabelGnosticMatcherContext(IMatcherContext):
+        class LabelSpecificMatcherContext(IMatcherContext):
             def get_any_label_name(self, ann: Annotation, label_id: int) -> str:
                 return label_categories[label_id]
 
@@ -77,7 +77,7 @@ class MissingAnnotationDetection(ModelTransform):
                 pairwise_dist=pairwise_dist,
                 context=LabelAgnosticMatcherContext()
                 if label_agnostic_matching
-                else LabelGnosticMatcherContext(),
+                else LabelSpecificMatcherContext(),
                 match_segments=match_segments_more_than_pair,
             ),
         }
@@ -106,8 +106,7 @@ class MissingAnnotationDetection(ModelTransform):
     def _find_missing_anns(
         self, gt_anns: List[Annotation], pseudo_anns: List[Annotation]
     ) -> List[Annotation]:
-        for ann in pseudo_anns:
-            ann.attributes["_pseudo_label_"] = True
+        ids_of_pseudo_anns = set(id(ann) for ann in pseudo_anns)
 
         missing_labeled_anns = []
         for ann_type, matcher in self._support_matchers.items():
@@ -118,19 +117,21 @@ class MissingAnnotationDetection(ModelTransform):
                 ]
             )
             for cluster in clusters:
-                ann = self._pick_missing_ann_from_cluster(cluster)
+                ann = self._pick_missing_ann_from_cluster(cluster, ids_of_pseudo_anns)
                 if ann is not None:
                     missing_labeled_anns.append(ann)
 
         return missing_labeled_anns
 
     @staticmethod
-    def _pick_missing_ann_from_cluster(cluster: List[Annotation]) -> Optional[Annotation]:
+    def _pick_missing_ann_from_cluster(
+        cluster: List[Annotation], ids_of_pseudo_anns: Set[int]
+    ) -> Optional[Annotation]:
         pseudo_label_anns = []
         gt_label_anns = []
 
         for ann in cluster:
-            if "_pseudo_label_" in ann.attributes:
+            if id(ann) in ids_of_pseudo_anns:
                 pseudo_label_anns.append(ann)
             else:
                 gt_label_anns.append(ann)
@@ -138,12 +139,4 @@ class MissingAnnotationDetection(ModelTransform):
         if len(gt_label_anns) > 0:
             return None
 
-        max_score = float("-inf")
-        max_ann = None
-        for ann in pseudo_label_anns:
-            score = ann.attributes.get("score", -1)
-            if score > max_score:
-                max_score = score
-                max_ann = ann
-
-        return max_ann
+        return max(pseudo_label_anns, key=lambda ann: ann.attributes.get("score", -1))
