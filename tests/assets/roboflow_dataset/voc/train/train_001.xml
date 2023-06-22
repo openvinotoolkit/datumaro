@@ -1,0 +1,23 @@
+<annotation>
+  <folder></folder>
+  <filename>train_001.jpg</filename>
+  <path>train_001.jpg</path>
+  <source>
+    <database>roboflow.ai</database>
+  </source>
+  <size>
+    <width>10</width>
+    <height>5</height>
+    <depth>3</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>label_0</name>
+    <bndbox>
+      <xmin>2</xmin>
+      <xmax>5</xmax>
+      <ymin>1</ymin>
+      <ymax>2</ymax>
+    </bndbox>
+  </object>
+</annotation>

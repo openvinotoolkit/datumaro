@@ -369,7 +369,7 @@ class IntersectMergeTest(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((10, 6, 3))),
                     annotations=[
-                        Bbox(1, 2, 3, 3, label=0),
+                        Bbox(1, 2, 3, 3, label=0, id=0, group=0),
                     ],
                 ),
             ],
@@ -383,8 +383,8 @@ class IntersectMergeTest(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((10, 6, 3))),
                     annotations=[
-                        Bbox(1, 2, 3, 4, label=1),
-                        Bbox(5, 6, 2, 3, label=2),
+                        Bbox(1, 2, 3, 4, label=1, id=0, group=0),
+                        Bbox(5, 6, 2, 3, label=2, id=1, group=1),
                     ],
                 ),
             ],
@@ -398,9 +398,9 @@ class IntersectMergeTest(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((10, 6, 3))),
                     annotations=[
-                        Bbox(1, 2, 3, 4, label=2),
-                        Bbox(5, 6, 2, 3, label=3),
-                        Bbox(1, 2, 3, 3, label=1),
+                        Bbox(1, 2, 3, 4, label=2, id=0, group=0),
+                        Bbox(5, 6, 2, 3, label=3, id=1, group=1),
+                        Bbox(1, 2, 3, 3, label=1, id=2, group=2),
                     ],
                 ),
             ],
