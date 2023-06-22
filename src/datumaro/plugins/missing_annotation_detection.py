@@ -127,6 +127,7 @@ class MissingAnnotationDetection(ModelTransform):
     def _pick_missing_ann_from_cluster(
         cluster: List[Annotation], ids_of_pseudo_anns: Set[int]
     ) -> Optional[Annotation]:
+        assert len(cluster) > 0, "cluster should not be empty."
         pseudo_label_anns = []
         gt_label_anns = []
 
