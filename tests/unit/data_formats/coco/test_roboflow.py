@@ -9,7 +9,7 @@ from datumaro.components.annotation import Bbox, Mask, Polygon
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.data_formats.coco.importer import CocoRoboflowImporter
+from datumaro.plugins.data_formats.roboflow.importer import RoboflowCocoImporter
 
 from ..base import TestDataFormatBase
 
@@ -19,7 +19,7 @@ STRICT_DIR = get_test_asset_path("coco_dataset", "yolo")
 
 
 class CocoRoboflowTest(TestDataFormatBase):
-    IMPORTER = CocoRoboflowImporter
+    IMPORTER = RoboflowCocoImporter
     USE_TEST_CAN_EXPORT_AND_IMPORT = False
 
     @pytest.fixture()

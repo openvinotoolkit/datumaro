@@ -107,6 +107,11 @@ VocColormap: Colormap = {
 VocInstColormap = generate_colormap(256)
 
 
+class VocImporterType(Enum):
+    default = auto()
+    roboflow = auto()
+
+
 class VocPath:
     IMAGES_DIR = "JPEGImages"
     ANNOTATIONS_DIR = "Annotations"
