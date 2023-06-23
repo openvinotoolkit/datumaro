@@ -27,8 +27,9 @@ class IModelInterpreter(ABC):
             It returns a tuple of preprocessed image and preprocessing information.
             The preprocessing information will be used in the postprocessing step.
             One use case for this would be an affine transformation of the output bounding box
-            from the detection model. The input image is usually resized to fit the input dimensions of model.
-            Therefore, the postprocessing step should refine the output bounding box to match the original input image.
+            obtained by object detection models. Input images for those models are usually resized
+            to fit the model input dimensions. As a result, the postprocessing step should refine
+            the model output bounding box to match the original input image size.
         """
         raise NotImplementedError("Function should be implemented.")
 
@@ -38,7 +39,7 @@ class IModelInterpreter(ABC):
 
         Parameters:
             pred: Model prediction
-            info: Preprocessing information
+            info: Preprocessing information coming from the preprocessing step
 
         Returns:
             A list of annotations which is created from the model predictions

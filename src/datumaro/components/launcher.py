@@ -69,12 +69,7 @@ class Launcher(CliPlugin):
             inputs_img.append(prep_img)
             inputs_info.append(prep_info)
 
-        preds = self.infer(
-            np.stack(
-                [np.atleast_3d(img) for img in inputs_img],
-                axis=0,
-            )
-        )
+        preds = self.infer(np.stack(inputs_img, axis=0))
 
         return [self.postprocess(pred, info) for pred, info in zip(preds, inputs_info)]
 
@@ -97,9 +92,31 @@ class LauncherWithModelInterpreter(Launcher):
         self._interpreter = self._load_interpreter(file_path=model_interpreter_path)
 
     def preprocess(self, img: Image) -> Tuple[np.ndarray, PrepInfo]:
+        """Preprocessing an input image.
+
+        Parameters:
+            img: Input image
+
+        Returns:
+            It returns a tuple of preprocessed image and preprocessing information.
+            The preprocessing information will be used in the postprocessing step.
+            One use case for this would be an affine transformation of the output bounding box
+            obtained by object detection models. Input images for those models are usually resized
+            to fit the model input dimensions. As a result, the postprocessing step should refine
+            the model output bounding box to match the original input image size.
+        """
         return self._interpreter.preprocess(img.data)
 
     def postprocess(self, pred: ModelPred, info: PrepInfo) -> List[Annotation]:
+        """Postprocess a model prediction.
+
+        Parameters:
+            pred: Model prediction
+            info: Preprocessing information coming from the preprocessing step
+
+        Returns:
+            A list of annotations which is created from the model predictions
+        """
         return self._interpreter.postprocess(pred, info)
 
     def _load_interpreter(self, file_path: str) -> IModelInterpreter:
