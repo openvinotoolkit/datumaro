@@ -2,13 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import numpy as np
 from attr import attrib, attrs
 
 from datumaro.components.abstracts import IMergerContext
 from datumaro.components.abstracts.merger import IMatcherContext
+from datumaro.components.annotation import Annotation
 from datumaro.util.annotation_util import (
     OKS,
     approximate_line,
@@ -176,7 +177,7 @@ class ShapeMatcher(AnnotationMatcher):
     cluster_dist = attrib(converter=float, default=-1.0)
     _match_segments = attrib(default=match_segments_pair)
 
-    def match_annotations(self, sources):
+    def match_annotations(self, sources: List[List[Annotation]]) -> List[List[Annotation]]:
         distance = self.distance
         label_matcher = self.label_matcher
         pairwise_dist = self.pairwise_dist

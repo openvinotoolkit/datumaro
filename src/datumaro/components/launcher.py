@@ -2,10 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import Generator, List
+
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.transformer import Transform
 from datumaro.util import take_by
 
@@ -32,13 +35,19 @@ class Launcher(CliPlugin):
 
 
 class ModelTransform(Transform):
-    def __init__(self, extractor, launcher, batch_size=1, append_annotation=False):
+    def __init__(
+        self,
+        extractor: IDataset,
+        launcher: Launcher,
+        batch_size: int = 1,
+        append_annotation: bool = False,
+    ):
         super().__init__(extractor)
         self._launcher = launcher
         self._batch_size = batch_size
         self._append_annotation = append_annotation
 
-    def __iter__(self):
+    def __iter__(self) -> Generator[DatasetItem, None, None]:
         for batch in take_by(self._extractor, self._batch_size):
             inputs = []
             for item in batch:
@@ -48,11 +57,17 @@ class ModelTransform(Transform):
             inputs = np.array(inputs)
             inference = self._launcher.launch(inputs)
 
-            for item, annotations in zip(batch, inference):
-                self._check_annotations(annotations)
-                if self._append_annotation:
-                    annotations = item.annotations + annotations
-                yield self.wrap_item(item, annotations=annotations)
+            for item in self._yield_item(batch, inference):
+                yield item
+
+    def _yield_item(
+        self, batch: List[DatasetItem], inference: List[List[Annotation]]
+    ) -> Generator[DatasetItem, None, None]:
+        for item, annotations in zip(batch, inference):
+            self._check_annotations(annotations)
+            if self._append_annotation:
+                annotations = item.annotations + annotations
+            yield self.wrap_item(item, annotations=annotations)
 
     def get_subset(self, name):
         subset = self._extractor.get_subset(name)
@@ -75,7 +90,7 @@ class ModelTransform(Transform):
         annotations = self._launcher.launch(inputs)[0]
         return self.wrap_item(item, annotations=annotations)
 
-    def _check_annotations(self, annotations):
+    def _check_annotations(self, annotations: List[Annotation]):
         labels_count = len(self.categories().get(AnnotationType.label, LabelCategories()).items)
 
         for ann in annotations:
