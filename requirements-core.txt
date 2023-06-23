@@ -50,3 +50,4 @@ protobuf<4
 
 # Model inference launcher from the dedicated inference server
 ovmsclient
+tritonclient[all]

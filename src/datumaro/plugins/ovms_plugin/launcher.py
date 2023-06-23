@@ -8,7 +8,9 @@ from enum import IntEnum
 from typing import Dict, List, Optional, Union
 
 import numpy as np
+from grpc import ChannelCredentials, ssl_channel_credentials
 from ovmsclient import make_grpc_client, make_http_client
+from ovmsclient.tfs_compat.base.serving_client import ServingClient
 from ovmsclient.tfs_compat.grpc.serving_client import GrpcClient
 from ovmsclient.tfs_compat.http.serving_client import HttpClient
 
@@ -49,6 +51,14 @@ class TLSConfig:
             "server_cert_path": self.server_cert_path,
         }
 
+    def as_grpc_creds(self) -> ChannelCredentials:
+        server_cert, client_cert, client_key = ServingClient._prepare_certs(
+            self.server_cert_path, self.client_cert_path, self.client_key_path
+        )
+        return ssl_channel_credentials(
+            root_certificates=server_cert, private_key=client_key, certificate_chain=client_cert
+        )
+
 
 class OVMSLauncher(LauncherWithModelInterpreter):
     """Inference launcher for OVMS (OpenVINO™ Model Server)
@@ -78,13 +88,11 @@ class OVMSLauncher(LauncherWithModelInterpreter):
     ):
         super().__init__(model_interpreter_path=model_interpreter_path)
 
-        self._client = self._init_client(
-            model_name,
-            host,
-            port,
-            tls_config,
-            ovms_client_type,
-        )
+        self.model_name = model_name
+        self.url = f"{host}:{port}"
+        self.tls_config = tls_config
+
+        self._client = self._init_client(ovms_client_type)
         self._check_server_health(model_version, timeout)
         self._init_input_name(model_version, timeout)
 
@@ -93,20 +101,14 @@ class OVMSLauncher(LauncherWithModelInterpreter):
 
     def _init_client(
         self,
-        model_name,
-        host,
-        port,
-        tls_config,
         ovms_client_type,
     ) -> Union[GrpcClient, HttpClient]:
-        self.model_name = model_name
-        self.url = f"{host}:{port}"
-        self.tls_config = tls_config
+        tls_config = self.tls_config.as_dict() if self.tls_config is not None else None
 
         if ovms_client_type == OVMSClientType.grpc:
-            return make_grpc_client(self.url, self.tls_config)
+            return make_grpc_client(self.url, tls_config)
         elif ovms_client_type == OVMSClientType.http:
-            return make_http_client(self.url, self.tls_config)
+            return make_http_client(self.url, tls_config)
         else:
             raise NotImplementedError(ovms_client_type)
 
