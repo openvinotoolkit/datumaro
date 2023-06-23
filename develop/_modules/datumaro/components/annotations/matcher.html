@@ -281,13 +281,14 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">attr</span> <span class="kn">import</span> <span class="n">attrib</span><span class="p">,</span> <span class="n">attrs</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.abstracts</span> <span class="kn">import</span> <span class="n">IMergerContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.abstracts.merger</span> <span class="kn">import</span> <span class="n">IMatcherContext</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">OKS</span><span class="p">,</span>
     <span class="n">approximate_line</span><span class="p">,</span>
@@ -455,7 +456,7 @@
     <span class="n">cluster_dist</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">)</span>
     <span class="n">_match_segments</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">match_segments_pair</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ShapeMatcher.match_annotations"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ShapeMatcher.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+<div class="viewcode-block" id="ShapeMatcher.match_annotations"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ShapeMatcher.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]]:</span>
         <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span>
         <span class="n">label_matcher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_matcher</span>
         <span class="n">pairwise_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pairwise_dist</span>

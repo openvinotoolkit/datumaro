@@ -30,6 +30,7 @@ datumaro.plugins
    datumaro.plugins.accuracy_checker_plugin
    datumaro.plugins.data_formats
    datumaro.plugins.explorer
+   datumaro.plugins.missing_annotation_detection
    datumaro.plugins.ndr
    datumaro.plugins.openvino_plugin
    datumaro.plugins.sampler
