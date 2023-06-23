@@ -33,9 +33,6 @@ class GooglenetV4TfModelInterpreter(IModelInterpreter):
 
         return [FeatureVector(feature_vector)]
 
-    def normalize(self, inputs):
-        return inputs
-
     def get_categories(self):
         # output categories - label map etc.
 

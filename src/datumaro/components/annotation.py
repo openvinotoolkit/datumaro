@@ -216,7 +216,13 @@ class Label(Annotation):
 @attrs(slots=True, eq=False, order=False)
 class HashKey(Annotation):
     _type = AnnotationType.hash_key
-    hash_key: np.ndarray = field(factory=lambda: np.zeros((64,), dtype=np.uint8))
+    hash_key: np.ndarray = field(validator=attr.validators.instance_of(np.ndarray))
+
+    @hash_key.validator
+    def _validate(self, attribute, value: np.ndarray):
+        """Check whether value is a 1D Numpy array having 64 np.uint8 values"""
+        if value.ndim != 1 or value.shape[0] != 64 or value.dtype != np.uint8:
+            raise ValueError(value)
 
     def __eq__(self, other):
         if not super().__eq__(other):
@@ -229,7 +235,13 @@ class HashKey(Annotation):
 @attrs(eq=False, order=False)
 class FeatureVector(Annotation):
     _type = AnnotationType.feature_vector
-    vector: np.ndarray = field()
+    vector: np.ndarray = field(validator=attr.validators.instance_of(np.ndarray))
+
+    @vector.validator
+    def _validate(self, attribute, value: np.ndarray):
+        """Check whether value is a 1D Numpy array"""
+        if value.ndim != 1:
+            raise ValueError(value)
 
     def __eq__(self, other):
         if not super().__eq__(other):
