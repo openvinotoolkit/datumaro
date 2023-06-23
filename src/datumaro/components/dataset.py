@@ -43,11 +43,11 @@ from datumaro.components.errors import (
 from datumaro.components.exporter import ExportContext, Exporter, ExportErrorPolicy, _ExportFail
 from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
 from datumaro.components.importer import ImportContext, ImportErrorPolicy, _ImportFail
-from datumaro.components.launcher import Launcher, ModelTransform
+from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement
 from datumaro.components.merge import DEFAULT_MERGE_POLICY
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
-from datumaro.components.transformer import ItemTransform, Transform
+from datumaro.components.transformer import ItemTransform, ModelTransform, Transform
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
 from datumaro.util.meta_file_util import load_hash_key

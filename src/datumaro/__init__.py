@@ -45,7 +45,7 @@ from .components.environment import Environment, PluginRegistry
 from .components.exporter import Exporter, ExportErrorPolicy, FailingExportErrorPolicy
 from .components.hl_ops import HLOps
 from .components.importer import FailingImportErrorPolicy, Importer, ImportErrorPolicy
-from .components.launcher import Launcher, ModelTransform
+from .components.launcher import Launcher
 from .components.media import ByteImage, Image, MediaElement, Video, VideoFrame
 from .components.media_manager import MediaManager
 from .components.progress_reporting import (
@@ -54,7 +54,7 @@ from .components.progress_reporting import (
     SimpleProgressReporter,
     TQDMProgressReporter,
 )
-from .components.transformer import ItemTransform, Transform
+from .components.transformer import ItemTransform, ModelTransform, Transform
 from .components.validator import Validator
 from .components.visualizer import Visualizer
 from .version import __version__

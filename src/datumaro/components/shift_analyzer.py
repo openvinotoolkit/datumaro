@@ -4,6 +4,7 @@
 
 # ruff: noqa: E501
 
+import itertools
 from collections import defaultdict
 from typing import Dict, List, Optional
 
@@ -12,7 +13,9 @@ import pyemd
 from scipy import linalg
 from scipy.stats import anderson_ksamp
 
+from datumaro.components.annotation import FeatureVector
 from datumaro.components.dataset import IDataset
+from datumaro.components.launcher import LauncherWithModelInterpreter
 from datumaro.plugins.openvino_plugin.shift_launcher import ShiftLauncher
 from datumaro.util import take_by
 
@@ -23,7 +26,8 @@ class RunningStats1D:
         self.running_sq_mean = None
         self.num: int = 0
 
-    def add(self, arr: np.ndarray) -> None:
+    def add(self, feats: List[FeatureVector]) -> None:
+        arr = np.stack([feat.vector for feat in feats], axis=0)
         assert arr.ndim == 2
 
         batch_size, _ = arr.shape
@@ -58,7 +62,7 @@ class RunningStats1D:
 
 
 class FeatureAccumulator:
-    def __init__(self, model):
+    def __init__(self, model: LauncherWithModelInterpreter):
         self.model = model
         self._batch_size = 1
 
@@ -66,12 +70,8 @@ class FeatureAccumulator:
         running_stats = RunningStats1D()
 
         for batch in take_by(dataset, self._batch_size):
-            inputs = []
-            for item in batch:
-                inputs.append(np.atleast_3d(item.media.data))
-            inputs = np.array(inputs)
-            features = self.model.launch(inputs)
-            running_stats.add(features)
+            features = self.model.launch(batch)
+            running_stats.add(list(itertools.chain(*features)))
 
         return running_stats
 
@@ -81,7 +81,7 @@ class FeatureAccumulatorByLabel(FeatureAccumulator):
         super().__init__(model)
 
     def get_activation_stats(self, dataset: IDataset) -> Dict[int, RunningStats1D]:
-        running_stats: Dict[int, RunningStats1D] = {}
+        running_stats = defaultdict(RunningStats1D)
 
         for batch in take_by(dataset, self._batch_size):
             inputs, targets = [], []
@@ -90,15 +90,10 @@ class FeatureAccumulatorByLabel(FeatureAccumulator):
                     inputs.append(np.atleast_3d(item.media.data))
                     targets.append(ann.label)
 
-            inputs = np.array(inputs)
-            features = self.model.launch(inputs)
+            features = self.model.launch(batch)
 
-            unique_indices = np.unique(targets)
-            for idx in unique_indices:
-                if idx not in running_stats:
-                    running_stats[idx] = RunningStats1D()
-
-                running_stats[idx].add(features[targets == idx])
+            for feat, target in zip(features, targets):
+                running_stats[target].add(feat)
 
         return running_stats
 

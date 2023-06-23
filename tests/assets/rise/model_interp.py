@@ -2,31 +2,28 @@
 #
 # SPDX-License-Identifier: MIT
 
-from datumaro.components.abstracts.model_interpreter import IModelInterpreter
-from datumaro.components.annotation import Label
+from typing import List, Tuple
+
+import numpy as np
+
+from datumaro.components.abstracts.model_interpreter import IModelInterpreter, ModelPred, PrepInfo
+from datumaro.components.annotation import Annotation, Label
 from datumaro.util.annotation_util import softmax
 
 
-class SsdMobilenetCocoDetectionModelInterpreter(IModelInterpreter):
-    def normalize(self, inputs):
-        return inputs
+class DummyModelInterpreter(IModelInterpreter):
+    def preprocess(self, img: np.ndarray) -> Tuple[np.ndarray, PrepInfo]:
+        return super().preprocess(img)
 
-    def process_outputs(self, inputs, outputs):
-        # inputs = model input; array or images; shape = (B, H, W, C)
-        # outputs = model output; shape = (B, 3);
-        # results = conversion result;
-        # [B x [a score for label0, a score for label1, a score for label2]];
+    def postprocess(self, pred: ModelPred, info: PrepInfo) -> List[Annotation]:
+        output = pred.get("2")
+        if output is None:
+            raise ValueError()
 
         return [
-            [
-                Label(label=label, attributes={"score": score})
-                for label, score in enumerate(softmax(output))
-            ]
-            for output in outputs
+            Label(label=label, attributes={"score": score})
+            for label, score in enumerate(softmax(output))
         ]
 
     def get_categories(self):
         return None
-
-    def resize(self, inputs):
-        return inputs

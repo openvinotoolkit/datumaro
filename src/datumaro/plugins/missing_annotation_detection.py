@@ -8,7 +8,8 @@ from datumaro.components.abstracts.merger import IMatcherContext
 from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories
 from datumaro.components.annotations.matcher import BboxMatcher, match_segments_more_than_pair
 from datumaro.components.dataset_base import DatasetItem, IDataset
-from datumaro.components.launcher import Launcher, ModelTransform
+from datumaro.components.launcher import Launcher
+from datumaro.components.transformer import ModelTransform
 
 
 class MissingAnnotationDetection(ModelTransform):

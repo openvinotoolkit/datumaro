@@ -202,6 +202,7 @@ class TestOperations(TestCase):
                 "depth_annotation": {"count": 0},
                 "ellipse": {"count": 1},
                 "hash_key": {"count": 0},
+                "feature_vector": {"count": 0},
                 "unknown": {"count": 0},
             },
             "annotations": {
@@ -304,6 +305,7 @@ class TestOperations(TestCase):
                 "depth_annotation": {"count": 0},
                 "ellipse": {"count": 0},
                 "hash_key": {"count": 0},
+                "feature_vector": {"count": 0},
                 "unknown": {"count": 0},
             },
             "annotations": {

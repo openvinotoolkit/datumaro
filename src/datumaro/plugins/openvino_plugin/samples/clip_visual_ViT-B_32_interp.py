@@ -3,29 +3,35 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+from typing import List, Tuple
 
+import cv2
 import numpy as np
 
 from datumaro.components.abstracts import IModelInterpreter
-from datumaro.components.annotation import AnnotationType, HashKey, LabelCategories
+from datumaro.components.abstracts.model_interpreter import ModelPred, PrepInfo
+from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories
+from datumaro.components.errors import DatumaroError
+from datumaro.plugins.openvino_plugin.samples.utils import gen_hash_key
 from datumaro.util.samples import get_samples_path
 
 
 class ClipVisualViTB32ModelInterpreter(IModelInterpreter):
-    def normalize(self, inputs):
-        mean = 255 * np.array([0.485, 0.456, 0.406])
-        std = 255 * np.array([0.229, 0.224, 0.225])
+    mean = (255 * np.array([0.485, 0.456, 0.406])).reshape(1, 1, 3)
+    std = (255 * np.array([0.229, 0.224, 0.225])).reshape(1, 1, 3)
 
-        normalized_inputs = np.empty_like(inputs, dtype=inputs.dtype)
-        for k, inp in enumerate(inputs):
-            normalized_inputs[k] = (inp - mean[:, None, None]) / std[:, None, None]
-        inputs = normalized_inputs
+    def preprocess(self, img: np.ndarray) -> Tuple[np.ndarray, PrepInfo]:
+        img = cv2.resize(img, (224, 224))
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = (img - self.mean) / self.std
+        return img, None
 
-        return inputs
+    def postprocess(self, pred: ModelPred, info: PrepInfo) -> List[Annotation]:
+        feature_vector = pred.get("output")
+        if feature_vector is None:
+            raise DatumaroError('"output" key should exist in the model prediction.')
 
-    def process_outputs(self, inputs, outputs):
-        results = [[HashKey(outputs)]]
-        return results
+        return [gen_hash_key(feature_vector)]
 
     def get_categories(self):
         label_categories = LabelCategories()
@@ -38,6 +44,3 @@ class ClipVisualViTB32ModelInterpreter(IModelInterpreter):
                 label_categories.add(label)
 
         return {AnnotationType.label: label_categories}
-
-    def resize(self, inputs):
-        return inputs

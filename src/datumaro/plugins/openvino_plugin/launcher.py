@@ -4,23 +4,21 @@
 
 # pylint: disable=exec-used
 
-import inspect
+
 import logging as log
 import os.path as osp
 import shutil
 import urllib
 from dataclasses import dataclass, fields
-from importlib.util import module_from_spec, spec_from_file_location
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
-import cv2
 import numpy as np
 from openvino.runtime import Core
 from tqdm import tqdm
 
-from datumaro.components.abstracts import IModelInterpreter
+from datumaro.components.abstracts.model_interpreter import ModelPred
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.launcher import Launcher
+from datumaro.components.launcher import LauncherWithModelInterpreter
 from datumaro.errors import DatumaroError
 from datumaro.util.definitions import DATUMARO_CACHE_DIR
 from datumaro.util.samples import get_samples_path
@@ -167,9 +165,8 @@ class BuiltinOpenvinoModelInfo(OpenvinoModelInfo):
             _apply(field.name)
 
 
-class OpenvinoLauncher(Launcher):
+class OpenvinoLauncher(LauncherWithModelInterpreter):
     cli_plugin = _OpenvinoImporter
-    ALLOWED_CHANNEL_FORMATS = {"NCHW", "NHWC"}
 
     def __init__(
         self,
@@ -178,11 +175,9 @@ class OpenvinoLauncher(Launcher):
         interpreter: Optional[str] = None,
         model_dir: Optional[str] = None,
         model_name: Optional[str] = None,
-        output_layers=None,
+        output_layers: List[str] = [],
         device: Optional[str] = None,
         compile_model_config: Optional[Dict] = None,
-        channel_format: str = "NCHW",
-        to_rgb: bool = True,
     ):
         model_info = OpenvinoModelInfo(
             interpreter=interpreter,
@@ -194,46 +189,24 @@ class OpenvinoLauncher(Launcher):
             builtin_model_info = BuiltinOpenvinoModelInfo.create_from_model_name(model_name)
             builtin_model_info.override(model_info)
 
-        if not model_dir:
-            model_dir = ""
-
         model_info.validate()
+
+        super().__init__(model_interpreter_path=model_info.interpreter)
+
         self.model_info = model_info
 
-        self._interpreter = self._load_interpreter(file_path=model_info.interpreter)
-
         self._device = device or "CPU"
-        self._output_blobs = output_layers
         self._compile_model_config = compile_model_config
 
         self._core = Core()
         self._network = self._core.read_model(model_info.description, model_info.weights)
+
+        if output_layers:
+            log.info(f"Add additional output layers {output_layers} to the model outputs.")
+            self._network.add_outputs(output_layers)
+
         self._check_model_support(self._network, self._device)
         self._load_executable_net()
-
-        if channel_format not in self.ALLOWED_CHANNEL_FORMATS:
-            raise DatumaroError(
-                f"channel_format={channel_format} is not in "
-                f"ALLOWED_CHANNEL_FORMATS={self.ALLOWED_CHANNEL_FORMATS}."
-            )
-        self._channel_format = channel_format
-        self._to_rgb = to_rgb
-
-    def _load_interpreter(self, file_path: str) -> IModelInterpreter:
-        fname, _ = osp.splitext(osp.basename(file_path))
-        spec = spec_from_file_location(fname, file_path)
-        module = module_from_spec(spec)
-        spec.loader.exec_module(module)
-        for name, obj in inspect.getmembers(module):
-            if (
-                inspect.isclass(obj)
-                and issubclass(obj, IModelInterpreter)
-                and obj is not IModelInterpreter
-            ):
-                log.info(f"Load {name} for model interpreter.")
-                return obj()
-
-        raise DatumaroError(f"{file_path} has no class derived from IModelInterpreter.")
 
     def _check_model_support(self, net, device):
         not_supported_layers = set(
@@ -248,9 +221,6 @@ class OpenvinoLauncher(Launcher):
 
     def _load_executable_net(self, batch_size: int = 1):
         network = self._network
-
-        if self._output_blobs:
-            network.add_outputs([self._output_blobs])
 
         iter_inputs = iter(network.inputs)
         self._input_blob = next(iter_inputs)
@@ -285,63 +255,16 @@ class OpenvinoLauncher(Launcher):
         )
         self._request = self._net.create_infer_request()
 
-    def infer(self, inputs):
-        inputs = self.process_inputs(inputs)
-        results = self._request.infer(inputs)
-        if len(results) == 1:
-            return next(iter(results.values()))
-        else:
-            return results
-
-    def launch(self, inputs):
+    def infer(self, inputs: np.ndarray) -> List[ModelPred]:
         batch_size = len(inputs)
         if self._batch_size < batch_size:
             self._load_executable_net(batch_size)
 
-        outputs = self.infer(inputs)
-        results = self.process_outputs(inputs, outputs)
-        return results
+        results = self._request.infer(inputs={self._input_blob.get_any_name(): inputs})
 
-    def categories(self):
-        return self._interpreter.get_categories()
+        outputs_group_by_item = [
+            {key.any_name: output for key, output in zip(results.keys(), outputs)}
+            for outputs in zip(*results.values())
+        ]
 
-    def process_outputs(self, inputs, outputs):
-        return self._interpreter.process_outputs(inputs, outputs)
-
-    def process_inputs(self, inputs):
-        assert len(inputs.shape) == 4, "Expected an input image in (N, H, W, C) format, got %s" % (
-            inputs.shape,
-        )
-
-        if inputs.shape[3] == 1:  # A batch of single-channel images
-            inputs = np.repeat(inputs, 3, axis=3)
-
-        assert inputs.shape[3] == 3, "Expected BGR input, got %s" % (inputs.shape,)
-
-        # Resize
-        inputs = self._interpreter.resize(inputs)
-
-        if self._channel_format == "NCHW":
-            n, c, h, w = self._input_layout
-        elif self._channel_format == "NHWC":
-            n, h, w, c = self._input_layout
-        else:
-            raise DatumaroError(f"Invliad channel_format: {self._channel_format}.")
-
-        if inputs.shape[1:3] != (h, w):
-            resized_inputs = np.empty((n, h, w, c), dtype=inputs.dtype)
-            for inp, resized_input in zip(inputs, resized_inputs):
-                cv2.resize(inp, (w, h), resized_input)
-            inputs = resized_inputs
-
-        if self._channel_format == "NCHW":
-            inputs = inputs.transpose((0, 3, 1, 2))  # NHWC to NCHW
-
-        if self._to_rgb:
-            inputs = inputs[:, :, :, ::-1]  # Convert from BGR to RGB
-
-        inputs = self._interpreter.normalize(inputs)
-
-        inputs = {self._input_blob.get_any_name(): inputs}
-
-        return inputs
+        return outputs_group_by_item

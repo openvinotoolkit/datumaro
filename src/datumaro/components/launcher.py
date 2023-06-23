@@ -2,24 +2,76 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Generator, List
+import inspect
+import logging as log
+import os.path as osp
+from importlib.util import module_from_spec, spec_from_file_location
+from typing import List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories
+from datumaro.components.abstracts.model_interpreter import IModelInterpreter, ModelPred, PrepInfo
+from datumaro.components.annotation import Annotation
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.dataset_base import DatasetItem, IDataset
-from datumaro.components.transformer import Transform
-from datumaro.util import take_by
+from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.media import Image
+from datumaro.errors import DatumaroError
 
 
 # pylint: disable=no-self-use
 class Launcher(CliPlugin):
-    def __init__(self, model_dir=None):
+    def __init__(self, model_dir: Optional[str] = None):
         pass
 
-    def launch(self, inputs):
+    def preprocess(self, img: Image) -> Tuple[np.ndarray, PrepInfo]:
+        """Preprocess single image before launch()
+
+        Datumaro passes image data as `np.ndarray` with BGR format (H, W, C).
+        The output should be also `np.ndarray` but it can be stacked into a batch of images.
+        In this step, you usually implement resizing, normalizing, or color channel conversion
+        for your launcher (or model).
+        """
         raise NotImplementedError()
+
+    def infer(self, inputs: np.ndarray) -> List[ModelPred]:
+        """
+        It executes the actual model inference for the inputs.
+
+        Parameters:
+            inputs: Batch of the numpy formatted input data
+        Returns:
+            List of model outputs
+        """
+        raise NotImplementedError()
+
+    def postprocess(self, pred: ModelPred, info: PrepInfo) -> List[Annotation]:
+        raise NotImplementedError()
+
+    def launch(self, batch: Sequence[DatasetItem]) -> List[List[Annotation]]:
+        """Launch to obtain the inference outputs of items.
+
+        Parameters:
+            inputs: batch of Datasetitems
+
+        Returns:
+            A list of annotation list. Each annotation list is mapped to the input
+            :class:`DatasetItem`. These annotation list are pseudo-labels obtained by
+            the model inference.
+        """
+        if len(batch) == 0:
+            return []
+
+        inputs_img = []
+        inputs_info = []
+
+        for item in batch:
+            prep_img, prep_info = self.preprocess(item.media)
+            inputs_img.append(prep_img)
+            inputs_info.append(prep_info)
+
+        preds = self.infer(np.stack(inputs_img, axis=0))
+
+        return [self.postprocess(pred, info) for pred, info in zip(preds, inputs_info)]
 
     def infos(self):
         return None
@@ -27,79 +79,61 @@ class Launcher(CliPlugin):
     def categories(self):
         return None
 
-    def type_check(self, item):
+    def type_check(self, item: DatasetItem) -> bool:
+        """Check the media type of dataset item.
+
+        If False, the item is excluded from the input batch.
+        """
         return True
 
 
-# pylint: enable=no-self-use
+class LauncherWithModelInterpreter(Launcher):
+    def __init__(self, model_interpreter_path: str):
+        self._interpreter = self._load_interpreter(file_path=model_interpreter_path)
 
+    def preprocess(self, img: Image) -> Tuple[np.ndarray, PrepInfo]:
+        """Preprocessing an input image.
 
-class ModelTransform(Transform):
-    def __init__(
-        self,
-        extractor: IDataset,
-        launcher: Launcher,
-        batch_size: int = 1,
-        append_annotation: bool = False,
-    ):
-        super().__init__(extractor)
-        self._launcher = launcher
-        self._batch_size = batch_size
-        self._append_annotation = append_annotation
+        Parameters:
+            img: Input image
 
-    def __iter__(self) -> Generator[DatasetItem, None, None]:
-        for batch in take_by(self._extractor, self._batch_size):
-            inputs = []
-            for item in batch:
-                if not self._launcher.type_check(item):
-                    continue
-                inputs.append(np.atleast_3d(item.media.data))
-            inputs = np.array(inputs)
-            inference = self._launcher.launch(inputs)
+        Returns:
+            It returns a tuple of preprocessed image and preprocessing information.
+            The preprocessing information will be used in the postprocessing step.
+            One use case for this would be an affine transformation of the output bounding box
+            obtained by object detection models. Input images for those models are usually resized
+            to fit the model input dimensions. As a result, the postprocessing step should refine
+            the model output bounding box to match the original input image size.
+        """
+        return self._interpreter.preprocess(img.data)
 
-            for item in self._yield_item(batch, inference):
-                yield item
+    def postprocess(self, pred: ModelPred, info: PrepInfo) -> List[Annotation]:
+        """Postprocess a model prediction.
 
-    def _yield_item(
-        self, batch: List[DatasetItem], inference: List[List[Annotation]]
-    ) -> Generator[DatasetItem, None, None]:
-        for item, annotations in zip(batch, inference):
-            self._check_annotations(annotations)
-            if self._append_annotation:
-                annotations = item.annotations + annotations
-            yield self.wrap_item(item, annotations=annotations)
+        Parameters:
+            pred: Model prediction
+            info: Preprocessing information coming from the preprocessing step
 
-    def get_subset(self, name):
-        subset = self._extractor.get_subset(name)
-        return __class__(subset, self._launcher, self._batch_size)
+        Returns:
+            A list of annotations which is created from the model predictions
+        """
+        return self._interpreter.postprocess(pred, info)
 
-    def infos(self):
-        launcher_override = self._launcher.infos()
-        if launcher_override is not None:
-            return launcher_override
-        return self._extractor.infos()
+    def _load_interpreter(self, file_path: str) -> IModelInterpreter:
+        fname, _ = osp.splitext(osp.basename(file_path))
+        spec = spec_from_file_location(fname, file_path)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        for name, obj in inspect.getmembers(module):
+            if (
+                inspect.isclass(obj)
+                and issubclass(obj, IModelInterpreter)
+                and obj is not IModelInterpreter
+            ):
+                log.info(f"Load {name} for model interpreter.")
+                return obj()
+
+        raise DatumaroError(f"{file_path} has no class derived from IModelInterpreter.")
 
     def categories(self):
-        launcher_override = self._launcher.categories()
-        if launcher_override is not None:
-            return launcher_override
-        return self._extractor.categories()
-
-    def transform_item(self, item):
-        inputs = np.expand_dims(item.media, axis=0)
-        annotations = self._launcher.launch(inputs)[0]
-        return self.wrap_item(item, annotations=annotations)
-
-    def _check_annotations(self, annotations: List[Annotation]):
-        labels_count = len(self.categories().get(AnnotationType.label, LabelCategories()).items)
-
-        for ann in annotations:
-            label = getattr(ann, "label", None)
-            if label is None:
-                continue
-
-            if label not in range(labels_count):
-                raise Exception(
-                    "Annotation has unexpected label id %s, "
-                    "while there is only %s defined labels." % (label, labels_count)
-                )
+        return self._interpreter.get_categories()

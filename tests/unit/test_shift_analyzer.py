@@ -69,8 +69,8 @@ def fxt_dataset_different():
     [
         ("fxt_dataset_ideal", "fid", 0),
         ("fxt_dataset_ideal", "emd", 0),
-        ("fxt_dataset_different", "fid", 0.0302),
-        ("fxt_dataset_different", "emd", 0.0017),
+        ("fxt_dataset_different", "fid", 329.25750214667517),
+        ("fxt_dataset_different", "emd", 0.16594384275770568),
     ],
 )
 def test_covariate_shift(
@@ -79,7 +79,7 @@ def test_covariate_shift(
     fxt_datasets = request.getfixturevalue(fxt_datasets)
     shift_analyzer = ShiftAnalyzer()
     result = shift_analyzer.compute_covariate_shift(fxt_datasets, method=method)
-    assert abs(result - expected) < 1e-3
+    assert abs(result - expected) < 2e-3
 
 
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)

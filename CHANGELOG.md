@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1041>)
 - Add OTX ATSS detector model interpreter & refactor interfaces
   (<https://github.com/openvinotoolkit/datumaro/pull/1047>)
+- Refactor Launcher and ModelInterpreter
+  (<https://github.com/openvinotoolkit/datumaro/pull/1055>)
 
 ### Bug fixes
 - Fix warnings in test_visualizer.py

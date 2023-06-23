@@ -2,15 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import List, Optional, Sequence, Union
+from typing import Optional, Sequence, Union
 
 import numpy as np
 
 from datumaro.components.annotation import HashKey
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.errors import MediaTypeError
-from datumaro.components.media import Image, MediaElement
+from datumaro.components.errors import DatumaroError, MediaTypeError
+from datumaro.components.media import MediaElement
 from datumaro.plugins.explorer import ExplorerLauncher
 
 
@@ -20,9 +20,7 @@ def calculate_hamming(B1, B2):
     :param B2:  vector [r*n]
     :return: hamming distance [r]
     """
-    q = B2.shape[1]  # max inner product value
-    distH = 0.5 * (q - B1 @ B2.transpose())
-    return distH
+    return np.count_nonzero(B1 != B2, axis=1)
 
 
 def select_uninferenced_dataset(dataset):
@@ -63,14 +61,18 @@ class Explorer:
                 for annotation in item.annotations:
                     if isinstance(annotation, HashKey):
                         try:
-                            hash_key = annotation.hash_key[0]
+                            hash_key = annotation.hash_key
                             hash_key = np.unpackbits(hash_key, axis=-1)
                             database_keys.append(hash_key)
                             item_list.append(item)
                         except Exception:
                             continue
 
-        self._database_keys = database_keys
+        if all(i is None for i in database_keys):
+            # media.data is None case
+            raise ValueError("Database should have hash_key")
+
+        self._database_keys = np.stack(database_keys, axis=0)
         self._item_list = item_list
 
     @property
@@ -95,7 +97,7 @@ class Explorer:
 
     def explore_topk(
         self,
-        query: Union[DatasetItem, str, List[DatasetItem], List[str]],
+        query: Union[DatasetItem, str],
         topk: Optional[int] = None,
     ):
         """
@@ -104,79 +106,50 @@ class Explorer:
         if not topk:
             topk = self._topk
 
-        if all(i is None for i in self._database_keys):
-            # media.data is None case
-            raise ValueError("Database should have hash_key")
-        database_keys = np.stack(self._database_keys, axis=0)
-        db_len = database_keys.shape[0]
-
-        if isinstance(query, List):
-            query_hash_key_list = []
-            for q in query:
-                if isinstance(q, DatasetItem):
-                    q_hash_key = np.zeros((1, 64))
-                    for annotation in q.annotations:
-                        if isinstance(annotation, HashKey):
-                            q_hash_key = annotation.hash_key
-                            break
-                    query_hash_key_list.append(q_hash_key)
-                elif isinstance(q, str):
-                    q_hash_key = self.text_model.launch(q)[0][0].hash_key
-                    query_hash_key_list.append(q_hash_key)
-
-            sims = np.zeros(shape=database_keys.shape[0] * len(query_hash_key_list))
-            for i, query_hash_key in enumerate(query_hash_key_list):
-                query_hash_key = np.unpackbits(query_hash_key[0], axis=-1)
-                sims[i * db_len : (i + 1) * db_len] = calculate_hamming(
-                    query_hash_key, database_keys
-                )
-
-            def cal_ind(x):
-                x = x % db_len
-                return x
-
-            ind = np.argsort(sims).tolist()
-            ind = list(map(cal_ind, ind))
-
-            item_list = np.array(self._item_list)[ind]
-            result = item_list[:topk].tolist()
-            return result
+        database_keys = self._database_keys
 
         if isinstance(query, DatasetItem):
-            query_key = np.zeros((1, 64))
-            for annotation in query.annotations:
-                if isinstance(annotation, HashKey):
-                    query_key = annotation.hash_key
-                    break
-
-            if not query_key.any():
-                try:
-                    if not isinstance(query.media, Image):
-                        raise MediaTypeError(
-                            f"Media type should be Image, Current type={type(query.media)}"
-                        )
-                    query_key = self._model.launch(query.media.data)[0][0].hash_key
-                except Exception:
-                    # media.data is None case
-                    pass
-
+            query_key = self._get_hash_key_from_item_query(query)
         elif isinstance(query, str):
-            query_key = self.text_model.launch(query)[0][0].hash_key
+            query_key = self._get_hash_key_from_text_query(query)
         else:
             raise MediaTypeError(
                 "Unexpected media type of query '%s'. "
                 "Expected 'DatasetItem' or 'string', actual'%s'" % (query, type(query))
             )
 
-        if not query_key.any():
+        if not isinstance(query_key, HashKey):
             # media.data is None case
             raise ValueError("Query should have hash_key")
 
-        query_key = np.unpackbits(query_key[0], axis=-1)
-        logits = calculate_hamming(query_key, database_keys)
+        unpacked_key = np.unpackbits(query_key.hash_key, axis=-1)
+        logits = calculate_hamming(unpacked_key, database_keys)
         ind = np.argsort(logits)
 
         item_list = np.array(self._item_list)[ind]
         result = item_list[:topk].tolist()
 
         return result
+
+    def _get_hash_key_from_item_query(self, query: DatasetItem) -> HashKey:
+        """Get hash key from the `DatasetItem`.
+
+        If not exists, launch the model inference to obtain it.
+        """
+        query_keys_in_item = [
+            annotation for annotation in query.annotations if isinstance(annotation, HashKey)
+        ]
+
+        if len(query_keys_in_item) > 1:
+            raise DatumaroError(
+                f"There are more than two HashKey ({query_keys_in_item}) "
+                f"in the query item ({query}). It is ambiguous!"
+            )
+
+        if len(query_keys_in_item) == 1:
+            return query_keys_in_item[0]
+
+        return self._model.infer_item(query)
+
+    def _get_hash_key_from_text_query(self, query: str) -> HashKey:
+        return self.text_model.infer_text(query)

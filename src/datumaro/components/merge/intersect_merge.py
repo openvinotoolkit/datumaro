@@ -21,6 +21,7 @@ from datumaro.components.annotations.merger import (
     CaptionsMerger,
     Cuboid3dMerger,
     EllipseMerger,
+    FeatureVectorMerger,
     HashKeyMerger,
     ImageAnnotationMerger,
     LabelMerger,
@@ -441,6 +442,8 @@ class IntersectMerge(Merger):
                 return _make(EllipseMerger, **kwargs)
             elif t is AnnotationType.hash_key:
                 return _make(HashKeyMerger, **kwargs)
+            elif t is AnnotationType.feature_vector:
+                return _make(FeatureVectorMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 
