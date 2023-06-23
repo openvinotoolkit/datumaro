@@ -18,6 +18,7 @@ datumaro.components.transformer
    .. autosummary::
    
       ItemTransform
+      ModelTransform
       Transform
    
    

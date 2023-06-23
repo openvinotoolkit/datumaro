@@ -588,7 +588,18 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.launch">
 <span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/accuracy_checker_plugin/ac_launcher.html#AcLauncher.launch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.launch" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Launch to obtain the inference outputs of items.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> – batch of Datasetitems</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of annotation list. Each annotation list is mapped to the input
+<code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetItem</span></code>. These annotation list are pseudo-labels obtained by
+the model inference.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher.categories">

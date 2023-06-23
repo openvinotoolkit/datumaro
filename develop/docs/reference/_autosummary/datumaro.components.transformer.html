@@ -573,7 +573,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.transformer.ItemTransform" title="datumaro.components.transformer.ItemTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ItemTransform</span></code></a>(extractor)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.transformer.Transform" title="datumaro.components.transformer.Transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Transform</span></code></a>(extractor)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.transformer.ModelTransform" title="datumaro.components.transformer.ModelTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelTransform</span></code></a>(extractor, launcher[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.transformer.Transform" title="datumaro.components.transformer.Transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Transform</span></code></a>(extractor)</p></td>
 <td><p>A base class for dataset transformations that change dataset items or their annotations.</p></td>
 </tr>
 </tbody>
@@ -623,6 +626,34 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 <p>Avoid changing and returning the input item, because it can lead to
 unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
 </dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.transformer.ModelTransform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.transformer.</span></span><span class="sig-name descname"><span class="pre">ModelTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">launcher</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.launcher.html#datumaro.components.launcher.Launcher" title="datumaro.components.launcher.Launcher"><span class="pre">Launcher</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/transformer.html#ModelTransform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.transformer.ModelTransform" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.components.transformer.Transform" title="datumaro.components.transformer.Transform"><code class="xref py py-class docutils literal notranslate"><span class="pre">Transform</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.transformer.ModelTransform.get_subset">
+<span class="sig-name descname"><span class="pre">get_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/transformer.html#ModelTransform.get_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.transformer.ModelTransform.get_subset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.transformer.ModelTransform.infos">
+<span class="sig-name descname"><span class="pre">infos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/transformer.html#ModelTransform.infos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.transformer.ModelTransform.infos" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns meta-info of dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.transformer.ModelTransform.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/transformer.html#ModelTransform.categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.transformer.ModelTransform.categories" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns metainfo about dataset labels.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.transformer.ModelTransform.transform_item">
+<span class="sig-name descname"><span class="pre">transform_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/transformer.html#ModelTransform.transform_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.transformer.ModelTransform.transform_item" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -727,6 +758,53 @@ unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        ItemTransform.transform_item()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.transformer.ModelTransform">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     ModelTransform
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.transformer.ModelTransform.get_subset">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ModelTransform.get_subset()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.transformer.ModelTransform.infos">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ModelTransform.infos()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.transformer.ModelTransform.categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ModelTransform.categories()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.transformer.ModelTransform.transform_item">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ModelTransform.transform_item()
       </span>
      </code>
     </a>

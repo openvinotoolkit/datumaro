@@ -32,6 +32,7 @@ datumaro.components.annotation
       Cuboid3d
       DepthAnnotation
       Ellipse
+      FeatureVector
       HashKey
       Label
       LabelCategories

@@ -28,6 +28,7 @@ datumaro.components.annotations.matcher
       BboxMatcher
       CaptionsMatcher
       Cuboid3dMatcher
+      FeatureVectorMatcher
       HashKeyMatcher
       ImageAnnotationMatcher
       LabelMatcher

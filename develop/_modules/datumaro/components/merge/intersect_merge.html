@@ -300,6 +300,7 @@
     <span class="n">CaptionsMerger</span><span class="p">,</span>
     <span class="n">Cuboid3dMerger</span><span class="p">,</span>
     <span class="n">EllipseMerger</span><span class="p">,</span>
+    <span class="n">FeatureVectorMerger</span><span class="p">,</span>
     <span class="n">HashKeyMerger</span><span class="p">,</span>
     <span class="n">ImageAnnotationMerger</span><span class="p">,</span>
     <span class="n">LabelMerger</span><span class="p">,</span>
@@ -720,6 +721,8 @@
                 <span class="k">return</span> <span class="n">_make</span><span class="p">(</span><span class="n">EllipseMerger</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">t</span> <span class="ow">is</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">hash_key</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">_make</span><span class="p">(</span><span class="n">HashKeyMerger</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="ow">is</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">feature_vector</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_make</span><span class="p">(</span><span class="n">FeatureVectorMerger</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Type </span><span class="si">%s</span><span class="s2"> is not supported&quot;</span> <span class="o">%</span> <span class="n">t</span><span class="p">)</span>
 
