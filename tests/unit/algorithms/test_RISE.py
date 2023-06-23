@@ -5,7 +5,7 @@ import numpy as np
 
 from datumaro.components.algorithms.rise import RISE
 from datumaro.components.annotation import Bbox, Label
-from datumaro.components.launcher import Launcher
+from datumaro.components.launcher import LauncherWithModelInterpreter
 
 from ...requirements import Requirements, mark_requirement
 
@@ -13,12 +13,25 @@ from ...requirements import Requirements, mark_requirement
 class RiseTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_rise_can_be_applied_to_classification_model(self):
-        class TestLauncher(Launcher):
+        class TestLauncher(LauncherWithModelInterpreter):
             def __init__(self, class_count, roi, **kwargs):
                 self.class_count = class_count
                 self.roi = roi
 
-            def launch(self, inputs):
+            def preprocess(self, img):
+                return img, None
+
+            def postprocess(self, pred, info):
+                cls = pred
+                cls_conf = 0.5
+                other_conf = (1.0 - cls_conf) / (self.class_count - 1)
+
+                return [
+                    Label(i, attributes={"score": cls_conf if cls == i else other_conf})
+                    for i in range(self.class_count)
+                ]
+
+            def infer(self, inputs):
                 for inp in inputs:
                     yield self._process(inp)
 
@@ -30,13 +43,7 @@ class RiseTest(TestCase):
                 else:
                     cls = 1
 
-                cls_conf = 0.5
-                other_conf = (1.0 - cls_conf) / (self.class_count - 1)
-
-                return [
-                    Label(i, attributes={"score": cls_conf if cls == i else other_conf})
-                    for i in range(self.class_count)
-                ]
+                return cls
 
         roi = [70, 90, 7, 90]
         model = TestLauncher(class_count=3, roi=roi)
@@ -63,7 +70,7 @@ class RiseTest(TestCase):
     def test_rise_can_be_applied_to_detection_model(self):
         ROI = namedtuple("ROI", ["threshold", "x", "y", "w", "h", "label"])
 
-        class TestLauncher(Launcher):
+        class TestLauncher(LauncherWithModelInterpreter):
             def __init__(self, rois, class_count, fp_count=4, pixel_jitter=20, **kwargs):
                 self.rois = rois
                 self.roi_base_sums = [
@@ -77,14 +84,14 @@ class RiseTest(TestCase):
             def roi_value(roi, image):
                 return np.sum(image[roi.y : roi.y + roi.h, roi.x : roi.x + roi.w, :])
 
-            def launch(self, inputs):
-                for inp in inputs:
-                    yield self._process(inp)
+            def preprocess(self, img):
+                return img, None
 
-            def _process(self, image):
+            def postprocess(self, pred, info):
+                roi_sums = pred
                 detections = []
                 for i, roi in enumerate(self.rois):
-                    roi_sum = self.roi_value(roi, image)
+                    roi_sum = roi_sums[i]
                     roi_base_sum = self.roi_base_sums[i]
                     first_run = roi_base_sum is None
                     if first_run:
@@ -120,6 +127,18 @@ class RiseTest(TestCase):
                         )
 
                 return detections
+
+            def infer(self, inputs):
+                for inp in inputs:
+                    yield self._process(inp)
+
+            def _process(self, image):
+                roi_sums = []
+                for _, roi in enumerate(self.rois):
+                    roi_sum = self.roi_value(roi, image)
+                    roi_sums += [roi_sum]
+
+                return roi_sums
 
         rois = [
             ROI(0.3, 10, 40, 30, 10, 0),
