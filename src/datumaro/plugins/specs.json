@@ -222,6 +222,70 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base.RoboflowCocoBase",
+    "plugin_name": "roboflow_coco",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base.RoboflowCreateMlBase",
+    "plugin_name": "roboflow_create_ml",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base.RoboflowMulticlassBase",
+    "plugin_name": "roboflow_multiclass",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord",
+    "plugin_name": "roboflow_tfrecord",
+    "plugin_type": "DatasetBase",
+    "extra_deps": [
+      "tensorflow"
+    ]
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base.RoboflowVocBase",
+    "plugin_name": "roboflow_voc",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase",
+    "plugin_name": "roboflow_yolo",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base.RoboflowYoloObbBase",
+    "plugin_name": "roboflow_yolo_obb",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase",
+    "plugin_name": "tf_detection_api",
+    "plugin_type": "DatasetBase",
+    "extra_deps": [
+      "tensorflow"
+    ]
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.voc.base.VocBase",
+    "plugin_name": "voc",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.yolo.base.YoloUltralyticsBase",
+    "plugin_name": "yolo_ultralytics",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.yolo.base.YoloLooseBase",
     "plugin_name": "yolo_loose",
     "plugin_type": "DatasetBase",
@@ -230,12 +294,6 @@
   {
     "import_path": "datumaro.plugins.data_formats.yolo.base.YoloStrictBase",
     "plugin_name": "yolo_strict",
-    "plugin_type": "DatasetBase",
-    "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.yolo.base.YoloUltralyticsBase",
-    "plugin_name": "yolo_ultralytics",
     "plugin_type": "DatasetBase",
     "extra_deps": []
   },
@@ -260,12 +318,6 @@
   {
     "import_path": "datumaro.plugins.data_formats.voc.base.VocActionBase",
     "plugin_name": "voc_action",
-    "plugin_type": "DatasetBase",
-    "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.voc.base.VocBase",
-    "plugin_name": "voc",
     "plugin_type": "DatasetBase",
     "extra_deps": []
   },
@@ -400,14 +452,6 @@
     "plugin_name": "kitti_raw",
     "plugin_type": "DatasetBase",
     "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase",
-    "plugin_name": "tf_detection_api",
-    "plugin_type": "DatasetBase",
-    "extra_deps": [
-      "tensorflow"
-    ]
   },
   {
     "import_path": "datumaro.plugins.data_formats.kitti.base.KittiDetectionBase",
@@ -674,6 +718,50 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter",
+    "plugin_name": "roboflow_coco",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowCreateMlImporter",
+    "plugin_name": "roboflow_create_ml",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter",
+    "plugin_name": "roboflow_multiclass",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord",
+    "plugin_name": "roboflow_tfrecord",
+    "plugin_type": "Importer",
+    "extra_deps": [
+      "tensorflow"
+    ]
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter",
+    "plugin_name": "roboflow_voc",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter",
+    "plugin_name": "roboflow_yolo",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter",
+    "plugin_name": "roboflow_yolo_obb",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.yolo.importer.YoloImporter",
     "plugin_name": "yolo",
     "plugin_type": "Importer",
@@ -778,12 +866,6 @@
   {
     "import_path": "datumaro.plugins.data_formats.coco.importer.CocoPersonKeypointsImporter",
     "plugin_name": "coco_person_keypoints",
-    "plugin_type": "Importer",
-    "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.coco.importer.CocoRoboflowImporter",
-    "plugin_name": "coco_roboflow",
     "plugin_type": "Importer",
     "extra_deps": []
   },
@@ -929,6 +1011,12 @@
       "openvino.tools",
       "tensorflow"
     ]
+  },
+  {
+    "import_path": "datumaro.components.launcher.LauncherWithModelInterpreter",
+    "plugin_name": "launcher_with_model_interpreter",
+    "plugin_type": "Launcher",
+    "extra_deps": []
   },
   {
     "import_path": "datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher",
@@ -1269,7 +1357,7 @@
     "extra_deps": []
   },
   {
-    "import_path": "datumaro.components.launcher.ModelTransform",
+    "import_path": "datumaro.components.transformer.ModelTransform",
     "plugin_name": "model",
     "plugin_type": "Transform",
     "extra_deps": []

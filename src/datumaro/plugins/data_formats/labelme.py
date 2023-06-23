@@ -24,10 +24,11 @@ from datumaro.util import cast, escape, unescape
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
-from datumaro.util.os_util import split_path
 
 
 class LabelMePath:
+    IMAGES_DIR = "Images"
+    ANNOTATIONS_DIR = "Annotations"
     MASKS_DIR = "Masks"
     IMAGE_EXT = ".jpg"
 
@@ -53,47 +54,40 @@ class LabelMeBase(DatasetBase):
         self._items, self._categories, self._subsets = self._parse(path)
         self._length = len(self._items)
 
-    def _parse(self, dataset_root):
+    def _parse(self, path):
         items = []
         subsets = set()
 
-        if has_meta_file(dataset_root):
+        if has_meta_file(path):
             categories = {
                 AnnotationType.label: LabelCategories(
                     attributes={"occluded", "username"}
-                ).from_iterable(parse_meta_file(dataset_root).keys())
+                ).from_iterable(parse_meta_file(path).keys())
             }
         else:
             categories = {
                 AnnotationType.label: LabelCategories(attributes={"occluded", "username"})
             }
 
-        for xml_path in sorted(glob(osp.join(dataset_root, "**", "*.xml"), recursive=True)):
-            item_path = osp.relpath(xml_path, dataset_root)
-            path_parts = split_path(item_path)
-            subset = ""
-            if 1 < len(path_parts):
-                subset = path_parts[0]
-                item_path = osp.join(*path_parts[1:])  # pylint: disable=no-value-for-parameter
-
+        for xml_path in sorted(glob(osp.join(path, "**", "*.xml"), recursive=True)):
             root = ElementTree.parse(xml_path)
 
-            item_id = (
-                osp.join(root.find("folder").text or "", root.find("filename").text) or item_path
-            )
-            image_path = osp.join(osp.dirname(xml_path), osp.basename(item_id))
-            item_id = osp.splitext(item_id)[0]
+            subset = root.find("folder").text or ""
+            item_id = osp.splitext(root.find("filename").text)[0]
+            image_path = osp.join(path, "Images", subset, root.find("filename").text)
 
             image_size = None
             imagesize_elem = root.find("imagesize")
             if imagesize_elem is not None:
-                width_elem = imagesize_elem.find("ncols")
-                height_elem = imagesize_elem.find("nrows")
-                image_size = (int(height_elem.text), int(width_elem.text))
+                width_elem = imagesize_elem.find("ncols").text
+                height_elem = imagesize_elem.find("nrows").text
+                image_size = (
+                    (int(height_elem), int(width_elem)) if height_elem and width_elem else None
+                )
 
             image = Image.from_file(path=image_path, size=image_size)
 
-            annotations = self._parse_annotations(root, osp.join(dataset_root, subset), categories)
+            annotations = self._parse_annotations(root, path, subset, categories)
 
             items.append(
                 DatasetItem(id=item_id, subset=subset, media=image, annotations=annotations)
@@ -112,7 +106,7 @@ class LabelMeBase(DatasetBase):
         return s
 
     @classmethod
-    def _parse_annotations(cls, xml_root, subset_root, categories):
+    def _parse_annotations(cls, xml_root, path, subset, categories):
         def _parse_attributes(attr_str):
             parsed = []
             if not attr_str:
@@ -230,7 +224,7 @@ class LabelMeBase(DatasetBase):
                 attributes.append(("username", user))
 
                 mask_path = osp.join(
-                    subset_root, LabelMePath.MASKS_DIR, segm_elem.find("mask").text
+                    path, LabelMePath.MASKS_DIR, subset, segm_elem.find("mask").text
                 )
                 if not osp.isfile(mask_path):
                     raise FileNotFoundError(errno.ENOENT, "Can't find mask", mask_path)
@@ -372,11 +366,8 @@ class LabelMeExporter(Exporter):
             self._save_meta_file(self._save_dir)
 
         for subset_name, subset in self._extractor.subsets().items():
-            subset_dir = osp.join(self._save_dir, subset_name)
-            os.makedirs(subset_dir, exist_ok=True)
-
             for item in subset:
-                self._save_item(item, subset_dir)
+                self._save_item(item, subset_name)
 
     def _get_label(self, label_id):
         if label_id is None:
@@ -396,13 +387,15 @@ class LabelMeExporter(Exporter):
         image_filename = self._make_image_filename(item)
         if self._save_media:
             if item.media and item.media.has_data:
-                self._save_image(item, osp.join(subset_dir, image_filename))
+                image_dir = osp.join(self._save_dir, LabelMePath.IMAGES_DIR, subset_dir)
+                os.makedirs(image_dir, exist_ok=True)
+                self._save_image(item, osp.join(image_dir, image_filename))
             else:
                 log.debug("Item '%s' has no image", item.id)
 
         root_elem = ET.Element("annotation")
-        ET.SubElement(root_elem, "filename").text = osp.basename(image_filename)
-        ET.SubElement(root_elem, "folder").text = osp.dirname(image_filename)
+        ET.SubElement(root_elem, "filename").text = image_filename
+        ET.SubElement(root_elem, "folder").text = subset_dir
 
         source_elem = ET.SubElement(root_elem, "source")
         ET.SubElement(source_elem, "sourceImage").text = ""
@@ -461,7 +454,7 @@ class LabelMeExporter(Exporter):
             elif ann.type == AnnotationType.mask:
                 mask_filename = "%s_mask_%s.png" % (item.id, obj_id)
                 save_image(
-                    osp.join(subset_dir, LabelMePath.MASKS_DIR, mask_filename),
+                    osp.join(self._save_dir, LabelMePath.MASKS_DIR, subset_dir, mask_filename),
                     self._paint_mask(ann.image),
                     create_dir=True,
                 )
@@ -509,10 +502,11 @@ class LabelMeExporter(Exporter):
                 ET.SubElement(parts_elem, "hasparts").text = ""
                 ET.SubElement(parts_elem, "ispartof").text = str(leader_id)
 
-        os.makedirs(osp.join(subset_dir, osp.dirname(image_filename)), exist_ok=True)
-        xml_path = osp.join(subset_dir, osp.splitext(image_filename)[0] + ".xml")
+        ann_path = osp.join(self._save_dir, LabelMePath.ANNOTATIONS_DIR, subset_dir)
+        os.makedirs(osp.join(ann_path, osp.dirname(image_filename)), exist_ok=True)
+        xml_path = osp.join(ann_path, osp.splitext(image_filename)[0] + ".xml")
         if osp.exists(xml_path):
-            xml_path = osp.join(subset_dir, image_filename + ".xml")
+            xml_path = osp.join(ann_path, image_filename + ".xml")
         with open(xml_path, "w", encoding="utf-8") as f:
             xml_data = ET.tostring(root_elem, encoding="unicode", pretty_print=True)
             f.write(xml_data)

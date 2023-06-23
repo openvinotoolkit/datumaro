@@ -38,8 +38,8 @@ def fxt_train_dataset():
                 subset="train",
                 media=Image.from_numpy(data=np.ones((10, 15, 3))),
                 annotations=[
-                    Bbox(0, 2, 4, 2, label=2),
-                    Bbox(3, 3, 2, 3, label=4),
+                    Bbox(0, 2, 4, 2, label=2, id=0, group=0),
+                    Bbox(3, 3, 2, 3, label=4, id=1, group=1),
                 ],
             ),
         ],

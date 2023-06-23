@@ -277,9 +277,12 @@ class LabelMeExporterTest(TestCase):
                 require_media=True,
             )
 
-            xml_dirpath = osp.join(test_dir, "default/dir")
-            self.assertEqual(os.listdir(osp.join(test_dir, "default")), ["dir"])
-            self.assertEqual(set(os.listdir(xml_dirpath)), {"a.xml", "a.jpeg"})
+            xml_dirpath = osp.join(test_dir, "Annotations/default/dir")
+            img_dirpath = osp.join(test_dir, "Images/default/dir")
+            self.assertEqual(os.listdir(osp.join(test_dir, "Annotations", "default")), ["dir"])
+            self.assertEqual(os.listdir(osp.join(test_dir, "Images", "default")), ["dir"])
+            self.assertEqual(set(os.listdir(xml_dirpath)), {"a.xml"})
+            self.assertEqual(set(os.listdir(img_dirpath)), {"a.jpeg"})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_save_and_load_with_meta_file(self):
@@ -362,7 +365,8 @@ class LabelMeImporterTest(TestCase):
         target_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
-                    id="example_folder/img1",
+                    id="img1",
+                    subset="subset1",
                     media=Image.from_numpy(data=img1),
                     annotations=[
                         Polygon(
