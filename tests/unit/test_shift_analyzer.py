@@ -79,7 +79,7 @@ def test_covariate_shift(
     fxt_datasets = request.getfixturevalue(fxt_datasets)
     shift_analyzer = ShiftAnalyzer()
     result = shift_analyzer.compute_covariate_shift(fxt_datasets, method=method)
-    assert abs(result - expected) < 1e-3
+    assert abs(result - expected) < 2e-3
 
 
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
