@@ -2,6 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+# This model detects the bounding boxes of human faces in an image.
+# It is provided by OpenVINO™ Model Server Quickstart guide,
+# https://github.com/openvinotoolkit/model_server/blob/main/docs/ovms_quickstart.md
+
 from typing import List, Tuple
 
 import cv2
