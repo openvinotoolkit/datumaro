@@ -9,10 +9,10 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-import datumaro.plugins.ovms_plugin.samples.face_detection as face_det_model_interp
+import datumaro.plugins.inference_server_plugin.samples.face_detection as face_det_model_interp
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.plugins.ovms_plugin.launcher import OVMSLauncher
+from datumaro.plugins.inference_server_plugin.ovms import OVMSLauncher
 
 from ...requirements import Requirements, mark_requirement
 
@@ -50,7 +50,7 @@ class OVMSLauncherTest:
         mock_client.predict.return_value = fxt_output
 
         with patch(
-            "datumaro.plugins.ovms_plugin.launcher.make_grpc_client",
+            "datumaro.plugins.inference_server_plugin.ovms.make_grpc_client",
             return_value=mock_client,
         ):
             launcher = OVMSLauncher(
