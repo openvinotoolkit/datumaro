@@ -6,12 +6,12 @@ import argparse
 import logging as log
 
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.cli.commands.prune import Prune
+from datumaro.components.prune import Prune
 from datumaro.util import str_to_bool
 from datumaro.util.scope import scope_add, scoped
 
-from ...util import MultilineFormatter
-from ...util import load_project, parse_full_revpath
+from ..util import MultilineFormatter
+from ..util.project import load_project, parse_full_revpath
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
@@ -19,6 +19,19 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Prune dataset and make a representative subset",
         description="""
         Apply data pruning to a dataset.
+        The command can be useful if you have to extract representative subset.
+        |n
+        The current project (-p/--project) is used as a context for plugins
+        and models. It is used when there is a dataset path in target.
+        When not specified, the current project's working tree is used.|n
+        |n
+        Examples:|n
+        - Prune dataset with selecting random and ratio 80%:|n
+        |s|s%(prog)s -m random -r 0.8|n
+        - Prune dataset with clustering in image hash and ratio 50%:|n
+        |s|s%(prog)s -m query_clust -h img -r 0.5|
+        - Prune dataset based on entropy with clustering in image hash and ratio 50%:|n
+        |s|s%(prog)s -m entropy -h img -r 0.5|
         """,
         formatter_class=MultilineFormatter,
     )

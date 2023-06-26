@@ -55,7 +55,21 @@ class PruneTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_random(self):
-        """ """
+        """
+        <b>Description:</b>
+        Check that pruned subset with random.
+
+        <b>Input data:</b>
+        Dataset with train and test subset that each datasetitem consists of same images.
+
+        <b>Expected results:</b>
+        Pruned dataset that each subset contains one datasetitem.
+
+        <b>Steps</b>
+        1. Prepare dataset with each subset contains same images.
+        2. Set Prune and try get_pruned set method as random to extract representative subset.
+        3. Check whether each subset contains one datasetitem.
+        """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
@@ -63,12 +77,26 @@ class PruneTest(TestCase):
             prune = Prune(imported_dataset, cluster_method="random")
 
             result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result[0]]
+            result_subsets = [item.subset for item in result]
             self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_clustered_random(self):
-        """ """
+        """
+        <b>Description:</b>
+        Check that pruned subset with clustered random.
+
+        <b>Input data:</b>
+        Dataset with train and test subset that each datasetitem consists of same images.
+
+        <b>Expected results:</b>
+        Pruned dataset that each subset contains one datasetitem.
+
+        <b>Steps</b>
+        1. Prepare dataset with each subset contains same images.
+        2. Set Prune and try get_pruned set method as clustered_random to extract representative subset.
+        3. Check whether each subset contains one datasetitem.
+        """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
@@ -76,12 +104,26 @@ class PruneTest(TestCase):
             prune = Prune(imported_dataset, cluster_method="cluster_random")
 
             result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result[0]]
+            result_subsets = [item.subset for item in result]
             self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_centroid(self):
-        """ """
+        """
+        <b>Description:</b>
+        Check that pruned subset with centroid.
+
+        <b>Input data:</b>
+        Dataset with train and test subset that each datasetitem consists of same images.
+
+        <b>Expected results:</b>
+        Pruned dataset that each subset contains one datasetitem.
+
+        <b>Steps</b>
+        1. Prepare dataset with each subset contains same images.
+        2. Set Prune and try get_pruned set method as centroid to extract representative subset.
+        3. Check whether each subset contains one datasetitem.
+        """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
@@ -89,12 +131,26 @@ class PruneTest(TestCase):
             prune = Prune(imported_dataset, cluster_method="centroid")
 
             result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result[0]]
+            result_subsets = [item.subset for item in result]
             self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_query_clust(self):
-        """ """
+        """
+        <b>Description:</b>
+        Check that pruned subset with clustering with query.
+
+        <b>Input data:</b>
+        Dataset with train and test subset that each datasetitem consists of same images.
+
+        <b>Expected results:</b>
+        Pruned dataset that each subset contains one datasetitem.
+
+        <b>Steps</b>
+        1. Prepare dataset with each subset contains same images.
+        2. Set Prune and try get_pruned set method as query_clust to extract representative subset.
+        3. Check whether each subset contains one datasetitem.
+        """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
@@ -102,12 +158,26 @@ class PruneTest(TestCase):
             prune = Prune(imported_dataset, cluster_method="query_clust")
 
             result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result[0]]
+            result_subsets = [item.subset for item in result]
             self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_entropy(self):
-        """ """
+        """
+        <b>Description:</b>
+        Check that pruned subset with entropy.
+
+        <b>Input data:</b>
+        Dataset with train and test subset that each datasetitem consists of same images.
+
+        <b>Expected results:</b>
+        Pruned dataset that each subset contains one datasetitem.
+
+        <b>Steps</b>
+        1. Prepare dataset with each subset contains same images.
+        2. Set Prune and try get_pruned set method as entropy to extract representative subset.
+        3. Check whether each subset contains one datasetitem.
+        """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
@@ -115,12 +185,26 @@ class PruneTest(TestCase):
             prune = Prune(imported_dataset, cluster_method="entropy")
 
             result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result[0]]
+            result_subsets = [item.subset for item in result]
             self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_ndr(self):
-        """ """
+        """
+        <b>Description:</b>
+        Check that pruned subset with ndr.
+
+        <b>Input data:</b>
+        Dataset with train and test subset that each datasetitem consists of same images.
+
+        <b>Expected results:</b>
+        Pruned dataset that each subset contains one datasetitem.
+
+        <b>Steps</b>
+        1. Prepare dataset with each subset contains same images.
+        2. Set Prune and try get_pruned set method as ndr to extract representative subset.
+        3. Check whether each subset contains one datasetitem.
+        """
         with TestDir() as test_dir:
             converter = partial(DatumaroExporter.convert, save_media=True)
             converter(self.test_dataset, test_dir)
@@ -128,5 +212,5 @@ class PruneTest(TestCase):
             prune = Prune(imported_dataset, cluster_method="ndr")
 
             result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result[0]]
+            result_subsets = [item.subset for item in result]
             self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})

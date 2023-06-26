@@ -1,3 +1,9 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
+import numpy as np
+
 from datumaro.components.annotation import HashKey
 from datumaro.components.dataset import Dataset
 from datumaro.components.media import MediaElement
@@ -165,6 +171,4 @@ def calculate_hamming(B1, B2):
     :param B2:  vector [r*n]
     :return: hamming distance [r]
     """
-    q = B2.shape[1]  # max inner product value
-    distH = 0.5 * (q - B1 @ B2.transpose())
-    return distH
+    return np.count_nonzero(B1 != B2, axis=1)

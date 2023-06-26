@@ -10,26 +10,8 @@ from datumaro.components.annotation import HashKey
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError, MediaTypeError
-from datumaro.components.media import MediaElement
 from datumaro.plugins.explorer import ExplorerLauncher
-from datumaro.util.hashkey_util import select_uninferenced_dataset, calculate_hamming
-
-
-def calculate_hamming(B1, B2):
-    """
-    :param B1:  vector [n]
-    :param B2:  vector [r*n]
-    :return: hamming distance [r]
-    """
-    return np.count_nonzero(B1 != B2, axis=1)
-
-
-def select_uninferenced_dataset(dataset):
-    uninferenced_dataset = Dataset(media_type=MediaElement)
-    for item in dataset:
-        if not any(isinstance(annotation, HashKey) for annotation in item.annotations):
-            uninferenced_dataset.put(item)
-    return uninferenced_dataset
+from datumaro.util.hashkey_util import calculate_hamming, select_uninferenced_dataset
 
 
 class Explorer:
