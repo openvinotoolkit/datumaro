@@ -1,0 +1,32 @@
+datumaro.plugins.ovms\_plugin
+=============================
+
+.. automodule:: datumaro.plugins.ovms_plugin
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   datumaro.plugins.ovms_plugin.launcher
+   datumaro.plugins.ovms_plugin.samples
+

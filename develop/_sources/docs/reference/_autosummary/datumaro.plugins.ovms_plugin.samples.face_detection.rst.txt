@@ -1,0 +1,29 @@
+datumaro.plugins.ovms\_plugin.samples.face\_detection
+=====================================================
+
+.. automodule:: datumaro.plugins.ovms_plugin.samples.face_detection
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      FaceDetectionModelInterpreter
+   
+   
+
+   
+   
+   
+
+
+
