@@ -10,7 +10,7 @@ import pytest
 
 from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
 
-from ..requirements import Requirements, mark_requirement
+from ...requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
 
