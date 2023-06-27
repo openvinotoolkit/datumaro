@@ -1004,18 +1004,6 @@
     "extra_deps": []
   },
   {
-    "import_path": "datumaro.components.launcher.LauncherWithModelInterpreter",
-    "plugin_name": "launcher_with_model_interpreter",
-    "plugin_type": "Launcher",
-    "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.plugins.inference_server_plugin.ovms.OVMSLauncher",
-    "plugin_name": "ovmslauncher",
-    "plugin_type": "Launcher",
-    "extra_deps": []
-  },
-  {
     "import_path": "datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher",
     "plugin_name": "ac",
     "plugin_type": "Launcher",
@@ -1033,6 +1021,18 @@
   {
     "import_path": "datumaro.plugins.inference_server_plugin.triton.TritonLauncher",
     "plugin_name": "triton",
+    "plugin_type": "Launcher",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.inference_server_plugin.ovms.OVMSLauncher",
+    "plugin_name": "ovmslauncher",
+    "plugin_type": "Launcher",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.components.launcher.LauncherWithModelInterpreter",
+    "plugin_name": "launcher_with_model_interpreter",
     "plugin_type": "Launcher",
     "extra_deps": []
   },
