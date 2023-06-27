@@ -23,7 +23,7 @@ TClient = Union[GrpcClient, HttpClient]
 
 
 class OVMSLauncher(LauncherForDedicatedInferenceServer[TClient]):
-    """Inference launcher for OVMS (OpenVINO™ Model Server)
+    """Inference launcher for OVMS (OpenVINO™ Model Server) (https://github.com/openvinotoolkit/model_server)
 
     Parameters:
         model_name: Name of the model. It should match with the model name loaded in the server instance.
