@@ -1,8 +1,9 @@
 name: Publish Source Distribution to PyPI
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch: # run on request (no need for PR)
+  # release:
+  #   types: [published]
 
 jobs:
   publish-sdist-to-pypi:
@@ -27,9 +28,6 @@ jobs:
       run: >-
         python -m
         build
-        --sdist
-        --outdir dist/
-        .
     - name: Upload package distributions to github
       uses: svenstaro/upload-release-action@v2
       with:
@@ -38,19 +36,19 @@ jobs:
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
-    - name: Check tag to determine where to publish the source distribution to PyPI or TestPyPI
-      id: check-tag
-      uses: actions-ecosystem/action-regex-match@v2
-      with:
-        text: ${{ github.ref }}
-        regex: '^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$'
-    - name: Publish package distributions to PyPI
-      if: ${{ steps.check-tag.outputs.match != '' }}
-      uses: pypa/gh-action-pypi-publish@v1.7.1
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
+    # - name: Check tag to determine where to publish the source distribution to PyPI or TestPyPI
+    #   id: check-tag
+    #   uses: actions-ecosystem/action-regex-match@v2
+    #   with:
+    #     text: ${{ github.ref }}
+    #     regex: '^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$'
+    # - name: Publish package distributions to PyPI
+    #   if: ${{ steps.check-tag.outputs.match != '' }}
+    #   uses: pypa/gh-action-pypi-publish@v1.7.1
+    #   with:
+    #     password: ${{ secrets.PYPI_API_TOKEN }}
     - name: Publish package distributions to TestPyPI
-      if: ${{ steps.check-tag.outputs.match == '' }}
+      # if: ${{ steps.check-tag.outputs.match == '' }}
       uses: pypa/gh-action-pypi-publish@v1.7.1
       with:
         password: ${{ secrets.TESTPYPI_API_TOKEN }}
