@@ -14,7 +14,6 @@ from sklearn.cluster import KMeans
 import datumaro.plugins.ndr as ndr
 from datumaro.components.annotation import HashKey, Label, LabelCategories
 from datumaro.components.dataset import Dataset
-from datumaro.components.media import MediaElement
 from datumaro.plugins.explorer import ExplorerLauncher
 from datumaro.util.hashkey_util import (
     calculate_hamming,
@@ -118,11 +117,11 @@ def clustered_random(ratio, num_centers, database_keys, labels, item_list, sourc
     )
 
     selected_items = []
-    for cluster_id in cluster_ids:
+    for i, cluster_id in enumerate(cluster_ids):
         random.seed(0)
         cluster_items_idx = np.where(clusters == cluster_id)[0]
 
-        num_selected_item = norm_cluster_num_item_list[cluster_id]
+        num_selected_item = norm_cluster_num_item_list[i]
         random.shuffle(cluster_items_idx)
         for idx in cluster_items_idx[:num_selected_item]:
             selected_items.append(item_list[idx])
@@ -134,15 +133,6 @@ def query_clust(ratio, num_centers, database_keys, labels, item_list, source):
     Select item through clustering with inits that implys each label.
     """
     center_dict = {i: [] for i in range(1, num_centers)}
-    for item in item_list:
-        for anno in item.annotations:
-            if isinstance(anno, Label):
-                label_ = anno.label
-                if not center_dict.get(label_):
-                    center_dict[label_] = item
-            if all(center_dict.values()):
-                break
-
     for item in item_list:
         for anno in item.annotations:
             if isinstance(anno, Label):
@@ -167,10 +157,10 @@ def query_clust(ratio, num_centers, database_keys, labels, item_list, source):
 
     selected_items = []
     dist_tuples = []
-    for cluster_id in cluster_ids:
+    for i, cluster_id in enumerate(cluster_ids):
         cluster_center = cluster_centers[cluster_id]
         cluster_items_idx = np.where(clusters == cluster_id)[0]
-        num_selected_item = norm_cluster_num_item_list[cluster_id]
+        num_selected_item = norm_cluster_num_item_list[i]
 
         cluster_items = database_keys[cluster_items_idx,]
         dist = calculate_hamming(cluster_center, cluster_items)
@@ -195,9 +185,9 @@ def entropy(ratio, num_centers, database_keys, labels, item_list, source):
     )
 
     selected_item_indexes = []
-    for cluster_id in cluster_ids:
+    for i, cluster_id in enumerate(cluster_ids):
         cluster_items_idx = np.where(clusters == cluster_id)[0]
-        num_selected_item = norm_cluster_num_item_list[cluster_id]
+        num_selected_item = norm_cluster_num_item_list[i]
 
         cluster_classes = np.array(labels)[cluster_items_idx]
         _, inv, cnts = np.unique(cluster_classes, return_inverse=True, return_counts=True)
@@ -272,7 +262,7 @@ class Prune:
 
             for item in dataset:
                 for annotation in item.annotations:
-                    if isinstance(annotation, Label):
+                    if type(annotation) in [Label]:
                         labels.append(annotation.label)
                     if isinstance(annotation, HashKey):
                         hash_key = annotation.hash_key[0]
@@ -337,7 +327,7 @@ class Prune:
             "ndr": ndr_select,
         }
 
-        removed_items, dist_tuples = method[self._cluster_method](
+        selected_items, dist_tuples = method[self._cluster_method](
             ratio=ratio,
             num_centers=self._num_centers,
             labels=self._labels,
@@ -346,8 +336,10 @@ class Prune:
             source=self._dataset,
         )
 
-        result_dataset = Dataset(media_type=MediaElement)
-        for item in removed_items:
+        result_dataset = Dataset(media_type=self._dataset.media_type())
+        result_dataset._source_path = self._dataset._source_path
+        result_dataset.define_categories(self._dataset.categories())
+        for item in selected_items:
             result_dataset.put(item)
 
         if dist_tuples:
