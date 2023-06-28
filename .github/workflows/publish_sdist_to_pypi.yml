@@ -1,6 +1,7 @@
 name: Publish Source Distribution to PyPI
 
 on:
+  workflow_dispatch: # for testing purpose. will be removed soon.
   release:
     types: [published]
 
