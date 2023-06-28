@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1047>)
 - Refactor Launcher and ModelInterpreter
   (<https://github.com/openvinotoolkit/datumaro/pull/1055>)
+- Enhance the error message for datum stats to be more user friendly
+  (<https://github.com/openvinotoolkit/datumaro/pull/1069>)
 
 ### Bug fixes
 - Fix warnings in test_visualizer.py
