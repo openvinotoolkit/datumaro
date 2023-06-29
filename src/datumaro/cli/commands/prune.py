@@ -61,6 +61,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
     )
+    parser.add_argument("-m", "--model", dest="model", help="Model to use for hash inference")
     parser.add_argument(
         "--stage",
         type=str_to_bool,

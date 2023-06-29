@@ -210,7 +210,7 @@ def ndr_select(ratio, num_centers, database_keys, labels, item_list, source):
     selected_items = []
     for subset_ in subset_lists:
         subset_len = len(source.get_subset(subset_))
-        num_selected_subset_item = math.ceil(subset_len * ratio)
+        num_selected_subset_item = math.ceil(subset_len * (1-ratio))
         ndr_result = ndr.NDR(source, working_subset=subset_, num_cut=num_selected_subset_item)
         for item in ndr_result.get_subset(subset_):
             selected_items.append(item)
@@ -317,7 +317,7 @@ class Prune:
             dataset.update(updated_items)
         return datasets
 
-    def get_pruned(self, ratio: float) -> None:
+    def get_pruned(self, ratio: float = 0.5) -> None:
         method = {
             "random": random_select,
             "cluster_random": clustered_random,
