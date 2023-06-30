@@ -64,6 +64,11 @@ class OVMSLauncher(LauncherForDedicatedInferenceServer[TClient]):
         log.info(f"Received metadata: {self._metadata}")
 
     def infer(self, inputs: np.ndarray) -> List[ModelPred]:
+        # Please see the following link for the input and output type of self._client.predict()
+        # https://github.com/openvinotoolkit/model_server/blob/releases/2022/3/client/python/ovmsclient/lib/docs/grpc_client.md#method-predict
+        # The input is Dict[str, np.ndarray].
+        # The output is Dict[str, np.ndarray] (If the model has multiple outputs),
+        # or np.ndarray (If the model has one single output).
         results = self._client.predict(
             inputs={self._input_key: inputs},
             model_name=self.model_name,
