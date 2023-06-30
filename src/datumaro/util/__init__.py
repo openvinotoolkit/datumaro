@@ -150,10 +150,8 @@ def parse_json(data: Union[str, bytes]):
 
 
 def parse_json_file(path: str):
-    # with open(path, "rb") as f:
-    #     return parse_json(f.read())
     with open(path, "rb") as f:
-        return json.load(f)
+        return parse_json(f.read())
 
 
 def dump_json(
