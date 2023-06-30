@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import json
 from functools import wraps
 from inspect import isclass
 from itertools import islice
@@ -143,14 +144,16 @@ def optional_arg_decorator(fn):
 def parse_json(data: Union[str, bytes]):
     try:
         return orjson.loads(data)
-    except orjson.JSONDecodeError as e:
+    except json.JSONDecodeError as e:
         e.msg += f"\n, error data={data}"
         raise e
 
 
 def parse_json_file(path: str):
+    # with open(path, "rb") as f:
+    #     return parse_json(f.read())
     with open(path, "rb") as f:
-        return parse_json(f.read())
+        return json.load(f)
 
 
 def dump_json(
