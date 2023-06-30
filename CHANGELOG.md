@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1049>, <https://github.com/openvinotoolkit/datumaro/pull/1063>)
 - Add OVMSLauncher
   (<https://github.com/openvinotoolkit/datumaro/pull/1056>)
+- Add TritonLauncher
+  (<https://github.com/openvinotoolkit/datumaro/pull/1059>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins
