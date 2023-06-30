@@ -101,3 +101,16 @@ Intermediate Skills
 
       :bdg-info:`CLI`
       :bdg-warning:`Python`
+
+   .. grid-item-card::
+
+      .. button-ref:: 12_data_pruning
+         :color: primary
+         :outline:
+         :expand:
+
+         Level 12: Data Pruning
+
+      :bdg-warning:`Python`
+      :bdg-info:`CLI`
+      :bdg-success:`ProjectCLI`
