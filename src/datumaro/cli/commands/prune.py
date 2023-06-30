@@ -18,12 +18,22 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(
         help="Prune dataset and make a representative subset",
         description="""
-        Apply data pruning to a dataset.
+        Apply data pruning to a dataset.|n
         The command can be useful if you have to extract representative subset.
         |n
         The current project (-p/--project) is used as a context for plugins
         and models. It is used when there is a dataset path in target.
         When not specified, the current project's working tree is used.|n
+        |n
+        By default, datasets are updated in-place. The '-o/--output-dir'
+        option can be used to specify another output directory. When
+        updating in-place, use the '--overwrite' parameter (in-place
+        updates fail by default to prevent data loss), unless a project
+        target is modified.|n
+        |n
+        The command can be applied to a dataset or a project build target,
+        a stage or the combined 'project' target, in which case all the
+        targets will be affected.|n
         |n
         Examples:|n
         - Prune dataset with selecting random and ratio 80%:|n
@@ -36,10 +46,18 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter,
     )
 
-    parser.add_argument("target", nargs="?", help="Target dataset")
-    parser.add_argument("-m", "--method", dest="method", help="")
-    parser.add_argument("-r", "--ratio", type=float, dest="ratio", help="")
-    parser.add_argument("--hash-type", type=str, dest="hash_type", default="img", help="")
+    parser.add_argument("target", nargs="?", help="Target dataset revpath (default: project)")
+    parser.add_argument("-m", "--method", dest="method", help="Method to apply to the dataset")
+    parser.add_argument(
+        "-r", "--ratio", type=float, dest="ratio", help="How much to remain dataset after pruning"
+    )
+    parser.add_argument(
+        "--hash-type",
+        type=str,
+        dest="hash_type",
+        default="img",
+        help="Hashtype to extract feature from data information between image and text(label)",
+    )
     parser.add_argument(
         "-p",
         "--project",
@@ -61,7 +79,9 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
     )
-    parser.add_argument("-m", "--model", dest="model", help="Model to use for hash inference")
+    parser.add_argument(
+        "--model", dest="model", default="clip", help="Model to use for hash inference"
+    )
     parser.add_argument(
         "--stage",
         type=str_to_bool,
@@ -88,6 +108,7 @@ def get_sensitive_args():
             "ratio",
             "hash_type",
             "project_dir",
+            "model",
             "dst_dir",
         ]
     }
@@ -102,26 +123,15 @@ def prune_command(args):
         if args.project_dir:
             raise
 
-    if args.target:
-        targets = [args.target]
-    else:
-        targets = list(project.working_tree.sources)
+    targets = [args.target] if args.target else list(project.working_tree.sources)
 
-    source_datasets = []
-    for target in targets:
-        target_dataset, _ = parse_full_revpath(target, project)
-        source_datasets.append(target_dataset)
+    source_datasets = [parse_full_revpath(target, project)[0] for target in targets]
 
     prune = Prune(*source_datasets, cluster_method=args.method)
     for dataset in source_datasets:
-        dataset_dir = dataset.data_path
-        dataset.save(dataset_dir, save_media=True, save_hashkey_meta=True)
+        dataset.save(dataset.data_path, save_media=True, save_hashkey_meta=True)
 
-    result, dist = prune.get_pruned(args.ratio)
-
-    if dist:
-        for id_, subset, center_idx, dist_ in dist.items():
-            log.info(f"ID : {id_}, subset={subset} {dist_} away from {center_idx}th center")
+    result = prune.get_pruned(args.ratio)
 
     dst_dir = args.dst_dir or dataset.data_path
     result.save(dst_dir, save_media=True)

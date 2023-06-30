@@ -8,7 +8,7 @@ from datumaro.components.annotation import Caption, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.components.prune import Prune
+from datumaro.components.prune import Prune, match_num_item_for_cluster
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 
 from ..requirements import Requirements, mark_requirement
@@ -52,6 +52,19 @@ class PruneTest(TestCase):
             categories=["1", "2"],
         )
         return dataset
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_match_num_item_for_cluster(self):
+        """ """
+        ratio = 0.5
+        total_num_items = 100
+        cluster_num_items = [20, 30, 15, 10, 25]
+
+        result = match_num_item_for_cluster(ratio, total_num_items, cluster_num_items)
+
+        # Assert the expected result based on the given inputs
+        expected_result = [10, 15, 7, 5, 12]
+        self.assertEqual(result, expected_result)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_random(self):

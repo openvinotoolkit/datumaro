@@ -26,64 +26,45 @@ from datumaro.util.hashkey_util import (
 def match_num_item_for_cluster(ratio, dataset_len, cluster_num_item_list):
     total_num_selected_item = math.ceil(dataset_len * ratio)
 
-    cluster_num_item_list = [
-        float(i) / sum(cluster_num_item_list) * total_num_selected_item
-        for i in cluster_num_item_list
-    ]
-    norm_cluster_num_item_list = [int(np.round(i)) for i in cluster_num_item_list]
-    zero_cluster_indexes = list(np.where(np.array(norm_cluster_num_item_list) == 0)[0])
-    add_clust_dist = np.sort(np.array(cluster_num_item_list)[zero_cluster_indexes])[::-1][
-        : total_num_selected_item - sum(norm_cluster_num_item_list),
-    ]
-    for dist in set(add_clust_dist):
-        indices = [i for i, x in enumerate(cluster_num_item_list) if x == dist]
-        for index in indices:
-            norm_cluster_num_item_list[index] += 1
-    if total_num_selected_item > sum(norm_cluster_num_item_list):
-        diff_num_item_list = np.argsort(
-            np.array(
-                [x - norm_cluster_num_item_list[i] for i, x in enumerate(cluster_num_item_list)]
-            )
-        )[::-1]
-        for diff_idx in diff_num_item_list[
-            : total_num_selected_item - sum(norm_cluster_num_item_list)
-        ]:
-            norm_cluster_num_item_list[diff_idx] += 1
-    elif total_num_selected_item < sum(norm_cluster_num_item_list):
-        diff_num_item_list = np.argsort(
-            np.array(
-                [x - norm_cluster_num_item_list[i] for i, x in enumerate(cluster_num_item_list)]
-            )
-        )
-        for diff_idx in diff_num_item_list[
-            : sum(norm_cluster_num_item_list) - total_num_selected_item
-        ]:
+    cluster_weights = np.array(cluster_num_item_list) / sum(cluster_num_item_list)
+    norm_cluster_num_item_list = (cluster_weights * total_num_selected_item).astype(int)
+    remaining_items = total_num_selected_item - sum(norm_cluster_num_item_list)
+
+    if remaining_items > 0:
+        zero_cluster_indexes = np.where(norm_cluster_num_item_list == 0)[0]
+        add_clust_dist = np.sort(cluster_weights[zero_cluster_indexes])[::-1][:remaining_items]
+
+        for dist in set(add_clust_dist):
+            indices = np.where(cluster_weights == dist)[0]
+            for index in indices:
+                norm_cluster_num_item_list[index] += 1
+
+    elif remaining_items < 0:
+        diff_num_item_list = np.argsort(cluster_weights - norm_cluster_num_item_list)
+        for diff_idx in diff_num_item_list[: abs(remaining_items)]:
             norm_cluster_num_item_list[diff_idx] -= 1
-    return norm_cluster_num_item_list
+
+    return norm_cluster_num_item_list.tolist()
 
 
 def random_select(ratio, num_centers, database_keys, labels, item_list, source):
     """
-    Select item through naive random method among dataset.
+    Select items randomly from the dataset.
     """
     random.seed(0)
     dataset_len = len(item_list)
-
     num_selected_item = math.ceil(dataset_len * ratio)
-    random_list = random.sample(range(dataset_len), num_selected_item)
-    removed_items = list(range(dataset_len))
-    for idx in random_list:
-        removed_items.remove(idx)
-    selected_items = (np.array(item_list)[random_list]).tolist()
+    random_indices = random.sample(range(dataset_len), num_selected_item)
+    selected_items = [item_list[idx] for idx in random_indices]
     return selected_items, None
 
 
 def centroid(ratio, num_centers, database_keys, labels, item_list, source):
     """
-    Select item through clustering with centers that targeted result number.
+    Select items through clustering with centers targeting the desired number.
     """
-    num_centers = math.ceil(len(item_list) * ratio)
-    kmeans = KMeans(n_clusters=num_centers, random_state=0)
+    num_selected_centers = math.ceil(len(item_list) * ratio)
+    kmeans = KMeans(n_clusters=num_selected_centers, random_state=0)
     clusters = kmeans.fit_predict(database_keys)
     cluster_centers = kmeans.cluster_centers_
     cluster_ids = np.unique(clusters)
@@ -93,12 +74,12 @@ def centroid(ratio, num_centers, database_keys, labels, item_list, source):
     for cluster_id in cluster_ids:
         cluster_center = cluster_centers[cluster_id]
         cluster_items_idx = np.where(clusters == cluster_id)[0]
-        num_selected_item = 1
+        num_selected_items = 1
         cluster_items = database_keys[cluster_items_idx,]
         dist = calculate_hamming(cluster_center, cluster_items)
         ind = np.argsort(dist)
         item_idx_list = cluster_items_idx[ind]
-        for i, idx in enumerate(item_idx_list[:num_selected_item]):
+        for i, idx in enumerate(item_idx_list[:num_selected_items]):
             selected_items.append(item_list[idx])
             dist_tuples.append((cluster_id, item_list[idx].id, item_list[idx].subset, dist[ind][i]))
     return selected_items, dist_tuples
@@ -106,7 +87,7 @@ def centroid(ratio, num_centers, database_keys, labels, item_list, source):
 
 def clustered_random(ratio, num_centers, database_keys, labels, item_list, source):
     """
-    Select item through clustering and choose randomly in each cluster.
+    Select items through clustering and choose randomly within each cluster.
     """
     kmeans = KMeans(n_clusters=num_centers, random_state=0)
     clusters = kmeans.fit_predict(database_keys)
@@ -117,33 +98,34 @@ def clustered_random(ratio, num_centers, database_keys, labels, item_list, sourc
     )
 
     selected_items = []
+    random.seed(0)
     for i, cluster_id in enumerate(cluster_ids):
-        random.seed(0)
         cluster_items_idx = np.where(clusters == cluster_id)[0]
-
-        num_selected_item = norm_cluster_num_item_list[i]
+        num_selected_items = norm_cluster_num_item_list[i]
         random.shuffle(cluster_items_idx)
-        for idx in cluster_items_idx[:num_selected_item]:
-            selected_items.append(item_list[idx])
+        selected_items.extend(item_list[idx] for idx in cluster_items_idx[:num_selected_items])
     return selected_items, None
 
 
 def query_clust(ratio, num_centers, database_keys, labels, item_list, source):
     """
-    Select item through clustering with inits that implys each label.
+    Select items through clustering with inits that imply each label.
     """
-    center_dict = {i: [] for i in range(1, num_centers)}
+    center_dict = {i: None for i in range(1, num_centers)}
     for item in item_list:
         for anno in item.annotations:
             if isinstance(anno, Label):
                 label_ = anno.label
-                if not center_dict.get(label_):
+                if center_dict.get(label_) is None:
                     center_dict[label_] = item
         if all(center_dict.values()):
             break
+
     item_id_list = [item.id.split("/")[-1] for item in item_list]
     centroids = [
-        database_keys[item_id_list.index(i.id.split(":")[-1])] for i in list(center_dict.values())
+        database_keys[item_id_list.index(i.id.split(":")[-1])]
+        for i in list(center_dict.values())
+        if i
     ]
     kmeans = KMeans(n_clusters=num_centers, n_init=1, init=centroids, random_state=0)
 
@@ -162,7 +144,7 @@ def query_clust(ratio, num_centers, database_keys, labels, item_list, source):
         cluster_items_idx = np.where(clusters == cluster_id)[0]
         num_selected_item = norm_cluster_num_item_list[i]
 
-        cluster_items = database_keys[cluster_items_idx,]
+        cluster_items = database_keys[cluster_items_idx]
         dist = calculate_hamming(cluster_center, cluster_items)
         ind = np.argsort(dist)
         item_idx_list = cluster_items_idx[ind]
@@ -174,65 +156,60 @@ def query_clust(ratio, num_centers, database_keys, labels, item_list, source):
 
 def entropy(ratio, num_centers, database_keys, labels, item_list, source):
     """
-    Select item through clustering and choose it based on label entropy in each cluster.
+    Select items through clustering and choose them based on label entropy in each cluster.
     """
     kmeans = KMeans(n_clusters=num_centers, random_state=0)
     clusters = kmeans.fit_predict(database_keys)
-    cluster_ids, cluster_num_item_list = np.unique(clusters, return_counts=True)
 
+    cluster_ids, cluster_num_item_list = np.unique(clusters, return_counts=True)
     norm_cluster_num_item_list = match_num_item_for_cluster(
         ratio, len(database_keys), cluster_num_item_list
     )
 
     selected_item_indexes = []
-    for i, cluster_id in enumerate(cluster_ids):
+    for cluster_id, num_selected_item in zip(cluster_ids, norm_cluster_num_item_list):
         cluster_items_idx = np.where(clusters == cluster_id)[0]
-        num_selected_item = norm_cluster_num_item_list[i]
 
         cluster_classes = np.array(labels)[cluster_items_idx]
         _, inv, cnts = np.unique(cluster_classes, return_inverse=True, return_counts=True)
         weights = 1 / cnts
         probs = weights[inv]
-        probs = probs / probs.sum()
+        probs /= probs.sum()
 
-        choices = np.random.choice(range(len(inv)), size=num_selected_item, p=probs, replace=False)
-        selected_item_indexes += cluster_items_idx[choices].tolist()
-    selected_items = (np.array(item_list)[selected_item_indexes]).tolist()
+        choices = np.random.choice(len(inv), size=num_selected_item, p=probs, replace=False)
+        selected_item_indexes.extend(cluster_items_idx[choices])
+
+    selected_items = np.array(item_list)[selected_item_indexes].tolist()
     return selected_items, None
 
 
 def ndr_select(ratio, num_centers, database_keys, labels, item_list, source):
     """
-    Select item based on NDR among each subset.
+    Select items based on NDR among each subset.
     """
     subset_lists = list(source.subsets().keys())
 
     selected_items = []
     for subset_ in subset_lists:
         subset_len = len(source.get_subset(subset_))
-        num_selected_subset_item = math.ceil(subset_len * (1-ratio))
+        num_selected_subset_item = math.ceil(subset_len * (1 - ratio))
         ndr_result = ndr.NDR(source, working_subset=subset_, num_cut=num_selected_subset_item)
-        for item in ndr_result.get_subset(subset_):
-            selected_items.append(item)
+        selected_items.extend(ndr_result.get_subset(subset_))
+
     return selected_items, None
 
 
 class Prune:
     def __init__(
         self,
-        *dataset: Dataset,
+        *datasets: Dataset,
         cluster_method: str = "random",
         hash_type: str = "img",
     ) -> None:
         """
         Prune make a representative and manageable subset.
         """
-        if isinstance(dataset, tuple):
-            try:
-                self._dataset = copy.deepcopy(dataset[0]._dataset)
-            except AttributeError:
-                self._dataset = dataset[0]
-
+        self._dataset = datasets[0] if isinstance(datasets, tuple) else datasets[0]
         self._cluster_method = cluster_method
         self._hash_type = hash_type
 
@@ -240,50 +217,46 @@ class Prune:
         self._text_model = None
         self._num_centers = None
 
-        database_keys = None
-        item_list = []
-        labels = []
+        self._database_keys = None
+        self._item_list = []
+        self._labels = []
 
+        self._prepare_data()
+
+    def _prepare_data(self):
         if self._hash_type == "txt":
-            category_dict = self.prompting(dataset)
+            category_dict = self._prompting()
 
         if self._cluster_method == "random":
-            for item in self._dataset:
-                item_list.append(item)
+            self._item_list = list(self._dataset)
         else:
             datasets_to_infer = select_uninferenced_dataset(self._dataset)
-            dataset = self.compute_hash_key([self._dataset], [datasets_to_infer])[0]
+            datasets = self._compute_hash_key([self._dataset], [datasets_to_infer])[0]
 
-            # check number of category
-            for category in dataset.categories().values():
+            for category in datasets.categories().values():
                 if isinstance(category, LabelCategories):
-                    num_centers = len(list(category._indices.keys()))
-            self._num_centers = num_centers
+                    self._num_centers = len(category._indices.keys())
 
-            for item in dataset:
+            for item in datasets:
                 for annotation in item.annotations:
-                    if type(annotation) in [Label]:
-                        labels.append(annotation.label)
+                    if isinstance(annotation, Label):
+                        self._labels.append(annotation.label)
                     if isinstance(annotation, HashKey):
                         hash_key = annotation.hash_key[0]
                         if self._hash_type == "txt":
                             inputs = category_dict.get(item.annotations[0].label)
                             if isinstance(inputs, List):
-                                inputs = (" ").join(inputs)
-                            hash_key_txt = self.text_model.infer_text(inputs)
+                                inputs = " ".join(inputs)
+                            hash_key_txt = self._text_model.infer_text(inputs)
                             hash_key = np.concatenate([hash_key, hash_key_txt])
                         hash_key = np.unpackbits(hash_key, axis=-1)
-                        if database_keys is None:
-                            database_keys = hash_key.reshape(1, -1)
+                        if self._database_keys is None:
+                            self._database_keys = hash_key.reshape(1, -1)
                         else:
-                            database_keys = np.concatenate(
-                                (database_keys, hash_key.reshape(1, -1)), axis=0
+                            self._database_keys = np.concatenate(
+                                (self._database_keys, hash_key.reshape(1, -1)), axis=0
                             )
-                item_list.append(item)
-
-        self._database_keys = database_keys
-        self._item_list = item_list
-        self._labels = labels
+                self._item_list.append(item)
 
     @property
     def model(self):
@@ -305,19 +278,19 @@ class Prune:
             category_dict[indice] = [temp.format(label) for temp in template]
         return category_dict
 
-    def compute_hash_key(self, datasets, datasets_to_infer):
+    def _compute_hash_key(self, datasets, datasets_to_infer):
         for dataset_to_infer in datasets_to_infer:
-            if len(dataset_to_infer) > 0:
+            if dataset_to_infer:
                 dataset_to_infer.run_model(self.model, append_annotation=True)
         for dataset, dataset_to_infer in zip(datasets, datasets_to_infer):
-            updated_items = []
-            for item in dataset_to_infer:
-                item_ = dataset.get(item.id, item.subset)
-                updated_items.append(item_.wrap(annotations=item.annotations))
+            updated_items = [
+                dataset.get(item.id, item.subset).wrap(annotations=item.annotations)
+                for item in dataset_to_infer
+            ]
             dataset.update(updated_items)
         return datasets
 
-    def get_pruned(self, ratio: float = 0.5) -> None:
+    def get_pruned(self, ratio: float = 0.5) -> Dataset:
         method = {
             "random": random_select,
             "cluster_random": clustered_random,
