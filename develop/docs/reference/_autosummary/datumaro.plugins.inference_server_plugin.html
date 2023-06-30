@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.ovms_plugin &#8212; Datumaro 1.3.2 documentation</title>
+    <title>datumaro.plugins.inference_server_plugin &#8212; Datumaro 1.3.2 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.ovms_plugin';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.inference_server_plugin';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.ovms_plugin.launcher" href="datumaro.plugins.ovms_plugin.launcher.html" />
-    <link rel="prev" title="datumaro.plugins.openvino_plugin.shift_launcher" href="datumaro.plugins.openvino_plugin.shift_launcher.html" />
+    <link rel="next" title="datumaro.plugins.inference_server_plugin.base" href="datumaro.plugins.inference_server_plugin.base.html" />
+    <link rel="prev" title="datumaro.plugins.explorer" href="datumaro.plugins.explorer.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -474,10 +474,10 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.accuracy_checker_plugin.html">datumaro.plugins.accuracy_checker_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.data_formats.html">datumaro.plugins.data_formats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.explorer.html">datumaro.plugins.explorer</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.plugins.inference_server_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.missing_annotation_detection.html">datumaro.plugins.missing_annotation_detection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.ndr.html">datumaro.plugins.ndr</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.plugins.ovms_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
@@ -567,15 +567,93 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.ovms_plugin">
-<span id="datumaro-plugins-ovms-plugin"></span><h1>datumaro.plugins.ovms_plugin<a class="headerlink" href="#module-datumaro.plugins.ovms_plugin" title="Permalink to this heading">#</a></h1>
+  <section id="module-datumaro.plugins.inference_server_plugin">
+<span id="datumaro-plugins-inference-server-plugin"></span><h1>datumaro.plugins.inference_server_plugin<a class="headerlink" href="#module-datumaro.plugins.inference_server_plugin" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.inference_server_plugin.OVMSLauncher">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.inference_server_plugin.</span></span><span class="sig-name descname"><span class="pre">OVMSLauncher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_interpreter_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">9000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tls_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.plugins.inference_server_plugin.base.html#datumaro.plugins.inference_server_plugin.base.TLSConfig" title="datumaro.plugins.inference_server_plugin.base.TLSConfig"><span class="pre">TLSConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.plugins.inference_server_plugin.base.html#datumaro.plugins.inference_server_plugin.base.ProtocolType" title="datumaro.plugins.inference_server_plugin.base.ProtocolType"><span class="pre">ProtocolType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ProtocolType.grpc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/inference_server_plugin/ovms.html#OVMSLauncher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.inference_server_plugin.OVMSLauncher" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.plugins.inference_server_plugin.base.html#datumaro.plugins.inference_server_plugin.base.LauncherForDedicatedInferenceServer" title="datumaro.plugins.inference_server_plugin.base.LauncherForDedicatedInferenceServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LauncherForDedicatedInferenceServer</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="datumaro.plugins.inference_server_plugin.ovms.html#datumaro.plugins.inference_server_plugin.ovms.GrpcClient" title="ovmsclient.tfs_compat.grpc.serving_client.GrpcClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">GrpcClient</span></code></a>, <a class="reference internal" href="datumaro.plugins.inference_server_plugin.ovms.html#datumaro.plugins.inference_server_plugin.ovms.HttpClient" title="ovmsclient.tfs_compat.http.serving_client.HttpClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">HttpClient</span></code></a>]]</p>
+<p>Inference launcher for OVMS (OpenVINO™ Model Server) (<a class="github reference external" href="https://github.com/openvinotoolkit/model_server">openvinotoolkit/model_server</a>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> – Name of the model. It should match with the model name loaded in the server instance.</p></li>
+<li><p><strong>model_interpreter_path</strong> – Python source code path which implements a model interpreter.
+The model interpreter implement pre-processing of the model input and post-processing of the model output.</p></li>
+<li><p><strong>model_version</strong> – Version of the model loaded in the server instance</p></li>
+<li><p><strong>host</strong> – Host address of the server instance</p></li>
+<li><p><strong>port</strong> – Port number of the server instance</p></li>
+<li><p><strong>timeout</strong> – Timeout limit during communication between the client and the server instance</p></li>
+<li><p><strong>tls_config</strong> – Configuration required if the server instance is in the secure mode</p></li>
+<li><p><strong>protocol_type</strong> – Communication protocol type with the server instance</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.inference_server_plugin.OVMSLauncher.infer">
+<span class="sig-name descname"><span class="pre">infer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/inference_server_plugin/ovms.html#OVMSLauncher.infer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.inference_server_plugin.OVMSLauncher.infer" title="Permalink to this definition">#</a></dt>
+<dd><p>It executes the actual model inference for the inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> – Batch of the numpy formatted input data</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of model outputs</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.inference_server_plugin.TritonLauncher">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.inference_server_plugin.</span></span><span class="sig-name descname"><span class="pre">TritonLauncher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_interpreter_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">9000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tls_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.plugins.inference_server_plugin.base.html#datumaro.plugins.inference_server_plugin.base.TLSConfig" title="datumaro.plugins.inference_server_plugin.base.TLSConfig"><span class="pre">TLSConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.plugins.inference_server_plugin.base.html#datumaro.plugins.inference_server_plugin.base.ProtocolType" title="datumaro.plugins.inference_server_plugin.base.ProtocolType"><span class="pre">ProtocolType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ProtocolType.grpc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/inference_server_plugin/triton.html#TritonLauncher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.inference_server_plugin.TritonLauncher" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.plugins.inference_server_plugin.base.html#datumaro.plugins.inference_server_plugin.base.LauncherForDedicatedInferenceServer" title="datumaro.plugins.inference_server_plugin.base.LauncherForDedicatedInferenceServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LauncherForDedicatedInferenceServer</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">InferenceServerClient</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">InferenceServerClient</span></code>]]</p>
+<p>Inference launcher for Triton Inference Server (<a class="github reference external" href="https://github.com/triton-inference-server">triton-inference-server</a>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> – Name of the model. It should match with the model name loaded in the server instance.</p></li>
+<li><p><strong>model_interpreter_path</strong> – Python source code path which implements a model interpreter.
+The model interpreter implement pre-processing of the model input and post-processing of the model output.</p></li>
+<li><p><strong>model_version</strong> – Version of the model loaded in the server instance</p></li>
+<li><p><strong>host</strong> – Host address of the server instance</p></li>
+<li><p><strong>port</strong> – Port number of the server instance</p></li>
+<li><p><strong>timeout</strong> – Timeout limit during communication between the client and the server instance</p></li>
+<li><p><strong>tls_config</strong> – Configuration required if the server instance is in the secure mode</p></li>
+<li><p><strong>protocol_type</strong> – Communication protocol type with the server instance</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.inference_server_plugin.TritonLauncher.infer">
+<span class="sig-name descname"><span class="pre">infer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/inference_server_plugin/triton.html#TritonLauncher.infer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.inference_server_plugin.TritonLauncher.infer" title="Permalink to this definition">#</a></dt>
+<dd><p>It executes the actual model inference for the inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> – Batch of the numpy formatted input data</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of model outputs</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <p class="rubric">Modules</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.ovms_plugin.launcher.html#module-datumaro.plugins.ovms_plugin.launcher" title="datumaro.plugins.ovms_plugin.launcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.ovms_plugin.launcher</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.inference_server_plugin.base.html#module-datumaro.plugins.inference_server_plugin.base" title="datumaro.plugins.inference_server_plugin.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.inference_server_plugin.base</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.ovms_plugin.samples.html#module-datumaro.plugins.ovms_plugin.samples" title="datumaro.plugins.ovms_plugin.samples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.ovms_plugin.samples</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.inference_server_plugin.ovms.html#module-datumaro.plugins.inference_server_plugin.ovms" title="datumaro.plugins.inference_server_plugin.ovms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.inference_server_plugin.ovms</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.inference_server_plugin.samples.html#module-datumaro.plugins.inference_server_plugin.samples" title="datumaro.plugins.inference_server_plugin.samples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.inference_server_plugin.samples</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.inference_server_plugin.triton.html#module-datumaro.plugins.inference_server_plugin.triton" title="datumaro.plugins.inference_server_plugin.triton"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.inference_server_plugin.triton</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -590,17 +668,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.openvino_plugin.shift_launcher.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.explorer.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.openvino_plugin.shift_launcher</p>
+          <p class="prev-next-title">datumaro.plugins.explorer</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.ovms_plugin.launcher.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.inference_server_plugin.base.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.ovms_plugin.launcher</p>
+      <p class="prev-next-title">datumaro.plugins.inference_server_plugin.base</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -615,6 +693,58 @@
               
 <div class="toc-item">
   
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.inference_server_plugin.OVMSLauncher">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     OVMSLauncher
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.inference_server_plugin.OVMSLauncher.infer">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       OVMSLauncher.infer()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.inference_server_plugin.TritonLauncher">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     TritonLauncher
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.inference_server_plugin.TritonLauncher.infer">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TritonLauncher.infer()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
 <div id="searchbox"></div>
 </div>
 
@@ -625,7 +755,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.ovms_plugin.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
