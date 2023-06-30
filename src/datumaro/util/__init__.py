@@ -144,7 +144,7 @@ def optional_arg_decorator(fn):
 def parse_json(data: Union[str, bytes]):
     try:
         return orjson.loads(data)
-    except json.JSONDecodeError as e:
+    except orjson.JSONDecodeError as e:
         e.msg += f"\n, error data={data}"
         raise e
 
