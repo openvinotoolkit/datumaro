@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import json
 from functools import wraps
 from inspect import isclass
 from itertools import islice
