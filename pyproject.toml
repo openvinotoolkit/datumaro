@@ -21,6 +21,9 @@ omit = [
     "tests/*",
 ]
 
+[tool.cibuildwheel]
+build = "cp37-*_x86_64 cp38-*_x86_64 cp39-*_x86_64 cp310-*_x86_64 cp37-*_amd64 cp38-*_amd64 cp39-*_amd64 cp310-*_amd64"
+
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
 exclude_lines = [

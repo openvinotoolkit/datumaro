@@ -10,9 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Roboflow data format support (COCO JSON, Pascal VOC XML, YOLOv5-PyTorch, YOLOv7-PyTorch, YOLOv8, YOLOv5 Oriented Bounding Boxes, Multiclass CSV, TFRecord, CreateML JSON)
   (<https://github.com/openvinotoolkit/datumaro/pull/1044>)
 - Add MissingAnnotationDetection transform
-  (<https://github.com/openvinotoolkit/datumaro/pull/1049>, <https://github.com/openvinotoolkit/datumaro/pull/1064>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1049>, <https://github.com/openvinotoolkit/datumaro/pull/1063>, <https://github.com/openvinotoolkit/datumaro/pull/1064>)
 - Add OVMSLauncher
   (<https://github.com/openvinotoolkit/datumaro/pull/1056>)
+- Add TritonLauncher
+  (<https://github.com/openvinotoolkit/datumaro/pull/1059>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins
@@ -25,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1047>)
 - Refactor Launcher and ModelInterpreter
   (<https://github.com/openvinotoolkit/datumaro/pull/1055>)
+- Add CVAT data format document
+  (<https://github.com/openvinotoolkit/datumaro/pull/1060>)
+- Enhance the error message for datum stats to be more user friendly
+  (<https://github.com/openvinotoolkit/datumaro/pull/1069>)
 
 ### Bug fixes
 - Fix warnings in test_visualizer.py

@@ -48,5 +48,9 @@ pyarrow
 # ava data format
 protobuf<4
 
+# Comparator
+tabulate
+
 # Model inference launcher from the dedicated inference server
 ovmsclient
+tritonclient[all]
