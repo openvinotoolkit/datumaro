@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import copy
 import logging as log
 import math
 import random
