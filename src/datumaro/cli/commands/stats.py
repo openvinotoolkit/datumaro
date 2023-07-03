@@ -5,7 +5,8 @@
 import argparse
 import logging as log
 
-from datumaro.components.errors import ProjectNotFoundError
+from datumaro.cli.util.errors import CliException, WrongRevpathError
+from datumaro.components.errors import ConflictingCategoriesError, ProjectNotFoundError
 from datumaro.components.operations import compute_ann_statistics, compute_image_statistics
 from datumaro.util import dump_json_file, str_to_bool
 from datumaro.util.scope import scope_add, scoped
@@ -87,7 +88,21 @@ def stats_command(args):
         if args.project_dir:
             raise
 
-    dataset, target_project = parse_full_revpath(args.target, project)
+    try:
+        dataset, target_project = parse_full_revpath(args.target, project)
+    except WrongRevpathError as e:
+        for p in e.problems:
+            if isinstance(p, ConflictingCategoriesError):
+                src_names = [src for src in project.working_tree.sources]
+                raise CliException(
+                    "There are more than two sources with heterogeneous categories in the project. "
+                    "This prevents computing the statistics of the merged one. "
+                    f"Please specify one of the sources in the project ({src_names}), "
+                    f"such as `datum stats {src_names[0]}`"
+                ) from e
+
+        raise e
+
     if target_project:
         scope_add(target_project)
 
