@@ -593,6 +593,23 @@
 <span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.stats.</span></span><span class="sig-name descname"><span class="pre">get_sensitive_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/stats.html#get_sensitive_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.stats.get_sensitive_args" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py exception">
+<dt class="sig sig-object py" id="datumaro.cli.commands.stats.CliException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.stats.</span></span><span class="sig-name descname"><span class="pre">CliException</span></span><a class="reference internal" href="../../../_modules/datumaro/cli/util/errors.html#CliException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.stats.CliException" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.errors.html#datumaro.components.errors.DatumaroError" title="datumaro.components.errors.DatumaroError"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatumaroError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="datumaro.cli.commands.stats.ConflictingCategoriesError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.stats.</span></span><span class="sig-name descname"><span class="pre">ConflictingCategoriesError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/errors.html#ConflictingCategoriesError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.stats.ConflictingCategoriesError" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.errors.html#datumaro.components.errors.DatasetMergeError" title="datumaro.components.errors.DatasetMergeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetMergeError</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.cli.commands.stats.ConflictingCategoriesError.sources">
+<span class="sig-name descname"><span class="pre">sources</span></span><a class="headerlink" href="#datumaro.cli.commands.stats.ConflictingCategoriesError.sources" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.cli.commands.stats.MultilineFormatter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.stats.</span></span><span class="sig-name descname"><span class="pre">MultilineFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_natural</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/util.html#MultilineFormatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.stats.MultilineFormatter" title="Permalink to this definition">#</a></dt>
@@ -612,6 +629,13 @@ also removes the ‘code-block’ directives.</p>
 <span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#datumaro.cli.commands.stats.ProjectNotFoundError.path" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="datumaro.cli.commands.stats.WrongRevpathError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.stats.</span></span><span class="sig-name descname"><span class="pre">WrongRevpathError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problems</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/util/errors.html#WrongRevpathError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.stats.WrongRevpathError" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.cli.util.errors.html#datumaro.cli.util.errors.CliException" title="datumaro.cli.util.errors.CliException"><code class="xref py py-class docutils literal notranslate"><span class="pre">CliException</span></code></a></p>
+<p>Method generated by attrs for class WrongRevpathError.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -762,6 +786,35 @@ such as registering error and exit callbacks and context managers.</p>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.cli.commands.stats.CliException">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     CliException
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.cli.commands.stats.ConflictingCategoriesError">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     ConflictingCategoriesError
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.cli.commands.stats.ConflictingCategoriesError.sources">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ConflictingCategoriesError.sources
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.cli.commands.stats.MultilineFormatter">
    <code class="docutils literal notranslate">
     <span class="pre">
@@ -789,6 +842,15 @@ such as registering error and exit callbacks and context managers.</p>
     </a>
    </li>
   </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.cli.commands.stats.WrongRevpathError">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     WrongRevpathError
+    </span>
+   </code>
+  </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.cli.commands.stats.compute_ann_statistics">

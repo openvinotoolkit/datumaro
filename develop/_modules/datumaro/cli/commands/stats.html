@@ -284,7 +284,8 @@
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
 
-<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">ProjectNotFoundError</span>
+<span class="kn">from</span> <span class="nn">datumaro.cli.util.errors</span> <span class="kn">import</span> <span class="n">CliException</span><span class="p">,</span> <span class="n">WrongRevpathError</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">ConflictingCategoriesError</span><span class="p">,</span> <span class="n">ProjectNotFoundError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.operations</span> <span class="kn">import</span> <span class="n">compute_ann_statistics</span><span class="p">,</span> <span class="n">compute_image_statistics</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">dump_json_file</span><span class="p">,</span> <span class="n">str_to_bool</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.scope</span> <span class="kn">import</span> <span class="n">scope_add</span><span class="p">,</span> <span class="n">scoped</span>
@@ -366,7 +367,21 @@
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">project_dir</span><span class="p">:</span>
             <span class="k">raise</span>
 
-    <span class="n">dataset</span><span class="p">,</span> <span class="n">target_project</span> <span class="o">=</span> <span class="n">parse_full_revpath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="p">,</span> <span class="n">target_project</span> <span class="o">=</span> <span class="n">parse_full_revpath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">WrongRevpathError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">problems</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ConflictingCategoriesError</span><span class="p">):</span>
+                <span class="n">src_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">src</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">project</span><span class="o">.</span><span class="n">working_tree</span><span class="o">.</span><span class="n">sources</span><span class="p">]</span>
+                <span class="k">raise</span> <span class="n">CliException</span><span class="p">(</span>
+                    <span class="s2">&quot;There are more than two sources with heterogeneous categories in the project. &quot;</span>
+                    <span class="s2">&quot;This prevents computing the statistics of the merged one. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Please specify one of the sources in the project (</span><span class="si">{</span><span class="n">src_names</span><span class="si">}</span><span class="s2">), &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;such as `datum stats </span><span class="si">{</span><span class="n">src_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">`&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+        <span class="k">raise</span> <span class="n">e</span>
+
     <span class="k">if</span> <span class="n">target_project</span><span class="p">:</span>
         <span class="n">scope_add</span><span class="p">(</span><span class="n">target_project</span><span class="p">)</span>
 
