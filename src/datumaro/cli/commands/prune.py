@@ -7,7 +7,6 @@ import logging as log
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.prune import Prune
-from datumaro.util import str_to_bool
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
