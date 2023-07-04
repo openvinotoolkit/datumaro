@@ -1338,16 +1338,10 @@ class DvcWrapper:
                 args.extend(targets)
         self._exec(args)
 
-    def add(self, paths, dvc_path=None, no_commit=False, allow_external=False):
+    def add(self, paths, no_commit=False):
         args = ["add"]
-        # if dvc_path:
-        #     args.append("--file")
-        #     args.append(dvc_path)
-        #     os.makedirs(osp.dirname(dvc_path), exist_ok=True)
         if no_commit:
             args.append("--no-commit")
-        # if allow_external:
-        #     args.append("--external")
         if paths:
             if isinstance(paths, str):
                 args.append(paths)
@@ -2063,9 +2057,7 @@ class Project:
         log.debug("Done")
 
         if not no_hash:
-            obj_hash = self.compute_source_hash(
-                data_dir, dvcfile=dvcfile, no_cache=no_cache, allow_external=True
-            )
+            obj_hash = self.compute_source_hash(data_dir, dvcfile=dvcfile, no_cache=no_cache)
             if not no_cache:
                 log.debug("Data is added to DVC cache")
             log.debug("Data hash: '%s'", obj_hash)
@@ -2087,13 +2079,12 @@ class Project:
         data_dir: str,
         dvcfile: Optional[str] = None,
         no_cache: bool = True,
-        allow_external: bool = True,
     ) -> ObjectId:
         if not dvcfile:
             tmp_dir = scope_add(self._make_tmp_dir())
             dvcfile = osp.join(tmp_dir, "source.dvc")
 
-        self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache, allow_external=allow_external)
+        self._dvc.add(data_dir, no_commit=no_cache)
 
         gen_dvcfile = osp.join(self._root_dir, data_dir + ".dvc")
         if os.path.isfile(gen_dvcfile):
