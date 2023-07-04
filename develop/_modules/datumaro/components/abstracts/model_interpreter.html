@@ -294,8 +294,8 @@
 <span class="n">ModelPred</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="IModelInterpreter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter">[docs]</a><span class="k">class</span> <span class="nc">IModelInterpreter</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<div class="viewcode-block" id="IModelInterpreter.preprocess"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter.preprocess">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="IModelInterpreter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter">[docs]</a><span class="k">class</span> <span class="nc">IModelInterpreter</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="IModelInterpreter.preprocess"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter.preprocess">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">PrepInfo</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Preprocessing an input image.</span>
 
@@ -312,7 +312,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Function should be implemented.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IModelInterpreter.postprocess"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter.postprocess">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="IModelInterpreter.postprocess"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter.postprocess">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">:</span> <span class="n">ModelPred</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">PrepInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Postprocess a model prediction.</span>
 
@@ -325,7 +325,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Function should be implemented.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IModelInterpreter.get_categories"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter.get_categories">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="IModelInterpreter.get_categories"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter.get_categories">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;It should be implemented if the model generate a new categories&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Function should be implemented.&quot;</span><span class="p">)</span></div></div>

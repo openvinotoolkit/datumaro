@@ -50,7 +50,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="datumaro.plugins.openvino_plugin.shift_launcher" href="datumaro.plugins.openvino_plugin.shift_launcher.html" />
-    <link rel="prev" title="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html" />
+    <link rel="prev" title="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -572,8 +572,22 @@
 <p class="rubric">Functions</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.gen_hash_key" title="datumaro.plugins.openvino_plugin.samples.utils.gen_hash_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gen_hash_key</span></code></a>(features)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.create_bboxes_with_rescaling" title="datumaro.plugins.openvino_plugin.samples.utils.create_bboxes_with_rescaling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_bboxes_with_rescaling</span></code></a>(bboxes, labels, ...)</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.gen_hash_key" title="datumaro.plugins.openvino_plugin.samples.utils.gen_hash_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gen_hash_key</span></code></a>(features)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio" title="datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rescale_img_keeping_aspect_ratio</span></code></a>(img, ...)</p></td>
+<td><p>Rescale image while maintaining its aspect ratio.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.RescaledImage" title="datumaro.plugins.openvino_plugin.samples.utils.RescaledImage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RescaledImage</span></code></a>(image, scale)</p></td>
+<td><p>Dataclass for a rescaled image.</p></td>
 </tr>
 </tbody>
 </table>
@@ -581,6 +595,77 @@
 <dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.utils.gen_hash_key">
 <span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.utils.</span></span><span class="sig-name descname"><span class="pre">gen_hash_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.HashKey" title="datumaro.components.annotation.HashKey"><span class="pre">HashKey</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/utils.html#gen_hash_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.utils.gen_hash_key" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.utils.create_bboxes_with_rescaling">
+<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.utils.</span></span><span class="sig-name descname"><span class="pre">create_bboxes_with_rescaling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bboxes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Bbox" title="datumaro.components.annotation.Bbox"><span class="pre">Bbox</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/utils.html#create_bboxes_with_rescaling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.utils.create_bboxes_with_rescaling" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.utils.RescaledImage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.utils.</span></span><span class="sig-name descname"><span class="pre">RescaledImage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/utils.html#RescaledImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.utils.RescaledImage" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Dataclass for a rescaled image.</p>
+<p>This dataclass represents a rescaled image along with the scaling information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.utils.RescaledImage.image">
+<span class="sig-name descname"><span class="pre">image</span></span><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.utils.RescaledImage.image" title="Permalink to this definition">#</a></dt>
+<dd><p>The rescaled image as a NumPy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.utils.RescaledImage.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.utils.RescaledImage.scale" title="Permalink to this definition">#</a></dt>
+<dd><p>The scale factor by which the image was resized to fit the model input size.
+The scale factor is the same for both height and width.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <cite>image</cite> attribute stores the rescaled image as a NumPy array.
+The <cite>scale</cite> attribute represents the scale factor used to resize the image.
+The scale factor indicates how much the image was scaled to fit the model’s input size.</p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">image</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></em><a class="headerlink" href="#id1" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio">
+<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.utils.</span></span><span class="sig-name descname"><span class="pre">rescale_img_keeping_aspect_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.RescaledImage" title="datumaro.plugins.openvino_plugin.samples.utils.RescaledImage"><span class="pre">RescaledImage</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/utils.html#rescale_img_keeping_aspect_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio" title="Permalink to this definition">#</a></dt>
+<dd><p>Rescale image while maintaining its aspect ratio.</p>
+<p>This function rescales the input image to fit the requirements of the model input.
+It also attempts to preserve the original aspect ratio of the input image.
+If the aspect ratio of the input image does not match the aspect ratio required by the model,
+the function applies zero padding to the image boundaries to maintain the aspect ratio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img</strong> – The image to be rescaled.</p></li>
+<li><p><strong>h_model</strong> – The desired height of the image required by the model.</p></li>
+<li><p><strong>w_model</strong> – The desired width of the image required by the model.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 
@@ -592,11 +677,11 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp</p>
+          <p class="prev-next-title">datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp</p>
       </div>
   </a>
   <a class='right-next' id="next-link" href="datumaro.plugins.openvino_plugin.shift_launcher.html" title="next page">
@@ -627,6 +712,71 @@
    <code class="docutils literal notranslate">
     <span class="pre">
      gen_hash_key()
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.utils.create_bboxes_with_rescaling">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     create_bboxes_with_rescaling()
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.utils.RescaledImage">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     RescaledImage
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.utils.RescaledImage.image">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RescaledImage.image
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.utils.RescaledImage.scale">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RescaledImage.scale
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id0">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RescaledImage.image
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RescaledImage.scale
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     rescale_img_keeping_aspect_ratio()
     </span>
    </code>
   </a>

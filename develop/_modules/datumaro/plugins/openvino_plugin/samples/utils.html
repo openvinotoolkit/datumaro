@@ -281,17 +281,101 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">HashKey</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">Bbox</span><span class="p">,</span> <span class="n">HashKey</span>
 
 
-<div class="viewcode-block" id="gen_hash_key"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.utils.html#datumaro.plugins.openvino_plugin.samples.utils.gen_hash_key">[docs]</a><span class="k">def</span> <span class="nf">gen_hash_key</span><span class="p">(</span><span class="n">features</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HashKey</span><span class="p">:</span>
+<div class="viewcode-block" id="gen_hash_key"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.utils.html#datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.gen_hash_key">[docs]</a><span class="k">def</span> <span class="nf">gen_hash_key</span><span class="p">(</span><span class="n">features</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HashKey</span><span class="p">:</span>
     <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
     <span class="n">hash_key</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">hash_key</span> <span class="o">=</span> <span class="n">hash_key</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
     <span class="n">hash_key</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">packbits</span><span class="p">(</span><span class="n">hash_key</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">HashKey</span><span class="p">(</span><span class="n">hash_key</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_bboxes_with_rescaling"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.utils.html#datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.create_bboxes_with_rescaling">[docs]</a><span class="k">def</span> <span class="nf">create_bboxes_with_rescaling</span><span class="p">(</span>
+    <span class="n">bboxes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">r_scale</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Bbox</span><span class="p">]:</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">anns</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">r_scale</span> <span class="o">*</span> <span class="n">bbox</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">points</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">anns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Bbox</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x1</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y1</span><span class="p">,</span>
+                <span class="n">w</span><span class="o">=</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span><span class="p">,</span>
+                <span class="n">h</span><span class="o">=</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span><span class="p">,</span>
+                <span class="nb">id</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">conf</span><span class="p">},</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">anns</span></div>
+
+
+<div class="viewcode-block" id="RescaledImage"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.utils.html#datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.RescaledImage">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">RescaledImage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataclass for a rescaled image.</span>
+
+<span class="sd">    This dataclass represents a rescaled image along with the scaling information.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        image: The rescaled image as a NumPy array.</span>
+<span class="sd">        scale: The scale factor by which the image was resized to fit the model input size.</span>
+<span class="sd">               The scale factor is the same for both height and width.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The `image` attribute stores the rescaled image as a NumPy array.</span>
+<span class="sd">        The `scale` attribute represents the scale factor used to resize the image.</span>
+<span class="sd">        The scale factor indicates how much the image was scaled to fit the model&#39;s input size.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+<div class="viewcode-block" id="rescale_img_keeping_aspect_ratio"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.utils.html#datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.rescale_img_keeping_aspect_ratio">[docs]</a><span class="k">def</span> <span class="nf">rescale_img_keeping_aspect_ratio</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">h_model</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">w_model</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RescaledImage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rescale image while maintaining its aspect ratio.</span>
+
+<span class="sd">    This function rescales the input image to fit the requirements of the model input.</span>
+<span class="sd">    It also attempts to preserve the original aspect ratio of the input image.</span>
+<span class="sd">    If the aspect ratio of the input image does not match the aspect ratio required by the model,</span>
+<span class="sd">    the function applies zero padding to the image boundaries to maintain the aspect ratio.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        img: The image to be rescaled.</span>
+<span class="sd">        h_model: The desired height of the image required by the model.</span>
+<span class="sd">        w_model: The desired width of the image required by the model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+
+    <span class="n">h_img</span><span class="p">,</span> <span class="n">w_img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">scale</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">h_model</span> <span class="o">/</span> <span class="n">h_img</span><span class="p">,</span> <span class="n">w_model</span> <span class="o">/</span> <span class="n">w_img</span><span class="p">)</span>
+
+    <span class="n">h_resize</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">h_img</span><span class="p">),</span> <span class="n">h_model</span><span class="p">)</span>
+    <span class="n">w_resize</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">w_img</span><span class="p">),</span> <span class="n">w_model</span><span class="p">)</span>
+
+    <span class="n">num_channel</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">resized_inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h_model</span><span class="p">,</span> <span class="n">w_model</span><span class="p">,</span> <span class="n">num_channel</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="n">resized_inputs</span><span class="p">[:</span><span class="n">h_resize</span><span class="p">,</span> <span class="p">:</span><span class="n">w_resize</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+        <span class="n">img</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">w_resize</span><span class="p">,</span> <span class="n">h_resize</span><span class="p">),</span>
+        <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">RescaledImage</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">resized_inputs</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span></div>
 </pre></div>
 
             </article>
