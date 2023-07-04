@@ -1276,8 +1276,8 @@ class DvcWrapper:
     def module():
         try:
             import dvc
+            import dvc.cli
             import dvc.env
-            import dvc.main
             import dvc.repo
 
             return dvc
@@ -1340,14 +1340,14 @@ class DvcWrapper:
 
     def add(self, paths, dvc_path=None, no_commit=False, allow_external=False):
         args = ["add"]
-        if dvc_path:
-            args.append("--file")
-            args.append(dvc_path)
-            os.makedirs(osp.dirname(dvc_path), exist_ok=True)
+        # if dvc_path:
+        #     args.append("--file")
+        #     args.append(dvc_path)
+        #     os.makedirs(osp.dirname(dvc_path), exist_ok=True)
         if no_commit:
             args.append("--no-commit")
-        if allow_external:
-            args.append("--external")
+        # if allow_external:
+        #     args.append("--external")
         if paths:
             if isinstance(paths, str):
                 args.append(paths)
@@ -1375,7 +1375,7 @@ class DvcWrapper:
             log.debug("Calling DVC main with args: %s", args)
 
             logs = es.enter_context(catch_logs("dvc"))
-            retcode = self.module().main.main(args)
+            retcode = self.module().cli.main(args)
 
         logs = logs.getvalue()
         if retcode != 0:
@@ -1400,7 +1400,7 @@ class DvcWrapper:
     def obj_path(self, obj_hash, root=None):
         assert self.is_hash(obj_hash), obj_hash
         if not root:
-            root = osp.join(self._project_dir, ".dvc", "cache")
+            root = osp.join(self._project_dir, ".dvc", "cache", "files", "md5")
         return osp.join(root, obj_hash[:2], obj_hash[2:])
 
     def ignore(
@@ -2094,6 +2094,11 @@ class Project:
             dvcfile = osp.join(tmp_dir, "source.dvc")
 
         self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache, allow_external=allow_external)
+
+        gen_dvcfile = osp.join(self._root_dir, data_dir + ".dvc")
+        if os.path.isfile(gen_dvcfile):
+            shutil.move(gen_dvcfile, dvcfile)
+
         obj_hash = self._get_source_hash(dvcfile)
         return obj_hash
 
