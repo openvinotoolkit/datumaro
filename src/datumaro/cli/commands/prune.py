@@ -107,15 +107,15 @@ def prune_command(args):
 
     targets = [args.target] if args.target else list(project.working_tree.sources)
 
-    source_datasets = [parse_full_revpath(target, project)[0] for target in targets]
+    source_dataset = [parse_full_revpath(target, project)[0] for target in targets][0]
 
-    prune = Prune(*source_datasets, cluster_method=args.method, hash_type=args.hash_type)
-    for dataset in source_datasets:
-        dataset.save(dataset.data_path, save_media=True, save_hashkey_meta=True)
+    prune = Prune(source_dataset, cluster_method=args.method, hash_type=args.hash_type)
+
+    source_dataset.save(source_dataset.data_path, save_media=True, save_hashkey_meta=True)
 
     result = prune.get_pruned(args.ratio)
 
-    dst_dir = args.dst_dir or dataset.data_path
+    dst_dir = args.dst_dir or source_dataset.data_path
     result.save(dst_dir, save_media=True)
 
     log.info("Results have been saved to '%s'" % dst_dir)

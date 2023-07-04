@@ -224,14 +224,14 @@ class NDRSelect(PruneBase):
 class Prune(HashInference):
     def __init__(
         self,
-        *datasets: Dataset,
+        dataset: Dataset,
         cluster_method: str = "random",
         hash_type: str = "img",
     ) -> None:
         """
         Prune make a representative and manageable subset.
         """
-        self._dataset = datasets[0] if isinstance(datasets, tuple) else datasets[0]
+        self._dataset = dataset
         self._cluster_method = cluster_method
         self._hash_type = hash_type
 
