@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### New features
+- Migrate OpenVINO v2023.0.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1036>)
 - Add Roboflow data format support (COCO JSON, Pascal VOC XML, YOLOv5-PyTorch, YOLOv7-PyTorch, YOLOv8, YOLOv5 Oriented Bounding Boxes, Multiclass CSV, TFRecord, CreateML JSON)
   (<https://github.com/openvinotoolkit/datumaro/pull/1044>)
 - Add MissingAnnotationDetection transform
@@ -15,12 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1056>)
 - Add TritonLauncher
   (<https://github.com/openvinotoolkit/datumaro/pull/1059>)
+- Migrate DVC v3.0.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1072>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins
   (<https://github.com/openvinotoolkit/datumaro/pull/1031>)
-- Migrate OpenVINO v2023.0.0
-  (<https://github.com/openvinotoolkit/datumaro/pull/1036>)
 - Change default dtype of load_image() to np.uint8
   (<https://github.com/openvinotoolkit/datumaro/pull/1041>)
 - Add OTX ATSS detector model interpreter & refactor interfaces
