@@ -148,10 +148,10 @@ class PruneTest(TestCase):
             self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_prune_query_clust(self):
+    def test_prune_query_clust_img_hash(self):
         """
         <b>Description:</b>
-        Check that pruned subset with clustering with query.
+        Check that pruned subset with clustering with query through image hash.
 
         <b>Input data:</b>
         Dataset with train and test subset that each datasetitem consists of same images.
@@ -169,6 +169,33 @@ class PruneTest(TestCase):
             converter(self.test_dataset, test_dir)
             imported_dataset = Dataset.import_from(test_dir, "datumaro")
             prune = Prune(imported_dataset, cluster_method="query_clust")
+
+            result = prune.get_pruned(0.5)
+            result_subsets = [item.subset for item in result]
+            self.assertEqual(Counter(result_subsets), {"test": 1, "train": 1})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_prune_query_clust_txt_hash(self):
+        """
+        <b>Description:</b>
+        Check that pruned subset with clustering with query through text hash.
+
+        <b>Input data:</b>
+        Dataset with train and test subset that each datasetitem consists of same images.
+
+        <b>Expected results:</b>
+        Pruned dataset that each subset contains one datasetitem.
+
+        <b>Steps</b>
+        1. Prepare dataset with each subset contains same images.
+        2. Set Prune and try get_pruned set method as query_clust to extract representative subset.
+        3. Check whether each subset contains one datasetitem.
+        """
+        with TestDir() as test_dir:
+            converter = partial(DatumaroExporter.convert, save_media=True)
+            converter(self.test_dataset, test_dir)
+            imported_dataset = Dataset.import_from(test_dir, "datumaro")
+            prune = Prune(imported_dataset, cluster_method="query_clust", hash_type="txt")
 
             result = prune.get_pruned(0.5)
             result_subsets = [item.subset for item in result]

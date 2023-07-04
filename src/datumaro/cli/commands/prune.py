@@ -79,22 +79,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument(
         "--overwrite", action="store_true", help="Overwrite existing files in the save directory"
     )
-    parser.add_argument(
-        "--model", dest="model", default="clip", help="Model to use for hash inference"
-    )
-    parser.add_argument(
-        "--stage",
-        type=str_to_bool,
-        default=True,
-        help="""
-            Include this action as a project build step.
-            If true, this operation will be saved in the project
-            build tree, allowing to reproduce the resulting dataset later.
-            Applicable only to main project targets (i.e. data sources
-            and the 'project' target, but not intermediate stages)
-            (default: %(default)s)
-            """,
-    )
     parser.set_defaults(command=prune_command)
 
     return parser
@@ -108,7 +92,6 @@ def get_sensitive_args():
             "ratio",
             "hash_type",
             "project_dir",
-            "model",
             "dst_dir",
         ]
     }
@@ -127,7 +110,7 @@ def prune_command(args):
 
     source_datasets = [parse_full_revpath(target, project)[0] for target in targets]
 
-    prune = Prune(*source_datasets, cluster_method=args.method)
+    prune = Prune(*source_datasets, cluster_method=args.method, hash_type=args.hash_type)
     for dataset in source_datasets:
         dataset.save(dataset.data_path, save_media=True, save_hashkey_meta=True)
 
