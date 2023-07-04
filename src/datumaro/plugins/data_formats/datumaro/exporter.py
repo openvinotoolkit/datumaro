@@ -33,8 +33,8 @@ from datumaro.components.annotation import (
     _Shape,
 )
 from datumaro.components.crypter import NULL_CRYPTER
-from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.exporter import ExportContextComponent, Exporter
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import cast, dump_json_file

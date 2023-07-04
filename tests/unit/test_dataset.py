@@ -25,13 +25,14 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
 )
-from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, ItemStatus, eager_mode
+from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, eager_mode
 from datumaro.components.dataset_base import (
     DEFAULT_SUBSET_NAME,
     DatasetBase,
     DatasetItem,
     SubsetBase,
 )
+from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     ConflictingCategoriesError,

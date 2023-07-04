@@ -9,8 +9,8 @@ from collections import OrderedDict, defaultdict
 import yaml
 
 from datumaro.components.annotation import AnnotationType, Bbox
-from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
+from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.errors import DatasetExportError, DatumaroError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image

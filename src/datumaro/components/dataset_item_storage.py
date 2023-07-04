@@ -3,12 +3,21 @@
 # SPDX-License-Identifier: MIT
 
 from copy import copy
+from enum import Enum, auto
 from typing import Any, Iterator, Optional, Tuple, Type, Union
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.media import MediaElement
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
+
+__all__ = ["ItemStatus", "DatasetItemStorage", "DatasetItemStorageDatasetView"]
+
+
+class ItemStatus(Enum):
+    added = auto()
+    modified = auto()
+    removed = auto()
 
 
 class DatasetItemStorage:
