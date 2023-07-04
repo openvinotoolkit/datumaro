@@ -1555,8 +1555,8 @@
     <span class="k">def</span> <span class="nf">module</span><span class="p">():</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">dvc</span>
+            <span class="kn">import</span> <span class="nn">dvc.cli</span>
             <span class="kn">import</span> <span class="nn">dvc.env</span>
-            <span class="kn">import</span> <span class="nn">dvc.main</span>
             <span class="kn">import</span> <span class="nn">dvc.repo</span>
 
             <span class="k">return</span> <span class="n">dvc</span>
@@ -1617,16 +1617,10 @@
                 <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_exec</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DvcWrapper.add"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.project.html#datumaro.cli.commands.require_project.modification.export.DvcWrapper.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">dvc_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_commit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_external</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DvcWrapper.add"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.project.html#datumaro.cli.commands.require_project.modification.export.DvcWrapper.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">no_commit</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">dvc_path</span><span class="p">:</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--file&quot;</span><span class="p">)</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dvc_path</span><span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">dvc_path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">no_commit</span><span class="p">:</span>
             <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--no-commit&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">allow_external</span><span class="p">:</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--external&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">paths</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
@@ -1654,7 +1648,7 @@
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calling DVC main with args: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
             <span class="n">logs</span> <span class="o">=</span> <span class="n">es</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">catch_logs</span><span class="p">(</span><span class="s2">&quot;dvc&quot;</span><span class="p">))</span>
-            <span class="n">retcode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">()</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">retcode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">()</span><span class="o">.</span><span class="n">cli</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
         <span class="n">logs</span> <span class="o">=</span> <span class="n">logs</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">retcode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -1679,7 +1673,7 @@
 <div class="viewcode-block" id="DvcWrapper.obj_path"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.project.html#datumaro.cli.commands.require_project.modification.export.DvcWrapper.obj_path">[docs]</a>    <span class="k">def</span> <span class="nf">obj_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_hash</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hash</span><span class="p">(</span><span class="n">obj_hash</span><span class="p">),</span> <span class="n">obj_hash</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">root</span><span class="p">:</span>
-            <span class="n">root</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_project_dir</span><span class="p">,</span> <span class="s2">&quot;.dvc&quot;</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">)</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_project_dir</span><span class="p">,</span> <span class="s2">&quot;.dvc&quot;</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="s2">&quot;files&quot;</span><span class="p">,</span> <span class="s2">&quot;md5&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">obj_hash</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">obj_hash</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span></div>
 
 <div class="viewcode-block" id="DvcWrapper.ignore"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.project.html#datumaro.cli.commands.require_project.modification.export.DvcWrapper.ignore">[docs]</a>    <span class="k">def</span> <span class="nf">ignore</span><span class="p">(</span>
@@ -2342,9 +2336,7 @@
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">no_hash</span><span class="p">:</span>
-            <span class="n">obj_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_source_hash</span><span class="p">(</span>
-                <span class="n">data_dir</span><span class="p">,</span> <span class="n">dvcfile</span><span class="o">=</span><span class="n">dvcfile</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="n">no_cache</span><span class="p">,</span> <span class="n">allow_external</span><span class="o">=</span><span class="kc">True</span>
-            <span class="p">)</span>
+            <span class="n">obj_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_source_hash</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">dvcfile</span><span class="o">=</span><span class="n">dvcfile</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="n">no_cache</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">no_cache</span><span class="p">:</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Data is added to DVC cache&quot;</span><span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Data hash: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">obj_hash</span><span class="p">)</span>
@@ -2366,13 +2358,17 @@
         <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">dvcfile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">allow_external</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ObjectId</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dvcfile</span><span class="p">:</span>
             <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">scope_add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_tmp_dir</span><span class="p">())</span>
             <span class="n">dvcfile</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">&quot;source.dvc&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dvc</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">dvc_path</span><span class="o">=</span><span class="n">dvcfile</span><span class="p">,</span> <span class="n">no_commit</span><span class="o">=</span><span class="n">no_cache</span><span class="p">,</span> <span class="n">allow_external</span><span class="o">=</span><span class="n">allow_external</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dvc</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">no_commit</span><span class="o">=</span><span class="n">no_cache</span><span class="p">)</span>
+
+        <span class="n">gen_dvcfile</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root_dir</span><span class="p">,</span> <span class="n">data_dir</span> <span class="o">+</span> <span class="s2">&quot;.dvc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">gen_dvcfile</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">gen_dvcfile</span><span class="p">,</span> <span class="n">dvcfile</span><span class="p">)</span>
+
         <span class="n">obj_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_source_hash</span><span class="p">(</span><span class="n">dvcfile</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">obj_hash</span></div>
 
