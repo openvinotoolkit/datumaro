@@ -12,9 +12,6 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 import datumaro.plugins.ndr as ndr
-from datumaro.components.annotation import HashKey, Label, LabelCategories
-from datumaro.components.dataset import Dataset
-from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.algorithms.hash_key_inference.base import HashInference
 from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
     calculate_hamming,
@@ -22,6 +19,9 @@ from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
     select_uninferenced_dataset,
     templates,
 )
+from datumaro.components.annotation import HashKey, Label, LabelCategories
+from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetItem
 
 
 def match_num_item_for_cluster(ratio, dataset_len, cluster_num_item_list):

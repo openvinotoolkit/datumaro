@@ -3,8 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 from typing import Sequence
+
 from datumaro.components.dataset import Dataset
 from datumaro.plugins.explorer import ExplorerLauncher
+
 
 class HashInference:
     def __init__(self, *datasets: Sequence[Dataset]) -> None:

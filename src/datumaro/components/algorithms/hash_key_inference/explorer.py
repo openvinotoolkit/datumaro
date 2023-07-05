@@ -6,12 +6,15 @@ from typing import Optional, Sequence, Union
 
 import numpy as np
 
+from datumaro.components.algorithms.hash_key_inference.base import HashInference
+from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
+    calculate_hamming,
+    select_uninferenced_dataset,
+)
 from datumaro.components.annotation import HashKey
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError, MediaTypeError
-from datumaro.components.algorithms.hash_key_inference.base import HashInference
-from datumaro.components.algorithms.hash_key_inference.hashkey_util import calculate_hamming, select_uninferenced_dataset
 
 
 class Explorer(HashInference):
