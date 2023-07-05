@@ -41,7 +41,6 @@ datumaro.components
    datumaro.components.dataset_item_storage
    datumaro.components.environment
    datumaro.components.errors
-   datumaro.components.explorer
    datumaro.components.exporter
    datumaro.components.extractor_tfds
    datumaro.components.filter
