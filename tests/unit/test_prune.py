@@ -16,12 +16,10 @@ from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 
 from ..requirements import Requirements, mark_requirement
 
-from tests.utils.test_utils import TestDir
-
 
 class PruneTest:
     @pytest.fixture
-    def fxt_dataset(self):
+    def fxt_dataset(self) -> Dataset:
         train_img = np.full((5, 5, 3), 255, dtype=np.uint8)
         test_img = np.full((5, 5, 3), 0, dtype=np.uint8)
 
@@ -70,7 +68,7 @@ class PruneTest:
         assert result == expected_result
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_prune_random(self, fxt_dataset):
+    def test_prune_random(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
         Check that pruned subset with random.
@@ -86,18 +84,17 @@ class PruneTest:
         2. Set Prune and try get_pruned set method as random to extract representative subset.
         3. Check whether each subset contains one datasetitem.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(fxt_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            prune = Prune(imported_dataset, cluster_method="random")
+        converter = partial(DatumaroExporter.convert, save_media=True)
+        converter(fxt_dataset, test_dir)
+        imported_dataset = Dataset.import_from(test_dir, "datumaro")
+        prune = Prune(imported_dataset, cluster_method="random")
 
-            result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result]
-            assert Counter(result_subsets) == {"test": 1, "train": 1}
+        result = prune.get_pruned(0.5)
+        result_subsets = [item.subset for item in result]
+        assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_prune_clustered_random(self, fxt_dataset):
+    def test_prune_clustered_random(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
         Check that pruned subset with clustered random.
@@ -113,18 +110,17 @@ class PruneTest:
         2. Set Prune and try get_pruned set method as clustered_random to extract representative subset.
         3. Check whether each subset contains one datasetitem.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(fxt_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            prune = Prune(imported_dataset, cluster_method="cluster_random")
+        converter = partial(DatumaroExporter.convert, save_media=True)
+        converter(fxt_dataset, test_dir)
+        imported_dataset = Dataset.import_from(test_dir, "datumaro")
+        prune = Prune(imported_dataset, cluster_method="cluster_random")
 
-            result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result]
-            assert Counter(result_subsets) == {"test": 1, "train": 1}
+        result = prune.get_pruned(0.5)
+        result_subsets = [item.subset for item in result]
+        assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_prune_centroid(self, fxt_dataset):
+    def test_prune_centroid(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
         Check that pruned subset with centroid.
@@ -140,18 +136,17 @@ class PruneTest:
         2. Set Prune and try get_pruned set method as centroid to extract representative subset.
         3. Check whether each subset contains one datasetitem.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(fxt_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            prune = Prune(imported_dataset, cluster_method="centroid")
+        converter = partial(DatumaroExporter.convert, save_media=True)
+        converter(fxt_dataset, test_dir)
+        imported_dataset = Dataset.import_from(test_dir, "datumaro")
+        prune = Prune(imported_dataset, cluster_method="centroid")
 
-            result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result]
-            assert Counter(result_subsets) == {"test": 1, "train": 1}
+        result = prune.get_pruned(0.5)
+        result_subsets = [item.subset for item in result]
+        assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_prune_query_clust_img_hash(self, fxt_dataset):
+    def test_prune_query_clust_img_hash(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
         Check that pruned subset with clustering with query through image hash.
@@ -167,18 +162,17 @@ class PruneTest:
         2. Set Prune and try get_pruned set method as query_clust to extract representative subset.
         3. Check whether each subset contains one datasetitem.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(fxt_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            prune = Prune(imported_dataset, cluster_method="query_clust")
+        converter = partial(DatumaroExporter.convert, save_media=True)
+        converter(fxt_dataset, test_dir)
+        imported_dataset = Dataset.import_from(test_dir, "datumaro")
+        prune = Prune(imported_dataset, cluster_method="query_clust")
 
-            result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result]
-            assert Counter(result_subsets) == {"test": 1, "train": 1}
+        result = prune.get_pruned(0.5)
+        result_subsets = [item.subset for item in result]
+        assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_prune_query_clust_txt_hash(self, fxt_dataset):
+    def test_prune_query_clust_txt_hash(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
         Check that pruned subset with clustering with query through text hash.
@@ -194,18 +188,17 @@ class PruneTest:
         2. Set Prune and try get_pruned set method as query_clust to extract representative subset.
         3. Check whether each subset contains one datasetitem.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(fxt_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            prune = Prune(imported_dataset, cluster_method="query_clust", hash_type="txt")
+        converter = partial(DatumaroExporter.convert, save_media=True)
+        converter(fxt_dataset, test_dir)
+        imported_dataset = Dataset.import_from(test_dir, "datumaro")
+        prune = Prune(imported_dataset, cluster_method="query_clust", hash_type="txt")
 
-            result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result]
-            assert Counter(result_subsets) == {"test": 1, "train": 1}
+        result = prune.get_pruned(0.5)
+        result_subsets = [item.subset for item in result]
+        assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_prune_entropy(self, fxt_dataset):
+    def test_prune_entropy(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
         Check that pruned subset with entropy.
@@ -221,18 +214,17 @@ class PruneTest:
         2. Set Prune and try get_pruned set method as entropy to extract representative subset.
         3. Check whether each subset contains one datasetitem.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(fxt_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            prune = Prune(imported_dataset, cluster_method="entropy")
+        converter = partial(DatumaroExporter.convert, save_media=True)
+        converter(fxt_dataset, test_dir)
+        imported_dataset = Dataset.import_from(test_dir, "datumaro")
+        prune = Prune(imported_dataset, cluster_method="entropy")
 
-            result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result]
-            assert Counter(result_subsets) == {"test": 1, "train": 1}
+        result = prune.get_pruned(0.5)
+        result_subsets = [item.subset for item in result]
+        assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_prune_ndr(self, fxt_dataset):
+    def test_prune_ndr(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
         Check that pruned subset with ndr.
@@ -248,12 +240,11 @@ class PruneTest:
         2. Set Prune and try get_pruned set method as ndr to extract representative subset.
         3. Check whether each subset contains one datasetitem.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(fxt_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            prune = Prune(imported_dataset, cluster_method="ndr")
+        converter = partial(DatumaroExporter.convert, save_media=True)
+        converter(fxt_dataset, test_dir)
+        imported_dataset = Dataset.import_from(test_dir, "datumaro")
+        prune = Prune(imported_dataset, cluster_method="ndr")
 
-            result = prune.get_pruned(0.5)
-            result_subsets = [item.subset for item in result]
-            assert Counter(result_subsets) == {"test": 1, "train": 1}
+        result = prune.get_pruned(0.5)
+        result_subsets = [item.subset for item in result]
+        assert Counter(result_subsets) == {"test": 1, "train": 1}
