@@ -4,9 +4,10 @@
 
 from functools import partial
 from itertools import chain
-from typing import Tuple
+from typing import Dict, Tuple
 
 import numpy as np
+from pycocotools import mask as pycocotools_mask
 
 from datumaro._capi import encode
 from datumaro.util.image import lazy_image, load_image
@@ -223,15 +224,14 @@ def mask_to_polygons(mask, area_threshold=1):
     Returns:
         A list of polygons like [[x1,y1, x2,y2 ...], [...]]
     """
-    from pycocotools import mask as mask_utils
 
     contours = extract_contours(mask)
 
     polygons = []
     for contour in contours:
         # Check if the polygon is big enough
-        rle = mask_utils.frPyObjects([contour], mask.shape[0], mask.shape[1])
-        area = sum(mask_utils.area(rle))
+        rle = pycocotools_mask.frPyObjects([contour], mask.shape[0], mask.shape[1])
+        area = sum(pycocotools_mask.area(rle))
         if area_threshold <= area:
             polygons.append(contour)
     return polygons
@@ -296,13 +296,11 @@ def crop_covered_segments(
                 ...
             ]
     """
-    from pycocotools import mask as mask_utils
-
     segments = [[s] for s in segments]
-    input_rles = [mask_utils.frPyObjects(s, height, width) for s in segments]
+    input_rles = [pycocotools_mask.frPyObjects(s, height, width) for s in segments]
 
     for i, rle_bottom in enumerate(input_rles):
-        area_bottom = sum(mask_utils.area(rle_bottom))
+        area_bottom = sum(pycocotools_mask.area(rle_bottom))
         if area_bottom < area_threshold:
             segments[i] = [] if not return_masks else None
             continue
@@ -310,12 +308,12 @@ def crop_covered_segments(
         rles_top = []
         for j in range(i + 1, len(input_rles)):
             rle_top = input_rles[j]
-            iou = sum(mask_utils.iou(rle_bottom, rle_top, [0]))[0]
+            iou = sum(pycocotools_mask.iou(rle_bottom, rle_top, [0]))[0]
 
             if iou <= iou_threshold:
                 continue
 
-            area_top = sum(mask_utils.area(rle_top))
+            area_top = sum(pycocotools_mask.area(rle_top))
             area_ratio = area_top / area_bottom
 
             # If a segment is fully inside another one, skip this segment
@@ -334,11 +332,11 @@ def crop_covered_segments(
             continue
 
         rle_bottom = rle_bottom[0]
-        bottom_mask = mask_utils.decode(rle_bottom).astype(np.uint8)
+        bottom_mask = pycocotools_mask.decode(rle_bottom).astype(np.uint8)
 
         if rles_top:
-            rle_top = mask_utils.merge(rles_top)
-            top_mask = mask_utils.decode(rle_top).astype(np.uint8)
+            rle_top = pycocotools_mask.merge(rles_top)
+            top_mask = pycocotools_mask.decode(rle_top).astype(np.uint8)
 
             bottom_mask -= top_mask
             bottom_mask[bottom_mask != 1] = 0
@@ -352,12 +350,21 @@ def crop_covered_segments(
 
 
 def rles_to_mask(rles, width, height):
-    from pycocotools import mask as mask_utils
-
-    rles = mask_utils.frPyObjects(rles, height, width)
-    rles = mask_utils.merge(rles)
-    mask = mask_utils.decode(rles)
+    rles = pycocotools_mask.frPyObjects(rles, height, width)
+    rles = pycocotools_mask.merge(rles)
+    mask = pycocotools_mask.decode(rles)
     return mask
+
+
+def rle_to_mask(rle_uncompressed: Dict[str, np.ndarray]) -> np.ndarray:
+    """Decode the uncompressed RLE string to the binary mask (2D np.ndarray)
+
+    The uncompressed RLE string can be obtained by
+    the datumaro.util.mask_tools.mask_to_rle() function
+    """
+    resulting_mask = pycocotools_mask.frPyObjects(rle_uncompressed, *rle_uncompressed["size"])
+    resulting_mask = pycocotools_mask.decode(resulting_mask)
+    return resulting_mask
 
 
 def find_mask_bbox(mask) -> Tuple[int, int, int, int]:

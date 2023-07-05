@@ -10,6 +10,7 @@ from datumaro.components.annotation import (
     Bbox,
     Label,
     LabelCategories,
+    Mask,
     Points,
     Polygon,
     PolyLine,
@@ -308,6 +309,7 @@ class CvatExporterTest(TestCase):
             src_label_cat.add(str(i))
         src_label_cat.items[2].attributes.update(["a1", "a2", "empty"])
 
+        mask = np.random.randint(0, 2, size=(5, 10), dtype=np.uint8)
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -354,7 +356,12 @@ class CvatExporterTest(TestCase):
                         PolyLine([5, 0, 9, 0, 5, 5]),  # will be skipped as no label
                     ],
                 ),
-                DatasetItem(id=3, subset="s3", media=Image.from_numpy(data=np.zeros((5, 10, 3)))),
+                DatasetItem(
+                    id=3,
+                    subset="s3",
+                    media=Image.from_numpy(data=np.zeros((5, 10, 3))),
+                    annotations=[Mask(image=mask, z_order=1, label=3, group=4)],
+                ),
             ],
             categories={AnnotationType.label: src_label_cat},
         )
@@ -419,6 +426,15 @@ class CvatExporterTest(TestCase):
                     id=3,
                     subset="s3",
                     media=Image.from_numpy(data=np.zeros((5, 10, 3))),
+                    annotations=[
+                        Mask(
+                            image=mask,
+                            z_order=1,
+                            label=3,
+                            group=4,
+                            attributes={"occluded": False},
+                        )
+                    ],
                     attributes={"frame": 0},
                 ),
             ],
