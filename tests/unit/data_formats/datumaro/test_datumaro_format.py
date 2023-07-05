@@ -203,7 +203,12 @@ class DatumaroFormatTest:
             set(os.listdir(osp.join(test_dir, "annotations"))),
         )
         helper_tc.assertEqual({"2.jpg"}, set(os.listdir(osp.join(test_dir, "images", "a"))))
-        compare_datasets(helper_tc, expected, Dataset.import_from(test_dir, format=self.format))
+        compare_datasets(
+            helper_tc,
+            expected,
+            Dataset.import_from(test_dir, format=self.format),
+            require_media=True,
+        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data_with_transforms(self, test_dir, helper_tc):
