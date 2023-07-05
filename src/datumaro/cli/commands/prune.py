@@ -5,8 +5,8 @@
 import argparse
 import logging as log
 
+from datumaro.components.algorithms.hash_key_inference.prune import Prune
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.components.prune import Prune
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter

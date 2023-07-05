@@ -6,7 +6,7 @@ import logging as log
 import math
 import random
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -14,8 +14,9 @@ from sklearn.cluster import KMeans
 import datumaro.plugins.ndr as ndr
 from datumaro.components.annotation import HashKey, Label, LabelCategories
 from datumaro.components.dataset import Dataset
-from datumaro.components.explorer import HashInference
-from datumaro.util.hashkey_util import (
+from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.algorithms.hash_key_inference.base import HashInference
+from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
     calculate_hamming,
     format_templates,
     select_uninferenced_dataset,
@@ -49,7 +50,27 @@ def match_num_item_for_cluster(ratio, dataset_len, cluster_num_item_list):
 
 class PruneBase(ABC):
     @abstractmethod
-    def base(self):
+    def base(
+        self,
+        ratio: float,
+        num_centers: Optional[int],
+        labels: Optional[List[int]],
+        database_keys: Optional[np.ndarray],
+        item_list: List[DatasetItem],
+        source: Optional[Dataset],
+    ) -> Tuple[List[DatasetItem], Optional[Dict]]:
+        """It executes each method for pruning.
+
+        Parameters:
+            ratio: How much to remain dataset after pruning.
+            num_centers: Number of centers for clustering.
+            labels: Label of one annotation for each datasetitem.
+            database_keys: Batch of the numpy formatted hash_key.
+            item_list: List of datasetitem of dataset.
+            source: Whole dataset.
+        Returns:
+            It returns a tuple of selected items and distance of each item and clusters.
+        """
         raise NotImplementedError
 
 
