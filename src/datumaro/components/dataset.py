@@ -24,7 +24,7 @@ from datumaro.components.dataset_base import (
     IDataset,
 )
 from datumaro.components.dataset_item_storage import DatasetItemStorageDatasetView
-from datumaro.components.dataset_storage import DatasetPatch, DatasetStorage
+from datumaro.components.dataset_storage import DatasetPatch, DatasetStorage, StreamDatasetStorage
 from datumaro.components.environment import DEFAULT_ENVIRONMENT, Environment
 from datumaro.components.errors import (
     DatasetImportError,
@@ -46,6 +46,8 @@ from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
 DEFAULT_FORMAT = "datumaro"
+
+__all__ = ["Dataset", "eager_mode"]
 
 
 class DatasetSubset(IDataset):  # non-owning view
@@ -311,7 +313,7 @@ class Dataset(IDataset):
             path = osp.join(self._source_path, path)
         return self._data.get_datasetitem_by_path(path)
 
-    def get_subset_info(self):
+    def get_subset_info(self) -> str:
         return (
             f"{subset_name}: # of items={len(self.get_subset(subset_name))}, "
             f"# of annotated items={self.get_subset(subset_name).get_annotated_items()}, "
@@ -320,13 +322,13 @@ class Dataset(IDataset):
             for subset_name in sorted(self.subsets().keys())
         )
 
-    def get_infos(self):
+    def get_infos(self) -> Tuple[str]:
         if self.infos() is not None:
             return (f"{k}: {v}\n" for k, v in self.infos().items())
         else:
             return ("\n",)
 
-    def get_categories_info(self):
+    def get_categories_info(self) -> Tuple[str]:
         category_dict = {}
         for annotation_type, category in self.categories().items():
             if isinstance(category, LabelCategories):
@@ -777,6 +779,32 @@ class Dataset(IDataset):
             raise MultipleFormatsMatchError(matches)
         else:
             return matches[0]
+
+
+class StreamDataset(Dataset):
+    def __init__(
+        self,
+        source: Optional[IDataset] = None,
+        *,
+        infos: Optional[DatasetInfo] = None,
+        categories: Optional[CategoriesInfo] = None,
+        media_type: Optional[Type[MediaElement]] = None,
+        env: Optional[Environment] = None,
+    ) -> None:
+        assert env is None or isinstance(env, Environment), env
+        self._env = env
+
+        self._data = StreamDatasetStorage(
+            source, infos=infos, categories=categories, media_type=media_type
+        )
+
+        self._format = DEFAULT_FORMAT
+        self._source_path = None
+        self._options = {}
+
+    @property
+    def is_eager(self) -> bool:
+        return False
 
 
 @contextmanager

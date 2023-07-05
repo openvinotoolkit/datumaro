@@ -209,6 +209,14 @@ class IDataset:
         """
         raise NotImplementedError()
 
+    @property
+    def is_stream(self) -> bool:
+        """Boolean indicating whether the dataset is a stream
+
+        If the dataset is a stream, the dataset item is generated on demand from its iterator.
+        """
+        return False
+
 
 class _DatasetBase(IDataset):
     def __init__(self, *, length: Optional[int] = None, subsets: Optional[Sequence[str]] = None):
