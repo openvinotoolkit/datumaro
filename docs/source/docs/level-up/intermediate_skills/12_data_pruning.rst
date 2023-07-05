@@ -32,7 +32,7 @@ The Python example for the usage of pruning is described in :doc:`here <../../ju
 
             result = prune.get_pruned(ratio='how/much/to/prune/dataset')
 
-        We can choose the desired method as ``<how/to/prune/dataset>``among the provided ones. The default value is ``random``.
+        We can choose the desired method as ``<how/to/prune/dataset>`` among the provided ones. The default value is ``random``.
         Additionally, we can specify how much of the dataset we want to retain by providing a float value between 0 and 1 for the ``<how/much/to/prune/dataset>`` parameter. The default value is 0.5.
 
     .. tab-item:: CLI
@@ -44,7 +44,7 @@ The Python example for the usage of pruning is described in :doc:`here <../../ju
             datum prune <target> -m METHOD -r RATIO -h HASH_TYPE
         
         We could use ``--overwrite`` instead of setting ``-o/--output-dir``.
-        We can choose the desired method as ``METHOD``among the provided ones. The default value is ``random``.
+        We can choose the desired method as ``METHOD`` among the provided ones. The default value is ``random``.
         Additionally, we can specify how much of the dataset we want to retain by providing a float value between 0 and 1 for the ``RATIO`` parameter. The default value is 0.5.
 
     
@@ -68,5 +68,5 @@ The Python example for the usage of pruning is described in :doc:`here <../../ju
 
             datum prune -m METHOD -r RATIO -h HASH_TYPE -p <path/to/project>
 
-        We can choose the desired method as ``METHOD``among the provided ones. The default value is ``random``.
+        We can choose the desired method as ``METHOD`` among the provided ones. The default value is ``random``.
         Additionally, we can specify how much of the dataset we want to retain by providing a float value between 0 and 1 for the ``RATIO`` parameter. The default value is 0.5.
