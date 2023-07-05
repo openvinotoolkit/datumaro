@@ -22,6 +22,7 @@ Supported annotation types:
 - `Points`
 - `Polygon`
 - `PolyLine`
+- `Mask`
 
 Supported annotation attributes:
 - It supports any arbitrary boolean, floating number, or string attribute.
