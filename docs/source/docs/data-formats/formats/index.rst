@@ -18,6 +18,7 @@ Supported Data Formats
    coco
    common_semantic_segmentation
    common_super_resolution
+   cvat
    datumaro_binary
    datumaro
    icdar
