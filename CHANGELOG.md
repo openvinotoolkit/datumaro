@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1059>)
 - Migrate DVC v3.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1072>)
+- Add Prune API
+  (<https://github.com/openvinotoolkit/datumaro/pull/1058>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins
