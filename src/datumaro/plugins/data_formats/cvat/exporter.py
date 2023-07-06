@@ -17,7 +17,7 @@ from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
-from datumaro.util import cast, pairs
+from datumaro.util import cast, mask_tools, pairs
 
 from .format import CvatPath
 
@@ -106,6 +106,11 @@ class XmlAnnotationWriter:
         self.xmlgen.startElement("points", points)
         self._level += 1
 
+    def open_mask(self, mask):
+        self._indent()
+        self.xmlgen.startElement("mask", mask)
+        self._level += 1
+
     def open_tag(self, tag):
         self._indent()
         self.xmlgen.startElement("tag", tag)
@@ -133,6 +138,9 @@ class XmlAnnotationWriter:
 
     def close_points(self):
         self._close_element("points")
+
+    def close_mask(self):
+        self._close_element("mask")
 
     def close_tag(self):
         self._close_element("tag")
@@ -182,12 +190,7 @@ class _SubsetWriter:
 
         self._writer.open_track(track_info)
         for ann in annotations:
-            if ann.type in {
-                AnnotationType.points,
-                AnnotationType.polyline,
-                AnnotationType.polygon,
-                AnnotationType.bbox,
-            }:
+            if ann.type in CvatPath.SUPPORTED_EXPORT_SHAPES:
                 self._write_shape(ann, write_label_info=False, write_frame=True)
         self._writer.close_track()
 
@@ -254,12 +257,7 @@ class _SubsetWriter:
         self._writer.open_image(image_info)
 
         for ann in item.annotations:
-            if ann.type in {
-                AnnotationType.points,
-                AnnotationType.polyline,
-                AnnotationType.polygon,
-                AnnotationType.bbox,
-            }:
+            if ann.type in CvatPath.SUPPORTED_EXPORT_SHAPES:
                 self._write_shape(ann, item)
             elif ann.type == AnnotationType.label:
                 self._write_tag(ann, item)
@@ -389,6 +387,22 @@ class _SubsetWriter:
                     ]
                 )
             )
+        elif shape.type == AnnotationType.mask:
+            # From the manual test for the dataset exported from the CVAT 2.5,
+            # the RLE encoding in the dataset has (W, H) binary 2D np.ndarray, not (H, W)
+            # Therefore, we need to tranpose it to make its shape as (H, W).
+            mask = shape.image.transpose()
+            rle_uncompressed = mask_tools.mask_to_rle(mask)
+            width, height = mask.shape
+            shape_data.update(
+                OrderedDict(
+                    rle=", ".join([str(c) for c in rle_uncompressed["counts"]]),
+                    left=str(0),
+                    top=str(0),
+                    width=str(width),
+                    height=str(height),
+                )
+            )
         else:
             shape_data.update(
                 OrderedDict(
@@ -418,6 +432,8 @@ class _SubsetWriter:
             self._writer.open_polyline(shape_data)
         elif shape.type == AnnotationType.points:
             self._writer.open_points(shape_data)
+        elif shape.type == AnnotationType.mask:
+            self._writer.open_mask(shape_data)
         else:
             raise NotImplementedError("unknown shape type")
 
@@ -456,6 +472,8 @@ class _SubsetWriter:
             self._writer.close_polyline()
         elif shape.type == AnnotationType.points:
             self._writer.close_points()
+        elif shape.type == AnnotationType.mask:
+            self._writer.close_mask()
         else:
             raise NotImplementedError("unknown shape type")
 

@@ -7,6 +7,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from typing import Optional
 
+import numpy as np
 from defusedxml import ElementTree
 
 from datumaro.components.annotation import (
@@ -14,6 +15,7 @@ from datumaro.components.annotation import (
     Bbox,
     Label,
     LabelCategories,
+    Mask,
     Points,
     Polygon,
     PolyLine,
@@ -23,6 +25,7 @@ from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.util import mask_tools
 
 from .format import CvatPath
 
@@ -46,8 +49,6 @@ def _find_meta_root(path: str):
 
 
 class CvatBase(SubsetBase):
-    _SUPPORTED_SHAPES = ("box", "polygon", "polyline", "points")
-
     def __init__(
         self,
         path: str,
@@ -103,7 +104,7 @@ class CvatBase(SubsetBase):
                         "height": el.attrib.get("height"),
                     }
                     subset = el.attrib.get("subset")
-                elif el.tag in self._SUPPORTED_SHAPES and (track or image):
+                elif el.tag in CvatPath.SUPPORTED_IMPORT_SHAPES and (track or image):
                     attributes = {}
                     shape = {
                         "type": None,
@@ -134,7 +135,7 @@ class CvatBase(SubsetBase):
                         except ValueError:
                             pass
                     attributes[el.attrib["name"]] = attr_value
-                elif el.tag in self._SUPPORTED_SHAPES:
+                elif el.tag in CvatPath.SUPPORTED_IMPORT_SHAPES:
                     if track is not None:
                         shape["frame"] = el.attrib["frame"]
                         shape["outside"] = el.attrib.get("outside") == "1"
@@ -159,6 +160,12 @@ class CvatBase(SubsetBase):
                                 ],
                             )
                         )
+                    elif el.tag == "mask":
+                        shape["rle"] = el.attrib["rle"]
+                        shape["left"] = el.attrib["left"]
+                        shape["top"] = el.attrib["top"]
+                        shape["width"] = el.attrib["width"]
+                        shape["height"] = el.attrib["height"]
                     else:
                         shape["points"] = []
                         for pair in el.attrib["points"].split(";"):
@@ -166,7 +173,9 @@ class CvatBase(SubsetBase):
 
                     if subset is None or subset == self._subset:
                         frame_desc = items.get(shape["frame"], {"annotations": []})
-                        frame_desc["annotations"].append(self._parse_shape_ann(shape, categories))
+                        frame_desc["annotations"].append(
+                            self._parse_shape_ann(shape, categories, image)
+                        )
                         items[shape["frame"]] = frame_desc
                     shape = None
 
@@ -240,7 +249,7 @@ class CvatBase(SubsetBase):
         return categories, frame_size, attribute_types
 
     @classmethod
-    def _parse_shape_ann(cls, ann, categories):
+    def _parse_shape_ann(cls, ann, categories, image):
         ann_id = ann.get("id", 0)
         ann_type = ann["type"]
 
@@ -300,6 +309,35 @@ class CvatBase(SubsetBase):
                 y,
                 w,
                 h,
+                label=label_id,
+                z_order=z_order,
+                id=ann_id,
+                attributes=attributes,
+                group=group,
+            )
+
+        elif ann_type == "mask":
+            rle = ann.get("rle")
+            mask_w, mask_h = int(ann.get("width")), int(ann.get("height"))
+            mask_l, mask_t = int(ann.get("left")), int(ann.get("top"))
+            img_w, img_h = int(image.get("width")), int(image.get("height"))
+
+            rle_uncompressed = {
+                "counts": np.array([int(str_num) for str_num in rle.split(",")], dtype=np.uint32),
+                "size": np.array([mask_w, mask_h]),
+            }
+
+            def _gen_mask():
+                # From the manual test for the dataset exported from the CVAT 2.5,
+                # the RLE encoding in the dataset has (W, H) binary 2D np.ndarray, not (H, W)
+                # Therefore, we need to tranpose it to make its shape as (H, W).
+                mask = mask_tools.rle_to_mask(rle_uncompressed).transpose()
+                canvas = np.zeros(shape=[img_h, img_w], dtype=np.uint8)
+                canvas[mask_t : mask_t + mask_h, mask_l : mask_l + mask_w] = mask
+                return canvas
+
+            return Mask(
+                image=_gen_mask,
                 label=label_id,
                 z_order=z_order,
                 id=ann_id,

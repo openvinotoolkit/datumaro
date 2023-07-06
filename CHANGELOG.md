@@ -15,12 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1049>, <https://github.com/openvinotoolkit/datumaro/pull/1063>, <https://github.com/openvinotoolkit/datumaro/pull/1064>)
 - Add OVMSLauncher
   (<https://github.com/openvinotoolkit/datumaro/pull/1056>)
+- Add Prune API
+  (<https://github.com/openvinotoolkit/datumaro/pull/1058>)
 - Add TritonLauncher
   (<https://github.com/openvinotoolkit/datumaro/pull/1059>)
 - Migrate DVC v3.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1072>)
-- Add Prune API
-  (<https://github.com/openvinotoolkit/datumaro/pull/1058>)
+- Support mask annotations for CVAT data format
+  (<https://github.com/openvinotoolkit/datumaro/pull/1078>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins
