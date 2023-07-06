@@ -8,8 +8,8 @@ import os
 import os.path as osp
 import shutil
 
+from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.components.explorer import Explorer
 from datumaro.util import str_to_bool
 from datumaro.util.scope import scope_add, scoped
 

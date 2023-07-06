@@ -15,12 +15,12 @@ from datumaro.plugins.openvino_plugin.samples.utils import (
     rescale_img_keeping_aspect_ratio,
 )
 
-__all__ = ["OTXATSSModelInterpreter"]
+__all__ = ["OTXYoloXModelInterpreter"]
 
 
-class OTXATSSModelInterpreter(IModelInterpreter):
-    h_model = 736
-    w_model = 992
+class OTXYoloXModelInterpreter(IModelInterpreter):
+    h_model = 416
+    w_model = 416
 
     def preprocess(self, img: np.ndarray) -> Tuple[np.ndarray, PrepInfo]:
         output = rescale_img_keeping_aspect_ratio(img, self.h_model, self.w_model)
