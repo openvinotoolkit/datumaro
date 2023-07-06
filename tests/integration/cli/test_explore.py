@@ -115,7 +115,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
@@ -139,7 +139,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
@@ -189,7 +189,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
@@ -237,7 +237,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
@@ -292,7 +292,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
@@ -342,7 +342,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
