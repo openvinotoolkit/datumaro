@@ -133,7 +133,7 @@ def explore_command(args):
                 query_datasetitem = dataset.get_datasetitem_by_path(args.query)
             except Exception:
                 continue
-            if not query_datasetitem:
+            if query_datasetitem:
                 break
     else:
         query_datasetitem = args.query
