@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1056>)
 - Add TritonLauncher
   (<https://github.com/openvinotoolkit/datumaro/pull/1059>)
+- Support mask annotations for CVAT data format
+  (<https://github.com/openvinotoolkit/datumaro/pull/1078>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins
@@ -31,8 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1060>)
 - Enhance the error message for datum stats to be more user friendly
   (<https://github.com/openvinotoolkit/datumaro/pull/1069>)
-- Support mask annotations for CVAT data format
-  (<https://github.com/openvinotoolkit/datumaro/pull/1078>)
 
 ### Bug fixes
 - Fix warnings in test_visualizer.py
