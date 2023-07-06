@@ -362,6 +362,10 @@
         <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FilterModes</span><span class="o">.</span><span class="n">list_options</span><span class="p">()),</span> <span class="s2">&quot;</span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--encryption-key&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Secret key. It is required only if the input dataset is encrypted.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;extra_args&quot;</span><span class="p">,</span>
         <span class="n">nargs</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">REMAINDER</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Additional arguments for output format (pass &#39;-- -h&#39; for help). &quot;</span>
@@ -427,7 +431,10 @@
         <span class="p">)</span>
     <span class="n">dst_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dst_dir</span><span class="p">)</span>
 
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+    <span class="n">import_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">encryption_key</span><span class="p">:</span>
+        <span class="n">import_kwargs</span><span class="p">[</span><span class="s2">&quot;encryption_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">encryption_key</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="o">**</span><span class="n">import_kwargs</span><span class="p">)</span>
 
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exporting the dataset&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">filter</span><span class="p">:</span>
