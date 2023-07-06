@@ -94,7 +94,7 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset_url = osp.join(test_dir, "dataset")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset_url, "datumaro", save_media=True)
 
@@ -116,7 +116,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skip("Skip tests for explorer CLI")
     @skipIf(
@@ -130,7 +130,7 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset_url = osp.join(test_dir, "dataset")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset_url, "datumaro", save_media=True)
 
@@ -141,7 +141,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skip("Skip tests for explorer CLI")
     @skipIf(
@@ -155,7 +155,7 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset1_url = osp.join(test_dir, "dataset1")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
         run(self, "project", "create", "-o", proj_dir)
@@ -192,7 +192,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skip("Skip tests for explorer CLI")
     @skipIf(
@@ -206,7 +206,7 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset1_url = osp.join(test_dir, "dataset1")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
         run(self, "project", "create", "-o", proj_dir)
@@ -241,7 +241,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skip("Skip tests for explorer CLI")
     @skipIf(
@@ -255,7 +255,7 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset1_url = osp.join(test_dir, "dataset1")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
 
@@ -294,7 +294,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skip("Skip tests for explorer CLI")
     @skipIf(
@@ -310,7 +310,7 @@ class ExploreTest(TestCase):
         dataset1_url = osp.join(test_dir, "dataset1")
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
 
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
         run(self, "project", "create", "-o", proj_dir)
         run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset1_url)
         run(self, "explore", "-q", train_image_path, "-topk", "2", "-p", proj_dir)
@@ -345,7 +345,7 @@ class ExploreTest(TestCase):
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
-        self.assertIn(osp.join(saved_result_path, "train"), results)
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
     @skipIf(
         platform.system() == "Darwin",
