@@ -416,6 +416,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_mask_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
 
+        <span class="k">del</span> <span class="n">json_data</span>
+
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
@@ -504,10 +506,16 @@
 
     <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">):</span>
         <span class="n">pbars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="o">.</span><span class="n">progress_reporter</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_gen_ann</span><span class="p">(</span><span class="n">info_lists</span><span class="p">):</span>
+            <span class="k">while</span> <span class="n">info_lists</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">info_lists</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
         <span class="n">items</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">img_infos</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">img_lists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="s2">&quot;images&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">img_info</span> <span class="ow">in</span> <span class="n">pbars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="s2">&quot;images&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span>
+            <span class="n">_gen_ann</span><span class="p">(</span><span class="n">img_lists</span><span class="p">),</span>
             <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Parsing image info in &#39;</span><span class="si">{</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="n">img_id</span> <span class="o">=</span> <span class="kc">None</span>
@@ -537,8 +545,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="o">.</span><span class="n">error_policy</span><span class="o">.</span><span class="n">report_item_error</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">item_id</span><span class="o">=</span><span class="p">(</span><span class="n">img_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">panoptic</span><span class="p">:</span>
+            <span class="n">ann_lists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="s2">&quot;annotations&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">pbars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="s2">&quot;annotations&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span>
+                <span class="n">_gen_ann</span><span class="p">(</span><span class="n">ann_lists</span><span class="p">),</span>
                 <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Parsing annotations in &#39;</span><span class="si">{</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
             <span class="p">):</span>
                 <span class="n">img_id</span> <span class="o">=</span> <span class="kc">None</span>
@@ -556,8 +565,9 @@
                         <span class="n">e</span><span class="p">,</span> <span class="n">item_id</span><span class="o">=</span><span class="p">(</span><span class="n">img_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">)</span>
                     <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">ann_lists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="s2">&quot;annotations&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">pbars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="s2">&quot;annotations&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span>
+                <span class="n">_gen_ann</span><span class="p">(</span><span class="n">ann_lists</span><span class="p">),</span>
                 <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Parsing annotations in &#39;</span><span class="si">{</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
             <span class="p">):</span>
                 <span class="n">img_id</span> <span class="o">=</span> <span class="kc">None</span>

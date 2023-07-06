@@ -427,7 +427,9 @@
     <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parsed</span><span class="p">):</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">for</span> <span class="n">item_desc</span> <span class="ow">in</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]:</span>
+        <span class="n">item_descs</span> <span class="o">=</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+        <span class="k">while</span> <span class="n">item_descs</span><span class="p">:</span>
+            <span class="n">item_desc</span> <span class="o">=</span> <span class="n">item_descs</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
             <span class="n">item_id</span> <span class="o">=</span> <span class="n">item_desc</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
 
             <span class="n">media</span> <span class="o">=</span> <span class="kc">None</span>
