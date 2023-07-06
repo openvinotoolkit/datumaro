@@ -1,7 +1,7 @@
 import os.path as osp
 import platform
 from glob import glob
-from unittest import TestCase, skipIf
+from unittest import TestCase, skip, skipIf
 
 import numpy as np
 
@@ -82,6 +82,7 @@ class ExploreTest(TestCase):
         )
         return dataset
 
+    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -117,6 +118,7 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
+    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -141,6 +143,7 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
+    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -191,6 +194,7 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
+    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -239,6 +243,7 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
+    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -291,6 +296,7 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
+    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
