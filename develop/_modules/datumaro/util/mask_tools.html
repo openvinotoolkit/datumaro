@@ -283,9 +283,10 @@
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pycocotools</span> <span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">pycocotools_mask</span>
 
 <span class="kn">from</span> <span class="nn">datumaro._capi</span> <span class="kn">import</span> <span class="n">encode</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">lazy_image</span><span class="p">,</span> <span class="n">load_image</span>
@@ -502,15 +503,14 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of polygons like [[x1,y1, x2,y2 ...], [...]]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">pycocotools</span> <span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">mask_utils</span>
 
     <span class="n">contours</span> <span class="o">=</span> <span class="n">extract_contours</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
 
     <span class="n">polygons</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">contour</span> <span class="ow">in</span> <span class="n">contours</span><span class="p">:</span>
         <span class="c1"># Check if the polygon is big enough</span>
-        <span class="n">rle</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">([</span><span class="n">contour</span><span class="p">],</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">area</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">mask_utils</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">rle</span><span class="p">))</span>
+        <span class="n">rle</span> <span class="o">=</span> <span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">([</span><span class="n">contour</span><span class="p">],</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">rle</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">area_threshold</span> <span class="o">&lt;=</span> <span class="n">area</span><span class="p">:</span>
             <span class="n">polygons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">contour</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">polygons</span></div>
@@ -575,13 +575,11 @@
 <span class="sd">                ...</span>
 <span class="sd">            ]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">pycocotools</span> <span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">mask_utils</span>
-
     <span class="n">segments</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span>
-    <span class="n">input_rles</span> <span class="o">=</span> <span class="p">[</span><span class="n">mask_utils</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span>
+    <span class="n">input_rles</span> <span class="o">=</span> <span class="p">[</span><span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rle_bottom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">input_rles</span><span class="p">):</span>
-        <span class="n">area_bottom</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">mask_utils</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">rle_bottom</span><span class="p">))</span>
+        <span class="n">area_bottom</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">rle_bottom</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">area_bottom</span> <span class="o">&lt;</span> <span class="n">area_threshold</span><span class="p">:</span>
             <span class="n">segments</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">return_masks</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="k">continue</span>
@@ -589,12 +587,12 @@
         <span class="n">rles_top</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_rles</span><span class="p">)):</span>
             <span class="n">rle_top</span> <span class="o">=</span> <span class="n">input_rles</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-            <span class="n">iou</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">mask_utils</span><span class="o">.</span><span class="n">iou</span><span class="p">(</span><span class="n">rle_bottom</span><span class="p">,</span> <span class="n">rle_top</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">iou</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">iou</span><span class="p">(</span><span class="n">rle_bottom</span><span class="p">,</span> <span class="n">rle_top</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">iou</span> <span class="o">&lt;=</span> <span class="n">iou_threshold</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="n">area_top</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">mask_utils</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">rle_top</span><span class="p">))</span>
+            <span class="n">area_top</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">rle_top</span><span class="p">))</span>
             <span class="n">area_ratio</span> <span class="o">=</span> <span class="n">area_top</span> <span class="o">/</span> <span class="n">area_bottom</span>
 
             <span class="c1"># If a segment is fully inside another one, skip this segment</span>
@@ -613,11 +611,11 @@
             <span class="k">continue</span>
 
         <span class="n">rle_bottom</span> <span class="o">=</span> <span class="n">rle_bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">bottom_mask</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">rle_bottom</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="n">bottom_mask</span> <span class="o">=</span> <span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">rle_bottom</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">rles_top</span><span class="p">:</span>
-            <span class="n">rle_top</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">rles_top</span><span class="p">)</span>
-            <span class="n">top_mask</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">rle_top</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">rle_top</span> <span class="o">=</span> <span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">rles_top</span><span class="p">)</span>
+            <span class="n">top_mask</span> <span class="o">=</span> <span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">rle_top</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
             <span class="n">bottom_mask</span> <span class="o">-=</span> <span class="n">top_mask</span>
             <span class="n">bottom_mask</span><span class="p">[</span><span class="n">bottom_mask</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
@@ -631,12 +629,21 @@
 
 
 <div class="viewcode-block" id="rles_to_mask"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.mask_tools.html#datumaro.util.mask_tools.rles_to_mask">[docs]</a><span class="k">def</span> <span class="nf">rles_to_mask</span><span class="p">(</span><span class="n">rles</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">pycocotools</span> <span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">mask_utils</span>
-
-    <span class="n">rles</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">(</span><span class="n">rles</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
-    <span class="n">rles</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">rles</span><span class="p">)</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">rles</span><span class="p">)</span>
+    <span class="n">rles</span> <span class="o">=</span> <span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">(</span><span class="n">rles</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+    <span class="n">rles</span> <span class="o">=</span> <span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">rles</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">rles</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">mask</span></div>
+
+
+<div class="viewcode-block" id="rle_to_mask"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.mask_tools.html#datumaro.util.mask_tools.rle_to_mask">[docs]</a><span class="k">def</span> <span class="nf">rle_to_mask</span><span class="p">(</span><span class="n">rle_uncompressed</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decode the uncompressed RLE string to the binary mask (2D np.ndarray)</span>
+
+<span class="sd">    The uncompressed RLE string can be obtained by</span>
+<span class="sd">    the datumaro.util.mask_tools.mask_to_rle() function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">resulting_mask</span> <span class="o">=</span> <span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">(</span><span class="n">rle_uncompressed</span><span class="p">,</span> <span class="o">*</span><span class="n">rle_uncompressed</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">])</span>
+    <span class="n">resulting_mask</span> <span class="o">=</span> <span class="n">pycocotools_mask</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">resulting_mask</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resulting_mask</span></div>
 
 
 <div class="viewcode-block" id="find_mask_bbox"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.mask_tools.html#datumaro.util.mask_tools.find_mask_bbox">[docs]</a><span class="k">def</span> <span class="nf">find_mask_bbox</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>

@@ -291,12 +291,12 @@
 <span class="kn">from</span> <span class="nn">xml.sax.saxutils</span> <span class="kn">import</span> <span class="n">XMLGenerator</span>  <span class="c1"># nosec</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">ItemStatus</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset_item_storage</span> <span class="kn">import</span> <span class="n">ItemStatus</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">MediaTypeError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.exporter</span> <span class="kn">import</span> <span class="n">Exporter</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">pairs</span>
+<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">mask_tools</span><span class="p">,</span> <span class="n">pairs</span>
 
 <span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">CvatPath</span>
 
@@ -385,6 +385,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">xmlgen</span><span class="o">.</span><span class="n">startElement</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
+<div class="viewcode-block" id="XmlAnnotationWriter.open_mask"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.exporter.html#datumaro.plugins.data_formats.cvat.exporter.XmlAnnotationWriter.open_mask">[docs]</a>    <span class="k">def</span> <span class="nf">open_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indent</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xmlgen</span><span class="o">.</span><span class="n">startElement</span><span class="p">(</span><span class="s2">&quot;mask&quot;</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
 <div class="viewcode-block" id="XmlAnnotationWriter.open_tag"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.exporter.html#datumaro.plugins.data_formats.cvat.exporter.XmlAnnotationWriter.open_tag">[docs]</a>    <span class="k">def</span> <span class="nf">open_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_indent</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xmlgen</span><span class="o">.</span><span class="n">startElement</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
@@ -412,6 +417,9 @@
 
 <div class="viewcode-block" id="XmlAnnotationWriter.close_points"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.exporter.html#datumaro.plugins.data_formats.cvat.exporter.XmlAnnotationWriter.close_points">[docs]</a>    <span class="k">def</span> <span class="nf">close_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_close_element</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="XmlAnnotationWriter.close_mask"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.exporter.html#datumaro.plugins.data_formats.cvat.exporter.XmlAnnotationWriter.close_mask">[docs]</a>    <span class="k">def</span> <span class="nf">close_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close_element</span><span class="p">(</span><span class="s2">&quot;mask&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="XmlAnnotationWriter.close_tag"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.exporter.html#datumaro.plugins.data_formats.cvat.exporter.XmlAnnotationWriter.close_tag">[docs]</a>    <span class="k">def</span> <span class="nf">close_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_close_element</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">)</span></div>
@@ -461,12 +469,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">open_track</span><span class="p">(</span><span class="n">track_info</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annotations</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">{</span>
-                <span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">,</span>
-                <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polyline</span><span class="p">,</span>
-                <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polygon</span><span class="p">,</span>
-                <span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span>
-            <span class="p">}:</span>
+            <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="n">CvatPath</span><span class="o">.</span><span class="n">SUPPORTED_EXPORT_SHAPES</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_write_shape</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">write_label_info</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">write_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">close_track</span><span class="p">()</span>
 
@@ -533,12 +536,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">open_image</span><span class="p">(</span><span class="n">image_info</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">{</span>
-                <span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">,</span>
-                <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polyline</span><span class="p">,</span>
-                <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polygon</span><span class="p">,</span>
-                <span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span>
-            <span class="p">}:</span>
+            <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="n">CvatPath</span><span class="o">.</span><span class="n">SUPPORTED_EXPORT_SHAPES</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_write_shape</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_write_tag</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
@@ -668,6 +666,22 @@
                     <span class="p">]</span>
                 <span class="p">)</span>
             <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">shape</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">:</span>
+            <span class="c1"># From the manual test for the dataset exported from the CVAT 2.5,</span>
+            <span class="c1"># the RLE encoding in the dataset has (W, H) binary 2D np.ndarray, not (H, W)</span>
+            <span class="c1"># Therefore, we need to tranpose it to make its shape as (H, W).</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+            <span class="n">rle_uncompressed</span> <span class="o">=</span> <span class="n">mask_tools</span><span class="o">.</span><span class="n">mask_to_rle</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+            <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">shape_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">OrderedDict</span><span class="p">(</span>
+                    <span class="n">rle</span><span class="o">=</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">rle_uncompressed</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]]),</span>
+                    <span class="n">left</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+                    <span class="n">top</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+                    <span class="n">width</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">width</span><span class="p">),</span>
+                    <span class="n">height</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">height</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">shape_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="n">OrderedDict</span><span class="p">(</span>
@@ -697,6 +711,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">open_polyline</span><span class="p">(</span><span class="n">shape_data</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">shape</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">open_points</span><span class="p">(</span><span class="n">shape_data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">shape</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">open_mask</span><span class="p">(</span><span class="n">shape_data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;unknown shape type&quot;</span><span class="p">)</span>
 
@@ -735,6 +751,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">close_polyline</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">shape</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">close_points</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">shape</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">close_mask</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;unknown shape type&quot;</span><span class="p">)</span>
 

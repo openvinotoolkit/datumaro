@@ -39,6 +39,7 @@ datumaro.components
    datumaro.components.dataset
    datumaro.components.dataset_base
    datumaro.components.dataset_item_storage
+   datumaro.components.dataset_storage
    datumaro.components.environment
    datumaro.components.errors
    datumaro.components.exporter

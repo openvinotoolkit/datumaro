@@ -19,6 +19,7 @@ datumaro.components.dataset\_item\_storage
    
       DatasetItemStorage
       DatasetItemStorageDatasetView
+      ItemStatus
    
    
 

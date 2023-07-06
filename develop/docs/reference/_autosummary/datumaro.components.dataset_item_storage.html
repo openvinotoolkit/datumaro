@@ -49,7 +49,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.components.dataset_item_storage';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.components.environment" href="datumaro.components.environment.html" />
+    <link rel="next" title="datumaro.components.dataset_storage" href="datumaro.components.dataset_storage.html" />
     <link rel="prev" title="datumaro.components.dataset_base" href="datumaro.components.dataset_base.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_base.html">datumaro.components.dataset_base</a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.components.dataset_item_storage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_storage.html">datumaro.components.dataset_storage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.environment.html">datumaro.components.environment</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.errors.html">datumaro.components.errors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.exporter.html">datumaro.components.exporter</a></li>
@@ -578,8 +579,33 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.dataset_item_storage.DatasetItemStorageDatasetView" title="datumaro.components.dataset_item_storage.DatasetItemStorageDatasetView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView</span></code></a>(parent, infos, ...)</p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.dataset_item_storage.ItemStatus" title="datumaro.components.dataset_item_storage.ItemStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ItemStatus</span></code></a>(value)</p></td>
+<td><p>An enumeration.</p></td>
+</tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.ItemStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_item_storage.</span></span><span class="sig-name descname"><span class="pre">ItemStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_item_storage.html#ItemStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.ItemStatus" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.components.dataset_item_storage.Enum" title="enum.Enum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.ItemStatus.added">
+<span class="sig-name descname"><span class="pre">added</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.ItemStatus.added" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.ItemStatus.modified">
+<span class="sig-name descname"><span class="pre">modified</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.ItemStatus.modified" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.ItemStatus.removed">
+<span class="sig-name descname"><span class="pre">removed</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.ItemStatus.removed" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItemStorage">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_item_storage.</span></span><span class="sig-name descname"><span class="pre">DatasetItemStorage</span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_item_storage.html#DatasetItemStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItemStorage" title="Permalink to this definition">#</a></dt>
@@ -729,6 +755,283 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_item_storage.</span></span><span class="sig-name descname"><span class="pre">AnnotationType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/annotation.html#AnnotationType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.IntEnum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntEnum</span></code></a></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.unknown">
+<span class="sig-name descname"><span class="pre">unknown</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.unknown" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.label" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.mask">
+<span class="sig-name descname"><span class="pre">mask</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.mask" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.points">
+<span class="sig-name descname"><span class="pre">points</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.points" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.polygon">
+<span class="sig-name descname"><span class="pre">polygon</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.polygon" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.polyline">
+<span class="sig-name descname"><span class="pre">polyline</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.polyline" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.bbox">
+<span class="sig-name descname"><span class="pre">bbox</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.bbox" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.caption">
+<span class="sig-name descname"><span class="pre">caption</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.caption" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.cuboid_3d">
+<span class="sig-name descname"><span class="pre">cuboid_3d</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.cuboid_3d" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.super_resolution_annotation">
+<span class="sig-name descname"><span class="pre">super_resolution_annotation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.super_resolution_annotation" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.depth_annotation">
+<span class="sig-name descname"><span class="pre">depth_annotation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.depth_annotation" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.ellipse">
+<span class="sig-name descname"><span class="pre">ellipse</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.ellipse" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.hash_key">
+<span class="sig-name descname"><span class="pre">hash_key</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.hash_key" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.AnnotationType.feature_vector">
+<span class="sig-name descname"><span class="pre">feature_vector</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.AnnotationType.feature_vector" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_item_storage.</span></span><span class="sig-name descname"><span class="pre">DatasetItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Annotation" title="datumaro.components.annotation.Annotation"><span class="pre">Annotation</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_cloud</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#DatasetItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.subset">
+<span class="sig-name descname"><span class="pre">subset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.subset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.media">
+<span class="sig-name descname"><span class="pre">media</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.media" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.annotations">
+<span class="sig-name descname"><span class="pre">annotations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Annotation" title="datumaro.components.annotation.Annotation"><span class="pre">Annotation</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.annotations" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.attributes">
+<span class="sig-name descname"><span class="pre">attributes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.attributes" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.wrap">
+<span class="sig-name descname"><span class="pre">wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#DatasetItem.wrap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.wrap" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.media_as">
+<span class="sig-name descname"><span class="pre">media_as</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#DatasetItem.media_as"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.media_as" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.image">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">image</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.Image" title="datumaro.components.media.Image"><span class="pre">Image</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.image" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.point_cloud">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">point_cloud</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.point_cloud" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.related_images">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">related_images</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.Image" title="datumaro.components.media.Image"><span class="pre">Image</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.related_images" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.has_image">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_image</span></span><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.has_image" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.DatasetItem.has_point_cloud">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_point_cloud</span></span><a class="headerlink" href="#datumaro.components.dataset_item_storage.DatasetItem.has_point_cloud" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.Enum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_item_storage.</span></span><span class="sig-name descname"><span class="pre">Enum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/enum.html#Enum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.Enum" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Generic enumeration.</p>
+<p>Derive from this class to define new enumerations.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.Enum.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#datumaro.components.dataset_item_storage.Enum.name" title="Permalink to this definition">#</a></dt>
+<dd><p>The name of the Enum member.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.Enum.value">
+<span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#datumaro.components.dataset_item_storage.Enum.value" title="Permalink to this definition">#</a></dt>
+<dd><p>The value of the Enum member.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.IDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_item_storage.</span></span><span class="sig-name descname"><span class="pre">IDataset</span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#IDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.IDataset" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.IDataset.subsets">
+<span class="sig-name descname"><span class="pre">subsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#IDataset.subsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.IDataset.subsets" title="Permalink to this definition">#</a></dt>
+<dd><p>Enumerates subsets in the dataset. Each subset can be a dataset itself.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.IDataset.get_subset">
+<span class="sig-name descname"><span class="pre">get_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#IDataset.get_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.IDataset.get_subset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.IDataset.infos">
+<span class="sig-name descname"><span class="pre">infos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#IDataset.infos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.IDataset.infos" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns meta-info of dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.IDataset.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType" title="datumaro.components.annotation.AnnotationType"><span class="pre">AnnotationType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Categories" title="datumaro.components.annotation.Categories"><span class="pre">Categories</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#IDataset.categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.IDataset.categories" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns metainfo about dataset labels.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.IDataset.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#IDataset.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.IDataset.get" title="Permalink to this definition">#</a></dt>
+<dd><p>Provides random access to dataset items.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.IDataset.media_type">
+<span class="sig-name descname"><span class="pre">media_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#IDataset.media_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.IDataset.media_type" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns media type of the dataset items.</p>
+<p>All the items are supposed to have the same media type.
+Supposed to be constant and known immediately after the
+object construction (i.e. doesn’t require dataset iteration).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.MediaElement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_item_storage.</span></span><span class="sig-name descname"><span class="pre">MediaElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crypter:</span> <span class="pre">~datumaro.components.crypter.Crypter</span> <span class="pre">=</span> <span class="pre">&lt;datumaro.components.crypter.NullCrypter</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#MediaElement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.MediaElement" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">AnyData</span></code>]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.MediaElement.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#MediaElement.as_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.MediaElement.as_dict" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.MediaElement.from_self">
+<span class="sig-name descname"><span class="pre">from_self</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#MediaElement.from_self"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.MediaElement.from_self" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.MediaElement.is_encrypted">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_encrypted</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.MediaElement.is_encrypted" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.MediaElement.set_crypter">
+<span class="sig-name descname"><span class="pre">set_crypter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crypter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.crypter.html#datumaro.components.crypter.Crypter" title="datumaro.components.crypter.Crypter"><span class="pre">Crypter</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#MediaElement.set_crypter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.MediaElement.set_crypter" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.MediaElement.type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaType" title="datumaro.components.media.MediaType"><span class="pre">MediaType</span></a></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.MediaElement.type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.MediaElement.data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">AnyData</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.MediaElement.data" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.MediaElement.has_data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.MediaElement.has_data" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.MediaElement.bytes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.MediaElement.bytes" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.MediaElement.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fp:</span> <span class="pre">~typing.Union[str,</span> <span class="pre">~io.IOBase],</span> <span class="pre">crypter:</span> <span class="pre">~datumaro.components.crypter.Crypter</span> <span class="pre">=</span> <span class="pre">&lt;datumaro.components.crypter.NullCrypter</span> <span class="pre">object&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#MediaElement.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.MediaElement.save" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.auto">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_item_storage.</span></span><span class="sig-name descname"><span class="pre">auto</span></span><a class="reference internal" href="../../../_modules/enum.html#auto"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.auto" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Instances are replaced with an appropriate value in Enum class suites.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.auto.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;object</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#datumaro.components.dataset_item_storage.auto.value" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.components.dataset_item_storage.copy">
+<span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_item_storage.</span></span><span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/copy.html#copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_item_storage.copy" title="Permalink to this definition">#</a></dt>
+<dd><p>Shallow copy operation on arbitrary Python objects.</p>
+<p>See the module’s __doc__ string for more info.</p>
+</dd></dl>
+
 </section>
 
 
@@ -746,10 +1049,10 @@ object construction (i.e. doesn’t require dataset iteration).</p>
           <p class="prev-next-title">datumaro.components.dataset_base</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.components.environment.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.components.dataset_storage.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.components.environment</p>
+      <p class="prev-next-title">datumaro.components.dataset_storage</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -769,6 +1072,44 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 </div>
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.ItemStatus">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     ItemStatus
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.ItemStatus.added">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ItemStatus.added
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.ItemStatus.modified">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ItemStatus.modified
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.ItemStatus.removed">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ItemStatus.removed
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItemStorage">
    <code class="docutils literal notranslate">
@@ -1008,6 +1349,477 @@ object construction (i.e. doesn’t require dataset iteration).</p>
     </a>
    </li>
   </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     AnnotationType
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.unknown">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.unknown
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.label">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.label
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.mask">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.mask
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.points">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.points
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.polygon">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.polygon
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.polyline">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.polyline
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.bbox">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.bbox
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.caption">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.caption
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.cuboid_3d">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.cuboid_3d
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.super_resolution_annotation">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.super_resolution_annotation
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.depth_annotation">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.depth_annotation
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.ellipse">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.ellipse
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.hash_key">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.hash_key
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.AnnotationType.feature_vector">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AnnotationType.feature_vector
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     DatasetItem
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.id">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.id
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.subset">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.subset
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.media">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.media
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.annotations">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.annotations
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.attributes">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.attributes
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.wrap">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.wrap()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.media_as">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.media_as()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.image">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.image
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.point_cloud">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.point_cloud
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.related_images">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.related_images
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.has_image">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.has_image
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.DatasetItem.has_point_cloud">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatasetItem.has_point_cloud
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.Enum">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     Enum
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.Enum.name">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Enum.name
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.Enum.value">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Enum.value
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.IDataset">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     IDataset
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.IDataset.subsets">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IDataset.subsets()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.IDataset.get_subset">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IDataset.get_subset()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.IDataset.infos">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IDataset.infos()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.IDataset.categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IDataset.categories()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.IDataset.get">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IDataset.get()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.IDataset.media_type">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IDataset.media_type()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.MediaElement">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     MediaElement
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.MediaElement.as_dict">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaElement.as_dict()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.MediaElement.from_self">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaElement.from_self()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.MediaElement.is_encrypted">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaElement.is_encrypted
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.MediaElement.set_crypter">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaElement.set_crypter()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.MediaElement.type">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaElement.type
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.MediaElement.data">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaElement.data
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.MediaElement.has_data">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaElement.has_data
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.MediaElement.bytes">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaElement.bytes
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.MediaElement.save">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaElement.save()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.auto">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     auto
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.auto.value">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       auto.value
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_item_storage.copy">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     copy()
+    </span>
+   </code>
+  </a>
  </li>
 </ul>
 

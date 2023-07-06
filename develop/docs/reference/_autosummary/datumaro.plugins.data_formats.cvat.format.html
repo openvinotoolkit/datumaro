@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_base.html">datumaro.components.dataset_base</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_item_storage.html">datumaro.components.dataset_item_storage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_storage.html">datumaro.components.dataset_storage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.environment.html">datumaro.components.environment</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.errors.html">datumaro.components.errors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.exporter.html">datumaro.components.exporter</a></li>
@@ -596,6 +597,16 @@
 <span class="sig-name descname"><span class="pre">BUILTIN_ATTRS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'keyframe',</span> <span class="pre">'occluded',</span> <span class="pre">'outside',</span> <span class="pre">'track_id'}</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.cvat.format.CvatPath.BUILTIN_ATTRS" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.cvat.format.CvatPath.SUPPORTED_IMPORT_SHAPES">
+<span class="sig-name descname"><span class="pre">SUPPORTED_IMPORT_SHAPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'box',</span> <span class="pre">'mask',</span> <span class="pre">'points',</span> <span class="pre">'polygon',</span> <span class="pre">'polyline'}</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.cvat.format.CvatPath.SUPPORTED_IMPORT_SHAPES" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.cvat.format.CvatPath.SUPPORTED_EXPORT_SHAPES">
+<span class="sig-name descname"><span class="pre">SUPPORTED_EXPORT_SHAPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{AnnotationType.mask,</span> <span class="pre">AnnotationType.points,</span> <span class="pre">AnnotationType.polygon,</span> <span class="pre">AnnotationType.polyline,</span> <span class="pre">AnnotationType.bbox}</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.cvat.format.CvatPath.SUPPORTED_EXPORT_SHAPES" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -670,6 +681,24 @@
      <code class="docutils literal notranslate">
       <span class="pre">
        CvatPath.BUILTIN_ATTRS
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.cvat.format.CvatPath.SUPPORTED_IMPORT_SHAPES">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       CvatPath.SUPPORTED_IMPORT_SHAPES
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.cvat.format.CvatPath.SUPPORTED_EXPORT_SHAPES">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       CvatPath.SUPPORTED_EXPORT_SHAPES
       </span>
      </code>
     </a>

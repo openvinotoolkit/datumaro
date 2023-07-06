@@ -32,6 +32,7 @@ datumaro.util.mask\_tools
       merge_masks
       paint_mask
       remap_mask
+      rle_to_mask
       rles_to_mask
       unpaint_mask
    

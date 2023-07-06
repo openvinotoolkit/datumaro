@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_base.html">datumaro.components.dataset_base</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_item_storage.html">datumaro.components.dataset_item_storage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_storage.html">datumaro.components.dataset_storage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.environment.html">datumaro.components.environment</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.errors.html">datumaro.components.errors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.exporter.html">datumaro.components.exporter</a></li>
@@ -629,10 +630,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.mask_tools.remap_mask" title="datumaro.util.mask_tools.remap_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap_mask</span></code></a>(mask, map_fn)</p></td>
 <td><p>Changes mask elements from one colormap to another</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.mask_tools.rles_to_mask" title="datumaro.util.mask_tools.rles_to_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rles_to_mask</span></code></a>(rles, width, height)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.mask_tools.rle_to_mask" title="datumaro.util.mask_tools.rle_to_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rle_to_mask</span></code></a>(rle_uncompressed)</p></td>
+<td><p>Decode the uncompressed RLE string to the binary mask (2D np.ndarray)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.mask_tools.rles_to_mask" title="datumaro.util.mask_tools.rles_to_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rles_to_mask</span></code></a>(rles, width, height)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.mask_tools.unpaint_mask" title="datumaro.util.mask_tools.unpaint_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unpaint_mask</span></code></a>(painted_mask[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.mask_tools.unpaint_mask" title="datumaro.util.mask_tools.unpaint_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unpaint_mask</span></code></a>(painted_mask[, ...])</p></td>
 <td><p>Convert color mask to index mask</p></td>
 </tr>
 </tbody>
@@ -812,6 +816,14 @@ don’t want make a “hole” in the background object</p></li>
 <dt class="sig sig-object py" id="datumaro.util.mask_tools.rles_to_mask">
 <span class="sig-prename descclassname"><span class="pre">datumaro.util.mask_tools.</span></span><span class="sig-name descname"><span class="pre">rles_to_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/mask_tools.html#rles_to_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.mask_tools.rles_to_mask" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.util.mask_tools.rle_to_mask">
+<span class="sig-prename descclassname"><span class="pre">datumaro.util.mask_tools.</span></span><span class="sig-name descname"><span class="pre">rle_to_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rle_uncompressed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/util/mask_tools.html#rle_to_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.mask_tools.rle_to_mask" title="Permalink to this definition">#</a></dt>
+<dd><p>Decode the uncompressed RLE string to the binary mask (2D np.ndarray)</p>
+<p>The uncompressed RLE string can be obtained by
+the datumaro.util.mask_tools.mask_to_rle() function</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.util.mask_tools.find_mask_bbox">
@@ -1035,6 +1047,15 @@ a generator.</p>
    <code class="docutils literal notranslate">
     <span class="pre">
      rles_to_mask()
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.util.mask_tools.rle_to_mask">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     rle_to_mask()
     </span>
    </code>
   </a>

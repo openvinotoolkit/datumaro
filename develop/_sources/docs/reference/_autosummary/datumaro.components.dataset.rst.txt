@@ -24,10 +24,7 @@ datumaro.components.dataset
    .. autosummary::
    
       Dataset
-      DatasetPatch
-      DatasetStorage
       DatasetSubset
-      ItemStatus
    
    
 
