@@ -608,7 +608,7 @@ class StreamDatasetStorage(DatasetStorage):
         source: IDataset,
         infos: Optional[DatasetInfo] = None,
         categories: Optional[CategoriesInfo] = None,
-        media_type: Optional[type[MediaElement]] = None,
+        media_type: Optional[Type[MediaElement]] = None,
     ):
         if not source.is_stream:
             raise ValueError("source should be a stream.")
