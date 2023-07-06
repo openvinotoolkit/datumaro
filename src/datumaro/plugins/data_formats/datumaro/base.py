@@ -148,7 +148,9 @@ class DatumaroBase(SubsetBase):
     def _load_items(self, parsed):
         items = []
 
-        for item_desc in parsed["items"]:
+        item_descs = parsed["items"]
+        while item_descs:
+            item_desc = item_descs.pop()
             item_id = item_desc["id"]
 
             media = None

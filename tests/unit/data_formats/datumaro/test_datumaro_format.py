@@ -64,7 +64,7 @@ class DatumaroFormatTest:
         [
             pytest.param(
                 "fxt_test_datumaro_format_dataset",
-                compare_datasets_strict,
+                compare_datasets,
                 True,
                 id="test_can_save_and_load",
             ),
@@ -76,13 +76,13 @@ class DatumaroFormatTest:
             ),
             pytest.param(
                 "fxt_relative_paths",
-                compare_datasets_strict,
+                compare_datasets,
                 True,
                 id="test_relative_paths",
             ),
             pytest.param(
                 "fxt_can_save_dataset_with_cjk_categories",
-                compare_datasets_strict,
+                compare_datasets,
                 True,
                 id="test_can_save_dataset_with_cjk_categories",
             ),
@@ -94,7 +94,7 @@ class DatumaroFormatTest:
             ),
             pytest.param(
                 "fxt_can_save_and_load_image_with_arbitrary_extension",
-                compare_datasets_strict,
+                compare_datasets,
                 True,
                 id="test_can_save_and_load_image_with_arbitrary_extension",
             ),
@@ -203,8 +203,11 @@ class DatumaroFormatTest:
             set(os.listdir(osp.join(test_dir, "annotations"))),
         )
         helper_tc.assertEqual({"2.jpg"}, set(os.listdir(osp.join(test_dir, "images", "a"))))
-        compare_datasets_strict(
-            helper_tc, expected, Dataset.import_from(test_dir, format=self.format)
+        compare_datasets(
+            helper_tc,
+            expected,
+            Dataset.import_from(test_dir, format=self.format),
+            require_media=True,
         )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

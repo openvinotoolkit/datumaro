@@ -83,6 +83,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         % (", ".join(FilterModes.list_options()), "%(default)s"),
     )
     parser.add_argument(
+        "--encryption-key",
+        help="Secret key. It is required only if the input dataset is encrypted.",
+    )
+    parser.add_argument(
         "extra_args",
         nargs=argparse.REMAINDER,
         help="Additional arguments for output format (pass '-- -h' for help). "
@@ -148,7 +152,10 @@ def convert_command(args):
         )
     dst_dir = osp.abspath(dst_dir)
 
-    dataset = Dataset.import_from(source, fmt)
+    import_kwargs = {}
+    if args.encryption_key:
+        import_kwargs["encryption_key"] = args.encryption_key
+    dataset = Dataset.import_from(source, fmt, **import_kwargs)
 
     log.info("Exporting the dataset")
     if args.filter:

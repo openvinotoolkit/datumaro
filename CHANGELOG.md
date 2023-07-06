@@ -7,20 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### New features
+- Migrate OpenVINO v2023.0.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1036>)
 - Add Roboflow data format support (COCO JSON, Pascal VOC XML, YOLOv5-PyTorch, YOLOv7-PyTorch, YOLOv8, YOLOv5 Oriented Bounding Boxes, Multiclass CSV, TFRecord, CreateML JSON)
   (<https://github.com/openvinotoolkit/datumaro/pull/1044>)
 - Add MissingAnnotationDetection transform
-  (<https://github.com/openvinotoolkit/datumaro/pull/1049>, <https://github.com/openvinotoolkit/datumaro/pull/1063>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1049>, <https://github.com/openvinotoolkit/datumaro/pull/1063>, <https://github.com/openvinotoolkit/datumaro/pull/1064>)
 - Add OVMSLauncher
   (<https://github.com/openvinotoolkit/datumaro/pull/1056>)
+- Add Prune API
+  (<https://github.com/openvinotoolkit/datumaro/pull/1058>)
 - Add TritonLauncher
   (<https://github.com/openvinotoolkit/datumaro/pull/1059>)
+- Migrate DVC v3.0.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1072>)
+- Support mask annotations for CVAT data format
+  (<https://github.com/openvinotoolkit/datumaro/pull/1078>)
 
 ### Enhancements
 - Enhance import performance for built-in plugins
   (<https://github.com/openvinotoolkit/datumaro/pull/1031>)
-- Migrate OpenVINO v2023.0.0
-  (<https://github.com/openvinotoolkit/datumaro/pull/1036>)
 - Change default dtype of load_image() to np.uint8
   (<https://github.com/openvinotoolkit/datumaro/pull/1041>)
 - Add OTX ATSS detector model interpreter & refactor interfaces
@@ -29,8 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1055>)
 - Add CVAT data format document
   (<https://github.com/openvinotoolkit/datumaro/pull/1060>)
+- Reduce peak memory usage when importing COCO and Datumaro formats
+  (<https://github.com/openvinotoolkit/datumaro/pull/1061>)
 - Enhance the error message for datum stats to be more user friendly
   (<https://github.com/openvinotoolkit/datumaro/pull/1069>)
+- Refactor dataset.py to seperate DatasetStorage
+  (<https://github.com/openvinotoolkit/datumaro/pull/1073>)
 
 ### Bug fixes
 - Fix warnings in test_visualizer.py

@@ -5,11 +5,11 @@ from unittest import TestCase, skipIf
 
 import numpy as np
 
+from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 from datumaro.components.annotation import Caption, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.explorer import Explorer
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 

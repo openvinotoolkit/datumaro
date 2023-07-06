@@ -6,32 +6,18 @@ from typing import Optional, Sequence, Union
 
 import numpy as np
 
+from datumaro.components.algorithms.hash_key_inference.base import HashInference
+from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
+    calculate_hamming,
+    select_uninferenced_dataset,
+)
 from datumaro.components.annotation import HashKey
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError, MediaTypeError
-from datumaro.components.media import MediaElement
-from datumaro.plugins.explorer import ExplorerLauncher
 
 
-def calculate_hamming(B1, B2):
-    """
-    :param B1:  vector [n]
-    :param B2:  vector [r*n]
-    :return: hamming distance [r]
-    """
-    return np.count_nonzero(B1 != B2, axis=1)
-
-
-def select_uninferenced_dataset(dataset):
-    uninferenced_dataset = Dataset(media_type=MediaElement)
-    for item in dataset:
-        if not any(isinstance(annotation, HashKey) for annotation in item.annotations):
-            uninferenced_dataset.put(item)
-    return uninferenced_dataset
-
-
-class Explorer:
+class Explorer(HashInference):
     def __init__(
         self,
         *datasets: Sequence[Dataset],
@@ -54,7 +40,7 @@ class Explorer:
         item_list = []
 
         datasets_to_infer = [select_uninferenced_dataset(dataset) for dataset in datasets]
-        datasets = self.compute_hash_key(datasets, datasets_to_infer)
+        datasets = self._compute_hash_key(datasets, datasets_to_infer)
 
         for dataset in datasets:
             for item in dataset:
@@ -74,26 +60,6 @@ class Explorer:
 
         self._database_keys = np.stack(database_keys, axis=0)
         self._item_list = item_list
-
-    @property
-    def model(self):
-        if self._model is None:
-            self._model = ExplorerLauncher(model_name="clip_visual_ViT-B_32")
-        return self._model
-
-    @property
-    def text_model(self):
-        if self._text_model is None:
-            self._text_model = ExplorerLauncher(model_name="clip_text_ViT-B_32")
-        return self._text_model
-
-    def compute_hash_key(self, datasets, datasets_to_infer):
-        for dataset in datasets_to_infer:
-            if len(dataset) > 0:
-                dataset.run_model(self.model, append_annotation=True)
-        for dataset, dataset_to_infer in zip(datasets, datasets_to_infer):
-            dataset.update(dataset_to_infer)
-        return datasets
 
     def explore_topk(
         self,
