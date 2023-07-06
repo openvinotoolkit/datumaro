@@ -22,8 +22,8 @@ import numpy as np
 from attr import attrs
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Mask
-from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
+from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.errors import (
     DatasetError,
     MediaTypeError,

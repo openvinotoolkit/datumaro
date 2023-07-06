@@ -15,8 +15,8 @@ import uuid
 from datetime import datetime
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
-from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetItem, IDataset
+from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.errors import DatasetExportError, MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import PointCloud

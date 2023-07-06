@@ -20,8 +20,8 @@ from datumaro.components.annotation import (
     Points,
     Polygon,
 )
-from datumaro.components.dataset import ItemStatus
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
