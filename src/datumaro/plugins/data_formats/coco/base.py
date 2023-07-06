@@ -137,6 +137,8 @@ class _CocoBase(SubsetBase):
             self._mask_dir = osp.splitext(path)[0]
         self._items = self._load_items(json_data)
 
+        del json_data
+
     def __iter__(self):
         yield from self._items.values()
 
@@ -225,10 +227,16 @@ class _CocoBase(SubsetBase):
 
     def _load_items(self, json_data):
         pbars = self._ctx.progress_reporter.split(2)
+
+        def _gen_ann(info_lists):
+            while info_lists:
+                yield info_lists.pop()
+
         items = {}
         img_infos = {}
+        img_lists = self._parse_field(json_data, "images", list)
         for img_info in pbars[0].iter(
-            self._parse_field(json_data, "images", list),
+            _gen_ann(img_lists),
             desc=f"Parsing image info in '{osp.basename(self._path)}'",
         ):
             img_id = None
@@ -258,8 +266,9 @@ class _CocoBase(SubsetBase):
                 self._ctx.error_policy.report_item_error(e, item_id=(img_id, self._subset))
 
         if self._task is not CocoTask.panoptic:
+            ann_lists = self._parse_field(json_data, "annotations", list)
             for ann in pbars[1].iter(
-                self._parse_field(json_data, "annotations", list),
+                _gen_ann(ann_lists),
                 desc=f"Parsing annotations in '{osp.basename(self._path)}'",
             ):
                 img_id = None
@@ -277,8 +286,9 @@ class _CocoBase(SubsetBase):
                         e, item_id=(img_id, self._subset)
                     )
         else:
+            ann_lists = self._parse_field(json_data, "annotations", list)
             for ann in pbars[1].iter(
-                self._parse_field(json_data, "annotations", list),
+                _gen_ann(ann_lists),
                 desc=f"Parsing annotations in '{osp.basename(self._path)}'",
             ):
                 img_id = None
