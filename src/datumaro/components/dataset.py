@@ -825,6 +825,32 @@ class StreamDataset(Dataset):
         return False
 
 
+class StreamDataset(Dataset):
+    def __init__(
+        self,
+        source: Optional[IDataset] = None,
+        *,
+        infos: Optional[DatasetInfo] = None,
+        categories: Optional[CategoriesInfo] = None,
+        media_type: Optional[Type[MediaElement]] = None,
+        env: Optional[Environment] = None,
+    ) -> None:
+        assert env is None or isinstance(env, Environment), env
+        self._env = env
+
+        self._data = StreamDatasetStorage(
+            source, infos=infos, categories=categories, media_type=media_type
+        )
+
+        self._format = DEFAULT_FORMAT
+        self._source_path = None
+        self._options = {}
+
+    @property
+    def is_eager(self) -> bool:
+        return False
+
+
 @contextmanager
 def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:
     if dataset is not None:
