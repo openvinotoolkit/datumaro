@@ -9,7 +9,7 @@ import os.path as osp
 from contextlib import contextmanager
 from functools import wraps
 from glob import iglob
-from typing import Callable, Dict, List, NoReturn, Optional, Tuple, TypeVar
+from typing import Callable, Dict, List, NoReturn, Optional, Tuple, Type, TypeVar
 
 import attr
 from attr import define, field
@@ -27,6 +27,9 @@ from datumaro.components.progress_reporting import NullProgressReporter, Progres
 from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
 
 T = TypeVar("T")
+# TODO: we should refactor code to import `ExtractorMerger` from datumaro.component.dataset_base
+# Currently, it is impossible due to a circular import.
+ExtractorMerger = TypeVar("ExtractorMerger")
 
 
 class _ImportFail(DatumaroError):
@@ -111,7 +114,7 @@ class Importer(CliPlugin):
     def find_sources_with_params(cls, path: str, **extra_params) -> List[Dict]:
         return cls.find_sources(path)
 
-    def __call__(self, path, **extra_params):
+    def __call__(self, path, stream: bool = False, **extra_params):
         if not path or not osp.exists(path):
             raise DatasetNotFoundError(path, self.NAME)
 
@@ -123,6 +126,14 @@ class Importer(CliPlugin):
         for desc in found_sources:
             params = dict(extra_params)
             params.update(desc.get("options", {}))
+
+            if stream and self.can_stream:
+                params.update({"stream": True})
+            elif stream and not self.can_stream:
+                raise DatasetImportError(
+                    f"{self.__class__.__name__} cannot stream, but stream=True."
+                )
+
             desc["options"] = params
             sources.append(desc)
 
@@ -188,6 +199,24 @@ class Importer(CliPlugin):
                 if sources:
                     break
         return sources
+
+    @property
+    def can_stream(self) -> bool:
+        """Flag to indicate whether the importer can stream the dataset item or not."""
+        return False
+
+    def get_extractor_merger(self) -> Optional[Type[ExtractorMerger]]:
+        """Extractor merger dedicated for the data format
+
+        Datumaro import process spawns multiple `DatasetBase` for the detected sources.
+        We can find a bunch of the detected sources from the given directory path.
+        It is usually each detected source is corresponded to the subset of dataset in many data formats.
+
+        Returns:
+            If None, use `Dataset.from_extractors()` to merge the extractors,
+            Otherwise, use the return type to merge the extractors.
+        """
+        return None
 
 
 def with_subset_dirs(input_cls: Importer):

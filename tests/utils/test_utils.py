@@ -20,7 +20,8 @@ import pytest
 from typing_extensions import Literal
 
 from datumaro.components.annotation import AnnotationType
-from datumaro.components.dataset import Dataset, IDataset
+from datumaro.components.dataset import Dataset, StreamDataset
+from datumaro.components.dataset_base import IDataset
 from datumaro.components.media import Image, MultiframeImage, PointCloud
 from datumaro.util import filter_dict, find
 from datumaro.util.os_util import rmfile, rmtree
@@ -409,6 +410,15 @@ def mock_tfds_data(example=None, subsets=("train",)):
 
         with unittest.mock.patch("tensorflow_datasets.core.DatasetBuilder.__init__", new_init):
             yield
+
+
+def check_is_stream(dataset: IDataset):
+    if type(dataset) == Dataset:
+        assert dataset.is_stream == False
+    elif type(dataset) == StreamDataset:
+        assert dataset.is_stream == True
+    else:
+        raise ValueError(type(dataset))
 
 
 class TestCaseHelper:

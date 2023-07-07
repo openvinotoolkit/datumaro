@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+from typing import Optional, Type
 
+from datumaro.components.dataset_base import ExtractorMerger
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
 
@@ -62,6 +64,13 @@ class _VocImporter(Importer):
                 root_path = osp.dirname(osp.dirname(osp.dirname(task_subsets[0]["url"])))
 
         return subsets
+
+    @property
+    def can_stream(self) -> bool:
+        return True
+
+    def get_extractor_merger(self) -> Optional[Type[ExtractorMerger]]:
+        return ExtractorMerger
 
 
 class VocImporter(_VocImporter):

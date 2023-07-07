@@ -5,14 +5,15 @@
 import os.path as osp
 from collections import defaultdict
 from io import TextIOWrapper
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Type
 
+from datumaro.components.dataset_base import ExtractorMerger
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.util.os_util import extract_subset_name_from_parent
 
-from .format import YoloFormatType, YoloLoosePath, YoloUltralyticsPath
+from .format import YoloFormatType, YoloLoosePath, YoloPath, YoloUltralyticsPath
 
 
 class _YoloStrictImporter(Importer):
@@ -21,8 +22,22 @@ class _YoloStrictImporter(Importer):
         context.require_file("obj.data")
 
     @classmethod
-    def find_sources(cls, path):
-        return cls._find_sources_recursive(path, ".data", YoloFormatType.yolo_strict.name)
+    def find_sources(cls, path: str) -> List[Dict]:
+        found = cls._find_sources_recursive(path, ".data", YoloFormatType.yolo_strict.name)
+        if len(found) == 0:
+            return []
+
+        config_path = found[0]["url"]
+        config = YoloPath._parse_config(config_path)
+        subsets = [k for k in config if k not in YoloPath.RESERVED_CONFIG_KEYS]
+        return [
+            {
+                "url": config_path,
+                "format": YoloFormatType.yolo_strict.name,
+                "options": {"subset": subset},
+            }
+            for subset in subsets
+        ]
 
 
 class _YoloLooseImporter(Importer):
@@ -135,6 +150,10 @@ class _YoloLooseImporter(Importer):
 
         return []
 
+    @property
+    def can_stream(self) -> bool:
+        return True
+
 
 class _YoloUltralyticsImporter(_YoloLooseImporter):
     META_FILE = YoloUltralyticsPath.META_FILE
@@ -167,3 +186,6 @@ class YoloImporter(Importer):
                 return sources
 
         return []
+
+    def get_extractor_merger(self) -> Optional[Type[ExtractorMerger]]:
+        return ExtractorMerger
