@@ -16,14 +16,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - python-version: "3.7"
-            tox-env-py: "37"
           - python-version: "3.8"
             tox-env-py: "38"
           - python-version: "3.9"
             tox-env-py: "39"
           - python-version: "3.10"
             tox-env-py: "310"
+          - python-version: "3.11"
+            tox-env-py: "311"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ['macos-11', 'ubuntu-20.04', 'windows-2019']
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10','3.11']
         include:
           - os: "macos-11"
             tox-env-os: "darwin"
@@ -20,14 +20,14 @@ jobs:
             tox-env-os: "lin"
           - os: "windows-2019"
             tox-env-os: "win"
-          - python-version: "3.7"
-            tox-env-py: "37"
           - python-version: "3.8"
             tox-env-py: "38"
           - python-version: "3.9"
             tox-env-py: "39"
           - python-version: "3.10"
             tox-env-py: "310"
+          - python-version: "3.11"
+            tox-env-py: "311"
     name: nightly regression test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -35,7 +35,7 @@ jobs:
       - name: Installing python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ (matrix.os == 'macos-11' && matrix.python-version == '3.7') && '3.7.16' || matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Installing dependencies
         run: |
