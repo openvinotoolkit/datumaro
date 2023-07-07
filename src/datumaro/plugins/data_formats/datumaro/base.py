@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
+
+import json_stream
+from json_stream.base import StreamingJSONList, StreamingJSONObject
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -23,8 +26,8 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.importer import ImportContext
-from datumaro.components.media import Image, MediaElement, PointCloud
-from datumaro.util import JsonStreamer, parse_json_file
+from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
+from datumaro.util import parse_json_file
 from datumaro.version import __version__
 
 from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
@@ -34,19 +37,24 @@ class DefaultReader:
     def __init__(
         self, path: str, subset: str, rootpath: str, images_dir: str, pcd_dir: str
     ) -> None:
-        self.media_type = MediaElement
         self._subset = subset
         self._rootpath = rootpath
         self._images_dir = images_dir
         self._pcd_dir = pcd_dir
 
         self._reader = self._init_reader(path)
+        self.media_type = self._load_media_type(self._reader)
         self.infos = self._load_infos(self._reader)
         self.categories = self._load_categories(self._reader)
         self.items = self._load_items(self._reader)
 
     def _init_reader(self, path: str):
         return parse_json_file(path)
+
+    @staticmethod
+    def _load_media_type(parsed) -> Type[MediaElement]:
+        media_type = parsed.get("media_type", MediaType.IMAGE)
+        return MediaType(media_type).media
 
     @staticmethod
     def _load_infos(parsed) -> Dict:
@@ -98,61 +106,66 @@ class DefaultReader:
         item_descs = parsed["items"]
         while item_descs:
             item_desc = item_descs.pop()
-            item_id = item_desc["id"]
-
-            media = None
-            image_info = item_desc.get("image")
-            if image_info:
-                image_filename = image_info.get("path") or item_id + DatumaroPath.IMAGE_EXT
-                image_path = osp.join(self._images_dir, self._subset, image_filename)
-                if not osp.isfile(image_path):
-                    # backward compatibility
-                    old_image_path = osp.join(self._images_dir, image_filename)
-                    if osp.isfile(old_image_path):
-                        image_path = old_image_path
-
-                media = Image.from_file(path=image_path, size=image_info.get("size"))
-                self.media_type = Image
-
-            pcd_info = item_desc.get("point_cloud")
-            if media and pcd_info:
-                raise MediaTypeError("Dataset cannot contain multiple media types")
-            if pcd_info:
-                pcd_path = pcd_info.get("path")
-                point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
-
-                related_images = None
-                ri_info = item_desc.get("related_images")
-                if ri_info:
-                    related_images = [
-                        Image.from_file(
-                            size=ri.get("size"),
-                            path=osp.join(self._images_dir, self._subset, ri.get("path")),
-                        )
-                        for ri in ri_info
-                    ]
-
-                media = PointCloud.from_file(path=point_cloud, extra_images=related_images)
-                self.media_type = PointCloud
-
-            media_desc = item_desc.get("media")
-            if not media and media_desc and media_desc.get("path"):
-                media = MediaElement(path=media_desc.get("path"))
-                self.media_type = MediaElement
-
-            annotations = self._load_annotations(item_desc)
-
-            item = DatasetItem(
-                id=item_id,
-                subset=self._subset,
-                annotations=annotations,
-                media=media,
-                attributes=item_desc.get("attr"),
-            )
-
+            item = self._parse_item(item_desc)
             items.append(item)
 
         return items
+
+    def _parse_item(self, item_desc):
+        item_id = item_desc["id"]
+
+        media = None
+        image_info = item_desc.get("image")
+        if image_info:
+            image_filename = image_info.get("path") or item_id + DatumaroPath.IMAGE_EXT
+            image_path = osp.join(self._images_dir, self._subset, image_filename)
+            if not osp.isfile(image_path):
+                # backward compatibility
+                old_image_path = osp.join(self._images_dir, image_filename)
+                if osp.isfile(old_image_path):
+                    image_path = old_image_path
+
+            media = Image.from_file(path=image_path, size=image_info.get("size"))
+            if self.media_type == MediaElement:
+                self.media_type = Image
+
+        pcd_info = item_desc.get("point_cloud")
+        if media and pcd_info:
+            raise MediaTypeError("Dataset cannot contain multiple media types")
+        if pcd_info:
+            pcd_path = pcd_info.get("path")
+            point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
+
+            related_images = None
+            ri_info = item_desc.get("related_images")
+            if ri_info:
+                related_images = [
+                    Image.from_file(
+                        size=ri.get("size"),
+                        path=osp.join(self._images_dir, self._subset, ri.get("path")),
+                    )
+                    for ri in ri_info
+                ]
+
+            media = PointCloud.from_file(path=point_cloud, extra_images=related_images)
+            if self.media_type == MediaElement:
+                self.media_type = PointCloud
+
+        media_desc = item_desc.get("media")
+        if not media and media_desc and media_desc.get("path"):
+            media = MediaElement(path=media_desc.get("path"))
+
+        annotations = self._load_annotations(item_desc)
+
+        item = DatasetItem(
+            id=item_id,
+            subset=self._subset,
+            annotations=annotations,
+            media=media,
+            attributes=item_desc.get("attr"),
+        )
+
+        return item
 
     @staticmethod
     def _load_annotations(item):
@@ -281,9 +294,74 @@ class DefaultReader:
         yield from self.items
 
 
+def _to_dict(obj: Any) -> Dict[str, Any]:
+    if isinstance(obj, StreamingJSONObject):
+        return {k: _to_dict(v) for k, v in obj.items()}
+    if isinstance(obj, StreamingJSONList):
+        return [_to_dict(v) for v in obj]
+    return obj
+
+
 class StreamDefaultReader(DefaultReader):
-    def __init__(self, path: str, subset: str) -> None:
-        super().__init__(path, subset)
+    def __init__(
+        self, path: str, subset: str, rootpath: str, images_dir: str, pcd_dir: str
+    ) -> None:
+        super().__init__(path, subset, rootpath, images_dir, pcd_dir)
+        self._length = None
+
+    def __len__(self):
+        if self._length is None:
+            self._length = sum(1 for _ in self)
+        return self._length
+
+    def __iter__(self):
+        with open(self._reader) as fp:
+            data = json_stream.load(fp)
+            items = data.get("items", None)
+            if items is None:
+                raise DatasetImportError('Annotation JSON file should have "items" entity.')
+
+            length = 0
+            for item in items:
+                item_desc = _to_dict(item)
+                length += 1
+                yield self._parse_item(item_desc)
+
+            if self._length != length:
+                self._length = length
+
+    def _init_reader(self, path: str):
+        return path
+
+    @staticmethod
+    def _load_media_type(path) -> Type[MediaElement]:
+        with open(path, "r") as fp:
+            data = json_stream.load(fp)
+            media_type = data.get("media_type", MediaType.IMAGE)
+            return MediaType(media_type).media
+
+    @staticmethod
+    def _load_infos(path) -> Dict:
+        with open(path, "r") as fp:
+            data = json_stream.load(fp)
+            infos = data.get("infos", {})
+            if isinstance(infos, StreamingJSONObject):
+                infos = _to_dict(infos)
+
+            return infos
+
+    @staticmethod
+    def _load_categories(path) -> Dict:
+        with open(path, "r") as fp:
+            data = json_stream.load(fp)
+            categories = data.get("categories", {})
+            if isinstance(categories, StreamingJSONObject):
+                categories = _to_dict(categories)
+
+            return DefaultReader._load_categories({"categories": categories})
+
+    def _load_items(self, parsed) -> List:
+        return []
 
 
 class DatumaroBase(SubsetBase):
@@ -299,7 +377,7 @@ class DatumaroBase(SubsetBase):
         path: str,
         *,
         subset: Optional[str] = None,
-        stream: bool = False,
+        stream: bool = True,
         ctx: Optional[ImportContext] = None,
     ):
         assert osp.isfile(path), path
@@ -369,9 +447,8 @@ class DatumaroBase(SubsetBase):
         Note that the legacy Datumaro doesn't store the version into exported dataset.
         Thus it returns DatumaroBase.LEGACY_VERSION
         """
-        streamer = JsonStreamer(path)
-        version = streamer.data.get("dm_format_version", self.LEGACY_VERSION)
-        streamer.close()
+        with open(path, "r") as fp:
+            version = json_stream.load(fp).get("dm_format_version", self.LEGACY_VERSION)
         return version
 
     def __len__(self) -> int:
