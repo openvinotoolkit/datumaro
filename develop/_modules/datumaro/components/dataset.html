@@ -303,7 +303,7 @@
     <span class="n">IDataset</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_item_storage</span> <span class="kn">import</span> <span class="n">DatasetItemStorageDatasetView</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.dataset_storage</span> <span class="kn">import</span> <span class="n">DatasetPatch</span><span class="p">,</span> <span class="n">DatasetStorage</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset_storage</span> <span class="kn">import</span> <span class="n">DatasetPatch</span><span class="p">,</span> <span class="n">DatasetStorage</span><span class="p">,</span> <span class="n">StreamDatasetStorage</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.environment</span> <span class="kn">import</span> <span class="n">DEFAULT_ENVIRONMENT</span><span class="p">,</span> <span class="n">Environment</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">DatasetImportError</span><span class="p">,</span>
@@ -325,6 +325,8 @@
 <span class="kn">from</span> <span class="nn">datumaro.util.scope</span> <span class="kn">import</span> <span class="n">on_error_do</span><span class="p">,</span> <span class="n">scoped</span>
 
 <span class="n">DEFAULT_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;datumaro&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Dataset&quot;</span><span class="p">,</span> <span class="s2">&quot;eager_mode&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="DatasetSubset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset.html#datumaro.components.dataset.DatasetSubset">[docs]</a><span class="k">class</span> <span class="nc">DatasetSubset</span><span class="p">(</span><span class="n">IDataset</span><span class="p">):</span>  <span class="c1"># non-owning view</span>
@@ -590,7 +592,7 @@
             <span class="n">path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_source_path</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get_datasetitem_by_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Dataset.get_subset_info"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Dataset.get_subset_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_subset_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Dataset.get_subset_info"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Dataset.get_subset_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_subset_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subset_name</span><span class="si">}</span><span class="s2">: # of items=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">subset_name</span><span class="p">))</span><span class="si">}</span><span class="s2">, &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;# of annotated items=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">subset_name</span><span class="p">)</span><span class="o">.</span><span class="n">get_annotated_items</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
@@ -599,13 +601,13 @@
             <span class="k">for</span> <span class="n">subset_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subsets</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Dataset.get_infos"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Dataset.get_infos">[docs]</a>    <span class="k">def</span> <span class="nf">get_infos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Dataset.get_infos"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Dataset.get_infos">[docs]</a>    <span class="k">def</span> <span class="nf">get_infos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">infos</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">infos</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,)</span></div>
 
-<div class="viewcode-block" id="Dataset.get_categories_info"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Dataset.get_categories_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_categories_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Dataset.get_categories_info"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Dataset.get_categories_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_categories_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">category_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">annotation_type</span><span class="p">,</span> <span class="n">category</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">):</span>
@@ -1056,6 +1058,32 @@
             <span class="k">raise</span> <span class="n">MultipleFormatsMatchError</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="StreamDataset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset.html#datumaro.components.dataset.StreamDataset">[docs]</a><span class="k">class</span> <span class="nc">StreamDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IDataset</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">infos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetInfo</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">categories</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CategoriesInfo</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">media_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Environment</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">env</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">Environment</span><span class="p">),</span> <span class="n">env</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env</span> <span class="o">=</span> <span class="n">env</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">StreamDatasetStorage</span><span class="p">(</span>
+            <span class="n">source</span><span class="p">,</span> <span class="n">infos</span><span class="o">=</span><span class="n">infos</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="n">categories</span><span class="p">,</span> <span class="n">media_type</span><span class="o">=</span><span class="n">media_type</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_format</span> <span class="o">=</span> <span class="n">DEFAULT_FORMAT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_eager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="eager_mode"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset.html#datumaro.components.dataset.eager_mode">[docs]</a><span class="nd">@contextmanager</span>

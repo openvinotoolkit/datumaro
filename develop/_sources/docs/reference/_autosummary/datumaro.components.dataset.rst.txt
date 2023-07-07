@@ -25,6 +25,7 @@ datumaro.components.dataset
    
       Dataset
       DatasetSubset
+      StreamDataset
    
    
 

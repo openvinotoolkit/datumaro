@@ -486,7 +486,15 @@
 <span class="sd">        Supposed to be constant and known immediately after the</span>
 <span class="sd">        object construction (i.e. doesn&#39;t require dataset iteration).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Boolean indicating whether the dataset is a stream</span>
+
+<span class="sd">        If the dataset is a stream, the dataset item is generated on demand from its iterator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
 
 <span class="k">class</span> <span class="nc">_DatasetBase</span><span class="p">(</span><span class="n">IDataset</span><span class="p">):</span>

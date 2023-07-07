@@ -312,8 +312,8 @@
     <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="ImportErrorPolicy"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.ImportErrorPolicy">[docs]</a><span class="k">class</span> <span class="nc">ImportErrorPolicy</span><span class="p">:</span>
-<div class="viewcode-block" id="ImportErrorPolicy.report_item_error"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.ImportErrorPolicy.report_item_error">[docs]</a>    <span class="k">def</span> <span class="nf">report_item_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ImportErrorPolicy"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.ImportErrorPolicy">[docs]</a><span class="k">class</span> <span class="nc">ImportErrorPolicy</span><span class="p">:</span>
+<div class="viewcode-block" id="ImportErrorPolicy.report_item_error"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.ImportErrorPolicy.report_item_error">[docs]</a>    <span class="k">def</span> <span class="nf">report_item_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Allows to report a problem with a dataset item.</span>
 <span class="sd">        If this function returns, the extractor must skip the item.</span>
@@ -326,7 +326,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">error</span></div>
 
-<div class="viewcode-block" id="ImportErrorPolicy.report_annotation_error"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.ImportErrorPolicy.report_annotation_error">[docs]</a>    <span class="k">def</span> <span class="nf">report_annotation_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ImportErrorPolicy.report_annotation_error"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.ImportErrorPolicy.report_annotation_error">[docs]</a>    <span class="k">def</span> <span class="nf">report_annotation_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Allows to report a problem with a dataset item annotation.</span>
 <span class="sd">        If this function returns, the extractor must skip the annotation.</span>
@@ -347,15 +347,15 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This function must either call fail() or return.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ImportErrorPolicy.fail"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.ImportErrorPolicy.fail">[docs]</a>    <span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+<div class="viewcode-block" id="ImportErrorPolicy.fail"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.ImportErrorPolicy.fail">[docs]</a>    <span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">_ImportFail</span> <span class="kn">from</span> <span class="nn">error</span></div></div>
 
 
-<div class="viewcode-block" id="FailingImportErrorPolicy"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.FailingImportErrorPolicy">[docs]</a><span class="k">class</span> <span class="nc">FailingImportErrorPolicy</span><span class="p">(</span><span class="n">ImportErrorPolicy</span><span class="p">):</span>
+<div class="viewcode-block" id="FailingImportErrorPolicy"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.FailingImportErrorPolicy">[docs]</a><span class="k">class</span> <span class="nc">FailingImportErrorPolicy</span><span class="p">(</span><span class="n">ImportErrorPolicy</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ImportContext"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.ImportContext">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ImportContext"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.ImportContext">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ImportContext</span><span class="p">:</span>
     <span class="n">progress_reporter</span><span class="p">:</span> <span class="n">ProgressReporter</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">converter</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">default_if_none</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">NullProgressReporter</span><span class="p">)</span>
@@ -365,14 +365,14 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="NullImportContext"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.NullImportContext">[docs]</a><span class="k">class</span> <span class="nc">NullImportContext</span><span class="p">(</span><span class="n">ImportContext</span><span class="p">):</span>
+<div class="viewcode-block" id="NullImportContext"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.NullImportContext">[docs]</a><span class="k">class</span> <span class="nc">NullImportContext</span><span class="p">(</span><span class="n">ImportContext</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="Importer"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.Importer">[docs]</a><span class="k">class</span> <span class="nc">Importer</span><span class="p">(</span><span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="Importer"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.Importer">[docs]</a><span class="k">class</span> <span class="nc">Importer</span><span class="p">(</span><span class="n">CliPlugin</span><span class="p">):</span>
     <span class="n">DETECT_CONFIDENCE</span> <span class="o">=</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">LOW</span>
 
-<div class="viewcode-block" id="Importer.detect"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.Importer.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Importer.detect"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.Importer.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">,</span>
@@ -382,11 +382,11 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DETECT_CONFIDENCE</span></div>
 
-<div class="viewcode-block" id="Importer.find_sources"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.Importer.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Importer.find_sources"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.Importer.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Importer.find_sources_with_params"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.Importer.find_sources_with_params">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Importer.find_sources_with_params"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.Importer.find_sources_with_params">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources_with_params</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">find_sources</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
@@ -469,7 +469,7 @@
         <span class="k">return</span> <span class="n">sources</span></div>
 
 
-<div class="viewcode-block" id="with_subset_dirs"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.with_subset_dirs">[docs]</a><span class="k">def</span> <span class="nf">with_subset_dirs</span><span class="p">(</span><span class="n">input_cls</span><span class="p">:</span> <span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="with_subset_dirs"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.dataset.with_subset_dirs">[docs]</a><span class="k">def</span> <span class="nf">with_subset_dirs</span><span class="p">(</span><span class="n">input_cls</span><span class="p">:</span> <span class="n">Importer</span><span class="p">):</span>
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">input_cls</span><span class="p">,</span> <span class="n">updated</span><span class="o">=</span><span class="p">())</span>
     <span class="k">class</span> <span class="nc">WrappedImporter</span><span class="p">(</span><span class="n">input_cls</span><span class="p">):</span>
         <span class="n">NAME</span> <span class="o">=</span> <span class="n">input_cls</span><span class="o">.</span><span class="n">NAME</span>

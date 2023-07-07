@@ -1143,6 +1143,13 @@ Supposed to be constant and known immediately after the
 object construction (i.e. doesn’t require dataset iteration).</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.merge.intersect_merge.IDataset.is_stream">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.components.merge.intersect_merge.IDataset.is_stream" title="Permalink to this definition">#</a></dt>
+<dd><p>Boolean indicating whether the dataset is a stream</p>
+<p>If the dataset is a stream, the dataset item is generated on demand from its iterator.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -2890,6 +2897,15 @@ subclasses comparable anymore.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        IDataset.media_type()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.merge.intersect_merge.IDataset.is_stream">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IDataset.is_stream
       </span>
      </code>
     </a>

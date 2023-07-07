@@ -576,7 +576,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.dataset_storage.DatasetPatch" title="datumaro.components.dataset_storage.DatasetPatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetPatch</span></code></a>(data, infos, categories, ...[, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.dataset_storage.DatasetStorage" title="datumaro.components.dataset_storage.DatasetStorage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetStorage</span></code></a>([source, infos, categories, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.dataset_storage.DatasetStorage" title="datumaro.components.dataset_storage.DatasetStorage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetStorage</span></code></a>(source[, infos, categories, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.dataset_storage.StreamDatasetStorage" title="datumaro.components.dataset_storage.StreamDatasetStorage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamDatasetStorage</span></code></a>(source[, infos, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.dataset_storage.StreamSubset" title="datumaro.components.dataset_storage.StreamSubset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamSubset</span></code></a>(source, subset)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -611,7 +617,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_storage.</span></span><span class="sig-name descname"><span class="pre">DatasetStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.dataset_item_storage.html#datumaro.components.dataset_item_storage.DatasetItemStorage" title="datumaro.components.dataset_item_storage.DatasetItemStorage"><span class="pre">DatasetItemStorage</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType" title="datumaro.components.annotation.AnnotationType"><span class="pre">AnnotationType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Categories" title="datumaro.components.annotation.Categories"><span class="pre">Categories</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_storage.</span></span><span class="sig-name descname"><span class="pre">DatasetStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.dataset_item_storage.html#datumaro.components.dataset_item_storage.DatasetItemStorage" title="datumaro.components.dataset_item_storage.DatasetItemStorage"><span class="pre">DatasetItemStorage</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType" title="datumaro.components.annotation.AnnotationType"><span class="pre">AnnotationType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Categories" title="datumaro.components.annotation.Categories"><span class="pre">Categories</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">IDataset</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.is_cache_initialized">
@@ -620,7 +626,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.init_cache">
-<span class="sig-name descname"><span class="pre">init_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.init_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.init_cache" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">init_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.init_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.init_cache" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -656,49 +662,49 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.put">
-<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.put" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.put" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get" title="Permalink to this definition">#</a></dt>
 <dd><p>Provides random access to dataset items.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.remove">
-<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.remove" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.remove" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.get_subset">
-<span class="sig-name descname"><span class="pre">get_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get_subset" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get_subset" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.subsets">
-<span class="sig-name descname"><span class="pre">subsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.subsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.subsets" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">subsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.subsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.subsets" title="Permalink to this definition">#</a></dt>
 <dd><p>Enumerates subsets in the dataset. Each subset can be a dataset itself.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.get_annotated_items">
-<span class="sig-name descname"><span class="pre">get_annotated_items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get_annotated_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get_annotated_items" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_annotated_items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get_annotated_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get_annotated_items" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.get_annotations">
-<span class="sig-name descname"><span class="pre">get_annotations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get_annotations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get_annotations" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_annotations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get_annotations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get_annotations" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.get_datasetitem_by_path">
-<span class="sig-name descname"><span class="pre">get_datasetitem_by_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get_datasetitem_by_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get_datasetitem_by_path" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_datasetitem_by_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get_datasetitem_by_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get_datasetitem_by_path" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.Transform" title="datumaro.components.transformer.Transform"><span class="pre">Transform</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.transform" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.Transform" title="datumaro.components.transformer.Transform"><span class="pre">Transform</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.transform" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -708,7 +714,7 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.DatasetStorage.get_patch">
-<span class="sig-name descname"><span class="pre">get_patch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get_patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get_patch" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_patch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#datumaro.components.dataset_storage.DatasetPatch" title="datumaro.components.dataset_storage.DatasetPatch"><span class="pre">DatasetPatch</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#DatasetStorage.get_patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.DatasetStorage.get_patch" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1098,6 +1104,13 @@ Supposed to be constant and known immediately after the
 object construction (i.e. doesn’t require dataset iteration).</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.IDataset.is_stream">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.components.dataset_storage.IDataset.is_stream" title="Permalink to this definition">#</a></dt>
+<dd><p>Boolean indicating whether the dataset is a stream</p>
+<p>If the dataset is a stream, the dataset item is generated on demand from its iterator.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1288,6 +1301,12 @@ with these arguments</p></li>
 </dd></dl>
 
 <dl class="py exception">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.NotAvailableError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_storage.</span></span><span class="sig-name descname"><span class="pre">NotAvailableError</span></span><a class="reference internal" href="../../../_modules/datumaro/components/errors.html#NotAvailableError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.NotAvailableError" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.errors.html#datumaro.components.errors.DatumaroError" title="datumaro.components.errors.DatumaroError"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatumaroError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.RepeatedItemError">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_storage.</span></span><span class="sig-name descname"><span class="pre">RepeatedItemError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/errors.html#RepeatedItemError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.RepeatedItemError" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.errors.html#datumaro.components.errors.DatasetError" title="datumaro.components.errors.DatasetError"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetError</span></code></a></p>
@@ -1296,6 +1315,164 @@ with these arguments</p></li>
 <dt class="sig sig-object py" id="datumaro.components.dataset_storage.RepeatedItemError.item_id">
 <span class="sig-name descname"><span class="pre">item_id</span></span><a class="headerlink" href="#datumaro.components.dataset_storage.RepeatedItemError.item_id" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_storage.</span></span><span class="sig-name descname"><span class="pre">StreamDatasetStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">infos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType" title="datumaro.components.annotation.AnnotationType"><span class="pre">AnnotationType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Categories" title="datumaro.components.annotation.Categories"><span class="pre">Categories</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.components.dataset_storage.DatasetStorage" title="datumaro.components.dataset_storage.DatasetStorage"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetStorage</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.is_cache_initialized">
+<span class="sig-name descname"><span class="pre">is_cache_initialized</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.is_cache_initialized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.is_cache_initialized" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.init_cache">
+<span class="sig-name descname"><span class="pre">init_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.init_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.init_cache" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.stacked_transform">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stacked_transform</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></em><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.stacked_transform" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.put" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get" title="Permalink to this definition">#</a></dt>
+<dd><p>Provides random access to dataset items.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.remove" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.get_subset">
+<span class="sig-name descname"><span class="pre">get_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.get_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get_subset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.subset_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">subset_names</span></span><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.subset_names" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.subsets">
+<span class="sig-name descname"><span class="pre">subsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.subsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.subsets" title="Permalink to this definition">#</a></dt>
+<dd><p>Enumerates subsets in the dataset. Each subset can be a dataset itself.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.Transform" title="datumaro.components.transformer.Transform"><span class="pre">Transform</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.transform" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.get_annotated_items">
+<span class="sig-name descname"><span class="pre">get_annotated_items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.get_annotated_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get_annotated_items" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.get_annotations">
+<span class="sig-name descname"><span class="pre">get_annotations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.get_annotations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get_annotations" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.get_datasetitem_by_path">
+<span class="sig-name descname"><span class="pre">get_datasetitem_by_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.get_datasetitem_by_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get_datasetitem_by_path" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.get_patch">
+<span class="sig-name descname"><span class="pre">get_patch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.get_patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get_patch" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.flush_changes">
+<span class="sig-name descname"><span class="pre">flush_changes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.flush_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.flush_changes" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#datumaro.components.dataset_storage.DatasetPatch" title="datumaro.components.dataset_storage.DatasetPatch"><span class="pre">DatasetPatch</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.11)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.update" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.infos">
+<span class="sig-name descname"><span class="pre">infos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.infos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.infos" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns meta-info of dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType" title="datumaro.components.annotation.AnnotationType"><span class="pre">AnnotationType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Categories" title="datumaro.components.annotation.Categories"><span class="pre">Categories</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamDatasetStorage.categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.categories" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns metainfo about dataset labels.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamDatasetStorage.is_stream">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.components.dataset_storage.StreamDatasetStorage.is_stream" title="Permalink to this definition">#</a></dt>
+<dd><p>Boolean indicating whether the dataset is a stream</p>
+<p>If the dataset is a stream, the dataset item is generated on demand from its iterator.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamSubset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_storage.</span></span><span class="sig-name descname"><span class="pre">StreamSubset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamSubset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamSubset" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">IDataset</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamSubset.subsets">
+<span class="sig-name descname"><span class="pre">subsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamSubset.subsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamSubset.subsets" title="Permalink to this definition">#</a></dt>
+<dd><p>Enumerates subsets in the dataset. Each subset can be a dataset itself.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamSubset.get_subset">
+<span class="sig-name descname"><span class="pre">get_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamSubset.get_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamSubset.get_subset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamSubset.infos">
+<span class="sig-name descname"><span class="pre">infos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamSubset.infos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamSubset.infos" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns meta-info of dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamSubset.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType" title="datumaro.components.annotation.AnnotationType"><span class="pre">AnnotationType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Categories" title="datumaro.components.annotation.Categories"><span class="pre">Categories</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamSubset.categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamSubset.categories" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns metainfo about dataset labels.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamSubset.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamSubset.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamSubset.get" title="Permalink to this definition">#</a></dt>
+<dd><p>Provides random access to dataset items.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamSubset.media_type">
+<span class="sig-name descname"><span class="pre">media_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_storage.html#StreamSubset.media_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_storage.StreamSubset.media_type" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns media type of the dataset items.</p>
+<p>All the items are supposed to have the same media type.
+Supposed to be constant and known immediately after the
+object construction (i.e. doesn’t require dataset iteration).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.dataset_storage.StreamSubset.is_stream">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.components.dataset_storage.StreamSubset.is_stream" title="Permalink to this definition">#</a></dt>
+<dd><p>Boolean indicating whether the dataset is a stream</p>
+<p>If the dataset is a stream, the dataset item is generated on demand from its iterator.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -2235,6 +2412,15 @@ object construction (i.e. doesn’t require dataset iteration).</p>
      </code>
     </a>
    </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.IDataset.is_stream">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IDataset.is_stream
+      </span>
+     </code>
+    </a>
+   </li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -2538,6 +2724,15 @@ object construction (i.e. doesn’t require dataset iteration).</p>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.NotAvailableError">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     NotAvailableError
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.RepeatedItemError">
    <code class="docutils literal notranslate">
     <span class="pre">
@@ -2551,6 +2746,262 @@ object construction (i.e. doesn’t require dataset iteration).</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        RepeatedItemError.item_id
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     StreamDatasetStorage
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.is_cache_initialized">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.is_cache_initialized()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.init_cache">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.init_cache()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.stacked_transform">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.stacked_transform
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.put">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.put()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.get()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.remove">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.remove()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get_subset">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.get_subset()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.subset_names">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.subset_names
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.subsets">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.subsets()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.transform">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.transform()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get_annotated_items">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.get_annotated_items()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get_annotations">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.get_annotations()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get_datasetitem_by_path">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.get_datasetitem_by_path()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.get_patch">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.get_patch()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.flush_changes">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.flush_changes()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.update">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.update()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.infos">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.infos()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.categories()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamDatasetStorage.is_stream">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamDatasetStorage.is_stream
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamSubset">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     StreamSubset
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamSubset.subsets">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamSubset.subsets()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamSubset.get_subset">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamSubset.get_subset()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamSubset.infos">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamSubset.infos()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamSubset.categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamSubset.categories()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamSubset.get">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamSubset.get()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamSubset.media_type">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamSubset.media_type()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.dataset_storage.StreamSubset.is_stream">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       StreamSubset.is_stream
       </span>
      </code>
     </a>

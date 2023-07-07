@@ -19,6 +19,8 @@ datumaro.components.dataset\_storage
    
       DatasetPatch
       DatasetStorage
+      StreamDatasetStorage
+      StreamSubset
    
    
 

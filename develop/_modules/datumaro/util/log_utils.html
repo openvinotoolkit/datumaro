@@ -286,7 +286,7 @@
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
 
 
-<div class="viewcode-block" id="logging_disabled"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.log_utils.html#datumaro.util.log_utils.logging_disabled">[docs]</a><span class="nd">@contextmanager</span>
+<div class="viewcode-block" id="logging_disabled"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.log_utils.html#datumaro.components.dataset.logging_disabled">[docs]</a><span class="nd">@contextmanager</span>
 <span class="k">def</span> <span class="nf">logging_disabled</span><span class="p">(</span><span class="n">max_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">):</span>
     <span class="n">previous_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">disable</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="n">max_level</span><span class="p">)</span>
@@ -296,7 +296,7 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="n">previous_level</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="catch_logs"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.log_utils.html#datumaro.util.log_utils.catch_logs">[docs]</a><span class="nd">@contextmanager</span>
+<div class="viewcode-block" id="catch_logs"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.log_utils.html#datumaro.components.dataset.catch_logs">[docs]</a><span class="nd">@contextmanager</span>
 <span class="k">def</span> <span class="nf">catch_logs</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
 

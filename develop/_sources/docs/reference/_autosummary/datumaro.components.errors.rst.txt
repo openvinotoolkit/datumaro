@@ -82,6 +82,7 @@ datumaro.components.errors
       NoMatchingAnnError
       NoMatchingFormatsError
       NoMatchingItemError
+      NotAvailableError
       OldProjectError
       OnlyOneAttributeValue
       OnlyOneLabel
