@@ -18,7 +18,7 @@ from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import IntListMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
 
-from ..datumaro.base import DatumaroBase
+from ..datumaro.base import DatumaroBase, DefaultReader
 
 
 class DatumaroBinaryBase(DatumaroBase):
@@ -100,7 +100,7 @@ class DatumaroBinaryBase(DatumaroBase):
 
     def _read_categories(self):
         categories = self._read_header()
-        self._categories = self._load_categories({"categories": categories})
+        self._categories = DefaultReader._load_categories({"categories": categories})
 
     def _read_media_type(self):
         media_type = self._read_header()["media_type"]
@@ -185,3 +185,22 @@ class DatumaroBinaryBase(DatumaroBase):
         assert offset == len(blob_bytes)
 
         return items
+
+    @property
+    def is_stream(self) -> bool:
+        return False
+
+    def infos(self):
+        return self._infos
+
+    def categories(self):
+        return self._categories
+
+    def media_type(self):
+        return self._media_type
+
+    def __len__(self) -> int:
+        return len(self._items)
+
+    def __iter__(self) -> DatasetItem:
+        yield from self._items

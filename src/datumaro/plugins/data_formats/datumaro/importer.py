@@ -3,8 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Type
 
+from datumaro.components.dataset_base import ExtractorMerger
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.util import parse_json
@@ -40,3 +41,10 @@ class DatumaroImporter(Importer):
             cls.NAME,
             dirname=cls.PATH_CLS.ANNOTATIONS_DIR,
         )
+
+    @property
+    def can_stream(self) -> bool:
+        return True
+
+    def get_extractor_merger(self) -> Type[ExtractorMerger]:
+        return ExtractorMerger

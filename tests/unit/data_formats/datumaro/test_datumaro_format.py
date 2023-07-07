@@ -175,9 +175,9 @@ class DatumaroFormatTest:
     def test_inplace_save_writes_only_updated_data_with_direct_changes(self, test_dir, helper_tc):
         expected = Dataset.from_iterable(
             [
-                DatasetItem(1, subset="a"),
+                DatasetItem(1, subset="a", media=Image.from_numpy(data=np.zeros((3, 2, 3)))),
                 DatasetItem(2, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
-                DatasetItem(2, subset="b"),
+                DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
             ]
         )
 
@@ -185,9 +185,9 @@ class DatumaroFormatTest:
         dataset = Dataset.from_iterable(
             [
                 # modified subset
-                DatasetItem(1, subset="a"),
+                DatasetItem(1, subset="a", media=Image.from_numpy(data=np.zeros((3, 2, 3)))),
                 # unmodified subset
-                DatasetItem(2, subset="b"),
+                DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 # removed subset
                 DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
             ]
@@ -202,7 +202,9 @@ class DatumaroFormatTest:
             {f"a{self.ann_ext}", f"b{self.ann_ext}"},
             set(os.listdir(osp.join(test_dir, "annotations"))),
         )
-        helper_tc.assertEqual({"2.jpg"}, set(os.listdir(osp.join(test_dir, "images", "a"))))
+        helper_tc.assertEqual(
+            {"1.jpg", "2.jpg"}, set(os.listdir(osp.join(test_dir, "images", "a")))
+        )
         compare_datasets(
             helper_tc,
             expected,
