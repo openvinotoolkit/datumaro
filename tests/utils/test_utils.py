@@ -281,6 +281,7 @@ def check_save_and_load(
     compare=None,
     move_save_dir: bool = False,
     post_processing=None,
+    stream: bool = False,
     **cmp_kwargs,
 ):
     """
@@ -319,7 +320,13 @@ def check_save_and_load(
 
         if importer_args is None:
             importer_args = {}
-        parsed_dataset = Dataset.import_from(save_dir, importer, **importer_args)
+        parsed_dataset = (
+            Dataset.import_from(save_dir, importer, **importer_args)
+            if not stream
+            else StreamDataset.import_from(save_dir, importer, **importer_args)
+        )
+        check_is_stream(parsed_dataset)
+
         if post_processing:
             parsed_dataset = post_processing(parsed_dataset)
 

@@ -38,8 +38,6 @@ class DatumaroBinaryFormatTest(TestBase):
     format = DatumaroBinaryImporter.NAME
     ann_ext = DatumaroBinaryPath.ANNOTATION_EXT
 
-    # Implementation has not been finished.
-    # Those tests will be enabled after implementations.
     @pytest.mark.parametrize(
         ["fxt_dataset", "compare", "require_media", "fxt_import_kwargs", "fxt_export_kwargs"],
         [
@@ -103,6 +101,7 @@ class DatumaroBinaryFormatTest(TestBase):
             test_dir,
             fxt_import_kwargs,
             fxt_export_kwargs,
+            False,  # Disable stream
             helper_tc,
             request,
         )

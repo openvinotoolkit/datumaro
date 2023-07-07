@@ -43,6 +43,7 @@ class DatumaroFormatTest:
         target_dataset=None,
         importer_args=None,
         compare=compare_datasets_strict,
+        stream=False,
         **kwargs,
     ):
         return check_save_and_load(
@@ -55,6 +56,7 @@ class DatumaroFormatTest:
             importer_args=importer_args,
             compare=compare,
             move_save_dir=True,
+            stream=stream,
             **kwargs,
         )
 
@@ -106,6 +108,7 @@ class DatumaroFormatTest:
             ),
         ],
     )
+    @pytest.mark.parametrize("stream", [True, False])
     def test_can_save_and_load(
         self,
         fxt_dataset,
@@ -114,9 +117,14 @@ class DatumaroFormatTest:
         test_dir,
         fxt_import_kwargs,
         fxt_export_kwargs,
+        stream,
         helper_tc,
         request,
     ):
+        if stream and type(self) != DatumaroFormatTest:
+            # TODO: Remove this skip in the future
+            pytest.skip("stream=True is available for DatumaroFormatTest for now.")
+
         fxt_dataset = request.getfixturevalue(fxt_dataset)
         self._test_save_and_load(
             helper_tc,
@@ -126,6 +134,7 @@ class DatumaroFormatTest:
             compare=compare,
             require_media=require_media,
             importer_args=fxt_import_kwargs,
+            stream=stream,
         )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
