@@ -122,6 +122,10 @@ class OldProjectError(DatumaroError):
             """
 
 
+class NotAvailableError(DatumaroError):
+    pass
+
+
 @define(auto_exc=False)
 class ProjectNotFoundError(DatumaroError):
     path = field()
