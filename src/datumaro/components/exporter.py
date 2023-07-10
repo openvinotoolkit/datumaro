@@ -197,7 +197,8 @@ class Exporter(CliPlugin):
             self._save_media = save_images
             warnings.warn(
                 "'save-images' is deprecated and will be "
-                "removed in future. Use 'save-media' instead.",
+                "removed in future. Use 'save-media' instead. "
+                "It will be deprecated in datumaro==1.5.0.",
                 DeprecationWarning,
                 stacklevel=2,
             )

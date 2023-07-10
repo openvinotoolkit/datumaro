@@ -56,7 +56,8 @@ class DatasetItem:
     ):
         if image is not None:
             warnings.warn(
-                "'image' is deprecated and will be " "removed in future. Use 'media' instead.",
+                "'image' is deprecated and will be removed in future. Use 'media' instead. "
+                "It will be deprecated in datumaro==1.5.0.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -71,14 +72,16 @@ class DatasetItem:
         elif point_cloud is not None:
             warnings.warn(
                 "'point_cloud' is deprecated and will be "
-                "removed in future. Use 'media' instead.",
+                "removed in future. Use 'media' instead. "
+                "It will be deprecated in datumaro==1.5.0.",
                 DeprecationWarning,
                 stacklevel=2,
             )
             if related_images is not None:
                 warnings.warn(
                     "'related_images' is deprecated and will be "
-                    "removed in future. Use 'media' instead.",
+                    "removed in future. Use 'media' instead. "
+                    "It will be deprecated in datumaro==1.5.0.",
                     DeprecationWarning,
                     stacklevel=2,
                 )
@@ -98,7 +101,8 @@ class DatasetItem:
     def image(self) -> Optional[Image]:
         warnings.warn(
             "'DatasetItem.image' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead.",
+            "removed in future. Use '.media' and '.media_as()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -111,7 +115,8 @@ class DatasetItem:
     def point_cloud(self) -> Optional[str]:
         warnings.warn(
             "'DatasetItem.point_cloud' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead.",
+            "removed in future. Use '.media' and '.media_as()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -124,7 +129,8 @@ class DatasetItem:
     def related_images(self) -> List[Image]:
         warnings.warn(
             "'DatasetItem.related_images' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead.",
+            "removed in future. Use '.media' and '.media_as()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -137,7 +143,8 @@ class DatasetItem:
     def has_image(self):
         warnings.warn(
             "'DatasetItem.has_image' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead.",
+            "removed in future. Use '.media' and '.media_as()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -148,7 +155,8 @@ class DatasetItem:
     def has_point_cloud(self):
         warnings.warn(
             "'DatasetItem.has_point_cloud' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead.",
+            "removed in future. Use '.media' and '.media_as()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )

@@ -4,7 +4,7 @@ Installation
 Dependencies
 ------------
 
-- Python (3.7+)
+- Python (3.8+)
 - Optional: OpenVINO, TensorFlow, PyTorch, MxNet, Caffe, Accuracy Checker, Git
 
 Installation steps
