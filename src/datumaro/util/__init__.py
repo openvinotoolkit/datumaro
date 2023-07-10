@@ -5,17 +5,10 @@
 from functools import wraps
 from inspect import isclass
 from itertools import islice
-from typing import Any, Dict, Iterable, Tuple, Union
+from typing import Any, Iterable, Optional, Tuple, Union
 
 import attrs
-import json_stream
 import orjson
-from json_stream.base import (
-    StreamingJSONList,
-    StreamingJSONObject,
-    TransientStreamingJSONList,
-    TransientStreamingJSONObject,
-)
 
 NOTSET = object()
 
@@ -200,31 +193,3 @@ def dump_json_file(
                 append_newline=append_newline,
             )
         )
-
-
-def _to_dict(obj: Any) -> Dict[str, Any]:
-    if isinstance(obj, StreamingJSONObject):
-        return {k: _to_dict(v) for k, v in obj.items()}
-    if isinstance(obj, StreamingJSONList):
-        return [_to_dict(v) for v in obj]
-    return obj
-
-
-class JsonStreamer:
-    def __init__(self, path: str) -> None:
-        self._fp = open(path, "r")
-        self._data = json_stream.load(self._fp, persistent=False)
-
-    @property
-    def data(self) -> Union[TransientStreamingJSONObject, TransientStreamingJSONList]:
-        return self._data
-
-    def close(self) -> None:
-        self._fp.close()
-
-    def __del__(self) -> None:
-        self.close()
-
-    @staticmethod
-    def to_dict(obj: StreamingJSONObject) -> Dict[str, Any]:
-        return _to_dict(obj)
