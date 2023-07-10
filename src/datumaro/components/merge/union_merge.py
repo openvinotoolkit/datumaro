@@ -41,7 +41,7 @@ class UnionMerge(Merger):
             for item in source:
                 if self._matching_table.get(source_idx, None):
                     for ann in item.annotations:
-                        ann.label = self._matching_table[source_idx][ann.label]
+                        ann.label = self._matching_table[source_idx].get(ann.label, ann.label)
                 dict_items[item.id, item.subset].append(item)
 
         item_storage = DatasetItemStorage()
