@@ -123,7 +123,10 @@ class DatumaroFormatTest:
     ):
         if stream and type(self) != DatumaroFormatTest:
             # TODO: Remove this skip in the future
-            pytest.skip("stream=True is available for DatumaroFormatTest for now.")
+            pytest.skip(
+                "stream=True is only available for DatumaroFormatTest for now "
+                "(It is impossible for test_datumaro_binary_format.py)."
+            )
 
         fxt_dataset = request.getfixturevalue(fxt_dataset)
         self._test_save_and_load(
