@@ -30,9 +30,9 @@ The Python example for the usage of pruning is described in :doc:`here <../../ju
 
             dataset = Dataset.import_from(data_path, detected_formats[0])
 
-            prune = Prune(dataset, cluster_method='how/to/prune/dataset')
+            prune = Prune(dataset, cluster_method='<how/to/prune/dataset>')
 
-            result = prune.get_pruned(ratio='how/much/to/prune/dataset')
+            result = prune.get_pruned(ratio='<how/much/to/prune/dataset>')
 
         We can choose the desired method as ``<how/to/prune/dataset>`` among the provided ones. The default value is ``random``.
         Additionally, we can specify how much of the dataset we want to retain by providing a float value between 0 and 1 for the ``<how/much/to/prune/dataset>`` parameter. The default value is 0.5.

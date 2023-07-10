@@ -13,7 +13,6 @@ Intermediate Skills
    09_data_filtering
    10_data_exploration
    11_data_generation
-   12_data_pruning
 
 .. grid:: 1 2 2 2
    :gutter: 2
@@ -102,16 +101,3 @@ Intermediate Skills
 
       :bdg-info:`CLI`
       :bdg-warning:`Python`
-
-   .. grid-item-card::
-
-      .. button-ref:: 12_data_pruning
-         :color: primary
-         :outline:
-         :expand:
-
-         Level 12: Data Pruning
-
-      :bdg-warning:`Python`
-      :bdg-info:`CLI`
-      :bdg-success:`ProjectCLI`

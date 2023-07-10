@@ -2,14 +2,14 @@
 
 ## Prune Dataset
 
-This command prune dataset to extract representative subset of the entire dataset. You can effectively handle large-scale dataset having redundancy through this command. The result consists of a representative and manageable subset.
+This command prunes dataset to extract representative subset of the entire dataset. You can effectively handle large-scale dataset having redundancy through this command. The result consists of a representative and manageable subset.
 
 Prune supports various methodology.
 - Randomized
 - Hash-based
 - Clustering-based
 
-`Randomized` approach is based on the most fundamental form of randomness that we are familiar with, where data is selected randomly from the dataset. `Hash-based` approach operates on hash basis like [Explorer](./explorer.md). The default model for calculating hash is CLIP, which could support both image and text modality. Supported model format is Openvino IR and those are uploaded in [openvinotoolkit storage](https://storage.openvinotoolkit.org/repositories/datumaro/models/). `Clustering-based` approach is based on clustering to cover unsupervised dataset either.  We compute hashes for the images in the dataset or utilize label data to perform clustering.
+`Randomized` approach is based on the most fundamental form of randomness that we are familiar with, where data is selected randomly from the dataset. `Hash-based` approach operates on hash basis like [Explorer](./explorer.md). The default model for calculating hash is CLIP, which could support both image and text modality. Supported model format is OpenVINO IR and those are uploaded in [openvinotoolkit storage](https://storage.openvinotoolkit.org/repositories/datumaro/models/). `Clustering-based` approach is based on clustering to cover unsupervised dataset either. We compute hashes for the images in the dataset or utilize label data to perform clustering.
 
 By default, datasets are updated in-place. The `-o/--output-dir` option can be used to specify another output directory. When updating in-place, use the `--overwirte` parameter (in-place updates fail by default to prevent data loss), unless a project target is modified.
 
@@ -28,13 +28,10 @@ Parameters:
     By default, prints info about the joined `project` dataset.
 - `-m, --method` (string) - Prune method name (default: random).
 - `-r, --ratio` (float) - Number how much you want to remain among dataset (default: 0.5).
-- `--hash-type` (string) - Hash type based for clustering of `query_clust` (default: image hash).
+- `--hash-type` (string) - Hash type based for clustering of `query_clust` (default: img). We support image and text hash to extract feature from datasetitem. To use text hash, put `txt` for `hash-type`. 
 - `-p, --project` (string) - Directory of the project to operate on (default: current directory).
 - `-o, --output-dir` (string) - Output directory. Can be omitted for main project targets (i.e. data sources and the `project`  target, but not intermediate stages) and dataset targets. If not specified, the results will be saved inplace.
 - `--overwrite` - Allows to overwrite existing files in the output directory, when it is specified and is not empty.
-- `--stage` (bool) - Include this action as a project build step.
-    If true, this operation will be saved in the project build tree, allowing to reproduce the resulting dataset later.
-    Applicable only to main project targets (i.e. data sources and the `project` target, but not intermediate stages). Enabled by default.
 
 Examples:
 - Prune dataset through clustering random with image hash into ratio 80
@@ -90,8 +87,8 @@ datum prune -m entropy -r 0.8 -p </path/to/project/>
 ![entropy](../../../../images/entropy.png)
 
 #### `ndr`
-Removes near-duplicated images in subset. You could check detail for this method in [ndr](./transform.md#ndr).
-We set `num_cut` to a size that the ratio that will be left in the entire dataset.
+Remove near-duplicated images in each subset. You could check detail for this method in [ndr](./transform.md#ndr).
+We set `num_cut` parameter of `ndr` as a size that the ratio that will be left in the entire dataset.
 ```console
 datum prune -m ndr -p </path/to/project/>
 ```
