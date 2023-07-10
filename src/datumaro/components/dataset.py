@@ -600,9 +600,9 @@ class Dataset(IDataset):
 
                     if has_ctx_args:
                         warnings.warn(
-                            "It seems that '%s' exporter "
+                            f"It seems that '{format}' exporter "
                             "does not support progress and error reporting, "
-                            "it will be disabled" % format,
+                            "It will be disabled in datumaro==1.5.0.",
                             DeprecationWarning,
                         )
                     exporter_kwargs.pop("ctx")
@@ -618,9 +618,9 @@ class Dataset(IDataset):
 
                     if has_ctx_args:
                         warnings.warn(
-                            "It seems that '%s' exporter "
+                            f"It seems that '{format}' exporter "
                             "does not support progress and error reporting, "
-                            "it will be disabled" % format,
+                            "It will be disabled in datumaro==1.5.0.",
                             DeprecationWarning,
                         )
                     exporter_kwargs.pop("ctx")
@@ -724,9 +724,9 @@ class Dataset(IDataset):
 
                     if has_ctx_args:
                         warnings.warn(
-                            "It seems that '%s' extractor "
-                            "does not support progress and error reporting, "
-                            "it will be disabled" % src_conf.format,
+                            f"It seems that '{src_conf.format}' extractor "
+                            "does not support progress and error reporting. "
+                            "It will be disabled in datumaro==1.5.0.",
                             DeprecationWarning,
                         )
                     extractor_kwargs.pop("ctx")

@@ -2,6 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
+import warnings
+
+warnings.warn(
+    "We are planning to clean up the entities in datumaro/__init__.py until datumaro==1.5.0. "
+    'This will affect the following import pattern: "import datumaro as dm; dm.<entity>". '
+    "If you are using this pattern in your code, please revisit it after upgrading datumaro>=1.5.0.",
+    DeprecationWarning,
+)
+
 from . import errors as errors
 from . import ops as ops
 from . import project as project
@@ -32,7 +41,7 @@ from .components.annotation import (
     RleMask,
 )
 from .components.cli_plugin import CliPlugin
-from .components.dataset import Dataset, eager_mode
+from .components.dataset import Dataset, DatasetPatch, DatasetSubset, eager_mode
 from .components.dataset_base import (
     DEFAULT_SUBSET_NAME,
     CategoriesInfo,
@@ -41,6 +50,7 @@ from .components.dataset_base import (
     IDataset,
     SubsetBase,
 )
+from .components.dataset_item_storage import ItemStatus
 from .components.environment import Environment, PluginRegistry
 from .components.exporter import Exporter, ExportErrorPolicy, FailingExportErrorPolicy
 from .components.hl_ops import HLOps
