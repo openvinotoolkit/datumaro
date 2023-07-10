@@ -3,7 +3,9 @@ Level 12: Dataset Pruning
 =====================================================
 
 
-Datumaro support prune feature to extract representative subset of dataset. 
+Datumaro support prune feature to extract representative subset of dataset. The pruned dataset allows us to examine the trade-off between 
+accuracy and convergence time when training on a reduced data sample. By selecting a subset of instances that captures the essential patterns
+and characteristics of the data, we aim to evaluate the impact of dataset size on model performance.
 
 More detailed descriptions about pruning are given by :doc:`Explore <../../command-reference/context_free/prune>`
 The Python example for the usage of pruning is described in :doc:`here <../../jupyter_notebook_examples/notebooks/17_data_pruning>`.

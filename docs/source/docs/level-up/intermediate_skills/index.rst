@@ -13,6 +13,7 @@ Intermediate Skills
    09_data_filtering
    10_data_exploration
    11_data_generation
+   12_data_pruning
 
 .. grid:: 1 2 2 2
    :gutter: 2

@@ -160,11 +160,11 @@ class QueryClust(PruneBase):
 
         item_id_list = [item.id.split("/")[-1] for item in item_list]
         centroids = [
-            database_keys[item_id_list.index(i.id.split(":")[-1])]
+            database_keys[item_id_list.index(i.id)]
             for i in list(center_dict.values())
             if i
         ]
-        kmeans = KMeans(n_clusters=num_centers, n_init=1, init=centroids, random_state=0)
+        kmeans = KMeans(n_clusters=num_centers, n_init=1, init=np.array(centroids), random_state=0)
 
         clusters = kmeans.fit_predict(database_keys)
         cluster_centers = kmeans.cluster_centers_
