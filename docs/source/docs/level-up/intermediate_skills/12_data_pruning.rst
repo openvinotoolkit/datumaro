@@ -3,7 +3,7 @@ Level 12: Dataset Pruning
 =====================================================
 
 
-Datumaro support prune feature to extract representative subset of dataset. The pruned dataset allows us to examine the trade-off between 
+Datumaro support prune feature to extract representative subset of dataset. The pruned dataset allows us to examine the trade-off between
 accuracy and convergence time when training on a reduced data sample. By selecting a subset of instances that captures the essential patterns
 and characteristics of the data, we aim to evaluate the impact of dataset size on model performance.
 
@@ -44,15 +44,15 @@ The Python example for the usage of pruning is described in :doc:`here <../../ju
         .. code-block:: bash
 
             datum prune <target> -m METHOD -r RATIO -h HASH_TYPE
-        
+
         We could use ``--overwrite`` instead of setting ``-o/--output-dir``.
         We can choose the desired method as ``METHOD`` among the provided ones. The default value is ``random``.
         Additionally, we can specify how much of the dataset we want to retain by providing a float value between 0 and 1 for the ``RATIO`` parameter. The default value is 0.5.
 
-    
+
     .. tab-item:: ProjectCLI
 
-        With the project-based CLI, we first require to ``create`` a project by 
+        With the project-based CLI, we first require to ``create`` a project by
 
         .. code-block:: bash
 

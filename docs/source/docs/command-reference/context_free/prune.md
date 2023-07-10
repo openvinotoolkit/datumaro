@@ -5,9 +5,9 @@
 This command prune dataset to extract representative subset of the entire dataset. You can effectively handle large-scale dataset having redundancy through this command. The result consists of a representative and manageable subset.
 
 Prune supports various methodology.
--  Randomized
--  Hash-based
--  Clustering-based
+- Randomized
+- Hash-based
+- Clustering-based
 
 `Randomized` approach is based on the most fundamental form of randomness that we are familiar with, where data is selected randomly from the dataset. `Hash-based` approach operates on hash basis like [Explorer](./explorer.md). The default model for calculating hash is CLIP, which could support both image and text modality. Supported model format is Openvino IR and those are uploaded in [openvinotoolkit storage](https://storage.openvinotoolkit.org/repositories/datumaro/models/). `Clustering-based` approach is based on clustering to cover unsupervised dataset either.  We compute hashes for the images in the dataset or utilize label data to perform clustering.
 
@@ -16,7 +16,6 @@ By default, datasets are updated in-place. The `-o/--output-dir` option can be u
 The current project (`-p/--project`) is also used as a context for plugins, so it can be useful for datasest paths having custom formats. When not specified, the current project's working tree is used.
 
 The command can be applied to a dataset or a project build target, a stage or the combined `project` target, in which case all the project targets will be affected. A build tree stage will be recorded if `--stage` is enable.
-
 
 Usage:
 ```
@@ -33,7 +32,7 @@ Parameters:
 - `-p, --project` (string) - Directory of the project to operate on (default: current directory).
 - `-o, --output-dir` (string) - Output directory. Can be omitted for main project targets (i.e. data sources and the `project`  target, but not intermediate stages) and dataset targets. If not specified, the results will be saved inplace.
 - `--overwrite` - Allows to overwrite existing files in the output directory, when it is specified and is not empty.
-- `--stage` (bool) - Include this action as a project build step. 
+- `--stage` (bool) - Include this action as a project build step.
     If true, this operation will be saved in the project build tree, allowing to reproduce the resulting dataset later.
     Applicable only to main project targets (i.e. data sources and the `project` target, but not intermediate stages). Enabled by default.
 
@@ -83,7 +82,6 @@ datum prune -m query_clust -h txt -r 0.8 -p </path/to/project/>
 ```
 ![query_clust](../../../../images/query_clust.png)
 
-
 #### `entropy`
 After clustering the entire dataset, items are selected within each cluster based on the desired ratio, considering the entropy of labels.
 ```console
@@ -91,9 +89,8 @@ datum prune -m entropy -r 0.8 -p </path/to/project/>
 ```
 ![entropy](../../../../images/entropy.png)
 
-
 #### `ndr`
-Removes near-duplicated images in subset. You could check detail for this method in [ndr](./transform.md#ndr). 
+Removes near-duplicated images in subset. You could check detail for this method in [ndr](./transform.md#ndr).
 We set `num_cut` to a size that the ratio that will be left in the entire dataset.
 ```console
 datum prune -m ndr -p </path/to/project/>
