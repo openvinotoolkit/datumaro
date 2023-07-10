@@ -49,7 +49,8 @@ def __getattr__(name: str):
     if name in {"Image", "ByteImage"}:
         warnings.warn(
             f"Using {name} from 'util.image' is deprecated, "
-            "the class is moved to 'components.media'",
+            "the class is moved to 'components.media' "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )
