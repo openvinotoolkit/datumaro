@@ -20,7 +20,7 @@ from datumaro.components.abstracts.model_interpreter import ModelPred
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.launcher import LauncherWithModelInterpreter
 from datumaro.errors import DatumaroError
-from datumaro.util.definitions import DATUMARO_CACHE_DIR
+from datumaro.util.definitions import get_datumaro_cache_dir
 from datumaro.util.samples import get_samples_path
 
 
@@ -101,7 +101,7 @@ class BuiltinOpenvinoModelInfo(OpenvinoModelInfo):
         interpreter = osp.join(openvino_plugin_samples_dir, model_name + "_interp.py")
         interpreter = interpreter if osp.exists(interpreter) else interpreter
 
-        model_dir = DATUMARO_CACHE_DIR
+        model_dir = get_datumaro_cache_dir()
 
         # Please visit open-model-zoo repository for OpenVINO public models if you are interested in
         # https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/index.md
