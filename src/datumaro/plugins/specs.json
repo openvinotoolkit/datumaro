@@ -286,6 +286,12 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.components.dataset_base.ExtractorMerger",
+    "plugin_name": "extractor_merger",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.yolo.base.YoloLooseBase",
     "plugin_name": "yolo_loose",
     "plugin_type": "DatasetBase",

@@ -4,7 +4,7 @@
 
 import logging as log
 import os.path as osp
-from typing import List, Optional, Tuple, Type, TypeVar
+from typing import Dict, List, Optional, Tuple, Type, TypeVar
 
 import numpy as np
 from defusedxml import ElementTree
@@ -55,6 +55,7 @@ class VocBase(SubsetBase):
         subset: Optional[str] = None,
         voc_importer_type: VocImporterType = VocImporterType.default,
         ctx: Optional[ImportContext] = None,
+        **kwargs,
     ):
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
@@ -377,7 +378,7 @@ class VocBase(SubsetBase):
 
         return item_annotations
 
-    def _parse_labels(self):
+    def _parse_labels(self) -> Dict[str, List[Label]]:
         annotations = {}
         task_dir = osp.dirname(self._path)
         for label_id, label in enumerate(self._categories[AnnotationType.label]):
@@ -410,6 +411,10 @@ class VocBase(SubsetBase):
                         annotations.setdefault(item, []).append(Label(label_id))
 
         return annotations
+
+    @property
+    def is_stream(self) -> bool:
+        return True
 
 
 class VocClassificationBase(VocBase):

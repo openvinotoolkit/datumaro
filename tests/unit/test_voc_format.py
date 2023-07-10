@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import os
 import os.path as osp
 import pickle  # nosec B403
@@ -6,6 +10,7 @@ from functools import partial
 from unittest import TestCase
 
 import numpy as np
+import pytest
 from lxml import etree as ElementTree  # nosec
 
 import datumaro.plugins.data_formats.voc.format as VOC
@@ -17,7 +22,7 @@ from datumaro.components.annotation import (
     Mask,
     MaskCategories,
 )
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, StreamDataset
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
@@ -156,9 +161,10 @@ DUMMY_DATASET2_DIR = get_test_asset_path("voc_dataset", "voc_dataset2")
 DUMMY_DATASET3_DIR = get_test_asset_path("voc_dataset", "voc_dataset3")
 
 
-class VocImportTest(TestCase):
+class VocImportTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
+    @pytest.mark.parametrize("dataset_cls, is_stream", [(Dataset, False), (StreamDataset, True)])
+    def test_can_import(self, dataset_cls, is_stream, helper_tc):
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -229,12 +235,23 @@ class VocImportTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc)
 
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR, "voc")
+        actual = dataset_cls.import_from(DUMMY_DATASET_DIR, "voc")
+        assert actual.is_stream == is_stream
 
-        compare_datasets(self, DstExtractor(), dataset)
+        compare_datasets(helper_tc, DstExtractor(), actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_voc_classification_dataset(self):
+    @pytest.mark.parametrize("dataset_cls, is_stream", [(Dataset, False), (StreamDataset, True)])
+    @pytest.mark.parametrize(
+        "format, subset, path",
+        [
+            ("voc_classification", "", ""),
+            ("voc_classification", "train", osp.join("ImageSets", "Main", "train.txt")),
+        ],
+    )
+    def test_can_import_voc_classification_dataset(
+        self, dataset_cls, is_stream, format, subset, path, helper_tc
+    ):
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -260,24 +277,29 @@ class VocImportTest(TestCase):
 
         expected_dataset = DstExtractor()
 
-        rpath = osp.join("ImageSets", "Main", "train.txt")
-        matrix = [
-            ("voc_classification", "", ""),
-            ("voc_classification", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
+        if subset:
+            expected = expected_dataset.get_subset(subset)
+        else:
+            expected = expected_dataset
 
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
+        actual = dataset_cls.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
+        assert actual.is_stream == is_stream
 
-                compare_datasets(self, expected, actual, require_media=True)
+        compare_datasets(helper_tc, expected, actual, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_voc_layout_dataset(self):
+    @pytest.mark.parametrize("dataset_cls, is_stream", [(Dataset, False), (StreamDataset, True)])
+    @pytest.mark.parametrize(
+        "format, subset, path",
+        [
+            ("voc_layout", "", ""),
+            ("voc_layout", "train", osp.join("ImageSets", "Layout", "train.txt")),
+            # ("voc", "train", rpath),
+        ],
+    )
+    def test_can_import_voc_layout_dataset(
+        self, dataset_cls, is_stream, format, subset, path, helper_tc
+    ):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -311,25 +333,28 @@ class VocImportTest(TestCase):
             categories=VOC.make_voc_categories(task=VOC.VocTask.voc_layout),
         )
 
-        rpath = osp.join("ImageSets", "Layout", "train.txt")
-        matrix = [
-            ("voc_layout", "", ""),
-            ("voc_layout", "train", rpath),
-            # ("voc", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
+        if subset:
+            expected = expected_dataset.get_subset(subset)
+        else:
+            expected = expected_dataset
 
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
+        actual = dataset_cls.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
+        assert actual.is_stream == is_stream
 
-                compare_datasets(self, expected, actual, require_media=True)
+        compare_datasets(helper_tc, expected, actual, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_voc_detection_dataset(self):
+    @pytest.mark.parametrize("dataset_cls, is_stream", [(Dataset, False), (StreamDataset, True)])
+    @pytest.mark.parametrize(
+        "format, subset, path",
+        [
+            ("voc_detection", "", ""),
+            ("voc_detection", "train", osp.join("ImageSets", "Main", "train.txt")),
+        ],
+    )
+    def test_can_import_voc_detection_dataset(
+        self, dataset_cls, is_stream, format, subset, path, helper_tc
+    ):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -377,24 +402,29 @@ class VocImportTest(TestCase):
             categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
         )
 
-        rpath = osp.join("ImageSets", "Main", "train.txt")
-        matrix = [
-            ("voc_detection", "", ""),
-            ("voc_detection", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
+        if subset:
+            expected = expected_dataset.get_subset(subset)
+        else:
+            expected = expected_dataset
 
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
+        actual = dataset_cls.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
+        assert actual.is_stream == is_stream
 
-                compare_datasets(self, expected, actual, require_media=True)
+        compare_datasets(helper_tc, expected, actual, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_voc_segmentation_dataset(self):
+    @pytest.mark.parametrize("dataset_cls, is_stream", [(Dataset, False), (StreamDataset, True)])
+    @pytest.mark.parametrize(
+        "format, subset, path",
+        [
+            ("voc_segmentation", "", ""),
+            ("voc_segmentation", "train", osp.join("ImageSets", "Segmentation", "train.txt")),
+            # ("voc", "train", rpath),
+        ],
+    )
+    def test_can_import_voc_segmentation_dataset(
+        self, dataset_cls, is_stream, format, subset, path, helper_tc
+    ):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -412,25 +442,29 @@ class VocImportTest(TestCase):
             categories=VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation),
         )
 
-        rpath = osp.join("ImageSets", "Segmentation", "train.txt")
-        matrix = [
-            ("voc_segmentation", "", ""),
-            ("voc_segmentation", "train", rpath),
-            # ("voc", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
+        if subset:
+            expected = expected_dataset.get_subset(subset)
+        else:
+            expected = expected_dataset
 
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
+        actual = dataset_cls.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
+        assert actual.is_stream == is_stream
 
-                compare_datasets(self, expected, actual, require_media=True)
+        compare_datasets(helper_tc, expected, actual, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_voc_action_dataset(self):
+    @pytest.mark.parametrize("dataset_cls, is_stream", [(Dataset, False), (StreamDataset, True)])
+    @pytest.mark.parametrize(
+        "format, subset, path",
+        [
+            ("voc_action", "", ""),
+            ("voc_action", "train", osp.join("ImageSets", "Action", "train.txt")),
+            # ("voc", "train", rpath),
+        ],
+    )
+    def test_can_import_voc_action_dataset(
+        self, dataset_cls, is_stream, format, subset, path, helper_tc
+    ):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -464,34 +498,34 @@ class VocImportTest(TestCase):
             categories=VOC.make_voc_categories(task=VOC.VocTask.voc_action),
         )
 
-        rpath = osp.join("ImageSets", "Action", "train.txt")
-        matrix = [
-            ("voc_action", "", ""),
-            ("voc_action", "train", rpath),
-            # ("voc", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
+        if subset:
+            expected = expected_dataset.get_subset(subset)
+        else:
+            expected = expected_dataset
 
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
+        actual = dataset_cls.import_from(osp.join(DUMMY_DATASET_DIR, path), format)
+        assert actual.is_stream == is_stream
 
-                compare_datasets(self, expected, actual, require_media=True)
+        compare_datasets(helper_tc, expected, actual, require_media=True)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect_voc(self):
+    @pytest.mark.parametrize("path", [DUMMY_DATASET_DIR, DUMMY_DATASET2_DIR])
+    def test_can_detect_voc(self, path):
         env = Environment()
-
-        for path in [DUMMY_DATASET_DIR, DUMMY_DATASET2_DIR]:
-            with self.subTest(path=path):
-                detected_formats = env.detect_dataset(path)
-                self.assertIn(VocImporter.NAME, detected_formats)
+        detected_formats = env.detect_dataset(path)
+        assert VocImporter.NAME in detected_formats
 
     @mark_requirement(Requirements.DATUM_BUG_583)
-    def test_can_import_voc_dataset_with_empty_lines_in_subset_lists(self):
+    @pytest.mark.parametrize("dataset_cls, is_stream", [(Dataset, False), (StreamDataset, True)])
+    @pytest.mark.parametrize(
+        "format, subset, path",
+        [
+            ("voc_detection", "", ""),
+            ("voc_detection", "train", osp.join("ImageSets", "Main", "train.txt")),
+        ],
+    )
+    def test_can_import_voc_dataset_with_empty_lines_in_subset_lists(
+        self, dataset_cls, is_stream, format, subset, path, helper_tc
+    ):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -520,40 +554,34 @@ class VocImportTest(TestCase):
             categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
         )
 
-        rpath = osp.join("ImageSets", "Main", "train.txt")
-        matrix = [
-            ("voc_detection", "", ""),
-            ("voc_detection", "train", rpath),
-        ]
-        for format, subset, path in matrix:
-            with self.subTest(format=format, subset=subset, path=path):
-                if subset:
-                    expected = expected_dataset.get_subset(subset)
-                else:
-                    expected = expected_dataset
+        if subset:
+            expected = expected_dataset.get_subset(subset)
+        else:
+            expected = expected_dataset
 
-                actual = Dataset.import_from(osp.join(DUMMY_DATASET3_DIR, path), format)
+        actual = dataset_cls.import_from(osp.join(DUMMY_DATASET3_DIR, path), format)
+        assert actual.is_stream == is_stream
 
-                compare_datasets(self, expected, actual, require_media=True)
+        compare_datasets(helper_tc, expected, actual, require_media=True)
 
     @mark_requirement(Requirements.DATUM_673)
-    def test_can_pickle(self):
-        formats = [
+    @pytest.mark.parametrize(
+        "fmt",
+        [
             "voc",
             "voc_classification",
             "voc_detection",
             "voc_action",
             "voc_layout",
             "voc_segmentation",
-        ]
+        ],
+    )
+    def test_can_pickle(self, fmt, helper_tc):
+        source = Dataset.import_from(DUMMY_DATASET_DIR, format=fmt)
 
-        for fmt in formats:
-            with self.subTest(fmt=fmt):
-                source = Dataset.import_from(DUMMY_DATASET_DIR, format=fmt)
+        parsed = pickle.loads(pickle.dumps(source))  # nosec
 
-                parsed = pickle.loads(pickle.dumps(source))  # nosec
-
-                compare_datasets_strict(self, source, parsed)
+        compare_datasets_strict(helper_tc, source, parsed)
 
 
 class VocExtractorTest(TestCase):
