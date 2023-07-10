@@ -5,13 +5,13 @@
 # pylint: disable=signature-differs
 
 from copy import deepcopy
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type
 
 import numpy as np
 import pytest
 
 from datumaro.components.annotation import Bbox
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, StreamDataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import Importer
@@ -73,6 +73,7 @@ class YoloFormatTest(TestDataFormatBase):
     def test_can_detect(self, fxt_dataset_dir: str):
         return super().test_can_detect(fxt_dataset_dir)
 
+    @pytest.mark.parametrize("dataset_cls", [Dataset, StreamDataset])
     @pytest.mark.parametrize(
         [
             "fxt_dataset_dir",
@@ -92,6 +93,7 @@ class YoloFormatTest(TestDataFormatBase):
         fxt_dataset_dir: str,
         fxt_expected_dataset: Dataset,
         fxt_import_kwargs: Dict[str, Any],
+        dataset_cls: Type[Dataset],
         request: pytest.FixtureRequest,
     ):
         return super().test_can_import(
@@ -99,8 +101,10 @@ class YoloFormatTest(TestDataFormatBase):
             fxt_expected_dataset,
             fxt_import_kwargs,
             request,
+            dataset_cls=dataset_cls,
         )
 
+    @pytest.mark.parametrize("dataset_cls", [Dataset, StreamDataset])
     @pytest.mark.parametrize(
         "fxt_expected_dataset, exporter",
         [
@@ -115,6 +119,7 @@ class YoloFormatTest(TestDataFormatBase):
         test_dir: str,
         fxt_import_kwargs: Dict[str, Any],
         fxt_export_kwargs: Dict[str, Any],
+        dataset_cls: Type[Dataset],
         request: pytest.FixtureRequest,
         exporter: Optional[Exporter],
         importer: Optional[Importer] = None,
@@ -127,4 +132,5 @@ class YoloFormatTest(TestDataFormatBase):
             request,
             exporter=exporter,
             importer=importer,
+            dataset_cls=dataset_cls,
         )

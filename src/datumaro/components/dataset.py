@@ -131,6 +131,7 @@ class Dataset(IDataset):
     """
 
     _global_eager: bool = False
+    _stream = False
 
     @classmethod
     def from_iterable(
@@ -193,8 +194,9 @@ class Dataset(IDataset):
 
         return cls.from_extractors(_extractor(), env=env)
 
-    @staticmethod
+    @classmethod
     def from_extractors(
+        cls,
         *sources: IDataset,
         env: Optional[Environment] = None,
         merge_policy: str = DEFAULT_MERGE_POLICY,
@@ -219,7 +221,7 @@ class Dataset(IDataset):
 
         if len(sources) == 1:
             source = sources[0]
-            dataset = Dataset(source=source, env=env)
+            dataset = cls(source=source, env=env)
         else:
             from datumaro.components.hl_ops import HLOps
 
@@ -677,11 +679,17 @@ class Dataset(IDataset):
         if not format:
             format = cls.detect(path, env=env)
 
+        extractor_merger = None
         # TODO: remove importers, put this logic into extractors
         if format in env.importers:
             importer = env.make_importer(format)
             with logging_disabled(log.INFO):
-                detected_sources = importer(path, **kwargs)
+                detected_sources = (
+                    importer(path, stream=cls._stream, **kwargs)
+                    if importer.can_stream
+                    else importer(path, **kwargs)
+                )
+            extractor_merger = importer.get_extractor_merger()
         elif format in env.extractors:
             detected_sources = [{"url": path, "format": format, "options": kwargs}]
         else:
@@ -735,7 +743,11 @@ class Dataset(IDataset):
                         env.make_extractor(src_conf.format, src_conf.url, **extractor_kwargs)
                     )
 
-            dataset = cls.from_extractors(*extractors, env=env, merge_policy=merge_policy)
+            dataset = (
+                cls(source=extractor_merger(*extractors), env=env)
+                if extractor_merger is not None
+                else cls.from_extractors(*extractors, env=env, merge_policy=merge_policy)
+            )
             if eager:
                 dataset.init_cache()
         except _ImportFail as e:
@@ -779,6 +791,10 @@ class Dataset(IDataset):
             raise MultipleFormatsMatchError(matches)
         else:
             return matches[0]
+
+    @property
+    def is_stream(self) -> bool:
+        return self._data.is_stream
 
 
 class StreamDataset(Dataset):
