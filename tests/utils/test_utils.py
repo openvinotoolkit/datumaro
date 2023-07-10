@@ -172,7 +172,8 @@ def compare_datasets(
         if require_images:
             warnings.warn(
                 "'require_images' is deprecated and will be "
-                "removed in future. Use 'require_media' instead.",
+                "removed in future. Use 'require_media' instead. "
+                "It will be deprecated in datumaro==1.5.0.",
                 DeprecationWarning,
                 stacklevel=2,
             )
