@@ -88,7 +88,6 @@ datum prune -m entropy -r 0.8 -p </path/to/project/>
 
 #### `ndr`
 Remove near-duplicated images in each subset. You could check detail for this method in [ndr](./transform.md#ndr).
-We set `num_cut` parameter of `ndr` as a size that the ratio that will be left in the entire dataset.
 ```console
 datum prune -m ndr -p </path/to/project/>
 ```
