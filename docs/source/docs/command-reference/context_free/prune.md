@@ -28,7 +28,7 @@ Parameters:
     By default, prints info about the joined `project` dataset.
 - `-m, --method` (string) - Prune method name (default: random).
 - `-r, --ratio` (float) - Number how much you want to remain among dataset (default: 0.5).
-- `--hash-type` (string) - Hash type based for clustering of `query_clust` (default: img). We support image and text hash to extract feature from datasetitem. To use text hash, put `txt` for `hash-type`. 
+- `--hash-type` (string) - Hash type based for clustering of `query_clust` (default: img). We support image and text hash to extract feature from datasetitem. To use text hash, put `txt` for `hash-type`.
 - `-p, --project` (string) - Directory of the project to operate on (default: current directory).
 - `-o, --output-dir` (string) - Output directory. Can be omitted for main project targets (i.e. data sources and the `project`  target, but not intermediate stages) and dataset targets. If not specified, the results will be saved inplace.
 - `--overwrite` - Allows to overwrite existing files in the output directory, when it is specified and is not empty.
