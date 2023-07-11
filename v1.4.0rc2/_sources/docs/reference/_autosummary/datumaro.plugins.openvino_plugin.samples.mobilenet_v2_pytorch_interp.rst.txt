@@ -1,0 +1,29 @@
+datumaro.plugins.openvino\_plugin.samples.mobilenet\_v2\_pytorch\_interp
+========================================================================
+
+.. automodule:: datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      MobilenetV2PytorchModelInterpreter
+   
+   
+
+   
+   
+   
+
+
+
