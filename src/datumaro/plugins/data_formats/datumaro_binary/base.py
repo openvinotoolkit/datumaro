@@ -18,7 +18,7 @@ from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import IntListMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item import DatasetItemMapper
 
-from ..datumaro.base import DatumaroBase, DefaultReader
+from ..datumaro.base import DatumaroBase, JsonReader
 
 
 class DatumaroBinaryBase(DatumaroBase):
@@ -100,7 +100,7 @@ class DatumaroBinaryBase(DatumaroBase):
 
     def _read_categories(self):
         categories = self._read_header()
-        self._categories = DefaultReader._load_categories({"categories": categories})
+        self._categories = JsonReader._load_categories({"categories": categories})
 
     def _read_media_type(self):
         media_type = self._read_header()["media_type"]

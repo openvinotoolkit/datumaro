@@ -32,8 +32,10 @@ from datumaro.version import __version__
 
 from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
 
+__all__ = ["DatumaroBase"]
 
-class DefaultReader:
+
+class JsonReader:
     def __init__(
         self, path: str, subset: str, rootpath: str, images_dir: str, pcd_dir: str
     ) -> None:
@@ -302,7 +304,7 @@ def _to_dict(obj: Any) -> Dict[str, Any]:
     return obj
 
 
-class StreamDefaultReader(DefaultReader):
+class StreamJsonReader(JsonReader):
     def __init__(
         self, path: str, subset: str, rootpath: str, images_dir: str, pcd_dir: str
     ) -> None:
@@ -358,7 +360,7 @@ class StreamDefaultReader(DefaultReader):
             if isinstance(categories, StreamingJSONObject):
                 categories = _to_dict(categories)
 
-            return DefaultReader._load_categories({"categories": categories})
+            return JsonReader._load_categories({"categories": categories})
 
     def _load_items(self, parsed) -> List:
         return []
@@ -377,7 +379,7 @@ class DatumaroBase(SubsetBase):
         path: str,
         *,
         subset: Optional[str] = None,
-        stream: bool = True,
+        stream: bool = False,
         ctx: Optional[ImportContext] = None,
     ):
         assert osp.isfile(path), path
@@ -432,9 +434,9 @@ class DatumaroBase(SubsetBase):
     def _load_impl(self, path: str) -> None:
         """Actual implementation of loading Datumaro format."""
         self._reader = (
-            DefaultReader(path, self._subset, self._rootpath, self._images_dir, self._pcd_dir)
+            JsonReader(path, self._subset, self._rootpath, self._images_dir, self._pcd_dir)
             if not self._stream
-            else StreamDefaultReader(
+            else StreamJsonReader(
                 path, self._subset, self._rootpath, self._images_dir, self._pcd_dir
             )
         )
