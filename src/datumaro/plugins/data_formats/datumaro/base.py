@@ -315,7 +315,7 @@ class StreamDefaultReader(DefaultReader):
         return self._length
 
     def __iter__(self):
-        with open(self._reader) as fp:
+        with open(self._reader, encoding="utf-8") as fp:
             data = json_stream.load(fp)
             items = data.get("items", None)
             if items is None:
@@ -335,14 +335,14 @@ class StreamDefaultReader(DefaultReader):
 
     @staticmethod
     def _load_media_type(path) -> Type[MediaElement]:
-        with open(path, "r") as fp:
+        with open(path, "r", encoding="utf-8") as fp:
             data = json_stream.load(fp)
             media_type = data.get("media_type", MediaType.IMAGE)
             return MediaType(media_type).media
 
     @staticmethod
     def _load_infos(path) -> Dict:
-        with open(path, "r") as fp:
+        with open(path, "r", encoding="utf-8") as fp:
             data = json_stream.load(fp)
             infos = data.get("infos", {})
             if isinstance(infos, StreamingJSONObject):
@@ -352,7 +352,7 @@ class StreamDefaultReader(DefaultReader):
 
     @staticmethod
     def _load_categories(path) -> Dict:
-        with open(path, "r") as fp:
+        with open(path, "r", encoding="utf-8") as fp:
             data = json_stream.load(fp)
             categories = data.get("categories", {})
             if isinstance(categories, StreamingJSONObject):
@@ -447,7 +447,7 @@ class DatumaroBase(SubsetBase):
         Note that the legacy Datumaro doesn't store the version into exported dataset.
         Thus it returns DatumaroBase.LEGACY_VERSION
         """
-        with open(path, "r") as fp:
+        with open(path, "r", encoding="utf-8") as fp:
             version = json_stream.load(fp).get("dm_format_version", self.LEGACY_VERSION)
         return version
 
