@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
-from typing import Any, Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type
 
 import json_stream
-from json_stream.base import StreamingJSONList, StreamingJSONObject
+from json_stream.base import StreamingJSONObject
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -27,7 +27,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
-from datumaro.util import parse_json_file
+from datumaro.util import parse_json_file, to_dict_from_streaming_json
 from datumaro.version import __version__
 
 from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
@@ -296,14 +296,6 @@ class JsonReader:
         yield from self.items
 
 
-def _to_dict(obj: Any) -> Dict[str, Any]:
-    if isinstance(obj, StreamingJSONObject):
-        return {k: _to_dict(v) for k, v in obj.items()}
-    if isinstance(obj, StreamingJSONList):
-        return [_to_dict(v) for v in obj]
-    return obj
-
-
 class StreamJsonReader(JsonReader):
     def __init__(
         self, path: str, subset: str, rootpath: str, images_dir: str, pcd_dir: str
@@ -325,7 +317,7 @@ class StreamJsonReader(JsonReader):
 
             length = 0
             for item in items:
-                item_desc = _to_dict(item)
+                item_desc = to_dict_from_streaming_json(item)
                 length += 1
                 yield self._parse_item(item_desc)
 
@@ -348,7 +340,7 @@ class StreamJsonReader(JsonReader):
             data = json_stream.load(fp)
             infos = data.get("infos", {})
             if isinstance(infos, StreamingJSONObject):
-                infos = _to_dict(infos)
+                infos = to_dict_from_streaming_json(infos)
 
             return infos
 
@@ -358,7 +350,7 @@ class StreamJsonReader(JsonReader):
             data = json_stream.load(fp)
             categories = data.get("categories", {})
             if isinstance(categories, StreamingJSONObject):
-                categories = _to_dict(categories)
+                categories = to_dict_from_streaming_json(categories)
 
             return JsonReader._load_categories({"categories": categories})
 

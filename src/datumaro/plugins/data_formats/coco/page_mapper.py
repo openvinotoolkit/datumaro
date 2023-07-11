@@ -1,8 +1,14 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable, Dict, Iterator, List, Tuple
 
 from datumaro.util import parse_json
+
+__all__ = ["COCOPageMapper"]
 
 
 @dataclass
@@ -78,6 +84,13 @@ class FileReaderWithCache:
 
 
 class COCOPageMapper:
+    """Construct page maps for items and annotations from the JSON file,
+    which are used for the stream importer.
+
+    It also provides __iter__() to produce item and annotation dictionaries
+    in stream manner after constructing the page map.
+    """
+
     _n_chars = 1024 * 1024 * 16  # 16MB
     cnt = 0
 
@@ -184,7 +197,7 @@ class COCOPageMapper:
 
         if not brace.get_started:
             raise ValueError(f"Cannot find the list from the section={section}.")
-        if curly.buffer != "":
+        if curly.buffer.replace("\n", "").replace("\t", "").replace(" ", "") != "":
             raise ValueError(
                 f"The input has a dictionary with no terminating curly braces. Remaining buffer={curly.buffer}"
             )
@@ -231,7 +244,7 @@ class COCOPageMapper:
             curr_pt = item_page.ann_last_pt
 
             to_read = []
-            while curr_pt > 0:
+            while curr_pt >= 0:
                 ann_offset = self.ann_page_map.offsets[curr_pt]
                 ann_size = self.ann_page_map.sizes[curr_pt]
                 curr_pt = self.ann_page_map.prev_pts[curr_pt]
@@ -245,3 +258,6 @@ class COCOPageMapper:
             yield item_dict, anns_dict
 
         reader.close()
+
+    def __len__(self) -> int:
+        return len(self.item_page_map)
