@@ -484,6 +484,12 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.tabular.TabularDataBase",
+    "plugin_name": "tabular",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.cityscapes.CityscapesImporter",
     "plugin_name": "cityscapes",
     "plugin_type": "Importer",
@@ -988,6 +994,12 @@
   {
     "import_path": "datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasPanopticImporter",
     "plugin_name": "mapillary_vistas_panoptic",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.tabular.TabularDataImporter",
+    "plugin_name": "tabular",
     "plugin_type": "Importer",
     "extra_deps": []
   },
