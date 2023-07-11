@@ -5,6 +5,7 @@
 import logging
 import os
 import os.path as osp
+import platform
 from contextlib import suppress
 from unittest import TestCase, mock
 
@@ -228,6 +229,10 @@ class DefinitionsTest:
         yield dst
         os.chmod(dst, 0o755)
 
+    @pytest.mark.skipif(
+        platform.system() == "Windows",
+        reason="os.chmod() cannot be used for Windows.",
+    )
     def test_get_datumaro_cache_dir(
         self, fxt_writable_path: str, fxt_non_writable_path: str, caplog: pytest.LogCaptureFixture
     ):
