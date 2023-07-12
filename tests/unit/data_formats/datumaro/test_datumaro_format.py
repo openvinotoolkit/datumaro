@@ -43,6 +43,7 @@ class DatumaroFormatTest:
         target_dataset=None,
         importer_args=None,
         compare=compare_datasets_strict,
+        stream=False,
         **kwargs,
     ):
         return check_save_and_load(
@@ -55,6 +56,7 @@ class DatumaroFormatTest:
             importer_args=importer_args,
             compare=compare,
             move_save_dir=True,
+            stream=stream,
             **kwargs,
         )
 
@@ -106,6 +108,7 @@ class DatumaroFormatTest:
             ),
         ],
     )
+    @pytest.mark.parametrize("stream", [True, False])
     def test_can_save_and_load(
         self,
         fxt_dataset,
@@ -114,9 +117,17 @@ class DatumaroFormatTest:
         test_dir,
         fxt_import_kwargs,
         fxt_export_kwargs,
+        stream,
         helper_tc,
         request,
     ):
+        if stream and type(self) != DatumaroFormatTest:
+            # TODO: Remove this skip in the future
+            pytest.skip(
+                "stream=True is only available for DatumaroFormatTest for now "
+                "(It is impossible for test_datumaro_binary_format.py)."
+            )
+
         fxt_dataset = request.getfixturevalue(fxt_dataset)
         self._test_save_and_load(
             helper_tc,
@@ -126,6 +137,7 @@ class DatumaroFormatTest:
             compare=compare,
             require_media=require_media,
             importer_args=fxt_import_kwargs,
+            stream=stream,
         )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -175,9 +187,9 @@ class DatumaroFormatTest:
     def test_inplace_save_writes_only_updated_data_with_direct_changes(self, test_dir, helper_tc):
         expected = Dataset.from_iterable(
             [
-                DatasetItem(1, subset="a"),
+                DatasetItem(1, subset="a", media=Image.from_numpy(data=np.zeros((3, 2, 3)))),
                 DatasetItem(2, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
-                DatasetItem(2, subset="b"),
+                DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
             ]
         )
 
@@ -185,9 +197,9 @@ class DatumaroFormatTest:
         dataset = Dataset.from_iterable(
             [
                 # modified subset
-                DatasetItem(1, subset="a"),
+                DatasetItem(1, subset="a", media=Image.from_numpy(data=np.zeros((3, 2, 3)))),
                 # unmodified subset
-                DatasetItem(2, subset="b"),
+                DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 # removed subset
                 DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
             ]
@@ -202,7 +214,9 @@ class DatumaroFormatTest:
             {f"a{self.ann_ext}", f"b{self.ann_ext}"},
             set(os.listdir(osp.join(test_dir, "annotations"))),
         )
-        helper_tc.assertEqual({"2.jpg"}, set(os.listdir(osp.join(test_dir, "images", "a"))))
+        helper_tc.assertEqual(
+            {"1.jpg", "2.jpg"}, set(os.listdir(osp.join(test_dir, "images", "a")))
+        )
         compare_datasets(
             helper_tc,
             expected,

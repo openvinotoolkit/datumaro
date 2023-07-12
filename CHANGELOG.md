@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrate DVC v3.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1072>)
 - Stream dataset import/export
-  (<https://github.com/openvinotoolkit/datumaro/pull/1077>, <https://github.com/openvinotoolkit/datumaro/pull/1081>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1077>, <https://github.com/openvinotoolkit/datumaro/pull/1081>, <https://github.com/openvinotoolkit/datumaro/pull/1082>)
 - Support mask annotations for CVAT data format
   (<https://github.com/openvinotoolkit/datumaro/pull/1078>)
 

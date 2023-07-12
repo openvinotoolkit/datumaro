@@ -798,6 +798,8 @@ class Dataset(IDataset):
 
 
 class StreamDataset(Dataset):
+    _stream = True
+
     def __init__(
         self,
         source: Optional[IDataset] = None,

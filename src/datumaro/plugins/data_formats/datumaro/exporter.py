@@ -48,6 +48,7 @@ class _SubsetWriter:
 
         self._data = {
             "dm_format_version": DATUMARO_FORMAT_VERSION,
+            "media_type": context._extractor.media_type()._type,
             "infos": {},
             "categories": {},
             "items": [],

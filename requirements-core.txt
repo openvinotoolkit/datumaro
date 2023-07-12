@@ -57,3 +57,6 @@ tritonclient[all]
 
 # prune
 scikit-learn
+
+# Stream JSON parser
+json-stream

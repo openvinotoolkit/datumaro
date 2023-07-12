@@ -124,6 +124,7 @@ def fxt_test_datumaro_format_dataset():
             ),
             DatasetItem(
                 id=21,
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
                 subset="train",
                 annotations=[
                     Caption("test"),
@@ -133,6 +134,7 @@ def fxt_test_datumaro_format_dataset():
             ),
             DatasetItem(
                 id=2,
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
                 subset="val",
                 annotations=[
                     PolyLine([1, 2, 3, 4, 5, 6, 7, 8], id=11, z_order=1),
@@ -141,6 +143,7 @@ def fxt_test_datumaro_format_dataset():
             ),
             DatasetItem(
                 id=1,
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
                 subset="test",
                 annotations=[
                     Cuboid3d(
@@ -154,9 +157,15 @@ def fxt_test_datumaro_format_dataset():
                     )
                 ],
             ),
-            DatasetItem(id=42, subset="test", attributes={"a1": 5, "a2": "42"}),
             DatasetItem(
                 id=42,
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                subset="test",
+                attributes={"a1": 5, "a2": "42"},
+            ),
+            DatasetItem(
+                id=42,
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
                 # id and group integer value can be higher than 32bits limits (COCO instances).
                 annotations=[
                     Mask(
@@ -169,7 +178,10 @@ def fxt_test_datumaro_format_dataset():
                     ),
                 ],
             ),
-            DatasetItem(id=43, media=Image.from_file(path="1/b/c.qq", size=(2, 4))),
+            DatasetItem(
+                id=43,
+                media=Image.from_file(path="1/b/c.qq", size=(2, 4)),
+            ),
         ],
         categories={
             AnnotationType.label: label_categories,
