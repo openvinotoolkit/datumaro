@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pytest
