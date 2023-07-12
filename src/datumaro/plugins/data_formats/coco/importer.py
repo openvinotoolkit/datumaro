@@ -5,8 +5,9 @@
 import logging as log
 import os.path as osp
 from glob import glob
+from typing import Type
 
-from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
+from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, ExtractorMerger
 from datumaro.components.errors import DatasetNotFoundError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
@@ -158,6 +159,9 @@ class CocoImporter(Importer):
     @property
     def can_stream(self) -> bool:
         return True
+
+    def get_extractor_merger(self) -> Type[ExtractorMerger]:
+        return ExtractorMerger
 
 
 class CocoImageInfoImporter(CocoImporter):

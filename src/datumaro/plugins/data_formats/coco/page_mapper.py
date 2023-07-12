@@ -6,9 +6,12 @@ import os
 import struct
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Callable, Dict, Iterator, List, Tuple
+from typing import Any, Callable, Dict, Iterator, List, Tuple
 
-from datumaro.util import parse_json
+import json_stream
+
+from datumaro.errors import DatasetImportError
+from datumaro.util import parse_json, to_dict_from_streaming_json
 
 __all__ = ["COCOPageMapper"]
 
@@ -81,10 +84,20 @@ class BraceStatus:
 class COCOSection(Enum):
     IMAGES = b'"images"'
     ANNOTATIONS = b'"annotations"'
+    CATEGORIES = b'"categories"'
+
+    @property
+    def is_necessary(self) -> bool:
+        """Flat to indicate whether the section is necessary or not"""
+        if self in {COCOSection.IMAGES, COCOSection.ANNOTATIONS}:
+            return True
+
+        return False
 
 
 class FileReaderWithCache:
-    _n_chars = 1024 * 1024 * 16  # 16MB
+    # _n_chars = 1024 * 1024 * 16  # 16MB
+    _n_chars = 1024 * 64  # 64KB
 
     def __init__(self, path: str):
         self.fp = open(path, "rb")
@@ -118,14 +131,15 @@ class COCOPageMapper:
     in stream manner after constructing the page map.
     """
 
-    _n_chars = 1024 * 1024 * 16  # 16MB
+    # _n_chars = 1024 * 1024 * 16  # 16MB
+    _n_chars = 1024 * 64  # 64KB
     cnt = 0
 
     def __init__(self, path: str):
         self.path = path
         self.section_offsets = {
             section: self._find_section_offset(section)
-            for section in [COCOSection.IMAGES, COCOSection.ANNOTATIONS]
+            for section in [COCOSection.IMAGES, COCOSection.ANNOTATIONS, COCOSection.CATEGORIES]
         }
 
         self.item_page_map = {}
@@ -134,9 +148,37 @@ class COCOPageMapper:
         self._create_page_map(COCOSection.IMAGES, self._flush_item)
         self._create_page_map(COCOSection.ANNOTATIONS, self._flush_ann)
 
+    def stream_parse_categories_data(self) -> Dict[str, Any]:
+        """Parse "categories" section from the given JSON file using the stream json parser"""
+        section = COCOSection.CATEGORIES
+        offset = self.section_offsets[section]
+        if offset < 0:
+            return {}
+
+        with open(self.path, "rb") as fp:
+
+            def _gen():
+                fp.seek(offset)
+                not_started = True
+                while out := fp.read():
+                    # This is because we have to put "{" in front of '"categories": ... }'
+                    # to make the dictionary parsed properly as '{"categories": ... }'
+                    if not_started:
+                        not_started = False
+                        yield b"{" + out
+                    yield out
+
+            data = json_stream.load(_gen(), persistent=False)
+            categories = data.get("categories", None)
+
+            if categories is None:
+                raise DatasetImportError('Cannot parse "categories" section.')
+
+        return to_dict_from_streaming_json(categories)
+
     @staticmethod
     def _gen_char_and_cursor(fp, n_chars: int = 65536) -> Iterator[Tuple[bytes, int]]:
-        while (out := fp.read(n_chars)) != "":
+        while out := fp.read(n_chars):
             cursor = fp.tell() - len(out)
             for idx, (c,) in enumerate(struct.iter_unpack("c", out)):
                 yield c, cursor + idx
@@ -146,8 +188,9 @@ class COCOPageMapper:
         len_pattern = len(pattern)
         dst = -1
         buffer = b""
+
         with open(self.path, "rb") as fp:
-            while (out_bytes := fp.read(self._n_chars)) != "":
+            while out_bytes := fp.read(self._n_chars):
                 cursor = fp.tell()
 
                 buffer = buffer + out_bytes
@@ -159,8 +202,10 @@ class COCOPageMapper:
 
                 buffer = buffer[-len_pattern:]
 
-        if dst < 0:
-            raise RuntimeError()
+        if dst < 0 and section.is_necessary:
+            raise DatasetImportError(
+                f"section={section} is necessary, but not in the input JSON file."
+            )
 
         return dst
 
@@ -203,7 +248,7 @@ class COCOPageMapper:
         with open(self.path, "rb") as fp:
             fp.seek(section_offset, 0)
 
-            for c, cursor in self._gen_char_and_cursor(fp):
+            for c, cursor in self._gen_char_and_cursor(fp, self._n_chars):
                 # Continue to the root brace
                 if not braket.get_started and c != b"[":
                     continue
@@ -262,10 +307,16 @@ class COCOPageMapper:
             brace.buffer += c
 
     def __iter__(self) -> Iterator[Tuple[Dict, Dict]]:
-        reader = FileReaderWithCache(self.path)
+        # Since the item and annotations are in different sections,
+        # we have to maintain caches for both.
+        # If we use a single `FileReaderWithCache`, the caching will be useless
+        # because it reads the file and initialize the cache everytime,
+        # going back and forth between the item and annotation sections.
+        item_reader = FileReaderWithCache(self.path)
+        anns_reader = FileReaderWithCache(self.path)
 
         for item_page in self.item_page_map.values():
-            data = reader.read(item_page.offset, item_page.size)
+            data = item_reader.read(item_page.offset, item_page.size)
             item_dict = parse_json(data)
             anns_dict = []
 
@@ -279,13 +330,14 @@ class COCOPageMapper:
                 to_read += [(ann_offset, ann_size)]
 
             for ann_offset, ann_size in reversed(to_read):
-                data = reader.read(ann_offset, ann_size)
+                data = anns_reader.read(ann_offset, ann_size)
                 ann_dict = parse_json(data)
                 anns_dict.append(ann_dict)
 
             yield item_dict, anns_dict
 
-        reader.close()
+        item_reader.close()
+        anns_reader.close()
 
     def __len__(self) -> int:
         return len(self.item_page_map)

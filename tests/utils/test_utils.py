@@ -420,13 +420,8 @@ def mock_tfds_data(example=None, subsets=("train",)):
             yield
 
 
-def check_is_stream(dataset: IDataset):
-    if type(dataset) == Dataset:
-        assert dataset.is_stream == False
-    elif type(dataset) == StreamDataset:
-        assert dataset.is_stream == True
-    else:
-        raise ValueError(type(dataset))
+def check_is_stream(dataset: IDataset, stream: bool):
+    assert dataset.is_stream == stream
 
 
 class TestCaseHelper:

@@ -8,7 +8,6 @@ import os.path as osp
 from inspect import isclass
 from typing import Any, Dict, Iterator, Optional, Tuple, Type, TypeVar, Union, overload
 
-import json_stream
 import pycocotools.mask as mask_utils
 from attrs import define
 
@@ -35,7 +34,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
-from datumaro.util import NOTSET, parse_json_file, take_by, to_dict_from_streaming_json
+from datumaro.util import NOTSET, parse_json_file, take_by
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -146,30 +145,24 @@ class _CocoBase(SubsetBase):
 
             del json_data
         else:
-            categories_data = self.stream_parse_categories_data(path)
+            self._page_mapper = COCOPageMapper(path)
+
+            categories_data = self._page_mapper.stream_parse_categories_data()
 
             self._load_categories(
                 {"categories": categories_data},
                 keep_original_ids=keep_original_category_ids,
             )
-            self._page_mapper = COCOPageMapper(path)
+
             self._length = None
-
-    def stream_parse_categories_data(self, path: str) -> Dict[str, Any]:
-        """Parse "categories" section from the given JSON file using the stream json parser"""
-        with open(path, "r", encoding="utf-8") as fp:
-            data = json_stream.load(fp)
-            categories = data.get("categories", None)
-
-            if categories is None:
-                raise DatasetImportError('Annotation JSON file should have "categories" entity.')
-
-            return to_dict_from_streaming_json(categories)
 
     def __len__(self) -> int:
         if self.is_stream:
             if self._length is None:
-                self._length = sum(1 for _ in self)
+                # Before we actually iterate over the items, we use the length of item page map.
+                # It can be different with the actual length,
+                # because there is a possiblity that an item cannot be parsed properly.
+                return len(self._page_mapper)
             return self._length
         else:
             return len(self._items)
@@ -265,6 +258,8 @@ class _CocoBase(SubsetBase):
 
     def _stream_items(self) -> Iterator[DatasetItem]:
         pbars = self._ctx.progress_reporter
+        length = 0
+
         for img_info, ann_infos in pbars.iter(
             self._page_mapper,
             desc=f"Parsing image info in '{osp.basename(self._path)}'",
@@ -279,6 +274,9 @@ class _CocoBase(SubsetBase):
                 self._parse_anns(img_info, ann_info, item)
 
             yield item
+            length += 1
+
+        self._length = length
 
     def _parse_anns(self, img_info, ann_info, item):
         if self._task is not CocoTask.panoptic:
@@ -299,6 +297,7 @@ class _CocoBase(SubsetBase):
         for img_info in pbars[0].iter(
             _gen_ann(img_lists),
             desc=f"Parsing image info in '{osp.basename(self._path)}'",
+            total=len(img_lists),
         ):
             parsed = self._parse_item(img_info)
             if parsed is None:
@@ -315,6 +314,7 @@ class _CocoBase(SubsetBase):
         for ann_info in pbars[1].iter(
             _gen_ann(ann_lists),
             desc=f"Parsing annotations in '{osp.basename(self._path)}'",
+            total=len(ann_lists),
         ):
             try:
                 img_id = self._parse_field(ann_info, "image_id", int)
