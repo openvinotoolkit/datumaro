@@ -1226,7 +1226,7 @@ class Table(MediaElement[pd.DataFrame]):
         assert self.__class__ != Table, (
             f"Directly initalizing {self.__class__.__name__} is not supported. "
             f"Please use one of fractory functions ({self.__class__.__name__}.from_csv(), "
-            f"{self.__class__.__name__}.from_dataframe())."
+            f"{self.__class__.__name__}.from_dataframe(), or ({self.__class__.__name__}.from_list())."
         )
         super().__init__(*args, **kwargs)
         self._shape: Tuple[int, int] = (0, 0)
@@ -1245,6 +1245,16 @@ class Table(MediaElement[pd.DataFrame]):
     ) -> Type[Table]:
         """Returns Table instance creating from a pandas DataFrame."""
         return TableFromDataFrame(data, *args, **kwargs)
+
+    @classmethod
+    def from_list(
+        cls,
+        data: List[Dict[str, TableDtype]],
+        *args,
+        **kwargs,
+    ) -> Type[Table]:
+        """Returns Table instance creating from a list of dicts."""
+        return TableFromListOfDict(data, *args, **kwargs)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, __class__):
@@ -1283,7 +1293,7 @@ class Table(MediaElement[pd.DataFrame]):
     def dtype(self, column: str) -> Optional[Type[TableDtype]]:
         """Returns native python type for a given column"""
         numpy_type = self.data.dtypes[column]
-        if numpy_type == np.object:
+        if numpy_type == object:
             return str
         else:
             return type(np.zeros(1, numpy_type).tolist()[0])
@@ -1367,6 +1377,17 @@ class TableFromDataFrame(FromDataMixin, Table):
         """Table data in pandas DataFrame format"""
         data: pd.DataFrame = super().data
         return data
+
+
+class TableFromListOfDict(TableFromDataFrame):
+    def __init__(
+        self,
+        data: List[Dict[str, TableDtype]],
+        *args,
+        **kwargs,
+    ):
+        df = pd.DataFrame(data)
+        super().__init__(data=df, *args, **kwargs)
 
 
 class TableRow(MediaElement):

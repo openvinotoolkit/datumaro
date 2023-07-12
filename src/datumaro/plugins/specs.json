@@ -1381,6 +1381,12 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.tabular.TabularDataExporter",
+    "plugin_name": "tabular",
+    "plugin_type": "Exporter",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.missing_annotation_detection.MissingAnnotationDetection",
     "plugin_name": "missing_annotation_detection",
     "plugin_type": "Transform",

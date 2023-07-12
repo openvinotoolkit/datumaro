@@ -1,3 +1,5 @@
+from unittest import TestCase
+
 import pytest
 
 from datumaro.components.annotation import AnnotationType, TabularCategories
@@ -7,6 +9,7 @@ from datumaro.plugins.data_formats.tabular import *
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import TestDir, compare_datasets
 
 
 @pytest.fixture()
@@ -15,20 +18,26 @@ def fxt_tabular_root():
 
 
 @pytest.fixture()
-def fxt_tabular_buddy(fxt_tabular_root):
-    yield osp.join(fxt_tabular_root, "adopt-a-buddy")
+def txf_electricity(fxt_tabular_root):
+    path = osp.join(fxt_tabular_root, "electricity.csv")
+    yield Dataset.import_from(path, "tabular")
 
 
 @pytest.fixture()
-def fxt_tabular_electricity(fxt_tabular_root):
-    yield osp.join(fxt_tabular_root, "electricity.csv")
+def fxt_buddy_target():
+    yield ["breed_category", "pet_category"]
+
+
+@pytest.fixture()
+def fxt_buddy(fxt_tabular_root, fxt_buddy_target):
+    path = osp.join(fxt_tabular_root, "adopt-a-buddy")
+    yield Dataset.import_from(path, "tabular", target=fxt_buddy_target)
 
 
 class TabularImporterTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_tabular_file(self, fxt_tabular_electricity: str) -> None:
-        dataset = Dataset.import_from(fxt_tabular_electricity, "tabular")
-
+    def test_can_import_tabular_file(self, txf_electricity) -> None:
+        dataset: Type[Dataset] = txf_electricity
         expected_categories = {
             AnnotationType.tabular: TabularCategories.from_iterable(
                 [("class", str, {"UP", "DOWN"})]
@@ -46,11 +55,8 @@ class TabularImporterTest:
             assert item.media.data()["class"] == item.annotations[0].values["class"]
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_tabular_folder(self, fxt_tabular_buddy: str) -> None:
-        dataset = Dataset.import_from(
-            fxt_tabular_buddy, "tabular", target=["breed_category", "pet_category"]
-        )
-
+    def test_can_import_tabular_folder(self, fxt_buddy) -> None:
+        dataset: Type[Dataset] = fxt_buddy
         expected_categories = {
             AnnotationType.tabular: TabularCategories.from_iterable(
                 [("breed_category", float), ("pet_category", int)]
@@ -78,6 +84,23 @@ class TabularImporterTest:
             assert len(item.annotations) == 0  # buddy dataset has no annotations in the test set.
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect_tabular(self, fxt_tabular_buddy: str) -> None:
-        detected_formats = Environment().detect_dataset(fxt_tabular_buddy)
+    def test_can_detect_tabular(self, fxt_tabular_root: str) -> None:
+        detected_formats = Environment().detect_dataset(fxt_tabular_root)
         assert TabularDataImporter.NAME in detected_formats
+        with TestDir() as test_dir:
+            detected_formats = Environment().detect_dataset(test_dir)
+            assert TabularDataImporter.NAME not in detected_formats
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize(
+        "fxt,target", [("txf_electricity", None), ("fxt_buddy", "fxt_buddy_target")]
+    )
+    def test_can_export_tabular(self, fxt: str, target, request) -> None:
+        dataset: Type[Dataset] = request.getfixturevalue(fxt)
+        if isinstance(target, str):
+            target = request.getfixturevalue(target)
+
+        with TestDir() as test_dir:
+            dataset.export(test_dir, "tabular")
+            back_dataset = Dataset.import_from(test_dir, "tabular", target=target)
+            compare_datasets(TestCase(), dataset, back_dataset)

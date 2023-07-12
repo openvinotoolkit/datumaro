@@ -3,11 +3,14 @@
 # SPDX-License-Identifier: MIT
 
 import errno
+import os
 import os.path as osp
 from typing import Dict, List, Optional, Tuple, Type, Union
 
 from datumaro.components.annotation import AnnotationType, Categories, Tabular, TabularCategories
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
+from datumaro.components.errors import MediaTypeError
+from datumaro.components.exporter import Exporter
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Table, TableDtype, TableRow
 from datumaro.util.os_util import find_files
@@ -175,3 +178,31 @@ class TabularDataImporter(Importer):
         else:
             for fname in find_files(path, TABULAR_EXTENSIONS):  # find 1 depth only.
                 return [{"url": path, "format": TabularDataBase.NAME}]
+
+
+class TabularDataExporter(Exporter):
+    NAME = "tabular"
+    EXPORT_EXT = ".csv"
+    DEFAULT_IMAGE_EXT = ".jpg"  # just to avoid assert error.
+
+    def _apply_impl(self):
+        extractor = self._extractor
+
+        if extractor.media_type() and not issubclass(extractor.media_type(), TableRow):
+            raise MediaTypeError("Media type is not a table.")
+
+        os.makedirs(self._save_dir, exist_ok=True)
+
+        for sname in extractor.subsets():
+            subset = extractor.get_subset(sname)
+            path = osp.join(self._save_dir, sname + self.EXPORT_EXT)
+            list_of_dicts: List[Dict[str, TableDtype]] = list()
+            for item in subset:
+                dicts = item.media.data()
+                for ann in item.annotations:
+                    if isinstance(ann, Tabular):
+                        dicts.update(ann.values)  # update value
+                list_of_dicts.append(dicts)
+
+            table = Table.from_list(list_of_dicts)
+            table.save(path)
