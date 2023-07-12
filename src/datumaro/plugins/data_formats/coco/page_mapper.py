@@ -119,7 +119,7 @@ class COCOPageMapper:
         len_pattern = len(pattern)
         dst = -1
         buffer = ""
-        with open(self.path, "r") as fp:
+        with open(self.path, "r", encoding="utf-8") as fp:
             while (out := fp.read(self._n_chars)) != "":
                 cursor = fp.tell()
 
@@ -173,7 +173,7 @@ class COCOPageMapper:
         curly = CurlyStatus(flush=False, level=0, buffer="", start=-1, end=-1)
 
         cnt = 0
-        with open(self.path, "r") as fp:
+        with open(self.path, "r", encoding="utf-8") as fp:
             fp.seek(section_offset, 0)
 
             gen_char_and_cursor = self.gen_char_and_cursor(fp)
