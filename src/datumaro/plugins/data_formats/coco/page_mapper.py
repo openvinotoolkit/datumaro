@@ -28,14 +28,39 @@ class ItemPage:
 
 
 @dataclass
-class BraceStatus:
+class BracketStatus:
+    """Struct to manage status for the brackets ([, ]) during constructing a page map
+
+    If `flush` is True, it means that we extracts all items from the section.
+
+    "section": [        <- BracketStatus.flush = False and BracketStatus.level = 1
+        item_0,
+        item_1,
+        ...
+        item_n,
+    ]                   <- BracketStatus.flush = True and BracketStatus.level = 0
+    """
+
     flush: bool = False
     level: int = 0
     get_started: bool = False
 
 
 @dataclass
-class CurlyStatus:
+class BraceStatus:
+    """Struct to manage status for the braces ({, }) during constructing a page map
+
+    The braces set the bound of the items to be extracted.
+    If `flush` is True, it flushes the bytes in its `buffer` which corresponds to the item.
+
+    {                               <- BraceStatus.flush = False and BraceStatus.level = 1
+        "attr1": 0,
+        "attr2": {                  <- BraceStatus.level = 2
+            "nested_attr": 1
+        }                           <- BraceStatus.level = 1
+    }                               <- BraceStatus.flush = True and BraceStatus.level = 0
+    """
+
     flush: bool = False
     level: int = 0
     buffer: bytes = b""
@@ -139,17 +164,17 @@ class COCOPageMapper:
 
         return dst
 
-    def _flush_item(self, curly: CurlyStatus):
-        data = curly.to_dict()
+    def _flush_item(self, brace: BraceStatus):
+        data = brace.to_dict()
         img_id = data.get("id")
 
         if img_id is None:
             raise ValueError("Cannot find image id.")
 
-        self.item_page_map[img_id] = ItemPage(curly.start, curly.end - curly.start, -1)
+        self.item_page_map[img_id] = ItemPage(brace.start, brace.end - brace.start, -1)
 
-    def _flush_ann(self, curly: CurlyStatus):
-        data = curly.to_dict()
+    def _flush_ann(self, brace: BraceStatus):
+        data = brace.to_dict()
 
         img_id = data.get("image_id")
         if img_id is None:
@@ -157,8 +182,8 @@ class COCOPageMapper:
         if img_id not in self.item_page_map:
             return
 
-        self.ann_page_map.offsets.append(curly.start)
-        self.ann_page_map.sizes.append(curly.end - curly.start)
+        self.ann_page_map.offsets.append(brace.start)
+        self.ann_page_map.sizes.append(brace.end - brace.start)
 
         item_page = self.item_page_map[img_id]
         curr_pt = len(self.ann_page_map.prev_pts)
@@ -168,11 +193,11 @@ class COCOPageMapper:
         item_page.ann_last_pt = curr_pt
 
     def _create_page_map(
-        self, section: COCOSection, flush_callback: Callable[[CurlyStatus], None]
+        self, section: COCOSection, flush_callback: Callable[[BraceStatus], None]
     ) -> None:
         section_offset = self.section_offsets[section]
+        braket = BracketStatus()
         brace = BraceStatus()
-        curly = CurlyStatus()
 
         cnt = 0
         with open(self.path, "rb") as fp:
@@ -180,61 +205,61 @@ class COCOPageMapper:
 
             for c, cursor in self._gen_char_and_cursor(fp):
                 # Continue to the root brace
-                if not brace.get_started and c != b"[":
+                if not braket.get_started and c != b"[":
                     continue
 
                 # Start the root brace
-                brace.get_started = True
+                braket.get_started = True
 
-                self.update(brace, curly, c, cursor)
+                self.update(braket, brace, c, cursor)
 
-                if curly.flush:
-                    flush_callback(curly)
-                    curly.reset()
-                    cnt += 1
                 if brace.flush:
+                    flush_callback(brace)
+                    brace.reset()
+                    cnt += 1
+                if braket.flush:
                     break
 
-        if not brace.get_started:
+        if not braket.get_started:
             raise ValueError(f"Cannot find the list from the section={section}.")
         if (
-            curly.buffer.decode("utf-8").replace(os.linesep, "").replace("\t", "").replace(" ", "")
+            brace.buffer.decode("utf-8").replace(os.linesep, "").replace("\t", "").replace(" ", "")
             != ""
         ):
             raise ValueError(
-                f"The input has a dictionary with no terminating curly braces. Remaining buffer={curly.buffer}"
+                f"The input has a dictionary with no terminating curly braces. Remaining buffer={brace.buffer}"
             )
 
     @staticmethod
-    def update(brace, curly, c, cursor):
+    def update(braket, brace, c, cursor):
         if c == b"[":
+            if braket.level == 0:
+                braket.flush = False
+            else:
+                brace.buffer += b"["
+            braket.level += 1
+        elif c == b"{":
             if brace.level == 0:
                 brace.flush = False
+                brace.buffer = b"{"
+                brace.start = cursor
             else:
-                curly.buffer += b"["
+                brace.buffer += b"{"
             brace.level += 1
-        elif c == b"{":
-            if curly.level == 0:
-                curly.flush = False
-                curly.buffer = b"{"
-                curly.start = cursor
-            else:
-                curly.buffer += b"{"
-            curly.level += 1
         elif c == b"}":
-            curly.level -= 1
-            curly.buffer += b"}"
-            if curly.level == 0:
-                curly.flush = True
-                curly.end = cursor + 1
-        elif c == b"]":
             brace.level -= 1
+            brace.buffer += b"}"
             if brace.level == 0:
                 brace.flush = True
+                brace.end = cursor + 1
+        elif c == b"]":
+            braket.level -= 1
+            if braket.level == 0:
+                braket.flush = True
             else:
-                curly.buffer += b"]"
+                brace.buffer += b"]"
         else:
-            curly.buffer += c
+            brace.buffer += c
 
     def __iter__(self) -> Iterator[Tuple[Dict, Dict]]:
         reader = FileReaderWithCache(self.path)
