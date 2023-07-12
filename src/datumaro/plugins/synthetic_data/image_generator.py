@@ -16,7 +16,7 @@ import numpy as np
 import requests
 
 from datumaro.components.generator import DatasetGenerator
-from datumaro.util.definitions import DATUMARO_CACHE_DIR
+from datumaro.util.definitions import get_datumaro_cache_dir
 from datumaro.util.image import save_image
 from datumaro.util.scope import on_error_do, on_exit_do, scope_add, scoped
 
@@ -39,7 +39,7 @@ class FractalImageGenerator(DatasetGenerator):
         output_dir: str,
         count: int,
         shape: Tuple[int, int],
-        model_path: str = DATUMARO_CACHE_DIR,
+        model_path: str = get_datumaro_cache_dir(),
     ) -> None:
         assert 0 < count, "Image count cannot be lesser than 1"
         self._count = count
