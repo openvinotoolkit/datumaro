@@ -31,7 +31,7 @@ class ItemPage:
 class BracketStatus:
     """Struct to manage status for the brackets ([, ]) during constructing a page map
 
-    If `flush` is True, it means that we extracts all items from the section.
+    If `flush` is True, it means that we have extracted all items from the section.
 
     "section": [        <- BracketStatus.flush = False and BracketStatus.level = 1
         item_0,
@@ -50,7 +50,7 @@ class BracketStatus:
 class BraceStatus:
     """Struct to manage status for the braces ({, }) during constructing a page map
 
-    The braces set the bound of the items to be extracted.
+    The braces set the bounds of the items to be extracted.
     If `flush` is True, it flushes the bytes in its `buffer` which corresponds to the item.
 
     {                               <- BraceStatus.flush = False and BraceStatus.level = 1
@@ -68,7 +68,7 @@ class BraceStatus:
     end: int = -1
 
     def reset(self):
-        self.flush = 0
+        self.flush = False
         self.level = 0
         self.buffer = b""
         self.start = -1
