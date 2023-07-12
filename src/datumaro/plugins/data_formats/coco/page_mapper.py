@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
+import struct
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable, Dict, Iterator, List, Tuple
@@ -36,14 +38,14 @@ class BraceStatus:
 class CurlyStatus:
     flush: bool = False
     level: int = 0
-    buffer: str = ""
+    buffer: bytes = b""
     start: int = -1
     end: int = -1
 
     def reset(self):
         self.flush = 0
         self.level = 0
-        self.buffer = ""
+        self.buffer = b""
         self.start = -1
         self.end = -1
 
@@ -52,15 +54,15 @@ class CurlyStatus:
 
 
 class COCOSection(Enum):
-    IMAGES = '"images"'
-    ANNOTATIONS = '"annotations"'
+    IMAGES = b'"images"'
+    ANNOTATIONS = b'"annotations"'
 
 
 class FileReaderWithCache:
     _n_chars = 1024 * 1024 * 16  # 16MB
 
     def __init__(self, path: str):
-        self.fp = open(path, "r")
+        self.fp = open(path, "rb")
         self.update_buffer(0, self._n_chars)
 
     def close(self):
@@ -97,33 +99,33 @@ class COCOPageMapper:
     def __init__(self, path: str):
         self.path = path
         self.section_offsets = {
-            section: self.find_section_offset(section)
+            section: self._find_section_offset(section)
             for section in [COCOSection.IMAGES, COCOSection.ANNOTATIONS]
         }
 
         self.item_page_map = {}
         self.ann_page_map = AnnotationPageMap()
 
-        self.create_page_map(COCOSection.IMAGES, self.flush_item)
-        self.create_page_map(COCOSection.ANNOTATIONS, self.flush_ann)
+        self._create_page_map(COCOSection.IMAGES, self._flush_item)
+        self._create_page_map(COCOSection.ANNOTATIONS, self._flush_ann)
 
     @staticmethod
-    def gen_char_and_cursor(fp, n_chars: int = 65536):
+    def _gen_char_and_cursor(fp, n_chars: int = 65536) -> Iterator[Tuple[bytes, int]]:
         while (out := fp.read(n_chars)) != "":
             cursor = fp.tell() - len(out)
-            for idx, c in enumerate(out):
+            for idx, (c,) in enumerate(struct.iter_unpack("c", out)):
                 yield c, cursor + idx
 
-    def find_section_offset(self, section: COCOSection) -> int:
+    def _find_section_offset(self, section: COCOSection) -> int:
         pattern = section.value
         len_pattern = len(pattern)
         dst = -1
-        buffer = ""
-        with open(self.path, "r", encoding="utf-8") as fp:
-            while (out := fp.read(self._n_chars)) != "":
+        buffer = b""
+        with open(self.path, "rb") as fp:
+            while (out_bytes := fp.read(self._n_chars)) != "":
                 cursor = fp.tell()
 
-                buffer = buffer + out
+                buffer = buffer + out_bytes
                 found = buffer.find(pattern)
 
                 if found >= 0:
@@ -137,7 +139,7 @@ class COCOPageMapper:
 
         return dst
 
-    def flush_item(self, curly: CurlyStatus):
+    def _flush_item(self, curly: CurlyStatus):
         data = curly.to_dict()
         img_id = data.get("id")
 
@@ -146,7 +148,7 @@ class COCOPageMapper:
 
         self.item_page_map[img_id] = ItemPage(curly.start, curly.end - curly.start, -1)
 
-    def flush_ann(self, curly: CurlyStatus):
+    def _flush_ann(self, curly: CurlyStatus):
         data = curly.to_dict()
 
         img_id = data.get("image_id")
@@ -165,22 +167,20 @@ class COCOPageMapper:
         self.ann_page_map.prev_pts.append(prev_pt)
         item_page.ann_last_pt = curr_pt
 
-    def create_page_map(
+    def _create_page_map(
         self, section: COCOSection, flush_callback: Callable[[CurlyStatus], None]
     ) -> None:
         section_offset = self.section_offsets[section]
-        brace = BraceStatus(flush=False, level=0, get_started=False)
-        curly = CurlyStatus(flush=False, level=0, buffer="", start=-1, end=-1)
+        brace = BraceStatus()
+        curly = CurlyStatus()
 
         cnt = 0
-        with open(self.path, "r", encoding="utf-8") as fp:
+        with open(self.path, "rb") as fp:
             fp.seek(section_offset, 0)
 
-            gen_char_and_cursor = self.gen_char_and_cursor(fp)
-
-            for c, cursor in gen_char_and_cursor:
+            for c, cursor in self._gen_char_and_cursor(fp):
                 # Continue to the root brace
-                if not brace.get_started and c != "[":
+                if not brace.get_started and c != b"[":
                     continue
 
                 # Start the root brace
@@ -197,39 +197,42 @@ class COCOPageMapper:
 
         if not brace.get_started:
             raise ValueError(f"Cannot find the list from the section={section}.")
-        if curly.buffer.replace("\n", "").replace("\t", "").replace(" ", "") != "":
+        if (
+            curly.buffer.decode("utf-8").replace(os.linesep, "").replace("\t", "").replace(" ", "")
+            != ""
+        ):
             raise ValueError(
                 f"The input has a dictionary with no terminating curly braces. Remaining buffer={curly.buffer}"
             )
 
     @staticmethod
     def update(brace, curly, c, cursor):
-        if c == "[":
+        if c == b"[":
             if brace.level == 0:
                 brace.flush = False
             else:
-                curly.buffer += "["
+                curly.buffer += b"["
             brace.level += 1
-        elif c == "{":
+        elif c == b"{":
             if curly.level == 0:
                 curly.flush = False
-                curly.buffer = "{"
+                curly.buffer = b"{"
                 curly.start = cursor
             else:
-                curly.buffer += "{"
+                curly.buffer += b"{"
             curly.level += 1
-        elif c == "}":
+        elif c == b"}":
             curly.level -= 1
-            curly.buffer += "}"
+            curly.buffer += b"}"
             if curly.level == 0:
                 curly.flush = True
                 curly.end = cursor + 1
-        elif c == "]":
+        elif c == b"]":
             brace.level -= 1
             if brace.level == 0:
                 brace.flush = True
             else:
-                curly.buffer += "]"
+                curly.buffer += b"]"
         else:
             curly.buffer += c
 
