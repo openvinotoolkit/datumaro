@@ -4,11 +4,10 @@
 
 import errno
 import os.path as osp
-from typing import Dict, List, Optional, Set, Tuple, Type, Union
+from typing import Dict, List, Optional, Tuple, Type, Union
 
 from datumaro.components.annotation import AnnotationType, Categories, Tabular, TabularCategories
-from datumaro.components.dataset_base import DatasetItem, SubsetBase
-from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
+from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Table, TableDtype, TableRow
 from datumaro.util.os_util import find_files
@@ -19,56 +18,58 @@ TABULAR_EXTENSIONS = [
 ]
 
 
-class TabularDataBase(SubsetBase):
+class TabularDataBase(DatasetBase):
     NAME = "tabular"
     """
-    Compose a tabular dataset from a file.
+    Compose a tabular dataset.
     """
 
     def __init__(
         self,
         path: str,
         *,
-        subset: Optional[str] = None,
         target: Optional[Union[str, List[str]]] = None,
         dtype: Optional[Dict[str, Type[TableDtype]]] = None,
         ctx: Optional[ImportContext] = None,
     ) -> None:
         """
-        Read a tabular data file and compose dataset.
+        Read a tabular dataset.
 
         Args:
-            path (str) : Path to a tabular data file.
-            subset (optional, str) : Subset name for the dataset.
+            path (str) : Path to a tabular dataset. (csv file or folder contains csv files).
             target (optional, str or list) : Target column or list of target columns.
                 If this is not specified (None), the last column is regarded as a target column.
                 In case of a dataset with no targets, give an empty list as a parameter.
             dtype (optional, dict (str: str)) : Dictionay of column name -> type (str, int, or float).
                 This can be used when automatic type inferencing is failed.
         """
-        if not osp.isfile(path):
-            raise FileNotFoundError(errno.ENOENT, "Can't find CSV file", path)
+        paths: List[str] = list()
+        if osp.isfile(path):
+            paths.append(path)
+        else:
+            for path in find_files(path, TABULAR_EXTENSIONS):
+                paths.append(path)
 
-        if not subset:
-            subset = osp.splitext(osp.basename(path))[0]
+        if not paths:
+            raise FileNotFoundError(errno.ENOENT, "Can't find tabular files", path)
 
-        super().__init__(subset=subset, media_type=TableRow, ctx=ctx)
+        super().__init__(media_type=TableRow, ctx=ctx)
 
         self._infos = {"path": path}
-        self._items, self._categories = self._parse(path, target, dtype)
+        self._items, self._categories = self._parse(paths, target, dtype)
         self._length = len(self._items)
 
     def _parse(
         self,
-        path: str,
+        paths: List[str],
         target: Optional[Union[str, List[str]]] = None,
         dtype: Optional[Dict[str, Type[TableDtype]]] = None,
     ) -> Tuple[List[DatasetItem], Dict[AnnotationType, Categories]]:
         """
-        parse a csv file.
+        parse tabular files. Each file is regarded as a subset.
 
         Args:
-            path (str) : Path to a tabular data file.
+            paths (list(str)) : A list of paths to tabular data files(csv files).
             target (optional, str or list) : Target column or list of target columns.
                 If this is not specified (None), the last column is regarded as a target column.
                 In case of a dataset with no targets, give an empty list as a parameter.
@@ -83,46 +84,56 @@ class TabularDataBase(SubsetBase):
         items: List[DatasetItem] = list()
         categories: TabularCategories = TabularCategories()
 
-        # for path in paths:
-        table = Table.from_csv(path, dtype=dtype)
+        for path in paths:
+            table = Table.from_csv(path, dtype=dtype)
 
-        targets: List[str] = list()
-        if target is None:
-            targets.append(table.columns[-1])  # last column
-        elif isinstance(target, str):
-            if target in table.columns:  # add valid column name only
-                targets.append(target)
-        elif isinstance(target, list):  # add valid column names only
-            for t in target:
-                if t in table.columns:
-                    targets.append(t)
+            targets: List[str] = list()
+            if target is None:
+                targets.append(table.columns[-1])  # last column
+            elif isinstance(target, str):
+                if target in table.columns:  # add valid column name only
+                    targets.append(target)
+            elif isinstance(target, list):  # add valid column names only
+                for t in target:
+                    if t in table.columns:
+                        targets.append(t)
 
-        # set categories
-        for target in targets:
-            _, category = categories.find(target)
-            dtype = table.dtype(target)
-            if dtype == str:
-                labels = Set(table.features(target, unique=True))
-                if category is None:
-                    categories.add(target, dtype, labels)
-                else:  # update labels if they are different.
-                    category.labels.union(labels)
-            elif dtype in [int, float]:
-                if category is None:
-                    categories.add(target, dtype)
-            else:
-                raise TypeError(f"Unsupported type '{dtype}' for target column '{target}'.")
+            # set categories
+            for target in targets:
+                _, category = categories.find(target)
+                target_dtype = table.dtype(target)
+                if target_dtype == str:
+                    labels = set(table.features(target, unique=True))
+                    if category is None:
+                        categories.add(target, target_dtype, labels)
+                    else:  # update labels if they are different.
+                        category.labels.union(labels)
+                elif target_dtype in [int, float]:
+                    # 'int' can be categorical, but we don't know this unless user gives information.
+                    if category is None:
+                        categories.add(target, target_dtype)
+                else:
+                    raise TypeError(
+                        f"Unsupported type '{target_dtype}' for target column '{target}'."
+                    )
 
-        # load annotations
-        row: TableRow
-        for row in table:  # type: TableRow
-            values: Dict[str, Union[str, int, float]] = row.data(targets)
-            id = f"{row.index}@{self._subset}"
-            ann = Tabular(values=values)
-            item = DatasetItem(id=id, subset=self._subset, media=row, annotations=[ann])
-            items.append(item)
+            # load annotations
+            subset = osp.splitext(osp.basename(path))[0]
+            row: TableRow
+            for row in table:  # type: TableRow
+                id = f"{row.index}@{subset}"
+                if targets:
+                    values: Dict[str, TableDtype] = row.data(targets)
+                    ann = [Tabular(values=values)]
+                else:
+                    ann = None  # no annotation.
+                item = DatasetItem(id=id, subset=subset, media=row, annotations=ann)
+                items.append(item)
 
         return items, {AnnotationType.tabular: categories}
+
+    def categories(self):
+        return self._categories
 
     def __iter__(self):
         yield from self._items
@@ -154,17 +165,6 @@ class TabularDataImporter(Importer):
         return parser
 
     @classmethod
-    def detect(cls, context: FormatDetectionContext) -> Optional[FormatDetectionConfidence]:
-        try:
-            next(find_files(context.root_path, TABULAR_EXTENSIONS, recursive=True))
-            return FormatDetectionConfidence.LOW
-        except StopIteration:
-            context.fail(
-                "No tabular files found in '%s'. "
-                "Checked extensions: %s" % (context.root_path, ", ".join(TABULAR_EXTENSIONS))
-            )
-
-    @classmethod
     def find_sources(cls, path):
         if not osp.isdir(path):
             ext = osp.splitext(path)[1][1:]  # exclude "."
@@ -173,7 +173,5 @@ class TabularDataImporter(Importer):
             else:
                 return []
         else:
-            sources = []
-            for fname in find_files(path, TABULAR_EXTENSIONS, recursive=True):
-                sources.append({"url": fname, "format": TabularDataBase.NAME})
-            return sources
+            for fname in find_files(path, TABULAR_EXTENSIONS):  # find 1 depth only.
+                return [{"url": path, "format": TabularDataBase.NAME}]

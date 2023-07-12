@@ -1283,7 +1283,10 @@ class Table(MediaElement[pd.DataFrame]):
     def dtype(self, column: str) -> Optional[Type[TableDtype]]:
         """Returns native python type for a given column"""
         numpy_type = self.data.dtypes[column]
-        return type(np.zeros(1, numpy_type).tolist()[0])
+        if numpy_type == np.object:
+            return str
+        else:
+            return type(np.zeros(1, numpy_type).tolist()[0])
 
     def features(self, column: str, unique: Optional[bool] = False) -> List[TableDtype]:
         """
@@ -1385,8 +1388,11 @@ class TableRow(MediaElement):
     def index(self) -> int:
         return self._index
 
-    def data(self, targets: Optional[List[str]]) -> Dict:
+    def data(self, targets: Optional[List[str]] = None) -> Dict:
         row = self.table.data.iloc[self.index]
         if targets:
             row = row[targets]
         return row.to_dict()
+
+    def __repr__(self):
+        return f"TableRow(row_idx:{self.index}, data:{self.data()})"
