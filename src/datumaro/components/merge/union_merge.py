@@ -68,39 +68,21 @@ class UnionMerge(Merger):
 
     def _merge_label_categories(self, sources: Sequence[IDataset]) -> LabelCategories:
         dst_cat = LabelCategories()
-        dst_indices = {}
-        dst_labels = []
-
         for src_id, src_categories in enumerate(sources):
             src_cat = src_categories.get(AnnotationType.label)
             if src_cat is None:
                 continue
 
             for src_label in src_cat.items:
-                if src_label.name not in dst_labels:
+                src_idx = src_cat.find(src_label.name)[0]
+                dst_idx = dst_cat.find(src_label.name)[0]
+                if dst_idx is None:
                     dst_cat.add(src_label.name, src_label.parent, src_label.attributes)
-                    dst_labels.append(src_label.name)
+                    dst_idx = dst_cat.find(src_label.name)[0]
 
-                    if src_cat._indices[src_label.name] in list(dst_indices.values()):
-                        dst_indices[src_label.name] = max(dst_indices.values()) + 1
-                        if self._matching_table.get(src_id, None):
-                            self._matching_table[src_id].update(
-                                {src_cat._indices[src_label.name]: max(dst_indices.values())}
-                            )
-                        else:
-                            self._matching_table[src_id] = {
-                                src_cat._indices[src_label.name]: max(dst_indices.values())
-                            }
-                    else:
-                        dst_indices[src_label.name] = src_cat._indices[src_label.name]
+                if self._matching_table.get(src_id, None):
+                    self._matching_table[src_id].update({src_idx: dst_idx})
                 else:
-                    if self._matching_table.get(src_id, None):
-                        self._matching_table[src_id].update(
-                            {src_cat._indices[src_label.name]: dst_indices[src_label.name]}
-                        )
-                    else:
-                        self._matching_table[src_id] = {
-                            src_cat._indices[src_label.name]: dst_indices[src_label.name]
-                        }
+                    self._matching_table[src_id] = {src_idx: dst_idx}
 
         return dst_cat
