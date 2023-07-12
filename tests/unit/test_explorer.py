@@ -219,7 +219,7 @@ class ExplorerTest(TestCase):
             imported_dataset = Dataset.import_from(test_dir, "datumaro")
             explorer = Explorer(imported_dataset)
             results = explorer.explore_topk(
-                ["a photo of a upper white background", "a photo of a bottom black background"],
+                ["a photo of a upper white and bottom black background"],
                 topk=2,
             )
             self.assertEqual(results[0].subset, results[1].subset)

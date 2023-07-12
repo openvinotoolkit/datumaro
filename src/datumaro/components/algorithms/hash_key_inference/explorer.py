@@ -63,7 +63,7 @@ class Explorer(HashInference):
 
     def explore_topk(
         self,
-        query: Union[DatasetItem, str, List[DatasetItem], List[str]],
+        query: Union[DatasetItem, str, List[Union[DatasetItem, str]]],
         topk: Optional[int] = None,
     ):
         """
@@ -78,6 +78,7 @@ class Explorer(HashInference):
             topk_for_query = int(topk // len(query)) * 2 if not len(query) == 1 else topk
             query_hash_key_list = []
             result_list = []
+            logits_list = []
             for query_ in query:
                 if isinstance(query_, DatasetItem):
                     query_key = self._get_hash_key_from_item_query(query_)
@@ -97,8 +98,16 @@ class Explorer(HashInference):
                 ind = np.argsort(logits)
 
                 item_list = np.array(self._item_list)[ind]
-                result_list.extend(item_list[:topk_for_query].tolist())
-            return np.random.choice(result_list, topk)
+                result_list.append(item_list[:topk_for_query].tolist())
+                logits_list.append(logits[ind][:topk_for_query].tolist())
+
+            result_list = np.stack(result_list, axis=0)
+            logits_list = np.stack(logits_list, axis=0)
+
+            flattened_indices = np.argsort(logits_list.ravel())
+            sorted_list = result_list.ravel()[flattened_indices]
+
+            return sorted_list[:topk]
 
         if isinstance(query, DatasetItem):
             query_key = self._get_hash_key_from_item_query(query)
