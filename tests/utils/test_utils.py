@@ -326,7 +326,7 @@ def check_save_and_load(
             if not stream
             else StreamDataset.import_from(save_dir, importer, **importer_args)
         )
-        check_is_stream(parsed_dataset)
+        check_is_stream(parsed_dataset, stream)
 
         if post_processing:
             parsed_dataset = post_processing(parsed_dataset)

@@ -90,7 +90,7 @@ class CocoImporterTest:
         back_dataset = (
             Dataset.import_from(test_dir) if not stream else StreamDataset.import_from(test_dir)
         )
-        check_is_stream(back_dataset)
+        check_is_stream(back_dataset, stream)
         compare_datasets(helper_tc, dataset, back_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -263,7 +263,7 @@ class CocoImporterTest:
             else StreamDataset.import_from(dataset_dir, format)
         )
 
-        check_is_stream(imported_dataset)
+        check_is_stream(imported_dataset, stream)
         compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -321,7 +321,7 @@ class CocoImporterTest:
                 if not stream
                 else StreamDataset.import_from(dataset_dir, format)
             )
-            check_is_stream(imported_dataset)
+            check_is_stream(imported_dataset, stream)
             assert "Category id of '0' is reserved for no class" in strio.getvalue()
 
         item = next(iter(imported_dataset))
@@ -354,7 +354,7 @@ class CocoImporterTest:
             if not stream
             else StreamDataset.import_from(dataset_dir, format, keep_original_category_ids=True)
         )
-        check_is_stream(actual_dataset)
+        check_is_stream(actual_dataset, stream)
         compare_datasets(helper_tc, expected_dataset, actual_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -440,7 +440,7 @@ class CocoImporterTest:
             if not stream
             else StreamDataset.import_from(dataset_dir, format)
         )
-        check_is_stream(imported_dataset)
+        check_is_stream(imported_dataset, stream)
         compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -525,7 +525,7 @@ class CocoImporterTest:
             if not stream
             else StreamDataset.import_from(dataset_dir, format)
         )
-        check_is_stream(imported_dataset)
+        check_is_stream(imported_dataset, stream)
         compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -697,7 +697,7 @@ class CocoImporterTest:
             if not stream
             else StreamDataset.import_from(dataset_dir, format)
         )
-        check_is_stream(imported_dataset)
+        check_is_stream(imported_dataset, stream)
         compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -743,7 +743,7 @@ class CocoImporterTest:
             if not stream
             else StreamDataset.import_from(path, format, keep_original_category_ids=True)
         )
-        check_is_stream(actual_dataset)
+        check_is_stream(actual_dataset, stream)
 
         compare_datasets(helper_tc, expected_dataset, actual_dataset, require_media=True)
 
@@ -823,7 +823,7 @@ class CocoImporterTest:
             if not stream
             else StreamDataset.import_from(dataset_dir, format)
         )
-        check_is_stream(imported_dataset)
+        check_is_stream(imported_dataset, stream)
 
         compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
@@ -938,7 +938,7 @@ class CocoImporterTest:
             if not stream
             else StreamDataset.import_from(dataset_dir, format)
         )
-        check_is_stream(imported_dataset)
+        check_is_stream(imported_dataset, stream)
         compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -973,7 +973,7 @@ class CocoImporterTest:
             if not stream
             else StreamDataset.import_from(dataset_dir, format, keep_original_category_ids=True)
         )
-        check_is_stream(actual_dataset)
+        check_is_stream(actual_dataset, stream)
 
         compare_datasets(helper_tc, expected_dataset, actual_dataset, require_media=True)
 
@@ -1106,7 +1106,7 @@ class CocoImporterTest:
             if not stream
             else StreamDataset.import_from(dataset_dir, format)
         )
-        check_is_stream(imported_dataset)
+        check_is_stream(imported_dataset, stream)
         compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
