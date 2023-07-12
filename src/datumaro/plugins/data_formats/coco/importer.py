@@ -64,7 +64,7 @@ class CocoImporter(Importer):
                 with context.alternative():
                     context.require_file(f"annotations/{task.name}_*.json")
 
-    def __call__(self, path, **extra_params):
+    def __call__(self, path, stream: bool = False, **extra_params):
         subsets = self.find_sources(path)
 
         if len(subsets) == 0:
@@ -103,6 +103,9 @@ class CocoImporter(Importer):
                 options = dict(extra_params)
                 options["coco_importer_type"] = self._IMPORTER_TYPE
                 options["subset"] = subset
+
+                if stream:
+                    options["stream"] = True
 
                 sources.append(
                     {
@@ -151,6 +154,10 @@ class CocoImporter(Importer):
             subsets.setdefault(subset_name, {})[ann_type] = subset_path
 
         return subsets
+
+    @property
+    def can_stream(self) -> bool:
+        return True
 
 
 class CocoImageInfoImporter(CocoImporter):

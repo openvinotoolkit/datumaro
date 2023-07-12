@@ -2,12 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import Any, Dict, Optional
+
 import numpy as np
 import pytest
 
 from datumaro.components.annotation import Bbox, Mask, Polygon
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, StreamDataset
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.roboflow.importer import RoboflowCocoImporter
 
@@ -85,4 +88,18 @@ class CocoRoboflowTest(TestDataFormatBase):
                 ),
             ],
             categories=["a", "b", "c"],
+        )
+
+    @pytest.mark.parametrize("dataset_cls", [Dataset, StreamDataset])
+    def test_can_import(
+        self,
+        fxt_dataset_dir: str,
+        fxt_expected_dataset: Dataset,
+        fxt_import_kwargs: Dict[str, Any],
+        dataset_cls,
+        request: pytest.FixtureRequest,
+        importer: Optional[Importer] = None,
+    ):
+        return super().test_can_import(
+            fxt_dataset_dir, fxt_expected_dataset, fxt_import_kwargs, request, importer, dataset_cls
         )
