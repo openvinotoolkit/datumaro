@@ -29,6 +29,7 @@ from datumaro.components.annotations.merger import (
     MaskMerger,
     PointsMerger,
     PolygonMerger,
+    TabularMerger,
 )
 from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.dataset_item_storage import (
@@ -444,6 +445,8 @@ class IntersectMerge(Merger):
                 return _make(HashKeyMerger, **kwargs)
             elif t is AnnotationType.feature_vector:
                 return _make(FeatureVectorMerger, **kwargs)
+            elif t is AnnotationType.tabular:
+                return _make(TabularMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 
