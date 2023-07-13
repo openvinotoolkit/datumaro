@@ -1208,11 +1208,10 @@ TableDtype = TypeVar("TableDtype", str, int, float)
 
 
 class Table(MediaElement[pd.DataFrame]):
-    _type = MediaType.TABLE
-
     """
     Provides random access to the table row.
     """
+    _type = MediaType.TABLE
 
     def __init__(
         self,
@@ -1257,7 +1256,7 @@ class Table(MediaElement[pd.DataFrame]):
         return TableFromListOfDict(data, *args, **kwargs)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, __class__):
+        if not isinstance(other, self.__class__):
             return False
         return self.data.equals(other)
 
@@ -1265,10 +1264,9 @@ class Table(MediaElement[pd.DataFrame]):
         """
         Random access to a specific row by index.
         """
-        if idx < self.shape[0]:
-            # return self.data.iloc[idx].to_dict()
-            return TableRow(table=self, index=idx)
-        raise IndexError(f"Table doesn't contain row #{idx}.")
+        if idx >= self.shape[0]:
+            raise IndexError(f"Table doesn't contain row #{idx}.")
+        return TableRow(table=self, index=idx)
 
     def __iter__(self) -> Iterator[TableRow]:
         """
@@ -1349,8 +1347,7 @@ class TableFromCSV(FromFileMixin, Table):
     @property
     def data(self) -> Optional[pd.DataFrame]:
         """Table data in pandas DataFrame format"""
-        data: pd.DataFrame = self.__data
-        return data
+        return self.__data
 
 
 class TableFromDataFrame(FromDataMixin, Table):
@@ -1375,8 +1372,7 @@ class TableFromDataFrame(FromDataMixin, Table):
     @property
     def data(self) -> Optional[pd.DataFrame]:
         """Table data in pandas DataFrame format"""
-        data: pd.DataFrame = super().data
-        return data
+        return super().data
 
 
 class TableFromListOfDict(TableFromDataFrame):
@@ -1386,8 +1382,7 @@ class TableFromListOfDict(TableFromDataFrame):
         *args,
         **kwargs,
     ):
-        df = pd.DataFrame(data)
-        super().__init__(data=df, *args, **kwargs)
+        super().__init__(data=pd.DataFrame(data), *args, **kwargs)
 
 
 class TableRow(MediaElement):

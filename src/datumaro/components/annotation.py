@@ -1127,9 +1127,7 @@ class TabularCategories(Categories):
 
     def find(self, name: str) -> Tuple[Optional[int], Optional[Category]]:
         index = self._indices_by_name.get(name)
-        if index is not None:
-            return index, self.items[index]
-        return index, None
+        return index, self.items[index] if index is not None else None
 
     def __getitem__(self, index: int) -> Category:
         return self.items[index]

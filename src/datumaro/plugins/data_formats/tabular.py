@@ -22,10 +22,10 @@ TABULAR_EXTENSIONS = [
 
 
 class TabularDataBase(DatasetBase):
-    NAME = "tabular"
     """
     Compose a tabular dataset.
     """
+    NAME = "tabular"
 
     def __init__(
         self,
@@ -46,7 +46,7 @@ class TabularDataBase(DatasetBase):
             dtype (optional, dict (str: str)) : Dictionay of column name -> type (str, int, or float).
                 This can be used when automatic type inferencing is failed.
         """
-        paths: List[str] = list()
+        paths: List[str] = []
         if osp.isfile(path):
             paths.append(path)
         else:
@@ -84,13 +84,13 @@ class TabularDataBase(DatasetBase):
             dict (AnnotationType: Categories): categories info
         """
         # assert paths
-        items: List[DatasetItem] = list()
+        items: List[DatasetItem] = []
         categories: TabularCategories = TabularCategories()
 
         for path in paths:
             table = Table.from_csv(path, dtype=dtype)
 
-            targets: List[str] = list()
+            targets: List[str] = []
             if target is None:
                 targets.append(table.columns[-1])  # last column
             elif isinstance(target, str):
@@ -125,12 +125,7 @@ class TabularDataBase(DatasetBase):
             row: TableRow
             for row in table:  # type: TableRow
                 id = f"{row.index}@{subset}"
-                if targets:
-                    values: Dict[str, TableDtype] = row.data(targets)
-                    ann = [Tabular(values=values)]
-                else:
-                    ann = None  # no annotation.
-                item = DatasetItem(id=id, subset=subset, media=row, annotations=ann)
+                item = DatasetItem(id=id, subset=subset, media=row, annotations=[Tabular(values=row.data(targets))] if targets else None)
                 items.append(item)
 
         return items, {AnnotationType.tabular: categories}

@@ -38,7 +38,7 @@ def fxt_buddy_path(fxt_tabular_root):
 
 @pytest.fixture()
 def fxt_buddy_target():
-    yield ["breed_category", "pet_category"]
+    yield ("breed_category", "pet_category")
 
 
 @pytest.fixture()
