@@ -76,9 +76,9 @@ MNIST in CSV dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-    ├── dataset_meta.json   # a list of non-format labels (optional)
-    ├── labels.txt          # a list of non-digit labels  in other format (optional)
-    ├── mnist_test.csv      # it should have the following pattern. mnist_{<subset-name>}.csv
+    ├── dataset_meta.json # a list of non-format labels (optional)
+    ├── labels.txt # a list of non-digit labels  in other format (optional)
+    ├── mnist_test.csv
     └── mnist_train.csv
 ```
 

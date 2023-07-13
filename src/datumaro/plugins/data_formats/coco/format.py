@@ -2,11 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum, Flag, auto
+from enum import Enum, auto
 
 
-class CocoTask(Flag):
-    null = auto()
+class CocoTask(Enum):
     instances = auto()
     person_keypoints = auto()
     captions = auto()

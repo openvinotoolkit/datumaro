@@ -283,10 +283,10 @@ class _CocoBase(SubsetBase):
         self._length = length
 
     def _parse_anns(self, img_info, ann_info, item):
-        if self._task & CocoTask.panoptic:
-            self._load_panoptic_ann(ann_info, parsed_annotations=item.annotations)
-        else:
+        if self._task is not CocoTask.panoptic:
             self._load_annotations(ann_info, img_info, parsed_annotations=item.annotations)
+        else:
+            self._load_panoptic_ann(ann_info, parsed_annotations=item.annotations)
 
     def _load_items(self, json_data):
         pbars = self._ctx.progress_reporter.split(2)
@@ -448,15 +448,15 @@ class _CocoBase(SubsetBase):
         group = ann_id  # make sure all tasks' annotations are merged
 
         if (
-            self._task & CocoTask.instances
-            or self._task & CocoTask.person_keypoints
-            or self._task & CocoTask.stuff
+            self._task is CocoTask.instances
+            or self._task is CocoTask.person_keypoints
+            or self._task is CocoTask.stuff
         ):
             label_id = self._get_label_id(ann)
 
             attributes["is_crowd"] = bool(self._parse_field(ann, "iscrowd", int))
 
-            if self._task & CocoTask.person_keypoints:
+            if self._task is CocoTask.person_keypoints:
                 keypoints = self._parse_field(ann, "keypoints", list)
                 if len(keypoints) % 3 != 0:
                     raise InvalidAnnotationError(
@@ -564,12 +564,12 @@ class _CocoBase(SubsetBase):
                     )
                 )
 
-        elif self._task & CocoTask.labels:
+        elif self._task is CocoTask.labels:
             label_id = self._get_label_id(ann)
             parsed_annotations.append(
                 Label(label=label_id, id=ann_id, attributes=attributes, group=group)
             )
-        elif self._task & CocoTask.captions:
+        elif self._task is CocoTask.captions:
             caption = self._parse_field(ann, "caption", str)
             parsed_annotations.append(
                 Caption(caption, id=ann_id, attributes=attributes, group=group)

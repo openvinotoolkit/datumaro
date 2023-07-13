@@ -4,10 +4,9 @@
 
 import os
 import struct
-from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
 import json_stream
 
@@ -96,14 +95,6 @@ class COCOSection(Enum):
         return False
 
 
-class ICOCOPageMapper(ABC):
-    def __iter__(self) -> Iterator[Tuple[Dict, List[Dict]]]:
-        raise NotImplementedError()
-
-    def __len__(self) -> int:
-        raise NotImplementedError()
-
-
 class FileReaderWithCache:
     # _n_chars = 1024 * 1024 * 16  # 16MB
     _n_chars = 1024 * 64  # 64KB
@@ -132,7 +123,7 @@ class FileReaderWithCache:
         self.offset = offset
 
 
-class COCOPageMapper(ICOCOPageMapper):
+class COCOPageMapper:
     """Construct page maps for items and annotations from the JSON file,
     which are used for the stream importer.
 
@@ -369,44 +360,3 @@ class COCOPageMapper(ICOCOPageMapper):
 
     def iter_item_ids(self) -> Iterator[int]:
         return self.item_page_map.keys()
-
-
-class MergedCOCOPageMapper(ICOCOPageMapper):
-    def __init__(self, *sources: COCOPageMapper) -> None:
-        self._item_keys = set()
-
-        for source in sources:
-            self._item_keys.update(source.item_page_map.keys())
-
-        self._sources = sources
-
-    @classmethod
-    def create(cls, sources: Sequence[COCOPageMapper]) -> ICOCOPageMapper:
-        if len(sources) == 0:
-            raise ValueError("sources should not be empty.")
-        elif len(sources) == 1:
-            return sources[0]
-
-        return MergedCOCOPageMapper(*sources)
-
-    def __len__(self) -> int:
-        return len(self._sources)
-
-    def __iter__(self) -> Iterator[Tuple[Dict, List[Dict]]]:
-        for item_key in self._item_keys:
-            yield self._get_item_dict(item_key), self._get_anns_dict(item_key)
-
-    def _get_item_dict(self, item_key: int) -> Dict:
-        for source in self._sources:
-            item_dict = source.get_item_dict(item_key)
-            if item_dict is not None:
-                return item_dict
-
-        raise ValueError(f"There is not item ({item_key}) in the sources")
-
-    def _get_anns_dict(self, item_key: int) -> List[Dict]:
-        anns_dict = []
-        for source in self._sources:
-            anns_dict += source.get_anns_dict(item_key)
-
-        return anns_dict
