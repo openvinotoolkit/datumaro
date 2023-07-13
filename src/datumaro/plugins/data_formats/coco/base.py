@@ -27,7 +27,6 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, SubsetBase
 from datumaro.components.errors import (
     DatasetImportError,
-    DatumaroError,
     InvalidAnnotationError,
     InvalidFieldTypeError,
     MissingFieldError,
@@ -212,7 +211,7 @@ class _CocoBase(SubsetBase):
             category_name = found[0]
             log.warning(
                 "Category id of '0' is reserved for no class (background) but "
-                f"category named '{category_name}' with id of '0' is found in {self.path}. "
+                f"category named '{category_name}' with id of '0' is found in {self._path}. "
                 "Please be warned that annotations with category id of '0' would have `None` as label. "
                 "(https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/formats/coco.html#import-coco-dataset)"
             )
@@ -267,7 +266,7 @@ class _CocoBase(SubsetBase):
 
         for img_info, ann_infos in pbars.iter(
             self._page_mapper,
-            desc=f"Parsing image info in '{osp.basename(self.path)}'",
+            desc=f"Parsing image info in '{osp.basename(self._path)}'",
         ):
             parsed = self._parse_item(img_info)
             if parsed is None:
@@ -301,7 +300,7 @@ class _CocoBase(SubsetBase):
         img_lists = self._parse_field(json_data, "images", list)
         for img_info in pbars[0].iter(
             _gen_ann(img_lists),
-            desc=f"Parsing image info in '{osp.basename(self.path)}'",
+            desc=f"Parsing image info in '{osp.basename(self._path)}'",
             total=len(img_lists),
         ):
             parsed = self._parse_item(img_info)
@@ -318,7 +317,7 @@ class _CocoBase(SubsetBase):
 
         for ann_info in pbars[1].iter(
             _gen_ann(ann_lists),
-            desc=f"Parsing annotations in '{osp.basename(self.path)}'",
+            desc=f"Parsing annotations in '{osp.basename(self._path)}'",
             total=len(ann_lists),
         ):
             try:
@@ -584,39 +583,29 @@ class _CocoBase(SubsetBase):
     def is_stream(self) -> bool:
         return self._stream
 
-    @property
-    def page_mapper(self) -> COCOPageMapper:
-        if self._page_mapper is None:
-            raise DatumaroError("Cannot get COCOPageMapper")
-        return self._page_mapper
+    def get_dataset_item(self, item_key: int) -> Optional[DatasetItem]:
+        if self.is_stream:
+            img_info = self._page_mapper.get_item_dict(item_key)
+            ann_infos = self._page_mapper.get_anns_dict(item_key)
 
-    @property
-    def path(self) -> str:
-        return self._path
+            parsed = self._parse_item(img_info)
+            if parsed is None:
+                return None
 
-    @property
-    def rootpath(self) -> str:
-        return self._rootpath
+            _, item = parsed
 
-    @property
-    def images_dir(self) -> str:
-        return self._images_dir
+            for ann_info in ann_infos:
+                self._parse_anns(img_info, ann_info, item)
 
-    @property
-    def task(self) -> CocoTask:
-        return self._task
+            return item
+        else:
+            return self._items[item_key]
 
-    @property
-    def label_map(self) -> Dict[int, int]:
-        return self._label_map
-
-    @property
-    def merge_instance_polygons(self) -> bool:
-        return self._merge_instance_polygons
-
-    @property
-    def mask_dir(self) -> Optional[str]:
-        return self._mask_dir
+    def iter_item_ids(self) -> Iterator[int]:
+        if self.is_stream:
+            return self._page_mapper.iter_item_ids()
+        else:
+            return self._items.keys()
 
 
 class CocoImageInfoBase(_CocoBase):

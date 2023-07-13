@@ -149,7 +149,7 @@ class Importer(CliPlugin):
         """Flag to indicate whether the importer can stream the dataset item or not."""
         return False
 
-    def get_extractor_merger(self, stream: bool) -> Optional[Type[ExtractorMerger]]:
+    def get_extractor_merger(self) -> Optional[Type[ExtractorMerger]]:
         """Extractor merger dedicated for the data format
 
         Datumaro import process spawns multiple `DatasetBase` for the detected sources.

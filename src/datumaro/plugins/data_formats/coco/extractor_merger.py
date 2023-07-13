@@ -7,60 +7,75 @@ from typing import Sequence
 
 from datumaro.components.contexts.importer import _ImportFail
 from datumaro.components.dataset_base import SubsetBase
-from datumaro.components.merge.base import Merger
+from datumaro.components.merge import ExactMerge
 from datumaro.components.merge.extractor_merger import ExtractorMerger, check_identicalness
 from datumaro.plugins.data_formats.coco.base import _CocoBase
-from datumaro.plugins.data_formats.coco.format import CocoTask
-from datumaro.plugins.data_formats.coco.page_mapper import MergedCOCOPageMapper
 
 
-class COCOTaskMergedBase(_CocoBase):
+class COCOTaskMergedBase(SubsetBase):
+    __not_plugin__ = True
+
     def __init__(
         self,
         sources: Sequence[_CocoBase],
         subset: str,
     ):
-        SubsetBase.__init__(self, subset=subset, ctx=None)
-        page_mappers = []
-        for s in sources:
-            if not s.is_stream:
-                raise NotImplementedError("For now, support is_stream=True only.")
-            page_mappers.append(s.page_mapper)
+        super().__init__(subset=subset, ctx=None)
+        self._infos = check_identicalness([s.infos() for s in sources])
+        self._categories = ExactMerge.merge_categories([s.categories() for s in sources])
+        self._media_type = check_identicalness([s.media_type() for s in sources])
+        self._is_stream = check_identicalness([s.is_stream for s in sources])
 
-        self._page_mapper = MergedCOCOPageMapper.create(page_mappers)
-        self._length = None
-        self._path = ",".join(s.path for s in sources)
-        self._rootpath = check_identicalness([s.rootpath for s in sources])
-        self._images_dir = check_identicalness([s.images_dir for s in sources])
-        self._task = CocoTask.null
+        self._sources = sources
+        self._item_keys = None
 
-        for s in sources:
-            self._task |= s.task
+    def __iter__(self):
+        if len(self._sources) == 1:
+            yield from self._sources[0]
+        else:
+            for item_key in self.item_keys:
+                items = [
+                    item
+                    for s in self._sources
+                    if (item := s.get_dataset_item(item_key)) is not None
+                ]
+                assert len(items) > 0
 
-        self._label_map = check_identicalness(
-            [s.label_map for s in sources if len(s.label_map) > 0],
-            raise_error_on_empty=False,
-        )
-        self._merge_instance_polygons = check_identicalness(
-            [s.merge_instance_polygons for s in sources]
-        )
-        self._mask_dir = check_identicalness(
-            [s.mask_dir for s in sources if s.mask_dir is not None],
-            raise_error_on_empty=False,
-        )
+                item, remainders = items[0], items[1:]
+
+                for remainder in remainders:
+                    item = ExactMerge.merge_items(item, remainder)
+                yield item
+
+    def __len__(self):
+        if len(self._sources) == 1:
+            return len(self._sources[0])
+        else:
+            return len(self.item_keys)
+
+    @property
+    def item_keys(self):
+        if self._item_keys is None:
+            self._item_keys = set()
+            for s in self._sources:
+                self._item_keys.update(s.iter_item_ids())
+
+        return self._item_keys
 
     @property
     def is_stream(self) -> bool:
-        return True
+        return self._is_stream
 
 
 class COCOExtractorMerger(ExtractorMerger):
+    __not_plugin__ = True
+
     def __init__(self, sources: Sequence[_CocoBase]):
         if len(sources) == 0:
             raise _ImportFail("It should not be empty.")
 
         self._infos = check_identicalness([s.infos() for s in sources])
-        self._categories = Merger.merge_categories([s.categories() for s in sources])
+        self._categories = ExactMerge.merge_categories([s.categories() for s in sources])
         self._media_type = check_identicalness([s.media_type() for s in sources])
         self._is_stream = check_identicalness([s.is_stream for s in sources])
 

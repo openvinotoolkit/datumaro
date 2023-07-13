@@ -162,10 +162,8 @@ class CocoImporter(Importer):
     def can_stream(self) -> bool:
         return True
 
-    def get_extractor_merger(self, stream: bool) -> Optional[ExtractorMerger]:
-        if stream:
-            return COCOExtractorMerger
-        return None
+    def get_extractor_merger(self) -> Optional[ExtractorMerger]:
+        return COCOExtractorMerger
 
 
 class CocoImageInfoImporter(CocoImporter):

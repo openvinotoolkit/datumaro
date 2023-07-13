@@ -367,6 +367,9 @@ class COCOPageMapper(ICOCOPageMapper):
     def __len__(self) -> int:
         return len(self.item_page_map)
 
+    def iter_item_ids(self) -> Iterator[int]:
+        return self.item_page_map.keys()
+
 
 class MergedCOCOPageMapper(ICOCOPageMapper):
     def __init__(self, *sources: COCOPageMapper) -> None:

@@ -37,14 +37,15 @@ class ExactMerge(Merger):
     def __init__(self, **options):
         super().__init__(**options)
 
-    def merge(self, sources: Sequence[IDataset]) -> DatasetItemStorage:
+    @classmethod
+    def merge(cls, sources: Sequence[IDataset]) -> DatasetItemStorage:
         items = DatasetItemStorage()
         for source_idx, source in enumerate(sources):
             for item in source:
                 existing_item = items.get(item.id, item.subset)
                 if existing_item is not None:
                     try:
-                        item = self._merge_items(existing_item, item)
+                        item = cls.merge_items(existing_item, item)
                     except DatasetMergeError as e:
                         e.sources = set(range(source_idx))
                         raise e
@@ -52,7 +53,8 @@ class ExactMerge(Merger):
                 items.put(item)
         return items
 
-    def _match_annotations_equal(self, a, b):
+    @classmethod
+    def _match_annotations_equal(cls, a, b):
         matches = []
         a_unmatched = a[:]
         b_unmatched = b[:]
@@ -68,22 +70,25 @@ class ExactMerge(Merger):
 
         return matches, a_unmatched, b_unmatched
 
-    def _merge_annotations_equal(self, a, b):
-        matches, a_unmatched, b_unmatched = self._match_annotations_equal(a, b)
+    @classmethod
+    def _merge_annotations_equal(cls, a, b):
+        matches, a_unmatched, b_unmatched = cls._match_annotations_equal(a, b)
         return [ann_a for (ann_a, _) in matches] + a_unmatched + b_unmatched
 
-    def _merge_items(self, existing_item: DatasetItem, current_item: DatasetItem) -> DatasetItem:
+    @classmethod
+    def merge_items(cls, existing_item: DatasetItem, current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
-            media=self._merge_media(existing_item, current_item),
-            attributes=self._merge_attrs(
+            media=cls._merge_media(existing_item, current_item),
+            attributes=cls._merge_attrs(
                 existing_item.attributes,
                 current_item.attributes,
                 item_id=(existing_item.id, existing_item.subset),
             ),
-            annotations=self._merge_anno(existing_item.annotations, current_item.annotations),
+            annotations=cls._merge_anno(existing_item.annotations, current_item.annotations),
         )
 
-    def _merge_attrs(self, a: Dict[str, Any], b: Dict[str, Any], item_id: Tuple[str, str]) -> Dict:
+    @classmethod
+    def _merge_attrs(cls, a: Dict[str, Any], b: Dict[str, Any], item_id: Tuple[str, str]) -> Dict:
         merged = {}
 
         for name in a.keys() | b.keys():
@@ -103,25 +108,26 @@ class ExactMerge(Merger):
 
         return merged
 
+    @classmethod
     def _merge_media(
-        self, item_a: DatasetItem, item_b: DatasetItem
+        cls, item_a: DatasetItem, item_b: DatasetItem
     ) -> Union[Image, PointCloud, Video]:
         if (not item_a.media or isinstance(item_a.media, Image)) and (
             not item_b.media or isinstance(item_b.media, Image)
         ):
-            media = self._merge_images(item_a, item_b)
+            media = cls._merge_images(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, PointCloud)) and (
             not item_b.media or isinstance(item_b.media, PointCloud)
         ):
-            media = self._merge_point_clouds(item_a, item_b)
+            media = cls._merge_point_clouds(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, Video)) and (
             not item_b.media or isinstance(item_b.media, Video)
         ):
-            media = self._merge_videos(item_a, item_b)
+            media = cls._merge_videos(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, MultiframeImage)) and (
             not item_b.media or isinstance(item_b.media, MultiframeImage)
         ):
-            media = self._merge_multiframe_images(item_a, item_b)
+            media = cls._merge_multiframe_images(item_a, item_b)
         elif (not item_a.media or isinstance(item_a.media, MediaElement)) and (
             not item_b.media or isinstance(item_b.media, MediaElement)
         ):
@@ -148,7 +154,8 @@ class ExactMerge(Merger):
             raise MismatchingMediaError((item_a.id, item_a.subset), item_a.media, item_b.media)
         return media
 
-    def _merge_images(self, item_a: DatasetItem, item_b: DatasetItem) -> Image:
+    @classmethod
+    def _merge_images(cls, item_a: DatasetItem, item_b: DatasetItem) -> Image:
         media = None
 
         if isinstance(item_a.media, Image) and isinstance(item_b.media, Image):
@@ -214,7 +221,8 @@ class ExactMerge(Merger):
 
         return media
 
-    def _merge_point_clouds(self, item_a: DatasetItem, item_b: DatasetItem) -> PointCloud:
+    @classmethod
+    def _merge_point_clouds(cls, item_a: DatasetItem, item_b: DatasetItem) -> PointCloud:
         media = None
 
         if isinstance(item_a.media, PointCloud) and isinstance(item_b.media, PointCloud):
@@ -253,7 +261,8 @@ class ExactMerge(Merger):
 
         return media
 
-    def _merge_videos(self, item_a: DatasetItem, item_b: DatasetItem) -> Video:
+    @classmethod
+    def _merge_videos(cls, item_a: DatasetItem, item_b: DatasetItem) -> Video:
         media = None
 
         if isinstance(item_a.media, Video) and isinstance(item_b.media, Video):
@@ -273,7 +282,8 @@ class ExactMerge(Merger):
 
         return media
 
-    def _merge_multiframe_images(self, item_a: DatasetItem, item_b: DatasetItem) -> MultiframeImage:
+    @classmethod
+    def _merge_multiframe_images(cls, item_a: DatasetItem, item_b: DatasetItem) -> MultiframeImage:
         media = None
 
         if isinstance(item_a.media, MultiframeImage) and isinstance(item_b.media, MultiframeImage):
@@ -304,5 +314,6 @@ class ExactMerge(Merger):
 
         return media
 
-    def _merge_anno(self, a: Iterable[Annotation], b: Iterable[Annotation]) -> List[Annotation]:
-        return self._merge_annotations_equal(a, b)
+    @classmethod
+    def _merge_anno(cls, a: Iterable[Annotation], b: Iterable[Annotation]) -> List[Annotation]:
+        return cls._merge_annotations_equal(a, b)

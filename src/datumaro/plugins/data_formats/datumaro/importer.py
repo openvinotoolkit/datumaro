@@ -46,5 +46,5 @@ class DatumaroImporter(Importer):
     def can_stream(self) -> bool:
         return True
 
-    def get_extractor_merger(self, stream: bool) -> Type[ExtractorMerger]:
+    def get_extractor_merger(self) -> Type[ExtractorMerger]:
         return ExtractorMerger

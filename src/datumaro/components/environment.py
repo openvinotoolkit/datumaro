@@ -102,7 +102,8 @@ class Environment:
     def _check_type(t, *, accept, decline, skip):
         if not issubclass(t, accept) or t in skip or (decline and issubclass(t, decline)):
             return False
-
+        if getattr(t, "__not_plugin__", None):
+            return False
         return True
 
     def __init__(self, use_lazy_import: bool = True):

@@ -69,7 +69,7 @@ class _VocImporter(Importer):
     def can_stream(self) -> bool:
         return True
 
-    def get_extractor_merger(self, stream: bool) -> Optional[Type[ExtractorMerger]]:
+    def get_extractor_merger(self) -> Optional[Type[ExtractorMerger]]:
         return ExtractorMerger
 
 
