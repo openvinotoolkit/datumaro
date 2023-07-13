@@ -130,13 +130,48 @@ class ExplorerTest(TestCase):
         "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
     )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_explore_img_list_query(self):
+        """
+        <b>Description:</b>
+        Check that explore topk data for image list query.
+
+        <b>Input data:</b>
+        Datasetitem list for query and dataset to retrieval, in this case use white and black image.
+
+        <b>Expected results:</b>
+        Datasetitem with same hash_key as query.
+
+        <b>Steps</b>
+        1. Import dataset and set list of train datasetitems as query.
+        2. Set Explorer and try explore_topk to find similar media of image query.
+        3. Check whether each result have same subset as query.
+        """
+        with TestDir() as test_dir:
+            converter = partial(DatumaroExporter.convert, save_media=True)
+            converter(self.test_dataset, test_dir)
+            imported_dataset = Dataset.import_from(test_dir, "datumaro")
+            query_list = []
+            for i, item in enumerate(imported_dataset):
+                if i in [1, 2]:
+                    query_list.append(item)
+            explorer = Explorer(imported_dataset)
+            results = explorer.explore_topk(query_list, topk=2)
+
+            self.assertEqual(results[0].subset, results[1].subset)
+
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_txt_query(self):
         """
         <b>Description:</b>
         Check that explore topk data for text query.
 
         <b>Input data:</b>
-        Text query and dataset to retrieval, in this case use coco2017 val data.
+        Text query and dataset to retrieval, in this case use white and black image.
 
         <b>Expected results:</b>
         Datasetitem with same subset as query.
@@ -151,10 +186,43 @@ class ExplorerTest(TestCase):
             converter(self.test_dataset, test_dir)
             imported_dataset = Dataset.import_from(test_dir, "datumaro")
             explorer = Explorer(imported_dataset)
-            result = explorer.explore_topk(
+            results = explorer.explore_topk(
                 "a photo of a upper white and bottom black background", topk=2
             )
-            self.assertEqual(result[0].subset, result[1].subset)
+            self.assertEqual(results[0].subset, results[1].subset)
+
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_explore_txt_list_query(self):
+        """
+        <b>Description:</b>
+        Check that explore topk data for text list query.
+
+        <b>Input data:</b>
+        List of text query and dataset to retrieval, in this case use white and black image.
+
+        <b>Expected results:</b>
+        Datasetitem with same subset as query.
+
+        <b>Steps</b>
+        1. Import dataset.
+        2. Set Explorer and try explore_topk to find similar media of list of text query.
+        3. Check whether each result have same subset as query.
+        """
+        with TestDir() as test_dir:
+            converter = partial(DatumaroExporter.convert, save_media=True)
+            converter(self.test_dataset, test_dir)
+            imported_dataset = Dataset.import_from(test_dir, "datumaro")
+            explorer = Explorer(imported_dataset)
+            results = explorer.explore_topk(
+                ["a photo of a upper white and bottom black background"],
+                topk=2,
+            )
+            self.assertEqual(results[0].subset, results[1].subset)
 
     @skipIf(
         platform.system() == "Darwin",
