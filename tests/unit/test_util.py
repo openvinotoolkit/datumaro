@@ -1,9 +1,18 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
+import logging
 import os
 import os.path as osp
+import platform
 from contextlib import suppress
 from unittest import TestCase, mock
 
+import pytest
+
 from datumaro.util import is_method_redefined
+from datumaro.util.definitions import get_datumaro_cache_dir
 from datumaro.util.os_util import walk
 from datumaro.util.scope import Scope, on_error_do, on_exit_do, scoped
 
@@ -202,3 +211,34 @@ class TestMemberRedefined(TestCase):
         obj = self.Base()
         with mock.patch.object(obj, "method"):
             self.assertTrue(is_method_redefined("method", self.Base, obj))
+
+
+class DefinitionsTest:
+    @pytest.fixture
+    def fxt_writable_path(self, test_dir: str) -> str:
+        dst = os.path.join(test_dir, "writable")
+        os.makedirs(dst)
+        os.chmod(dst, 0o755)
+        return dst
+
+    @pytest.fixture
+    def fxt_non_writable_path(self, test_dir: str) -> str:
+        dst = os.path.join(test_dir, "non-writable")
+        os.makedirs(dst)
+        os.chmod(dst, 0o000)
+        yield dst
+        os.chmod(dst, 0o755)
+
+    @pytest.mark.skipif(
+        platform.system() == "Windows",
+        reason="os.chmod() cannot be used for Windows.",
+    )
+    def test_get_datumaro_cache_dir(
+        self, fxt_writable_path: str, fxt_non_writable_path: str, caplog: pytest.LogCaptureFixture
+    ):
+        with caplog.at_level(logging.ERROR):
+            get_datumaro_cache_dir(fxt_writable_path)
+            assert len(caplog.records) == 0
+        with caplog.at_level(logging.ERROR):
+            get_datumaro_cache_dir(fxt_non_writable_path)
+            assert len(caplog.records) == 1

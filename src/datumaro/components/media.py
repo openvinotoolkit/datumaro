@@ -454,7 +454,8 @@ class ByteImage(ImageFromBytes):
     ):
         warnings.warn(
             f"Using {self.__class__.__name__} is deprecated. "
-            "Please use 'Image.from_bytes()' instead.",
+            "Please use 'Image.from_bytes()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )

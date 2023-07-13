@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Optional, Sequence, Union
+from typing import List, Optional, Sequence, Union
 
 import numpy as np
 
@@ -63,7 +63,7 @@ class Explorer(HashInference):
 
     def explore_topk(
         self,
-        query: Union[DatasetItem, str],
+        query: Union[DatasetItem, str, List[Union[DatasetItem, str]]],
         topk: Optional[int] = None,
     ):
         """
@@ -73,6 +73,41 @@ class Explorer(HashInference):
             topk = self._topk
 
         database_keys = self._database_keys
+
+        if isinstance(query, list):
+            topk_for_query = int(topk // len(query)) * 2 if not len(query) == 1 else topk
+            query_hash_key_list = []
+            result_list = []
+            logits_list = []
+            for query_ in query:
+                if isinstance(query_, DatasetItem):
+                    query_key = self._get_hash_key_from_item_query(query_)
+                    query_hash_key_list.append(query_key)
+                elif isinstance(query_, str):
+                    query_key = self._get_hash_key_from_text_query(query_)
+                    query_hash_key_list.append(query_key)
+                else:
+                    raise MediaTypeError(
+                        "Unexpected media type of query '%s'. "
+                        "Expected 'DatasetItem' or 'string', actual'%s'" % (query_, type(query_))
+                    )
+
+            for query_key in query_hash_key_list:
+                unpacked_key = np.unpackbits(query_key.hash_key, axis=-1)
+                logits = calculate_hamming(unpacked_key, database_keys)
+                ind = np.argsort(logits)
+
+                item_list = np.array(self._item_list)[ind]
+                result_list.append(item_list[:topk_for_query].tolist())
+                logits_list.append(logits[ind][:topk_for_query].tolist())
+
+            result_list = np.stack(result_list, axis=0)
+            logits_list = np.stack(logits_list, axis=0)
+
+            flattened_indices = np.argsort(logits_list.ravel())
+            sorted_list = result_list.ravel()[flattened_indices]
+
+            return sorted_list[:topk]
 
         if isinstance(query, DatasetItem):
             query_key = self._get_hash_key_from_item_query(query)

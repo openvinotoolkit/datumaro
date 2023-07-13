@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+
+## 11/07/2023 - Release 1.4.0rc2
+### New features
+- Add documentation and notebook example for Prune API
+  (<https://github.com/openvinotoolkit/datumaro/pull/1070>)
+
+### Enhancements
+- Give notice that the deprecation works will be done in datumaro==1.5.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1085>)
+
+### Bug fixes
+- Create cache dir under only writable filesystem
+  (<https://github.com/openvinotoolkit/datumaro/pull/1088>)
+
+## 07/07/2023 - Release 1.4.0rc1
 ### New features
 - Changed supported Python version range (>=3.8, <=3.11)
   (<https://github.com/openvinotoolkit/datumaro/pull/1083>)
@@ -24,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrate DVC v3.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1072>)
 - Stream dataset import/export
-  (<https://github.com/openvinotoolkit/datumaro/pull/1077>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1077>, <https://github.com/openvinotoolkit/datumaro/pull/1081>, <https://github.com/openvinotoolkit/datumaro/pull/1082>, <https://github.com/openvinotoolkit/datumaro/pull/1091>)
 - Support mask annotations for CVAT data format
   (<https://github.com/openvinotoolkit/datumaro/pull/1078>)
 
@@ -53,6 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1053>)
 - Prevent installing protobuf>=4
   (<https://github.com/openvinotoolkit/datumaro/pull/1054>)
+- Fix UnionMerge
+  (<https://github.com/openvinotoolkit/datumaro/pull/1086>)
 
 ## 26/05/2023 - Release 1.3.2
 ### Enhancements

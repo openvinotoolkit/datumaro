@@ -106,6 +106,117 @@ class MergeTest:
 
         return export_dirs, expected
 
+    @pytest.fixture()
+    def fxt_heterogenous_mixed_categories(self, test_dir):
+        datasets = []
+        datasets.append(
+            Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        id=f"dset_0",
+                        subset="train",
+                        media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                        annotations=[
+                            Bbox(1, 2, 3, 3, label=0),
+                        ],
+                    ),
+                    DatasetItem(
+                        id=f"dset_1",
+                        subset="train",
+                        media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                        annotations=[
+                            Bbox(1, 2, 3, 3, label=0),
+                        ],
+                    ),
+                ],
+                categories=["good"],
+            )
+        )
+        datasets.append(
+            Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        id=f"dset_0",
+                        subset="train",
+                        media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                        annotations=[
+                            Bbox(1, 2, 3, 3, label=0),
+                        ],
+                    ),
+                    DatasetItem(
+                        id=f"dset_1",
+                        subset="train",
+                        media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                        annotations=[
+                            Bbox(1, 2, 3, 3, label=1),
+                        ],
+                    ),
+                    DatasetItem(
+                        id=f"dset_2",
+                        subset="train",
+                        media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                        annotations=[
+                            Bbox(1, 2, 3, 3, label=2),
+                        ],
+                    ),
+                ],
+                categories=["combined", "good", "missing"],
+            )
+        )
+
+        export_dirs = []
+        for n in range(len(datasets)):
+            dir_path = osp.join(test_dir, f"dataset_{n}")
+            datasets[n].export(dir_path, format="datumaro", save_media=True)
+            export_dirs += [dir_path]
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=f"dset_0-0",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                    annotations=[
+                        Bbox(1, 2, 3, 3, label=0),
+                    ],
+                ),
+                DatasetItem(
+                    id=f"dset_0-1",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                    annotations=[
+                        Bbox(1, 2, 3, 3, label=1),
+                    ],
+                ),
+                DatasetItem(
+                    id=f"dset_1-0",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                    annotations=[
+                        Bbox(1, 2, 3, 3, label=0),
+                    ],
+                ),
+                DatasetItem(
+                    id=f"dset_1-1",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                    annotations=[
+                        Bbox(1, 2, 3, 3, label=0),
+                    ],
+                ),
+                DatasetItem(
+                    id=f"dset_2",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                    annotations=[
+                        Bbox(1, 2, 3, 3, label=2),
+                    ],
+                ),
+            ],
+            categories=["good", "combined", "missing"],
+        )
+        return export_dirs, expected
+
     @pytest.fixture
     def test_case(self, request):
         return request.getfixturevalue(request.param)
@@ -115,6 +226,7 @@ class MergeTest:
         [
             ("fxt_homogenous", "exact"),
             ("fxt_heterogenous", "union"),
+            ("fxt_heterogenous_mixed_categories", "union"),
         ],
         indirect=["test_case"],
     )
@@ -134,6 +246,7 @@ class MergeTest:
 
         run(helper_tc, *cmds)
         actual = Dataset.import_from(result_dir)
+
         compare_datasets(helper_tc, expected, actual, require_media=True)
 
 

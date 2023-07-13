@@ -46,6 +46,7 @@ class RoboflowCocoBase(_CocoBase):
         path,
         *,
         subset: Optional[str] = None,
+        stream: bool = False,
         ctx: Optional[ImportContext] = None,
     ):
         super().__init__(
@@ -53,6 +54,7 @@ class RoboflowCocoBase(_CocoBase):
             task=CocoTask.instances,
             coco_importer_type=CocoImporterType.roboflow,
             subset=subset,
+            stream=stream,
             ctx=ctx,
         )
 

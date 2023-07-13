@@ -13,7 +13,7 @@ from attr import attrs, field
 
 from datumaro.components.annotation import Annotation, AnnotationType, Categories
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.importer import ImportContext, NullImportContext
+from datumaro.components.importer import ImportContext, NullImportContext, _ImportFail
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
@@ -56,7 +56,8 @@ class DatasetItem:
     ):
         if image is not None:
             warnings.warn(
-                "'image' is deprecated and will be " "removed in future. Use 'media' instead.",
+                "'image' is deprecated and will be removed in future. Use 'media' instead. "
+                "It will be deprecated in datumaro==1.5.0.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -71,14 +72,16 @@ class DatasetItem:
         elif point_cloud is not None:
             warnings.warn(
                 "'point_cloud' is deprecated and will be "
-                "removed in future. Use 'media' instead.",
+                "removed in future. Use 'media' instead. "
+                "It will be deprecated in datumaro==1.5.0.",
                 DeprecationWarning,
                 stacklevel=2,
             )
             if related_images is not None:
                 warnings.warn(
                     "'related_images' is deprecated and will be "
-                    "removed in future. Use 'media' instead.",
+                    "removed in future. Use 'media' instead. "
+                    "It will be deprecated in datumaro==1.5.0.",
                     DeprecationWarning,
                     stacklevel=2,
                 )
@@ -98,7 +101,8 @@ class DatasetItem:
     def image(self) -> Optional[Image]:
         warnings.warn(
             "'DatasetItem.image' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead.",
+            "removed in future. Use '.media' and '.media_as()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -111,7 +115,8 @@ class DatasetItem:
     def point_cloud(self) -> Optional[str]:
         warnings.warn(
             "'DatasetItem.point_cloud' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead.",
+            "removed in future. Use '.media' and '.media_as()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -124,7 +129,8 @@ class DatasetItem:
     def related_images(self) -> List[Image]:
         warnings.warn(
             "'DatasetItem.related_images' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead.",
+            "removed in future. Use '.media' and '.media_as()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -137,7 +143,8 @@ class DatasetItem:
     def has_image(self):
         warnings.warn(
             "'DatasetItem.has_image' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead.",
+            "removed in future. Use '.media' and '.media_as()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -148,7 +155,8 @@ class DatasetItem:
     def has_point_cloud(self):
         warnings.warn(
             "'DatasetItem.has_point_cloud' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead.",
+            "removed in future. Use '.media' and '.media_as()' instead. "
+            "It will be deprecated in datumaro==1.5.0.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -245,7 +253,7 @@ class _DatasetBase(IDataset):
             self._init_cache()
         return {name or DEFAULT_SUBSET_NAME: self.get_subset(name) for name in self._subsets}
 
-    def get_subset(self, name):
+    def get_subset(self, name: str) -> IDataset:
         if self._subsets is None:
             self._init_cache()
         if name in self._subsets:
@@ -353,3 +361,61 @@ class SubsetBase(DatasetBase):
     def get(self, id, subset=None):
         assert subset == self._subset, "%s != %s" % (subset, self._subset)
         return super().get(id, subset or self._subset)
+
+    @property
+    def subset(self) -> str:
+        """Subset name of this instance."""
+        return self._subset
+
+
+class ExtractorMerger(DatasetBase):
+    """A simple class to merge single-subset extractors."""
+
+    def __init__(
+        self,
+        *sources: Sequence[SubsetBase],
+    ):
+        if len(sources) == 0:
+            raise _ImportFail("It should not be empty.")
+
+        self._infos = self._check_identicalness(*[s.infos() for s in sources])
+        self._categories = self._check_identicalness(*[s.categories() for s in sources])
+        self._media_type = self._check_identicalness(*[s.media_type() for s in sources])
+        self._is_stream = self._check_identicalness(*[s.is_stream for s in sources])
+        self._subsets = {s.subset: s for s in sources}
+
+    def _check_identicalness(self, *seq: Sequence[T]) -> T:
+        if len(seq) == 0:
+            raise _ImportFail("It should not be empty.")
+
+        if seq.count(seq[0]) != len(seq):
+            raise _ImportFail("All items in the sequence should be identical.")
+
+        return seq[0]
+
+    def infos(self):
+        return self._infos
+
+    def categories(self):
+        return self._categories
+
+    def __iter__(self):
+        for subset in self._subsets.values():
+            yield from subset
+
+    def __len__(self):
+        return sum(len(subset) for subset in self._subsets.values())
+
+    def get(self, id: str, subset: Optional[str] = None):
+        if subset is None:
+            for s in self._subsets.values():
+                item = s.get(id)
+                if item is not None:
+                    return item
+
+        s = self._subset[subset]
+        return s.get(id)
+
+    @property
+    def is_stream(self) -> bool:
+        return self._is_stream

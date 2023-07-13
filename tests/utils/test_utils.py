@@ -20,7 +20,8 @@ import pytest
 from typing_extensions import Literal
 
 from datumaro.components.annotation import AnnotationType
-from datumaro.components.dataset import Dataset, IDataset
+from datumaro.components.dataset import Dataset, StreamDataset
+from datumaro.components.dataset_base import IDataset
 from datumaro.components.media import Image, MultiframeImage, PointCloud
 from datumaro.util import filter_dict, find
 from datumaro.util.os_util import rmfile, rmtree
@@ -172,7 +173,8 @@ def compare_datasets(
         if require_images:
             warnings.warn(
                 "'require_images' is deprecated and will be "
-                "removed in future. Use 'require_media' instead.",
+                "removed in future. Use 'require_media' instead. "
+                "It will be deprecated in datumaro==1.5.0.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -280,6 +282,7 @@ def check_save_and_load(
     compare=None,
     move_save_dir: bool = False,
     post_processing=None,
+    stream: bool = False,
     **cmp_kwargs,
 ):
     """
@@ -318,7 +321,13 @@ def check_save_and_load(
 
         if importer_args is None:
             importer_args = {}
-        parsed_dataset = Dataset.import_from(save_dir, importer, **importer_args)
+        parsed_dataset = (
+            Dataset.import_from(save_dir, importer, **importer_args)
+            if not stream
+            else StreamDataset.import_from(save_dir, importer, **importer_args)
+        )
+        check_is_stream(parsed_dataset)
+
         if post_processing:
             parsed_dataset = post_processing(parsed_dataset)
 
@@ -409,6 +418,15 @@ def mock_tfds_data(example=None, subsets=("train",)):
 
         with unittest.mock.patch("tensorflow_datasets.core.DatasetBuilder.__init__", new_init):
             yield
+
+
+def check_is_stream(dataset: IDataset):
+    if type(dataset) == Dataset:
+        assert dataset.is_stream == False
+    elif type(dataset) == StreamDataset:
+        assert dataset.is_stream == True
+    else:
+        raise ValueError(type(dataset))
 
 
 class TestCaseHelper:

@@ -1,18 +1,18 @@
 # Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type
 
 import pytest
 
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, StreamDataset
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import Importer
 
 from ...requirements import Requirements, mark_requirement
 
-from tests.utils.test_utils import compare_datasets
+from tests.utils.test_utils import check_is_stream, compare_datasets
 
 
 class TestDataFormatBase:
@@ -38,6 +38,7 @@ class TestDataFormatBase:
         fxt_import_kwargs: Dict[str, Any],
         request: pytest.FixtureRequest,
         importer: Optional[Importer] = None,
+        dataset_cls: Type[Dataset] = Dataset,
     ):
         if importer is None:
             importer = getattr(self, "IMPORTER", None)
@@ -46,7 +47,8 @@ class TestDataFormatBase:
             pytest.skip(reason="importer is None.")
 
         helper_tc = request.getfixturevalue("helper_tc")
-        dataset = Dataset.import_from(fxt_dataset_dir, importer.NAME, **fxt_import_kwargs)
+        dataset = dataset_cls.import_from(fxt_dataset_dir, importer.NAME, **fxt_import_kwargs)
+        check_is_stream(dataset)
 
         compare_datasets(helper_tc, fxt_expected_dataset, dataset, require_media=True)
 
@@ -60,6 +62,7 @@ class TestDataFormatBase:
         request: pytest.FixtureRequest,
         exporter: Optional[Exporter] = None,
         importer: Optional[Importer] = None,
+        dataset_cls: Type[Dataset] = Dataset,
     ):
         if exporter is None:
             exporter = getattr(self, "EXPORTER", None)
@@ -74,6 +77,7 @@ class TestDataFormatBase:
         exporter.convert(
             fxt_expected_dataset, save_dir=test_dir, save_media=True, **fxt_export_kwargs
         )
-        dataset = Dataset.import_from(test_dir, importer.NAME, **fxt_import_kwargs)
+        dataset = dataset_cls.import_from(test_dir, importer.NAME, **fxt_import_kwargs)
+        check_is_stream(dataset)
 
         compare_datasets(helper_tc, fxt_expected_dataset, dataset, require_media=True)

@@ -6,8 +6,9 @@ import errno
 import logging as log
 import os.path as osp
 from inspect import isclass
-from typing import Any, Dict, Optional, Tuple, Type, TypeVar, Union, overload
+from typing import Any, Dict, Iterator, Optional, Tuple, Type, TypeVar, Union, overload
 
+import json_stream
 import pycocotools.mask as mask_utils
 from attrs import define
 
@@ -34,12 +35,13 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
-from datumaro.util import NOTSET, parse_json_file, take_by
+from datumaro.util import NOTSET, parse_json_file, take_by, to_dict_from_streaming_json
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import CocoImporterType, CocoPath, CocoTask
+from .page_mapper import COCOPageMapper
 
 T = TypeVar("T")
 
@@ -102,6 +104,7 @@ class _CocoBase(SubsetBase):
         keep_original_category_ids: bool = False,
         coco_importer_type: CocoImporterType = CocoImporterType.default,
         subset: Optional[str] = None,
+        stream: bool = False,
         ctx: Optional[ImportContext] = None,
     ):
         if not osp.isfile(path):
@@ -126,21 +129,56 @@ class _CocoBase(SubsetBase):
 
         self._merge_instance_polygons = merge_instance_polygons
 
-        json_data = parse_json_file(path)
         self._label_map = {}  # coco_id -> dm_id
-        self._load_categories(
-            json_data,
-            keep_original_ids=keep_original_category_ids,
-        )
-
         if self._task == CocoTask.panoptic:
             self._mask_dir = osp.splitext(path)[0]
-        self._items = self._load_items(json_data)
 
-        del json_data
+        self._stream = stream
+        if not stream:
+            json_data = parse_json_file(path)
 
-    def __iter__(self):
-        yield from self._items.values()
+            self._load_categories(
+                json_data,
+                keep_original_ids=keep_original_category_ids,
+            )
+
+            self._items = self._load_items(json_data)
+
+            del json_data
+        else:
+            categories_data = self.stream_parse_categories_data(path)
+
+            self._load_categories(
+                {"categories": categories_data},
+                keep_original_ids=keep_original_category_ids,
+            )
+            self._page_mapper = COCOPageMapper(path)
+            self._length = None
+
+    def stream_parse_categories_data(self, path: str) -> Dict[str, Any]:
+        """Parse "categories" section from the given JSON file using the stream json parser"""
+        with open(path, "r", encoding="utf-8") as fp:
+            data = json_stream.load(fp)
+            categories = data.get("categories", None)
+
+            if categories is None:
+                raise DatasetImportError('Annotation JSON file should have "categories" entity.')
+
+            return to_dict_from_streaming_json(categories)
+
+    def __len__(self) -> int:
+        if self.is_stream:
+            if self._length is None:
+                self._length = sum(1 for _ in self)
+            return self._length
+        else:
+            return len(self._items)
+
+    def __iter__(self) -> Iterator[DatasetItem]:
+        if self.is_stream:
+            yield from self._stream_items()
+        else:
+            yield from self._items.values()
 
     def _load_categories(self, json_data, *, keep_original_ids):
         self._categories = {}
@@ -225,6 +263,29 @@ class _CocoBase(SubsetBase):
 
         self._categories[AnnotationType.points] = categories
 
+    def _stream_items(self) -> Iterator[DatasetItem]:
+        pbars = self._ctx.progress_reporter
+        for img_info, ann_infos in pbars.iter(
+            self._page_mapper,
+            desc=f"Parsing image info in '{osp.basename(self._path)}'",
+        ):
+            parsed = self._parse_item(img_info)
+            if parsed is None:
+                continue
+
+            _, item = parsed
+
+            for ann_info in ann_infos:
+                self._parse_anns(img_info, ann_info, item)
+
+            yield item
+
+    def _parse_anns(self, img_info, ann_info, item):
+        if self._task is not CocoTask.panoptic:
+            self._load_annotations(ann_info, img_info, parsed_annotations=item.annotations)
+        else:
+            self._load_panoptic_ann(ann_info, parsed_annotations=item.annotations)
+
     def _load_items(self, json_data):
         pbars = self._ctx.progress_reporter.split(2)
 
@@ -239,72 +300,64 @@ class _CocoBase(SubsetBase):
             _gen_ann(img_lists),
             desc=f"Parsing image info in '{osp.basename(self._path)}'",
         ):
-            img_id = None
+            parsed = self._parse_item(img_info)
+            if parsed is None:
+                continue
+
+            img_id, item = parsed
+
+            # Store item (DatasetItem) and img_info (Dict) to the integer key dictionary
+            items[img_id] = item
+            img_infos[img_id] = img_info
+
+        ann_lists = self._parse_field(json_data, "annotations", list)
+
+        for ann_info in pbars[1].iter(
+            _gen_ann(ann_lists),
+            desc=f"Parsing annotations in '{osp.basename(self._path)}'",
+        ):
             try:
-                img_id = self._parse_field(img_info, "id", int)
-                img_infos[img_id] = img_info
+                img_id = self._parse_field(ann_info, "image_id", int)
+                if img_id not in img_infos:
+                    log.warn(f"Unknown image id '{img_id}'")
+                    continue
 
-                if img_info.get("height") and img_info.get("width"):
-                    image_size = (
-                        self._parse_field(img_info, "height", int),
-                        self._parse_field(img_info, "width", int),
-                    )
-                else:
-                    image_size = None
+                # Retrieve item (DatasetItem) and img_info (Dict) from the integer key dictionary
+                item = items[img_id]
+                img_info = img_infos[img_id]
+                self._parse_anns(img_info, ann_info, item)
 
-                file_name = self._parse_field(img_info, "file_name", str)
-                items[img_id] = DatasetItem(
-                    id=osp.splitext(file_name)[0],
-                    subset=self._subset,
-                    media=Image.from_file(
-                        path=osp.join(self._images_dir, file_name), size=image_size
-                    ),
-                    annotations=[],
-                    attributes={"id": img_id},
-                )
             except Exception as e:
-                self._ctx.error_policy.report_item_error(e, item_id=(img_id, self._subset))
-
-        if self._task is not CocoTask.panoptic:
-            ann_lists = self._parse_field(json_data, "annotations", list)
-            for ann in pbars[1].iter(
-                _gen_ann(ann_lists),
-                desc=f"Parsing annotations in '{osp.basename(self._path)}'",
-            ):
-                img_id = None
-                try:
-                    img_id = self._parse_field(ann, "image_id", int)
-                    if img_id not in img_infos:
-                        log.warn(f"Unknown image id '{img_id}'")
-                        continue
-
-                    self._load_annotations(
-                        ann, img_infos[img_id], parsed_annotations=items[img_id].annotations
-                    )
-                except Exception as e:
-                    self._ctx.error_policy.report_annotation_error(
-                        e, item_id=(img_id, self._subset)
-                    )
-        else:
-            ann_lists = self._parse_field(json_data, "annotations", list)
-            for ann in pbars[1].iter(
-                _gen_ann(ann_lists),
-                desc=f"Parsing annotations in '{osp.basename(self._path)}'",
-            ):
-                img_id = None
-                try:
-                    img_id = self._parse_field(ann, "image_id", int)
-                    if img_id not in img_infos:
-                        log.warn(f"Unknown image id '{img_id}'")
-                        continue
-
-                    self._load_panoptic_ann(ann, items[img_id].annotations)
-                except Exception as e:
-                    self._ctx.error_policy.report_annotation_error(
-                        e, item_id=(img_id, self._subset)
-                    )
+                self._ctx.error_policy.report_annotation_error(
+                    e, item_id=(ann_info.get("id", None), self._subset)
+                )
 
         return items
+
+    def _parse_item(self, img_info: Dict[str, Any]) -> Optional[Tuple[int, DatasetItem]]:
+        try:
+            img_id = self._parse_field(img_info, "id", int)
+
+            if img_info.get("height") and img_info.get("width"):
+                image_size = (
+                    self._parse_field(img_info, "height", int),
+                    self._parse_field(img_info, "width", int),
+                )
+            else:
+                image_size = None
+
+            file_name = self._parse_field(img_info, "file_name", str)
+            return img_id, DatasetItem(
+                id=osp.splitext(file_name)[0],
+                subset=self._subset,
+                media=Image.from_file(path=osp.join(self._images_dir, file_name), size=image_size),
+                annotations=[],
+                attributes={"id": img_id},
+            )
+        except Exception as e:
+            self._ctx.error_policy.report_item_error(
+                e, item_id=(img_info.get("id", None), self._subset)
+            )
 
     def _load_panoptic_ann(self, ann, parsed_annotations=None):
         if parsed_annotations is None:
@@ -521,6 +574,10 @@ class _CocoBase(SubsetBase):
             raise NotImplementedError()
 
         return parsed_annotations
+
+    @property
+    def is_stream(self) -> bool:
+        return self._stream
 
 
 class CocoImageInfoBase(_CocoBase):
