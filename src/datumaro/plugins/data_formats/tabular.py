@@ -149,10 +149,6 @@ class TabularDataImporter(Importer):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument(
-            "--subset",
-            help="The name of the subset for the produced dataset items " "(default: None)",
-        )
-        parser.add_argument(
             "--target",
             type=lambda x: x.split(","),
             help="Target column or list of target columns. (ex. 'class', 'class,breed') (default:None) "
@@ -190,6 +186,9 @@ class TabularDataExporter(Exporter):
 
         if extractor.media_type() and not issubclass(extractor.media_type(), TableRow):
             raise MediaTypeError("Media type is not a table.")
+
+        # we don't check self._save_media.
+        # regardless of the value, we always save media(csv) file.
 
         os.makedirs(self._save_dir, exist_ok=True)
 
