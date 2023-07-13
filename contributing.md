@@ -1,41 +1,65 @@
 # Contribution Guide
 
+We appreciate any contribution to [Datumaro](https://github.com/openvinotoolkit/datumaro),
+whether it's in the form of a Pull Request, Feature Request or general comments/issue that you found.
+For feature requests and issues, please feel free to create a GitHub Issue in this repository.
+
 ## Related sections
 
 - [Design document](https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/architecture)
 - [Developer manual](https://openvinotoolkit.github.io/datumaro/latest/docs/reference/datumaro_module)
 
-## Installation for developer
+## Development and pull requests
 
 ### Prerequisites
-
 - Python (3.8+)
 
-``` bash
-git clone https://github.com/openvinotoolkit/datumaro
-```
+To set up your development environment, please follow the steps below.
+1. Fork the [repo](https://github.com/openvinotoolkit/datumaro).
 
-Optionally, install a virtual environment (recommended):
+2. clone the forked repo.
+    ``` bash
+    git clone <forked_repo>
+    ```
+3. Optionally, install a virtual environment (recommended):
+    ``` bash
+    python -m pip install virtualenv
+    python -m virtualenv venv
+    . venv/bin/activate
+    ```
 
-``` bash
-python -m pip install virtualenv
-python -m virtualenv venv
-. venv/bin/activate
-```
+4. Install Datumaro with [optional dependencies](#optional-dependencies):
+    ``` bash
+    cd /path/to/the/cloned/repo/
+    pip install -e .[tf,tfds,default]
+    ```
 
-Install Datumaro with optional dependencies:
-``` bash
-cd /path/to/the/cloned/repo/
-pip install -e .[default, tf]
-```
+5. Install test dependencies:
+    ``` bash
+    pip install -r tests/requirements.txt
+    ```
 
-Then install test dependencies:
+6. Set up pre-commit hooks in the repo. See [Code style](#code-style).
+    ``` bash
+    pre-commit run
+    ```
 
-``` bash
-pip install -r tests/requirements.txt
-```
+7. Create your branch based off the `develop` branch and make changes.
 
-**Optional dependencies**
+8. Verify your code by running unit tests and integration tests. See [Testing](#testing)
+    ``` bash
+    pytest -v
+    ```
+    or
+    ``` bash
+    python -m pytest -v
+    ```
+
+9. Push your changes.
+
+Now you are ready to create a PR(Pull Request) and get review.
+
+## Optional dependencies
 
 Developer should install the following optional components for running our tests:
 
