@@ -34,13 +34,15 @@ To set up your development environment, please follow the steps below.
     pip install -e .[tf,tfds,default]
     ```
 
-5. Install test dependencies:
+5. Install dev & test dependencies:
     ``` bash
+    pip install -r requirements-dev.txt
     pip install -r tests/requirements.txt
     ```
 
 6. Set up pre-commit hooks in the repo. See [Code style](#code-style).
     ``` bash
+    pre-commit install
     pre-commit run
     ```
 
