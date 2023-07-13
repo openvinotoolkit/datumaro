@@ -10,30 +10,33 @@ from datumaro.components.dataset_base import DatasetBase, SubsetBase
 T = TypeVar("T")
 
 
+def check_identicalness(seq: Sequence[T], raise_error_on_empty: bool = True) -> Optional[T]:
+    if len(seq) == 0 and raise_error_on_empty:
+        raise _ImportFail("It should not be empty.")
+    elif len(seq) == 0 and not raise_error_on_empty:
+        return None
+
+    if seq.count(seq[0]) != len(seq):
+        raise _ImportFail("All items in the sequence should be identical.")
+
+    return seq[0]
+
+
 class ExtractorMerger(DatasetBase):
     """A simple class to merge single-subset extractors."""
 
     def __init__(
         self,
-        *sources: Sequence[SubsetBase],
+        sources: Sequence[SubsetBase],
     ):
         if len(sources) == 0:
             raise _ImportFail("It should not be empty.")
 
-        self._infos = self._check_identicalness(*[s.infos() for s in sources])
-        self._categories = self._check_identicalness(*[s.categories() for s in sources])
-        self._media_type = self._check_identicalness(*[s.media_type() for s in sources])
-        self._is_stream = self._check_identicalness(*[s.is_stream for s in sources])
+        self._infos = check_identicalness([s.infos() for s in sources])
+        self._categories = check_identicalness([s.categories() for s in sources])
+        self._media_type = check_identicalness([s.media_type() for s in sources])
+        self._is_stream = check_identicalness([s.is_stream for s in sources])
         self._subsets = {s.subset: s for s in sources}
-
-    def _check_identicalness(self, *seq: Sequence[T]) -> T:
-        if len(seq) == 0:
-            raise _ImportFail("It should not be empty.")
-
-        if seq.count(seq[0]) != len(seq):
-            raise _ImportFail("All items in the sequence should be identical.")
-
-        return seq[0]
 
     def infos(self):
         return self._infos

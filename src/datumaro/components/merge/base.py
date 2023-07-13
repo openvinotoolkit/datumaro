@@ -8,7 +8,7 @@ from typing import Dict, Optional, Sequence, Type
 
 from datumaro.components.abstracts.merger import IMergerContext
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.dataset_base import IDataset
+from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, IDataset
 from datumaro.components.dataset_item_storage import DatasetItemStorageDatasetView
 from datumaro.components.errors import (
     ConflictingCategoriesError,
@@ -28,7 +28,8 @@ class Merger(IMergerContext, CliPlugin):
         self.__dict__["_sources"] = None
         self.errors = []
 
-    def merge_infos(self, sources: Sequence[IDataset]) -> Dict:
+    @staticmethod
+    def merge_infos(sources: Sequence[DatasetInfo]) -> Dict:
         """Merge several :class:`IDataset` into one :class:`IDataset`"""
         infos = {}
         for source in sources:
@@ -40,7 +41,8 @@ class Merger(IMergerContext, CliPlugin):
                 infos[k] = v
         return infos
 
-    def merge_categories(self, sources: Sequence[IDataset]) -> Dict:
+    @staticmethod
+    def merge_categories(sources: Sequence[CategoriesInfo]) -> Dict:
         categories = {}
         for source_idx, source in enumerate(sources):
             for cat_type, source_cat in source.items():
@@ -56,7 +58,8 @@ class Merger(IMergerContext, CliPlugin):
                         )
         return categories
 
-    def merge_media_types(self, sources: Sequence[IDataset]) -> Optional[Type[MediaElement]]:
+    @staticmethod
+    def merge_media_types(sources: Sequence[IDataset]) -> Optional[Type[MediaElement]]:
         if sources:
             media_type = sources[0].media_type()
             for s in sources:

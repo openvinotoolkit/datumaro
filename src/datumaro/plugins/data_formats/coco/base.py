@@ -27,6 +27,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, SubsetBase
 from datumaro.components.errors import (
     DatasetImportError,
+    DatumaroError,
     InvalidAnnotationError,
     InvalidFieldTypeError,
     MissingFieldError,
@@ -131,9 +132,13 @@ class _CocoBase(SubsetBase):
         self._label_map = {}  # coco_id -> dm_id
         if self._task == CocoTask.panoptic:
             self._mask_dir = osp.splitext(path)[0]
+        else:
+            self._mask_dir = None
 
         self._stream = stream
         if not stream:
+            self._page_mapper = None  # No use in case of stream = False
+
             json_data = parse_json_file(path)
 
             self._load_categories(
@@ -207,7 +212,7 @@ class _CocoBase(SubsetBase):
             category_name = found[0]
             log.warning(
                 "Category id of '0' is reserved for no class (background) but "
-                f"category named '{category_name}' with id of '0' is found in {self._path}. "
+                f"category named '{category_name}' with id of '0' is found in {self.path}. "
                 "Please be warned that annotations with category id of '0' would have `None` as label. "
                 "(https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/formats/coco.html#import-coco-dataset)"
             )
@@ -262,7 +267,7 @@ class _CocoBase(SubsetBase):
 
         for img_info, ann_infos in pbars.iter(
             self._page_mapper,
-            desc=f"Parsing image info in '{osp.basename(self._path)}'",
+            desc=f"Parsing image info in '{osp.basename(self.path)}'",
         ):
             parsed = self._parse_item(img_info)
             if parsed is None:
@@ -279,10 +284,10 @@ class _CocoBase(SubsetBase):
         self._length = length
 
     def _parse_anns(self, img_info, ann_info, item):
-        if self._task is not CocoTask.panoptic:
-            self._load_annotations(ann_info, img_info, parsed_annotations=item.annotations)
-        else:
+        if self._task & CocoTask.panoptic:
             self._load_panoptic_ann(ann_info, parsed_annotations=item.annotations)
+        else:
+            self._load_annotations(ann_info, img_info, parsed_annotations=item.annotations)
 
     def _load_items(self, json_data):
         pbars = self._ctx.progress_reporter.split(2)
@@ -296,7 +301,7 @@ class _CocoBase(SubsetBase):
         img_lists = self._parse_field(json_data, "images", list)
         for img_info in pbars[0].iter(
             _gen_ann(img_lists),
-            desc=f"Parsing image info in '{osp.basename(self._path)}'",
+            desc=f"Parsing image info in '{osp.basename(self.path)}'",
             total=len(img_lists),
         ):
             parsed = self._parse_item(img_info)
@@ -313,7 +318,7 @@ class _CocoBase(SubsetBase):
 
         for ann_info in pbars[1].iter(
             _gen_ann(ann_lists),
-            desc=f"Parsing annotations in '{osp.basename(self._path)}'",
+            desc=f"Parsing annotations in '{osp.basename(self.path)}'",
             total=len(ann_lists),
         ):
             try:
@@ -444,15 +449,15 @@ class _CocoBase(SubsetBase):
         group = ann_id  # make sure all tasks' annotations are merged
 
         if (
-            self._task is CocoTask.instances
-            or self._task is CocoTask.person_keypoints
-            or self._task is CocoTask.stuff
+            self._task & CocoTask.instances
+            or self._task & CocoTask.person_keypoints
+            or self._task & CocoTask.stuff
         ):
             label_id = self._get_label_id(ann)
 
             attributes["is_crowd"] = bool(self._parse_field(ann, "iscrowd", int))
 
-            if self._task is CocoTask.person_keypoints:
+            if self._task & CocoTask.person_keypoints:
                 keypoints = self._parse_field(ann, "keypoints", list)
                 if len(keypoints) % 3 != 0:
                     raise InvalidAnnotationError(
@@ -560,12 +565,12 @@ class _CocoBase(SubsetBase):
                     )
                 )
 
-        elif self._task is CocoTask.labels:
+        elif self._task & CocoTask.labels:
             label_id = self._get_label_id(ann)
             parsed_annotations.append(
                 Label(label=label_id, id=ann_id, attributes=attributes, group=group)
             )
-        elif self._task is CocoTask.captions:
+        elif self._task & CocoTask.captions:
             caption = self._parse_field(ann, "caption", str)
             parsed_annotations.append(
                 Caption(caption, id=ann_id, attributes=attributes, group=group)
@@ -578,6 +583,40 @@ class _CocoBase(SubsetBase):
     @property
     def is_stream(self) -> bool:
         return self._stream
+
+    @property
+    def page_mapper(self) -> COCOPageMapper:
+        if self._page_mapper is None:
+            raise DatumaroError("Cannot get COCOPageMapper")
+        return self._page_mapper
+
+    @property
+    def path(self) -> str:
+        return self._path
+
+    @property
+    def rootpath(self) -> str:
+        return self._rootpath
+
+    @property
+    def images_dir(self) -> str:
+        return self._images_dir
+
+    @property
+    def task(self) -> CocoTask:
+        return self._task
+
+    @property
+    def label_map(self) -> Dict[int, int]:
+        return self._label_map
+
+    @property
+    def merge_instance_polygons(self) -> bool:
+        return self._merge_instance_polygons
+
+    @property
+    def mask_dir(self) -> Optional[str]:
+        return self._mask_dir
 
 
 class CocoImageInfoBase(_CocoBase):

@@ -689,7 +689,7 @@ class Dataset(IDataset):
                     if importer.can_stream
                     else importer(path, **kwargs)
                 )
-            extractor_merger = importer.get_extractor_merger()
+            extractor_merger = importer.get_extractor_merger(cls._stream)
         elif format in env.extractors:
             detected_sources = [{"url": path, "format": format, "options": kwargs}]
         else:
@@ -744,7 +744,7 @@ class Dataset(IDataset):
                     )
 
             dataset = (
-                cls(source=extractor_merger(*extractors), env=env)
+                cls(source=extractor_merger(extractors), env=env)
                 if extractor_merger is not None
                 else cls.from_extractors(*extractors, env=env, merge_policy=merge_policy)
             )

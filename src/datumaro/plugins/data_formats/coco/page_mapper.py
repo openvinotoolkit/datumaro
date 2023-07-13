@@ -4,9 +4,10 @@
 
 import os
 import struct
+from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, Iterator, List, Tuple
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Tuple
 
 import json_stream
 
@@ -95,6 +96,14 @@ class COCOSection(Enum):
         return False
 
 
+class ICOCOPageMapper(ABC):
+    def __iter__(self) -> Iterator[Tuple[Dict, List[Dict]]]:
+        raise NotImplementedError()
+
+    def __len__(self) -> int:
+        raise NotImplementedError()
+
+
 class FileReaderWithCache:
     # _n_chars = 1024 * 1024 * 16  # 16MB
     _n_chars = 1024 * 64  # 64KB
@@ -123,7 +132,7 @@ class FileReaderWithCache:
         self.offset = offset
 
 
-class COCOPageMapper:
+class COCOPageMapper(ICOCOPageMapper):
     """Construct page maps for items and annotations from the JSON file,
     which are used for the stream importer.
 
@@ -147,6 +156,21 @@ class COCOPageMapper:
 
         self._create_page_map(COCOSection.IMAGES, self._flush_item)
         self._create_page_map(COCOSection.ANNOTATIONS, self._flush_ann)
+
+        # Since the item and annotations are in different sections,
+        # we have to maintain caches for both.
+        # If we use a single `FileReaderWithCache`, the caching will be useless
+        # because it reads the file and initialize the cache everytime,
+        # going back and forth between the item and annotation sections.
+        self.item_reader = FileReaderWithCache(self.path)
+        self.anns_reader = FileReaderWithCache(self.path)
+
+    def __reduce__(self):
+        return COCOPageMapper, (self.path,)
+
+    def __del__(self):
+        self.item_reader.close()
+        self.anns_reader.close()
 
     def stream_parse_categories_data(self) -> Dict[str, Any]:
         """Parse "categories" section from the given JSON file using the stream json parser"""
@@ -306,38 +330,80 @@ class COCOPageMapper:
         else:
             brace.buffer += c
 
-    def __iter__(self) -> Iterator[Tuple[Dict, Dict]]:
-        # Since the item and annotations are in different sections,
-        # we have to maintain caches for both.
-        # If we use a single `FileReaderWithCache`, the caching will be useless
-        # because it reads the file and initialize the cache everytime,
-        # going back and forth between the item and annotation sections.
-        item_reader = FileReaderWithCache(self.path)
-        anns_reader = FileReaderWithCache(self.path)
-
+    def __iter__(self) -> Iterator[Tuple[Dict, List[Dict]]]:
         for item_page in self.item_page_map.values():
-            data = item_reader.read(item_page.offset, item_page.size)
-            item_dict = parse_json(data)
-            anns_dict = []
+            yield self._gen_item_dict(item_page), self._gen_anns_dict(item_page)
 
-            curr_pt = item_page.ann_last_pt
+    def get_item_dict(self, item_key: int) -> Optional[Dict]:
+        item_page = self.item_page_map.get(item_key)
+        if item_page is None:
+            return None
+        return self._gen_item_dict(item_page)
 
-            to_read = []
-            while curr_pt >= 0:
-                ann_offset = self.ann_page_map.offsets[curr_pt]
-                ann_size = self.ann_page_map.sizes[curr_pt]
-                curr_pt = self.ann_page_map.prev_pts[curr_pt]
-                to_read += [(ann_offset, ann_size)]
+    def get_anns_dict(self, item_key: int) -> Optional[List[Dict]]:
+        item_page = self.item_page_map.get(item_key)
+        if item_page is None:
+            return None
+        return self._gen_anns_dict(item_page)
 
-            for ann_offset, ann_size in reversed(to_read):
-                data = anns_reader.read(ann_offset, ann_size)
-                ann_dict = parse_json(data)
-                anns_dict.append(ann_dict)
+    def _gen_item_dict(self, item_page: ItemPage) -> Dict:
+        data = self.item_reader.read(item_page.offset, item_page.size)
+        return parse_json(data)
 
-            yield item_dict, anns_dict
+    def _gen_anns_dict(self, item_page: ItemPage) -> List[Dict]:
+        curr_pt = item_page.ann_last_pt
+        to_read = []
+        while curr_pt >= 0:
+            ann_offset = self.ann_page_map.offsets[curr_pt]
+            ann_size = self.ann_page_map.sizes[curr_pt]
+            curr_pt = self.ann_page_map.prev_pts[curr_pt]
+            to_read += [(ann_offset, ann_size)]
 
-        item_reader.close()
-        anns_reader.close()
+        return [
+            parse_json(self.anns_reader.read(ann_offset, ann_size))
+            for ann_offset, ann_size in reversed(to_read)
+        ]
 
     def __len__(self) -> int:
         return len(self.item_page_map)
+
+
+class MergedCOCOPageMapper(ICOCOPageMapper):
+    def __init__(self, *sources: COCOPageMapper) -> None:
+        self._item_keys = set()
+
+        for source in sources:
+            self._item_keys.update(source.item_page_map.keys())
+
+        self._sources = sources
+
+    @classmethod
+    def create(cls, sources: Sequence[COCOPageMapper]) -> ICOCOPageMapper:
+        if len(sources) == 0:
+            raise ValueError("sources should not be empty.")
+        elif len(sources) == 1:
+            return sources[0]
+
+        return MergedCOCOPageMapper(*sources)
+
+    def __len__(self) -> int:
+        return len(self._sources)
+
+    def __iter__(self) -> Iterator[Tuple[Dict, List[Dict]]]:
+        for item_key in self._item_keys:
+            yield self._get_item_dict(item_key), self._get_anns_dict(item_key)
+
+    def _get_item_dict(self, item_key: int) -> Dict:
+        for source in self._sources:
+            item_dict = source.get_item_dict(item_key)
+            if item_dict is not None:
+                return item_dict
+
+        raise ValueError(f"There is not item ({item_key}) in the sources")
+
+    def _get_anns_dict(self, item_key: int) -> List[Dict]:
+        anns_dict = []
+        for source in self._sources:
+            anns_dict += source.get_anns_dict(item_key)
+
+        return anns_dict

@@ -149,12 +149,15 @@ class Importer(CliPlugin):
         """Flag to indicate whether the importer can stream the dataset item or not."""
         return False
 
-    def get_extractor_merger(self) -> Optional[Type[ExtractorMerger]]:
+    def get_extractor_merger(self, stream: bool) -> Optional[Type[ExtractorMerger]]:
         """Extractor merger dedicated for the data format
 
         Datumaro import process spawns multiple `DatasetBase` for the detected sources.
         We can find a bunch of the detected sources from the given directory path.
         It is usually each detected source is corresponded to the subset of dataset in many data formats.
+
+        Parameters:
+            stream: There can exist a branch according to `stream` flag
 
         Returns:
             If None, use `Dataset.from_extractors()` to merge the extractors,
