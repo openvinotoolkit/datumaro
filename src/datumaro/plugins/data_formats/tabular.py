@@ -25,6 +25,7 @@ class TabularDataBase(DatasetBase):
     """
     Compose a tabular dataset.
     """
+
     NAME = "tabular"
 
     def __init__(
@@ -60,7 +61,6 @@ class TabularDataBase(DatasetBase):
 
         self._infos = {"path": path}
         self._items, self._categories = self._parse(paths, target, dtype)
-        self._length = len(self._items)
 
     def _parse(
         self,
@@ -125,7 +125,13 @@ class TabularDataBase(DatasetBase):
             row: TableRow
             for row in table:  # type: TableRow
                 id = f"{row.index}@{subset}"
-                item = DatasetItem(id=id, subset=subset, media=row, annotations=[Tabular(values=row.data(targets))] if targets else None)
+                ann = [Tabular(values=row.data(targets))] if targets else None
+                item = DatasetItem(
+                    id=id,
+                    subset=subset,
+                    media=row,
+                    annotations=ann,
+                )
                 items.append(item)
 
         return items, {AnnotationType.tabular: categories}
@@ -164,11 +170,10 @@ class TabularDataImporter(Importer):
             ext = osp.splitext(path)[1][1:]  # exclude "."
             if ext in TABULAR_EXTENSIONS:
                 return [{"url": path, "format": TabularDataBase.NAME}]
-            else:
-                return []
         else:
-            for fname in find_files(path, TABULAR_EXTENSIONS):  # find 1 depth only.
+            for _ in find_files(path, TABULAR_EXTENSIONS):  # find 1 depth only.
                 return [{"url": path, "format": TabularDataBase.NAME}]
+        return []
 
 
 class TabularDataExporter(Exporter):

@@ -57,8 +57,7 @@ class MediaType(IntEnum):
     MULTIFRAME_IMAGE = 7
     ROI_IMAGE = 8
     MOSAIC_IMAGE = 9
-    TABLE = 10
-    TABLE_ROW = 11
+    TABLE_ROW = 10
 
     @property
     def media(self) -> Optional[Type[MediaElement]]:
@@ -82,8 +81,6 @@ class MediaType(IntEnum):
             return RoIImage
         if self == self.MOSAIC_IMAGE:
             return MosaicImage
-        if self == self.TABLE:
-            return Table
         if self == self.TABLE_ROW:
             return TableRow
         raise NotImplementedError
@@ -1207,16 +1204,13 @@ class MosaicImageFromImageRoIPairs(MosiacImageFromData):
 TableDtype = TypeVar("TableDtype", str, int, float)
 
 
-class Table(MediaElement[pd.DataFrame]):
+class Table:
     """
     Provides random access to the table row.
     """
-    _type = MediaType.TABLE
 
     def __init__(
         self,
-        *args,
-        **kwargs,
     ) -> None:
         """
         Constructor for Table media.
@@ -1227,7 +1221,6 @@ class Table(MediaElement[pd.DataFrame]):
             f"Please use one of fractory functions ({self.__class__.__name__}.from_csv(), "
             f"{self.__class__.__name__}.from_dataframe(), or ({self.__class__.__name__}.from_list())."
         )
-        super().__init__(*args, **kwargs)
         self._shape: Tuple[int, int] = (0, 0)
 
     @classmethod
@@ -1274,9 +1267,6 @@ class Table(MediaElement[pd.DataFrame]):
         """
         for index in range(self.shape[0]):
             yield TableRow(table=self, index=index)
-
-        # for _, row in self.data.iterrows():
-        #   yield row.to_dict()
 
     @property
     def shape(self) -> Tuple[int, int]:

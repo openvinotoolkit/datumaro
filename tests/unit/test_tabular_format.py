@@ -90,7 +90,7 @@ class TabularImporterTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_tabular(self, fxt_tabular_root: str) -> None:
         detected_formats = Environment().detect_dataset(fxt_tabular_root)
-        assert TabularDataImporter.NAME in detected_formats
+        assert [TabularDataImporter.NAME] == detected_formats
         with TestDir() as test_dir:
             detected_formats = Environment().detect_dataset(test_dir)
             assert TabularDataImporter.NAME not in detected_formats
