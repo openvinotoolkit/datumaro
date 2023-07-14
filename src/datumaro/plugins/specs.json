@@ -484,6 +484,12 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.tabular.TabularDataBase",
+    "plugin_name": "tabular",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.cityscapes.CityscapesImporter",
     "plugin_name": "cityscapes",
     "plugin_type": "Importer",
@@ -992,6 +998,12 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.tabular.TabularDataImporter",
+    "plugin_name": "tabular",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.explorer.ExplorerLauncher",
     "plugin_name": "explorer",
     "plugin_type": "Launcher",
@@ -1365,6 +1377,12 @@
   {
     "import_path": "datumaro.plugins.data_formats.datumaro_binary.exporter.DatumaroBinaryExporter",
     "plugin_name": "datumaro_binary",
+    "plugin_type": "Exporter",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.tabular.TabularDataExporter",
+    "plugin_name": "tabular",
     "plugin_type": "Exporter",
     "extra_deps": []
   },

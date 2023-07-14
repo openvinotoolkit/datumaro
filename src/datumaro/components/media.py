@@ -30,6 +30,7 @@ from typing import (
 
 import cv2
 import numpy as np
+import pandas as pd
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.errors import DatumaroError, MediaShapeError
@@ -56,6 +57,7 @@ class MediaType(IntEnum):
     MULTIFRAME_IMAGE = 7
     ROI_IMAGE = 8
     MOSAIC_IMAGE = 9
+    TABLE_ROW = 10
 
     @property
     def media(self) -> Optional[Type[MediaElement]]:
@@ -79,6 +81,8 @@ class MediaType(IntEnum):
             return RoIImage
         if self == self.MOSAIC_IMAGE:
             return MosaicImage
+        if self == self.TABLE_ROW:
+            return TableRow
         raise NotImplementedError
 
 
@@ -1195,3 +1199,206 @@ class MosaicImageFromImageRoIPairs(MosiacImageFromData):
             "data": attrs["data_in"],
             "size": attrs["size"],
         }
+
+
+TableDtype = TypeVar("TableDtype", str, int, float)
+
+
+class Table:
+    """
+    Provides random access to the table row.
+    """
+
+    def __init__(
+        self,
+    ) -> None:
+        """
+        Constructor for Table media.
+        Initialization must be done in the child class.
+        """
+        assert self.__class__ != Table, (
+            f"Directly initalizing {self.__class__.__name__} is not supported. "
+            f"Please use one of fractory functions ({self.__class__.__name__}.from_csv(), "
+            f"{self.__class__.__name__}.from_dataframe(), or ({self.__class__.__name__}.from_list())."
+        )
+        self._shape: Tuple[int, int] = (0, 0)
+
+    @classmethod
+    def from_csv(cls, path: str, *args, **kwargs) -> Type[Table]:
+        """Returns Table instance creating from a csv file."""
+        return TableFromCSV(path, *args, **kwargs)
+
+    @classmethod
+    def from_dataframe(
+        cls,
+        data: Union[pd.DataFrame, Callable[[], pd.DataFrame]],
+        *args,
+        **kwargs,
+    ) -> Type[Table]:
+        """Returns Table instance creating from a pandas DataFrame."""
+        return TableFromDataFrame(data, *args, **kwargs)
+
+    @classmethod
+    def from_list(
+        cls,
+        data: List[Dict[str, TableDtype]],
+        *args,
+        **kwargs,
+    ) -> Type[Table]:
+        """Returns Table instance creating from a list of dicts."""
+        return TableFromListOfDict(data, *args, **kwargs)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+        return self.data.equals(other)
+
+    def __getitem__(self, idx: int) -> TableRow:
+        """
+        Random access to a specific row by index.
+        """
+        if idx >= self.shape[0]:
+            raise IndexError(f"Table doesn't contain row #{idx}.")
+        return TableRow(table=self, index=idx)
+
+    def __iter__(self) -> Iterator[TableRow]:
+        """
+        Iterates over rows.
+        """
+        for index in range(self.shape[0]):
+            yield TableRow(table=self, index=index)
+
+    @property
+    def shape(self) -> Tuple[int, int]:
+        """Returns table size as (#rows, #cols)"""
+        return self._shape
+
+    @property
+    def columns(self) -> List[str]:
+        """Returns column names"""
+        return self.data.columns.to_list()
+
+    def dtype(self, column: str) -> Optional[Type[TableDtype]]:
+        """Returns native python type for a given column"""
+        numpy_type = self.data.dtypes[column]
+        if numpy_type == object:
+            return str
+        else:
+            return type(np.zeros(1, numpy_type).tolist()[0])
+
+    def features(self, column: str, unique: Optional[bool] = False) -> List[TableDtype]:
+        """
+        Get features for a given column name.
+        """
+        if unique:
+            return list(self.data[column].unique())
+        else:
+            return self.data[column].to_list()
+
+    def save(
+        self,
+        path: str,
+    ):
+        data: pd.DataFrame = self.data
+        os.makedirs(osp.dirname(path), exist_ok=True)
+        data.to_csv(path, index=False)
+
+
+class TableFromCSV(FromFileMixin, Table):
+    def __init__(
+        self,
+        path: str,
+        dtype: Optional[Dict] = None,
+        sep: Optional[str] = None,
+        encoding: Optional[str] = None,
+        *args,
+        **kwargs,
+    ) -> None:
+        """
+        Constructor for TableFromCSV.
+        @param path: Path to csv file
+        @param sep: Delimiter to use.
+        @param encoding: Encoding to use for UTF when reading/writing (ex. 'utf-8').
+        """
+        super().__init__(path, *args, **kwargs)
+
+        # assumes that the 1st row is a header.
+        data: pd.DataFrame = pd.read_csv(
+            path, dtype=dtype, sep=sep, engine="python", encoding=encoding, index_col=False
+        )
+        if data is None:
+            raise ValueError(f"Can't read csv File from {path}")
+        if data.shape[1] == 0:
+            raise MediaShapeError("A table should have 1 or more columns.")
+
+        self.__data = data
+        self._shape = data.shape
+
+    @property
+    def data(self) -> Optional[pd.DataFrame]:
+        """Table data in pandas DataFrame format"""
+        return self.__data
+
+
+class TableFromDataFrame(FromDataMixin, Table):
+    def __init__(
+        self,
+        data: Union[Callable[[], pd.DataFrame], pd.DataFrame],
+        *args,
+        **kwargs,
+    ):
+        super().__init__(data=data, *args, **kwargs)
+
+        if data is None:
+            raise ValueError("'data' can't be None")
+        if data.shape[1] == 0:
+            raise MediaShapeError("A table should have 1 or more columns.")
+        for col in data.columns:
+            if not isinstance(col, str):
+                raise TypeError("A table should have column names as a list of str values")
+
+        self._shape = data.shape
+
+    @property
+    def data(self) -> Optional[pd.DataFrame]:
+        """Table data in pandas DataFrame format"""
+        return super().data
+
+
+class TableFromListOfDict(TableFromDataFrame):
+    def __init__(
+        self,
+        data: List[Dict[str, TableDtype]],
+        *args,
+        **kwargs,
+    ):
+        super().__init__(data=pd.DataFrame(data), *args, **kwargs)
+
+
+class TableRow(MediaElement):
+    _type = MediaType.TABLE_ROW
+
+    def __init__(self, table: Table, index: int):
+        if table is None:
+            raise ValueError("'table' can't be None")
+        if index < 0 or index >= table.shape[0]:
+            raise IndexError(f"'index({index})' is out of range.")
+        self._table = table
+        self._index = index
+
+    @property
+    def table(self) -> Table:
+        return self._table
+
+    @property
+    def index(self) -> int:
+        return self._index
+
+    def data(self, targets: Optional[List[str]] = None) -> Dict:
+        row = self.table.data.iloc[self.index]
+        if targets:
+            row = row[targets]
+        return row.to_dict()
+
+    def __repr__(self):
+        return f"TableRow(row_idx:{self.index}, data:{self.data()})"

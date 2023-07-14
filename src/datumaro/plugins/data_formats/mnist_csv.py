@@ -13,6 +13,7 @@ from datumaro.components.annotation import AnnotationType, Label, LabelCategorie
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
+from datumaro.components.format_detection import FormatDetectionConfidence
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -111,10 +112,12 @@ class MnistCsvBase(SubsetBase):
 
 
 class MnistCsvImporter(Importer):
+    DETECT_CONFIDENCE = FormatDetectionConfidence.MEDIUM
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(
-            path, ".csv", "mnist_csv", file_filter=lambda p: not osp.basename(p).startswith("meta")
+            path, ".csv", "mnist_csv", file_filter=lambda p: osp.basename(p).startswith("mnist_")
         )
 
 

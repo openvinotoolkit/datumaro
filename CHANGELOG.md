@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### New features
+- Add tabular data import/export
+  (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
 - Changed supported Python version range (>=3.8, <=3.11)
   (<https://github.com/openvinotoolkit/datumaro/pull/1083>)
 - Migrate OpenVINO v2023.0.0
