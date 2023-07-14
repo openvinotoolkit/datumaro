@@ -7,9 +7,10 @@ import os.path as osp
 from collections import defaultdict
 from glob import glob
 from io import TextIOWrapper
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Type
 from xml.etree import ElementTree
 
+from datumaro.components.dataset_base import ExtractorMerger
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
@@ -40,6 +41,13 @@ class RoboflowCocoImporter(Importer):
             )
 
         return sources
+
+    @property
+    def can_stream(self) -> bool:
+        return True
+
+    def get_extractor_merger(self) -> Type[ExtractorMerger]:
+        return ExtractorMerger
 
 
 class RoboflowVocImporter(Importer):

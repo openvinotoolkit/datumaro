@@ -13,7 +13,7 @@ from datumaro.components.errors import MediaTypeError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import MediaType
 from datumaro.components.merge import get_merger
-from datumaro.plugins.data_formats.datumaro.base import DatumaroBase
+from datumaro.plugins.data_formats.datumaro.base import JsonReader
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper
 
 from .arrow_dataset import ArrowDataset
@@ -47,12 +47,12 @@ class ArrowBase(SubsetBase):
                 schema = reader.schema
 
                 _infos, _ = DictMapper.backward(schema.metadata.get(b"infos", b"\x00\x00\x00\x00"))
-                infos.append(DatumaroBase._load_infos({"infos": _infos}))
+                infos.append(JsonReader._load_infos({"infos": _infos}))
 
                 _categories, _ = DictMapper.backward(
                     schema.metadata.get(b"categories", b"\x00\x00\x00\x00")
                 )
-                categories.append(DatumaroBase._load_categories({"categories": _categories}))
+                categories.append(JsonReader._load_categories({"categories": _categories}))
 
                 (media_type,) = struct.unpack(
                     "<I", schema.metadata.get(b"media_type", b"\x00\x00\x00\x00")

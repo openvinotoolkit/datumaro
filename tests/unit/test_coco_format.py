@@ -1,3 +1,7 @@
+# Copyright (C) 2020-2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import logging
 import os
 import os.path as osp
@@ -10,6 +14,7 @@ from itertools import product
 from unittest import TestCase, skip
 
 import numpy as np
+import pytest
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -23,7 +28,7 @@ from datumaro.components.annotation import (
     PointsCategories,
     Polygon,
 )
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, StreamDataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
@@ -56,6 +61,7 @@ from ..requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import (
     TestDir,
+    check_is_stream,
     check_save_and_load,
     compare_datasets,
     compare_datasets_strict,
@@ -64,26 +70,32 @@ from tests.utils.test_utils import (
 DUMMY_DATASET_DIR = get_test_asset_path("coco_dataset")
 
 
-class CocoImporterTest(TestCase):
+class CocoImporterTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_export_and_import_back(self):
-        format_paths = [
+    @pytest.mark.parametrize(
+        "format, path",
+        [
             ("coco_captions", osp.join(DUMMY_DATASET_DIR, "coco_captions")),
             ("coco_image_info", osp.join(DUMMY_DATASET_DIR, "coco_image_info")),
             ("coco_instances", osp.join(DUMMY_DATASET_DIR, "coco_instances")),
             ("coco_labels", osp.join(DUMMY_DATASET_DIR, "coco_labels")),
             ("coco_person_keypoints", osp.join(DUMMY_DATASET_DIR, "coco_person_keypoints")),
             ("coco_stuff", osp.join(DUMMY_DATASET_DIR, "coco_stuff")),
-        ]
-        for format, path in format_paths:
-            dataset = Dataset.import_from(path, format)
-            with TestDir() as path_test_dir:
-                dataset.export(path_test_dir, format)
-                back_dataset = Dataset.import_from(path_test_dir)
-            compare_datasets(self, dataset, back_dataset)
+        ],
+    )
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_export_and_import_back(self, format, path, stream, test_dir, helper_tc):
+        dataset = Dataset.import_from(path, format)
+        dataset.export(test_dir, format)
+        back_dataset = (
+            Dataset.import_from(test_dir) if not stream else StreamDataset.import_from(test_dir)
+        )
+        check_is_stream(back_dataset)
+        compare_datasets(helper_tc, dataset, back_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_from_any_cwd(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_from_any_cwd(self, stream):
         class ChangeCWD:
             def __init__(self, path):
                 self.cwd = os.getcwd()
@@ -119,15 +131,36 @@ class CocoImporterTest(TestCase):
                 with ChangeCWD(rel_path):
                     Dataset.import_from(osp.relpath(path, rel_path), format)
                     for anno_file in os.listdir(os.path.join(path, CocoPath.ANNOTATIONS_DIR)):
-                        Dataset.import_from(
-                            osp.relpath(
-                                os.path.join(path, CocoPath.ANNOTATIONS_DIR, anno_file), rel_path
-                            ),
-                            format,
+                        dataset_dir = osp.relpath(
+                            os.path.join(path, CocoPath.ANNOTATIONS_DIR, anno_file), rel_path
                         )
+                        dataset = (
+                            Dataset.import_from(dataset_dir, format)
+                            if not stream
+                            else StreamDataset.import_from(dataset_dir, format)
+                        )
+                        check_is_stream(dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_instances(self):
+    @pytest.mark.parametrize("format", ["coco", "coco_instances"])
+    @pytest.mark.parametrize(
+        "subset, path",
+        [
+            ("", osp.join(DUMMY_DATASET_DIR, "coco_instances")),
+            (
+                "train",
+                osp.join(
+                    DUMMY_DATASET_DIR, "coco_instances", "annotations", "instances_train.json"
+                ),
+            ),
+            (
+                "val",
+                osp.join(DUMMY_DATASET_DIR, "coco_instances", "annotations", "instances_val.json"),
+            ),
+        ],
+    )
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_instances(self, format, subset, path, stream, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -187,32 +220,19 @@ class CocoImporterTest(TestCase):
             categories=["a", "b", "c"],
         )
 
-        formats = ["coco", "coco_instances"]
-        paths = [
-            ("", osp.join(DUMMY_DATASET_DIR, "coco_instances")),
-            (
-                "train",
-                osp.join(
-                    DUMMY_DATASET_DIR, "coco_instances", "annotations", "instances_train.json"
-                ),
-            ),
-            (
-                "val",
-                osp.join(DUMMY_DATASET_DIR, "coco_instances", "annotations", "instances_val.json"),
-            ),
-        ]
-        for format, (subset, path) in product(formats, paths):
-            if subset:
-                expected = expected_dataset.get_subset(subset)
-            else:
-                expected = expected_dataset
+        expected = expected_dataset.get_subset(subset) if subset else expected_dataset
 
-            with self.subTest(path=path, format=format, subset=subset):
-                dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_media=True)
+        dataset = (
+            Dataset.import_from(path, format)
+            if not stream
+            else StreamDataset.import_from(path, format)
+        )
+        check_is_stream(dataset)
+        compare_datasets(helper_tc, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_instances_with_any_annotation_filename(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_instances_with_any_annotation_filename(self, stream, test_dir, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -229,19 +249,26 @@ class CocoImporterTest(TestCase):
         )
 
         format = "coco_instances"
-        with TestDir() as test_dir:
-            dataset_dir = osp.join(test_dir, "dataset")
-            expected_dataset.export(dataset_dir, format, save_media=True)
-            os.rename(
-                osp.join(dataset_dir, "annotations", "instances_default.json"),
-                osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
-            )
 
-            imported_dataset = Dataset.import_from(dataset_dir, format)
-            compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
+        dataset_dir = osp.join(test_dir, "dataset")
+        expected_dataset.export(dataset_dir, format, save_media=True)
+        os.rename(
+            osp.join(dataset_dir, "annotations", "instances_default.json"),
+            osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
+        )
+
+        imported_dataset = (
+            Dataset.import_from(dataset_dir, format)
+            if not stream
+            else StreamDataset.import_from(dataset_dir, format)
+        )
+
+        check_is_stream(imported_dataset)
+        compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_warning_users_with_zero_category_id(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_warning_users_with_zero_category_id(self, stream, test_dir):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -277,26 +304,32 @@ class CocoImporterTest(TestCase):
                     self._logger.setLevel(self._origin_level)
 
         format = "coco_instances"
-        with TestDir() as test_dir:
-            dataset_dir = osp.join(test_dir, "dataset")
-            expected_dataset.export(dataset_dir, format, save_media=True)
 
-            # modify annotation file to have zero category id
-            anno_file = osp.join(dataset_dir, "annotations", "instances_default.json")
-            anno = parse_json_file(anno_file)
-            anno["categories"][0]["id"] = 0
-            anno["annotations"][0]["category_id"] = 0
-            dump_json_file(anno_file, anno)
+        dataset_dir = osp.join(test_dir, "dataset")
+        expected_dataset.export(dataset_dir, format, save_media=True)
 
-            with CaptureLogger(level=logging.WARNING) as strio:
-                imported_dataset = Dataset.import_from(dataset_dir, format)
-                assert "Category id of '0' is reserved for no class" in strio.getvalue()
+        # modify annotation file to have zero category id
+        anno_file = osp.join(dataset_dir, "annotations", "instances_default.json")
+        anno = parse_json_file(anno_file)
+        anno["categories"][0]["id"] = 0
+        anno["annotations"][0]["category_id"] = 0
+        dump_json_file(anno_file, anno)
 
-            item = next(iter(imported_dataset))
-            assert item.annotations[0].label is None
+        with CaptureLogger(level=logging.WARNING) as strio:
+            imported_dataset = (
+                Dataset.import_from(dataset_dir, format)
+                if not stream
+                else StreamDataset.import_from(dataset_dir, format)
+            )
+            check_is_stream(imported_dataset)
+            assert "Category id of '0' is reserved for no class" in strio.getvalue()
+
+        item = next(iter(imported_dataset))
+        assert item.annotations[0].label is None
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_instances_with_original_cat_ids(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_instances_with_original_cat_ids(self, stream, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -312,15 +345,36 @@ class CocoImporterTest(TestCase):
             categories=["class-0", "a", "b", "class-3", "c"],
         )
 
-        actual_dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, "coco_instances", "annotations", "instances_train.json"),
-            "coco_instances",
-            keep_original_category_ids=True,
+        dataset_dir = osp.join(
+            DUMMY_DATASET_DIR, "coco_instances", "annotations", "instances_train.json"
         )
-        compare_datasets(self, expected_dataset, actual_dataset, require_media=True)
+        format = "coco_instances"
+        actual_dataset = (
+            Dataset.import_from(dataset_dir, format, keep_original_category_ids=True)
+            if not stream
+            else StreamDataset.import_from(dataset_dir, format, keep_original_category_ids=True)
+        )
+        check_is_stream(actual_dataset)
+        compare_datasets(helper_tc, expected_dataset, actual_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_captions(self):
+    @pytest.mark.parametrize("format", ["coco", "coco_captions"])
+    @pytest.mark.parametrize(
+        "subset, path",
+        [
+            ("", osp.join(DUMMY_DATASET_DIR, "coco_captions")),
+            (
+                "train",
+                osp.join(DUMMY_DATASET_DIR, "coco_captions", "annotations", "captions_train.json"),
+            ),
+            (
+                "val",
+                osp.join(DUMMY_DATASET_DIR, "coco_captions", "annotations", "captions_val.json"),
+            ),
+        ],
+    )
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_captions(self, format, subset, path, stream, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -345,30 +399,19 @@ class CocoImporterTest(TestCase):
             ]
         )
 
-        formats = ["coco", "coco_captions"]
-        paths = [
-            ("", osp.join(DUMMY_DATASET_DIR, "coco_captions")),
-            (
-                "train",
-                osp.join(DUMMY_DATASET_DIR, "coco_captions", "annotations", "captions_train.json"),
-            ),
-            (
-                "val",
-                osp.join(DUMMY_DATASET_DIR, "coco_captions", "annotations", "captions_val.json"),
-            ),
-        ]
-        for format, (subset, path) in product(formats, paths):
-            if subset:
-                expected = expected_dataset.get_subset(subset)
-            else:
-                expected = expected_dataset
+        expected = expected_dataset.get_subset(subset) if subset else expected_dataset
 
-            with self.subTest(path=path, format=format, subset=subset):
-                dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_media=True)
+        dataset = (
+            Dataset.import_from(path, format)
+            if not stream
+            else StreamDataset.import_from(path, format)
+        )
+        check_is_stream(dataset)
+        compare_datasets(helper_tc, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_captions_with_any_annotation_filename(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_captions_with_any_annotation_filename(self, stream, test_dir, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -384,19 +427,37 @@ class CocoImporterTest(TestCase):
         )
 
         format = "coco_captions"
-        with TestDir() as test_dir:
-            dataset_dir = osp.join(test_dir, "dataset")
-            expected_dataset.export(dataset_dir, format, save_media=True)
-            os.rename(
-                osp.join(dataset_dir, "annotations", "captions_default.json"),
-                osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
-            )
 
-            imported_dataset = Dataset.import_from(dataset_dir, format)
-            compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
+        dataset_dir = osp.join(test_dir, "dataset")
+        expected_dataset.export(dataset_dir, format, save_media=True)
+        os.rename(
+            osp.join(dataset_dir, "annotations", "captions_default.json"),
+            osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
+        )
+
+        imported_dataset = (
+            Dataset.import_from(dataset_dir, format)
+            if not stream
+            else StreamDataset.import_from(dataset_dir, format)
+        )
+        check_is_stream(imported_dataset)
+        compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_labels(self):
+    @pytest.mark.parametrize("format", ["coco", "coco_labels"])
+    @pytest.mark.parametrize(
+        "subset, path",
+        [
+            ("", osp.join(DUMMY_DATASET_DIR, "coco_labels")),
+            (
+                "train",
+                osp.join(DUMMY_DATASET_DIR, "coco_labels", "annotations", "labels_train.json"),
+            ),
+            ("val", osp.join(DUMMY_DATASET_DIR, "coco_labels", "annotations", "labels_val.json")),
+        ],
+    )
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_labels(self, format, subset, path, stream, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -422,27 +483,19 @@ class CocoImporterTest(TestCase):
             categories=["a", "b"],
         )
 
-        formats = ["coco", "coco_labels"]
-        paths = [
-            ("", osp.join(DUMMY_DATASET_DIR, "coco_labels")),
-            (
-                "train",
-                osp.join(DUMMY_DATASET_DIR, "coco_labels", "annotations", "labels_train.json"),
-            ),
-            ("val", osp.join(DUMMY_DATASET_DIR, "coco_labels", "annotations", "labels_val.json")),
-        ]
-        for format, (subset, path) in product(formats, paths):
-            if subset:
-                expected = expected_dataset.get_subset(subset)
-            else:
-                expected = expected_dataset
+        expected = expected_dataset.get_subset(subset) if subset else expected_dataset
 
-            with self.subTest(path=path, format=format, subset=subset):
-                dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_media=True)
+        dataset = (
+            Dataset.import_from(path, format)
+            if not stream
+            else StreamDataset.import_from(path, format)
+        )
+        check_is_stream(dataset)
+        compare_datasets(helper_tc, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_labels_with_any_annotation_filename(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_labels_with_any_annotation_filename(self, stream, test_dir, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -459,19 +512,50 @@ class CocoImporterTest(TestCase):
         )
 
         format = "coco_labels"
-        with TestDir() as test_dir:
-            dataset_dir = osp.join(test_dir, "dataset")
-            expected_dataset.export(dataset_dir, format, save_media=True)
-            os.rename(
-                osp.join(dataset_dir, "annotations", "labels_default.json"),
-                osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
-            )
 
-            imported_dataset = Dataset.import_from(dataset_dir, format)
-            compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
+        dataset_dir = osp.join(test_dir, "dataset")
+        expected_dataset.export(dataset_dir, format, save_media=True)
+        os.rename(
+            osp.join(dataset_dir, "annotations", "labels_default.json"),
+            osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
+        )
+
+        imported_dataset = (
+            Dataset.import_from(dataset_dir, format)
+            if not stream
+            else StreamDataset.import_from(dataset_dir, format)
+        )
+        check_is_stream(imported_dataset)
+        compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_keypoints(self):
+    @pytest.mark.parametrize("format", ["coco", "coco_person_keypoints"])
+    @pytest.mark.parametrize(
+        "subset, path",
+        [
+            ("", osp.join(DUMMY_DATASET_DIR, "coco_person_keypoints")),
+            (
+                "train",
+                osp.join(
+                    DUMMY_DATASET_DIR,
+                    "coco_person_keypoints",
+                    "annotations",
+                    "person_keypoints_train.json",
+                ),
+            ),
+            (
+                "val",
+                osp.join(
+                    DUMMY_DATASET_DIR,
+                    "coco_person_keypoints",
+                    "annotations",
+                    "person_keypoints_val.json",
+                ),
+            ),
+        ],
+    )
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_keypoints(self, format, subset, path, stream, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -558,40 +642,19 @@ class CocoImporterTest(TestCase):
             },
         )
 
-        formats = ["coco", "coco_person_keypoints"]
-        paths = [
-            ("", osp.join(DUMMY_DATASET_DIR, "coco_person_keypoints")),
-            (
-                "train",
-                osp.join(
-                    DUMMY_DATASET_DIR,
-                    "coco_person_keypoints",
-                    "annotations",
-                    "person_keypoints_train.json",
-                ),
-            ),
-            (
-                "val",
-                osp.join(
-                    DUMMY_DATASET_DIR,
-                    "coco_person_keypoints",
-                    "annotations",
-                    "person_keypoints_val.json",
-                ),
-            ),
-        ]
-        for format, (subset, path) in product(formats, paths):
-            if subset:
-                expected = expected_dataset.get_subset(subset)
-            else:
-                expected = expected_dataset
+        expected = expected_dataset.get_subset(subset) if subset else expected_dataset
 
-            with self.subTest(path=path, format=format, subset=subset):
-                dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_media=True)
+        dataset = (
+            Dataset.import_from(path, format)
+            if not stream
+            else StreamDataset.import_from(path, format)
+        )
+        check_is_stream(dataset)
+        compare_datasets(helper_tc, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_keypoints_with_any_annotation_filename(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_keypoints_with_any_annotation_filename(self, stream, test_dir, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -621,19 +684,25 @@ class CocoImporterTest(TestCase):
         )
 
         format = "coco_person_keypoints"
-        with TestDir() as test_dir:
-            dataset_dir = osp.join(test_dir, "dataset")
-            expected_dataset.export(dataset_dir, format, save_media=True)
-            os.rename(
-                osp.join(dataset_dir, "annotations", "person_keypoints_default.json"),
-                osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
-            )
 
-            imported_dataset = Dataset.import_from(dataset_dir, format)
-            compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
+        dataset_dir = osp.join(test_dir, "dataset")
+        expected_dataset.export(dataset_dir, format, save_media=True)
+        os.rename(
+            osp.join(dataset_dir, "annotations", "person_keypoints_default.json"),
+            osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
+        )
+
+        imported_dataset = (
+            Dataset.import_from(dataset_dir, format)
+            if not stream
+            else StreamDataset.import_from(dataset_dir, format)
+        )
+        check_is_stream(imported_dataset)
+        compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_keypoints_with_original_cat_ids(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_keypoints_with_original_cat_ids(self, stream, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -661,22 +730,45 @@ class CocoImporterTest(TestCase):
                 ),
             },
         )
-
-        actual_dataset = Dataset.import_from(
-            osp.join(
-                DUMMY_DATASET_DIR,
-                "coco_person_keypoints",
-                "annotations",
-                "person_keypoints_train.json",
-            ),
+        path = osp.join(
+            DUMMY_DATASET_DIR,
             "coco_person_keypoints",
-            keep_original_category_ids=True,
+            "annotations",
+            "person_keypoints_train.json",
         )
+        format = "coco_person_keypoints"
 
-        compare_datasets(self, expected_dataset, actual_dataset, require_media=True)
+        actual_dataset = (
+            Dataset.import_from(path, format, keep_original_category_ids=True)
+            if not stream
+            else StreamDataset.import_from(path, format, keep_original_category_ids=True)
+        )
+        check_is_stream(actual_dataset)
+
+        compare_datasets(helper_tc, expected_dataset, actual_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_image_info(self):
+    @pytest.mark.parametrize("format", ["coco", "coco_image_info"])
+    @pytest.mark.parametrize(
+        "subset, path",
+        [
+            ("", osp.join(DUMMY_DATASET_DIR, "coco_image_info")),
+            (
+                "train",
+                osp.join(
+                    DUMMY_DATASET_DIR, "coco_image_info", "annotations", "image_info_train.json"
+                ),
+            ),
+            (
+                "val",
+                osp.join(
+                    DUMMY_DATASET_DIR, "coco_image_info", "annotations", "image_info_val.json"
+                ),
+            ),
+        ],
+    )
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_image_info(self, stream, format, subset, path, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -694,34 +786,18 @@ class CocoImporterTest(TestCase):
             ]
         )
 
-        formats = ["coco", "coco_image_info"]
-        paths = [
-            ("", osp.join(DUMMY_DATASET_DIR, "coco_image_info")),
-            (
-                "train",
-                osp.join(
-                    DUMMY_DATASET_DIR, "coco_image_info", "annotations", "image_info_train.json"
-                ),
-            ),
-            (
-                "val",
-                osp.join(
-                    DUMMY_DATASET_DIR, "coco_image_info", "annotations", "image_info_val.json"
-                ),
-            ),
-        ]
-        for format, (subset, path) in product(formats, paths):
-            if subset:
-                expected = expected_dataset.get_subset(subset)
-            else:
-                expected = expected_dataset
-
-            with self.subTest(path=path, format=format, subset=subset):
-                dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_media=True)
+        expected = expected_dataset.get_subset(subset) if subset else expected_dataset
+        dataset = (
+            Dataset.import_from(path, format)
+            if not stream
+            else StreamDataset.import_from(path, format)
+        )
+        check_is_stream(dataset)
+        compare_datasets(helper_tc, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_image_info_with_any_annotation_filename(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_image_info_with_any_annotation_filename(self, stream, test_dir, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -734,19 +810,41 @@ class CocoImporterTest(TestCase):
         )
 
         format = "coco_image_info"
-        with TestDir() as test_dir:
-            dataset_dir = osp.join(test_dir, "dataset")
-            expected_dataset.export(dataset_dir, format, save_media=True)
-            os.rename(
-                osp.join(dataset_dir, "annotations", "image_info_default.json"),
-                osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
-            )
 
-            imported_dataset = Dataset.import_from(dataset_dir, format)
-            compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
+        dataset_dir = osp.join(test_dir, "dataset")
+        expected_dataset.export(dataset_dir, format, save_media=True)
+        os.rename(
+            osp.join(dataset_dir, "annotations", "image_info_default.json"),
+            osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
+        )
+
+        imported_dataset = (
+            Dataset.import_from(dataset_dir, format)
+            if not stream
+            else StreamDataset.import_from(dataset_dir, format)
+        )
+        check_is_stream(imported_dataset)
+
+        compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_panoptic(self):
+    @pytest.mark.parametrize("format", ["coco", "coco_panoptic"])
+    @pytest.mark.parametrize(
+        "subset, path",
+        [
+            ("", osp.join(DUMMY_DATASET_DIR, "coco_panoptic")),
+            (
+                "train",
+                osp.join(DUMMY_DATASET_DIR, "coco_panoptic", "annotations", "panoptic_train.json"),
+            ),
+            (
+                "val",
+                osp.join(DUMMY_DATASET_DIR, "coco_panoptic", "annotations", "panoptic_val.json"),
+            ),
+        ],
+    )
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_panoptic(self, format, subset, path, stream, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -790,30 +888,17 @@ class CocoImporterTest(TestCase):
             categories=["a", "b"],
         )
 
-        formats = ["coco", "coco_panoptic"]
-        paths = [
-            ("", osp.join(DUMMY_DATASET_DIR, "coco_panoptic")),
-            (
-                "train",
-                osp.join(DUMMY_DATASET_DIR, "coco_panoptic", "annotations", "panoptic_train.json"),
-            ),
-            (
-                "val",
-                osp.join(DUMMY_DATASET_DIR, "coco_panoptic", "annotations", "panoptic_val.json"),
-            ),
-        ]
-        for format, (subset, path) in product(formats, paths):
-            if subset:
-                expected = expected_dataset.get_subset(subset)
-            else:
-                expected = expected_dataset
-
-            with self.subTest(path=path, format=format, subset=subset):
-                dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_media=True)
+        expected = expected_dataset.get_subset(subset) if subset else expected_dataset
+        dataset = (
+            Dataset.import_from(path, format)
+            if not stream
+            else StreamDataset.import_from(path, format)
+        )
+        compare_datasets(helper_tc, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_panoptic_with_any_annotation_filename(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_panoptic_with_any_annotation_filename(self, stream, test_dir, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -836,23 +921,29 @@ class CocoImporterTest(TestCase):
         )
 
         format = "coco_panoptic"
-        with TestDir() as test_dir:
-            dataset_dir = osp.join(test_dir, "dataset")
-            expected_dataset.export(dataset_dir, format, save_media=True)
-            os.rename(
-                osp.join(dataset_dir, "annotations", "panoptic_default"),
-                osp.join(dataset_dir, "annotations", "aa_bbbb_cccc"),
-            )
-            os.rename(
-                osp.join(dataset_dir, "annotations", "panoptic_default.json"),
-                osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
-            )
 
-            imported_dataset = Dataset.import_from(dataset_dir, format)
-            compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
+        dataset_dir = osp.join(test_dir, "dataset")
+        expected_dataset.export(dataset_dir, format, save_media=True)
+        os.rename(
+            osp.join(dataset_dir, "annotations", "panoptic_default"),
+            osp.join(dataset_dir, "annotations", "aa_bbbb_cccc"),
+        )
+        os.rename(
+            osp.join(dataset_dir, "annotations", "panoptic_default.json"),
+            osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
+        )
+
+        imported_dataset = (
+            Dataset.import_from(dataset_dir, format)
+            if not stream
+            else StreamDataset.import_from(dataset_dir, format)
+        )
+        check_is_stream(imported_dataset)
+        compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_panoptic_with_original_cat_ids(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_panoptic_with_original_cat_ids(self, stream, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -873,16 +964,31 @@ class CocoImporterTest(TestCase):
             ],
             categories=["class-0", "a", "b"],
         )
-
-        actual_dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, "coco_panoptic", "annotations", "panoptic_train.json"),
-            "coco_panoptic",
-            keep_original_category_ids=True,
+        dataset_dir = osp.join(
+            DUMMY_DATASET_DIR, "coco_panoptic", "annotations", "panoptic_train.json"
         )
-        compare_datasets(self, expected_dataset, actual_dataset, require_media=True)
+        format = "coco_panoptic"
+        actual_dataset = (
+            Dataset.import_from(dataset_dir, format, keep_original_category_ids=True)
+            if not stream
+            else StreamDataset.import_from(dataset_dir, format, keep_original_category_ids=True)
+        )
+        check_is_stream(actual_dataset)
+
+        compare_datasets(helper_tc, expected_dataset, actual_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_stuff(self):
+    @pytest.mark.parametrize("format", ["coco", "coco_stuff"])
+    @pytest.mark.parametrize(
+        "subset, path",
+        [
+            ("", osp.join(DUMMY_DATASET_DIR, "coco_stuff")),
+            ("train", osp.join(DUMMY_DATASET_DIR, "coco_stuff", "annotations", "stuff_train.json")),
+            ("val", osp.join(DUMMY_DATASET_DIR, "coco_stuff", "annotations", "stuff_val.json")),
+        ],
+    )
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_stuff(self, format, subset, path, stream, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -941,24 +1047,19 @@ class CocoImporterTest(TestCase):
             categories=["a", "b"],
         )
 
-        formats = ["coco", "coco_stuff"]
-        paths = [
-            ("", osp.join(DUMMY_DATASET_DIR, "coco_stuff")),
-            ("train", osp.join(DUMMY_DATASET_DIR, "coco_stuff", "annotations", "stuff_train.json")),
-            ("val", osp.join(DUMMY_DATASET_DIR, "coco_stuff", "annotations", "stuff_val.json")),
-        ]
-        for format, (subset, path) in product(formats, paths):
-            if subset:
-                expected = expected_dataset.get_subset(subset)
-            else:
-                expected = expected_dataset
+        expected = expected_dataset.get_subset(subset) if subset else expected_dataset
 
-            with self.subTest(path=path, format=format, subset=subset):
-                dataset = Dataset.import_from(path, format)
-                compare_datasets(self, expected, dataset, require_media=True)
+        dataset = (
+            Dataset.import_from(path, format)
+            if not stream
+            else StreamDataset.import_from(path, format)
+        )
+        check_is_stream(dataset)
+        compare_datasets(helper_tc, expected, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_stuff_with_any_annotation_filename(self):
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_import_stuff_with_any_annotation_filename(self, stream, test_dir, helper_tc):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -992,20 +1093,26 @@ class CocoImporterTest(TestCase):
         )
 
         format = "coco_stuff"
-        with TestDir() as test_dir:
-            dataset_dir = osp.join(test_dir, "dataset")
-            expected_dataset.export(dataset_dir, format, save_media=True)
-            os.rename(
-                osp.join(dataset_dir, "annotations", "stuff_default.json"),
-                osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
-            )
 
-            imported_dataset = Dataset.import_from(dataset_dir, format)
-            compare_datasets(self, expected_dataset, imported_dataset, require_media=True)
+        dataset_dir = osp.join(test_dir, "dataset")
+        expected_dataset.export(dataset_dir, format, save_media=True)
+        os.rename(
+            osp.join(dataset_dir, "annotations", "stuff_default.json"),
+            osp.join(dataset_dir, "annotations", "aa_bbbb_cccc.json"),
+        )
+
+        imported_dataset = (
+            Dataset.import_from(dataset_dir, format)
+            if not stream
+            else StreamDataset.import_from(dataset_dir, format)
+        )
+        check_is_stream(imported_dataset)
+        compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect(self):
-        subdirs = [
+    @pytest.mark.parametrize(
+        "subdir",
+        [
             "coco",
             "coco_captions",
             "coco_image_info",
@@ -1014,20 +1121,20 @@ class CocoImporterTest(TestCase):
             "coco_panoptic",
             "coco_person_keypoints",
             "coco_stuff",
-        ]
-
+        ],
+    )
+    def test_can_detect(self, subdir):
         env = Environment()
 
-        for subdir in subdirs:
-            with self.subTest(subdir=subdir):
-                dataset_dir = osp.join(DUMMY_DATASET_DIR, subdir)
+        dataset_dir = osp.join(DUMMY_DATASET_DIR, subdir)
 
-                detected_formats = env.detect_dataset(dataset_dir)
-                self.assertEqual([CocoImporter.NAME], detected_formats)
+        detected_formats = env.detect_dataset(dataset_dir)
+        assert [CocoImporter.NAME] == detected_formats
 
     @mark_requirement(Requirements.DATUM_673)
-    def test_can_pickle(self):
-        subdirs = [
+    @pytest.mark.parametrize(
+        "subdir",
+        [
             "coco",
             "coco_captions",
             "coco_image_info",
@@ -1036,40 +1143,49 @@ class CocoImporterTest(TestCase):
             "coco_panoptic",
             "coco_person_keypoints",
             "coco_stuff",
-        ]
+        ],
+    )
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_can_pickle(self, subdir, stream, helper_tc):
+        dataset_dir = osp.join(DUMMY_DATASET_DIR, subdir)
+        source = (
+            Dataset.import_from(dataset_dir, format=subdir)
+            if not stream
+            else StreamDataset.import_from(dataset_dir, format=subdir)
+        )
 
-        for subdir in subdirs:
-            with self.subTest(fmt=subdir, subdir=subdir):
-                dataset_dir = osp.join(DUMMY_DATASET_DIR, subdir)
-                source = Dataset.import_from(dataset_dir, format=subdir)
+        parsed = pickle.loads(pickle.dumps(source))  # nosec
 
-                parsed = pickle.loads(pickle.dumps(source))  # nosec
+        compare_datasets_strict(helper_tc, source, parsed)
 
-                compare_datasets_strict(self, source, parsed)
+    @pytest.fixture
+    def fxt_wrong_structure_1(self, test_dir):
+        # Wrong structure: ./annotations -> ./labels
+        dataset_dir = osp.join(test_dir, "coco")
+        shutil.copytree(osp.join(DUMMY_DATASET_DIR, "coco"), dataset_dir)
+        shutil.move(osp.join(dataset_dir, "annotations"), osp.join(dataset_dir, "labels"))
+        yield dataset_dir
+
+    @pytest.fixture
+    def fxt_wrong_structure_2(self, test_dir):
+        # Wrong structure: ./images -> ./imgs
+        dataset_dir = osp.join(test_dir, "coco")
+        shutil.copytree(osp.join(DUMMY_DATASET_DIR, "coco"), dataset_dir)
+        shutil.move(osp.join(dataset_dir, "images"), osp.join(dataset_dir, "imgs"))
+        yield dataset_dir
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_import_error_on_wrong_directory_structure(self):
-        def _test(move_func):
-            with TestDir() as test_dir:
-                dataset_dir = osp.join(test_dir, "coco")
-                shutil.copytree(osp.join(DUMMY_DATASET_DIR, "coco"), dataset_dir)
-                move_func(dataset_dir)
-                with self.assertRaises(DatasetImportError):
-                    Dataset.import_from(dataset_dir, format="coco")
-
-        # Wrong structure: ./annotations -> ./labels
-        _test(
-            lambda dataset_dir: shutil.move(
-                osp.join(dataset_dir, "annotations"), osp.join(dataset_dir, "labels")
-            )
-        )
-
-        # Wrong structure: ./images -> ./imgs
-        _test(
-            lambda dataset_dir: shutil.move(
-                osp.join(dataset_dir, "images"), osp.join(dataset_dir, "imgs")
-            )
-        )
+    @pytest.mark.parametrize("tc", ["fxt_wrong_structure_1", "fxt_wrong_structure_2"])
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_import_error_on_wrong_directory_structure(
+        self, tc, stream, request: pytest.FixtureRequest
+    ):
+        dataset_dir = request.getfixturevalue(tc)
+        with pytest.raises(DatasetImportError):
+            if not stream:
+                Dataset.import_from(dataset_dir, format="coco")
+            else:
+                StreamDataset.import_from(dataset_dir, format="coco")
 
 
 class CocoExtractorTests(TestCase):
