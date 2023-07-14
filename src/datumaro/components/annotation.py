@@ -7,7 +7,20 @@ from __future__ import annotations
 from enum import IntEnum
 from functools import partial
 from itertools import zip_longest
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 import attr
 import numpy as np
@@ -34,6 +47,7 @@ class AnnotationType(IntEnum):
     ellipse = 11
     hash_key = 12
     feature_vector = 13
+    tabular = 14
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -1043,3 +1057,103 @@ class Ellipse(_Shape):
         d = {"x1": item.x1, "y1": item.y1, "x2": item.x2, "y2": item.y2}
         d.update(kwargs)
         return attr.evolve(item, **d)
+
+
+TableDtype = TypeVar("TableDtype", str, int, float)
+
+
+@attrs(slots=True, order=False, eq=False)
+class TabularCategories(Categories):
+    """
+    Describes tabular data metainfo such as column names and types.
+    """
+
+    @attrs(slots=True, order=False, eq=False)
+    class Category:
+        name: str = field(converter=str, validator=not_empty)
+        dtype: Type[TableDtype] = field()
+        labels: Set[Union[str, int]] = field(factory=set, validator=default_if_none(set))
+
+        def __eq__(self, other):
+            same_name = self.name == other.name
+            same_dtype = self.dtype.__name__ == other.dtype.__name__
+            same_labels = self.labels == other.labels
+            return same_name and same_dtype and same_labels
+
+        def __repr__(self):
+            return f"name: {self.name}, dtype: {self.dtype.__name__}, labels: {self.labels}"
+
+    items: List[Category] = field(factory=list, validator=default_if_none(list))
+    _indices_by_name: Dict[str, int] = field(factory=dict, init=False, eq=False)
+
+    @classmethod
+    def from_iterable(
+        cls,
+        iterable: Iterable[
+            Union[Tuple[str, Type[TableDtype]], Tuple[str, Type[TableDtype], Set[str]]]
+        ],
+    ) -> TabularCategories:
+        """
+        Creates a TabularCategories from iterable.
+
+        Args:
+            iterable: a list of (Category name, type) or (Category name, type, set of labels)
+
+        Returns: a TabularCategories object
+        """
+
+        temp_categories = cls()
+
+        for category in iterable:
+            temp_categories.add(*category)
+
+        return temp_categories
+
+    def add(
+        self,
+        name: str,
+        dtype: Type[TableDtype],
+        labels: Optional[Set[str]] = None,
+    ) -> int:
+        assert name
+        assert name not in self._indices_by_name
+        assert dtype
+
+        index = len(self.items)
+        self.items.append(self.Category(name, dtype, labels))
+        self._indices_by_name[name] = index
+
+        return index
+
+    def find(self, name: str) -> Tuple[Optional[int], Optional[Category]]:
+        index = self._indices_by_name.get(name)
+        return index, self.items[index] if index is not None else None
+
+    def __getitem__(self, index: int) -> Category:
+        return self.items[index]
+
+    def __contains__(self, name: str) -> bool:
+        return self.find(name)[1] is not None
+
+    def __len__(self) -> int:
+        return len(self.items)
+
+    def __iter__(self) -> Iterator[Category]:
+        return iter(self.items)
+
+    def __eq__(self, other) -> bool:
+        if not super().__eq__(other):
+            return False
+        if not isinstance(other, __class__):
+            return False
+        return self.items == other.items
+
+
+@attrs(slots=True, order=False)
+class Tabular(Annotation):
+    """
+    Represents values of target columns in a tabular dataset.
+    """
+
+    _type = AnnotationType.tabular
+    values: Dict[str, TableDtype] = field(converter=dict)
