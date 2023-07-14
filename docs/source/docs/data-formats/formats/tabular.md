@@ -15,7 +15,7 @@ import pandas as pd
 data = loadarff("dataset.arff")
 df = pd.DataFrame(data[0])
 categorical = [col for col in df.columns if df[col].dtype=="O"]
-df[categorical]=df[categorical_columns].apply(lambda x: x.str.decode('utf8'))
+df[categorical] = df[categorical_columns].apply(lambda x: x.str.decode('utf8'))
 df.to_csv("arff.csv", index=False)
 
 # convert '.parquet', '.feather', '.hdf5', '.pickle' to '.csv'.
@@ -62,7 +62,7 @@ dataset = dm.Dataset.import_from('<path/to/dataset>', 'tabular')
 
 Datumaro stores the imported table as media (a list of `TableRow`) and annotates the target columns.
 The last column is regarded as the target column,
-which can be specified by the user when when importing the dataset as shown below.
+which can be specified by the user when importing the dataset as shown below.
 
 ```bash
 datum project create
@@ -76,7 +76,7 @@ dataset = dm.Dataset.import_from('<path/to/buddy/dataset>', 'tabular', target=["
 dataset = dm.Dataset.import_from('<path/to/electricity/dataset>', 'tabular', target="class")
 ```
 
-As shown, the target can be a single column name or a list of columns.
+As shown, the target can be a single column name or a comma-separated list of columns.
 
 Note that each tabular file is considered as a subset.
 
