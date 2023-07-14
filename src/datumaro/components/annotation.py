@@ -1115,6 +1115,17 @@ class TabularCategories(Categories):
         dtype: Type[TableDtype],
         labels: Optional[Set[str]] = None,
     ) -> int:
+        """
+        Add a Tabular Category.
+
+        Args:
+            name (str): Column name
+            dtype (type): Type of the corresponding column. (str, int, or float)
+            labels (optional, set(str)): Label values where the column can have.
+
+        Returns:
+            int: A index of added category.
+        """
         assert name
         assert name not in self._indices_by_name
         assert dtype
@@ -1126,6 +1137,15 @@ class TabularCategories(Categories):
         return index
 
     def find(self, name: str) -> Tuple[Optional[int], Optional[Category]]:
+        """
+        Find Category information for the given column name.
+
+        Args:
+            name (str): Column name
+
+        Returns:
+            tuple(int, Category): A index and Category information.
+        """
         index = self._indices_by_name.get(name)
         return index, self.items[index] if index is not None else None
 
