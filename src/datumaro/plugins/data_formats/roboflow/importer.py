@@ -10,11 +10,11 @@ from io import TextIOWrapper
 from typing import Any, Dict, List, Type
 from xml.etree import ElementTree
 
-from datumaro.components.dataset_base import ExtractorMerger
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.lazy_plugin import extra_deps
+from datumaro.components.merge.extractor_merger import ExtractorMerger
 
 
 class RoboflowCocoImporter(Importer):
