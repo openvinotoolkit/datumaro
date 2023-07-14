@@ -22,9 +22,9 @@ class COCOTaskMergedBase(SubsetBase):
     ):
         super().__init__(subset=subset, ctx=None)
         self._infos = check_identicalness([s.infos() for s in sources])
-        self._categories = ExactMerge.merge_categories([s.categories() for s in sources])
         self._media_type = check_identicalness([s.media_type() for s in sources])
         self._is_stream = check_identicalness([s.is_stream for s in sources])
+        self._categories = ExactMerge.merge_categories([s.categories() for s in sources])
 
         self._sources = sources
         self._item_keys = None
@@ -75,9 +75,9 @@ class COCOExtractorMerger(ExtractorMerger):
             raise _ImportFail("It should not be empty.")
 
         self._infos = check_identicalness([s.infos() for s in sources])
-        self._categories = ExactMerge.merge_categories([s.categories() for s in sources])
         self._media_type = check_identicalness([s.media_type() for s in sources])
         self._is_stream = check_identicalness([s.is_stream for s in sources])
+        self._categories = ExactMerge.merge_categories([s.categories() for s in sources])
 
         grouped_by_subset = defaultdict(list)
 
