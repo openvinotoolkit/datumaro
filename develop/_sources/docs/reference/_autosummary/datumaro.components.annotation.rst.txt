@@ -44,6 +44,8 @@ datumaro.components.annotation
       Polygon
       RleMask
       SuperResolutionAnnotation
+      Tabular
+      TabularCategories
    
    
 

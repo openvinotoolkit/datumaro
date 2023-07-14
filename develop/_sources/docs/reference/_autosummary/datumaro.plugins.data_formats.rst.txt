@@ -68,6 +68,7 @@ datumaro.plugins.data\_formats
    datumaro.plugins.data_formats.segment_anything
    datumaro.plugins.data_formats.sly_pointcloud
    datumaro.plugins.data_formats.synthia
+   datumaro.plugins.data_formats.tabular
    datumaro.plugins.data_formats.tf_detection_api
    datumaro.plugins.data_formats.vgg_face2
    datumaro.plugins.data_formats.video

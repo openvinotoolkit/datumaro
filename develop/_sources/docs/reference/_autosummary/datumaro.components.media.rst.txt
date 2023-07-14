@@ -40,6 +40,11 @@ datumaro.components.media
       RoIImageFromData
       RoIImageFromFile
       RoIImageFromNumpy
+      Table
+      TableFromCSV
+      TableFromDataFrame
+      TableFromListOfDict
+      TableRow
       Video
       VideoFrame
    

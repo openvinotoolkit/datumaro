@@ -37,6 +37,7 @@ datumaro.components.annotations.matcher
       PointsMatcher
       PolygonMatcher
       ShapeMatcher
+      TabularMatcher
    
    
 
