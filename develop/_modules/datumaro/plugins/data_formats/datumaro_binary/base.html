@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.datumaro_binary.base &#8212; Datumaro 1.3.2 documentation</title>
+    <title>datumaro.plugins.data_formats.datumaro_binary.base &#8212; Datumaro 1.4.0rc2 documentation</title>
   
   
   
@@ -297,7 +297,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.datumaro_binary.mapper.common</span> <span class="kn">import</span> <span class="n">IntListMapper</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.datumaro_binary.mapper.dataset_item</span> <span class="kn">import</span> <span class="n">DatasetItemMapper</span>
 
-<span class="kn">from</span> <span class="nn">..datumaro.base</span> <span class="kn">import</span> <span class="n">DatumaroBase</span>
+<span class="kn">from</span> <span class="nn">..datumaro.base</span> <span class="kn">import</span> <span class="n">DatumaroBase</span><span class="p">,</span> <span class="n">JsonReader</span>
 
 
 <div class="viewcode-block" id="DatumaroBinaryBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.base.html#datumaro.plugins.data_formats.datumaro_binary.DatumaroBinaryBase">[docs]</a><span class="k">class</span> <span class="nc">DatumaroBinaryBase</span><span class="p">(</span><span class="n">DatumaroBase</span><span class="p">):</span>
@@ -379,7 +379,7 @@
 
     <span class="k">def</span> <span class="nf">_read_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_header</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">({</span><span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">categories</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="n">JsonReader</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">({</span><span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">categories</span><span class="p">})</span>
 
     <span class="k">def</span> <span class="nf">_read_media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">media_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_header</span><span class="p">()[</span><span class="s2">&quot;media_type&quot;</span><span class="p">]</span>
@@ -463,7 +463,26 @@
 
         <span class="k">assert</span> <span class="n">offset</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">blob_bytes</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">items</span></div>
+        <span class="k">return</span> <span class="n">items</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="DatumaroBinaryBase.infos"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.base.html#datumaro.plugins.data_formats.datumaro_binary.DatumaroBinaryBase.infos">[docs]</a>    <span class="k">def</span> <span class="nf">infos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infos</span></div>
+
+<div class="viewcode-block" id="DatumaroBinaryBase.categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.base.html#datumaro.plugins.data_formats.datumaro_binary.DatumaroBinaryBase.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span></div>
+
+<div class="viewcode-block" id="DatumaroBinaryBase.media_type"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.base.html#datumaro.plugins.data_formats.datumaro_binary.DatumaroBinaryBase.media_type">[docs]</a>    <span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span></div>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetItem</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span></div>
 </pre></div>
 
             </article>

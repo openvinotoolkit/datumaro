@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.coco.importer &#8212; Datumaro 1.3.2 documentation</title>
+    <title>datumaro.plugins.data_formats.coco.importer &#8212; Datumaro 1.4.0rc2 documentation</title>
   
   
   
@@ -343,7 +343,7 @@
                 <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">alternative</span><span class="p">():</span>
                     <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;annotations/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_*.json&quot;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_params</span><span class="p">):</span>
         <span class="n">subsets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_sources</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subsets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -382,6 +382,9 @@
                 <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">extra_params</span><span class="p">)</span>
                 <span class="n">options</span><span class="p">[</span><span class="s2">&quot;coco_importer_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_IMPORTER_TYPE</span>
                 <span class="n">options</span><span class="p">[</span><span class="s2">&quot;subset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span>
+
+                <span class="k">if</span> <span class="n">stream</span><span class="p">:</span>
+                    <span class="n">options</span><span class="p">[</span><span class="s2">&quot;stream&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">{</span>
@@ -429,7 +432,11 @@
             <span class="n">subset_name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">DEFAULT_SUBSET_NAME</span>
             <span class="n">subsets</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">subset_name</span><span class="p">,</span> <span class="p">{})[</span><span class="n">ann_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset_path</span>
 
-        <span class="k">return</span> <span class="n">subsets</span></div></div>
+        <span class="k">return</span> <span class="n">subsets</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">can_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 
 <div class="viewcode-block" id="CocoImageInfoImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoImageInfoImporter">[docs]</a><span class="k">class</span> <span class="nc">CocoImageInfoImporter</span><span class="p">(</span><span class="n">CocoImporter</span><span class="p">):</span>

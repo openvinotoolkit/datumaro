@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Refine &#8212; Datumaro 1.3.2 documentation</title>
+    <title>Refine &#8212; Datumaro 1.4.0rc2 documentation</title>
   
   
   
@@ -293,6 +293,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../level-up/advanced_skills/index.html">Advanced Skills</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../level-up/advanced_skills/12_project_versioning.html">Level 12: Project Versioning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../level-up/advanced_skills/13_pseudo_label_generation.html">Level 13: Pseudo Label Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../level-up/advanced_skills/14_data_pruning.html">Level 14: Dataset Pruning</a></li>
 </ul>
 </li>
 </ul>
@@ -373,6 +374,7 @@
 <li class="toctree-l2"><a class="reference internal" href="notebooks/11_validate.html">Validate Dataset To Detect Anomalies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/12_correct_dataset.html">Correct Dataset from Validation Report</a></li>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/04_filter.html">Filter Data through Your Query</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/17_data_pruning.html">Prune Dataset to extract representative subset</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="transform.html">Transform</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -403,6 +405,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../command-reference/context_free/generate.html">Generate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../command-reference/context_free/merge.html">Merge</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../command-reference/context_free/patch.html">Patch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../command-reference/context_free/prune.html">Prune</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../command-reference/context_free/stats.html">Stats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../command-reference/context_free/transform.html">Transform</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../command-reference/context_free/validate.html">Validate</a></li>
@@ -570,7 +573,7 @@
               
   <section id="refine">
 <h1>Refine<a class="headerlink" href="#refine" title="Permalink to this heading">#</a></h1>
-<p>We here provide the examples of dataset validation, correction and query-based filtration.</p>
+<p>We here provide the examples of dataset validation, correction, query-based filtration and pruning.</p>
 <p>Datumaro’s validator detects 22 anomalies such as missing or undefined label, far-from-mean outliers
 and generates the validation report by categorizing anomalies into <cite>info</cite>, <cite>warning</cite>, and <cite>error</cite>.
 Datumaro further offers the correction functionality from this validation report.</p>
@@ -581,6 +584,7 @@ Here, XML <a class="reference external" href="https://devhints.io/xpath">XPath</
 <code class="docutils literal notranslate"><span class="pre">/item[subset=&quot;minival2014&quot;]</span></code>, by the media id through <code class="docutils literal notranslate"><span class="pre">/item[id=&quot;290768&quot;]</span></code>, by the image sizes
 through <code class="docutils literal notranslate"><span class="pre">/item[image/width=image/height]</span></code>, and annotation information such as id (<code class="docutils literal notranslate"><span class="pre">id</span></code>), type
 (<code class="docutils literal notranslate"><span class="pre">type</span></code>), label (<code class="docutils literal notranslate"><span class="pre">label_id</span></code>), bounding box (<code class="docutils literal notranslate"><span class="pre">x,</span> <span class="pre">y,</span> <span class="pre">w,</span> <span class="pre">h</span></code>), etc.</p>
+<p>Through Prune API, you can create representative subsets of the entire dataset using various supported methods.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">item</span><span class="o">&gt;</span>
   <span class="o">&lt;</span><span class="nb">id</span><span class="o">&gt;</span><span class="mi">290768</span><span class="o">&lt;/</span><span class="nb">id</span><span class="o">&gt;</span>
   <span class="o">&lt;</span><span class="n">subset</span><span class="o">&gt;</span><span class="n">minival2014</span><span class="o">&lt;/</span><span class="n">subset</span><span class="o">&gt;</span>
@@ -638,6 +642,13 @@ datasets are updated in-place by default.</p>
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
 <div class="sd-card-body docutils">
 <p class="sd-card-text"><span class="sd-d-grid"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-outline-primary reference internal" href="notebooks/04_filter.html"><span class="doc">Filter Data through Your Query</span></a></span></p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<p class="sd-card-text"><span class="sd-d-grid"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-outline-primary reference internal" href="notebooks/17_data_pruning.html"><span class="doc">Prune Dataset to extract representative subset</span></a></span></p>
 </div>
 </div>
 </div>

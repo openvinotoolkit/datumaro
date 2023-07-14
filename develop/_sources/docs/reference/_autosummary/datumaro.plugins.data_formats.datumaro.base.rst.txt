@@ -18,6 +18,8 @@ datumaro.plugins.data\_formats.datumaro.base
    .. autosummary::
    
       DatumaroBase
+      JsonReader
+      StreamJsonReader
    
    
 

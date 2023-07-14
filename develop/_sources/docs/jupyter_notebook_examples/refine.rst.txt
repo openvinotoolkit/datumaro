@@ -1,7 +1,7 @@
 Refine
 ######
 
-We here provide the examples of dataset validation, correction and query-based filtration.
+We here provide the examples of dataset validation, correction, query-based filtration and pruning.
 
 Datumaro's validator detects 22 anomalies such as missing or undefined label, far-from-mean outliers
 and generates the validation report by categorizing anomalies into `info`, `warning`, and `error`.
@@ -16,6 +16,8 @@ For instance, with a given XML file below, we can filter a dataset by the subset
 ``/item[subset="minival2014"]``, by the media id through ``/item[id="290768"]``, by the image sizes
 through ``/item[image/width=image/height]``, and annotation information such as id (``id``), type
 (``type``), label (``label_id``), bounding box (``x, y, w, h``), etc.
+
+Through Prune API, you can create representative subsets of the entire dataset using various supported methods.
 
 .. code-block::
 
@@ -61,6 +63,7 @@ datasets are updated in-place by default.
    notebooks/11_validate
    notebooks/12_correct_dataset
    notebooks/04_filter
+   notebooks/17_data_pruning
 
 .. grid:: 1 2 2 2
    :gutter: 2
@@ -82,6 +85,13 @@ datasets are updated in-place by default.
    .. grid-item-card::
 
       .. button-ref:: notebooks/04_filter
+         :color: primary
+         :outline:
+         :expand:
+
+   .. grid-item-card::
+
+      .. button-ref:: notebooks/17_data_pruning
          :color: primary
          :outline:
          :expand:

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.datumaro.importer &#8212; Datumaro 1.3.2 documentation</title>
+    <title>datumaro.plugins.data_formats.datumaro.importer &#8212; Datumaro 1.4.0rc2 documentation</title>
   
   
   
@@ -282,8 +282,9 @@
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
 
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">ExtractorMerger</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.format_detection</span> <span class="kn">import</span> <span class="n">FormatDetectionConfidence</span><span class="p">,</span> <span class="n">FormatDetectionContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">Importer</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_json</span>
@@ -318,7 +319,14 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">PATH_CLS</span><span class="o">.</span><span class="n">ANNOTATION_EXT</span><span class="p">,</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
             <span class="n">dirname</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">PATH_CLS</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">,</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">can_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="DatumaroImporter.get_extractor_merger"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.importer.html#datumaro.plugins.data_formats.datumaro.importer.DatumaroImporter.get_extractor_merger">[docs]</a>    <span class="k">def</span> <span class="nf">get_extractor_merger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">ExtractorMerger</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">ExtractorMerger</span></div></div>
 </pre></div>
 
             </article>

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.datumaro.base &#8212; Datumaro 1.3.2 documentation</title>
+    <title>datumaro.plugins.data_formats.datumaro.base &#8212; Datumaro 1.4.0rc2 documentation</title>
   
   
   
@@ -282,7 +282,10 @@
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">import</span> <span class="nn">json_stream</span>
+<span class="kn">from</span> <span class="nn">json_stream.base</span> <span class="kn">import</span> <span class="n">StreamingJSONObject</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AnnotationType</span><span class="p">,</span>
@@ -302,90 +305,44 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">SubsetBase</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetImportError</span><span class="p">,</span> <span class="n">MediaTypeError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MediaElement</span><span class="p">,</span> <span class="n">PointCloud</span>
-<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_json_file</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MediaElement</span><span class="p">,</span> <span class="n">MediaType</span><span class="p">,</span> <span class="n">PointCloud</span>
+<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_json_file</span><span class="p">,</span> <span class="n">to_dict_from_streaming_json</span>
 <span class="kn">from</span> <span class="nn">datumaro.version</span> <span class="kn">import</span> <span class="n">__version__</span>
 
 <span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">DATUMARO_FORMAT_VERSION</span><span class="p">,</span> <span class="n">DatumaroPath</span>
 
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DatumaroBase&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="DatumaroBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.base.html#datumaro.plugins.data_formats.datumaro.base.DatumaroBase">[docs]</a><span class="k">class</span> <span class="nc">DatumaroBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
-    <span class="n">LEGACY_VERSION</span> <span class="o">=</span> <span class="s2">&quot;legacy&quot;</span>
-    <span class="n">CURRENT_DATUMARO_FORMAT_VERSION</span> <span class="o">=</span> <span class="n">DATUMARO_FORMAT_VERSION</span>
 
-    <span class="c1"># If Datumaro format version goes up, it will be</span>
-    <span class="c1"># ALLOWED_VERSIONS = {LEGACY_VERSION, 1.0, ..., CURRENT_DATUMARO_FORMAT_VERSION}</span>
-    <span class="n">ALLOWED_VERSIONS</span> <span class="o">=</span> <span class="p">{</span><span class="n">LEGACY_VERSION</span><span class="p">,</span> <span class="n">CURRENT_DATUMARO_FORMAT_VERSION</span><span class="p">}</span>
-
+<div class="viewcode-block" id="JsonReader"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.base.html#datumaro.plugins.data_formats.datumaro.base.JsonReader">[docs]</a><span class="k">class</span> <span class="nc">JsonReader</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ImportContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="k">assert</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">path</span>
-
-        <span class="n">dm_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dm_format_version</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-
-        <span class="c1"># when backward compatibility happen, we should implement version specific readers</span>
-        <span class="k">if</span> <span class="n">dm_version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALLOWED_VERSIONS</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Datumaro format version of the given dataset is </span><span class="si">{</span><span class="n">dm_version</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;but not supported by this Datumaro version: </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;The allowed datumaro format versions are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ALLOWED_VERSIONS</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;Please install the latest Datumaro.&quot;</span>
-            <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">default_reader</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
-
-<div class="viewcode-block" id="DatumaroBase.default_reader"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.base.html#datumaro.plugins.data_formats.datumaro.base.DatumaroBase.default_reader">[docs]</a>    <span class="k">def</span> <span class="nf">default_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Default Datumaro reader for the latest version</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">rootpath</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DatumaroPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))):</span>
-            <span class="n">rootpath</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">DatumaroPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rootpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">images_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pcd_dir</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span> <span class="o">=</span> <span class="n">subset</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">rootpath</span>
-
-        <span class="n">images_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">rootpath</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">DatumaroPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)):</span>
-            <span class="n">images_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">DatumaroPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span> <span class="o">=</span> <span class="n">images_dir</span>
-
-        <span class="n">pcd_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">rootpath</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">DatumaroPath</span><span class="o">.</span><span class="n">PCD_DIR</span><span class="p">)):</span>
-            <span class="n">pcd_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">DatumaroPath</span><span class="o">.</span><span class="n">PCD_DIR</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pcd_dir</span> <span class="o">=</span> <span class="n">pcd_dir</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="p">:</span>
-            <span class="n">subset</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_reader</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">media_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_media_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_infos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_load_impl</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">_get_dm_format_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get Datumaro format at exporting the dataset</span>
-
-<span class="sd">        Note that the regacy Datumaro doesn&#39;t store the version into exported dataset.</span>
-<span class="sd">        Thus it returns DatumaroBase.REGACY_VERSION</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_parsed_anns</span> <span class="o">=</span> <span class="n">parse_json_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed_anns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dm_format_version&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LEGACY_VERSION</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_load_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actual implementation of loading Datumaro format.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_infos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parsed_anns</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parsed_anns</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parsed_anns</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_init_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">parse_json_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_load_infos</span><span class="p">(</span><span class="n">parsed</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_load_media_type</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]:</span>
+        <span class="n">media_type</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;media_type&quot;</span><span class="p">,</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MediaType</span><span class="p">(</span><span class="n">media_type</span><span class="p">)</span><span class="o">.</span><span class="n">media</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_load_infos</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;infos&quot;</span><span class="p">,</span> <span class="p">{})</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_load_categories</span><span class="p">(</span><span class="n">parsed</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_load_categories</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">parsed_label_cat</span> <span class="o">=</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;categories&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -424,67 +381,72 @@
 
         <span class="k">return</span> <span class="n">categories</span>
 
-    <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parsed</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parsed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">item_descs</span> <span class="o">=</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
         <span class="k">while</span> <span class="n">item_descs</span><span class="p">:</span>
             <span class="n">item_desc</span> <span class="o">=</span> <span class="n">item_descs</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-            <span class="n">item_id</span> <span class="o">=</span> <span class="n">item_desc</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
-
-            <span class="n">media</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">image_info</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">image_info</span><span class="p">:</span>
-                <span class="n">image_filename</span> <span class="o">=</span> <span class="n">image_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">item_id</span> <span class="o">+</span> <span class="n">DatumaroPath</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
-                <span class="n">image_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">image_path</span><span class="p">):</span>
-                    <span class="c1"># backward compatibility</span>
-                    <span class="n">old_image_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">old_image_path</span><span class="p">):</span>
-                        <span class="n">image_path</span> <span class="o">=</span> <span class="n">old_image_path</span>
-
-                <span class="n">media</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">image_path</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">image_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="o">=</span> <span class="n">Image</span>
-
-            <span class="n">pcd_info</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;point_cloud&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">media</span> <span class="ow">and</span> <span class="n">pcd_info</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Dataset cannot contain multiple media types&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">pcd_info</span><span class="p">:</span>
-                <span class="n">pcd_path</span> <span class="o">=</span> <span class="n">pcd_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span>
-                <span class="n">point_cloud</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">pcd_path</span><span class="p">)</span>
-
-                <span class="n">related_images</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">ri_info</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;related_images&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">ri_info</span><span class="p">:</span>
-                    <span class="n">related_images</span> <span class="o">=</span> <span class="p">[</span>
-                        <span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
-                            <span class="n">size</span><span class="o">=</span><span class="n">ri</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">),</span>
-                            <span class="n">path</span><span class="o">=</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">ri</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)),</span>
-                        <span class="p">)</span>
-                        <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">ri_info</span>
-                    <span class="p">]</span>
-
-                <span class="n">media</span> <span class="o">=</span> <span class="n">PointCloud</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">point_cloud</span><span class="p">,</span> <span class="n">extra_images</span><span class="o">=</span><span class="n">related_images</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="o">=</span> <span class="n">PointCloud</span>
-
-            <span class="n">media_desc</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;media&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">media</span> <span class="ow">and</span> <span class="n">media_desc</span> <span class="ow">and</span> <span class="n">media_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">):</span>
-                <span class="n">media</span> <span class="o">=</span> <span class="n">MediaElement</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">media_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="o">=</span> <span class="n">MediaElement</span>
-
-            <span class="n">annotations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_annotations</span><span class="p">(</span><span class="n">item_desc</span><span class="p">)</span>
-
-            <span class="n">item</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span>
-                <span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span>
-                <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span>
-                <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
-                <span class="n">media</span><span class="o">=</span><span class="n">media</span><span class="p">,</span>
-                <span class="n">attributes</span><span class="o">=</span><span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attr&quot;</span><span class="p">),</span>
-            <span class="p">)</span>
-
+            <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_item</span><span class="p">(</span><span class="n">item_desc</span><span class="p">)</span>
             <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">items</span>
+
+    <span class="k">def</span> <span class="nf">_parse_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_desc</span><span class="p">):</span>
+        <span class="n">item_id</span> <span class="o">=</span> <span class="n">item_desc</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+
+        <span class="n">media</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">image_info</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">image_info</span><span class="p">:</span>
+            <span class="n">image_filename</span> <span class="o">=</span> <span class="n">image_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">item_id</span> <span class="o">+</span> <span class="n">DatumaroPath</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">image_path</span><span class="p">):</span>
+                <span class="c1"># backward compatibility</span>
+                <span class="n">old_image_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">old_image_path</span><span class="p">):</span>
+                    <span class="n">image_path</span> <span class="o">=</span> <span class="n">old_image_path</span>
+
+            <span class="n">media</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">image_path</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">image_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaElement</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">media_type</span> <span class="o">=</span> <span class="n">Image</span>
+
+        <span class="n">pcd_info</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;point_cloud&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">media</span> <span class="ow">and</span> <span class="n">pcd_info</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Dataset cannot contain multiple media types&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pcd_info</span><span class="p">:</span>
+            <span class="n">pcd_path</span> <span class="o">=</span> <span class="n">pcd_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span>
+            <span class="n">point_cloud</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">pcd_path</span><span class="p">)</span>
+
+            <span class="n">related_images</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">ri_info</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;related_images&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ri_info</span><span class="p">:</span>
+                <span class="n">related_images</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+                        <span class="n">size</span><span class="o">=</span><span class="n">ri</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">),</span>
+                        <span class="n">path</span><span class="o">=</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">ri</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)),</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">ri_info</span>
+                <span class="p">]</span>
+
+            <span class="n">media</span> <span class="o">=</span> <span class="n">PointCloud</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">point_cloud</span><span class="p">,</span> <span class="n">extra_images</span><span class="o">=</span><span class="n">related_images</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaElement</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">media_type</span> <span class="o">=</span> <span class="n">PointCloud</span>
+
+        <span class="n">media_desc</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;media&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">media</span> <span class="ow">and</span> <span class="n">media_desc</span> <span class="ow">and</span> <span class="n">media_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">):</span>
+            <span class="n">media</span> <span class="o">=</span> <span class="n">MediaElement</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">media_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">))</span>
+
+        <span class="n">annotations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_annotations</span><span class="p">(</span><span class="n">item_desc</span><span class="p">)</span>
+
+        <span class="n">item</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span>
+            <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span>
+            <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
+            <span class="n">media</span><span class="o">=</span><span class="n">media</span><span class="p">,</span>
+            <span class="n">attributes</span><span class="o">=</span><span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attr&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">item</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_load_annotations</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
@@ -604,7 +566,169 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">loaded</span></div>
+        <span class="k">return</span> <span class="n">loaded</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span></div>
+
+
+<div class="viewcode-block" id="StreamJsonReader"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.base.html#datumaro.plugins.data_formats.datumaro.base.StreamJsonReader">[docs]</a><span class="k">class</span> <span class="nc">StreamJsonReader</span><span class="p">(</span><span class="n">JsonReader</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rootpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">images_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pcd_dir</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">rootpath</span><span class="p">,</span> <span class="n">images_dir</span><span class="p">,</span> <span class="n">pcd_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json_stream</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">items</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span><span class="s1">&#39;Annotation JSON file should have &quot;items&quot; entity.&#39;</span><span class="p">)</span>
+
+            <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                <span class="n">item_desc</span> <span class="o">=</span> <span class="n">to_dict_from_streaming_json</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">length</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_item</span><span class="p">(</span><span class="n">item_desc</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">!=</span> <span class="n">length</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="n">length</span>
+
+    <span class="k">def</span> <span class="nf">_init_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">path</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_load_media_type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json_stream</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="n">media_type</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;media_type&quot;</span><span class="p">,</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">MediaType</span><span class="p">(</span><span class="n">media_type</span><span class="p">)</span><span class="o">.</span><span class="n">media</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_load_infos</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json_stream</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="n">infos</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;infos&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">infos</span><span class="p">,</span> <span class="n">StreamingJSONObject</span><span class="p">):</span>
+                <span class="n">infos</span> <span class="o">=</span> <span class="n">to_dict_from_streaming_json</span><span class="p">(</span><span class="n">infos</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">infos</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_load_categories</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json_stream</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="n">categories</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;categories&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="n">StreamingJSONObject</span><span class="p">):</span>
+                <span class="n">categories</span> <span class="o">=</span> <span class="n">to_dict_from_streaming_json</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">JsonReader</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">({</span><span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">categories</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parsed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="DatumaroBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.base.html#datumaro.plugins.data_formats.datumaro.base.DatumaroBase">[docs]</a><span class="k">class</span> <span class="nc">DatumaroBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+    <span class="n">LEGACY_VERSION</span> <span class="o">=</span> <span class="s2">&quot;legacy&quot;</span>
+    <span class="n">CURRENT_DATUMARO_FORMAT_VERSION</span> <span class="o">=</span> <span class="n">DATUMARO_FORMAT_VERSION</span>
+
+    <span class="c1"># If Datumaro format version goes up, it will be</span>
+    <span class="c1"># ALLOWED_VERSIONS = {LEGACY_VERSION, 1.0, ..., CURRENT_DATUMARO_FORMAT_VERSION}</span>
+    <span class="n">ALLOWED_VERSIONS</span> <span class="o">=</span> <span class="p">{</span><span class="n">LEGACY_VERSION</span><span class="p">,</span> <span class="n">CURRENT_DATUMARO_FORMAT_VERSION</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ImportContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">assert</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">path</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">subset</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">subset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stream</span> <span class="o">=</span> <span class="n">stream</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">dm_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dm_format_version</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c1"># when backward compatibility happen, we should implement version specific readers</span>
+        <span class="k">if</span> <span class="n">dm_version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALLOWED_VERSIONS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Datumaro format version of the given dataset is </span><span class="si">{</span><span class="n">dm_version</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but not supported by this Datumaro version: </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;The allowed datumaro format versions are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ALLOWED_VERSIONS</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Please install the latest Datumaro.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_impl</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_init_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize path variables&quot;&quot;&quot;</span>
+        <span class="n">rootpath</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DatumaroPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))):</span>
+            <span class="n">rootpath</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">DatumaroPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">rootpath</span>
+
+        <span class="n">images_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">rootpath</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">DatumaroPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)):</span>
+            <span class="n">images_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">DatumaroPath</span><span class="o">.</span><span class="n">IMAGES_DIR</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span> <span class="o">=</span> <span class="n">images_dir</span>
+
+        <span class="n">pcd_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">rootpath</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">DatumaroPath</span><span class="o">.</span><span class="n">PCD_DIR</span><span class="p">)):</span>
+            <span class="n">pcd_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">DatumaroPath</span><span class="o">.</span><span class="n">PCD_DIR</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pcd_dir</span> <span class="o">=</span> <span class="n">pcd_dir</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream</span>
+
+<div class="viewcode-block" id="DatumaroBase.infos"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.base.html#datumaro.plugins.data_formats.datumaro.base.DatumaroBase.infos">[docs]</a>    <span class="k">def</span> <span class="nf">infos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="o">.</span><span class="n">infos</span></div>
+
+<div class="viewcode-block" id="DatumaroBase.categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.base.html#datumaro.plugins.data_formats.datumaro.base.DatumaroBase.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="o">.</span><span class="n">categories</span></div>
+
+<div class="viewcode-block" id="DatumaroBase.media_type"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.base.html#datumaro.plugins.data_formats.datumaro.base.DatumaroBase.media_type">[docs]</a>    <span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="o">.</span><span class="n">media_type</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actual implementation of loading Datumaro format.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">JsonReader</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pcd_dir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream</span>
+            <span class="k">else</span> <span class="n">StreamJsonReader</span><span class="p">(</span>
+                <span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pcd_dir</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span>
+
+    <span class="k">def</span> <span class="nf">_get_dm_format_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get Datumaro format at exporting the dataset</span>
+
+<span class="sd">        Note that the legacy Datumaro doesn&#39;t store the version into exported dataset.</span>
+<span class="sd">        Thus it returns DatumaroBase.LEGACY_VERSION</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">json_stream</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dm_format_version&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LEGACY_VERSION</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">version</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetItem</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span></div>
 </pre></div>
 
             </article>

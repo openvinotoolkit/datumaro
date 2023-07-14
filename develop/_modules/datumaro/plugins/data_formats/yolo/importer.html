@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.yolo.importer &#8212; Datumaro 1.3.2 documentation</title>
+    <title>datumaro.plugins.data_formats.yolo.importer &#8212; Datumaro 1.4.0rc2 documentation</title>
   
   
   
@@ -284,14 +284,15 @@
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">TextIOWrapper</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
 
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">ExtractorMerger</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetImportError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.format_detection</span> <span class="kn">import</span> <span class="n">FormatDetectionConfidence</span><span class="p">,</span> <span class="n">FormatDetectionContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">Importer</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="n">extract_subset_name_from_parent</span>
 
-<span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">YoloFormatType</span><span class="p">,</span> <span class="n">YoloLoosePath</span><span class="p">,</span> <span class="n">YoloUltralyticsPath</span>
+<span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">YoloFormatType</span><span class="p">,</span> <span class="n">YoloLoosePath</span><span class="p">,</span> <span class="n">YoloPath</span><span class="p">,</span> <span class="n">YoloUltralyticsPath</span>
 
 
 <span class="k">class</span> <span class="nc">_YoloStrictImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
@@ -300,8 +301,22 @@
         <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;obj.data&quot;</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.data&quot;</span><span class="p">,</span> <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_strict</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.data&quot;</span><span class="p">,</span> <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_strict</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">config_path</span> <span class="o">=</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">YoloPath</span><span class="o">.</span><span class="n">_parse_config</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+        <span class="n">subsets</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">config</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">YoloPath</span><span class="o">.</span><span class="n">RESERVED_CONFIG_KEYS</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">config_path</span><span class="p">,</span>
+                <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_strict</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;subset&quot;</span><span class="p">:</span> <span class="n">subset</span><span class="p">},</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">subsets</span>
+        <span class="p">]</span>
 
 
 <span class="k">class</span> <span class="nc">_YoloLooseImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
@@ -414,6 +429,10 @@
 
         <span class="k">return</span> <span class="p">[]</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">can_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
 
 <span class="k">class</span> <span class="nc">_YoloUltralyticsImporter</span><span class="p">(</span><span class="n">_YoloLooseImporter</span><span class="p">):</span>
     <span class="n">META_FILE</span> <span class="o">=</span> <span class="n">YoloUltralyticsPath</span><span class="o">.</span><span class="n">META_FILE</span>
@@ -445,7 +464,10 @@
             <span class="k">if</span> <span class="n">sources</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">sources</span>
 
-        <span class="k">return</span> <span class="p">[]</span></div></div>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="YoloImporter.get_extractor_merger"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter.get_extractor_merger">[docs]</a>    <span class="k">def</span> <span class="nf">get_extractor_merger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ExtractorMerger</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="n">ExtractorMerger</span></div></div>
 </pre></div>
 
             </article>

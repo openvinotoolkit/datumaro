@@ -26,6 +26,7 @@ datumaro.util
       parse_json_file
       parse_str_enum_value
       take_by
+      to_dict_from_streaming_json
       to_snake_case
       unescape
    

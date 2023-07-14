@@ -19,6 +19,7 @@ datumaro.components.dataset\_base
    
       DatasetBase
       DatasetItem
+      ExtractorMerger
       IDataset
       SubsetBase
    

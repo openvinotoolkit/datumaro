@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.components.errors &#8212; Datumaro 1.3.2 documentation</title>
+    <title>datumaro.components.errors &#8212; Datumaro 1.4.0rc2 documentation</title>
   
   
   
@@ -478,11 +478,11 @@
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="DatasetImportError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetImportError">[docs]</a><span class="k">class</span> <span class="nc">DatasetImportError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetImportError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.base.html#datumaro.cli.commands.require_project.modification.add.DatasetImportError">[docs]</a><span class="k">class</span> <span class="nc">DatasetImportError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="InvalidAnnotationError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.InvalidAnnotationError">[docs]</a><span class="k">class</span> <span class="nc">InvalidAnnotationError</span><span class="p">(</span><span class="n">DatasetImportError</span><span class="p">):</span>
+<div class="viewcode-block" id="InvalidAnnotationError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.base.html#datumaro.cli.commands.require_project.modification.add.InvalidAnnotationError">[docs]</a><span class="k">class</span> <span class="nc">InvalidAnnotationError</span><span class="p">(</span><span class="n">DatasetImportError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A basic dataset parsing error. Should include the problem description in</span>
 <span class="sd">    the message.</span>
@@ -520,7 +520,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Missing annotation field &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
 
 
-<div class="viewcode-block" id="UndeclaredLabelError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UndeclaredLabelError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="UndeclaredLabelError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.base.html#datumaro.cli.commands.require_project.modification.add.UndeclaredLabelError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UndeclaredLabelError</span><span class="p">(</span><span class="n">InvalidAnnotationError</span><span class="p">):</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Index or name&quot;&quot;&quot;</span>
@@ -583,7 +583,7 @@
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MediaTypeError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MediaTypeError">[docs]</a><span class="k">class</span> <span class="nc">MediaTypeError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+<div class="viewcode-block" id="MediaTypeError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.base.html#datumaro.cli.commands.require_project.modification.add.MediaTypeError">[docs]</a><span class="k">class</span> <span class="nc">MediaTypeError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
