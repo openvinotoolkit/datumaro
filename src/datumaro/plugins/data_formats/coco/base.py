@@ -266,7 +266,7 @@ class _CocoBase(SubsetBase):
 
         for img_info, ann_infos in pbars.iter(
             self._page_mapper,
-            desc=f"Parsing image info in '{osp.basename(self._path)}'",
+            desc=f"Importing '{self._subset}'",
         ):
             parsed = self._parse_item(img_info)
             if parsed is None:
@@ -314,7 +314,7 @@ class _CocoBase(SubsetBase):
         for ann_info in pbar.iter(
             _gen_ann(ann_lists),
             desc=f"Importing '{self._subset}'",
-            total=len(img_lists),
+            total=len(ann_lists),
         ):
             try:
                 img_id = self._parse_field(ann_info, "image_id", int)
