@@ -162,7 +162,6 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset_url = osp.join(test_dir, "dataset")
-        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset_url, "datumaro", save_media=True)
 
@@ -172,8 +171,8 @@ class ExploreTest(TestCase):
             self,
             "explore",
             "source-1",
-            "--query-img-path",
-            train_image_path,
+            "--query-str",
+            "a photo of a upper white and bottom black background",
             "-topk",
             "2",
             "-p",
