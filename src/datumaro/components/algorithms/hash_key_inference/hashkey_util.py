@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os
-
 import numpy as np
 
 from datumaro.components.annotation import HashKey
