@@ -182,6 +182,7 @@ class Exporter(CliPlugin):
         default_image_ext: Optional[str] = None,
         save_dataset_meta: bool = False,
         save_hashkey_meta: bool = False,
+        stream: bool = False,
         ctx: Optional[ExportContext] = None,
     ):
         default_image_ext = default_image_ext or self.DEFAULT_IMAGE_EXT
@@ -221,6 +222,12 @@ class Exporter(CliPlugin):
             self._patch = extractor.patch
         else:
             self._patch = None
+
+        if stream and not self.can_stream:
+            raise DatasetExportError(
+                f"{self.__class__.__name__} cannot export a dataset in a stream manner"
+            )
+        self._stream = stream
 
         self._ctx: ExportContext = ctx or NullExportContext()
 
@@ -298,6 +305,11 @@ class Exporter(CliPlugin):
             if isinstance(annotation, HashKey):
                 self._save_hashkey_meta = True
                 return
+
+    @property
+    def can_stream(self) -> bool:
+        """Flag to indicate whether the exporter can export the dataset in a stream manner or not."""
+        return False
 
 
 # TODO: Currently, ExportContextComponent is introduced only for Datumaro and DatumaroBinary format

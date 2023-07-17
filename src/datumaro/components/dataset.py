@@ -587,6 +587,7 @@ class Dataset(IDataset):
 
         assert "ctx" not in kwargs
         exporter_kwargs = copy(kwargs)
+        exporter_kwargs["stream"] = self._stream
         exporter_kwargs["ctx"] = ExportContext(
             progress_reporter=progress_reporter, error_policy=error_policy
         )

@@ -189,6 +189,10 @@ class YoloExporter(Exporter):
             if osp.isfile(ann_path):
                 os.remove(ann_path)
 
+    @property
+    def can_stream(self) -> bool:
+        return True
+
 
 class YoloUltralyticsExporter(YoloExporter):
     allowed_subset_names = {"train", "val", "test"}
