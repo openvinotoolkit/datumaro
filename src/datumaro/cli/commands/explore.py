@@ -140,10 +140,6 @@ def explore_command(args):
         project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
-    # Get query datasetitem through query path
-    input_query = args.query_img_path or args.query_item_id or args.query_str
-
-    # input_query is one img path
     if args.query_img_path:
         querys = [args.query_img_path]
         query_datasetitems = []
