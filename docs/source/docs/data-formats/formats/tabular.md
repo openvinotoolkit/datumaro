@@ -103,3 +103,13 @@ Note that converting a tabular dataset into other formats and vice versa is not 
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/unit/test_tabular_format.py)
+
+Examples below are [Electricity](https://www.openml.org/d/44156) dataset.
+
+|     date |   day |   period |   nswprice |   nswdemand |   vicprice |   vicdemand |   transfer | class   |
+|---------:|------:|---------:|-----------:|------------:|-----------:|------------:|-----------:|:--------|
+| 0.425556 |     5 | 0.340426 |   0.076108 |    0.392889 |   0.003467 |    0.422915 |   0.414912 | UP      |
+| 0.425512 |     4 | 0.617021 |   0.060376 |    0.483041 |   0.003467 |    0.422915 |   0.414912 | DOWN    |
+| 0.013982 |     4 | 0.042553 |   0.061967 |    0.521125 |   0.003467 |    0.422915 |   0.414912 | DOWN    |
+| 0.907349 |     3 | 0.06383  |   0.080581 |    0.331003 |   0.00538  |    0.47566  |   0.441228 | DOWN    |
+| 0.889341 |     0 | 0.361702 |   0.027141 |    0.379649 |   0.001624 |    0.248317 |   0.69386  | DOWN    |
