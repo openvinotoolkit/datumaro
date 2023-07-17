@@ -186,6 +186,8 @@ class TQDMProgressReporter(ProgressReporter):
         self._cur = progress
 
     def finish(self):
+        if self._total is None:
+            self._total = self._cur  # Total can be None
         self._pbar.update(self._total - self._cur)
         self._pbar.close()
 
