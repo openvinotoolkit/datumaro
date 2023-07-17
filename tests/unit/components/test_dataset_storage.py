@@ -75,29 +75,35 @@ class StreamDatasetStorageTest:
         n_calls = 1
 
         self._test_loop(fxt_stream_extractor, storage, n_calls)
+        assert fxt_stream_extractor.__iter__.call_count == 1
 
         # Stack transform 1 level
         storage.transform(Rename, regex="|item_|rename_|")
         self._test_loop(fxt_stream_extractor, storage, n_calls, id_pattern="rename_{idx}")
+        assert fxt_stream_extractor.__iter__.call_count == 2
 
         # Stack transform 2 level
         storage.transform(Rename, regex="|rename_|renameagain_|")
         self._test_loop(fxt_stream_extractor, storage, n_calls, id_pattern="renameagain_{idx}")
+        assert fxt_stream_extractor.__iter__.call_count == 3
 
     def test_subset_transform(self, fxt_stream_extractor: MagicMock):
         storage = StreamDatasetStorage(source=fxt_stream_extractor)
 
         self._test_subsets(fxt_stream_extractor, storage)
+        assert fxt_stream_extractor.__iter__.call_count == 1
 
         # Stack transform 1 level
         storage.transform(RandomSplit, splits=[("train", 0.5), ("val", 0.5)], seed=3003)
         self._test_subsets(fxt_stream_extractor, storage, expect={"train", "val"})
+        assert fxt_stream_extractor.__iter__.call_count == 2
 
         # Stack transform 2 level
         storage.transform(
             MapSubsets, mapping={"train": DEFAULT_SUBSET_NAME, "val": DEFAULT_SUBSET_NAME}
         )
         self._test_subsets(fxt_stream_extractor, storage)
+        assert fxt_stream_extractor.__iter__.call_count == 3
 
     def test_info_transform(self, fxt_stream_extractor: MagicMock, fxt_infos: DatasetInfo):
         storage = StreamDatasetStorage(source=fxt_stream_extractor)
@@ -108,6 +114,7 @@ class StreamDatasetStorageTest:
         storage.transform(ProjectInfos, dst_infos=dst_infos)
 
         assert storage.infos().get("new") == "info"
+        assert fxt_stream_extractor.__iter__.call_count == 0
 
     def test_categories_transform(
         self, fxt_stream_extractor: MagicMock, fxt_categories: CategoriesInfo
@@ -122,3 +129,5 @@ class StreamDatasetStorageTest:
         actual = set(cat.name for cat in storage.categories()[AnnotationType.label])
         expect = set(mapping.values())
         assert actual == expect
+
+        assert fxt_stream_extractor.__iter__.call_count == 0
