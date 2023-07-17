@@ -5,9 +5,9 @@
 import os.path as osp
 from typing import Optional, Type
 
-from datumaro.components.dataset_base import ExtractorMerger
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
+from datumaro.components.merge.extractor_merger import ExtractorMerger
 
 from .format import VocPath, VocTask
 

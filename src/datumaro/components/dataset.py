@@ -744,7 +744,7 @@ class Dataset(IDataset):
                     )
 
             dataset = (
-                cls(source=extractor_merger(*extractors), env=env)
+                cls(source=extractor_merger(extractors), env=env)
                 if extractor_merger is not None
                 else cls.from_extractors(*extractors, env=env, merge_policy=merge_policy)
             )

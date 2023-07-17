@@ -9,88 +9,32 @@ import os.path as osp
 from contextlib import contextmanager
 from functools import wraps
 from glob import iglob
-from typing import Callable, Dict, List, NoReturn, Optional, Tuple, Type, TypeVar
-
-import attr
-from attr import define, field
+from typing import Callable, Dict, List, Optional, Type, TypeVar
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.errors import (
-    AnnotationImportError,
-    DatasetImportError,
-    DatasetNotFoundError,
-    DatumaroError,
-    ItemImportError,
+from datumaro.components.contexts.importer import (
+    FailingImportErrorPolicy,
+    ImportContext,
+    ImportErrorPolicy,
+    NullImportContext,
+    _ImportFail,
 )
+from datumaro.components.errors import DatasetImportError, DatasetNotFoundError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
-from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
+from datumaro.components.merge.extractor_merger import ExtractorMerger
 from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
 
 T = TypeVar("T")
-# TODO: we should refactor code to import `ExtractorMerger` from datumaro.component.dataset_base
-# Currently, it is impossible due to a circular import.
-ExtractorMerger = TypeVar("ExtractorMerger")
 
-
-class _ImportFail(DatumaroError):
-    pass
-
-
-class ImportErrorPolicy:
-    def report_item_error(self, error: Exception, *, item_id: Tuple[str, str]) -> None:
-        """
-        Allows to report a problem with a dataset item.
-        If this function returns, the extractor must skip the item.
-        """
-
-        if not isinstance(error, _ImportFail):
-            ie = ItemImportError(item_id)
-            ie.__cause__ = error
-            return self._handle_item_error(ie)
-        else:
-            raise error
-
-    def report_annotation_error(self, error: Exception, *, item_id: Tuple[str, str]) -> None:
-        """
-        Allows to report a problem with a dataset item annotation.
-        If this function returns, the extractor must skip the annotation.
-        """
-
-        if not isinstance(error, _ImportFail):
-            ie = AnnotationImportError(item_id)
-            ie.__cause__ = error
-            return self._handle_annotation_error(ie)
-        else:
-            raise error
-
-    def _handle_item_error(self, error: ItemImportError) -> None:
-        """This function must either call fail() or return."""
-        self.fail(error)
-
-    def _handle_annotation_error(self, error: AnnotationImportError) -> None:
-        """This function must either call fail() or return."""
-        self.fail(error)
-
-    def fail(self, error: Exception) -> NoReturn:
-        raise _ImportFail from error
-
-
-class FailingImportErrorPolicy(ImportErrorPolicy):
-    pass
-
-
-@define(eq=False)
-class ImportContext:
-    progress_reporter: ProgressReporter = field(
-        default=None, converter=attr.converters.default_if_none(factory=NullProgressReporter)
-    )
-    error_policy: ImportErrorPolicy = field(
-        default=None, converter=attr.converters.default_if_none(factory=FailingImportErrorPolicy)
-    )
-
-
-class NullImportContext(ImportContext):
-    pass
+__all__ = [
+    "ImportContext",
+    "NullImportContext",
+    "_ImportFail",
+    "Importer",
+    "with_subset_dirs",
+    "ImportErrorPolicy",
+    "FailingImportErrorPolicy",
+]
 
 
 class Importer(CliPlugin):
@@ -211,6 +155,9 @@ class Importer(CliPlugin):
         Datumaro import process spawns multiple `DatasetBase` for the detected sources.
         We can find a bunch of the detected sources from the given directory path.
         It is usually each detected source is corresponded to the subset of dataset in many data formats.
+
+        Parameters:
+            stream: There can exist a branch according to `stream` flag
 
         Returns:
             If None, use `Dataset.from_extractors()` to merge the extractors,
