@@ -155,7 +155,9 @@ def explore_command(args):
                     break
             query_datasetitems.append(query_datasetitem)
     elif args.query_item_id:
-        querys = [args.query_item_id] if not type(args.query_item_id, list) else args.query_item_id
+        querys = (
+            [args.query_item_id] if not isinstance(args.query_item_id, list) else args.query_item_id
+        )
         query_datasetitems = []
         for query in querys:
             for dataset in source_datasets:
