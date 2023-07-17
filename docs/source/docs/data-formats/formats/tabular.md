@@ -100,16 +100,23 @@ dataset.export('<path/to/output/dir>', 'tabular')
 Note that converting a tabular dataset into other formats and vice versa is not supproted.
 
 ## Examples
-
 Examples of using this format from the code can be found in
-[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/unit/test_tabular_format.py)
+[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/unit/test_tabular_format.py).
+The datasets here are randomly sampled and you can find the full dataset below.
+- Electricity Datset: <https://www.openml.org/d/44156>
+    |     date |   day |   period |   nswprice |   nswdemand |   vicprice |   vicdemand |   transfer | class   |
+    |---------:|------:|---------:|-----------:|------------:|-----------:|------------:|-----------:|:--------|
+    | 0.425556 |     5 | 0.340426 |   0.076108 |    0.392889 |   0.003467 |    0.422915 |   0.414912 | UP      |
+    | 0.425512 |     4 | 0.617021 |   0.060376 |    0.483041 |   0.003467 |    0.422915 |   0.414912 | DOWN    |
+    | 0.013982 |     4 | 0.042553 |   0.061967 |    0.521125 |   0.003467 |    0.422915 |   0.414912 | DOWN    |
+    | 0.907349 |     3 | 0.06383  |   0.080581 |    0.331003 |   0.00538  |    0.47566  |   0.441228 | DOWN    |
+    | 0.889341 |     0 | 0.361702 |   0.027141 |    0.379649 |   0.001624 |    0.248317 |   0.69386  | DOWN    |
 
-Examples below are [Electricity](https://www.openml.org/d/44156) dataset.
-
-|     date |   day |   period |   nswprice |   nswdemand |   vicprice |   vicdemand |   transfer | class   |
-|---------:|------:|---------:|-----------:|------------:|-----------:|------------:|-----------:|:--------|
-| 0.425556 |     5 | 0.340426 |   0.076108 |    0.392889 |   0.003467 |    0.422915 |   0.414912 | UP      |
-| 0.425512 |     4 | 0.617021 |   0.060376 |    0.483041 |   0.003467 |    0.422915 |   0.414912 | DOWN    |
-| 0.013982 |     4 | 0.042553 |   0.061967 |    0.521125 |   0.003467 |    0.422915 |   0.414912 | DOWN    |
-| 0.907349 |     3 | 0.06383  |   0.080581 |    0.331003 |   0.00538  |    0.47566  |   0.441228 | DOWN    |
-| 0.889341 |     0 | 0.361702 |   0.027141 |    0.379649 |   0.001624 |    0.248317 |   0.69386  | DOWN    |
+- Buddy Dataset: <https://www.kaggle.com/datasets/akash14/adopt-a-buddy>
+    | pet_id     | issue_date          | listing_date        |   condition | color_type   |   length(m) |   height(cm) |   X1 |   X2 |   breed_category |   pet_category |
+    |:-----------|:--------------------|:--------------------|------------:|:-------------|------------:|-------------:|-----:|-----:|-----------------:|---------------:|
+    | ANSL_59957 | 2015-10-21 00:00:00 | 2016-11-12 09:00:00 |         nan | Lynx Point   |        0.49 |        24.53 |   16 |    9 |                2 |              1 |
+    | ANSL_57687 | 2016-08-25 00:00:00 | 2016-09-20 08:11:00 |         nan | Red          |        0.87 |        43.17 |   15 |    4 |                2 |              4 |
+    | ANSL_62277 | 2014-12-29 00:00:00 | 2017-01-19 14:47:00 |         nan | Brown        |        0.81 |        25.72 |   15 |    4 |                2 |              4 |
+    | ANSL_72624 | 2016-10-30 00:00:00 | 2017-02-18 14:57:00 |           1 | Brown Tabby  |        0.36 |        10.18 |    0 |    1 |                0 |              1 |
+    | ANSL_51838 | 2014-12-29 00:00:00 | 2017-01-19 14:46:00 |         nan | Brown        |        0.97 |        48.7  |   15 |    4 |                2 |              4 |
