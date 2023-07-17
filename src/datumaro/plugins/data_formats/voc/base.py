@@ -155,7 +155,7 @@ class VocBase(SubsetBase):
         )
 
         for item_id in self._ctx.progress_reporter.iter(
-            self._items, desc=f"Parsing boxes in '{self._subset}'"
+            self._items, desc=f"Importing '{self._subset}'"
         ):
             log.debug("Reading item '%s'" % item_id)
             size = None

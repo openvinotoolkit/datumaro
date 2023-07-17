@@ -44,8 +44,13 @@ class JsonReader:
         rootpath: str,
         images_dir: str,
         pcd_dir: str,
+<<<<<<< HEAD
         ctx: ImportContext,
+=======
+        ctx: Optional[ImportContext] = None,
+>>>>>>> unifying importing & exporting progress reporter message
     ) -> None:
+        self._path = path
         self._subset = subset
         self._rootpath = rootpath
         self._images_dir = images_dir
@@ -111,8 +116,6 @@ class JsonReader:
         return categories
 
     def _load_items(self, parsed) -> List:
-        items = []
-
         item_descs = parsed["items"]
         pbar = self._ctx.progress_reporter
 
@@ -120,7 +123,8 @@ class JsonReader:
             while item_descs:
                 yield item_descs.pop()
 
-        for item_desc in pbar.iter(_gen(), total=len(item_descs)):
+        items = []
+        for item_desc in pbar.iter(_gen(), desc=f"Importing '{self._subset}'", total=len(item_descs)):
             item = self._parse_item(item_desc)
             items.append(item)
 
@@ -317,7 +321,11 @@ class StreamJsonReader(JsonReader):
         rootpath: str,
         images_dir: str,
         pcd_dir: str,
+<<<<<<< HEAD
         ctx: ImportContext,
+=======
+        ctx: Optional[ImportContext] = None,
+>>>>>>> unifying importing & exporting progress reporter message
     ) -> None:
         super().__init__(path, subset, rootpath, images_dir, pcd_dir, ctx)
         self._length = None
@@ -458,6 +466,7 @@ class DatumaroBase(SubsetBase):
         """Actual implementation of loading Datumaro format."""
         self._reader = (
             JsonReader(
+<<<<<<< HEAD
                 path,
                 self._subset,
                 self._rootpath,
@@ -473,6 +482,13 @@ class DatumaroBase(SubsetBase):
                 self._images_dir,
                 self._pcd_dir,
                 self._ctx,
+=======
+                path, self._subset, self._rootpath, self._images_dir, self._pcd_dir, self._ctx
+            )
+            if not self._stream
+            else StreamJsonReader(
+                path, self._subset, self._rootpath, self._images_dir, self._pcd_dir, self._ctx
+>>>>>>> unifying importing & exporting progress reporter message
             )
         )
         return self._reader

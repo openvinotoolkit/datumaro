@@ -419,7 +419,8 @@ class DatumaroExporter(Exporter):
             writer.add_infos(self._extractor.infos())
             writer.add_categories(self._extractor.categories())
 
-        for item in self._extractor:
+        pbar = self._ctx.progress_reporter
+        for item in pbar.iter(self._extractor, desc="Exporting"):
             subset = item.subset or DEFAULT_SUBSET_NAME
             writers[subset].add_item(item, pool)
 
