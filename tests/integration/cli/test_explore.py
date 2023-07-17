@@ -535,7 +535,7 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset1_url = osp.join(test_dir, "dataset1")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(dataset1_url, "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
         run(self, "project", "create", "-o", proj_dir)

@@ -6,14 +6,14 @@ import argparse
 import logging as log
 import os
 import os.path as osp
+import random
 import shutil
 
 from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
-from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
-    match_query_path,
-    match_query_subset,
-)
+from datumaro.components.algorithms.hash_key_inference.hashkey_util import match_query_subset
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import ProjectNotFoundError
+from datumaro.components.media import Image
 from datumaro.util import str_to_bool
 from datumaro.util.scope import scope_add, scoped
 
@@ -141,18 +141,16 @@ def explore_command(args):
         project.working_tree.save()
 
     if args.query_img_path:
-        querys = [args.query_img_path]
+        querys = (
+            [args.query_img_path]
+            if not isinstance(args.query_img_path, list)
+            else args.query_img_path
+        )
         query_datasetitems = []
         for query_ in querys:
-            query_datasetitem = None
-            for dataset in source_datasets:
-                query = match_query_path(query_, dataset)
-                try:
-                    query_datasetitem = dataset.get_datasetitem_by_path(query)
-                except Exception:
-                    continue
-                if query_datasetitem:
-                    break
+            query_datasetitem = DatasetItem(
+                id=random.randrange(100, 1000), media=Image.from_file(query_)
+            )
             query_datasetitems.append(query_datasetitem)
     elif args.query_item_id:
         querys = (
