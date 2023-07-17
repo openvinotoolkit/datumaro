@@ -34,36 +34,36 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Explore top50 similar images of image query in COCO dataset:|n
-        |s|s%(prog)s -q path/to/image.jpg -topk 50|n
+        |s|s%(prog)s --query-img-path path/to/image.jpg -topk 50|n
         - Explore top50 similar images of text query, elephant, in COCO dataset:|n
-        |s|s%(prog)s -q elephant -topk 50|n
+        |s|s%(prog)s --query-str elephant -topk 50|n
         - Explore top50 similar images of image query list in COCO dataset:|n
-        |s|s%(prog)s -q path/to/image1.jpg/ path/to/image2.jpg/ path/to/image3.jpg/ -topk 50|n
+        |s|s%(prog)s --query-img-path path/to/image1.jpg/ path/to/image2.jpg/ path/to/image3.jpg/ -topk 50|n
         - Explore top50 similar images of text query list in COCO dataset:|n
-        |s|s%(prog)s -q motorcycle/ bus/ train/ -topk 50
+        |s|s%(prog)s --query-str motorcycle/ bus/ train/ -topk 50
         """,
         formatter_class=MultilineFormatter,
     )
 
     parser.add_argument("target", nargs="?", help="Target dataset")
-    query_parser = parser.add_argument_group("Query options")
-    query_parser.add_argument(
-        "--query-item-id",
-        default=None,
-        type=str,
-        help="",
-    )
+    query_parser = parser.add_mutually_exclusive_group(required=True)
     query_parser.add_argument(
         "--query-img-path",
         default=None,
         type=str,
-        help="",
+        help="Image path of query to explore similar data",
+    )
+    query_parser.add_argument(
+        "--query-item-id",
+        default=None,
+        type=str,
+        help="Datasetitem id of query to explore similar data",
     )
     query_parser.add_argument(
         "--query-str",
         default=None,
         type=str,
-        help="",
+        help="Text to explore similar data",
     )
     parser.add_argument("-topk", type=int, dest="topk", help="Number of similar results")
     parser.add_argument(
@@ -155,7 +155,7 @@ def explore_command(args):
                     break
             query_datasetitems.append(query_datasetitem)
     elif args.query_item_id:
-        querys = [args.query_item_id]
+        querys = [args.query_item_id] if not type(args.query_item_id, list) else args.query_item_id
         query_datasetitems = []
         for query in querys:
             for dataset in source_datasets:
