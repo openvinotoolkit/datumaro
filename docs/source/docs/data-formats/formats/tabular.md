@@ -2,7 +2,7 @@
 
 ## Format specification
 
-Tabular dataset generally referes to table data with multiple rows and columns. <br>
+Tabular dataset generally refers to table data with multiple rows and columns. <br>
 `.csv` files are the most common format, and OpenML uses `.arff` as the official format.
 
 Datumaro only supports tabular data in `.csv` format where the first row is a header with unique column names.
