@@ -9,6 +9,10 @@ import os.path as osp
 import shutil
 
 from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
+from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
+    match_query_path,
+    match_query_subset,
+)
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.util import str_to_bool
 from datumaro.util.scope import scope_add, scoped
@@ -42,12 +46,24 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     )
 
     parser.add_argument("target", nargs="?", help="Target dataset")
-    parser.add_argument(
-        "-q",
-        "--query",
-        dest="query",
-        required=True,
-        help="Image path or id of query to explore similar data",
+    query_parser = parser.add_argument_group("Query options")
+    query_parser.add_argument(
+        "--query-item-id",
+        default=None,
+        type=str,
+        help="",
+    )
+    query_parser.add_argument(
+        "--query-img-path",
+        default=None,
+        type=str,
+        help="",
+    )
+    query_parser.add_argument(
+        "--query-str",
+        default=None,
+        type=str,
+        help="",
     )
     parser.add_argument("-topk", type=int, dest="topk", help="Number of similar results")
     parser.add_argument(
@@ -85,7 +101,6 @@ def get_sensitive_args():
     return {
         explore_command: [
             "target",
-            "query",
             "topk",
             "project_dir",
         ]
@@ -126,19 +141,36 @@ def explore_command(args):
         project.working_tree.save()
 
     # Get query datasetitem through query path
-    if osp.exists(args.query):
-        query_datasetitem = None
-        for dataset in source_datasets:
-            try:
-                query_datasetitem = dataset.get_datasetitem_by_path(args.query)
-            except Exception:
-                continue
-            if query_datasetitem:
-                break
-    else:
-        query_datasetitem = args.query
+    input_query = args.query_img_path or args.query_item_id or args.query_str
 
-    results = explorer.explore_topk(query_datasetitem, args.topk)
+    # input_query is one img path
+    if args.query_img_path:
+        querys = [args.query_img_path]
+        query_datasetitems = []
+        for query_ in querys:
+            query_datasetitem = None
+            for dataset in source_datasets:
+                query = match_query_path(query_, dataset)
+                try:
+                    query_datasetitem = dataset.get_datasetitem_by_path(query)
+                except Exception:
+                    continue
+                if query_datasetitem:
+                    break
+            query_datasetitems.append(query_datasetitem)
+    elif args.query_item_id:
+        querys = [args.query_item_id]
+        query_datasetitems = []
+        for query in querys:
+            for dataset in source_datasets:
+                query_datasetitem = match_query_subset(query, dataset)
+            query_datasetitems.append(query_datasetitem)
+    elif args.query_str:
+        query_datasetitems = args.query_str
+    else:
+        raise
+
+    results = explorer.explore_topk(query_datasetitems, args.topk)
 
     result_path_list = []
     log.info(f"Most similar {args.topk} results of query in dataset")

@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
+
 import numpy as np
 
 from datumaro.components.annotation import HashKey
@@ -172,3 +174,30 @@ def calculate_hamming(B1, B2):
     :return: hamming distance [r]
     """
     return np.count_nonzero(B1 != B2, axis=1)
+
+
+def match_query_path(query_path, dataset):
+    query_path = os.path.expanduser(query_path)
+    common_base = os.path.commonpath([query_path, dataset.data_path])
+    result_path = None
+
+    for item in dataset:
+        query_rel = os.path.relpath(query_path, common_base)
+        item_rel = os.path.relpath(item.media.path, common_base)
+
+        for q, i in zip(query_rel.split(os.sep)[::-1], item_rel.split(os.sep)[::-1]):
+            if q == i:
+                result_path = item.media.path
+    return result_path
+
+
+def match_query_subset(query_id, dataset):
+    subset_names = list(dataset.subsets().keys())
+    for subset_name in subset_names:
+        try:
+            query_datasetitem = dataset.get(query_id, subset_name)
+        except Exception:
+            continue
+        if query_datasetitem:
+            break
+    return query_datasetitem
