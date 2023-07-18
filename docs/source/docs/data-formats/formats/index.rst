@@ -43,6 +43,7 @@ Supported Data Formats
    segment_anything
    sly_pointcloud
    synthia
+   tabular
    vgg_face2
    video
    vott_csv
@@ -193,6 +194,9 @@ Supported Data Formats
    * `Format specification <https://synthia-dataset.net/>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/synthia_dataset>`_
    * `Format documentation <synthia.md>`_
+* Tabular (``classification``, ``regression``) (import/export only)
+   * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/tabular_dataset/adopt-a-buddy>`_
+   * `Format documentation <tabular.md>`_
 * TF Detection API (``bboxes``, ``masks``)
    * Format specifications: `[bboxes] <https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md>`_, `[masks] <https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/instance_segmentation.md>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/tf_detection_api_dataset>`_

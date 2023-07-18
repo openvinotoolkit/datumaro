@@ -22,10 +22,6 @@ TABULAR_EXTENSIONS = [
 
 
 class TabularDataBase(DatasetBase):
-    """
-    Compose a tabular dataset.
-    """
-
     NAME = "tabular"
 
     def __init__(
@@ -37,14 +33,15 @@ class TabularDataBase(DatasetBase):
         ctx: Optional[ImportContext] = None,
     ) -> None:
         """
-        Read a tabular dataset.
+        Read and compose a tabular dataset.
+        The file name of each '.csv' file is regarded as subset.
 
         Args:
             path (str) : Path to a tabular dataset. (csv file or folder contains csv files).
-            target (optional, str or list) : Target column or list of target columns.
+            target (optional, str or list(str)) : Target column or list of target columns.
                 If this is not specified (None), the last column is regarded as a target column.
                 In case of a dataset with no targets, give an empty list as a parameter.
-            dtype (optional, dict (str: str)) : Dictionay of column name -> type (str, int, or float).
+            dtype (optional, dict(str,str)) : Dictionay of column name -> type str ('str', 'int', or 'float').
                 This can be used when automatic type inferencing is failed.
         """
         paths: List[str] = []
@@ -76,12 +73,12 @@ class TabularDataBase(DatasetBase):
             target (optional, str or list) : Target column or list of target columns.
                 If this is not specified (None), the last column is regarded as a target column.
                 In case of a dataset with no targets, give an empty list as a parameter.
-            dtype (optional, dict (str: type)) : Dictionay of column name -> type (str, int, or float).
+            dtype (optional, dict(str,str)) : Dictionay of column name -> type str ('str', 'int', or 'float').
                 This can be used when automatic type inferencing is failed.
 
         Returns:
             list (DatasetItem): dataset items
-            dict (AnnotationType: Categories): categories info
+            dict (AnnotationType, Categories): categories info
         """
         # assert paths
         items: List[DatasetItem] = []
@@ -144,6 +141,11 @@ class TabularDataBase(DatasetBase):
 
 
 class TabularDataImporter(Importer):
+    """
+    Import a tabular dataset.
+    Each '.csv' file is regarded as a subset.
+    """
+
     NAME = "tabular"
 
     @classmethod
@@ -177,6 +179,11 @@ class TabularDataImporter(Importer):
 
 
 class TabularDataExporter(Exporter):
+    """
+    Export a tabular dataset.
+    This will save each subset into a '.csv' file regardless of 'save_media' value
+    """
+
     NAME = "tabular"
     EXPORT_EXT = ".csv"
     DEFAULT_IMAGE_EXT = ".jpg"  # just to avoid assert error.

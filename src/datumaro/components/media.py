@@ -1206,15 +1206,13 @@ TableDtype = TypeVar("TableDtype", str, int, float)
 
 
 class Table:
-    """
-    Provides random access to the table row.
-    """
-
     def __init__(
         self,
     ) -> None:
         """
-        Constructor for Table media.
+        Table data with multiple rows and columns.
+        This provides random access to the table row.
+
         Initialization must be done in the child class.
         """
         assert self.__class__ != Table, (
@@ -1226,7 +1224,12 @@ class Table:
 
     @classmethod
     def from_csv(cls, path: str, *args, **kwargs) -> Type[Table]:
-        """Returns Table instance creating from a csv file."""
+        """
+        Returns Table instance creating from a csv file.
+
+        Args:
+            path (str) : Path to csv file.
+        """
         return TableFromCSV(path, *args, **kwargs)
 
     @classmethod
@@ -1236,7 +1239,12 @@ class Table:
         *args,
         **kwargs,
     ) -> Type[Table]:
-        """Returns Table instance creating from a pandas DataFrame."""
+        """
+        Returns Table instance creating from a pandas DataFrame.
+
+        Args:
+            data (DataFrame) : Data in pandas DataFrame format.
+        """
         return TableFromDataFrame(data, *args, **kwargs)
 
     @classmethod
@@ -1246,7 +1254,12 @@ class Table:
         *args,
         **kwargs,
     ) -> Type[Table]:
-        """Returns Table instance creating from a list of dicts."""
+        """
+        Returns Table instance creating from a list of dicts.
+
+        Args:
+            data (list(dict(str,str|int|float))) : A list of table row data.
+        """
         return TableFromListOfDict(data, *args, **kwargs)
 
     def __eq__(self, other: object) -> bool:
@@ -1288,9 +1301,7 @@ class Table:
             return type(np.zeros(1, numpy_type).tolist()[0])
 
     def features(self, column: str, unique: Optional[bool] = False) -> List[TableDtype]:
-        """
-        Get features for a given column name.
-        """
+        """Get features for a given column name."""
         if unique:
             return list(self.data[column].unique())
         else:
@@ -1300,6 +1311,12 @@ class Table:
         self,
         path: str,
     ):
+        """
+        Save table instance to a '.csv' file.
+
+        Args:
+            path (str) : Path to the output csv file.
+        """
         data: pd.DataFrame = self.data
         os.makedirs(osp.dirname(path), exist_ok=True)
         data.to_csv(path, index=False)
@@ -1316,10 +1333,13 @@ class TableFromCSV(FromFileMixin, Table):
         **kwargs,
     ) -> None:
         """
-        Constructor for TableFromCSV.
-        @param path: Path to csv file
-        @param sep: Delimiter to use.
-        @param encoding: Encoding to use for UTF when reading/writing (ex. 'utf-8').
+        Read a '.csv' file and compose a Table instance.
+
+        Args:
+            path (str) : Path to csv file.
+            dtype (optional, dict(str,str)) : Dictionay of column name -> type str ('str', 'int', or 'float').
+            sep (optional, str) : Delimiter to use.
+            encoding (optional, str) : Encoding to use for UTF when reading/writing (ex. 'utf-8').
         """
         super().__init__(path, *args, **kwargs)
 
@@ -1348,6 +1368,12 @@ class TableFromDataFrame(FromDataMixin, Table):
         *args,
         **kwargs,
     ):
+        """
+        Read a pandas DataFrame and compose a Table instance.
+
+        Args:
+            data (DataFrame) : Data in pandas DataFrame format.
+        """
         super().__init__(data=data, *args, **kwargs)
 
         if data is None:
@@ -1373,6 +1399,13 @@ class TableFromListOfDict(TableFromDataFrame):
         *args,
         **kwargs,
     ):
+        """
+        Read a list of table row data and compose a Table instance.
+        The table row data is in dictionary format.
+
+        Args:
+            data (list(dict(str,str|int|float))) : A list of table row data.
+        """
         super().__init__(data=pd.DataFrame(data), *args, **kwargs)
 
 
@@ -1380,6 +1413,13 @@ class TableRow(MediaElement):
     _type = MediaType.TABLE_ROW
 
     def __init__(self, table: Table, index: int):
+        """
+        TableRow media refers to a Table instance and its row index.
+
+        Args:
+            table (Table) : Table instance.
+            index (int) : Row index.
+        """
         if table is None:
             raise ValueError("'table' can't be None")
         if index < 0 or index >= table.shape[0]:
@@ -1389,13 +1429,23 @@ class TableRow(MediaElement):
 
     @property
     def table(self) -> Table:
+        """Table instance"""
         return self._table
 
     @property
     def index(self) -> int:
+        """Row index"""
         return self._index
 
     def data(self, targets: Optional[List[str]] = None) -> Dict:
+        """
+        Row data in dict format.
+
+        Args:
+            targets (optional, list(str)) : If this is specified,
+                the values corresponding to target colums will be returned.
+                Otherwise, whole row data will be returned.
+        """
         row = self.table.data.iloc[self.index]
         if targets:
             row = row[targets]
