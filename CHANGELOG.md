@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 - Create cache dir under only writable filesystem
   (<https://github.com/openvinotoolkit/datumaro/pull/1088>)
+- Fix: Dataset infos() can be broken if a transform not redefining infos() is stacked on the top
+  (<https://github.com/openvinotoolkit/datumaro/pull/1101>)
 
 ## 07/07/2023 - Release 1.4.0rc1
 ### New features

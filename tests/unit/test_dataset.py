@@ -58,7 +58,7 @@ from datumaro.components.media import Image, MediaElement, Video
 from datumaro.components.merge.intersect_merge import IntersectMerge
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.components.transformer import ItemTransform, Transform
-from datumaro.plugins.transforms import ProjectInfos
+from datumaro.plugins.transforms import ProjectInfos, RemapLabels
 
 from ..requirements import Requirements, mark_requirement
 
@@ -2275,15 +2275,21 @@ class DatasetInfosTest:
         fxt_test_case.assertEqual(dataset.infos(), infos)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize("is_eager", [True, False])
     def test_dataset_infos_transform(
-        self, fxt_test_case, fxt_sample_dataset_factory, fxt_sample_infos
+        self, fxt_test_case, fxt_sample_dataset_factory, fxt_sample_infos, is_eager
     ):
         infos_1, infos_2, infos = fxt_sample_infos
+        with eager_mode(is_eager):
+            dataset = fxt_sample_dataset_factory(infos=infos_1)
 
-        dataset = fxt_sample_dataset_factory(infos=infos_1)
+            dataset.transform(ProjectInfos, dst_infos=infos_2, overwrite=False)
+            fxt_test_case.assertEqual(dataset.infos(), infos)
 
-        dataset.transform(ProjectInfos, dst_infos=infos_2, overwrite=False)
-        fxt_test_case.assertEqual(dataset.infos(), infos)
+            dataset.transform(ProjectInfos, dst_infos=infos_2, overwrite=True)
+            fxt_test_case.assertEqual(dataset.infos(), infos_2)
 
-        dataset.transform(ProjectInfos, dst_infos=infos_2, overwrite=True)
-        fxt_test_case.assertEqual(dataset.infos(), infos_2)
+            dataset.transform(
+                RemapLabels, mapping={"car": "apple", "cat": "banana", "dog": "cinnamon"}
+            )
+            fxt_test_case.assertEqual(dataset.infos(), infos_2)
