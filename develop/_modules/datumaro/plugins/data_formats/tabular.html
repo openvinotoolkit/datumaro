@@ -301,10 +301,6 @@
 
 
 <div class="viewcode-block" id="TabularDataBase"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tabular.html#datumaro.plugins.data_formats.tabular.TabularDataBase">[docs]</a><span class="k">class</span> <span class="nc">TabularDataBase</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compose a tabular dataset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;tabular&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -316,14 +312,15 @@
         <span class="n">ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ImportContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Read a tabular dataset.</span>
+<span class="sd">        Read and compose a tabular dataset.</span>
+<span class="sd">        The file name of each &#39;.csv&#39; file is regarded as subset.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path (str) : Path to a tabular dataset. (csv file or folder contains csv files).</span>
-<span class="sd">            target (optional, str or list) : Target column or list of target columns.</span>
+<span class="sd">            target (optional, str or list(str)) : Target column or list of target columns.</span>
 <span class="sd">                If this is not specified (None), the last column is regarded as a target column.</span>
 <span class="sd">                In case of a dataset with no targets, give an empty list as a parameter.</span>
-<span class="sd">            dtype (optional, dict (str: str)) : Dictionay of column name -&gt; type (str, int, or float).</span>
+<span class="sd">            dtype (optional, dict(str,str)) : Dictionay of column name -&gt; type str (&#39;str&#39;, &#39;int&#39;, or &#39;float&#39;).</span>
 <span class="sd">                This can be used when automatic type inferencing is failed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">paths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -355,12 +352,12 @@
 <span class="sd">            target (optional, str or list) : Target column or list of target columns.</span>
 <span class="sd">                If this is not specified (None), the last column is regarded as a target column.</span>
 <span class="sd">                In case of a dataset with no targets, give an empty list as a parameter.</span>
-<span class="sd">            dtype (optional, dict (str: type)) : Dictionay of column name -&gt; type (str, int, or float).</span>
+<span class="sd">            dtype (optional, dict(str,str)) : Dictionay of column name -&gt; type str (&#39;str&#39;, &#39;int&#39;, or &#39;float&#39;).</span>
 <span class="sd">                This can be used when automatic type inferencing is failed.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list (DatasetItem): dataset items</span>
-<span class="sd">            dict (AnnotationType: Categories): categories info</span>
+<span class="sd">            dict (AnnotationType, Categories): categories info</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># assert paths</span>
         <span class="n">items</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -423,6 +420,11 @@
 
 
 <div class="viewcode-block" id="TabularDataImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tabular.html#datumaro.plugins.data_formats.tabular.TabularDataImporter">[docs]</a><span class="k">class</span> <span class="nc">TabularDataImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Import a tabular dataset.</span>
+<span class="sd">    Each &#39;.csv&#39; file is regarded as a subset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;tabular&quot;</span>
 
 <div class="viewcode-block" id="TabularDataImporter.build_cmdline_parser"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tabular.html#datumaro.plugins.data_formats.tabular.TabularDataImporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
@@ -456,6 +458,11 @@
 
 
 <div class="viewcode-block" id="TabularDataExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tabular.html#datumaro.plugins.data_formats.tabular.TabularDataExporter">[docs]</a><span class="k">class</span> <span class="nc">TabularDataExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Export a tabular dataset.</span>
+<span class="sd">    This will save each subset into a &#39;.csv&#39; file regardless of &#39;save_media&#39; value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;tabular&quot;</span>
     <span class="n">EXPORT_EXT</span> <span class="o">=</span> <span class="s2">&quot;.csv&quot;</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="s2">&quot;.jpg&quot;</span>  <span class="c1"># just to avoid assert error.</span>

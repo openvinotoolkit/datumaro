@@ -4,6 +4,7 @@ Datumaro supports the following media types:
 - 2D RGB(A) images
 - Videos
 - KITTI Point Clouds
+- Tabular file (csv format)
 
 To create an unlabelled dataset from an arbitrary directory with images use
 `image_dir` and `image_zip` formats:
@@ -74,4 +75,19 @@ Datumaro supports the following video formats:
 .3gp, .3g2, .asf, .wmv, .avi, .divx, .evo, .f4v, .flv, .mkv, .mk3d,
 .mp4, .mpg, .mpeg, .m2p, .ps, .ts, .m2ts, .mxf, .ogg, .ogv, .ogx,
 .mov, .qt, .rmvb, .vob, .webm
+```
+
+Also, Daturamo supports a tabular format.
+A tabular dataset can be a single `.csv` file or a folder contains `.csv` files.
+
+``` bash
+cd </path/to/project>
+datum project create
+datum project import -f tabular </path/to/tabular>
+```
+
+```python
+from datumaro import Dataset
+
+dataset = Dataset.import_from('/path/to/tabular', 'tabular')
 ```

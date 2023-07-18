@@ -1485,15 +1485,13 @@
 
 
 <div class="viewcode-block" id="Table"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.Table">[docs]</a><span class="k">class</span> <span class="nc">Table</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Provides random access to the table row.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Constructor for Table media.</span>
+<span class="sd">        Table data with multiple rows and columns.</span>
+<span class="sd">        This provides random access to the table row.</span>
+
 <span class="sd">        Initialization must be done in the child class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">!=</span> <span class="n">Table</span><span class="p">,</span> <span class="p">(</span>
@@ -1505,7 +1503,12 @@
 
 <div class="viewcode-block" id="Table.from_csv"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.Table.from_csv">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_csv</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Table</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns Table instance creating from a csv file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns Table instance creating from a csv file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str) : Path to csv file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">TableFromCSV</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Table.from_dataframe"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.Table.from_dataframe">[docs]</a>    <span class="nd">@classmethod</span>
@@ -1515,7 +1518,12 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Table</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns Table instance creating from a pandas DataFrame.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns Table instance creating from a pandas DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (DataFrame) : Data in pandas DataFrame format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">TableFromDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Table.from_list"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.Table.from_list">[docs]</a>    <span class="nd">@classmethod</span>
@@ -1525,7 +1533,12 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Table</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns Table instance creating from a list of dicts.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns Table instance creating from a list of dicts.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (list(dict(str,str|int|float))) : A list of table row data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">TableFromListOfDict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1567,9 +1580,7 @@
             <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">numpy_type</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Table.features"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.Table.features">[docs]</a>    <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unique</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TableDtype</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get features for a given column name.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get features for a given column name.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">unique</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1579,6 +1590,12 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save table instance to a &#39;.csv&#39; file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str) : Path to the output csv file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
@@ -1595,10 +1612,13 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Constructor for TableFromCSV.</span>
-<span class="sd">        @param path: Path to csv file</span>
-<span class="sd">        @param sep: Delimiter to use.</span>
-<span class="sd">        @param encoding: Encoding to use for UTF when reading/writing (ex. &#39;utf-8&#39;).</span>
+<span class="sd">        Read a &#39;.csv&#39; file and compose a Table instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str) : Path to csv file.</span>
+<span class="sd">            dtype (optional, dict(str,str)) : Dictionay of column name -&gt; type str (&#39;str&#39;, &#39;int&#39;, or &#39;float&#39;).</span>
+<span class="sd">            sep (optional, str) : Delimiter to use.</span>
+<span class="sd">            encoding (optional, str) : Encoding to use for UTF when reading/writing (ex. &#39;utf-8&#39;).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -1627,6 +1647,12 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a pandas DataFrame and compose a Table instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (DataFrame) : Data in pandas DataFrame format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1652,6 +1678,13 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a list of table row data and compose a Table instance.</span>
+<span class="sd">        The table row data is in dictionary format.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (list(dict(str,str|int|float))) : A list of table row data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -1659,6 +1692,13 @@
     <span class="n">_type</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">TABLE_ROW</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">Table</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        TableRow media refers to a Table instance and its row index.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            table (Table) : Table instance.</span>
+<span class="sd">            index (int) : Row index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;table&#39; can&#39;t be None&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="n">table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
@@ -1668,13 +1708,23 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Table instance&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_table</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Row index&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
 
 <div class="viewcode-block" id="TableRow.data"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.TableRow.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Row data in dict format.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            targets (optional, list(str)) : If this is specified,</span>
+<span class="sd">                the values corresponding to target colums will be returned.</span>
+<span class="sd">                Otherwise, whole row data will be returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">targets</span><span class="p">:</span>
             <span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">targets</span><span class="p">]</span>

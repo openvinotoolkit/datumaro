@@ -338,6 +338,7 @@
 <li class="toctree-l2"><a class="reference internal" href="formats/segment_anything.html">Segment Anything</a></li>
 <li class="toctree-l2"><a class="reference internal" href="formats/sly_pointcloud.html">Supervisely Point Cloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="formats/synthia.html">SYNTHIA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="formats/tabular.html">Tabular</a></li>
 <li class="toctree-l2"><a class="reference internal" href="formats/vgg_face2.html">Vgg Face2 CSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="formats/video.html">Video</a></li>
 <li class="toctree-l2"><a class="reference internal" href="formats/vott_csv.html">VoTT CSV</a></li>
@@ -578,6 +579,7 @@
 <li><p>2D RGB(A) images</p></li>
 <li><p>Videos</p></li>
 <li><p>KITTI Point Clouds</p></li>
+<li><p>Tabular file (csv format)</p></li>
 </ul>
 <p>To create an unlabelled dataset from an arbitrary directory with images use
 <code class="docutils literal notranslate"><span class="pre">image_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">image_zip</span></code> formats:</p>
@@ -639,6 +641,18 @@ datum<span class="w"> </span>project<span class="w"> </span>import<span class="w
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">.3</span><span class="n">gp</span><span class="p">,</span> <span class="mf">.3</span><span class="n">g2</span><span class="p">,</span> <span class="o">.</span><span class="n">asf</span><span class="p">,</span> <span class="o">.</span><span class="n">wmv</span><span class="p">,</span> <span class="o">.</span><span class="n">avi</span><span class="p">,</span> <span class="o">.</span><span class="n">divx</span><span class="p">,</span> <span class="o">.</span><span class="n">evo</span><span class="p">,</span> <span class="o">.</span><span class="n">f4v</span><span class="p">,</span> <span class="o">.</span><span class="n">flv</span><span class="p">,</span> <span class="o">.</span><span class="n">mkv</span><span class="p">,</span> <span class="o">.</span><span class="n">mk3d</span><span class="p">,</span>
 <span class="o">.</span><span class="n">mp4</span><span class="p">,</span> <span class="o">.</span><span class="n">mpg</span><span class="p">,</span> <span class="o">.</span><span class="n">mpeg</span><span class="p">,</span> <span class="o">.</span><span class="n">m2p</span><span class="p">,</span> <span class="o">.</span><span class="n">ps</span><span class="p">,</span> <span class="o">.</span><span class="n">ts</span><span class="p">,</span> <span class="o">.</span><span class="n">m2ts</span><span class="p">,</span> <span class="o">.</span><span class="n">mxf</span><span class="p">,</span> <span class="o">.</span><span class="n">ogg</span><span class="p">,</span> <span class="o">.</span><span class="n">ogv</span><span class="p">,</span> <span class="o">.</span><span class="n">ogx</span><span class="p">,</span>
 <span class="o">.</span><span class="n">mov</span><span class="p">,</span> <span class="o">.</span><span class="n">qt</span><span class="p">,</span> <span class="o">.</span><span class="n">rmvb</span><span class="p">,</span> <span class="o">.</span><span class="n">vob</span><span class="p">,</span> <span class="o">.</span><span class="n">webm</span>
+</pre></div>
+</div>
+<p>Also, Daturamo supports a tabular format.
+A tabular dataset can be a single <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file or a folder contains <code class="docutils literal notranslate"><span class="pre">.csv</span></code> files.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;/path/to/project&gt;
+datum<span class="w"> </span>project<span class="w"> </span>create
+datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>-f<span class="w"> </span>tabular<span class="w"> </span>&lt;/path/to/tabular&gt;
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datumaro</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s1">&#39;/path/to/tabular&#39;</span><span class="p">,</span> <span class="s1">&#39;tabular&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

@@ -1394,6 +1394,17 @@
         <span class="n">dtype</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">TableDtype</span><span class="p">],</span>
         <span class="n">labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a Tabular Category.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): Column name</span>
+<span class="sd">            dtype (type): Type of the corresponding column. (str, int, or float)</span>
+<span class="sd">            labels (optional, set(str)): Label values where the column can have.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: A index of added category.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">name</span>
         <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_by_name</span>
         <span class="k">assert</span> <span class="n">dtype</span>
@@ -1405,6 +1416,15 @@
         <span class="k">return</span> <span class="n">index</span></div>
 
 <div class="viewcode-block" id="TabularCategories.find"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.TabularCategories.find">[docs]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Category</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find Category information for the given column name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): Column name</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple(int, Category): A index and Category information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
 
