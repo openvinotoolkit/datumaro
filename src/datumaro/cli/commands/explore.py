@@ -153,7 +153,7 @@ def explore_command(args):
         querys = check_and_convert_to_list(args.query_img_path)
         query_datasetitems = []
         for query_ in querys:
-            query_datasetitem = DatasetItem(id=uuid.uuid4(), media=Image.from_file(query_))
+            query_datasetitem = DatasetItem(id=str(uuid.uuid4()), media=Image.from_file(query_))
             query_datasetitems.append(query_datasetitem)
     elif args.query_item_id:
         querys = (
