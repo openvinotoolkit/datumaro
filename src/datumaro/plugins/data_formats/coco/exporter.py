@@ -107,13 +107,13 @@ class TemporaryWriters:
 
         @streamable_list
         def _gen_images():
-            with open(self.imgs.fp.name, "r") as fp:
+            with open(self.imgs.fp.name, "rb") as fp:
                 for line in fp:
                     yield parse_json(line)
 
         @streamable_list
         def _gen_anns():
-            with open(self.anns.fp.name, "r") as fp:
+            with open(self.anns.fp.name, "rb") as fp:
                 next_id = min_ann_id
                 for line in fp:
                     ann = parse_json(line)
