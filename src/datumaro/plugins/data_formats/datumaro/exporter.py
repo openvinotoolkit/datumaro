@@ -33,7 +33,7 @@ from datumaro.components.annotation import (
     _Shape,
 )
 from datumaro.components.crypter import NULL_CRYPTER
-from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.exporter import ExportContextComponent, Exporter
 from datumaro.components.media import Image, MediaElement, PointCloud
@@ -420,11 +420,11 @@ class DatumaroExporter(Exporter):
             writer.add_categories(self._extractor.categories())
 
         pbar = self._ctx.progress_reporter
-        for item in pbar.iter(self._extractor, desc="Exporting"):
-            subset = item.subset or DEFAULT_SUBSET_NAME
-            writers[subset].add_item(item, pool)
+        for subset_name, subset in self._extractor.subsets().items():
+            for item in pbar.iter(subset, desc=f"Exporting '{subset_name}'"):
+                writers[subset_name].add_item(item, pool)
 
-            self._check_hash_key_existence(item)
+                self._check_hash_key_existence(item)
 
         for subset, writer in writers.items():
             if self._patch and subset in self._patch.updated_subsets and writer.is_empty():
