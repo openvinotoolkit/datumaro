@@ -6,8 +6,8 @@ import argparse
 import logging as log
 import os
 import os.path as osp
-import random
 import shutil
+import uuid
 
 from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
@@ -153,9 +153,7 @@ def explore_command(args):
         querys = check_and_convert_to_list(args.query_img_path)
         query_datasetitems = []
         for query_ in querys:
-            query_datasetitem = DatasetItem(
-                id=random.randrange(100, 1000), media=Image.from_file(query_)
-            )
+            query_datasetitem = DatasetItem(id=uuid.uuid4(), media=Image.from_file(query_))
             query_datasetitems.append(query_datasetitem)
     elif args.query_item_id:
         querys = (
