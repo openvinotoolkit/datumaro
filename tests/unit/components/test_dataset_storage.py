@@ -131,3 +131,42 @@ class StreamDatasetStorageTest:
         assert actual == expect
 
         assert fxt_stream_extractor.__iter__.call_count == 0
+
+    def test_mixed_transform(
+        self,
+        fxt_stream_extractor: MagicMock,
+        fxt_infos: DatasetInfo,
+        fxt_categories: CategoriesInfo,
+    ):
+        n_calls = 1
+        storage = StreamDatasetStorage(source=fxt_stream_extractor)
+
+        # Check extractor infos
+        assert storage.infos() == fxt_infos
+
+        dst_infos = {"new": "info"}
+        storage.transform(ProjectInfos, dst_infos=dst_infos)
+        assert fxt_stream_extractor.__iter__.call_count == 0
+
+        # Check extractor categories
+        assert storage.categories() == fxt_categories
+
+        # Check extractor infos
+        mapping = {"car": "apple", "cat": "banana", "dog": "cinnamon"}
+        storage.transform(RemapLabels, mapping=mapping)
+        assert fxt_stream_extractor.__iter__.call_count == 0
+
+        storage.transform(Rename, regex="|item_|rename_|")
+        assert fxt_stream_extractor.__iter__.call_count == 0
+
+        # Check ProjectInfos
+        assert storage.infos().get("new") == "info"
+
+        # Check RemapLabels
+        actual = set(cat.name for cat in storage.categories()[AnnotationType.label])
+        expect = set(mapping.values())
+        assert actual == expect
+
+        # Check Rename
+        self._test_loop(fxt_stream_extractor, storage, n_calls, id_pattern="rename_{idx}")
+        assert fxt_stream_extractor.__iter__.call_count == n_calls
