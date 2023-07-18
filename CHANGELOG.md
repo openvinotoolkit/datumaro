@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+## 18/07/2023 - Release 1.4.0rc3
+
+### Enhancements
+- Support list query for explorer
+  (<https://github.com/openvinotoolkit/datumaro/pull/1087>)
+- update contributing.md
+  (<https://github.com/openvinotoolkit/datumaro/pull/1094>)
+- Update 3rd-party.txt for release 1.4.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1099>)
+
 ## 11/07/2023 - Release 1.4.0rc2
 ### New features
 - Add documentation and notebook example for Prune API
