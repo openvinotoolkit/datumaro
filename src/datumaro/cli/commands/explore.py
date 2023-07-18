@@ -10,7 +10,10 @@ import random
 import shutil
 
 from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
-from datumaro.components.algorithms.hash_key_inference.hashkey_util import match_query_subset
+from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
+    check_and_convert_to_list,
+    match_query_subset,
+)
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.media import Image
@@ -58,6 +61,12 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         default=None,
         type=str,
         help="Datasetitem id of query to explore similar data",
+    )
+    query_parser.add_argument(
+        "--query-item-subset",
+        default=None,
+        type=str,
+        help="Datasetitem subset of query to explore similar data",
     )
     query_parser.add_argument(
         "--query-str",
@@ -141,11 +150,7 @@ def explore_command(args):
         project.working_tree.save()
 
     if args.query_img_path:
-        querys = (
-            [args.query_img_path]
-            if not isinstance(args.query_img_path, list)
-            else args.query_img_path
-        )
+        querys = check_and_convert_to_list(args.query_img_path)
         query_datasetitems = []
         for query_ in querys:
             query_datasetitem = DatasetItem(
@@ -159,12 +164,12 @@ def explore_command(args):
         query_datasetitems = []
         for query in querys:
             for dataset in source_datasets:
-                query_datasetitem = match_query_subset(query, dataset)
+                query_datasetitem = match_query_subset(
+                    query, dataset, subset=args.query_item_subset
+                )
             query_datasetitems.append(query_datasetitem)
     elif args.query_str:
         query_datasetitems = args.query_str
-    else:
-        raise
 
     results = explorer.explore_topk(query_datasetitems, args.topk)
 
