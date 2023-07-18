@@ -48,6 +48,9 @@ class Transform(DatasetBase, CliPlugin):
     def media_type(self):
         return self._extractor.media_type()
 
+    def infos(self):
+        return self._extractor.infos()
+
 
 class ItemTransform(Transform):
     def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
