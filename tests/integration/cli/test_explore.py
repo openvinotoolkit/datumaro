@@ -1,7 +1,7 @@
 import os.path as osp
 import platform
 from glob import glob
-from unittest import TestCase, skip, skipIf
+from unittest import TestCase, skipIf
 
 import numpy as np
 
@@ -82,7 +82,6 @@ class ExploreTest(TestCase):
         )
         return dataset
 
-    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -90,11 +89,11 @@ class ExploreTest(TestCase):
     )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
-    def test_can_explore_dataset_w_target(self):
+    def test_can_explore_dataset_w_query_img_path(self):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset_url = osp.join(test_dir, "dataset")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset_url, "datumaro", save_media=True)
 
@@ -104,7 +103,7 @@ class ExploreTest(TestCase):
             self,
             "explore",
             "source-1",
-            "-q",
+            "--query-img-path",
             train_image_path,
             "-topk",
             "2",
@@ -118,7 +117,74 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skip("Skip tests for explorer CLI")
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_explore_dataset_w_query_item_id(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, "proj")
+        dataset_url = osp.join(test_dir, "dataset")
+
+        self.test_dataset.export(dataset_url, "datumaro", save_media=True)
+
+        run(self, "project", "create", "-o", proj_dir)
+        run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset_url)
+        run(
+            self,
+            "explore",
+            "source-1",
+            "--query-item-id",
+            "1",
+            "-topk",
+            "2",
+            "-p",
+            proj_dir,
+            "-s",
+        )
+
+        saved_result_path = osp.join(proj_dir, "explore_result")
+        results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
+
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
+
+    @skipIf(
+        platform.system() == "Darwin",
+        "Segmentation fault only occurs on MacOS: "
+        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
+    )
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_explore_dataset_w_query_str(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, "proj")
+        dataset_url = osp.join(test_dir, "dataset")
+
+        self.test_dataset.export(dataset_url, "datumaro", save_media=True)
+
+        run(self, "project", "create", "-o", proj_dir)
+        run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset_url)
+        run(
+            self,
+            "explore",
+            "source-1",
+            "--query-str",
+            "a photo of a upper white and bottom black background",
+            "-topk",
+            "2",
+            "-p",
+            proj_dir,
+            "-s",
+        )
+
+        saved_result_path = osp.join(proj_dir, "explore_result")
+        results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
+
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
+
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -130,20 +196,29 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset_url = osp.join(test_dir, "dataset")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset_url, "datumaro", save_media=True)
 
         run(self, "project", "create", "-o", proj_dir)
         run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset_url)
-        run(self, "explore", "-q", train_image_path, "-topk", "2", "-p", proj_dir, "-s")
+        run(
+            self,
+            "explore",
+            "--query-img-path",
+            train_image_path,
+            "-topk",
+            "2",
+            "-p",
+            proj_dir,
+            "-s",
+        )
 
         saved_result_path = osp.join(proj_dir, "explore_result")
         results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -155,7 +230,7 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset1_url = osp.join(test_dir, "dataset1")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
         run(self, "project", "create", "-o", proj_dir)
@@ -165,7 +240,7 @@ class ExploreTest(TestCase):
             self,
             "explore",
             "source-1",
-            "-q",
+            "--query-img-path",
             train_image_path,
             "-topk",
             "2",
@@ -180,7 +255,7 @@ class ExploreTest(TestCase):
             self,
             "explore",
             "source-1",
-            "-q",
+            "--query-img-path",
             train_image_path,
             "-topk",
             "2",
@@ -194,7 +269,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -206,7 +280,7 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset1_url = osp.join(test_dir, "dataset1")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
         run(self, "project", "create", "-o", proj_dir)
@@ -215,7 +289,7 @@ class ExploreTest(TestCase):
         run(
             self,
             "explore",
-            "-q",
+            "--query-img-path",
             train_image_path,
             "-topk",
             "2",
@@ -229,7 +303,7 @@ class ExploreTest(TestCase):
         run(
             self,
             "explore",
-            "-q",
+            "--query-img-path",
             train_image_path,
             "-topk",
             "4",
@@ -243,7 +317,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -255,13 +328,23 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset1_url = osp.join(test_dir, "dataset1")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
 
         run(self, "project", "create", "-o", proj_dir)
         run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset1_url)
-        run(self, "explore", "-q", train_image_path, "-topk", "2", "-p", proj_dir, "source-1")
+        run(
+            self,
+            "explore",
+            "--query-img-path",
+            train_image_path,
+            "-topk",
+            "2",
+            "-p",
+            proj_dir,
+            "source-1",
+        )
 
         dataset2_url = osp.join(test_dir, "dataset2")
         self.test_dataset2.save(dataset2_url, save_media=True)
@@ -276,13 +359,16 @@ class ExploreTest(TestCase):
             result_dir,
             dataset1_url,
             dataset2_url,
+            "--",
+            "--save-media",
         )
         run(self, "project", "import", "-n", "result", "-p", proj_dir, "-f", "datumaro", result_dir)
+        train_image_path = osp.join(proj_dir, "result", "images", "train", "1.jpg")
         run(
             self,
             "explore",
             "result",
-            "-q",
+            "--query-img-path",
             train_image_path,
             "-topk",
             "4",
@@ -296,7 +382,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skip("Skip tests for explorer CLI")
     @skipIf(
         platform.system() == "Darwin",
         "Segmentation fault only occurs on MacOS: "
@@ -310,10 +395,10 @@ class ExploreTest(TestCase):
         dataset1_url = osp.join(test_dir, "dataset1")
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
 
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(proj_dir, "source-1", "images", "train", "1.jpg")
         run(self, "project", "create", "-o", proj_dir)
         run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset1_url)
-        run(self, "explore", "-q", train_image_path, "-topk", "2", "-p", proj_dir)
+        run(self, "explore", "--query-img-path", train_image_path, "-topk", "2", "-p", proj_dir)
 
         dataset2_url = osp.join(test_dir, "dataset2")
         self.test_dataset2.save(dataset2_url, save_media=True)
@@ -333,7 +418,7 @@ class ExploreTest(TestCase):
         run(
             self,
             "explore",
-            "-q",
+            "--query-img-path",
             train_image_path,
             "-topk",
             "4",
@@ -358,12 +443,22 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset1_url = osp.join(test_dir, "dataset1")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(dataset1_url, "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
         run(self, "project", "create", "-o", proj_dir)
         run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset1_url)
-        run(self, "explore", "source-1", "-q", train_image_path, "-topk", "2", "-p", proj_dir)
+        run(
+            self,
+            "explore",
+            "source-1",
+            "--query-img-path",
+            train_image_path,
+            "-topk",
+            "2",
+            "-p",
+            proj_dir,
+        )
         run(self, "project", "commit", "-p", proj_dir, "-m", "commit1")
 
         commit1_proj = load_project(proj_dir)
@@ -398,7 +493,7 @@ class ExploreTest(TestCase):
             self,
             "explore",
             "result",
-            "-q",
+            "--query-img-path",
             train_image_path,
             "-topk",
             "2",
@@ -440,12 +535,12 @@ class ExploreTest(TestCase):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")
         dataset1_url = osp.join(test_dir, "dataset1")
-        train_image_path = osp.join(test_dir, "train", "1.jpg")
+        train_image_path = osp.join(dataset1_url, "images", "train", "1.jpg")
 
         self.test_dataset.export(dataset1_url, "datumaro", save_media=True)
         run(self, "project", "create", "-o", proj_dir)
         run(self, "project", "import", "-p", proj_dir, "-f", "datumaro", dataset1_url)
-        run(self, "explore", "-q", train_image_path, "-topk", "2", "-p", proj_dir)
+        run(self, "explore", "--query-img-path", train_image_path, "-topk", "2", "-p", proj_dir)
 
         proj = load_project(proj_dir)
         srcs = list(proj.working_tree.config.sources.keys())
