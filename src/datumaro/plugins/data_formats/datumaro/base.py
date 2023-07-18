@@ -46,7 +46,6 @@ class JsonReader:
         pcd_dir: str,
         ctx: ImportContext,
     ) -> None:
-        self._path = path
         self._subset = subset
         self._rootpath = rootpath
         self._images_dir = images_dir
