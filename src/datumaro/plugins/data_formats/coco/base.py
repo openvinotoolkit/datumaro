@@ -266,7 +266,7 @@ class _CocoBase(SubsetBase):
 
         for img_info, ann_infos in pbars.iter(
             self._page_mapper,
-            desc=f"Parsing image info in '{osp.basename(self._path)}'",
+            desc=f"Importing '{self._subset}'",
         ):
             parsed = self._parse_item(img_info)
             if parsed is None:
@@ -289,7 +289,7 @@ class _CocoBase(SubsetBase):
             self._load_panoptic_ann(ann_info, parsed_annotations=item.annotations)
 
     def _load_items(self, json_data):
-        pbars = self._ctx.progress_reporter.split(2)
+        pbar = self._ctx.progress_reporter
 
         def _gen_ann(info_lists):
             while info_lists:
@@ -298,11 +298,7 @@ class _CocoBase(SubsetBase):
         items = {}
         img_infos = {}
         img_lists = self._parse_field(json_data, "images", list)
-        for img_info in pbars[0].iter(
-            _gen_ann(img_lists),
-            desc=f"Parsing image info in '{osp.basename(self._path)}'",
-            total=len(img_lists),
-        ):
+        for img_info in _gen_ann(img_lists):
             parsed = self._parse_item(img_info)
             if parsed is None:
                 continue
@@ -315,9 +311,9 @@ class _CocoBase(SubsetBase):
 
         ann_lists = self._parse_field(json_data, "annotations", list)
 
-        for ann_info in pbars[1].iter(
+        for ann_info in pbar.iter(
             _gen_ann(ann_lists),
-            desc=f"Parsing annotations in '{osp.basename(self._path)}'",
+            desc=f"Importing '{self._subset}'",
             total=len(ann_lists),
         ):
             try:

@@ -15,10 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Give notice that the deprecation works will be done in datumaro==1.5.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1085>)
+- Unify COCO, Datumaro, VOC, YOLO importer/exporter progress reporter descriptions
+  (<https://github.com/openvinotoolkit/datumaro/pull/1100>)
 
 ### Bug fixes
 - Create cache dir under only writable filesystem
   (<https://github.com/openvinotoolkit/datumaro/pull/1088>)
+- Fix: Dataset infos() can be broken if a transform not redefining infos() is stacked on the top
+  (<https://github.com/openvinotoolkit/datumaro/pull/1101>)
 
 ## 07/07/2023 - Release 1.4.0rc1
 ### New features

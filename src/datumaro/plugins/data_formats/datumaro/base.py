@@ -111,8 +111,6 @@ class JsonReader:
         return categories
 
     def _load_items(self, parsed) -> List:
-        items = []
-
         item_descs = parsed["items"]
         pbar = self._ctx.progress_reporter
 
@@ -120,7 +118,10 @@ class JsonReader:
             while item_descs:
                 yield item_descs.pop()
 
-        for item_desc in pbar.iter(_gen(), total=len(item_descs)):
+        items = []
+        for item_desc in pbar.iter(
+            _gen(), desc=f"Importing '{self._subset}'", total=len(item_descs)
+        ):
             item = self._parse_item(item_desc)
             items.append(item)
 
