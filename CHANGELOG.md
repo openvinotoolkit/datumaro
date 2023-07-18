@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+## 18/07/2023 - Release 1.4.0rc3
+
+### Enhancements
+- Support list query for explorer
+  (<https://github.com/openvinotoolkit/datumaro/pull/1087>)
+- update contributing.md
+  (<https://github.com/openvinotoolkit/datumaro/pull/1094>)
+- Update 3rd-party.txt for release 1.4.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1099>)
+
 ## 11/07/2023 - Release 1.4.0rc2
 ### New features
 - Add documentation and notebook example for Prune API
@@ -15,10 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Give notice that the deprecation works will be done in datumaro==1.5.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1085>)
+- Unify COCO, Datumaro, VOC, YOLO importer/exporter progress reporter descriptions
+  (<https://github.com/openvinotoolkit/datumaro/pull/1100>)
 
 ### Bug fixes
 - Create cache dir under only writable filesystem
   (<https://github.com/openvinotoolkit/datumaro/pull/1088>)
+- Fix: Dataset infos() can be broken if a transform not redefining infos() is stacked on the top
+  (<https://github.com/openvinotoolkit/datumaro/pull/1101>)
 
 ## 07/07/2023 - Release 1.4.0rc1
 ### New features
@@ -39,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrate DVC v3.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1072>)
 - Stream dataset import/export
-  (<https://github.com/openvinotoolkit/datumaro/pull/1077>, <https://github.com/openvinotoolkit/datumaro/pull/1081>, <https://github.com/openvinotoolkit/datumaro/pull/1082>, <https://github.com/openvinotoolkit/datumaro/pull/1091>, <https://github.com/openvinotoolkit/datumaro/pull/1093>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1077>, <https://github.com/openvinotoolkit/datumaro/pull/1081>, <https://github.com/openvinotoolkit/datumaro/pull/1082>, <https://github.com/openvinotoolkit/datumaro/pull/1091>, <https://github.com/openvinotoolkit/datumaro/pull/1093>, <https://github.com/openvinotoolkit/datumaro/pull/1098>)
 - Support mask annotations for CVAT data format
   (<https://github.com/openvinotoolkit/datumaro/pull/1078>)
 

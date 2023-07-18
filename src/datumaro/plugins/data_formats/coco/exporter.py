@@ -893,7 +893,7 @@ class CocoExporter(Exporter):
             if CocoTask.panoptic in task_converters:
                 self._make_segmentation_dir(subset_name)
 
-            for item in pbar.iter(subset, desc=f"Exporting {subset_name}"):
+            for item in pbar.iter(subset, desc=f"Exporting '{subset_name}'"):
                 try:
                     if self._save_media:
                         if item.media:

@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
+
 import numpy as np
 
 from datumaro.components.annotation import HashKey
@@ -172,3 +174,35 @@ def calculate_hamming(B1, B2):
     :return: hamming distance [r]
     """
     return np.count_nonzero(B1 != B2, axis=1)
+
+
+def match_query_subset(query_id, dataset, subset=None):
+    if subset:
+        return dataset.get(query_id, subset)
+
+    subset_names = dataset.subsets().keys()
+    for subset_name in subset_names:
+        try:
+            query_datasetitem = dataset.get(query_id, subset_name)
+            if query_datasetitem:
+                return query_datasetitem
+        except Exception:
+            pass
+
+    return None
+
+
+def check_and_convert_to_list(paths):
+    if isinstance(paths, str):
+        paths = [paths]
+    elif not isinstance(paths, list):
+        raise ValueError("Invalid value type. Expected str or list.")
+
+    valid_paths = []
+    for path in paths:
+        if os.path.exists(path):
+            valid_paths.append(path)
+        else:
+            raise ValueError(f"Invalid path: {path}")
+
+    return valid_paths
