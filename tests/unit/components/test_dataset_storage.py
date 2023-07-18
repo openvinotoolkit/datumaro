@@ -89,20 +89,21 @@ class StreamDatasetStorageTest:
     def test_subset_transform(self, fxt_stream_extractor: MagicMock):
         storage = StreamDatasetStorage(source=fxt_stream_extractor)
 
+        # No need to iterate since the source already has subset info.
         self._test_subsets(fxt_stream_extractor, storage)
-        assert fxt_stream_extractor.__iter__.call_count == 1
+        assert fxt_stream_extractor.__iter__.call_count == 0
 
-        # Stack transform 1 level
+        # Stack transform 1 level, should run 1 iter to get the subset info after transform
         storage.transform(RandomSplit, splits=[("train", 0.5), ("val", 0.5)], seed=3003)
         self._test_subsets(fxt_stream_extractor, storage, expect={"train", "val"})
-        assert fxt_stream_extractor.__iter__.call_count == 2
+        assert fxt_stream_extractor.__iter__.call_count == 1
 
-        # Stack transform 2 level
+        # Stack transform 2 level, should run 1 iter more to get the subset info after transform
         storage.transform(
             MapSubsets, mapping={"train": DEFAULT_SUBSET_NAME, "val": DEFAULT_SUBSET_NAME}
         )
         self._test_subsets(fxt_stream_extractor, storage)
-        assert fxt_stream_extractor.__iter__.call_count == 3
+        assert fxt_stream_extractor.__iter__.call_count == 2
 
     def test_info_transform(self, fxt_stream_extractor: MagicMock, fxt_infos: DatasetInfo):
         storage = StreamDatasetStorage(source=fxt_stream_extractor)

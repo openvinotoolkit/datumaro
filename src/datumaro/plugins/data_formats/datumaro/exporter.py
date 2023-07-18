@@ -393,7 +393,8 @@ class _StreamSubsetWriter(_SubsetWriter):
         @streamable_list
         def _item_list():
             subset = self._context._extractor.get_subset(self._subset)
-            for item in subset:
+            pbar = self._context._ctx.progress_reporter
+            for item in pbar.iter(subset, desc=f"Exporting '{self._subset}'"):
                 yield self._gen_item_desc(item)
 
         @streamable_dict
