@@ -1456,23 +1456,35 @@ class CocoExtractorTests(TestCase):
                     self.assertEqual(capture.exception.__cause__.actual, str(type(value)))
 
 
-class CocoExporterTest(TestCase):
+class CocoExporterTest:
     def _test_save_and_load(
-        self, source_dataset, converter, test_dir, target_dataset=None, importer_args=None, **kwargs
+        self,
+        source_dataset,
+        converter,
+        test_dir,
+        target_dataset=None,
+        importer_args=None,
+        stream: bool = False,
+        **kwargs,
     ):
         return check_save_and_load(
-            self,
+            TestCase(),
             source_dataset,
             converter,
             test_dir,
             importer="coco",
             target_dataset=target_dataset,
             importer_args=importer_args,
+            stream=stream,
             **kwargs,
         )
 
+    @pytest.fixture(params=[True, False])
+    def stream(self, request: pytest.FixtureRequest) -> bool:
+        return request.param
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_captions(self):
+    def test_can_save_and_load_captions(self, stream: bool, test_dir: str):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -1503,11 +1515,15 @@ class CocoExporterTest(TestCase):
             ]
         )
 
-        with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset, CocoCaptionsExporter.convert, test_dir)
+        self._test_save_and_load(
+            expected_dataset,
+            CocoCaptionsExporter.convert,
+            test_dir,
+            stream=stream,
+        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_instances(self):
+    def test_can_save_and_load_instances(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -1663,10 +1679,11 @@ class CocoExporterTest(TestCase):
                 CocoInstancesExporter.convert,
                 test_dir,
                 target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_panoptic(self):
+    def test_can_save_and_load_panoptic(self, stream: bool):
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -1734,10 +1751,11 @@ class CocoExporterTest(TestCase):
                 partial(CocoPanopticExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_stuff(self):
+    def test_can_save_and_load_stuff(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -1842,11 +1860,15 @@ class CocoExporterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                source_dataset, CocoStuffExporter.convert, test_dir, target_dataset=target_dataset
+                source_dataset,
+                CocoStuffExporter.convert,
+                test_dir,
+                target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_merge_polygons_on_loading(self):
+    def test_can_merge_polygons_on_loading(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -1910,10 +1932,11 @@ class CocoExporterTest(TestCase):
                 test_dir,
                 importer_args={"merge_instance_polygons": True},
                 target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_crop_covered_segments(self):
+    def test_can_crop_covered_segments(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2004,10 +2027,11 @@ class CocoExporterTest(TestCase):
                 partial(CocoInstancesExporter.convert, crop_covered=True),
                 test_dir,
                 target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_convert_polygons_to_mask(self):
+    def test_can_convert_polygons_to_mask(self, stream: bool):
         """
         <b>Description:</b>
         Ensure that the dataset polygon annotation can be properly converted into dataset segmentation mask.
@@ -2089,10 +2113,11 @@ class CocoExporterTest(TestCase):
                 partial(CocoInstancesExporter.convert, segmentation_mode="mask"),
                 test_dir,
                 target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_convert_masks_to_polygons(self):
+    def test_can_convert_masks_to_polygons(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2163,10 +2188,11 @@ class CocoExporterTest(TestCase):
                 partial(CocoInstancesExporter.convert, segmentation_mode="polygons"),
                 test_dir,
                 target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_images(self):
+    def test_can_save_and_load_images(self, stream: bool):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(id=1, subset="train", attributes={"id": 1}),
@@ -2179,10 +2205,15 @@ class CocoExporterTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset, CocoImageInfoExporter.convert, test_dir)
+            self._test_save_and_load(
+                expected_dataset,
+                CocoImageInfoExporter.convert,
+                test_dir,
+                stream=stream,
+            )
 
     @mark_requirement(Requirements.DATUM_231)
-    def test_can_save_dataset_with_cjk_categories(self):
+    def test_can_save_dataset_with_cjk_categories(self, stream: bool):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2217,10 +2248,12 @@ class CocoExporterTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset, CocoInstancesExporter.convert, test_dir)
+            self._test_save_and_load(
+                expected_dataset, CocoInstancesExporter.convert, test_dir, stream=stream
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self, stream: bool):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(id="кириллица с пробелом", subset="train", attributes={"id": 1}),
@@ -2228,10 +2261,15 @@ class CocoExporterTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset, CocoImageInfoExporter.convert, test_dir)
+            self._test_save_and_load(
+                expected_dataset,
+                CocoImageInfoExporter.convert,
+                test_dir,
+                stream=stream,
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_labels(self):
+    def test_can_save_and_load_labels(self, stream: bool):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2248,10 +2286,15 @@ class CocoExporterTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset, CocoLabelsExporter.convert, test_dir)
+            self._test_save_and_load(
+                expected_dataset,
+                CocoLabelsExporter.convert,
+                test_dir,
+                stream=stream,
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_keypoints(self):
+    def test_can_save_and_load_keypoints(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2351,10 +2394,11 @@ class CocoExporterTest(TestCase):
                 CocoPersonKeypointsExporter.convert,
                 test_dir,
                 target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_dataset_with_no_subsets(self):
+    def test_can_save_dataset_with_no_subsets(self, stream: bool):
         test_dataset = Dataset.from_iterable(
             [
                 DatasetItem(id=1, attributes={"id": 1}),
@@ -2363,10 +2407,15 @@ class CocoExporterTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(test_dataset, CocoExporter.convert, test_dir)
+            self._test_save_and_load(
+                test_dataset,
+                CocoExporter.convert,
+                test_dir,
+                stream=stream,
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_dataset_with_image_info(self):
+    def test_can_save_dataset_with_image_info(self, stream: bool):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2376,10 +2425,12 @@ class CocoExporterTest(TestCase):
         )
 
         with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset, CocoImageInfoExporter.convert, test_dir)
+            self._test_save_and_load(
+                expected_dataset, CocoImageInfoExporter.convert, test_dir, stream=stream
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_relative_paths(self):
+    def test_relative_paths(self, stream: bool):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2404,10 +2455,11 @@ class CocoExporterTest(TestCase):
                 partial(CocoImageInfoExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_image_with_arbitrary_extension(self):
+    def test_can_save_and_load_image_with_arbitrary_extension(self, stream: bool):
         expected = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2429,10 +2481,11 @@ class CocoExporterTest(TestCase):
                 partial(CocoImageInfoExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_preserve_coco_ids(self):
+    def test_preserve_coco_ids(self, stream: bool):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2449,10 +2502,11 @@ class CocoExporterTest(TestCase):
                 partial(CocoImageInfoExporter.convert, save_media=True),
                 test_dir,
                 require_media=True,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_annotation_attributes(self):
+    def test_annotation_attributes(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2506,11 +2560,15 @@ class CocoExporterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                source_dataset, CocoExporter.convert, test_dir, target_dataset=target_dataset
+                source_dataset,
+                CocoExporter.convert,
+                test_dir,
+                target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_auto_annotation_ids(self):
+    def test_auto_annotation_ids(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2557,11 +2615,15 @@ class CocoExporterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                source_dataset, CocoExporter.convert, test_dir, target_dataset=target_dataset
+                source_dataset,
+                CocoExporter.convert,
+                test_dir,
+                target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_subset_can_contain_underscore(self):
+    def test_subset_can_contain_underscore(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2617,11 +2679,15 @@ class CocoExporterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(
-                source_dataset, CocoExporter.convert, test_dir, target_dataset=target_dataset
+                source_dataset,
+                CocoExporter.convert,
+                test_dir,
+                target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_reindex(self):
+    def test_reindex(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2673,10 +2739,11 @@ class CocoExporterTest(TestCase):
                 partial(CocoExporter.convert, reindex=True),
                 test_dir,
                 target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_media_in_single_dir(self):
+    def test_can_save_media_in_single_dir(self, stream: bool):
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2694,11 +2761,12 @@ class CocoExporterTest(TestCase):
                 partial(CocoImageInfoExporter.convert, save_media=True, merge_images=True),
                 test_dir,
                 require_media=True,
+                stream=stream,
             )
-            self.assertTrue(osp.isfile(osp.join(test_dir, "images", "1.jpg")))
+            assert osp.isfile(osp.join(test_dir, "images", "1.jpg"))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_media_in_separate_dirs(self):
+    def test_can_save_media_in_separate_dirs(self, stream: bool):
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2716,11 +2784,12 @@ class CocoExporterTest(TestCase):
                 partial(CocoImageInfoExporter.convert, save_media=True, merge_images=False),
                 test_dir,
                 require_media=True,
+                stream=stream,
             )
-            self.assertTrue(osp.isfile(osp.join(test_dir, "images", "train", "1.jpg")))
+            assert osp.isfile(osp.join(test_dir, "images", "train", "1.jpg"))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_inplace_save_writes_only_updated_data(self):
+    def test_inplace_save_writes_only_updated_data(self, stream: bool):
         expected = Dataset.from_iterable(
             [
                 DatasetItem(1, subset="a"),
@@ -2741,16 +2810,15 @@ class CocoExporterTest(TestCase):
 
             dataset.put(DatasetItem(2, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))))
             dataset.remove(3, "c")
-            dataset.save(save_media=True)
+            dataset.save(save_media=True, stream=stream)
 
-            self.assertEqual(
-                {"image_info_a.json", "image_info_b.json"},
-                set(os.listdir(osp.join(path, "annotations"))),
+            assert {"image_info_a.json", "image_info_b.json"} == set(
+                os.listdir(osp.join(path, "annotations"))
             )
-            self.assertTrue(osp.isfile(osp.join(path, "images", "a", "2.jpg")))
-            self.assertFalse(osp.isfile(osp.join(path, "images", "c", "3.jpg")))
+            assert osp.isfile(osp.join(path, "images", "a", "2.jpg"))
+            assert osp.isfile(osp.join(path, "images", "c", "3.jpg")) == False
             compare_datasets(
-                self,
+                TestCase(),
                 expected,
                 Dataset.import_from(path, "coco"),
                 require_media=True,
@@ -2758,7 +2826,7 @@ class CocoExporterTest(TestCase):
             )
 
     @mark_requirement(Requirements.DATUM_BUG_425)
-    def test_can_save_and_load_grouped_masks_and_polygons(self):
+    def test_can_save_and_load_grouped_masks_and_polygons(self, stream: bool):
         source_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2832,10 +2900,11 @@ class CocoExporterTest(TestCase):
                 partial(CocoInstancesExporter.convert),
                 test_dir,
                 target_dataset=target_dataset,
+                stream=stream,
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_panoptic_with_meta_file(self):
+    def test_can_save_and_load_panoptic_with_meta_file(self, stream: bool):
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2888,11 +2957,12 @@ class CocoExporterTest(TestCase):
                 partial(CocoPanopticExporter.convert, save_media=True, save_dataset_meta=True),
                 test_dir,
                 require_media=True,
+                stream=stream,
             )
-            self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
+            assert osp.isfile(osp.join(test_dir, "dataset_meta.json"))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_stuff_with_meta_file(self):
+    def test_can_save_and_load_stuff_with_meta_file(self, stream: bool):
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -2939,11 +3009,12 @@ class CocoExporterTest(TestCase):
                 partial(CocoPanopticExporter.convert, save_media=True, save_dataset_meta=True),
                 test_dir,
                 require_media=True,
+                stream=stream,
             )
-            self.assertTrue(osp.isfile(osp.join(test_dir, "dataset_meta.json")))
+            assert osp.isfile(osp.join(test_dir, "dataset_meta.json"))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_export_and_import_ellipse(self):
+    def test_can_export_and_import_ellipse(self, stream: bool):
         ellipses = [
             Ellipse(0, 0, 5, 5, id=1, label=1, group=1),
             Ellipse(5, 5, 10, 10, id=2, label=2, group=2),
@@ -2997,4 +3068,5 @@ class CocoExporterTest(TestCase):
                 test_dir,
                 target_dataset=target_dataset,
                 ignored_attrs={"is_crowd"},
+                stream=stream,
             )
