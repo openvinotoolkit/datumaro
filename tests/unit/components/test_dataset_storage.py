@@ -48,9 +48,8 @@ class StreamDatasetStorageTest:
         n_calls = 3
         self._test_loop(fxt_stream_extractor, storage, n_calls)
 
-        # Iterator should be called more than 3 times (n_calls = 3),
-        # since it should run the iterator additionally to obtain the subsets dict from the stream.
-        assert fxt_stream_extractor.__iter__.call_count > n_calls
+        # Iterator should be called 3 times (n_calls = 3)
+        assert fxt_stream_extractor.__iter__.call_count == n_calls
 
     def _test_subsets(
         self, fxt_stream_extractor, storage, expect: Set[str] = {DEFAULT_SUBSET_NAME}

@@ -633,7 +633,8 @@ class Dataset(IDataset):
             raise e.__cause__
 
         self.bind(save_dir, format, options=copy(kwargs))
-        self.flush_changes()
+        if not self._stream:
+            self.flush_changes()
 
     def save(self, save_dir: Optional[str] = None, **kwargs) -> None:
         options = dict(self._options)
