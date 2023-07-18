@@ -151,11 +151,11 @@ class StreamDatasetStorageTest:
         # Check extractor categories
         assert storage.categories() == fxt_categories
 
-        # Check extractor infos
         mapping = {"car": "apple", "cat": "banana", "dog": "cinnamon"}
         storage.transform(RemapLabels, mapping=mapping)
         assert fxt_stream_extractor.__iter__.call_count == 0
 
+        # Stack Rename (ItemTransform) on the top
         storage.transform(Rename, regex="|item_|rename_|")
         assert fxt_stream_extractor.__iter__.call_count == 0
 
