@@ -361,3 +361,9 @@ class HashKeyMatcher(AnnotationMatcher):
 class FeatureVectorMatcher(AnnotationMatcher):
     def match_annotations(self, sources):
         raise NotImplementedError()
+
+
+@attrs
+class TabularMatcher(AnnotationMatcher):
+    def match_annotations(self, sources):
+        raise NotImplementedError()

@@ -203,6 +203,7 @@ class TestOperations(TestCase):
                 "ellipse": {"count": 1},
                 "hash_key": {"count": 0},
                 "feature_vector": {"count": 0},
+                "tabular": {"count": 0},
                 "unknown": {"count": 0},
             },
             "annotations": {
@@ -306,6 +307,7 @@ class TestOperations(TestCase):
                 "ellipse": {"count": 0},
                 "hash_key": {"count": 0},
                 "feature_vector": {"count": 0},
+                "tabular": {"count": 0},
                 "unknown": {"count": 0},
             },
             "annotations": {
@@ -333,7 +335,6 @@ class TestOperations(TestCase):
         }
 
         actual = compute_ann_statistics(dataset)
-
         self.assertEqual(expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

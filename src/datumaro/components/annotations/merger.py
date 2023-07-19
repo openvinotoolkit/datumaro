@@ -22,6 +22,7 @@ from .matcher import (
     PointsMatcher,
     PolygonMatcher,
     ShapeMatcher,
+    TabularMatcher,
 )
 
 __all__ = [
@@ -196,4 +197,9 @@ class HashKeyMerger(AnnotationMerger, HashKeyMatcher):
 
 @attrs
 class FeatureVectorMerger(AnnotationMerger, FeatureVectorMatcher):
+    pass
+
+
+@attrs
+class TabularMerger(AnnotationMerger, TabularMatcher):
     pass
