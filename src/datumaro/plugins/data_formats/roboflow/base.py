@@ -8,7 +8,8 @@ import os
 import os.path as osp
 import re
 from typing import Dict, List, Optional, Union
-from xml.etree import ElementTree
+
+from defusedxml import ElementTree
 
 from datumaro.components.annotation import (
     Annotation,
