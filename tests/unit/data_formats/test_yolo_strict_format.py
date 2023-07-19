@@ -71,7 +71,7 @@ class YoloExportertTest:
             categories=["label_" + str(i) for i in range(10)],
         )
 
-        YoloExporter.convert(source_dataset, test_dir, save_media=True)
+        YoloExporter.convert(source_dataset, test_dir, save_media=True, stream=is_stream)
         parsed_dataset = dataset_cls.import_from(test_dir, "yolo")
         assert parsed_dataset.is_stream == is_stream
 
@@ -95,7 +95,7 @@ class YoloExportertTest:
             categories=["label_" + str(i) for i in range(10)],
         )
 
-        YoloExporter.convert(source_dataset, test_dir)
+        YoloExporter.convert(source_dataset, test_dir, stream=is_stream)
 
         save_image(
             osp.join(test_dir, "obj_train_data", "1.jpg"), np.ones((10, 15, 3))
@@ -125,7 +125,7 @@ class YoloExportertTest:
             categories=["label_" + str(i) for i in range(10)],
         )
 
-        YoloExporter.convert(source_dataset, test_dir)
+        YoloExporter.convert(source_dataset, test_dir, stream=is_stream)
 
         parsed_dataset = dataset_cls.import_from(test_dir, "yolo", image_info={"1": (10, 15)})
         assert parsed_dataset.is_stream == is_stream
@@ -152,7 +152,7 @@ class YoloExportertTest:
             categories=["label_" + str(i) for i in range(10)],
         )
 
-        YoloExporter.convert(source_dataset, test_dir, save_media=True)
+        YoloExporter.convert(source_dataset, test_dir, save_media=True, stream=is_stream)
         parsed_dataset = dataset_cls.import_from(test_dir, "yolo")
         assert parsed_dataset.is_stream == is_stream
 
@@ -177,7 +177,7 @@ class YoloExportertTest:
             categories=[],
         )
 
-        YoloExporter.convert(source_dataset, test_dir, save_media=save_media)
+        YoloExporter.convert(source_dataset, test_dir, save_media=save_media, stream=is_stream)
         parsed_dataset = dataset_cls.import_from(test_dir, "yolo")
         assert parsed_dataset.is_stream == is_stream
 
@@ -204,7 +204,7 @@ class YoloExportertTest:
             categories=[],
         )
 
-        YoloExporter.convert(dataset, test_dir, save_media=True)
+        YoloExporter.convert(dataset, test_dir, save_media=True, stream=is_stream)
         parsed_dataset = dataset_cls.import_from(test_dir, "yolo")
         assert parsed_dataset.is_stream == is_stream
 
@@ -231,11 +231,11 @@ class YoloExportertTest:
             ],
             categories=[],
         )
-        dataset.export(test_dir, "yolo", save_media=True)
+        dataset.export(test_dir, "yolo", save_media=True, stream=is_stream)
 
         dataset.put(DatasetItem(2, subset="train", media=Image.from_numpy(data=np.ones((3, 2, 3)))))
         dataset.remove(3, "valid")
-        dataset.save(save_media=True)
+        dataset.save(save_media=True, stream=is_stream)
 
         assert {"1.txt", "2.txt", "1.jpg", "2.jpg"} == set(
             os.listdir(osp.join(test_dir, "obj_train_data"))
@@ -284,7 +284,9 @@ class YoloExportertTest:
             categories=["label_" + str(i) for i in range(10)],
         )
 
-        YoloExporter.convert(source_dataset, test_dir, save_media=True, save_dataset_meta=True)
+        YoloExporter.convert(
+            source_dataset, test_dir, save_media=True, save_dataset_meta=True, stream=is_stream
+        )
         parsed_dataset = dataset_cls.import_from(test_dir, "yolo")
         assert parsed_dataset.is_stream == is_stream
 
@@ -311,7 +313,7 @@ class YoloExportertTest:
             categories=["label_" + str(i) for i in range(10)],
         )
 
-        YoloExporter.convert(source_dataset, test_dir, save_media=True)
+        YoloExporter.convert(source_dataset, test_dir, save_media=True, stream=is_stream)
         parsed_dataset = dataset_cls.import_from(test_dir, "yolo")
         assert parsed_dataset.is_stream == is_stream
 
@@ -354,7 +356,9 @@ class YoloExportertTest:
             categories=["a", "b"],
         )
 
-        YoloExporter.convert(source_dataset, test_dir, save_media=True, add_path_prefix=False)
+        YoloExporter.convert(
+            source_dataset, test_dir, save_media=True, add_path_prefix=False, stream=is_stream
+        )
         parsed_dataset = dataset_cls.import_from(test_dir, "yolo")
         assert parsed_dataset.is_stream == is_stream
 

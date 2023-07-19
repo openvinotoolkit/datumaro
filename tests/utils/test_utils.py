@@ -311,7 +311,7 @@ def check_save_and_load(
                 item.media._extra_images = new_images
 
     with TemporaryDirectory(prefix=test_dir) as tmp_dir:
-        converter(source_dataset, test_dir)
+        converter(source_dataset, test_dir, stream=stream)
         if move_save_dir:
             save_dir = tmp_dir
             for file in os.listdir(test_dir):

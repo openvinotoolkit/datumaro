@@ -132,7 +132,7 @@ class DatumaroFormatTest:
         self._test_save_and_load(
             helper_tc,
             fxt_dataset,
-            partial(self.exporter.convert, save_media=True, **fxt_export_kwargs),
+            partial(self.exporter.convert, save_media=True, stream=stream, **fxt_export_kwargs),
             test_dir,
             compare=compare,
             require_media=require_media,
