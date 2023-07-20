@@ -4,6 +4,48 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.4.0 (2023.07)
+----------------
+
+New features
+^^^^^^^^^^^^
+- Add documentation and notebook example for Prune API
+- Changed supported Python version range (>=3.8, <=3.11)
+- Migrate OpenVINO v2023.0.0
+- Add Roboflow data format support (COCO JSON, Pascal VOC XML, YOLOv5-PyTorch, YOLOv7-PyTorch, YOLOv8, YOLOv5 Oriented Bounding Boxes, Multiclass CSV, TFRecord, CreateML JSON)
+- Add MissingAnnotationDetection transform
+- Add OVMSLauncher
+- Add Prune API
+- Add TritonLauncher
+- Migrate DVC v3.0.0
+- Stream dataset import/export
+- Support mask annotations for CVAT data format
+
+Enhancements
+^^^^^^^^^^^^
+- Support list query for explorer
+- update contributing.md
+- Update 3rd-party.txt for release 1.4.0
+- Give notice that the deprecation works will be done in datumaro==1.5.0
+- Unify COCO, Datumaro, VOC, YOLO importer/exporter progress reporter descriptions
+- Enhance import performance for built-in plugins
+- Change default dtype of load_image() to np.uint8
+- Add OTX ATSS detector model interpreter & refactor interfaces
+- Refactor Launcher and ModelInterpreter
+- Add CVAT data format document
+- Reduce peak memory usage when importing COCO and Datumaro formats
+- Enhance the error message for datum stats to be more user friendly
+- Refactor dataset.py to seperate DatasetStorage
+
+Bug fixes
+^^^^^^^^^
+- Create cache dir under only writable filesystem
+- Fix: Dataset infos() can be broken if a transform not redefining infos() is stacked on the top
+- Fix warnings in test_visualizer.py
+- Fix LabelMe data format
+- Prevent installing protobuf>=4
+- Fix UnionMerge
+
 v1.3.2 (2023.06)
 ----------------
 

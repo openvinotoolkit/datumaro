@@ -49,7 +49,7 @@ jobs:
           python -m pip install tox
       - name: Unit testing
         run: |
-          tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/unit --cov
+          tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} --develop -- tests/unit --cov --cov-report=xml
       - name: Integration testing
         run: |
           tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/integration
