@@ -73,6 +73,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1054>)
 - Fix UnionMerge
   (<https://github.com/openvinotoolkit/datumaro/pull/1086>)
+- Report errors for COCO (stream) and Datumaro importers
+  (<https://github.com/openvinotoolkit/datumaro/pull/1110>)
 
 ## 26/05/2023 - Release 1.3.2
 ### Enhancements

@@ -283,10 +283,15 @@ class _CocoBase(SubsetBase):
         self._length = length
 
     def _parse_anns(self, img_info, ann_info, item):
-        if self._task is not CocoTask.panoptic:
-            self._load_annotations(ann_info, img_info, parsed_annotations=item.annotations)
-        else:
-            self._load_panoptic_ann(ann_info, parsed_annotations=item.annotations)
+        try:
+            if self._task is not CocoTask.panoptic:
+                self._load_annotations(ann_info, img_info, parsed_annotations=item.annotations)
+            else:
+                self._load_panoptic_ann(ann_info, parsed_annotations=item.annotations)
+        except Exception as e:
+            self._ctx.error_policy.report_annotation_error(
+                e, item_id=(ann_info.get("id", None), self._subset)
+            )
 
     def _load_items(self, json_data):
         pbar = self._ctx.progress_reporter
