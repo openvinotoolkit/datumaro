@@ -123,57 +123,65 @@ class JsonReader:
             _gen(), desc=f"Importing '{self._subset}'", total=len(item_descs)
         ):
             item = self._parse_item(item_desc)
-            items.append(item)
+            if item is not None:
+                items.append(item)
 
         return items
 
-    def _parse_item(self, item_desc):
-        item_id = item_desc["id"]
+    def _parse_item(self, item_desc: Dict) -> Optional[DatasetItem]:
+        try:
+            item_id = item_desc["id"]
 
-        media = None
-        image_info = item_desc.get("image")
-        if image_info:
-            image_filename = image_info.get("path") or item_id + DatumaroPath.IMAGE_EXT
-            image_path = osp.join(self._images_dir, self._subset, image_filename)
-            if not osp.isfile(image_path):
-                # backward compatibility
-                old_image_path = osp.join(self._images_dir, image_filename)
-                if osp.isfile(old_image_path):
-                    image_path = old_image_path
+            media = None
+            image_info = item_desc.get("image")
+            if image_info:
+                image_filename = image_info.get("path") or item_id + DatumaroPath.IMAGE_EXT
+                image_path = osp.join(self._images_dir, self._subset, image_filename)
+                if not osp.isfile(image_path):
+                    # backward compatibility
+                    old_image_path = osp.join(self._images_dir, image_filename)
+                    if osp.isfile(old_image_path):
+                        image_path = old_image_path
 
-            media = Image.from_file(path=image_path, size=image_info.get("size"))
-            if self.media_type == MediaElement:
-                self.media_type = Image
+                media = Image.from_file(path=image_path, size=image_info.get("size"))
+                if self.media_type == MediaElement:
+                    self.media_type = Image
 
-        pcd_info = item_desc.get("point_cloud")
-        if media and pcd_info:
-            raise MediaTypeError("Dataset cannot contain multiple media types")
-        if pcd_info:
-            pcd_path = pcd_info.get("path")
-            point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
+            pcd_info = item_desc.get("point_cloud")
+            if media and pcd_info:
+                raise MediaTypeError("Dataset cannot contain multiple media types")
+            if pcd_info:
+                pcd_path = pcd_info.get("path")
+                point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
 
-            related_images = None
-            ri_info = item_desc.get("related_images")
-            if ri_info:
-                related_images = [
-                    Image.from_file(
-                        size=ri.get("size"),
-                        path=osp.join(self._images_dir, self._subset, ri.get("path")),
-                    )
-                    for ri in ri_info
-                ]
+                related_images = None
+                ri_info = item_desc.get("related_images")
+                if ri_info:
+                    related_images = [
+                        Image.from_file(
+                            size=ri.get("size"),
+                            path=osp.join(self._images_dir, self._subset, ri.get("path")),
+                        )
+                        for ri in ri_info
+                    ]
 
-            media = PointCloud.from_file(path=point_cloud, extra_images=related_images)
-            if self.media_type == MediaElement:
-                self.media_type = PointCloud
+                media = PointCloud.from_file(path=point_cloud, extra_images=related_images)
+                if self.media_type == MediaElement:
+                    self.media_type = PointCloud
 
-        media_desc = item_desc.get("media")
-        if not media and media_desc and media_desc.get("path"):
-            media = MediaElement(path=media_desc.get("path"))
+            media_desc = item_desc.get("media")
+            if not media and media_desc and media_desc.get("path"):
+                media = MediaElement(path=media_desc.get("path"))
+
+        except Exception as e:
+            self._ctx.error_policy.report_item_error(
+                e, item_id=(item_desc.get("id", None), self._subset)
+            )
+            return None
 
         annotations = self._load_annotations(item_desc)
 
-        item = DatasetItem(
+        return DatasetItem(
             id=item_id,
             subset=self._subset,
             annotations=annotations,
@@ -181,125 +189,128 @@ class JsonReader:
             attributes=item_desc.get("attr"),
         )
 
-        return item
-
-    @staticmethod
-    def _load_annotations(item):
-        parsed = item["annotations"]
+    def _load_annotations(self, item: Dict):
         loaded = []
 
-        for ann in parsed:
-            ann_id = ann.get("id")
-            ann_type = AnnotationType[ann["type"]]
-            attributes = ann.get("attributes")
-            group = ann.get("group")
+        for ann in item.get("annotations", []):
+            try:
+                ann_id = ann.get("id")
+                ann_type = AnnotationType[ann["type"]]
+                attributes = ann.get("attributes")
+                group = ann.get("group")
 
-            label_id = ann.get("label_id")
-            z_order = ann.get("z_order")
-            points = ann.get("points")
+                label_id = ann.get("label_id")
+                z_order = ann.get("z_order")
+                points = ann.get("points")
 
-            if ann_type == AnnotationType.label:
-                loaded.append(Label(label=label_id, id=ann_id, attributes=attributes, group=group))
-
-            elif ann_type == AnnotationType.mask:
-                rle = ann["rle"]
-                rle["counts"] = rle["counts"].encode("ascii")
-                loaded.append(
-                    RleMask(
-                        rle=rle,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                if ann_type == AnnotationType.label:
+                    loaded.append(
+                        Label(label=label_id, id=ann_id, attributes=attributes, group=group)
                     )
-                )
 
-            elif ann_type == AnnotationType.polyline:
-                loaded.append(
-                    PolyLine(
-                        points,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                elif ann_type == AnnotationType.mask:
+                    rle = ann["rle"]
+                    rle["counts"] = rle["counts"].encode("ascii")
+                    loaded.append(
+                        RleMask(
+                            rle=rle,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.polygon:
-                loaded.append(
-                    Polygon(
-                        points,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                elif ann_type == AnnotationType.polyline:
+                    loaded.append(
+                        PolyLine(
+                            points,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.bbox:
-                x, y, w, h = ann["bbox"]
-                loaded.append(
-                    Bbox(
-                        x,
-                        y,
-                        w,
-                        h,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                elif ann_type == AnnotationType.polygon:
+                    loaded.append(
+                        Polygon(
+                            points,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.points:
-                loaded.append(
-                    Points(
-                        points,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                elif ann_type == AnnotationType.bbox:
+                    x, y, w, h = ann["bbox"]
+                    loaded.append(
+                        Bbox(
+                            x,
+                            y,
+                            w,
+                            h,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.caption:
-                caption = ann.get("caption")
-                loaded.append(Caption(caption, id=ann_id, attributes=attributes, group=group))
-
-            elif ann_type == AnnotationType.cuboid_3d:
-                loaded.append(
-                    Cuboid3d(
-                        ann.get("position"),
-                        ann.get("rotation"),
-                        ann.get("scale"),
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
+                elif ann_type == AnnotationType.points:
+                    loaded.append(
+                        Points(
+                            points,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.ellipse:
-                loaded.append(
-                    Ellipse(
-                        *points,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                elif ann_type == AnnotationType.caption:
+                    caption = ann.get("caption")
+                    loaded.append(Caption(caption, id=ann_id, attributes=attributes, group=group))
+
+                elif ann_type == AnnotationType.cuboid_3d:
+                    loaded.append(
+                        Cuboid3d(
+                            ann.get("position"),
+                            ann.get("rotation"),
+                            ann.get("scale"),
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.hash_key:
-                continue
-            else:
-                raise NotImplementedError()
+                elif ann_type == AnnotationType.ellipse:
+                    loaded.append(
+                        Ellipse(
+                            *points,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
+                    )
+
+                elif ann_type == AnnotationType.hash_key:
+                    continue
+                else:
+                    raise NotImplementedError()
+            except Exception as e:
+                self._ctx.error_policy.report_annotation_error(
+                    e, item_id=(ann.get("id", None), self._subset)
+                )
 
         return loaded
 
